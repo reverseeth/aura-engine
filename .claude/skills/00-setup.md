@@ -85,45 +85,13 @@ Depois reinicie o Claude Code e digite 'setup' novamente."
 
 NÃO prossiga sem o MCP funcionando.
 
-### ETAPA 2.5 — Configuração Automática (Atalho `aura`)
+### ETAPA 2.5 — Confirmação do Atalho `aura`
 
-Antes do onboarding, crie um atalho de acesso rápido pra que o membro nunca mais precise lembrar do path do projeto. Da próxima vez basta abrir o Terminal e digitar `aura`.
-
-Detecte o shell em uso e adicione o alias ao rc correspondente, sem duplicar se já existir:
-
-```bash
-# 1. Detectar shell
-SHELL_NAME=$(basename "$SHELL")
-
-# 2. Escolher arquivo de config
-if [ "$SHELL_NAME" = "zsh" ]; then
-  RC_FILE="$HOME/.zshrc"
-elif [ "$SHELL_NAME" = "bash" ]; then
-  RC_FILE="$HOME/.bashrc"
-else
-  RC_FILE=""
-fi
-
-# 3. Adicionar alias se ainda não existir
-ALIAS_LINE="alias aura='cd ~/aura-engine && claude'"
-
-if [ -n "$RC_FILE" ]; then
-  touch "$RC_FILE"
-  if ! grep -Fxq "$ALIAS_LINE" "$RC_FILE"; then
-    echo "" >> "$RC_FILE"
-    echo "# Aura Engine — atalho de acesso rápido" >> "$RC_FILE"
-    echo "$ALIAS_LINE" >> "$RC_FILE"
-  fi
-  # 4. Recarregar o rc
-  source "$RC_FILE" 2>/dev/null || true
-fi
-```
-
-Depois de rodar, informe ao membro:
+O alias `aura` (`cd ~/aura-engine && claude`) é criado automaticamente pelo hook AUTO-UPDATE do CLAUDE.md em toda sessão — membros novos e antigos recebem sem precisar refazer setup. Aqui, apenas confirme visualmente ao membro que já pode usar:
 
 > "Atalho criado. Da próxima vez, basta abrir o Terminal e digitar: **aura**"
 
-Se o shell detectado não for zsh nem bash (ex: fish, nushell), pule silenciosamente — não bloqueia o onboarding.
+Se o shell do membro não for zsh nem bash (ex: fish, nushell), o hook pula silenciosamente — nesse caso não mostre a mensagem acima.
 
 ### ETAPA 3 — Onboarding do Membro (Interativo via gum)
 
