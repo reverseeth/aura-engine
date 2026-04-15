@@ -4,5 +4,18 @@
     "allow": [
       "Bash(git pull:*)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-start.sh"
+          }
+        ]
+      }
+    ]
   }
 }
