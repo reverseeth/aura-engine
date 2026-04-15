@@ -21,7 +21,7 @@ Consulte a base Aura extensivamente sobre fundamentos operacionais, o estado atu
 
 ### ETAPA 1 — Verificação de Dependências
 
-Antes de qualquer pergunta, verifique se o ambiente técnico está OK. Dependências obrigatórias: **Node.js v20+** e **gum** (charmbracelet/gum — usado pra tornar o onboarding interativo com setas, checkboxes e inputs visuais).
+Antes de qualquer pergunta, verifique se o ambiente técnico está OK. Dependência obrigatória: **Node.js v20+**.
 
 **Node.js** — detecte de forma inteligente:
 
@@ -41,21 +41,7 @@ Se não encontrar:
 - Mac via nvm: `nvm install 20 && nvm use 20`
 - Mac via brew: `brew install node`
 
-**gum** — verifique e instale silenciosamente se não existir:
-
-```bash
-# Verificação
-if ! command -v gum >/dev/null 2>&1; then
-  # Instalação silenciosa por OS
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    brew install gum >/dev/null 2>&1
-  else
-    sudo apt install -y gum >/dev/null 2>&1 || go install github.com/charmbracelet/gum@latest >/dev/null 2>&1
-  fi
-fi
-```
-
-Para cada dependência obrigatória:
+Para a dependência obrigatória:
 - ✅ se instalada, com versão
 - ❌ se não, com instrução exata
 
@@ -63,7 +49,7 @@ Também detecte ferramentas opcionais pra uso futuro, mostrando como "disponíve
 - FFmpeg: `ffmpeg -version 2>/dev/null | head -1` — paths comuns: `/opt/homebrew/bin/ffmpeg`, `/usr/local/bin/ffmpeg`, `/usr/bin/ffmpeg`. Install: `brew install ffmpeg` (Mac) ou `apt install ffmpeg` (Linux).
 - Whisper.cpp: verificar `~/whisper.cpp/main`, `/usr/local/bin/whisper-cli`, `/opt/homebrew/bin/whisper-cli`. Install: `brew install whisper-cpp` (Mac) ou `git clone https://github.com/ggerganov/whisper.cpp.git ~/whisper.cpp && cd ~/whisper.cpp && make`.
 
-NÃO prossiga enquanto Node e gum não estiverem OK. As ferramentas opcionais podem ficar como aviso.
+NÃO prossiga enquanto o Node não estiver OK. As ferramentas opcionais podem ficar como aviso.
 
 ### ETAPA 2 — Verificação do MCP Aura
 
@@ -93,75 +79,41 @@ O alias `aura` (`cd ~/aura-engine && claude`) é criado automaticamente pelo hoo
 
 Se o shell do membro não for zsh nem bash (ex: fish, nushell), o hook pula silenciosamente — nesse caso não mostre a mensagem acima.
 
-### ETAPA 3 — Onboarding do Membro (Interativo via gum)
+### ETAPA 3 — Onboarding do Membro (Perguntas por Texto)
 
-O onboarding é 100% visual. O membro só digita quando é input de texto livre (budget, link). Pra situação e ferramentas, ele navega com setas e marca com espaço. Execute cada comando `gum` via Bash, UM DE CADA VEZ, e capture o stdout pra salvar depois no profile.
+O onboarding é feito por perguntas de texto simples. Apresente as 4 perguntas numa única mensagem bem formatada e peça pro membro responder numa mensagem só, no formato que preferir. Isso reduz fricção e funciona em qualquer ambiente (inclusive dentro do Claude Code, que não tem TTY interativo).
 
-**Pergunta 1 — Situação atual (seta + enter, escolha única):**
+Formato da mensagem a enviar:
 
-```bash
-SITUACAO=$(gum choose \
-  --header "Qual sua situação agora?" \
-  --cursor.foreground="#FF6B35" \
-  "A) Não tenho produto — quero encontrar um" \
-  "B) Tenho produto mas ainda não lancei" \
-  "C) Já estou vendendo mas não escalo" \
-  "D) Já escalo e quero otimizar")
-```
+> Preciso de 4 respostas rápidas pra salvar seu profile:
+>
+> **1. Situação atual:**
+> - A) Não tenho produto — quero encontrar um
+> - B) Tenho produto mas ainda não lancei
+> - C) Já estou vendendo mas não escalo
+> - D) Já escalo e quero otimizar
+>
+> **2. Budget diário pra ads** (em dólares — ex: `100`)
+>
+> **3. Ferramentas que você tem acesso** (marca as que se aplicam): SpyBox · Shopify · ElevenLabs · Meta Ads Manager
+>
+> **4. Link da sua loja e do produto principal** (se A, pula)
+>  → Se tem Shopify, link da loja Shopify também.
 
-**Pergunta 2 — Budget (input de texto):**
+Depois que o membro responder, parseie a resposta e extraia:
+- `SITUACAO` → A, B, C ou D
+- `BUDGET` → número em dólares
+- `TOOLS` → lista das ferramentas mencionadas (SpyBox, Shopify, ElevenLabs, Meta Ads Manager)
+- `LINK` → URL do produto principal (se SITUACAO ≠ A)
+- `SHOPIFY_LINK` → URL da loja Shopify (se TOOLS contém Shopify)
 
-```bash
-BUDGET=$(gum input \
-  --header "Qual seu budget diário disponível pra ads? (em dólares)" \
-  --placeholder "50" \
-  --prompt "> $")
-```
+Se o membro esquecer alguma resposta essencial, pergunte APENAS o que faltou — não re-apresente tudo.
 
-Classifique internamente pra uso futuro (não mostre ao membro):
+Classifique o budget internamente pra uso futuro (não mostre ao membro):
 - < $50/dia → starter
 - $50-200/dia → standard
 - $200-1000/dia → escala-inicial
 - $1000+/dia → escala-avançada
-
-**Pergunta 3 — Ferramentas (checkbox múltiplo, espaço pra marcar, enter pra confirmar):**
-
-```bash
-TOOLS=$(gum choose --no-limit \
-  --header "Quais ferramentas você tem acesso? (espaço pra marcar, enter pra confirmar)" \
-  --cursor.foreground="#FF6B35" \
-  --selected.foreground="#22C55E" \
-  "SpyBox" \
-  "Shopify" \
-  "ElevenLabs" \
-  "Meta Ads Manager")
-```
-
-**Pergunta 4 — Link do produto (condicional):**
-
-SE a variável `SITUACAO` NÃO começa com "A)", pergunte:
-
-```bash
-if [[ "$SITUACAO" != *"A)"* ]]; then
-  LINK=$(gum input \
-    --header "Me manda o link da sua loja e do produto principal" \
-    --placeholder "https://sualoja.com" \
-    --prompt "> ")
-fi
-```
-
-**Pergunta 5 — Link da Shopify (condicional):**
-
-SE "Shopify" aparece no output de TOOLS, pergunte:
-
-```bash
-if echo "$TOOLS" | grep -q "Shopify"; then
-  SHOPIFY_LINK=$(gum input \
-    --header "Qual o link da sua loja Shopify?" \
-    --placeholder "https://sualoja.com" \
-    --prompt "> ")
-fi
-```
 
 Capture TODAS as respostas (`SITUACAO`, `BUDGET`, `TOOLS`, `LINK`, `SHOPIFY_LINK`) pra usar na Etapa 4 (auto-extração) e Etapa 5 (salvar profile).
 
@@ -219,17 +171,9 @@ Link do produto principal: [url ou "N/A"]
 - Link de checkout: [url]
 ```
 
-### ETAPA 6 — Confirmação Visual + Roteamento Inteligente
+### ETAPA 6 — Confirmação + Roteamento Inteligente
 
-Antes da mensagem de roteamento, mostre uma confirmação visual destacada usando gum:
-
-```bash
-gum style \
-  --border normal \
-  --padding "1 2" \
-  --border-foreground "#22C55E" \
-  "✓ Setup completo!"
-```
+Comece com uma confirmação clara: `✓ Setup completo!`
 
 Depois apresente a mensagem de próximo passo baseada na situação do membro (A/B/C/D). Essa lógica vem do princípio operacional: cada fase alimenta a próxima, mas o ponto de entrada depende do que já existe.
 
