@@ -85,6 +85,46 @@ Depois reinicie o Claude Code e digite 'setup' novamente."
 
 NÃO prossiga sem o MCP funcionando.
 
+### ETAPA 2.5 — Configuração Automática (Atalho `aura`)
+
+Antes do onboarding, crie um atalho de acesso rápido pra que o membro nunca mais precise lembrar do path do projeto. Da próxima vez basta abrir o Terminal e digitar `aura`.
+
+Detecte o shell em uso e adicione o alias ao rc correspondente, sem duplicar se já existir:
+
+```bash
+# 1. Detectar shell
+SHELL_NAME=$(basename "$SHELL")
+
+# 2. Escolher arquivo de config
+if [ "$SHELL_NAME" = "zsh" ]; then
+  RC_FILE="$HOME/.zshrc"
+elif [ "$SHELL_NAME" = "bash" ]; then
+  RC_FILE="$HOME/.bashrc"
+else
+  RC_FILE=""
+fi
+
+# 3. Adicionar alias se ainda não existir
+ALIAS_LINE="alias aura='cd ~/aura-engine && claude'"
+
+if [ -n "$RC_FILE" ]; then
+  touch "$RC_FILE"
+  if ! grep -Fxq "$ALIAS_LINE" "$RC_FILE"; then
+    echo "" >> "$RC_FILE"
+    echo "# Aura Engine — atalho de acesso rápido" >> "$RC_FILE"
+    echo "$ALIAS_LINE" >> "$RC_FILE"
+  fi
+  # 4. Recarregar o rc
+  source "$RC_FILE" 2>/dev/null || true
+fi
+```
+
+Depois de rodar, informe ao membro:
+
+> "Atalho criado. Da próxima vez, basta abrir o Terminal e digitar: **aura**"
+
+Se o shell detectado não for zsh nem bash (ex: fish, nushell), pule silenciosamente — não bloqueia o onboarding.
+
 ### ETAPA 3 — Onboarding do Membro (Interativo via gum)
 
 O onboarding é 100% visual. O membro só digita quando é input de texto livre (budget, link). Pra situação e ferramentas, ele navega com setas e marca com espaço. Execute cada comando `gum` via Bash, UM DE CADA VEZ, e capture o stdout pra salvar depois no profile.
