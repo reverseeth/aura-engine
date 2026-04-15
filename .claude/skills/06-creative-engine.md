@@ -1,53 +1,27 @@
 ---
 name: creative-engine
-description: Engine de criação de briefings de criativos para Meta Ads. Use quando o membro disser "creatives", "criativos", "briefings", "ads", "criar anúncios", ou quando a copy estiver pronta e o membro precisar dos briefings de criativos.
+description: Engine de criação de briefings de criativos para Meta Ads (3-2-2 format). Gera conceitos baseados nas 3 verticais de pesquisa (competitiva, consumidor, interna), produz briefings completos com scripts de vídeo segundo-a-segundo, hooks exatos, image ad specs, primary texts meaningfully different, headlines, LP congruency recommendations, e hooks bank pra iterações futuras. Use quando o membro disser "creatives", "criativos", "briefings", "ads", "criar anúncios", ou quando a copy estiver pronta. A mensagem final orienta edição em ferramentas externas (CapCut, Submagic, Captions) + voiceover no ElevenLabs.
 ---
 
 # Creative Engine
 
 ## Quando Usar
-Quando o membro tem copy pronta e precisa dos briefings de criativos pra rodar no Meta.
+Quando o membro tem copy pronta (Skill 05) e precisa dos briefings de criativos pra rodar no Meta. Cada briefing é completo: tudo que precisa pra filmar ou gerar (UGC humano, UGC com AI, stock, ou imagem), editar, e subir no Ads Manager.
 
 ## Antes de Começar
-1. Leia /workspace/profile.md (especialmente orçamento diário)
-2. Leia /workspace/[produto]/02-market-research.md (Voice of Customer, awareness level)
-3. Leia /workspace/[produto]/03-competitor-analysis.md (o que concorrentes fazem e NÃO fazem)
-4. Leia /workspace/[produto]/04-offer.md (mecanismo único, oferta)
-5. Leia /workspace/[produto]/05-copy.md (headlines, copy aprovada)
-6. Consulte a base Aura com as seguintes buscas (deep=true):
-   - "ad definitions concept angle variation 3-2-2 format"
-   - "ad angles how to create selling strategy"
-   - "ad formats roadmap creative video image carousel"
-   - "3-2-2 flexible ads format rules testing"
-   - "funnel creative playbook olympic rings model"
-   - "video ads examples hooks content editing"
-   - "image ads creation breakdowns"
-   - "building creative with AI complete process"
-   - "write your video ads script"
-   - "hooks video ads first 3 seconds"
-   - "new information ads market sophistication"
-   - "processo 9 etapas ads 7-8 digitos"
-   - "winning ad rate hit rate volume"
-   - "hero offer best customer second scale"
-   - "partnership ads creator content 3 rules"
-7. Internalize TUDO antes de começar
 
-## Conceitos Fundamentais (da base Aura)
-
-Antes de gerar qualquer briefing, o Claude Code deve entender:
-
-- **Conceito/Batch**: a estratégia do teste — o que estamos testando nesse batch
-- **Ângulo**: a razão de compra que estamos comunicando (o "por quê comprar")
-- **Variação**: execuções diferentes do mesmo ângulo
-- **Formato**: como entregamos o ad (UGC, demonstração, imagem, carrossel, etc)
-- **3-2-2**: 3 criativos + 2 primary texts + 2 headlines = 12 combinações = 1 ad object no Meta
-- **Hit rate > Volume**: menos criativos com mais intenção escala mais que volume sem pesquisa
+1. Leia `/workspace/profile.md` (budget → informa quantos conceitos testar; ferramentas → informa tipo de material viável)
+2. Leia `/workspace/[produto]/02-market-research.md` (VOC literal, trigger events, objeções, dores/desejos hierarquizados, root cause — TUDO vai pra script)
+3. Leia `/workspace/[produto]/03-competitor-analysis.md` (top criativos transcritos dos concorrentes, gaps de formato/ângulo, swipe file, claims saturados)
+4. Leia `/workspace/[produto]/04-offer.md` (mecanismo único com 3 versões, stack, garantia)
+5. Leia `/workspace/[produto]/05-copy.md` (big idea, headlines top 5, CTAs, linguagem usada na LP)
+6. Consulte a base Aura extensivamente sobre: ad definitions (conceito, ângulo, variação, formato), 3-2-2 flexible ads format, ad angles (como criar, 3 verticais de pesquisa), funnel creative playbook (Olympic Rings model, TOF/MOF/BOF), hero offer e best customer, video ads (hook/bridge/hold/CTA structure, Big 4 emotions, slippery slope em vídeo), image ads (criação, breakdowns, ugly ads que convertem), building creative with AI (briefs, prompts, production), hooks (categorias, fórmulas, processo de geração), winning ad rate, creator briefs (Zakaria UGC), UGC pipeline, natural speech converter (humanizar copy AI), ad formats e roadmap criativo, processo de 9 etapas pra ads de 7-8 dígitos, partnership ads, e methodology científica de teste. Aprofunde em cada sub-conceito — criativo é onde a guerra de conversão é ganha.
 
 ## Fluxo da Skill
 
-### ETAPA 1 — Material Disponível
+### ETAPA 1 — Material Disponível (Pergunta 1)
 
-Pergunte ao membro:
+Pergunte:
 
 "Que tipo de material você tem pra montar os ads?
 - Clips do TikTok/Reels de outros criadores
@@ -56,158 +30,264 @@ Pergunte ao membro:
 - Fotos de produto
 - Mix de tudo acima"
 
-Use a resposta pra influenciar o FORMATO dos conceitos recomendados (ex: se só tem fotos de produto, prioriza imagem estática e carrossel; se tem clips do TikTok, prioriza UGC-style; se tem AI UGC, prioriza avatar-driven).
+Use a resposta pra influenciar o FORMATO dos conceitos recomendados:
+- Só fotos de produto → prioriza imagem estática + carrossel educativo + motion graphics simples
+- Só clips do TikTok → prioriza UGC-style, cortes rápidos, stolen-footage-style hooks
+- AI UGC (Higgsfield/Arcads) → prioriza avatar-driven com natural speech converter
+- Vídeos fornecedor → prioriza demonstração + before-after + ingredient spotlight
+- Mix → distribui conceitos em formatos variados (diversidade é escala — princípio da vault)
 
-### ETAPA 2 — Definir Quantidade de Conceitos
+### ETAPA 2 — Calcular Quantidade de Conceitos
 
-Consulte a base Aura: "how many ads test budget concepts per week 3-2-2"
+**Fórmula da vault:** `Budget diário / Target CPA = máximo de ad sets ativos`
 
-Calcule baseado no orçamento do membro (do profile.md):
+Exemplos:
+- Budget $50/dia com CPA target $25 → máximo 2 ad sets ativos → **2 conceitos**
+- Budget $100/dia com CPA target $20 → máximo 5 ad sets → **5 conceitos**
+- Budget $300/dia com CPA target $30 → máximo 10 ad sets → mas o prático é **6-8 conceitos** (rest goes to champions + page tests)
+- Budget $1000+/dia → **8-12 conceitos novos por batch** (com champions rodando em paralelo)
 
-**Fórmula: Budget diário / Target CPA = máximo de ad sets ativos**
+Ajuste pra estágio do membro:
+- **Fase de teste (sem champions)**: todos os slots pra conceitos novos
+- **Tem champions**: 1-2 ad sets de champions + resto em conceitos novos
 
-Exemplo: $100/dia com CPA target de $20 = máximo 5 ad sets (incluindo champions).
-Se está começando (sem champions): pode ter até 5 ad sets de teste = 5 conceitos.
-Se já tem champions: 1 champions + até 4 conceitos novos.
+Mostre ao membro (sem pedir confirmação):
 
-Mostre ao membro: "Com seu budget de $X/dia, vou gerar [N] conceitos. Cada conceito = 1 ad set com um 3-2-2 (3 criativos + 2 texts + 2 headlines)."
+"Com seu budget de $[X]/dia e target CPA ~$[Y] (da oferta), vou gerar **[N] conceitos novos** pra testar. Cada conceito = 1 ad set com 3-2-2 (3 criativos + 2 primary texts + 2 headlines)."
 
-Não peça confirmação do número — segue com [N].
+### ETAPA 3 — Gerar Ângulos (3 Verticais da Vault)
 
-### ETAPA 3 — Definir Ângulos
+Consulte a base Aura sobre "3 research verticals competitive consumer internal" (ad angles da vault).
 
-Consulte a base Aura: "ad angles how to create" e "3 research verticals competitive consumer internal"
+Gere ângulos em 3 verticais:
 
-Gere ângulos baseados nas 3 verticais de pesquisa (decisão automática, sem consulta ao membro):
+**Vertical 1 — Competitiva:**
+O que os concorrentes NÃO estão dizendo que você pode dizer (gaps do competitor analysis).
+- "Ninguém está endereçando a dor [X] — nosso ad atacará direto"
+- "Todo mundo usa angle de resultado — nós vamos de angle de causa raiz"
+- "Concorrentes fazem autoridade de doctor — nós vamos peer-to-peer UGC"
 
-1. **Vertical Competitiva** (do competitor analysis): gaps que os concorrentes NÃO exploram.
-2. **Vertical do Consumidor** (do market research): dores, desejos, linguagem real.
-3. **Vertical Interna** (da oferta/mecanismo): o mecanismo, ingrediente ou processo único.
+Gere 3-5 ângulos desta vertical.
 
-Selecione os [N] ângulos mais fortes e apresente pro membro em formato de resumo:
+**Vertical 2 — Consumidor:**
+Dos dados do market research (VOC, trigger events, objeções):
+- "Hook baseado na frase exata [VOC phrase X] que aparece 8x no review mining"
+- "Trigger event [Y] (ex: antes de casamento) como cenário do ad"
+- "Ângulo de objeção quebrada [Z] (ex: 'já tentei X, mas aqui está por que este é diferente')"
+
+Gere 3-5 ângulos.
+
+**Vertical 3 — Interna (Oferta/Mecanismo):**
+O que é único do seu produto/oferta:
+- "Mecanismo único [nome] — apresentado como revelação/descoberta"
+- "Garantia agressiva como angle ('90-day guarantee — you pay nothing if it doesn't work')"
+- "Stack de valor como angle ('Tudo isso por $X')"
+- "Combinação rara de ingredientes como ângulo técnico"
+
+Gere 3-5 ângulos.
+
+### ETAPA 4 — Selecionar os Top N + Apresentar Pro Membro (Pergunta 2)
+
+Das 9-15 opções de ângulo, selecione os **N conceitos mais fortes** (N vem da Etapa 2). Critérios de seleção:
+- Cobrir posições diferentes do funil (TOF + MOF + BOF — não todos no mesmo awareness)
+- Cobrir ângulos das 3 verticais (não concentrar em uma só)
+- Priorizar ângulos DE GAPS (ninguém faz) sobre ângulos de posição já ocupada
+
+Apresente ao membro em formato compacto:
 
 "Esses são os [N] conceitos que recomendo testar:
-1. [Conceito + ângulo em 1 frase]
+
+1. [Conceito] — [ângulo em 1 frase] (vertical: [competitiva/consumidor/interna], posição: [TOF/MOF/BOF])
 2. ...
 
 Quer ajustar algum antes de eu gerar os briefings completos?"
 
-Se o membro disser "tá bom" / "segue" → vai pra etapa 4.
-Se o membro pedir ajuste → aplique e confirme.
+- Se o membro disser "tá bom" / "segue" / "manda" → vai pra Etapa 5
+- Se pedir ajuste → aplique e confirme antes de gerar briefings
 
-### ETAPA 3 — Gerar Briefings por Conceito
+### ETAPA 5 — Gerar Briefings Completos (Um Por Conceito)
 
-Para cada conceito aprovado, gere o briefing completo:
+Para CADA conceito aprovado, gere o briefing completo aplicando os frameworks da vault.
 
-**BRIEFING DE CONCEITO #[N]**
+**Formato do briefing:**
 
-**Conceito:** [o que estamos testando]
-**Ângulo:** [a razão de compra]
-**Awareness Level:** [de quem estamos falando]
-**Formato:** [UGC / demonstração / antes-depois / imagem / carrossel / etc]
+---
 
-**3 Criativos (variações do mesmo conceito):**
+# BRIEFING DE CONCEITO #[N]
 
-Para CADA criativo:
+**Conceito:** [nome/descrição curta do conceito]
+**Ângulo:** [razão de compra que estamos comunicando]
+**Vertical:** [competitiva / consumidor / interna]
+**Awareness Level:** [Unaware / Problem Aware / Solution Aware / Product Aware / Most Aware]
+**Posição no Funil:** [TOF / MOF / BOF]
+**Formato Principal:** [UGC vídeo / demo vídeo / static / carrossel / motion graphics]
+**Big Idea:** [a ideia unificadora em 1 frase]
 
-**Criativo [N].1:**
-- Tipo: [vídeo UGC / vídeo demonstração / imagem estática / carrossel]
-- Se VÍDEO:
-  - Hook (primeiros 3 segundos — texto/fala EXATA): "[texto]"
-  - Descrição visual do hook: [o que aparece na tela]
-  - Corpo do script (fala completa ou text overlays por momento):
-    - [00:00-00:03] Hook: "[texto]" — [descrição visual]
-    - [00:03-00:08] Problema: "[texto]" — [descrição visual]
-    - [00:08-00:15] Solução/Mecanismo: "[texto]" — [descrição visual]
-    - [00:15-00:22] Resultado/Prova: "[texto]" — [descrição visual]
-    - [00:22-00:25] CTA: "[texto]" — [descrição visual]
-  - Duração alvo: [15-30 segundos]
-  - Música: [tipo de música ou "sem música"]
-  - Precisa de voiceover ElevenLabs? [sim/não]
-  - Se sim: script de voiceover separado: "[texto completo da locução]"
-- Se IMAGEM:
-  - Descrição visual: [o que aparece]
-  - Texto overlay principal: "[texto]"
-  - Textos secundários: "[textos]"
-  - CTA visual: "[texto do botão/badge]"
+---
 
-**2 Primary Texts (body copy do ad):**
+## 3 CRIATIVOS (Variações do Mesmo Conceito)
 
-Primary Text 1: [copy completa — ângulo direto]
-Primary Text 2: [copy completa — ângulo diferente, não reescrita cosmética]
+### Criativo #1
 
-As duas devem ser meaningfully different: ângulos diferentes, hooks diferentes, estruturas diferentes. NÃO são variações de palavras.
+**Tipo:** [vídeo UGC / vídeo demonstração / imagem estática / carrossel / motion graphics]
 
-**2 Headlines:**
+**SE VÍDEO (script segundo-a-segundo):**
 
-Headline 1: [frame de valor #1]
-Headline 2: [frame de valor #2]
+Duração alvo: [15s / 22s / 30s — baseada em posição de funil; TOF mais curto, BOF pode ser mais longo]
 
-Novamente: dois frames reais de valor, não variações cosméticas.
+Estrutura: Hook → Bridge → Hold → CTA (framework da vault)
 
-**URL de destino:** [PDP / landing page / advertorial — qual e por quê]
+- **[00:00-00:03] HOOK** (aplica Big 4 Emotions da vault: curiosity, urgency, fear, delight — escolher 1 dominante)
+  - **Texto/fala EXATA**: "[texto literal — 1-2 frases]"
+  - **Visual**: [descrição do que aparece na tela]
+  - **Text overlay** (se houver): "[texto]"
+  - **Tipo de hook**: [problem / result / curiosity / controversy / social proof / authority]
+  - **Thumbstop score esperado**: (estimativa 1-10 baseada em força do hook)
 
-**Racional estratégico:**
-- Por que esse conceito? [justificativa baseada na pesquisa]
-- O que esperamos aprender? [a pergunta que esse teste responde]
-- Como saberemos se ganhou? [a campanha inteira melhorou, não só métricas isoladas do ad]
+- **[00:03-00:08] BRIDGE** (transição do hook pro corpo)
+  - **Texto/fala**: "[texto]"
+  - **Visual**: [descrição]
+  - **Função**: [estabelecer credibilidade / apresentar problema / mostrar o pattern interrupt]
 
-### ETAPA 4 — Page Testing (LP Congruency)
+- **[00:08-00:18] HOLD** (desenvolvimento — mecanismo, proof, benefit)
+  - **Texto/fala**: "[texto]"
+  - **Visual**: [descrição]
+  - **Aplicação do slippery slide**: cada frase deve compelir a próxima (Sugarman)
+  - **Proof element presente**: [testimonial / número específico / demo / authority]
 
-Consulte a base Aura: "landing page congruency customer journey ad to page"
+- **[00:18-00:22] CTA**
+  - **Texto/fala**: "[texto — call to value, não call to action: 'Get my [outcome]' > 'Shop now']"
+  - **Visual**: [CTA text overlay + produto em tela + badge de garantia]
 
-Para cada conceito, recomende a landing page mais congruente:
-- Se o ângulo é educacional → advertorial ou listicle
-- Se o ângulo é direto → PDP
-- Se o ângulo é oferta → landing page de oferta
+**Música/SFX:** [tipo de música ou "sem música" — background que não distrai]
+**Precisa de voiceover ElevenLabs?** [sim/não — UGC é geralmente não; demo/motion graphics é sim]
+**Se sim, script de voiceover separado:**
+```
+[script completo e humanizado da locução — pode usar o Natural Speech Converter framework da vault: contrações, pausas naturais, frases curtas]
+```
 
-Se possível, sugira duplicar os 3 criativos com URL diferente pra testar a LP (o "page testing ad set" da vault). Isso permite testar 2 jornadas com os mesmos criativos.
+**SE IMAGEM:**
 
-### ETAPA 5 — Hooks Bank
+- **Descrição visual principal**: [o que aparece — produto + contexto + modelo se houver]
+- **Texto overlay principal** (hook): "[texto grande]"
+- **Textos secundários**: "[subheadline ou benefits]"
+- **CTA visual**: "[texto do botão/badge visual]"
+- **Estilo**: [clean product shot / lifestyle / ugly ad / meme-style — "ugly ads convert" principle da vault]
+- **Elementos de proof**: [rating stars / review count / featured-in badges / guarantee shield]
 
-Consulte a base Aura: "hooks video ads first 3 seconds categories"
+### Criativo #2 — [Variação: formato diferente]
 
-Para os conceitos de vídeo, gere ADICIONALMENTE um banco de 10 hooks alternativos:
-- 3 hooks de problema ("Your skin isn't aging — it's...")
-- 3 hooks de resultado ("How I got glass skin in...")
-- 2 hooks de curiosidade ("Dermatologists don't want you to know...")
-- 2 hooks de prova social ("50,000 women switched to this because...")
+[Mesmo formato, mas com variação meaningful — ex: se #1 é UGC, #2 é demonstração; se #1 é problem-focused, #2 é result-focused]
 
-Esses hooks são pra iterar depois. Quando o conceito ganhar e o membro quiser testar variações de hook, ele já tem material.
+### Criativo #3 — [Variação: angle ou visual diferente]
 
-### ETAPA 6 — Resumo de Produção
+[Mesmo conceito, outra execução]
 
-No final, apresente um resumo claro do que o membro precisa produzir:
+---
 
-**Resumo de Produção — Batch #1**
+## 2 PRIMARY TEXTS (Meaningfully Different)
 
-| Item | Quantidade |
-|------|-----------|
-| Conceitos | [N] |
-| Criativos (total) | [N x 3] |
-| Primary Texts (total) | [N x 2] |
-| Headlines (total) | [N x 2] |
-| Vídeos que precisam ser filmados | [N] |
-| Vídeos que precisam de voiceover ElevenLabs | [N] |
-| Imagens que precisam ser criadas | [N] |
+**IMPORTANTE**: Não são variações cosméticas. Cada primary text usa ESTRUTURA, ÂNGULO, e HOOK diferentes.
 
-**Próximos passos pra o membro:**
-1. Filme os vídeos seguindo os scripts acima
-2. Gere os voiceovers no ElevenLabs com os scripts marcados
-3. Edite os vídeos usando sua ferramenta preferida (CapCut, Submagic, Captions, ou similar) — os briefings acima têm tudo: scripts, hooks, text overlays, estrutura
-4. Quando os criativos estiverem prontos, diga 'ad strategy' pra montar a campanha
+### Primary Text 1 — [Angle A]
 
-### SALVAR
+[Copy completa — 100-300 palavras]
 
-Salve em: /workspace/[produto]/06-creatives/
-- 06-creative-strategy.md (visão geral: ângulos, conceitos, racional)
-- 06-briefing-conceito-01.md
-- 06-briefing-conceito-02.md
-- (um arquivo por conceito)
-- 06-hooks-bank.md
-- 06-production-summary.md
+Estrutura:
+- Hook (primeira linha acima do "See more")
+- Corpo (dor/solução/mecanismo/proof/oferta)
+- CTA linha final
 
-Ao final diga: "Briefings de criativos prontos. Próximos passos:
-- Filme os vídeos seguindo os scripts
-- Gere voiceovers no ElevenLabs
+### Primary Text 2 — [Angle B — diferente de A]
+
+[Copy completa — estrutura diferente]
+
+---
+
+## 2 HEADLINES (Abaixo do Vídeo/Imagem)
+
+Duas headlines que representam hipóteses diferentes. Cada uma é um frame de valor real.
+
+- **Headline 1**: "[texto — max 40 chars ideal]" — frame: [benefício / urgência / offer / pergunta]
+- **Headline 2**: "[texto]" — frame: [frame diferente]
+
+---
+
+## URL DE DESTINO
+
+**Destino**: [PDP / Landing Page / Advertorial]
+
+**Justificativa de congruência**:
+- Message match: [como o ad conecta com o headline da LP]
+- Visual match: [tom visual bate entre ad e LP?]
+- Promise match: [a promessa do ad é mantida/expandida na LP, não trocada]
+
+Se o conceito é TOF (cold traffic, awareness low), a LP precisa de mais educação → recomendar advertorial ou LP dedicada. Se é BOF/retargeting (warm), PDP direto funciona.
+
+---
+
+## RACIONAL ESTRATÉGICO
+
+- **Por que esse conceito**: [1-2 frases justificando a aposta com base em market research/competitor analysis]
+- **O que esperamos aprender**: [a pergunta que esse teste responde — ex: "o angle de causa raiz (hormônios) converte melhor que angle direto de resultado?"]
+- **Success criteria**: [ex: CPA dentro do target em 3-7 dias; thumbstop > 5; CTR > 1.5%]
+
+---
+
+### ETAPA 6 — Recomendação de LP Congruente
+
+Pra cada conceito, documente explicitamente qual LP da fase de copy ele deve direcionar:
+
+| Conceito | Awareness | LP recomendada | Por quê |
+|---|---|---|---|
+| 1 | Problem Aware | Advertorial | Hook de dor → educação do mecanismo → produto |
+| 2 | Solution Aware | Landing Page dedicada | Compara + mecanismo |
+| 3 | Product Aware | PDP | Direto pra oferta |
+
+Se o membro só tem uma LP, recomende adaptações (sessões-chave a adicionar na PDP existente pra servir TOF).
+
+### ETAPA 7 — Hooks Bank (10 Alternativas)
+
+Pra uso em iterações futuras (quando o conceito ganhar e você quer testar variações de hook sem refazer o conceito inteiro), gere **10 hooks alternativos** categorizados:
+
+- **Problema** (3 hooks): frases de abertura que lideram com a dor
+- **Resultado** (3 hooks): frases que lideram com o outcome desejado
+- **Curiosidade** (2 hooks): que despertam mistério ou pattern interrupt
+- **Prova social** (2 hooks): que lideram com testimonial ou número
+
+Cada hook = 1-2 frases, formato de vídeo hook ou image headline.
+
+Esses hooks ficam na biblioteca pra usar depois — quando um conceito escala, a gente pivota os hooks dele pra esses 10 antes de ter que criar conceito novo do zero.
+
+### ETAPA 8 — Resumo de Produção
+
+Crie um resumo operacional pro membro executar:
+
+| Item | Quantidade | Onde editar/gerar |
+|---|---|---|
+| Vídeos a filmar | [X] | [UGC com pessoa real / telefone próprio / contratar creator] |
+| Vídeos a gerar com AI | [Y] | [Higgsfield / Arcads / etc + script fornecido] |
+| Voiceovers a gerar | [Z] | ElevenLabs com scripts fornecidos (voz recomendada: [voz]) |
+| Imagens a criar | [W] | [Photoshop / Canva / AI / stock + descrição fornecida] |
+| Primary texts prontos | [N × 2] | Copy pra colar no Ads Manager |
+| Headlines prontas | [N × 2] | Copy pra colar |
+
+**Tempo estimado de produção:** [baseado em tipo de material disponível — UGC humano toma 3-5 dias; AI UGC toma 1-2 dias; stock + edição toma 1 dia]
+
+## SALVAR
+
+`/workspace/[produto]/06-creatives/`:
+- `06-creative-strategy.md` (overview: quantos conceitos, ângulos escolhidos, racional agregado)
+- `06-briefing-conceito-01.md` (um arquivo por conceito — Etapa 5 completa)
+- `06-briefing-conceito-02.md`
+- ...
+- `06-hooks-bank.md` (Etapa 7)
+- `06-production-summary.md` (Etapa 8)
+
+## Mensagem Final
+
+"Briefings de criativos prontos. Próximos passos:
+
+- Filme os vídeos seguindo os scripts (ou gere com AI UGC se aplicável)
+- Gere voiceovers no ElevenLabs com os scripts marcados
 - Agora edite os vídeos usando sua ferramenta de edição preferida (CapCut, Submagic, Captions, ou similar). Os briefings acima têm tudo que você precisa: scripts, hooks, text overlays, e estrutura do ad. Quando os criativos estiverem prontos, diga 'ad strategy' pra montar a campanha no Meta."

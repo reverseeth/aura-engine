@@ -1,26 +1,18 @@
 ---
 name: market-research
-description: Engine profundo de pesquisa de mercado. Use quando o membro disser "market research", "pesquisa de mercado", "pesquisar mercado", ou quando a fase de product research estiver completa e o membro quiser aprofundar num produto específico.
+description: Engine profundo de pesquisa de mercado que produz o Unified Research Brief — o documento mais importante do sistema. Use quando o membro disser "market research", "pesquisa de mercado", "pesquisar mercado", ou quando a fase de product research estiver completa e o membro quiser aprofundar num produto específico. Este documento alimenta TODAS as fases seguintes (offer, copy, criativos, ad strategy). Se for raso, tudo depois será raso.
 ---
 
 # Market Research Engine
 
 ## Quando Usar
-Quando o membro escolheu um produto e precisa entender profundamente o mercado, o público, e a concorrência antes de criar oferta e copy.
+Quando o membro tem produto definido e precisa entender profundamente o mercado, o público, e o cenário competitivo antes de criar oferta e copy. Esta é a fundação de toda a máquina — um product research superficial ou ausente é aceitável em alguns casos, mas market research superficial **garante** que copy, criativos, e ads sejam genéricos e ineficazes.
 
 ## Antes de Começar
-1. Leia /workspace/profile.md
-2. Verifique se existe /workspace/[produto]/01-product-research.md — se existir, leia (tem dados úteis da fase anterior)
-3. Consulte a base Aura com as seguintes buscas (deep=true em TODAS):
-   - "unified research document complete process structure"
-   - "psychographic research drivers decision hopes dreams failures"
-   - "voice of customer review mining surveys interviews"
-   - "product market awareness Schwartz five levels identification"
-   - "market sophistication stages how to determine"
-   - "deep research AI Gemini GPT Claude quad prompt"
-   - "core avatars sub avatars desire chain"
-   - "jobs to be done JTBD switch interviews"
-4. Internalize todos os frameworks ANTES de começar
+
+1. Leia `/workspace/profile.md` pra contexto do membro
+2. Se existir `/workspace/[produto]/01-product-research.md`, leia — tem dados preliminares úteis (dores, linguagem, concorrentes identificados, awareness/sophistication preliminar)
+3. Consulte a base Aura extensivamente sobre unified research documents, psychographic research, voice of customer (review mining, surveys, interviews), awareness levels de Schwartz, market sophistication (5 estágios), root cause research (metodologia Zakaria), avatar building (core avatars, sub-avatars, jobs-to-be-done), e deep research com AI (Gemini/GPT/Claude quad-prompt). Siga cada framework e sub-conceito que encontrar. Não se limite a leituras superficiais — aprofunde em cada método até entender o "por quê" de cada passo. Este documento é a FUNDAÇÃO de todo o sistema — se for raso, tudo que vier depois será raso.
 
 ## Fluxo da Skill
 
@@ -37,152 +29,217 @@ Verifique `/workspace/profile.md` se já tem `Link do produto principal`.
 Depois (em qualquer um dos casos acima), pergunte:
 - "Qual o mercado geográfico principal? (US, UK, EU, global)"
 
-Salve o mercado geográfico no documento final da pesquisa — toda a análise de awareness, sofisticação, VOC, etc. deve considerar esse mercado específico.
+Salve o mercado geográfico no documento final da pesquisa — toda a análise de awareness, sofisticação, VOC, etc. deve considerar esse mercado específico. Costumes de compra, objeções culturais, e linguagem variam enormemente entre mercados. Se o membro disser "global", analise o mercado anglo-saxão (US+UK+AU+CA) como default.
 
-### ETAPA 2 — Product-Market Awareness Analysis
+### ETAPA 2 — Product-Market Awareness Analysis (5 Níveis de Schwartz)
 
-Consulte a base Aura: "product market awareness Schwartz levels identification TAM"
+Pesquise (web search) sinais de cada nível de awareness:
+- Volume de busca por termos do problema (Google Keyword Planner, trends)
+- Volume de busca por termos da categoria de produto
+- Ratio: busca por problema / busca por produto indica distribuição de awareness
+- Social chatter: Reddit, TikTok, Twitter — as pessoas falam do problema, da solução, ou da marca específica?
+- Artigos, blog posts, conteúdo de influencers no nicho
 
-Execute a análise completa de awareness do mercado:
+**Estime a distribuição do TAM por nível** (em porcentagem):
+- X% Unaware (não sabe do problema)
+- X% Problem Aware (sabe do problema, não sabe de soluções)
+- X% Solution Aware (conhece soluções genéricas)
+- X% Product Aware (conhece categoria de produto)
+- X% Most Aware (conhece sua marca especificamente)
 
-1. Pesquise (web search) sinais de cada nível de awareness:
-   - Social media chatter sobre o problema e sobre a categoria de produto
-   - Artigos, blog posts, conteúdo de influencers
-   - Search trends (volume de busca por termos do problema vs termos do produto)
-   - Dados de vendas da categoria (se disponíveis)
+Defina onde está a **maioria** (50%+) do mercado. Este nível vai ditar TODA a estratégia de copy, página, e criativos.
 
-2. Estime a distribuição do TAM por awareness level:
-   - X% Unaware
-   - X% Problem Aware
-   - X% Solution Aware
-   - X% Product Aware
-   - X% Most Aware
+**Implicações práticas a documentar:**
+- Problem Aware → advertorial ou listicle obrigatório (educação antes do pitch). PDP direta NÃO converte.
+- Solution Aware → landing page dedicada com educação sobre diferenciação + mecanismo único forte.
+- Product Aware → PDP robusta com comparação, reviews, garantia, proof stacking.
+- Most Aware → PDP enxuta com foco na oferta (preço, bundle, urgência).
 
-3. Defina: em qual nível está a MAIORIA do mercado? Esse é o nível que vai ditar toda a estratégia de copy e criativos.
+### ETAPA 3 — Market Sophistication Analysis (5 Estágios)
 
-4. Explique as implicações práticas:
-   - Se Problem Aware → vai precisar de advertorial ou listicle antes de mostrar o produto
-   - Se Solution Aware → landing page educando por que essa solução é melhor
-   - Se Product Aware → PDP robusta com comparações, reviews, garantia
-   - Se Most Aware → PDP enxuta, direto ao ponto, foco na oferta
+Analise o mercado através dos claims dos concorrentes identificados no product research:
 
-### ETAPA 3 — Market Sophistication Analysis
+- **Quantos produtos/soluções similares já existem?** (contagem de marcas ativas com ads escalados)
+- **Quais claims já foram feitos?** Liste os 10-15 principais claims do mercado
+- **Em qual estágio está?**:
 
-Consulte a base Aura: "market sophistication stages determination five stages"
+| Estágio | Características | Resposta Estratégica |
+|---|---|---|
+| **1** | Virgin market. Produto novo, crowd não conhece a categoria | Claim direto simples: "X faz Y" |
+| **2** | Claim direto com superlativo ainda funciona | "MAIS efetivo", "MAIS rápido", "MAIS barato que concorrentes" |
+| **3** | Claims diretos saturados — precisa de **mecanismo único** | Nome proprietário de ingrediente/processo/tecnologia |
+| **4** | Mecanismos saturados — precisa de **nova informação** | Descoberta recente, causa-raiz nova, expansão de mecanismo existente |
+| **5** | Tudo saturado — precisa de **identificação** | Falar com quem a pessoa quer SER, não com o problema funcional |
 
-1. Analise o mercado:
-   - Quantos produtos/soluções similares já existem?
-   - Quais claims já foram feitos? (liste os principais)
-   - Em qual estágio de sophistication está? (1 a 5)
+Liste:
+- **Claims saturados a EVITAR** (todo concorrente usa)
+- **Claims comuns** (maioria usa, usar com twist próprio)
+- **Claims raros** (poucos usam, oportunidade)
+- **Claims ausentes** (ninguém usa, oportunidade forte)
 
-2. Determine a estratégia de entrada:
-   - Estágio 1-2: claim direto funciona
-   - Estágio 3: precisa de novo mecanismo
-   - Estágio 4: precisa de nova informação ou mecanismo expandido
-   - Estágio 5: precisa de identificação (falar com quem a pessoa quer ser)
+Defina a resposta estratégica certa pro estágio identificado.
 
-3. Liste claims saturados que devem ser EVITADOS
+### ETAPA 4 — Perfil Psicográfico Profundo
 
-### ETAPA 4 — Psychographic Research Profunda
+Pesquise extensivamente (web search em Reddit, Amazon reviews, TikTok comments, fóruns de nicho, Quora, grupos do Facebook). Use as técnicas de review mining da vault.
 
-Consulte a base Aura: "psychographic research drivers decision hopes dreams victories failures prejudices"
+Construa o perfil em camadas:
 
-Pesquise (web search — Reddit, Amazon reviews, TikTok, fóruns, Quora, grupos do Facebook) e construa o perfil psicográfico completo:
+**Demographics (superficial mas necessário):**
+- Idade, gênero, renda, localização, estado civil, escolaridade, ocupação típica
 
-**Demographics:**
-- Idade, gênero, renda, localização, estado civil, escolaridade
+**Psychographics (a parte que REALMENTE importa):**
 
-**Psychographics (a parte que importa):**
-- Hopes & Dreams: o estado futuro ideal específico (não genérico como "perder peso" — específico como "sentir confiança ao se olhar no espelho sem maquiagem")
-- Victories & Failures: o que já tentaram, o que funcionou parcialmente, o que falhou completamente e por quê
-- External Forces Blamed: quem/o que eles culpam (genética, hormônios, indústria de beleza, médicos)
-- Prejudices & Biases: contra quais tipos de produto/abordagem são céticos
-- Core Beliefs: sobre saúde, beleza, envelhecimento, investimento em si mesmo
-- The Paradox: a tensão entre ceticismo e esperança (não acreditam que funciona MAS continuam procurando)
+- **Hopes & Dreams** — o estado futuro ideal ESPECÍFICO. NÃO genérico como "perder peso" — específico como "poder vestir o vestido que usei no casamento da minha prima sem medo de me olhar no espelho depois". A especificidade vem da linguagem real do consumidor.
 
-**Pain Points (com frequência de menção):**
-- Dor principal
-- Dores secundárias
-- Dores emocionais (como se sentem por causa do problema)
-- Dores sociais (como o problema afeta seus relacionamentos e auto-imagem)
+- **Victories & Failures** — o que já tentaram, o que funcionou parcialmente, o que falhou completamente e POR QUÊ. Esta seção é ouro: cada coisa que falhou é uma objeção potencial, cada coisa que funcionou parcialmente é uma ponte pra posicionar seu mecanismo único.
 
-**Desires (com intensidade):**
-- Desejo principal
-- Desejos secundários
-- O desejo por trás do desejo (o que realmente querem no nível mais profundo)
+- **External Forces Blamed** — quem/o que eles culpam. Genética, hormônios, indústria de beleza, médicos, sistema capitalista, envelhecimento, falta de tempo. Esta informação entra direto na "corruption angle" da copy (mecanismo que externaliza a culpa).
 
-**Objeções (com prioridade):**
-- Objeções de preço
-- Objeções de eficácia ("isso realmente funciona?")
-- Objeções de segurança ("vai machucar? tem efeito colateral?")
-- Objeções de esforço ("é complicado de usar?")
-- Para cada objeção, sugira como quebrar (consulte a base Aura: "objection handling persuasion techniques")
+- **Prejudices & Biases** — contra quais tipos de produto ou abordagem são céticos. "Suplementos são scam", "cremes são placebo", "dietas não funcionam". Esses vieses precisam ser ENDEREÇADOS, não ignorados.
+
+- **Core Beliefs** — sobre saúde, beleza, envelhecimento, investimento em si mesmo, relacionamentos. Moldam aceitação/rejeição de claims.
+
+- **The Paradox** — a tensão entre ceticismo e esperança. Não acreditam que nada funciona MAS continuam procurando. Essa tensão é a energia por trás da decisão de compra.
+
+**Pain Points hierarquizados:**
+- **Dor principal** (a razão #1 que a pessoa acorda pensando)
+- **Dores secundárias** (3-5 dores adjacentes)
+- **Dores emocionais** (como se sentem POR CAUSA do problema — vergonha, frustração, invisibilidade, perda de confiança)
+- **Dores sociais** (como afeta relacionamentos, vida social, auto-imagem em público)
+- Frequência de menção (alta/média/baixa) pra priorizar
+
+**Desires hierarquizados:**
+- **Desejo principal** (o resultado específico que querem)
+- **Desejos secundários**
+- **O desejo POR TRÁS do desejo** — o que realmente querem no nível mais profundo (ex: "perder 10kg" → o que querem é "sentir-se desejada de novo" → o que querem MESMO é "voltar a ser quem eram antes do parto")
+- Intensidade (alta/média/baixa)
+
+**Objeções com prioridade:**
+- **Preço** — "muito caro pra tentar sem saber se funciona"
+- **Eficácia** — "já tentei X e não funcionou"
+- **Segurança** — "vai machucar?", "efeito colateral?"
+- **Esforço** — "é complicado de usar?", "vou desistir?"
+- **Ceticismo** — "mais um scam"
+- **Identidade** — "produto não é pra alguém como eu"
+
+Pra cada objeção, sugira **como quebrar** usando os frameworks de persuasão da vault (proof, garantia, demonstração, especificidade de Hopkins, reciprocidade de Cialdini, etc).
 
 **Trigger Events:**
-- O que faz a pessoa decidir comprar AGORA? (evento, data, situação)
+O que faz a pessoa decidir comprar AGORA? Event específico, data, situação, ponto-de-dor agudo:
+- Pré-evento (casamento, viagem, encontro de ex-colegas)
+- Deadline (aniversário próximo, fim de ano)
+- Pico de dor (acordou com dor de novo, viu uma foto, foi rejeitada)
+- Social trigger (amiga comentou, viu no TikTok, recomendação médica)
 
-### ETAPA 5 — Voice of Customer (Linguagem Real)
+### ETAPA 5 — Voice of Customer (Linguagem EXATA — Mínimo 35 Frases)
 
-Consulte a base Aura: "voice of customer review mining language exact phrases"
+Das pesquisas da etapa 4, extraia e organize SEPARADAMENTE. **NUNCA PARAFRASEAR** — capture exatamente como as pessoas falam. Isso vai pra copy e criativos literalmente.
 
-Das pesquisas da etapa anterior, extraia e organize SEPARADAMENTE:
+- **Frases exatas descrevendo o PROBLEMA** — mínimo 15 frases
+- **Frases exatas descrevendo o DESEJO** — mínimo 10 frases
+- **Frases exatas descrevendo FRUSTRAÇÕES com produtos existentes** — mínimo 10 frases
+- **Palavras e expressões recorrentes** (aparecem 3+ vezes no corpus)
 
-- Frases exatas que consumidores usam pra descrever o PROBLEMA (mínimo 15 frases)
-- Frases exatas que usam pra descrever o DESEJO (mínimo 10 frases)
-- Frases exatas que usam pra descrever FRUSTRAÇÕES com produtos existentes (mínimo 10 frases)
-- Palavras e expressões recorrentes (as que aparecem 3+ vezes)
+Essas frases são ouro. Hopkins escreveu em 1923: "a boa copy fala a linguagem do consumidor". Esse é o raw material.
 
-ESSAS FRASES SÃO OURO. Vão ser usadas literalmente na copy e nos criativos. Não parafraseie — capture exatamente como as pessoas falam.
+### ETAPA 6 — Root Cause Research (Metodologia Zakaria)
 
-### ETAPA 6 — Competitive Landscape (Overview)
+Pra cada dor central identificada, faça uma pesquisa de **causa-raiz** que será a fundação do mecanismo único da oferta:
 
-Se já existe /workspace/[produto]/03-competitor-analysis.md, pule esta etapa (a análise completa vem na skill seguinte).
+- **Causa superficial** (o que a pessoa acha que é a causa) — ex: "estou comendo muito"
+- **Causa intermediária** (o que a ciência ou especialistas apontam) — ex: "resistência à insulina"
+- **Causa raiz proprietária** (um ângulo novo baseado em descoberta recente, research, ou combinação única) — ex: "desregulação do ritmo circadiano do eixo hormonal metabólico"
 
-Se não existe, faça um overview rápido:
-- Quem são os 5-10 maiores concorrentes?
-- O que prometem? (claims principais)
-- Qual a faixa de preço do mercado?
-- Qual posicionamento cada um usa?
-- Identifique gaps: o que ninguém está fazendo/prometendo/abordando
+A causa raiz deve ser:
+- Real (baseada em ciência, não inventada)
+- Nova pro mercado (o público não conhece)
+- Específica (pode ser nomeada)
+- Externaliza a culpa (não "você comeu muito" mas "seu corpo tá te sabotando POR CAUSA DE X")
 
-### ETAPA 7 — Síntese: Unified Research Brief
+Esta causa raiz alimenta o **advertorial de 7 seções** da vault (Seção 4 — Root Cause Explanation) e o **corruption angle** (quem/o que corrompeu a situação: indústria, genética, envelhecimento, hormônios). Documente 2-3 opções de causa raiz pra oferta escolher depois.
 
-Consulte a base Aura: "unified research document creating prompt structure components"
+### ETAPA 7 — Competitive Landscape (Overview Rápido)
 
-Consolide TUDO das etapas anteriores num documento unificado e estruturado:
+A análise competitiva completa vai na Skill 03. Aqui só um overview pra informar as decisões estratégicas deste documento:
 
-1. **Target Market Overview:**
-   - Demographics resumido
-   - Awareness level + distribuição
-   - Sophistication stage + claims saturados
+- Quem são os 5-10 maiores concorrentes identificados (ativos em ads, com tração)?
+- O que prometem (claim principal de cada)?
+- Qual faixa de preço do mercado (min-max-mediana)?
+- Qual posicionamento cada um usa (hero, expert, problem-solver, aspirational)?
+- **Gaps óbvios** — o que nenhum concorrente está fazendo/prometendo/abordando?
 
-2. **Psychographic Profile:**
-   - Resumo do perfil completo (hopes, dreams, failures, blamed forces, paradox)
+Esta seção é breve. Skill 03 aprofunda.
 
-3. **Pain Points & Desires:**
-   - Top 5 dores em ordem de intensidade
-   - Top 5 desejos em ordem de intensidade
-   - O desejo mais profundo (the real want behind the want)
+### ETAPA 8 — Síntese Estratégica (Unified Research Brief Final)
 
-4. **Voice of Customer:**
-   - As 10 frases mais poderosas extraídas (as que vão direto pra copy)
+Consolide tudo num documento **estruturado, navegável, acionável**:
 
-5. **Objeções & Como Quebrar:**
-   - Top 5 objeções com sugestão de como abordar
+**1. Target Market Overview**
+- Demographics resumido
+- Mercado geográfico
+- Awareness level dominante + distribuição do TAM
+- Sophistication stage + claims saturados
 
-6. **Competitive Landscape:**
-   - Overview dos concorrentes + gaps identificados
+**2. Psychographic Profile Completo**
+- Hopes, Dreams, Failures, Blamed Forces, Prejudices, Core Beliefs, The Paradox (da Etapa 4)
 
-7. **Strategic Implications:**
-   - Que tipo de página precisa (advertorial, landing page, PDP robusta, PDP enxuta)
-   - Que tipo de lead usar na copy (baseado no awareness level)
-   - Que tipo de mecanismo precisa (baseado no sophistication stage)
-   - Ângulos de diferenciação mais promissores
+**3. Pain Points & Desires Hierarquizados**
+- Top 5 dores em ordem de intensidade
+- Top 5 desejos em ordem de intensidade
+- **O desejo mais profundo** (the real want behind the want)
 
-Este Unified Research Brief é o DOCUMENTO MAIS IMPORTANTE do sistema. Ele alimenta todas as fases seguintes: oferta, copy, criativos, estratégia de ads. Se este documento for raso, tudo que vier depois será raso.
+**4. Voice of Customer — Quotes Curadas**
+- Top 10 frases mais poderosas que vão direto pra copy (problemas + desejos + frustrações misturadas)
 
-### SALVAR
+**5. Objeções & Como Quebrar**
+- Top 5 objeções priorizadas, cada uma com estratégia de quebra específica
 
-Salve em: /workspace/[produto]/02-market-research.md
+**6. Trigger Events**
+- Os 3-5 trigger events mais fortes que levam à compra imediata
 
-Ao final, diga: "Market research completo. Este documento é a fundação de tudo que vem depois. Próximo passo: diga 'competitor analysis' pra analisar os concorrentes em profundidade, ou 'offer' se já quer montar a oferta."
+**7. Root Cause Candidatas**
+- 2-3 opções de causa raiz pro mecanismo único da oferta
+
+**8. Competitive Landscape (Overview)**
+- Tabela resumo + gaps identificados
+
+**9. Strategic Implications — Recomendações Acionáveis:**
+
+- **Tipo de página recomendada** (advertorial, landing page, PDP robusta, PDP enxuta) com justificativa baseada em awareness + sophistication
+- **Tipo de lead** pra copy (Story Lead, Problem-Solution Lead, Secret Lead, Offer Lead) baseado em awareness
+- **Tipo de mecanismo necessário** (direto, ingredient-based, process-based, combinação) baseado em sophistication stage
+- **Ângulos de diferenciação mais promissores** (ranqueados) — ângulos que NENHUM concorrente está usando
+
+### Validação Final
+
+Antes de salvar, valide:
+- [ ] Voice of Customer tem mínimo 35 frases EXATAS (não parafraseadas)
+- [ ] Awareness distribution é numérica (não "a maioria é problem aware" — mas "45% problem aware, 30% solution aware")
+- [ ] Sophistication stage tem claims saturados LISTADOS
+- [ ] Cada objeção tem estratégia de quebra específica (não genérica)
+- [ ] Recomendações finais são acionáveis (não "a copy deve ser emocional" — mas "lead com Story Lead sobre trigger event X, foco em desejo Y, mecanismo Z")
+
+Se alguma validação falhar, aprofunde naquele ponto antes de salvar.
+
+## SALVAR
+
+`/workspace/[produto]/02-market-research.md`
+
+Este é o DOCUMENTO MAIS IMPORTANTE. Ele alimenta:
+- Skill 03 (competitor analysis usa gaps e claims identificados)
+- Skill 04 (offer usa pain points, desires, root cause, mechanism hints)
+- Skill 05 (copy usa VOC literal, lead type, awareness level, objeções)
+- Skill 06 (creatives usa trigger events, ângulos, VOC, visual hooks)
+- Skill 07 (ad strategy usa awareness pra targeting)
+- Skill 10 (page usa tudo)
+
+## Mensagem Final
+
+"Unified Research Brief completo. Este documento é a fundação de tudo — copy, criativos, ads, e página vão puxar direto daqui.
+
+Próximos passos:
+- Diga **'competitor analysis'** pra aprofundar no cenário competitivo (PDPs, ads, gaps)
+- OU diga **'offer'** se já quer montar a oferta com mecanismo único, stack, e unit economics
+
+Recomendação: competitor analysis primeiro. A profundidade da análise competitiva afeta diretamente a força do posicionamento."
