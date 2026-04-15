@@ -21,7 +21,9 @@ Consulte a base Aura extensivamente sobre fundamentos operacionais, o estado atu
 
 ### ETAPA 1 — Verificação de Dependências
 
-Antes de qualquer pergunta, verifique se o ambiente técnico está OK. A única dependência obrigatória é **Node.js v20+** (usado pra integrações futuras). Detecte de forma inteligente:
+Antes de qualquer pergunta, verifique se o ambiente técnico está OK. Dependências obrigatórias: **Node.js v20+** e **gum** (charmbracelet/gum — usado pra tornar o onboarding interativo com setas, checkboxes e inputs visuais).
+
+**Node.js** — detecte de forma inteligente:
 
 ```bash
 # Node via direct
@@ -35,16 +37,33 @@ node --version 2>/dev/null
 /usr/local/bin/node --version 2>/dev/null
 ```
 
-Para cada ferramenta:
+Se não encontrar:
+- Mac via nvm: `nvm install 20 && nvm use 20`
+- Mac via brew: `brew install node`
+
+**gum** — verifique e instale silenciosamente se não existir:
+
+```bash
+# Verificação
+if ! command -v gum >/dev/null 2>&1; then
+  # Instalação silenciosa por OS
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    brew install gum >/dev/null 2>&1
+  else
+    sudo apt install -y gum >/dev/null 2>&1 || go install github.com/charmbracelet/gum@latest >/dev/null 2>&1
+  fi
+fi
+```
+
+Para cada dependência obrigatória:
 - ✅ se instalada, com versão
-- ❌ se não, com instrução exata:
-  - Node: `nvm install 20 && nvm use 20` (Mac/Linux via nvm) ou `brew install node` (Mac via brew)
+- ❌ se não, com instrução exata
 
 Também detecte ferramentas opcionais pra uso futuro, mostrando como "disponível" (não bloqueador):
 - FFmpeg: `ffmpeg -version 2>/dev/null | head -1` — paths comuns: `/opt/homebrew/bin/ffmpeg`, `/usr/local/bin/ffmpeg`, `/usr/bin/ffmpeg`. Install: `brew install ffmpeg` (Mac) ou `apt install ffmpeg` (Linux).
 - Whisper.cpp: verificar `~/whisper.cpp/main`, `/usr/local/bin/whisper-cli`, `/opt/homebrew/bin/whisper-cli`. Install: `brew install whisper-cpp` (Mac) ou `git clone https://github.com/ggerganov/whisper.cpp.git ~/whisper.cpp && cd ~/whisper.cpp && make`.
 
-NÃO prossiga enquanto Node não estiver OK. As ferramentas opcionais podem ficar como aviso.
+NÃO prossiga enquanto Node e gum não estiverem OK. As ferramentas opcionais podem ficar como aviso.
 
 ### ETAPA 2 — Verificação do MCP Aura
 
@@ -66,21 +85,30 @@ Depois reinicie o Claude Code e digite 'setup' novamente."
 
 NÃO prossiga sem o MCP funcionando.
 
-### ETAPA 3 — Onboarding do Membro (4 Perguntas)
+### ETAPA 3 — Onboarding do Membro (Interativo via gum)
 
-Faça as perguntas UMA POR VEZ (espere resposta antes da próxima). As perguntas abaixo são EXATAS e não devem ser reformuladas:
+O onboarding é 100% visual. O membro só digita quando é input de texto livre (budget, link). Pra situação e ferramentas, ele navega com setas e marca com espaço. Execute cada comando `gum` via Bash, UM DE CADA VEZ, e capture o stdout pra salvar depois no profile.
 
-**Pergunta 1 — Situação atual:**
+**Pergunta 1 — Situação atual (seta + enter, escolha única):**
 
-"Qual sua situação agora?"
-- A) Não tenho produto — quero encontrar um
-- B) Tenho produto mas ainda não lancei
-- C) Já estou vendendo mas não escalo
-- D) Já escalo e quero otimizar
+```bash
+SITUACAO=$(gum choose \
+  --header "Qual sua situação agora?" \
+  --cursor.foreground="#FF6B35" \
+  "A) Não tenho produto — quero encontrar um" \
+  "B) Tenho produto mas ainda não lancei" \
+  "C) Já estou vendendo mas não escalo" \
+  "D) Já escalo e quero otimizar")
+```
 
-**Pergunta 2 — Budget:**
+**Pergunta 2 — Budget (input de texto):**
 
-"Qual seu budget diário disponível pra ads? (em dólares)"
+```bash
+BUDGET=$(gum input \
+  --header "Qual seu budget diário disponível pra ads? (em dólares)" \
+  --placeholder "50" \
+  --prompt "> $")
+```
 
 Classifique internamente pra uso futuro (não mostre ao membro):
 - < $50/dia → starter
@@ -88,18 +116,46 @@ Classifique internamente pra uso futuro (não mostre ao membro):
 - $200-1000/dia → escala-inicial
 - $1000+/dia → escala-avançada
 
-**Pergunta 3 — Ferramentas:**
+**Pergunta 3 — Ferramentas (checkbox múltiplo, espaço pra marcar, enter pra confirmar):**
 
-"Quais dessas ferramentas você tem acesso?"
-- SpyBox
-- Shopify (loja ativa? se sim, manda o link)
-- ElevenLabs
-- Meta Ads Manager (conta ativa?)
+```bash
+TOOLS=$(gum choose --no-limit \
+  --header "Quais ferramentas você tem acesso? (espaço pra marcar, enter pra confirmar)" \
+  --cursor.foreground="#FF6B35" \
+  --selected.foreground="#22C55E" \
+  "SpyBox" \
+  "Shopify" \
+  "ElevenLabs" \
+  "Meta Ads Manager")
+```
 
-**Pergunta 4 — Produto (condicional):**
+**Pergunta 4 — Link do produto (condicional):**
 
-SE respondeu B, C ou D na pergunta 1: "Me manda o link da sua loja e do produto principal."
-SE respondeu A: pule esta pergunta.
+SE a variável `SITUACAO` NÃO começa com "A)", pergunte:
+
+```bash
+if [[ "$SITUACAO" != *"A)"* ]]; then
+  LINK=$(gum input \
+    --header "Me manda o link da sua loja e do produto principal" \
+    --placeholder "https://sualoja.com" \
+    --prompt "> ")
+fi
+```
+
+**Pergunta 5 — Link da Shopify (condicional):**
+
+SE "Shopify" aparece no output de TOOLS, pergunte:
+
+```bash
+if echo "$TOOLS" | grep -q "Shopify"; then
+  SHOPIFY_LINK=$(gum input \
+    --header "Qual o link da sua loja Shopify?" \
+    --placeholder "https://sualoja.com" \
+    --prompt "> ")
+fi
+```
+
+Capture TODAS as respostas (`SITUACAO`, `BUDGET`, `TOOLS`, `LINK`, `SHOPIFY_LINK`) pra usar na Etapa 4 (auto-extração) e Etapa 5 (salvar profile).
 
 ### ETAPA 4 — Auto-Extração de Dados da Loja
 
@@ -121,7 +177,7 @@ Salve tudo no profile pra servir de referência em TODAS as skills seguintes —
 
 ### ETAPA 5 — Salvar Profile
 
-Salve em `/workspace/profile.md`:
+Use os valores capturados das variáveis `SITUACAO`, `BUDGET`, `TOOLS`, `LINK` e `SHOPIFY_LINK` da Etapa 3 mais os dados extraídos na Etapa 4. Salve em `/workspace/profile.md`:
 
 ```markdown
 # Perfil do Membro
@@ -155,9 +211,19 @@ Link do produto principal: [url ou "N/A"]
 - Link de checkout: [url]
 ```
 
-### ETAPA 6 — Roteamento Inteligente
+### ETAPA 6 — Confirmação Visual + Roteamento Inteligente
 
-Apresente a mensagem de próximo passo baseada na situação do membro (A/B/C/D). Essa lógica vem do princípio operacional: cada fase alimenta a próxima, mas o ponto de entrada depende do que já existe.
+Antes da mensagem de roteamento, mostre uma confirmação visual destacada usando gum:
+
+```bash
+gum style \
+  --border normal \
+  --padding "1 2" \
+  --border-foreground "#22C55E" \
+  "✓ Setup completo!"
+```
+
+Depois apresente a mensagem de próximo passo baseada na situação do membro (A/B/C/D). Essa lógica vem do princípio operacional: cada fase alimenta a próxima, mas o ponto de entrada depende do que já existe.
 
 **Situação A — Não tem produto:**
 
