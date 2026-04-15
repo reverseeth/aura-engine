@@ -1,0 +1,9 @@
+workspace/*
+!workspace/.gitkeep
+.env
+.env.local
+node_modules/
+*.mp4
+*.mp3
+*.wav
+.DS_Store
