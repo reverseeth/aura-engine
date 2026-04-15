@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aura Engine — Instalação</title>
+<link href="https://fonts.cdnfonts.com/css/neue-montreal" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Neue Montreal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+    background: #FAFAFA;
+    color: #1A1A1A;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 80px 24px 120px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 620px; width: 100%; }
+
+  /* Logo */
+  .logo-wrap {
+    margin-bottom: 12px;
+  }
+  .logo-wrap svg {
+    height: 40px;
+    width: auto;
+  }
+
+  .page-subtitle {
+    font-size: 15px;
+    color: #999;
+    font-weight: 400;
+    margin-bottom: 64px;
+    letter-spacing: 0.2px;
+  }
+
+  /* Section dividers */
+  .section {
+    margin-bottom: 56px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #1A1A1A;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #E8E8E8;
+  }
+
+  /* Steps */
+  .step {
+    margin-bottom: 36px;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .step-num {
+    font-size: 12px;
+    font-weight: 600;
+    color: #FFF;
+    background: #1A1A1A;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1A1A1A;
+    line-height: 24px;
+  }
+
+  .step-text {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.65;
+    margin-bottom: 12px;
+    margin-left: 34px;
+  }
+
+  .step-text a {
+    color: #1A1A1A;
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: #CCC;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.2s;
+  }
+  .step-text a:hover {
+    text-decoration-color: #1A1A1A;
+  }
+
+  /* Code blocks */
+  .code-wrap {
+    position: relative;
+    margin: 8px 0 12px 34px;
+  }
+
+  .code-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #AAA;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .code-block {
+    background: #F0F0F0;
+    border: 1px solid #E0E0E0;
+    border-radius: 10px;
+    padding: 16px 52px 16px 20px;
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 13.5px;
+    color: #1A1A1A;
+    line-height: 1.85;
+    white-space: pre;
+    overflow-x: auto;
+    transition: border-color 0.2s;
+  }
+
+  .code-block:hover {
+    border-color: #CCC;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: #FFF;
+    border: 1px solid #DDD;
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  @media (min-width: 601px) {
+    .copy-btn { opacity: 0; }
+    .code-wrap:hover .copy-btn { opacity: 1; }
+  }
+
+  .copy-btn:hover {
+    background: #F5F5F5;
+    border-color: #BBB;
+  }
+
+  .copy-btn:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .copy-btn svg {
+    width: 16px;
+    height: 16px;
+    color: #666;
+  }
+
+  .copy-btn.copied {
+    border-color: #22C55E;
+    background: #F0FFF4;
+  }
+
+  .copy-btn.copied svg {
+    color: #22C55E;
+  }
+
+  /* Has label offset */
+  .code-wrap.has-label .copy-btn {
+    top: calc(50% + 10px);
+  }
+
+  /* Divider */
+  hr {
+    border: none;
+    border-top: 1px solid #E8E8E8;
+    margin: 56px 0;
+  }
+
+  /* Note blocks */
+  .note {
+    font-size: 14px;
+    color: #888;
+    line-height: 1.6;
+    margin-left: 34px;
+    padding: 14px 16px;
+    background: #F5F5F5;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+
+  /* How to use section */
+  .example {
+    margin: 6px 0 6px 34px;
+    padding: 12px 16px;
+    background: #F7F7F7;
+    border-left: 3px solid #1A1A1A;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #444;
+    line-height: 1.7;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  /* Footer */
+  .footer {
+    font-size: 13px;
+    color: #BBB;
+    line-height: 1.6;
+    text-align: center;
+    margin-top: 64px;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    body { padding: 40px 16px 80px; }
+    .code-block { font-size: 12px; padding: 14px 44px 14px 14px; }
+    .step-text, .note { margin-left: 0; }
+    .code-wrap { margin-left: 0; }
+    .example { margin-left: 0; }
+    .copy-btn { padding: 10px 12px; }
+    .copy-btn svg { width: 18px; height: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Logo -->
+  <div class="logo-wrap">
+    <svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>.cls-1{font-family:Geist-Light,Geist;font-size:140px;font-variation-settings:'wght' 300;font-weight:300}</style>
+      </defs>
+      <path d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z" fill="#1A1A1A"/>
+      <text class="cls-1" transform="translate(1672.99 562.53)" fill="#1A1A1A"><tspan x="0" y="0">©</tspan></text>
+    </svg>
+  </div>
+  <p class="page-subtitle">Guia de instalação completo</p>
+
+
+  <!-- ==================== AURA AI (BASE DE DADOS) ==================== -->
+  <div class="section">
+    <div class="section-label">Aura AI<br><span style="font-size:10px;font-weight:400;color:#AAA;letter-spacing:1.5px;">BASE DE DADOS</span></div>
+
+    <div class="step">
+      <div class="step-header">
+        <span class="step-num">1</span>
+        <span class="step-title">Instale o Claude</span>
+      </div>
+      <p class="step-text">Assine o plano Pro ou Max em <a href="https://claude.ai" target="_blank">claude.ai</a></p>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <span class="step-num">2</span>
+        <span class="step-title">Conecte a base de conhecimento</span>
+      </div>
+
+      <p class="step-text" style="margin-bottom: 4px;"><strong>Opção A — Claude Desktop (app)</strong></p>
+      <p class="step-text">
+        1. Abra o Claude Desktop<br>
+        2. Vá em Settings (ícone de engrenagem)<br>
+        3. Clique em "Integrations"<br>
+        4. Clique em "+ Add Custom Integration"<br>
+        5. Nome: <strong>Aura</strong><br>
+        6. URL: cole o endereço abaixo<br>
+        7. Clique em "Add" — feche e reabra o Claude Desktop
+      </p>
+      <div class="code-wrap">
+        <div class="code-block">https://aura-mcp-production.up.railway.app/mcp</div>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copiar">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
+        </button>
+      </div>
+
+      <p class="step-text" style="margin-top: 28px; margin-bottom: 4px;"><strong>Opção B — Claude Code (terminal)</strong></p>
+      <p class="step-text">Abra o Terminal e cole esses 2 comandos (um de cada vez):</p>
+      <div class="code-wrap">
+        <div class="code-block">claude mcp add --transport http aura https://aura-mcp-production.up.railway.app/mcp</div>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copiar">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
+        </button>
+      </div>
+      <div class="code-wrap">
+        <div class="code-block">mkdir -p ~/.claude && echo 'Quando a mensagem começar com "aura:", use a ferramenta aura (search_knowledge) para responder com base nos resultados. Quando a mensagem NÃO começar com "aura:", responda normalmente sem usar a ferramenta aura.' > ~/.claude/CLAUDE.md</div>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copiar">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
+        </button>
+      </div>
+      <p class="step-text">Feche e abra o Claude Code. Pronto.</p>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <span class="step-num">3</span>
+        <span class="step-title">Use</span>
+      </div>
+      <p class="step-text">Comece sua mensagem com <strong>aura:</strong> e faça sua pergunta.</p>
+      <div class="example">aura: qual a melhor estrutura de campanha para Meta Ads?</div>
+      <div class="example">aura: analisa essa headline: "Perca 10kg em 30 dias"</div>
+      <div class="example">aura: como montar uma oferta irresistível para um produto de $200?</div>
+      <p class="step-text" style="margin-top: 16px;">Mensagens com <strong>aura:</strong> consultam a base de conhecimento.<br>Mensagens sem <strong>aura:</strong> funcionam como Claude normal.</p>
+    </div>
+  </div>
+
+
+  <hr>
+
+
+  <!-- ==================== AURA ENGINE ==================== -->
+  <div class="section">
+    <div class="section-label">Aura Engine<br><span style="font-size:10px;font-weight:400;color:#AAA;letter-spacing:1.5px;">SKILLS</span></div>
+
+    <div class="step">
+      <div class="step-header">
+        <span class="step-num">1</span>
+        <span class="step-title">Instale o Claude Code</span>
+      </div>
+      <p class="step-text">O Claude Code é a versão terminal do Claude. Rode no Terminal (Mac) ou PowerShell (Windows):</p>
+
+      <div class="code-wrap has-label">
+        <div class="code-label">Mac</div>
+        <div class="code-block">curl -fsSL https://claude.ai/install.sh | sh</div>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copiar">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
+        </button>
+      </div>
+
+      <div class="code-wrap has-label">
+        <div class="code-label">Windows</div>
+        <div class="code-block">irm https://claude.ai/install.ps1 | iex</div>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copiar">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <span class="step-num">2</span>
+        <span class="step-title">Baixe o Aura Engine</span>
+      </div>
+      <p class="step-text">Ainda no Terminal, rode:</p>
+      <div class="code-wrap">
+        <div class="code-block">git clone https://github.com/reverseeth/aura-engine.git
+cd aura-engine
+claude</div>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copiar">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <span class="step-num">3</span>
+        <span class="step-title">Configure</span>
+      </div>
+      <p class="step-text">Quando o Claude Code abrir, digite:</p>
+      <div class="code-wrap">
+        <div class="code-block">setup</div>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copiar">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
+        </button>
+      </div>
+      <p class="step-text">Siga as instruções na tela. O sistema configura tudo automaticamente.</p>
+      <div class="note">O Aura Engine se atualiza sozinho toda vez que você abrir.</div>
+    </div>
+  </div>
+
+
+  <hr>
+
+
+  <!-- ==================== DESINSTALAÇÃO ==================== -->
+  <div class="section">
+    <div class="section-label">Desinstalação</div>
+
+    <div class="step">
+      <div class="step-header">
+        <span class="step-num">–</span>
+        <span class="step-title">Claude Desktop</span>
+      </div>
+      <p class="step-text">Settings → Integrations → remova Aura</p>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <span class="step-num">–</span>
+        <span class="step-title">Claude Code</span>
+      </div>
+      <p class="step-text">Cole no terminal (um de cada vez):</p>
+      <div class="code-wrap">
+        <div class="code-block">claude mcp remove aura</div>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copiar">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
+        </button>
+      </div>
+      <div class="code-wrap">
+        <div class="code-block">rm ~/.claude/CLAUDE.md</div>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copiar">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <p class="footer">Aura © 2026</p>
+
+</div>
+
+<script>
+function copyCode(btn) {
+  var block = btn.parentElement.querySelector('.code-block');
+  var text = block.textContent;
+
+  function onSuccess() {
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>';
+    setTimeout(function() {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>';
+    }, 2000);
+  }
+
+  // Try modern clipboard API first
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(onSuccess).catch(function() {
+      fallbackCopy(text, onSuccess);
+    });
+  } else {
+    fallbackCopy(text, onSuccess);
+  }
+}
+
+function fallbackCopy(text, callback) {
+  // iOS-compatible fallback
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+  document.body.appendChild(ta);
+
+  // iOS requires special handling
+  var isiOS = navigator.userAgent.match(/ipad|iphone/i);
+  if (isiOS) {
+    var range = document.createRange();
+    range.selectNodeContents(ta);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    ta.setSelectionRange(0, 999999);
+  } else {
+    ta.select();
+  }
+
+  try {
+    document.execCommand('copy');
+    callback();
+  } catch (e) {
+    // Last resort: prompt user
+    window.prompt('Copie manualmente:', text);
+  }
+  document.body.removeChild(ta);
+}
+</script>
+</body>
+</html>
