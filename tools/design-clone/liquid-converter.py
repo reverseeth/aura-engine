@@ -17,7 +17,17 @@ v2 melhorias:
 - SVGs grandes substituídos por placeholder
 - Remoção de scripts, noscript, iframe, style tags externos
 
-Uso:
+Uso (Modo C — HTML fresh do frontend-design, padrão da skill 06):
+    python3 liquid-converter.py \\
+        --html /tmp/fresh-<produto>/<tipo>.html \\
+        --css /tmp/fresh-<produto>/<tipo>.css \\
+        --type hero \\
+        --output <path.liquid> \\
+        --blocks-dir <path> \\
+        --namespace page-<produto>-<tipo> \\
+        --product-slug <produto>
+
+Uso (Modo B legacy — clone direto do HTML do concorrente via sections.json):
     python3 liquid-converter.py \\
         --sections-json <path> \\
         --section-index <N> \\
@@ -81,6 +91,64 @@ INLINE_SVG_MAX_LENGTH = 500  # SVGs maiores viram placeholder
 def slugify(text, max_len=40):
     s = re.sub(r"[^a-z0-9]+", "_", (text or "").lower()).strip("_")
     return s[:max_len] or "field"
+
+
+HEX_COLOR_RE_VALIDATE = re.compile(r"^[0-9a-fA-F]{3,8}$")
+CSS_CLASS_SELECTOR_RE = re.compile(r"\.([a-zA-Z_][\w-]*)")
+CSS_ID_SELECTOR_RE = re.compile(r"#([a-zA-Z_][\w-]*)")
+
+
+def rewrite_css_for_namespace(css, namespace):
+    """Reescreve classes/IDs em selectors CSS pra casar com o namespace aplicado no HTML.
+    Só mexe em selectors (antes do {), não em valores (pra não quebrar hex colors, content: "#foo")."""
+    if not css or not namespace:
+        return css
+
+    def rewrite_selector_text(selector_text):
+        def class_sub(m):
+            return f".{namespace}__{slugify(m.group(1))}"
+
+        def id_sub(m):
+            ident = m.group(1)
+            if HEX_COLOR_RE_VALIDATE.match(ident) and len(ident) in (3, 4, 6, 8):
+                return m.group(0)
+            return f"#{namespace}-{slugify(ident)}"
+
+        result = CSS_CLASS_SELECTOR_RE.sub(class_sub, selector_text)
+        result = CSS_ID_SELECTOR_RE.sub(id_sub, result)
+        return result
+
+    out = []
+    i = 0
+    n = len(css)
+    while i < n:
+        brace = css.find("{", i)
+        if brace == -1:
+            out.append(css[i:])
+            break
+        selector_part = css[i:brace]
+        if selector_part.lstrip().startswith("@"):
+            out.append(selector_part)
+        else:
+            out.append(rewrite_selector_text(selector_part))
+        out.append("{")
+        depth = 1
+        j = brace + 1
+        while j < n and depth > 0:
+            c = css[j]
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+            j += 1
+        block_content = css[brace + 1:j - 1]
+        if selector_part.lstrip().startswith("@"):
+            out.append(rewrite_css_for_namespace(block_content, namespace))
+        else:
+            out.append(block_content)
+        out.append("}")
+        i = j
+    return "".join(out)
 
 
 def looks_like_noise(text):
@@ -426,37 +494,65 @@ class LiquidBuilder:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--sections-json", required=True, help="Path to sections.json from analyzer")
-    parser.add_argument("--section-index", type=int, required=True, help="1-based index of section to convert")
+    # Dois modos de input: sections.json (legacy, do analyzer) ou HTML/CSS fresh (Modo C)
+    parser.add_argument("--sections-json", help="(Modo B legacy) Path to sections.json from analyzer")
+    parser.add_argument("--section-index", type=int, help="(Modo B legacy) 1-based index of section to convert")
+    parser.add_argument("--html", help="(Modo C) Path to fresh HTML file from frontend-design")
+    parser.add_argument("--css", help="(Modo C) Path to fresh CSS file (injected into {% stylesheet %})")
+    parser.add_argument("--type", help="(Modo C) Semantic type of the section (hero/features/faq/etc)")
     parser.add_argument("--output", required=True, help="Path to output .liquid file")
     parser.add_argument("--blocks-dir", required=True, help="Directory where blocks/*.liquid files go")
-    parser.add_argument("--namespace", required=True, help="CSS namespace (e.g. page-undone)")
+    parser.add_argument("--namespace", required=True, help="CSS namespace (e.g. page-undone-hero)")
     parser.add_argument("--product-slug", required=True, help="Product slug (e.g. undone)")
     args = parser.parse_args()
 
-    sections_json = Path(args.sections_json).expanduser().resolve()
     output_path = Path(args.output).expanduser().resolve()
     blocks_dir = Path(args.blocks_dir).expanduser().resolve()
 
-    if not sections_json.exists():
-        print(f"ERRO: {sections_json} não encontrado", file=sys.stderr)
+    # Decide modo pelo input fornecido
+    if args.html:
+        # Modo C — HTML fresh do frontend-design
+        html_path = Path(args.html).expanduser().resolve()
+        if not html_path.exists():
+            print(f"ERRO: {html_path} não encontrado", file=sys.stderr)
+            sys.exit(1)
+        html_content = html_path.read_text(encoding="utf-8")
+        base_css = ""
+        if args.css:
+            css_path = Path(args.css).expanduser().resolve()
+            if css_path.exists():
+                base_css = rewrite_css_for_namespace(css_path.read_text(encoding="utf-8"), args.namespace)
+        section = {
+            "html": html_content,
+            "semantic_type": args.type or "section",
+            "repeating_pattern": {"detected": False, "count": 0},
+            "images": [],
+        }
+        print(f"[liquid-converter v2] Modo C — convertendo HTML fresh ({args.type or 'section'})")
+    elif args.sections_json and args.section_index:
+        # Modo B legacy — sections.json do analyzer
+        sections_json = Path(args.sections_json).expanduser().resolve()
+        if not sections_json.exists():
+            print(f"ERRO: {sections_json} não encontrado", file=sys.stderr)
+            sys.exit(1)
+        data = json.loads(sections_json.read_text(encoding="utf-8"))
+        sections = data.get("sections", [])
+        if args.section_index < 1 or args.section_index > len(sections):
+            print(f"ERRO: section-index {args.section_index} inválido (tem {len(sections)} seções)", file=sys.stderr)
+            sys.exit(1)
+        section = sections[args.section_index - 1]
+        base_css = ""
+        print(f"[liquid-converter v2] Modo B — convertendo seção {args.section_index}: {section.get('semantic_type')}")
+    else:
+        print("ERRO: forneça --html (Modo C) ou --sections-json + --section-index (Modo B legacy)", file=sys.stderr)
         sys.exit(1)
-
-    data = json.loads(sections_json.read_text(encoding="utf-8"))
-    sections = data.get("sections", [])
-    if args.section_index < 1 or args.section_index > len(sections):
-        print(f"ERRO: section-index {args.section_index} inválido (tem {len(sections)} seções)", file=sys.stderr)
-        sys.exit(1)
-    section = sections[args.section_index - 1]
-
-    print(f"[liquid-converter v2] convertendo seção {args.section_index}: {section.get('semantic_type')}")
 
     builder = LiquidBuilder(args.namespace, args.product_slug)
     converted_markup = builder.process(section)
 
     section_name = f"Page {args.product_slug} — {section.get('semantic_type', 'section')}"
     section_tag_class = f"{args.namespace} {args.namespace}--{slugify(section.get('semantic_type', 'section'))}"
-    file_content = builder.build_section_file(converted_markup, section_name, section_tag_class)
+    file_content = builder.build_section_file(converted_markup, section_name, section_tag_class, base_stylesheet=base_css)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(file_content, encoding="utf-8")

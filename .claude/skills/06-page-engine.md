@@ -1,6 +1,6 @@
 ---
 name: page-engine
-description: Engine de construção de páginas Shopify em dois modos — Modo A aplica a copy da skill 05 no tema atual gerando sections premium theme-agnostic, Modo B clona o design de um concorrente usando Playwright + BeautifulSoup e converte em Liquid sections editáveis. Use quando o membro disser "page", "página", "shopify page", "build page", "clonar design", "clone page", ou após a copy estar pronta. A skill pergunta qual modo usar e orquestra toda a execução.
+description: Engine de construção de páginas Shopify em dois modos — Modo A aplica a copy da skill 05 no tema atual gerando sections premium theme-agnostic, Modo B (híbrido) baixa um concorrente, extrai padrões estruturais + design signals (cores, fontes, layout, spacing) e gera um design NOVO inspirado no visual — sem copiar código — com sections Liquid editáveis. Use quando o membro disser "page", "página", "shopify page", "build page", "clonar design", "clone page", ou após a copy estar pronta. A skill pergunta qual modo usar e orquestra toda a execução.
 ---
 
 # Page Engine
@@ -9,10 +9,12 @@ description: Engine de construção de páginas Shopify em dois modos — Modo A
 
 Quando o membro tem copy pronta (skill 05) e precisa publicar a página na loja Shopify. A skill opera em DOIS MODOS distintos e o membro escolhe qual usar:
 
-- **Modo A — Aplicar copy no tema atual:** gera sections Liquid premium a partir da copy (fluxo clássico)
-- **Modo B — Clonar design de concorrente:** baixa o HTML/CSS renderizado de uma página que o membro gostou, identifica as seções visualmente (hero, features, testimonials, FAQ), converte em Liquid sections editáveis substituindo os textos/imagens do concorrente por variáveis, e aplica a copy da skill 05 nessas variáveis
+- **Modo A — Aplicar copy no tema atual:** gera sections Liquid premium a partir da copy (fluxo clássico, do zero baseado no estilo que o membro escolher)
+- **Modo B — Clone híbrido (estrutura + design fresh):** baixa o HTML/CSS renderizado de um concorrente que o membro gostou, extrai APENAS os padrões estruturais (tipos de section, layout, slots de conteúdo) e os sinais de design (cores dominantes, famílias tipográficas, border radius, shadows, densidade de spacing) — e então GERA UM DESIGN NOVO inspirado naquele visual. Não copia o código do concorrente. Cada section é limpa, moderna, theme-agnostic, e totalmente editável via theme editor.
 
 A página vem ANTES dos criativos no fluxo do Aura Engine — não faz sentido criar ads pra uma página que ainda não existe.
+
+**Por que Modo B é híbrido e não clone literal:** clone literal do HTML do concorrente herda todos os problemas do código deles — web components específicos do tema Dawn/Horizon que não funcionam em outros temas, fontes de CDN que quebram fora do contexto original, JS custom que depende de libraries específicas, classes que colidem com o tema do membro. O resultado é sempre algo "quebrado" visualmente. A abordagem híbrida resolve isso: extrai *o que funciona* (estrutura semântica + design system) e gera *fresh* a partir disso, preservando a vibe visual sem herdar o bloat.
 
 ## Antes de Começar
 
@@ -62,12 +64,12 @@ A skill precisa saber qual produto está sendo trabalhado. Detecte assim:
 
 Pergunte ao membro numa mensagem só:
 
-> "Quer aplicar a copy no seu tema atual (Modo A) ou clonar o design de um concorrente que você gostou (Modo B)?
-> 
-> - Modo A — eu gero sections Liquid do zero baseadas na copy e no estilo que você escolher
-> - Modo B — você me manda um ou mais links de concorrentes, eu baixo o design renderizado, identifico as seções, e converto em Liquid sections editáveis com sua copy aplicada"
+> "Quer aplicar a copy no seu tema atual (Modo A) ou usar um concorrente como inspiração visual (Modo B)?
+>
+> - **Modo A** — eu gero sections Liquid do zero, baseadas na sua copy e num estilo visual que você escolhe (minimalist, bold, clinical, wellness, ou custom)
+> - **Modo B — Clone híbrido** — você me manda um link de concorrente que gostou do visual, eu analiso a estrutura (quais sections ele usa, o layout de cada uma) e o design system (cores, fontes, spacing, radius, shadows), e gero sections novas inspiradas naquele visual, com sua copy aplicada. Não é cópia do código — é design fresh com a vibe que você curtiu."
 
-Conforme a resposta, vá para a seção apropriada abaixo. **Se for Modo B**, também pergunte logo em seguida: "Manda os links dos concorrentes que você quer clonar. Pode ser 1 ou vários."
+Conforme a resposta, vá para a seção apropriada abaixo. **Se for Modo B**, também pergunte logo em seguida: "Manda o link do concorrente. Pode ser 1 ou vários."
 
 ## Princípios Inegociáveis (aplicam a AMBOS os modos)
 
@@ -206,7 +208,9 @@ Mostre lista de arquivos criados (paths absolutos), como visualizar localmente (
 
 ---
 
-# MODO B — Clonar Design de Concorrente
+# MODO B — Clone Híbrido (estrutura + design fresh)
+
+**Fluxo resumido:** baixa o concorrente → extrai APENAS padrões estruturais + sinais de design → gera HTML fresh por section via `frontend-design` → converte pra Liquid. A copy é sempre sua (do `05-copy.md`). O design herdado é a "vibe" (cores, fontes, layout, density) — não o código.
 
 ### Etapa B1 — Coletar Links
 
@@ -222,7 +226,7 @@ python3 -c "import playwright, bs4" 2>&1
 
 Se falhar: "Faltam dependências pra clonar design. Rode no terminal:
 ```
-pip install playwright beautifulsoup4
+pip install -r tools/design-clone/requirements.txt
 playwright install chromium
 ```
 Depois rode `page` de novo."
@@ -235,110 +239,130 @@ Pra cada URL em `COMPETITOR_URLS`, chame o módulo downloader:
 python3 tools/design-clone/downloader.py "URL" "/tmp/clone-[produto]-[N]"
 ```
 
-O downloader (documentado em `tools/design-clone/downloader.py`):
-- Usa Playwright pra renderizar JS (sem isso, muitos sites ficam vazios)
-- Faz scroll automático pra trigger lazy loading (tem imagens/seções que só carregam quando entram no viewport)
+O downloader:
+- Usa Playwright pra renderizar JS (sem isso muitos sites ficam vazios)
+- Faz scroll automático pra triggerizar lazy loading
 - Aguarda network idle
-- Captura HTML final, CSS computado de cada elemento, fontes usadas, URLs de imagens
-- Salva tudo em pasta temporária:
-  - `page.html` — HTML renderizado
-  - `styles.css` — CSS consolidado
-  - `images/` — imagens baixadas
-  - `fonts.json` — fontes detectadas
-  - `viewport-screenshot.png` — screenshot pra referência visual
+- Captura HTML final, `computed-styles.json` (CSS computado de cada elemento com rect/bbox), fontes, imagens
+- Salva em pasta temporária:
+  - `page.html` · `styles.css` · `computed-styles.json` · `images/` · `fonts.json` · `viewport-screenshot.png`
 
-### Etapa B4 — Análise de Seções
+Esses artefatos ficam como **referência** e alimentam os próximos passos. Nada desse HTML/CSS vai pra o tema do membro — é só matéria-prima pra extração.
 
-Chame o analyzer:
+### Etapa B4 — Análise Semântica de Sections
 
 ```bash
 python3 tools/design-clone/analyzer.py "/tmp/clone-[produto]-[N]"
 ```
 
-O analyzer (documentado em `tools/design-clone/analyzer.py`):
-- Lê `page.html` + `styles.css`
-- Identifica seções semanticamente usando:
-  - Tags semânticas (`<section>`, `<header>`, `<footer>`)
-  - Classes comuns de ecommerce (`hero`, `features`, `benefits`, `testimonials`, `faq`, `pricing`, `footer`)
-  - Heurísticas baseadas em conteúdo (H1+imagem+CTA = hero; lista de cards iguais = features)
-  - Padrões de layout (full-bleed com background = hero; grid de 3-4 colunas = features)
-- Pra cada seção detectada, extrai:
-  - HTML da seção
-  - CSS que aplica (computed styles dos elementos dentro)
-  - Imagens referenciadas
-  - Tipo semântico (hero/features/testimonials/faq/etc)
-- Retorna `sections.json` com lista de seções identificadas + metadados
+O analyzer detecta as sections da página (hero, features, testimonials, faq, pricing, cta, footer, etc) usando tags semânticas, classes de ecommerce conhecidas, heurísticas de conteúdo (H1+imagem+CTA = hero; grid de 3-4 cards iguais = features) e padrões de layout. Output: `sections.json` com index, tipo semântico, confidence, padrão de repetição, imagens referenciadas, descrição curta.
 
-### Etapa B5 — Membro Seleciona Seções
+### Etapa B5 — Extração de Patterns + Design System
 
-Apresente ao membro:
+Aqui está o coração do Modo B híbrido. Chame o pattern-extractor:
 
-> "Identifiquei [N] seções na página do concorrente:
-> 1. [Tipo semântico] — [descrição curta: 'Hero com imagem à direita, headline grande, 2 CTAs']
+```bash
+python3 tools/design-clone/pattern-extractor.py "/tmp/clone-[produto]-[N]"
+```
+
+O pattern-extractor (`tools/design-clone/pattern-extractor.py`) lê `sections.json` + `computed-styles.json` e produz `patterns.json` com duas partes:
+
+**1. `design_system`** — signals agregados da página inteira:
+- `typography.heading_font` · `typography.body_font` (a fonte mais usada em H1-H3 e a de body)
+- `colors.background_primary` · `colors.text_primary` · `colors.accents[]` (top 3 cores vivas ponderadas por área)
+- `shape.border_radius_px` · `shape.shadow_style` (none/subtle/medium/large)
+- `spacing.density` (tight / medium / generous) · `spacing.avg_padding_px`
+
+**2. `sections[]`** — um pattern por section, com:
+- `type` (hero/features/testimonials/faq/pricing/cta)
+- `layout` (split-lr / centered-bold / grid-3col / grid-4col / carousel / accordion-stacked / tiers-3col / full-bleed-centered)
+- `slots` (o que a section espera como conteúdo: `heading`, `subhead`, `cta_label`, `image`, `features[]`, `testimonials[]`, `faq_items[]`, `pricing_tiers[]` — com `length_hint` e `count`)
+- `visual_hints` (imagens, itens repetíveis)
+- `description`
+
+**NENHUM** HTML ou CSS do concorrente é carregado adiante. `patterns.json` é theme-agnostic e totalmente abstrato — só descreve *o que tem* e *que cara tem*, não *como tá codado*.
+
+### Etapa B6 — Membro Seleciona Sections
+
+Apresente ao membro de forma compacta, usando o `patterns.json`:
+
+> "Analisei a página. Peguei a vibe visual:
+> - Fontes: **[heading_font]** (títulos) + **[body_font]** (corpo)
+> - Cores: fundo **[background_primary]** · texto **[text_primary]** · destaques **[accents]**
+> - Shape: radius **[border_radius_px]px** · shadow **[shadow_style]**
+> - Density: **[density]** (padding médio **[avg_padding_px]px**)
+> 
+> E identifiquei essas sections:
+> 1. **[type]** — layout `[layout]` — [description]
 > 2. ...
 > 
-> Quais você quer clonar? (pode dizer 'todas', 'só 1, 3 e 5', ou descrever)"
+> Quais você quer usar na sua página? Pode dizer 'todas', '1, 3 e 5', ou descrever."
 
-Salve a seleção em `SELECTED_SECTIONS`.
+Salve em `SELECTED_SECTIONS`.
 
-### Etapa B6 — Conversão pra Liquid
+### Etapa B7 — Gerar HTML Fresh por Section (via `frontend-design`)
 
-Pra cada seção em `SELECTED_SECTIONS`, chame o converter:
+Pra CADA section em `SELECTED_SECTIONS`, invoque a skill `frontend-design` passando:
+
+1. **Pattern da section** (type, layout, slots) — do `patterns.json`
+2. **Design system** (typography, colors, shape, spacing) — do `patterns.json`
+3. **Conteúdo real** — trecho correspondente do `05-copy.md` (hero headline, benefit bullets, FAQ items, etc, mapeado ao `type`)
+4. **Princípios de Qualidade Visual** desta skill (type scale, fluid clamp, hierarquia, focus states, reduced-motion)
+5. **Namespace obrigatório** — `.page-[produto]-[type]`
+
+**Prompt pattern pro frontend-design** (use um por section):
+
+> "Gere HTML + CSS vanilla pra uma section `[type]` com layout `[layout]`. Use este design system (não invente cores nem fontes): bg `[background_primary]`, text `[text_primary]`, accents `[accents]`, heading `[heading_font]`, body `[body_font]`, radius `[border_radius_px]px`, shadow `[shadow_style]`, density `[density]`. Conteúdo: `[trecho da copy]`. Slots a renderizar: `[slots]`. Namespace: `.page-[produto]-[type]`. Mobile-first, fluid type com clamp, sem JS frameworks, self-contained CSS, semantic HTML. Siga os Princípios de Qualidade Visual da skill page-engine."
+
+Isso faz o `frontend-design` produzir código **limpo, moderno, theme-agnostic** que reflete a vibe do concorrente sem herdar o bloat. O membro escolheu inspiração visual; você entregou design fresh.
+
+Se a section tem padrão repetível (`repeating_count > 0`), gere 1 instância do item — o converter vai transformar em block reorderável.
+
+Salve cada HTML/CSS gerado temporariamente em `/tmp/fresh-[produto]/[type].html` e `/tmp/fresh-[produto]/[type].css`.
+
+### Etapa B8 — Converter HTML Fresh pra Liquid
+
+Pra cada section fresh gerada, chame o converter no HTML *limpo que você acabou de gerar* (não o do concorrente):
 
 ```bash
 python3 tools/design-clone/liquid-converter.py \
-  --section "[caminho do JSON da seção]" \
-  --output "~/shopify-theme/sections/page-[produto]-[tipo].liquid" \
-  --namespace "page-[produto]" \
+  --html "/tmp/fresh-[produto]/[type].html" \
+  --css "/tmp/fresh-[produto]/[type].css" \
+  --output "[THEME_PATH]/sections/page-[produto]-[type].liquid" \
+  --blocks-dir "[THEME_PATH]/blocks/" \
+  --namespace "page-[produto]-[type]" \
   --product-slug "[produto]"
 ```
 
-O converter (documentado em `tools/design-clone/liquid-converter.py`):
-- Recebe HTML+CSS de uma seção
-- Converte pra Liquid:
-  - Textos fixos → `{{ section.settings.heading }}`, `{{ section.settings.subheading }}`, etc
-  - Imagens do concorrente → `{{ section.settings.image | image_url }}` (placeholder até o membro subir)
-  - Cores hardcoded → CSS custom properties referenciadas via settings `color`
-  - Links → `{{ section.settings.cta_url }}`
-- Gera `{% schema %}` completo com settings + presets pré-populados com a copy do `05-copy.md`
-- Namespace classes (remove qualquer classe do tema pai, aplica `.page-[produto]-*`)
-- Remove JS inline e libraries externas (React, Vue, jQuery se houver)
-- Remove tracking scripts, analytics, pixels do concorrente
-- Para padrões repetíveis (cards, testimonials, FAQ items) gera `blocks/page-[produto]-[nome].liquid` separado
-- Valida o arquivo final com skill `shopify-plugin:shopify-liquid` (3 retries)
-- Salva `.liquid` pronto pra instalar
+O converter:
+- Mapeia textos → `{{ section.settings.heading_1 }}`, `{{ section.settings.paragraph_2 }}`, etc (nomes semânticos, dedup por tipo+default)
+- Imagens → `{{ section.settings.image_N | image_url }}` com `image_picker` setting
+- Cores hardcoded → CSS custom properties ligadas a settings `color`
+- Links → `{{ section.settings.link_url_N }}` + `link_label_N`
+- Padrões repetíveis → `blocks/page-[produto]-[type]-[nome].liquid`
+- Gera `{% schema %}` completo com settings + presets pré-populados
+- Valida com skill `shopify-plugin:shopify-liquid` (3 retries)
 
-### Etapa B7 — Install no Tema
+Como o HTML de entrada já é limpo (sem web components Shopify, sem data-attrs de tema, sem scripts de analytics), o output é compacto e editável.
 
-1. Confirme com membro: "Vou instalar [N] sections + [M] blocks no teu tema em `THEME_PATH`. Ok?"
-2. Copie os arquivos `.liquid` gerados pra `~/shopify-theme/sections/` e `~/shopify-theme/blocks/`
-3. Cria `~/shopify-theme/templates/page.[produto].json` com as sections clonadas na ordem do concorrente + settings pré-populados com copy
-4. Se o membro tiver múltiplos concorrentes, mescle: por default, mantém ordem do primeiro concorrente; seções dos outros são adicionadas ao final ou substituem equivalentes se o membro escolher "usar hero do concorrente A + features do B"
+### Etapa B9 — Install + Apply Copy + Template
 
-### Etapa B8 — Apply Copy
+1. Confirme: "Vou instalar [N] sections + [M] blocks no tema em `[THEME_PATH]`. Ok?"
+2. Arquivos já foram escritos em `sections/` e `blocks/` pelo converter.
+3. Crie `[THEME_PATH]/templates/page.[produto].json` combinando as sections na ordem escolhida (default = ordem do concorrente; ajustável) e pré-populando TODOS os settings com os textos exatos do `05-copy.md`. O membro não digita nada.
+4. Se o membro tem múltiplos concorrentes, ofereça escolha por section ("hero do A + features do B").
 
-Pra cada setting que tem texto, cole o texto correspondente do `05-copy.md`:
-- Hero headline → `{{ section.settings.heading }}` recebe o hero headline da copy
-- Benefits bullets → cada block `feature` recebe um benefit
-- FAQ → cada block `faq_item` recebe uma pergunta/resposta
-- etc
+### Etapa B10 — UX Writing + Critique + Report
 
-Se o concorrente tiver mais seções que a copy, as extras ficam com placeholder ("Add your text here"). Se a copy tiver mais seções que o concorrente, as extras precisam ser geradas via Modo A (avise o membro).
-
-### Etapa B9 — UX Writing + Critique
-
-Mesmo fluxo do Modo A (Etapa A7 + A8): ux-writing pass, design-critique, heuristic-evaluation, accessibility-audit, QA checklist.
-
-### Etapa B10 — Report
-
-Mostre:
-- Sections clonadas + paths
-- Blocks gerados + paths
-- Template JSON criado
-- Mapeamento copy → settings (qual texto da copy foi pra qual setting)
-- Seções que ficaram com placeholder (precisam copy adicional ou skip)
-- Issues conhecidas
-- Como visualizar, editar, e subir
+1. Mesmo fluxo do Modo A (A7 + A8): `designer-ux-writing` → `designer-design-critique` → `designer-heuristic-evaluation` → `designer-accessibility-audit` → `designer-design-qa-checklist`.
+2. Report final mostra:
+   - Modo B híbrido, URLs analisadas, design system extraído
+   - Sections geradas (types + layouts + paths)
+   - Blocks gerados (paths)
+   - Template JSON criado
+   - Mapeamento copy → settings
+   - Como visualizar (`shopify theme dev`), editar (theme editor), e subir (`shopify theme push`)
+   - Issues conhecidas
 
 ---
 
@@ -382,9 +406,10 @@ Salve um relatório completo em `/workspace/[produto]/06-page.md` contendo:
 - IDs em selectores CSS
 - Libraries externas de JS/CSS
 - Pular validação com skill `shopify-plugin:shopify-liquid`
-- No Modo B: manter tracking scripts, analytics, ou pixels do concorrente
-- No Modo B: manter classes do tema do concorrente (aplicar namespacing próprio sempre)
-- No Modo B: copiar código de frameworks (React/Vue/jQuery) — converter pra vanilla ou pular o elemento
+- No Modo B: **copiar HTML/CSS direto do concorrente pro tema do membro** — Modo B é híbrido: extrai patterns + design signals, gera fresh, converte. Nunca joga o código cru dele em Liquid.
+- No Modo B: manter tracking scripts, analytics, pixels, web components Shopify do concorrente
+- No Modo B: manter classes do tema do concorrente — namespace sempre como `.page-[produto]-[type]`
+- No Modo B: usar fontes de CDN específicas do concorrente que podem quebrar fora do contexto — usar a família detectada via sistema (`system-ui`, Google Fonts padrão, ou a font-family nominal)
 
 ## Princípios de Qualidade Visual (ground rules pro frontend-design)
 
