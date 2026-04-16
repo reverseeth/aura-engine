@@ -101,40 +101,98 @@ Quando converter HTML/CSS pra Liquid section, siga estas regras de tradução de
 
 ## Fluxo da Skill
 
-### ETAPA 1 — Leitura e Planejamento
+### ETAPA 1 — Leitura e Planejamento (adaptativo à estratégia)
 
-1. Leia o `05-copy.md` integralmente. Identifique todas as sections presentes na copy. Tipicamente:
-   - Hero
-   - Benefícios / Problema
-   - Mecanismo Único
-   - Prova Social (testimonials, reviews, números)
-   - Oferta / Stack
-   - Garantia
-   - FAQ
-   - CTA Final
-   - Opcionais: Comparação, Before/After, How it Works, Ingredientes
+**A página NÃO tem estrutura fixa.** Cada produto merece um plano de sections que reflita sua estratégia específica — awareness level do mercado (Schwartz), sophistication stage (Bond), nível de ceticismo, complexidade do produto, categoria, tipo de decisão (impulse vs considered), presença ou não de mecanismo único, etc. A skill 05 (copy) já definiu essas decisões — respeite-as.
 
-2. Para cada section identificada, extraia:
-   - Nome (slug): `hero`, `benefits`, `mechanism`, `social-proof`, `offer`, `guarantee`, `faq`, `cta-final`
-   - Conteúdo textual exato da copy
-   - Decisão: section monolítica ou section + blocks repetíveis?
-     - Hero, mechanism, guarantee, cta-final → monolíticas
-     - Benefits, social-proof, faq, offer (stack items), before-after (pares) → section + blocks
+**1. Leia `05-copy.md` + `02-market-research.md` + `03-competitor-analysis.md` + `04-offer.md`** pra entender:
+- Awareness level do mercado (Unaware → Most Aware)
+- Sophistication stage (1-5)
+- Nível de ceticismo (baixo/médio/alto)
+- Se tem mecanismo único ou não
+- Tipo de produto (commodity, categoria nova, disrupter, incremental)
+- Preço (baixo = impulse, alto = considered)
 
-3. Mostre o plano completo pro membro num formato compacto:
-   ```
-   PLANO DE SECTIONS PRA [produto]:
-   1. hero (monolítica) — headline, subheading, CTA, imagem
-   2. benefits (section + blocks) — N feature blocks
-   3. mechanism (monolítica) — explicação do diferencial
-   4. social-proof (section + blocks) — N testimonial blocks
-   5. offer (section + blocks) — stack items como blocks
-   6. guarantee (monolítica)
-   7. faq (section + blocks) — N faq blocks
-   8. cta-final (monolítica)
-   ```
-   
-4. Pergunte: "Algum ajuste no plano antes de eu começar?" Aguarde confirmação ou ajustes.
+**2. Escolha as sections adequadas a partir do MENU abaixo**, baseando-se no que a estratégia pede. Não force o formato "9 sections padrão" em todo produto.
+
+#### Menu de sections possíveis
+
+**Core (geralmente presente em 90% das PDPs):**
+- `hero` — headline + sub + CTA + mídia principal
+- `offer` — stack de preços/bundles com CTAs
+- `faq` — objeções antecipadas
+- `cta-final` — última chance de converter
+
+**Estrutura (escolha baseado na estratégia):**
+- `trust-bar` — quando tem 3+ selos de autoridade (media, certificação, rating)
+- `benefits` — sempre que a copy tem bullets VOC-loaded (quase sempre). Em produtos Stage 4-5 de sophistication, usar MAIS peso aqui
+- `mechanism` — **SÓ se o produto tem mecanismo único** (ingrediente patenteado, processo proprietário, inovação tecnológica). Se for commodity, PULE. Mecanismo forçado em produto sem inovação parece falso
+- `social-proof` — essencial em produtos com alto ceticismo (skincare, saúde, wellness). Pular em impulse buys baratos
+- `guarantee` — proporcional ao risco percebido. Produto caro/duradouro = seção grande. Impulse = uma linha no footer
+- `comparison-table` — quando o produto é disrupter numa categoria madura (vs. concorrentes conhecidos)
+- `before-after` — cosmético / estético / transformação visual
+- `how-it-works` — produtos complexos com 3+ passos de uso
+- `ingredients` — skincare / supplements / food
+- `founder-story` — marcas DTC com narrativa de origem forte
+- `video-demo` — produto que precisa ver em ação
+- `sustainability` — marcas com claim ambiental relevante
+- `gift-guide` — produtos sazonais / presenteáveis
+- `app-embed` — reviews apps (Okendo, Judge.me), subscription widgets
+
+**3. Monte o plano específico pra ESSE produto.** Exemplos de planos diferentes:
+
+> Produto A — Suplemento nootropic premium ($89, Stage 4, alto ceticismo, tem ingrediente patenteado):
+> hero → trust-bar → mechanism → benefits → ingredients → social-proof → founder-story → offer → guarantee → faq → cta-final
+
+> Produto B — Camiseta básica ($25, Stage 2, baixo ceticismo, sem mecanismo único):
+> hero → benefits → sustainability → offer → social-proof → faq → cta-final
+
+> Produto C — App de meditação (assinatura $12/mo, Stage 3):
+> hero → how-it-works → benefits → video-demo → social-proof → offer → guarantee → faq → cta-final
+
+**4. Pra cada section do plano, decida:**
+- Monolítica (só settings, sem blocks) ou com blocks?
+- Quais blocks atômicos do catálogo universal (eyebrow, heading, paragraph, etc)
+- Quais blocks type-specific (benefit_card, pricing_tier, review_card, faq_item, etc)
+
+**5. Mostre o plano ao membro** antes de começar. Exemplo:
+
+> "Pro seu produto [X], o plano é:
+> 1. hero — headline + CTA + badges + stats + floating tags sobre imagem
+> 2. trust-bar — 4 selos de mídia
+> 3. mechanism — pq tem ingrediente patenteado XXX, essa section é MUITO importante
+> 4. ...
+>
+> Seções que eu NÃO vou incluir: before-after (seu produto é ingestível, não visual), how-it-works (uso simples: 1 cápsula/dia), comparison-table (não tem concorrente direto).
+>
+> Algum ajuste antes?"
+
+6. Aguarde confirmação ou ajustes. Só depois siga pra Etapa 2.
+
+### REGRA CRÍTICA — Eyebrows criativos, não rótulos de framework
+
+**Os nomes "Mechanism", "Offer Stack", "Guarantee Block", "Social Proof", "FAQ Estratégica" são LABELS INTERNOS do framework de copy.** São os "nomes de pasta" usados no `05-copy.md` pra você saber onde cada coisa vai. **Nunca** apareçam literal na página do cliente — soa como template genérico.
+
+**No eyebrow da section (quando tiver), use uma tag CRIATIVA, específica do produto.** Referencie o mecanismo real, o benefício central, ou um ângulo da marca. Exemplos:
+
+| Framework name (interno) | Eyebrow RUIM (literal) | Eyebrow BOM (criativo, produto-específico) |
+|---|---|---|
+| Mechanism | "The Mechanism" / "Mecanismo" | "The Science", "How It Works", "Why [Produto] Works", "Inside the Formula", "The [Ingrediente]® Difference" |
+| Offer / Stack | "Offer Stack" / "Oferta" | "Choose Your [Kit/Routine/Bundle]", "Your Starter Set", "Pick Your Glow", "Build Your Stack", "Start Here" |
+| Guarantee | "Guarantee Block" / "Garantia" | "The Promise", "Our Word", "Zero Risk", "Glow or Get Back", "60 Days, No Excuses" |
+| Benefits | "Benefits" / "Benefícios" | "Why [Produto]", "Five Things Change", "What You Get", "The Difference" |
+| Social Proof | "Social Proof" / "Prova" | "Real Results", "What [Persona] Say", "500+ [Persona] Stories", "Why They Switched" |
+| FAQ | "FAQ Estratégica" / "Perguntas Frequentes" | "You Asked", "Before You Buy", "The Real Questions", "Stuff We Hear Most" |
+| Trust Bar | "Trust Bar" | (normalmente sem eyebrow, os selos falam sozinhos) |
+| CTA Final | "CTA Final" | "One Last Thing", "Ready?", "Your Glow Starts Here" |
+
+**Regras pra escrever eyebrows:**
+1. **2-5 palavras.** Curto, punchy.
+2. **Específico do produto.** "The pH Difference" é melhor que "The Science".
+3. **Em inglês** (copy pro cliente US — seguindo rule 0 do CLAUDE.md).
+4. **Sem rotular o framework.** Nunca "Offer" / "Mechanism" / "FAQ" literal.
+5. **Pode pular o eyebrow.** Seções como trust-bar, hero e cta-final podem não precisar de eyebrow.
+6. **Se o copy tem um Big Idea, USE.** Ex: se o Big Idea é "pH changes everything", o eyebrow do mechanism pode ser "It's Not the Fragrance — It's the pH".
 
 ### ETAPA 2 — Brand Discovery (1 mensagem ao membro)
 
@@ -244,12 +302,12 @@ Para cada variante:
 
 ### ETAPA 4.5 — Arquitetura das Sections (padrão validado)
 
-**Use sempre este padrão — cada section é uma "pasta" no sidebar da Shopify com blocks atômicos dentro.** Foi o que validou em campo (hero Undone em Horizon, Shopify push zero erros, ~700 settings totais entre 9 sections).
+**Use sempre este padrão — cada section é uma "pasta" no sidebar da Shopify com blocks atômicos dentro.** Validado em campo (Horizon, Shopify push zero erros, ~700 settings totais entre 9 sections).
 
 **Princípio central:** a section é um CONTAINER com layout + cores, e cada elemento visual (eyebrow, heading, paragraph, button-row, stats-bar, tag, trust-row, etc) é um **bloco inline** definido dentro do `{% schema %}` da própria section (não theme blocks em arquivos separados).
 
 **Vantagens desse modelo:**
-1. Section aparece organizada como pasta no sidebar ("Hero — Undone") com todos os blocks dentro
+1. Section aparece organizada como pasta no sidebar ("Hero — [nome do produto]") com todos os blocks dentro
 2. Membro arrasta blocks pra reordenar, duplica, remove individualmente
 3. Membro adiciona blocks novos (Custom Liquid, Custom HTML, Divider, Spacer) sem tocar código
 4. Tudo editável: cor de cada micro-elemento, tamanho, espaçamento, font weight, letter spacing
@@ -380,7 +438,7 @@ Pegue o HTML+CSS da variante escolhida (Etapa 4) e transforme numa section com b
 
 **Validação obrigatória:**
 ```bash
-node .../shopify-liquid/scripts/validate.mjs --filename page-[produto]-hero.liquid --filetype sections --code "$(cat file)" --model ... --client-name claude-code --artifact-id undone-hero --revision 1
+node .../shopify-liquid/scripts/validate.mjs --filename page-[produto]-hero.liquid --filetype sections --code "$(cat file)" --model ... --client-name claude-code --artifact-id [produto]-hero --revision 1
 ```
 Se falhar, leia o erro, ajuste, revalide (3 retries max).
 

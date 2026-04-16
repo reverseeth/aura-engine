@@ -117,8 +117,8 @@ CSS_COLOR_RE = re.compile(r"#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b")
 
 
 def semantic_label_from_classes(el, tag_name, namespace=None):
-    """Deriva rótulo humano a partir das classes BEM. Se `namespace` é passado (ex: 'page-undone-hero'),
-    remove o prefixo e o segmento final duplicado pra um label limpo (ex: 'page-undone-hero__hero_pill' → 'Pill')."""
+    """Deriva rótulo humano a partir das classes BEM. Se `namespace` é passado (ex: 'page-[produto]-hero'),
+    remove o prefixo e o segmento final duplicado pra um label limpo (ex: 'page-[produto]-hero__hero_pill' → 'Pill')."""
     classes = el.get("class", []) or []
     for cls in classes:
         rest = None
@@ -723,8 +723,8 @@ def main():
     parser.add_argument("--type", help="(Modo C) Semantic type of the section (hero/features/faq/etc)")
     parser.add_argument("--output", required=True, help="Path to output .liquid file")
     parser.add_argument("--blocks-dir", required=True, help="Directory where blocks/*.liquid files go")
-    parser.add_argument("--namespace", required=True, help="CSS namespace (e.g. page-undone-hero)")
-    parser.add_argument("--product-slug", required=True, help="Product slug (e.g. undone)")
+    parser.add_argument("--namespace", required=True, help="CSS namespace (e.g. page-[produto]-hero)")
+    parser.add_argument("--product-slug", required=True, help="Product slug (e.g. [produto])")
     parser.add_argument("--asset-type", choices=["section", "block"], default="section",
                         help="Output as Shopify section (default) or theme block (for Horizon-style composability)")
     args = parser.parse_args()
