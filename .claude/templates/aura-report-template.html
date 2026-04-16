@@ -1,0 +1,466 @@
+<!--
+  AURA ENGINE — HTML Report Template (Design System Reference)
+
+  Este template define o estilo visual padrão pra TODOS os reports HTML
+  gerados pelas skills do Aura Engine. A AI lê este arquivo como referência
+  de design — copie a <style> completa + estrutura de componentes, adapte
+  apenas o conteúdo.
+
+  REGRAS:
+  - Cada .md salvo em /workspace/ DEVE ter um .html correspondente
+  - O HTML é self-contained (CSS inline, sem dependências externas além da fonte)
+  - A AI lê apenas os .md — os .html existem pra visualização humana
+  - Não altere o design system sem aprovação do membro
+-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}} — Aura Engine</title>
+<link href="https://fonts.cdnfonts.com/css/neue-montreal" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+     AURA ENGINE — DESIGN SYSTEM v1.0
+     Fonte: Neue Montreal
+     Palette: #FAFAFA bg · #1A1A1A text · #F5F5F5 surfaces · #E8E8E8 borders
+     Accent: #E8B93A callout · #4A9A2E opportunity · #B03A3A danger · #2563A8 info
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* === RESET + BASE === */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; max-width: 100%; }
+  body {
+    font-family: 'Neue Montreal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+    background: #FAFAFA; color: #1A1A1A;
+    min-height: 100vh; display: flex; justify-content: center;
+    padding: 80px 24px 120px; -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 820px; width: 100%; }
+
+  /* === LOGO === */
+  .logo-wrap { margin-bottom: 12px; }
+  .logo-wrap svg { height: 40px; width: auto; }
+
+  /* === PAGE HEADER === */
+  .page-title {
+    font-size: 28px; font-weight: 600; color: #1A1A1A;
+    margin-top: 28px; margin-bottom: 8px;
+    letter-spacing: -0.3px; line-height: 1.25;
+  }
+  .page-subtitle {
+    font-size: 15px; color: #999; font-weight: 400;
+    margin-bottom: 24px; letter-spacing: 0.2px;
+  }
+
+  /* === META BAR (key-value grid below title) === */
+  .meta-bar {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px 24px; padding: 18px 20px;
+    background: #F5F5F5; border-radius: 10px;
+    margin-bottom: 48px;
+    font-size: 13.5px; color: #555; line-height: 1.6;
+  }
+  .meta-bar strong { color: #1A1A1A; font-weight: 600; }
+
+  /* === TABLE OF CONTENTS === */
+  .toc { background: #F5F5F5; border-radius: 10px; padding: 20px 24px; margin-bottom: 64px; }
+  .toc-title { font-size: 11px; font-weight: 600; color: #1A1A1A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; }
+  .toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc-counter; }
+  .toc li { counter-increment: toc-counter; margin-bottom: 6px; font-size: 14px; color: #555; line-height: 1.5; }
+  .toc li::before { content: counter(toc-counter, decimal-leading-zero) ". "; color: #BBB; font-weight: 500; margin-right: 6px; }
+  .toc a { color: #1A1A1A; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.15s; }
+  .toc a:hover { border-bottom-color: #1A1A1A; }
+
+  /* === SECTIONS === */
+  .section { margin-bottom: 64px; }
+  .section-label {
+    font-size: 11px; font-weight: 600; color: #1A1A1A;
+    text-transform: uppercase; letter-spacing: 2px;
+    margin-bottom: 28px; padding-bottom: 12px;
+    border-bottom: 1px solid #E8E8E8;
+  }
+  .section-label .num { display: inline-block; margin-right: 10px; color: #AAA; }
+
+  /* === SUBSECTIONS === */
+  .subsection { margin-bottom: 32px; }
+  .subsection-title { font-size: 16px; font-weight: 600; color: #1A1A1A; margin-bottom: 12px; letter-spacing: -0.1px; }
+
+  /* === TYPOGRAPHY === */
+  p { font-size: 15px; color: #444; line-height: 1.7; margin-bottom: 14px; }
+  p strong { color: #1A1A1A; font-weight: 600; }
+  ul, ol { margin: 8px 0 18px 22px; color: #444; font-size: 15px; line-height: 1.75; }
+  li { margin-bottom: 6px; }
+  li strong { color: #1A1A1A; font-weight: 600; }
+  code {
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 13px; background: #F0F0F0; padding: 1px 6px; border-radius: 4px; color: #1A1A1A;
+    word-break: break-all; overflow-wrap: anywhere;
+  }
+
+  /* === TABLES === */
+  .table-wrap { overflow-x: auto; margin: 14px 0 20px; border: 1px solid #E8E8E8; border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th {
+    text-align: left; font-weight: 600; color: #1A1A1A;
+    background: #F5F5F5; padding: 12px 14px;
+    border-bottom: 1px solid #E8E8E8;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  td { padding: 12px 14px; color: #444; border-bottom: 1px solid #EFEFEF; vertical-align: top; line-height: 1.55; }
+  tr:last-child td { border-bottom: none; }
+  td strong { color: #1A1A1A; font-weight: 600; }
+  td code { font-size: 12.5px; }
+
+  /* === QUOTE / VOC BLOCK (left border, monospace) === */
+  .quote {
+    margin: 8px 0; padding: 12px 16px;
+    background: #F7F7F7; border-left: 3px solid #1A1A1A;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px; color: #333; line-height: 1.65;
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  }
+  .quote-source {
+    display: block; margin-top: 6px;
+    font-size: 11.5px; color: #999;
+    font-family: 'Neue Montreal', sans-serif; letter-spacing: 0.3px;
+  }
+
+  /* === SCRIPT BLOCK (pre-formatted, for ad scripts / code) === */
+  .script-block {
+    background: #F7F7F7; border-left: 3px solid #1A1A1A;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px; margin: 12px 0;
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 13px; color: #333; line-height: 1.6;
+    white-space: pre-wrap; word-break: break-word;
+  }
+
+  /* === NOTE (gray bg, informational) === */
+  .note {
+    font-size: 14px; color: #555; line-height: 1.65;
+    padding: 14px 16px; background: #F5F5F5;
+    border-radius: 8px; margin: 14px 0;
+    word-break: break-word; overflow-wrap: anywhere;
+  }
+  .note strong { color: #1A1A1A; font-weight: 600; }
+
+  /* === CALLOUT (yellow, key insight / recommendation) === */
+  .callout {
+    font-size: 14.5px; color: #1A1A1A; line-height: 1.65;
+    padding: 16px 18px; background: #FFF8E1;
+    border-left: 3px solid #E8B93A;
+    border-radius: 0 8px 8px 0; margin: 16px 0;
+    word-break: break-word; overflow-wrap: anywhere;
+  }
+  .callout strong { font-weight: 600; }
+
+  /* === OPPORTUNITY (green, positive outcome / gap to exploit) === */
+  .opportunity {
+    font-size: 14.5px; color: #1A1A1A; line-height: 1.65;
+    padding: 16px 18px; background: #ECF8E5;
+    border-left: 3px solid #4A9A2E;
+    border-radius: 0 8px 8px 0; margin: 16px 0;
+    word-break: break-word; overflow-wrap: anywhere;
+  }
+  .opportunity strong { font-weight: 600; }
+
+  /* === DANGER (red, warning / error to avoid) === */
+  .danger {
+    font-size: 14.5px; color: #1A1A1A; line-height: 1.65;
+    padding: 16px 18px; background: #FDECEC;
+    border-left: 3px solid #B03A3A;
+    border-radius: 0 8px 8px 0; margin: 16px 0;
+    word-break: break-word; overflow-wrap: anywhere;
+  }
+  .danger strong { font-weight: 600; }
+
+  /* === PILLS (status tags) === */
+  .pill { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 100px; letter-spacing: 0.3px; margin-right: 4px; }
+  .pill-saturated { background: #FDECEC; color: #B03A3A; }
+  .pill-common { background: #FFF4DC; color: #8A6300; }
+  .pill-rare { background: #E8F4DC; color: #4A7A1E; }
+  .pill-absent { background: #DFF0FF; color: #2563A8; }
+  .pill-win { background: #ECF8E5; color: #4A7A1E; font-weight: 600; }
+  .pill-tof { background: #DFF0FF; color: #2563A8; }
+  .pill-mof { background: #FFF4DC; color: #8A6300; }
+  .pill-bof { background: #FDECEC; color: #B03A3A; }
+  .pill-ok { background: #ECF8E5; color: #4A7A1E; }
+  .pill-pending { background: #FDECEC; color: #B03A3A; }
+
+  /* === VOC WORD CLOUD (inline pill-like tags) === */
+  .voc-words { margin: 10px 0 4px; line-height: 2.2; }
+  .voc-words span {
+    display: inline-block; background: #EEE; color: #444;
+    padding: 3px 10px; border-radius: 100px;
+    margin: 2px 4px 2px 0; font-size: 12.5px;
+    font-family: 'SF Mono', 'Fira Code', monospace; letter-spacing: 0.2px;
+  }
+
+  /* === SCORE BADGE (inline circle) === */
+  .score {
+    display: inline-block; background: #1A1A1A; color: #FFF;
+    font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 100px; letter-spacing: 0.5px;
+  }
+  .score-high { background: #4A9A2E; }
+  .score-mid { background: #C78D2A; }
+  .score-low { background: #B03A3A; }
+
+  /* === WINNER BLOCK (dark bg, highlight) === */
+  .winner {
+    background: linear-gradient(135deg, #1A1A1A 0%, #333 100%);
+    color: #FFF; border-radius: 12px; padding: 24px; margin: 20px 0;
+  }
+  .winner strong { color: #FFF; font-weight: 600; }
+  .winner p { color: #E5E5E5; font-size: 14.5px; line-height: 1.65; margin-bottom: 8px; }
+  .winner .winner-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #AAA; margin-bottom: 8px; }
+  .winner .winner-name { font-size: 20px; font-weight: 600; color: #FFF; margin-bottom: 12px; letter-spacing: -0.2px; }
+
+  /* === KPI GRID (3 big numbers) === */
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+  .kpi-card { background: #F5F5F5; border-radius: 10px; padding: 16px 18px; }
+  .big-num { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; margin: 4px 0; }
+  .big-num-label { font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+  /* === BRAND / CONCEPT CARD (white card with border) === */
+  .brand-card, .concept-card {
+    background: #FFF; border: 1px solid #E8E8E8;
+    border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;
+  }
+
+  /* === TIER CARDS (pricing tiers) === */
+  .tier-card {
+    background: #FFF; border: 1px solid #E8E8E8;
+    border-radius: 12px; padding: 20px 22px; margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .tier-card.popular { border: 2px solid #1A1A1A; position: relative; }
+  .tier-card.popular::before {
+    content: "POPULAR"; position: absolute; top: -10px; left: 20px;
+    background: #1A1A1A; color: #FFF;
+    font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
+    padding: 3px 10px; border-radius: 100px;
+  }
+
+  /* === TIMELINE DAY CARDS (decision timeline) === */
+  .timeline-day {
+    background: #FFF; border: 1px solid #E8E8E8;
+    border-radius: 12px; padding: 20px 22px; margin-bottom: 14px;
+  }
+  .timeline-day-label {
+    display: inline-block;
+    font-size: 11px; color: #FFF; background: #1A1A1A;
+    padding: 3px 12px; border-radius: 100px;
+    text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  /* === TIMELINE ROWS (second-by-second script) === */
+  .timeline { margin: 16px 0; }
+  .timeline-row { display: flex; gap: 16px; padding: 12px 0; border-bottom: 1px solid #F0F0F0; }
+  .timeline-time {
+    flex-shrink: 0; width: 90px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px; color: #888; padding-top: 3px; letter-spacing: 0.3px;
+  }
+  .timeline-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; color: #1A1A1A; }
+  .timeline-content { flex: 1; }
+  .timeline-content p { margin-bottom: 6px; font-size: 14px; }
+
+  /* === PRIMARY TEXT BOX (ad copy container) === */
+  .primary-text-box {
+    background: #FAFAFA; border: 1px solid #E8E8E8;
+    border-radius: 10px; padding: 18px 22px; margin: 12px 0;
+  }
+  .pt-label { font-size: 11px; color: #AAA; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 10px; }
+  .primary-text-box p { font-size: 14px; color: #333; line-height: 1.65; }
+
+  /* === FAQ BLOCK === */
+  .faq { margin: 12px 0; padding: 16px 20px; background: #FFF; border: 1px solid #E8E8E8; border-radius: 10px; }
+  .faq-q { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .faq-a { font-size: 14px; color: #555; line-height: 1.65; }
+
+  /* === HOOK ROW (hooks bank) === */
+  .hook-row { background: #FFF; border: 1px solid #E8E8E8; border-radius: 10px; padding: 16px 20px; margin-bottom: 10px; }
+  .hook-label { font-size: 11px; color: #1A1A1A; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 8px; }
+  .hook-text { font-size: 15px; color: #1A1A1A; line-height: 1.55; font-weight: 500; margin-bottom: 6px; }
+  .hook-use { font-size: 12.5px; color: #777; line-height: 1.5; }
+
+  /* === HEADLINE CARD (for headline lists) === */
+  .headline-card {
+    background: #FFF; border: 1px solid #E8E8E8;
+    border-radius: 12px; padding: 18px 22px; margin-bottom: 12px;
+    font-size: 16px; font-weight: 500; line-height: 1.45;
+  }
+  .headline-card.top { border: 2px solid #1A1A1A; }
+  .headline-card .hl-num { font-size: 11px; color: #AAA; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; font-weight: 600; }
+  .headline-card .hl-justify { font-size: 13px; color: #666; margin-top: 8px; line-height: 1.55; font-weight: 400; }
+
+  /* === ASCII MAP (competitive positioning) === */
+  .ascii-map {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px; line-height: 1.55; color: #333;
+    background: #F5F5F5; border-radius: 10px;
+    padding: 20px; white-space: pre; overflow-x: auto;
+  }
+
+  /* === CHECK ROW (sanity checks with green circles) === */
+  .check-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .check-icon {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+    background: #4A9A2E; color: #FFF;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+
+  /* === ADVERTORIAL COMPONENTS === */
+  .advertorial {
+    background: #FFF; border: 1px solid #E8E8E8;
+    border-radius: 12px; padding: 40px 44px; margin: 24px 0;
+  }
+  .adv-kicker { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; margin-bottom: 16px; }
+  .adv-headline { font-size: 32px; font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 14px; }
+  .adv-deck { font-size: 17px; color: #555; line-height: 1.55; margin-bottom: 12px; font-weight: 400; font-style: italic; }
+  .adv-byline { font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 32px; }
+  .adv-section-label { font-size: 11px; color: #AAA; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; margin-top: 36px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #E8E8E8; }
+  .advertorial p { font-size: 16px; color: #333; line-height: 1.7; margin-bottom: 16px; }
+  .advertorial p strong { color: #1A1A1A; font-weight: 600; }
+  .advertorial hr { margin: 24px 0; border: none; border-top: 1px solid #E8E8E8; }
+  .adv-cta {
+    display: inline-block; background: #1A1A1A; color: #FFF;
+    padding: 14px 28px; border-radius: 100px;
+    font-size: 15px; font-weight: 600; letter-spacing: 0.3px;
+    text-decoration: none; margin: 12px 0;
+  }
+
+  /* === DIVIDER + FOOTER === */
+  hr { border: none; border-top: 1px solid #E8E8E8; margin: 56px 0; }
+  .footer { font-size: 13px; color: #BBB; line-height: 1.6; text-align: center; margin-top: 64px; }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 640px) {
+    body { padding: 40px 16px 80px; }
+    .page-title { font-size: 22px; }
+    .meta-bar { grid-template-columns: 1fr; font-size: 13px; }
+    th, td { padding: 10px 10px; font-size: 12.5px; }
+    .section { margin-bottom: 48px; }
+    .kpi-grid { grid-template-columns: 1fr; }
+    .brand-card, .concept-card { padding: 18px 16px; }
+    .advertorial { padding: 24px 20px; }
+    .adv-headline { font-size: 24px; }
+    .timeline-row { flex-direction: column; gap: 4px; }
+    .timeline-time { width: auto; }
+    .tier-card { flex-direction: column; gap: 8px; text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══════════════ LOGO (mesma SVG em todos os reports) ═══════════════ -->
+  <div class="logo-wrap">
+    <svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg">
+      <defs><style>.cls-1{font-family:Geist-Light,Geist;font-size:140px;font-variation-settings:'wght' 300;font-weight:300}</style></defs>
+      <path d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z" fill="#1A1A1A"/>
+      <text class="cls-1" transform="translate(1672.99 562.53)" fill="#1A1A1A"><tspan x="0" y="0">©</tspan></text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <h1 class="page-title">{{TITLE}}<br>{{SUBTITLE}}</h1>
+  <p class="page-subtitle">{{DESCRIPTION}}</p>
+
+  <div class="meta-bar">
+    <div><strong>Produto:</strong> {{PRODUCT}}</div>
+    <div><strong>Mercado:</strong> {{MARKET}}</div>
+    <div><strong>Data:</strong> {{DATE}}</div>
+    <div><strong>Alimenta:</strong> {{FEEDS}}</div>
+  </div>
+
+  <!-- ═══════════════ TOC ═══════════════ -->
+  <div class="toc">
+    <div class="toc-title">Sumário</div>
+    <ol>
+      <li><a href="#s1">Section 1</a></li>
+      <li><a href="#s2">Section 2</a></li>
+    </ol>
+  </div>
+
+
+  <!-- ═══════════════ SECTION EXAMPLE ═══════════════ -->
+  <div class="section" id="s1">
+    <div class="section-label"><span class="num">01</span>Section Title</div>
+
+    <div class="subsection">
+      <div class="subsection-title">Subsection</div>
+      <p>Regular paragraph text with <strong>bold</strong> words.</p>
+    </div>
+
+    <!-- TABLE EXAMPLE -->
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Col 1</th><th>Col 2</th><th>Col 3</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Row 1</strong></td><td>Value</td><td><span class="pill pill-win">status</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- QUOTE (VOC) -->
+    <div class="quote">"Exact customer quote goes here"<span class="quote-source">Reddit r/SelfTanning</span></div>
+
+    <!-- NOTE -->
+    <div class="note"><strong>Key point:</strong> informational context goes here.</div>
+
+    <!-- CALLOUT (key insight) -->
+    <div class="callout"><strong>Recommendation:</strong> strategic recommendation goes here.</div>
+
+    <!-- OPPORTUNITY (green) -->
+    <div class="opportunity"><strong>Gap identified:</strong> opportunity description.</div>
+
+    <!-- DANGER (red) -->
+    <div class="danger"><strong>Warning:</strong> critical error to avoid.</div>
+
+    <!-- WINNER BLOCK -->
+    <div class="winner">
+      <div class="winner-label">Winner</div>
+      <div class="winner-name">Mechanism Name</div>
+      <p>Explanation of why this wins.</p>
+    </div>
+
+    <!-- KPI GRID -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="big-num-label">Metric Name</div>
+        <div class="big-num">$71.11</div>
+      </div>
+      <div class="kpi-card">
+        <div class="big-num-label">Metric Name</div>
+        <div class="big-num">68.4%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="big-num-label">Metric Name</div>
+        <div class="big-num">$24.32</div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="faq">
+      <div class="faq-q">"Question from customer?"</div>
+      <div class="faq-a">Answer that breaks the objection.</div>
+    </div>
+
+    <!-- CHECK ROW -->
+    <div class="check-row">
+      <span class="check-icon">1</span>
+      <div><strong>Sanity check question?</strong><br><span style="color:#666;">Answer with reasoning.</span></div>
+    </div>
+  </div>
+
+
+  <p class="footer">Aura © 2026</p>
+
+</div>
+</body>
+</html>

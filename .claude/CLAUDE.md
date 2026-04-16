@@ -22,6 +22,8 @@ REGRAS FUNDAMENTAIS:
 
 5. Cada fase alimenta a próxima. Antes de executar qualquer skill, verifique se já existe trabalho anterior em /workspace/ para aquele produto e continue de onde parou.
 
+6b. DUAL OUTPUT (.md + .html): Toda skill que salva um arquivo .md em /workspace/ DEVE também gerar um .html correspondente no mesmo diretório. O .md é o arquivo que a AI lê nas fases seguintes. O .html é para visualização humana (o membro abre no browser). Use o design system definido em `.claude/templates/aura-report-template.html` — copie o CSS completo e a estrutura de componentes (section-label, callout, note, opportunity, danger, table-wrap, quote, pill, winner, kpi-grid, etc.), adaptando apenas o conteúdo. O HTML é self-contained (CSS inline, sem server). Sempre inclua o logo SVG do Aura no topo. Mantenha responsividade mobile (overflow-wrap, word-break em code/callout).
+
 6. Leia o profile.md do membro (se existir) antes de qualquer skill para personalizar recomendações.
 
 COMO AS SKILLS FUNCIONAM:
