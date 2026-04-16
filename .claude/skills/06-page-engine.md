@@ -242,6 +242,29 @@ Para cada variante:
 
 5. Mostre as 3 variantes ao membro. Pergunte: "Qual variante? A/B/C ou misturar elementos de duas?"
 
+### ETAPA 4.5 — Decisão de Arquitetura: Sections ou Blocks?
+
+Antes de converter pra Liquid, decida como os elementos serão estruturados no tema. Duas opções:
+
+**Opção A — Sections independentes (default, clássico)**
+- Cada elemento (hero, benefits, mechanism, etc) vira uma section no template
+- Ordem fixa no `templates/page.[produto].json`
+- Bom pra temas antigos (Dawn, Impulse, Sense)
+- Membro edita cada section no theme editor mas **não intercala com sections nativas facilmente**
+
+**Opção B — Theme blocks + container section (RECOMENDADO pra Horizon e temas 2.0+)**
+- Cada elemento vira um theme block em `/blocks/page-[produto]-[tipo].liquid`
+- Uma container section `/sections/page-[produto]-main.liquid` aceita os blocks + `@theme` + `@app`
+- Membro pode: (1) drag-and-drop pra reordenar, (2) duplicar blocks, (3) ocultar individualmente, (4) intercalar com blocks nativos do tema (text, image banner, etc.), (5) adicionar sections nativas antes/depois da container
+- Testa e aprovado em Horizon
+
+**Como escolher:**
+1. Cheque o tema do membro: `ls [THEME_PATH]/blocks/ | head` — se houver muitos blocks (`_card.liquid`, `_accordion-row.liquid`, etc) é Horizon ou tema moderno → **use Opção B**.
+2. Se só tem sections e poucos blocks → Opção A.
+3. Na dúvida: Opção B. Horizon é o default do Shopify desde 2024 e funciona em 99% dos temas 2.0+.
+
+Pergunte ao membro apenas se o caso for ambíguo. Caso contrário, decida e siga.
+
 ### ETAPA 5 — Convert Hero to Liquid Section
 
 Após escolha do membro:
@@ -272,7 +295,25 @@ Após escolha do membro:
    - Corrija o código exato
    - Revalide
    - Máximo 3 retries
-8. Se a validação passar, salve em `~/shopify-theme/sections/page-[produto]-hero.liquid`.
+8. Se a validação passar, salve em `~/shopify-theme/sections/page-[produto]-hero.liquid` (Opção A) ou `~/shopify-theme/blocks/page-[produto]-hero.liquid` (Opção B).
+
+**Ferramenta de conversão (tools/design-clone/liquid-converter.py):**
+
+Se o membro preferir, pode rodar o converter automaticamente (faz tudo acima em um passo):
+
+```bash
+python3 tools/design-clone/liquid-converter.py \
+  --html /tmp/fresh-[produto]/hero.html \
+  --css /tmp/fresh-[produto]/hero.css \
+  --type hero \
+  --output ~/shopify-theme/[blocks|sections]/page-[produto]-hero.liquid \
+  --blocks-dir ~/shopify-theme/blocks \
+  --namespace page-[produto]-hero \
+  --product-slug [produto] \
+  --asset-type [section|block]
+```
+
+O converter faz automaticamente: extração de cores (cada hex vira color setting), labels semânticos BEM (`hero__title` → "Title"), inline_richtext pra texto misto com `<em>`/`<strong>`, image settings com aspect ratio + fit, headers de grupo, sanitização pra validação Shopify. Mesmo assim, sempre valide o output final com `shopify-plugin:shopify-liquid`.
 
 ### ETAPA 6 — Generate Remaining Sections
 
@@ -354,91 +395,177 @@ Esta é a etapa que move qualidade de 8/10 pra 9/10. Não pule.
 
 ### ETAPA 9 — Create Page Template
 
-1. Crie `~/shopify-theme/templates/page.[produto].json` que junta todas as sections na ordem certa.
+Crie `~/shopify-theme/templates/page.[produto].json`. A estrutura varia pela arquitetura escolhida na Etapa 4.5:
 
-2. Estrutura do JSON:
-   ```json
-   {
-     "sections": {
-       "hero": {
-         "type": "page-[produto]-hero",
-         "settings": {
-           "heading": "[da copy]",
-           "subheading": "[da copy]",
-           "cta_label": "[da copy]"
-         }
-       },
-       "benefits": {
-         "type": "page-[produto]-benefits",
-         "blocks": {
-           "feature-1": {
-             "type": "page-[produto]-feature",
-             "settings": { "title": "[copy]", "description": "[copy]" }
-           },
-           "feature-2": { ... }
-         },
-         "block_order": ["feature-1", "feature-2", ...],
-         "settings": {}
-       },
-       ...
-     },
-     "order": ["hero", "benefits", "mechanism", "social-proof", "offer", "guarantee", "faq", "cta-final"]
-   }
+**Se Opção A (sections independentes):**
+
+```json
+{
+  "sections": {
+    "hero": {
+      "type": "page-[produto]-hero",
+      "settings": { "heading_1": "[da copy]", "paragraph_2": "[da copy]", "link_label_3": "[da copy]" }
+    },
+    "benefits": {
+      "type": "page-[produto]-benefits",
+      "settings": {}
+    }
+  },
+  "order": ["hero", "benefits", "mechanism", "proof", "offer", "guarantee", "faq", "cta-final"]
+}
+```
+
+**Se Opção B (theme blocks + container — recomendada pra Horizon):**
+
+Crie primeiro a container section `~/shopify-theme/sections/page-[produto]-main.liquid`:
+
+```liquid
+<div class="page-[produto]-main">
+  {% content_for 'blocks' %}
+</div>
+
+{% stylesheet %}
+.page-[produto]-main { display: flex; flex-direction: column; }
+.page-[produto]-main > * { display: block; width: 100%; }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "[Produto] page",
+  "tag": "section",
+  "settings": [],
+  "blocks": [
+    { "type": "page-[produto]-hero" },
+    { "type": "page-[produto]-trust-bar" },
+    { "type": "page-[produto]-benefits" },
+    { "type": "page-[produto]-mechanism" },
+    { "type": "page-[produto]-proof" },
+    { "type": "page-[produto]-offer" },
+    { "type": "page-[produto]-guarantee" },
+    { "type": "page-[produto]-faq" },
+    { "type": "page-[produto]-cta-final" },
+    { "type": "@theme" },
+    { "type": "@app" }
+  ],
+  "presets": [{
+    "name": "[Produto] page (all blocks)",
+    "blocks": [
+      { "type": "page-[produto]-hero" },
+      { "type": "page-[produto]-trust-bar" },
+      { "type": "page-[produto]-benefits" },
+      { "type": "page-[produto]-mechanism" },
+      { "type": "page-[produto]-proof" },
+      { "type": "page-[produto]-offer" },
+      { "type": "page-[produto]-guarantee" },
+      { "type": "page-[produto]-faq" },
+      { "type": "page-[produto]-cta-final" }
+    ]
+  }]
+}
+{% endschema %}
+```
+
+Então o template JSON vira:
+
+```json
+{
+  "sections": {
+    "[produto]_main": {
+      "type": "page-[produto]-main",
+      "blocks": {
+        "hero": { "type": "page-[produto]-hero", "settings": {} },
+        "trust_bar": { "type": "page-[produto]-trust-bar", "settings": {} },
+        "benefits": { "type": "page-[produto]-benefits", "settings": {} },
+        "mechanism": { "type": "page-[produto]-mechanism", "settings": {} },
+        "proof": { "type": "page-[produto]-proof", "settings": {} },
+        "offer": { "type": "page-[produto]-offer", "settings": {} },
+        "guarantee": { "type": "page-[produto]-guarantee", "settings": {} },
+        "faq": { "type": "page-[produto]-faq", "settings": {} },
+        "cta_final": { "type": "page-[produto]-cta-final", "settings": {} }
+      },
+      "block_order": ["hero", "trust_bar", "benefits", "mechanism", "proof", "offer", "guarantee", "faq", "cta_final"],
+      "settings": {}
+    }
+  },
+  "order": ["[produto]_main"]
+}
+```
+
+**Pré-popule os settings com a copy real** só quando necessário. Os defaults já estão no schema de cada block/section — geralmente o JSON pode deixar `settings: {}` e herdar os defaults.
+
+Valide o JSON contra o schema do Shopify (a skill `shopify-plugin:shopify-liquid` cobre isso indiretamente — se os arquivos individuais validam, o template deve funcionar).
+
+### ETAPA 10 — Install no tema do membro (safe preview)
+
+**Regra:** nunca modifique o tema live do membro. Sempre trabalhe numa duplicata unpublished. A Shopify CLI faz isso em 4 comandos.
+
+1. **Detectar store + tema ao vivo:**
+   ```bash
+   shopify theme list --json --store [LOJA].myshopify.com
+   shopify theme info --json
+   ```
+   Identifique o theme com `"role": "live"` e anote o ID.
+
+2. **Duplicar o tema live (cria cópia unpublished):**
+   ```bash
+   shopify theme duplicate --theme [LIVE-THEME-ID] --name "[Produto] Preview (Aura)" \
+     --store [LOJA].myshopify.com --force --json
+   ```
+   Output inclui o ID novo. Chame de `[NEW-ID]`.
+
+3. **Pullar a cópia pra pasta local:**
+   ```bash
+   shopify theme pull --theme [NEW-ID] --store [LOJA].myshopify.com \
+     --path ~/shopify-theme-[produto] --force
    ```
 
-3. **Pré-popule TODOS os settings com a copy real** do 05-copy.md. O membro NÃO deve ter que digitar nada — só ajustar visualmente no theme editor.
+4. **Instalar os arquivos gerados:**
+   ```bash
+   # Opção B (blocks):
+   cp ~/shopify-theme-[produto]-out/blocks/page-[produto]-*.liquid ~/shopify-theme-[produto]/blocks/
+   cp ~/shopify-theme-[produto]-out/sections/page-[produto]-main.liquid ~/shopify-theme-[produto]/sections/
+   cp ~/shopify-theme-[produto]-out/templates/page.[produto].json ~/shopify-theme-[produto]/templates/
 
-4. Valide o JSON contra o schema do Shopify (a skill `shopify-plugin:shopify-liquid` cobre isso indiretamente — se as sections individuais validam, o template deve funcionar).
+   # Opção A (sections):
+   cp ~/shopify-theme-[produto]-out/sections/page-[produto]-*.liquid ~/shopify-theme-[produto]/sections/
+   cp ~/shopify-theme-[produto]-out/templates/page.[produto].json ~/shopify-theme-[produto]/templates/
+   ```
 
-5. Salva.
+5. **Push pra cópia unpublished:**
+   ```bash
+   shopify theme push --theme [NEW-ID] --store [LOJA].myshopify.com \
+     --path ~/shopify-theme-[produto] --nodelete --json
+   ```
+   O `--nodelete` preserva tudo que já existe no tema copiado. Se aparecer `"warning": "..."` no JSON com campo `"errors"`, resolva os erros (veja "Limitações Shopify" abaixo) e re-push.
 
-### ETAPA 10 — Report
+6. **Dar o preview link ao membro:**
+
+   Theme editor direto no template:
+   ```
+   https://[LOJA].myshopify.com/admin/themes/[NEW-ID]/editor?template=page.[produto]
+   ```
+
+   Preview da storefront (precisa a página "[produto]" existir no Admin → Pages):
+   ```
+   https://[LOJA].myshopify.com/pages/[produto]?preview_theme_id=[NEW-ID]
+   ```
+
+   **IMPORTANTE:** o dropdown "Theme template" no admin Pages SÓ lista templates do tema LIVE. Como `page.[produto]` só existe na cópia unpublished, não aparece lá. Workaround: usar `?view=[produto]` na URL do storefront pra forçar o template alternate, OU o theme editor direto (funciona sempre).
+
+### ETAPA 10.5 — Report ao membro
 
 Mostre ao membro:
 
-1. **Lista de arquivos criados** (paths absolutos):
+1. **Arquitetura usada** (Opção A sections / Opção B blocks) + justificativa.
+2. **Lista de arquivos criados** (paths absolutos).
+3. **Preview links** (theme editor + storefront com `?view=`).
+4. **Como subir pra produção** (quando satisfeito):
    ```
-   Sections:
-   - ~/shopify-theme/sections/page-[produto]-hero.liquid
-   - ~/shopify-theme/sections/page-[produto]-benefits.liquid
-   ...
-   
-   Blocks:
-   - ~/shopify-theme/blocks/page-[produto]-feature.liquid
-   - ~/shopify-theme/blocks/page-[produto]-faq-item.liquid
-   ...
-   
-   Template:
-   - ~/shopify-theme/templates/page.[produto].json
+   # Publica a cópia como tema live (substitui o atual):
+   shopify theme publish --theme [NEW-ID] --store [LOJA].myshopify.com
    ```
-
-2. **Como visualizar localmente** (rodar em terminal interativo, fora do `!`):
-   ```
-   cd ~/shopify-theme
-   shopify theme dev --store [domain].myshopify.com
-   ```
-   Acesse: `http://127.0.0.1:9292/pages/[produto]`
-   
-   Nota: o membro precisa criar a página em Admin → Online Store → Pages → Add page, e selecionar o template `page.[produto]` na sidebar.
-
-3. **Como editar pelo theme editor**:
-   - Admin → Online Store → Themes → Customize
-   - Pages → [produto]
-   - Cada section/block tem todas as settings expostas
-
-4. **Como subir as mudanças** (rodar em terminal real):
-   ```
-   shopify theme push --store [domain].myshopify.com --theme [theme-id]
-   ```
-
-5. **Settings expostos por section** (resumo compacto):
-   ```
-   hero — 12 settings (heading, subheading, eyebrow, cta_label, cta_link, image, ...)
-   benefits — 4 settings + N feature blocks
-   ...
-   ```
-
-6. **Issues conhecidas** (se houver da etapa 8).
+5. **Settings expostos** por block/section (resumo compacto).
+6. **Issues conhecidas** da etapa 8.
 
 ### ETAPA 11 — Iteration Loop
 
@@ -468,6 +595,26 @@ Salve um relatório completo em `/workspace/[produto]/06-page.md` contendo:
 Ao final diga:
 
 > "Page-engine completo. Próximo passo: rode `shopify theme dev` pra ver ao vivo, ou diga 'creatives' pra gerar briefings de criativos pra ads, ou 'scale' pra estratégia de escala."
+
+## Limitações Shopify conhecidas (descobertas em campo)
+
+Estas regras vêm do validator oficial `shopify-plugin:shopify-liquid` + push pra tema real. O converter aplica automaticamente, mas se você editar à mão, respeite:
+
+1. **`<img>` precisa `width` e `height`** — senão falha validação. Use o filtro `image_tag` do Shopify (auto-adiciona): `{{ image | image_url: width: 1600 | image_tag: loading: 'lazy' }}`.
+
+2. **`url` setting não aceita `#anchor` como default** — só URLs absolutos (`http(s)://...`) ou paths (`/products/...`). Se o HTML de origem tem `href="#shop"`, deixe o default **vazio**; o membro preenche no theme editor.
+
+3. **`inline_richtext` não aceita attributes em tags** — só tags simples: `<em>`, `<strong>`, `<br>`, `<span>`, `<a>`, `<u>`, `<p>`. Strip `class`, `aria-*`, `data-*` do HTML antes de colocar no default.
+
+4. **`richtext` wraps em `<p>` automaticamente** — se seu markup é `<p>{{ setting }}</p>`, vai dar `<p><p>...</p></p>`. Use `<div>` ou `inline_richtext`.
+
+5. **Aspect-ratio conflicts**: nunca deixe um ancestral do `<img>` com `aspect-ratio` fixa + deixe `image_wrap` com `aspect-ratio: auto` esperando ser adapt — o pai ganha. Use `data-adapt="true"` attr + CSS com seletor `[data-adapt='true']` como o converter v3 faz.
+
+6. **Dropdown "Theme template" do admin Pages só lista templates do tema LIVE** — templates que existem só em tema unpublished não aparecem. Workaround pra preview: abrir o theme editor direto no template (`.../editor?template=page.[produto]`) ou usar `?view=[produto]` na URL do storefront.
+
+7. **`shopify theme duplicate` precisa de `--force`** em contextos não-interativos. Sem isso trava esperando confirmação.
+
+8. **Package-lock do plugin `shopify-plugin:shopify-liquid`** aponta pro registry privado `npm.shopify.io` que requer auth. Se `node scripts/validate.mjs` falhar com `ERR_MODULE_NOT_FOUND`, rode no dir do plugin: `rm package-lock.json && npm install --registry=https://registry.npmjs.org/`.
 
 ## DO NOT
 
