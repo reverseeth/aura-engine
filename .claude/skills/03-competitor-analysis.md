@@ -53,8 +53,8 @@ Pra cada concorrente, acesse a página de produto (web fetch). Se tiver cloaker/
 
 **Pra cada PDP, documente:**
 
-**Estrutura da página (aplicando frameworks da vault):**
-- **Tipo de hero section**: autoridade (expert/doctor), UGC/testimonial, product-hero, problem-agitate, lifestyle, demo/before-after (aplica os 5 tipos de hero da vault)
+**Estrutura da página (aplicando frameworks):**
+- **Tipo de hero section**: autoridade (expert/doctor), UGC/testimonial, product-hero, problem-agitate, lifestyle, demo/before-after (aplica os 5 tipos de hero)
 - **Headline principal exata** (copie literalmente)
 - **Sub-headline exata**
 - **Como apresenta o produto**: foto, vídeo (quanto tempo?), GIF, demonstração
@@ -67,9 +67,9 @@ Pra cada concorrente, acesse a página de produto (web fetch). Se tiver cloaker/
 - **FAQ**: quais perguntas aborda? Quantas?
 - **CTAs**: quantos, onde, que copy usa nos botões
 - **Shipping**: grátis? a partir de quanto? tempo estimado?
-- **Aplicação dos 15 Fatores de Funil** (vault): quais fatores a página cobre bem, quais ignora
+- **Aplicação dos 15 Fatores de Funil**: quais fatores a página cobre bem, quais ignora
 
-**Copy analysis (frameworks da vault):**
+**Copy analysis (frameworks):**
 - **Tipo de lead** (Story, Secret, Proclamation, Problem-Solution, Offer, Direct — identificar aplicando os 5 tipos de lead por awareness de Schwartz)
 - **Nível de awareness que a página assume** do visitante (dita onde no funil essa LP está)
 - **Gatilhos de persuasão usados** (escassez, autoridade, prova social, reciprocidade, compromisso — identifique quais da lista dos 6 de Cialdini)
@@ -99,7 +99,7 @@ Pra cada um dos top 10:
 - **Tipo**: imagem estática, vídeo UGC (spokesperson falando), vídeo demonstração, antes/depois, carrossel, vídeo motion-graphic
 - **Transcrição** (se vídeo): hook dos primeiros 3 segundos (texto E fala literal) + 2-3 frases do corpo do script + CTA de fechamento
 - **Visual descrição do hook**: o que aparece na tela nos primeiros 3 segundos
-- **Ângulo** (classificar aplicando frameworks de ad angles da vault):
+- **Ângulo** (classificar aplicando frameworks de ad angles):
   - Problema (dor/frustração)
   - Resultado (desejo/transformação)
   - Curiosidade (mistério/revelação)
@@ -114,7 +114,7 @@ Pra cada um dos top 10:
 
 ### ETAPA 3B — Classificação dos Criativos por Posição no Funil
 
-Aplicando as **4Pi signatures** da vault (padrões de métrica que indicam posição no funil), classifique cada top criativo como:
+Aplicando as **4Pi signatures** (padrões de métrica que indicam posição no funil), classifique cada top criativo como:
 
 - **TOF (Top of Funnel)**: hook de interrupção, tom emocional, problema+agitação, awareness-building. Geralmente frequency < 1.1, CPM moderado, CPC alto.
 - **MOF (Middle of Funnel)**: educação do mecanismo, social proof, comparação. Frequency 1.15-1.3, CPM mais alto, CTR mais baixo mas conversão melhor.
@@ -257,7 +257,10 @@ Baseado em toda a análise, a recomendação estratégica:
 - **Top 3 elementos dos concorrentes que vale ADAPTAR** (não copiar — adaptar o princípio): escolha os 3 mais fortes que a Etapa 3 identificou (ex: "o hook de autoridade do concorrente X funciona bem porque Y — adapte pra nosso mecanismo")
 - **Top 3 elementos que NÃO vale seguir**: saturados ou fracos (ex: "todo mundo usa 'clinically proven' — é commodity, descarta")
 
-## SALVAR
+## SALVAR (dual output — rule 6b do CLAUDE.md)
+
+**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
+
 
 `/workspace/[produto]/03-competitor-analysis.md`
 

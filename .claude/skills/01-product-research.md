@@ -1,17 +1,17 @@
 ---
 name: product-research
-description: Engine completo de pesquisa e validação de produto. Use quando o membro disser "product research", "pesquisa de produto", "encontrar produto", "qual produto vender", ou quando estiver na situação A do setup (não tem produto). Faz filtragem técnica, validação de Trends, trademark, Meta Ad Library, review mining, validação de eficácia, análise estratégica completa usando os frameworks da vault, e entrega ranking com veredicto + plano preliminar pro produto #1.
+description: Engine completo de pesquisa e validação de produto. Use quando o membro disser "product research", "pesquisa de produto", "encontrar produto", "qual produto vender", ou quando estiver na situação A do setup (não tem produto). Faz filtragem técnica, validação de Trends, trademark, Meta Ad Library, review mining, validação de eficácia, análise estratégica completa usando os frameworks, e entrega ranking com veredicto + plano preliminar pro produto #1.
 ---
 
 # Product Research Engine
 
 ## Quando Usar
-Quando o membro ainda não tem produto ou quer validar/encontrar um novo produto pra testar. Esta skill existe pra reduzir drasticamente o risco de escolher um produto ruim — sai com um veredicto fundamentado em frameworks da vault em vez de "parece interessante".
+Quando o membro ainda não tem produto ou quer validar/encontrar um novo produto pra testar. Esta skill existe pra reduzir drasticamente o risco de escolher um produto ruim — sai com um veredicto fundamentado em frameworks em vez de "parece interessante".
 
 ## Antes de Começar
 
 1. Leia `/workspace/profile.md` pra entender o contexto do membro (budget, ferramentas disponíveis, se tem SpyBox)
-2. Consulte a base Aura extensivamente sobre product research, critérios de validação, market desires (magnitude, durabilidade, urgência), market sophistication (5 estágios), market awareness (5 níveis de Schwartz), unique mechanisms (UMP/UMS, S.I.N. filter), avatar core/sub, offer potential, e potencial criativo. Aprofunde em cada framework que encontrar até ter domínio completo — cada sub-conceito que aparecer nos resultados de busca, explore. A vault tem frameworks específicos com thresholds, critérios, e exemplos que devem ser aplicados literalmente nas etapas seguintes.
+2. Consulte a base Aura extensivamente sobre product research, critérios de validação, market desires (magnitude, durabilidade, urgência), market sophistication (5 estágios), market awareness (5 níveis de Schwartz), unique mechanisms (UMP/UMS, S.I.N. filter), avatar core/sub, offer potential, e potencial criativo. Aprofunde em cada framework que encontrar até ter domínio completo — cada sub-conceito que aparecer nos resultados de busca, explore. Frameworks específicos com thresholds, critérios, e exemplos devem ser aplicados literalmente nas etapas seguintes.
 3. Internalize os frameworks ANTES de começar a análise. Não é pra "mencionar" — é pra APLICAR na escolha de cada produto.
 
 ## Fluxo da Skill
@@ -49,7 +49,7 @@ ESPERE o membro responder antes de prosseguir. Se veio com fallback, faça as bu
 
 ### ETAPA 2 — Filtragem Técnica (Thresholds Exatos)
 
-Pra CADA produto enviado ou identificado, aplique os filtros técnicos nesta ordem. Cada FILTRO é eliminatório — descarta o produto se falha. Os critérios vêm dos frameworks da vault sobre viabilidade e unit economics.
+Pra CADA produto enviado ou identificado, aplique os filtros técnicos nesta ordem. Cada FILTRO é eliminatório — descarta o produto se falha. Os critérios vêm dos frameworks sobre viabilidade e unit economics.
 
 | Filtro | Critério | Ação se falha |
 |---|---|---|
@@ -159,7 +159,7 @@ Não venda placebo, não venda fraude. Mesmo que tenha demanda, o long-term é i
 
 ### ETAPA 8 — Análise Estratégica Completa
 
-Esta é a etapa onde os frameworks da vault geram o insight final. Aplique TODOS em sequência pra cada produto remanescente:
+Esta é a etapa onde os frameworks geram o insight final. Aplique TODOS em sequência pra cada produto remanescente:
 
 **1. Magnitude do Desejo** (Schwartz / Breakthrough Advertising):
 - **FRACO**: desejos superficiais (organizar mesa, gerenciar cabos) → preço baixo, volume alto, persuasão muito pesada pra justificar ads pagos. Geralmente inviável.
@@ -198,7 +198,7 @@ Liste os claims saturados que devem ser EVITADOS. Defina a resposta estratégica
 
 **4. Possibilidade de Mecanismo Único** (UMP/UMS):
 
-Aplique o filtro S.I.N. da vault:
+Aplique o filtro S.I.N.:
 - **Specific** — pode ser nomeado especificamente?
 - **Intriguing** — desperta curiosidade?
 - **New** — soa novo pro mercado (mesmo que a ciência subjacente seja antiga)?
@@ -234,7 +234,7 @@ Pra CADA produto mostre:
 
 **[Nome do Produto] — Score: X.X/10 — Veredicto: TESTAR / TALVEZ / DESCARTAR**
 
-- **3 razões principais pra testar** (com fundamento em frameworks da vault)
+- **3 razões principais pra testar** (com fundamento em frameworks)
 - **3 riscos principais** (com mitigação sugerida)
 - **Ângulo de diferenciação sugerido** (1 frase)
 - **Nível de dificuldade**: FÁCIL / MÉDIO / DIFÍCIL (considerando sophistication stage + budget do membro)
@@ -274,9 +274,14 @@ Pro produto com maior score, entregue um plano inicial (detalhado depois nas ski
 **Próximo passo recomendado:**
 "Diga 'market research' pra aprofundar na pesquisa do [produto] e montar o Unified Research Brief que vai alimentar copy, oferta, e criativos."
 
-## SALVAR
+## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-`/workspace/[nome-do-produto-vencedor]/01-product-research.md` contendo:
+Salve em DOIS arquivos dentro de `/workspace/[produto]/` (onde `[produto]` = slug do PRODUTO VENCEDOR, não do produto original da pesquisa — assim as fases seguintes salvam no mesmo lugar):
+
+1. **`01-product-research.md`** (a AI lê nas fases seguintes)
+2. **`01-product-research.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura)
+
+Conteúdo de ambos:
 - Lista completa de todos os produtos analisados (mesmo os descartados, com razão)
 - Tabela de filtragem técnica (Etapa 2)
 - Resultados de Trends, Trademark, Meta Ad Library, Reviews (Etapas 3-6)
@@ -284,8 +289,6 @@ Pro produto com maior score, entregue um plano inicial (detalhado depois nas ski
 - Análise estratégica completa aplicando os 7 frameworks (Etapa 8)
 - Ranking final com scores e veredictos (Etapa 9)
 - Plano preliminar pro produto #1 (Etapa 10)
-
-O nome da pasta usa o PRODUTO VENCEDOR (não o produto original da pesquisa), pra que todas as fases seguintes salvem no mesmo lugar.
 
 ## Mensagem Final
 

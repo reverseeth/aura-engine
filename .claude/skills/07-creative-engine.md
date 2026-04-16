@@ -35,11 +35,11 @@ Use a resposta pra influenciar o FORMATO dos conceitos recomendados:
 - Só clips do TikTok → prioriza UGC-style, cortes rápidos, stolen-footage-style hooks
 - AI UGC (Higgsfield/Arcads) → prioriza avatar-driven com natural speech converter
 - Vídeos fornecedor → prioriza demonstração + before-after + ingredient spotlight
-- Mix → distribui conceitos em formatos variados (diversidade é escala — princípio da vault)
+- Mix → distribui conceitos em formatos variados (diversidade é escala — princípio)
 
 ### ETAPA 2 — Calcular Quantidade de Conceitos
 
-**Fórmula da vault:** `Budget diário / Target CPA = máximo de ad sets ativos`
+**Fórmula:** `Budget diário / Target CPA = máximo de ad sets ativos`
 
 Exemplos:
 - Budget $50/dia com CPA target $25 → máximo 2 ad sets ativos → **2 conceitos**
@@ -57,7 +57,7 @@ Mostre ao membro (sem pedir confirmação):
 
 ### ETAPA 3 — Gerar Ângulos (3 Verticais da Vault)
 
-Consulte a base Aura sobre "3 research verticals competitive consumer internal" (ad angles da vault).
+Consulte a base Aura sobre "3 research verticals competitive consumer internal" (ad angles).
 
 Gere ângulos em 3 verticais:
 
@@ -107,7 +107,7 @@ Quer ajustar algum antes de eu gerar os briefings completos?"
 
 ### ETAPA 5 — Gerar Briefings Completos (Um Por Conceito)
 
-Para CADA conceito aprovado, gere o briefing completo aplicando os frameworks da vault.
+Para CADA conceito aprovado, gere o briefing completo aplicando os frameworks.
 
 **Formato do briefing:**
 
@@ -135,9 +135,9 @@ Para CADA conceito aprovado, gere o briefing completo aplicando os frameworks da
 
 Duração alvo: [15s / 22s / 30s — baseada em posição de funil; TOF mais curto, BOF pode ser mais longo]
 
-Estrutura: Hook → Bridge → Hold → CTA (framework da vault)
+Estrutura: Hook → Bridge → Hold → CTA (framework)
 
-- **[00:00-00:03] HOOK** (aplica Big 4 Emotions da vault: curiosity, urgency, fear, delight — escolher 1 dominante)
+- **[00:00-00:03] HOOK** (aplica Big 4 Emotions: curiosity, urgency, fear, delight — escolher 1 dominante)
   - **Texto/fala EXATA**: "[texto literal — 1-2 frases]"
   - **Visual**: [descrição do que aparece na tela]
   - **Text overlay** (se houver): "[texto]"
@@ -163,7 +163,7 @@ Estrutura: Hook → Bridge → Hold → CTA (framework da vault)
 **Precisa de voiceover ElevenLabs?** [sim/não — UGC é geralmente não; demo/motion graphics é sim]
 **Se sim, script de voiceover separado:**
 ```
-[script completo e humanizado da locução — pode usar o Natural Speech Converter framework da vault: contrações, pausas naturais, frases curtas]
+[script completo e humanizado da locução — pode usar o Natural Speech Converter framework: contrações, pausas naturais, frases curtas]
 ```
 
 **SE IMAGEM:**
@@ -172,7 +172,7 @@ Estrutura: Hook → Bridge → Hold → CTA (framework da vault)
 - **Texto overlay principal** (hook): "[texto grande]"
 - **Textos secundários**: "[subheadline ou benefits]"
 - **CTA visual**: "[texto do botão/badge visual]"
-- **Estilo**: [clean product shot / lifestyle / ugly ad / meme-style — "ugly ads convert" principle da vault]
+- **Estilo**: [clean product shot / lifestyle / ugly ad / meme-style — "ugly ads convert" principle]
 - **Elementos de proof**: [rating stars / review count / featured-in badges / guarantee shield]
 
 ### Criativo #2 — [Variação: formato diferente]
@@ -274,14 +274,17 @@ Crie um resumo operacional pro membro executar:
 
 **Tempo estimado de produção:** [baseado em tipo de material disponível — UGC humano toma 3-5 dias; AI UGC toma 1-2 dias; stock + edição toma 1 dia]
 
-## SALVAR
+## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-`/workspace/[produto]/06-creatives/`:
-- `06-creative-strategy.md` (overview: quantos conceitos, ângulos escolhidos, racional agregado)
-- `06-briefing-conceito-01.md` (um arquivo por conceito — Etapa 5 completa)
-- `06-briefing-conceito-02.md`
+**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
+
+
+`/workspace/[produto]/07-creatives/`:
+- `07-creative-strategy.md` (overview: quantos conceitos, ângulos escolhidos, racional agregado)
+- `07-briefing-conceito-01.md` (um arquivo por conceito — Etapa 5 completa)
+- `07-briefing-conceito-02.md`
 - ...
-- `06-hooks-bank.md` (Etapa 7)
+- `07-hooks-bank.md` (Etapa 7)
 - `06-production-summary.md` (Etapa 8)
 
 ## Mensagem Final

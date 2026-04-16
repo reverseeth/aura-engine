@@ -60,7 +60,7 @@ Gere 5-7 opções de mecanismo único. Cada um com:
 - **Em qual nível de awareness funciona melhor**
 - **Match com sophistication stage** (ingredient-based pra Estágio 3, information-based pra Estágio 4, identification pra Estágio 5)
 
-**Aplicar o filtro S.I.N. da vault:**
+**Aplicar o filtro S.I.N.:**
 - **Specific** (pode ser nomeado especificamente — "Joint Drought Protocol" em vez de "formula pra articulação")
 - **Intriguing** (desperta curiosidade — "Lipid Barrier Breach" em vez de "hidratação")
 - **New** (soa novo pro mercado, mesmo que a ciência subjacente seja antiga — reformulação criativa de algo conhecido)
@@ -184,7 +184,7 @@ Crie uma tabela de unit economics pra CADA variação da oferta (solo, bundle, c
 - Target CPA (2x ROAS) = Margem $ / 2
 - Target CPA (2.5x ROAS) = Margem $ / 2.5
 
-**Regra crítica (vault):** Target CPA pra 2x ROAS deve ser ≥ $30 pra viabilizar scaling com ads pagos. Se der < $15-20, a oferta não sustenta ads a não ser em volume muito alto.
+**Regra crítica:** Target CPA pra 2x ROAS deve ser ≥ $30 pra viabilizar scaling com ads pagos. Se der < $15-20, a oferta não sustenta ads a não ser em volume muito alto.
 
 ### ETAPA 6 — AOV Projetado (com Bump e Upsell Acceptance)
 
@@ -205,7 +205,7 @@ Baseline mix (ajustar com data depois):
 
 ### ETAPA 7 — PSM Projetado (Profitable Scaling Margin)
 
-Consulte a vault sobre PSM (Charley T / Disrupter Academy).
+Aplique os princípios de PSM.
 
 **Fórmula:** PSM = LTV / (CPA + COGS)
 
@@ -241,7 +241,10 @@ Antes de salvar, responda HONESTAMENTE:
 
 Se alguma resposta for "não", **itere antes de salvar**. Uma oferta fraca que passa adiante vira ad ruim, copy genérica, e membro frustrado em 30 dias.
 
-## SALVAR
+## SALVAR (dual output — rule 6b do CLAUDE.md)
+
+**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
+
 
 `/workspace/[produto]/04-offer.md` contendo:
 1. Mecanismo único recomendado (com scoring das 5-7 opções geradas) + 3 versões (1 frase / 1 parágrafo / 2-3 parágrafos)

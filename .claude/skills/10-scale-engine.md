@@ -29,7 +29,7 @@ Se faltar algum número, peça só o que faltou — não re-explique.
 
 ### ETAPA 2 — Classificar Estágio de Escala
 
-Aplicar o **revenue-tier model** da vault:
+Aplicar o **revenue-tier model**:
 
 | Spend diário | Estágio | Foco Principal | Estratégia Dominante |
 |---|---|---|---|
@@ -69,7 +69,7 @@ Da Skill 08, o PGS deve estar ativo: 5% aumento 3×/semana quando CPA 7-day trai
 
 **Quando Escalar Aggressive (acima do PGS):**
 
-Per vault, só escalar aggressive (+25-50% de uma vez) com razão concreta:
+só escalar aggressive (+25-50% de uma vez) com razão concreta:
 
 - **Winning ad novo provado** (Post ID acumulou 1K+ impressions com CPA ≤ 0.5× target) → duplicate ad set com budget 2× pra forçar spend nele
 - **Oferta nova que está outperforming** (novo bundle, novo pricing, nova garantia) → scale rápido pra capturar momento
@@ -89,7 +89,7 @@ Exemplo: se o membro quer hit $5K/dia até fim do mês e o fulfillment aguenta, 
 
 ### ETAPA 5 — Plano de Escala Horizontal (Canais Novos)
 
-Per vault (More Better New da Hormozi): **maximize → expand → diversify**. Não abra canal novo antes de maximizar o atual.
+(More Better New da Hormozi): **maximize → expand → diversify**. Não abra canal novo antes de maximizar o atual.
 
 **Critério pra abrir canal novo:**
 - Meta ads escalando bem (>$1K/dia sustentável)
@@ -105,11 +105,11 @@ Per vault (More Better New da Hormozi): **maximize → expand → diversify**. N
 5. **YouTube Ads** — requer criativos próprios pra format longo, good pra TOF high-volume em nichos específicos. Tier mais avançado.
 6. **Email/SMS** — não é "aquisição" mas LTV. Sempre ativo em paralelo desde o primeiro cliente.
 
-Per vault **Core Four** (Hormozi): warm outreach + cold outreach + content + ads. Em DTC o foco é ads, mas content (TikTok orgânico, UGC creators em retainer) é o que escala sustentably a longo prazo.
+**Core Four** (Hormozi): warm outreach + cold outreach + content + ads. Em DTC o foco é ads, mas content (TikTok orgânico, UGC creators em retainer) é o que escala sustentably a longo prazo.
 
 ### ETAPA 6 — Creative Diversity Como Motor de Escala
 
-Regra da vault: **pra cada 2× de budget, precisa 2× de creative diversity**.
+Regra: **pra cada 2× de budget, precisa 2× de creative diversity**.
 
 Por quê: mesmo criativo rodando em $100/dia satura audience em ~30 dias. Em $500/dia satura em ~7-10 dias. Em $2K/dia satura em 3-5 dias.
 
@@ -180,7 +180,10 @@ Mesmo com PGS, pode ter que parar. Sinais:
 - **Cash flow gap** → spend > cash in (especialmente com payout 3-5 dias do Shopify e ads cobrando diário). Ajustar pace.
 - **Fulfillment bottleneck** → estoque acabando, 3PL atrasando. Não escale acima da capacidade operacional.
 
-## SALVAR
+## SALVAR (dual output — rule 6b do CLAUDE.md)
+
+**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
+
 
 `/workspace/[produto]/09-scale-plan.md` contendo:
 1. Classificação de estágio (Etapa 2)
