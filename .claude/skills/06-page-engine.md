@@ -378,7 +378,7 @@ Para cada variante:
 Pegue o HTML+CSS da variante escolhida (Etapa 4) e transforme numa section com blocks inline. A estrutura canônica é:
 
 ```liquid
-<section class="pu-hero pu-hero-{{ section.id }}" style="--c-bg: {{ section.settings.color_bg }}; --c-accent: {{ section.settings.color_accent }}; /* todas as CSS vars */">
+<section class="pu-hero pu-hero-{{ section.id }}" style="--c-bg-top: {{ section.settings.color_bg_top }}; --c-bg-bottom: {{ section.settings.color_bg_bottom }}; --c-accent: {{ section.settings.color_accent }}; /* repita pra cada token do design system */">
   <div class="pu-hero__wrap pu-hero__wrap--{{ section.settings.layout }}">
     <div class="pu-hero__content">
       {%- for block in section.blocks -%}
@@ -508,7 +508,7 @@ Toda section da página deve expor este conjunto de blocks (adapte os type-speci
 | `tag` | Floating tag posicionado sobre imagem | eyebrow · title · position (tl/tr/bl/br) · rotation · theme (light/dark/accent) · bg · text · border · radius · padding · shadow_color · shadow_y · shadow_blur · **custom_css** |
 | `divider` | Linha separadora | style (solid/dashed/dotted/gradient) · color · thickness · width % · space before/after · **custom_css** |
 | `icon` | Ícone/emoji isolado | icon · size · color · space before/after · **custom_css** |
-| `spacer` | Espaço vertical custom | height |
+| `spacer` | Espaço vertical custom | height · **custom_css** |
 | `custom_liquid` | **Escape hatch.** Código Liquid/HTML arbitrário | code (`type: "liquid"`) · space before/after · **custom_css** |
 | `custom_html` | Código HTML estático | html (`type: "html"`) · space before/after · **custom_css** |
 
