@@ -5,6 +5,13 @@ description: Engine de construção de oferta com mecanismo único, stack de val
 
 # Offer Builder Engine
 
+### Pré-flight (OBRIGATÓRIO)
+Valide antes de prosseguir:
+- [ ] `/workspace/[produto]/manifest.json` existe
+- [ ] `02-market-research.json` existe (awareness_distribution, sophistication_stage)
+- [ ] `03-competitor-analysis.md` existe
+Se faltar qualquer um, PARE e peça ao membro rodar a skill faltante.
+
 ## Quando Usar
 Quando o membro tem produto definido, market research pronto, e precisa construir a estrutura econômica completa: mecanismo único, preço, bundles, bumps, upsells, garantia, e unit economics viáveis pra escalar com ads pagos. Sem oferta estruturada, nenhum copy (por melhor que seja) vai converter sustentavelmente.
 
@@ -24,8 +31,16 @@ Antes de perguntar, extraia o máximo automaticamente da página do produto (dad
 
 **Faça APENAS estas 3 perguntas, na ordem:**
 
-**1. Custo total do produto:**
-"Qual o custo total do produto pra você? (COGS + frete pro destino principal, por unidade)"
+**1. Custos (COGS breakdown — NÃO aceite agregado):**
+
+Não aceite "custo total" agregado. Pergunte separadamente:
+1. Custo do produto (na fábrica / fornecedor) por unidade
+2. Frete médio por pedido (informe região principal: Brasil interior? EUA West Coast?)
+3. Pick & pack (fulfillment center): R$/$ por pedido
+4. Gateway fee: % + taxa fixa (Stripe: 3.99% + R$0.39 típico)
+5. Taxas e impostos incidentes por pedido
+
+Documente cada um em `04-offer.json` → `cogs_breakdown`.
 
 **2. Features/ingredientes (CONDICIONAL):**
 - SE não conseguiu extrair da página automaticamente: "Liste as features ou ingredientes principais do produto."
@@ -35,9 +50,9 @@ Antes de perguntar, extraia o máximo automaticamente da página do produto (dad
 "Tem algum produto complementar que poderia vender junto? (se não souber, diz 'não sei')"
 
 **Decisões automáticas do sistema (NÃO PERGUNTE):**
-- **Preço final**: definido pelo sistema com base em unit economics + posicionamento competitivo (market research faixa de preço + competitor analysis range)
-- **Pick & pack**: estimado em ~$2-3 por unidade (ajustável depois se o membro tiver dado real)
-- **Gateway fee**: estimado em ~3% do AOV (ajustável depois)
+- **Preço final**: definido pelo framework de pricing abaixo (Etapa 3), triangulando 3 ancoras (value / competitor / economics)
+- **Pick & pack**: se o membro não souber, estime ~$2-3 por unidade (ajustável depois com dado real)
+- **Gateway fee**: se o membro não souber, estime ~3% do AOV + taxa fixa (ajustável depois)
 
 ### ETAPA 2 — MECANISMO ÚNICO (A Parte Mais Importante)
 
@@ -103,8 +118,14 @@ Monte a arquitetura econômica completa:
 
 **Produto Principal:**
 - **Nome do produto** (se ainda não tem, sugira — pode incluir mecanismo no nome: ex: "ClariForm — Collagen Cascade Serum")
-- **Preço base**: definido pelo sistema com base em posicionamento competitivo (média do mercado + premium por mecanismo único) e unit economics (margem ≥ 3x COGS total)
+- **Preço base**: ver framework de pricing abaixo (triangulação de 3 ancoras)
 - **Core deliverable**: o produto em si (1 unidade / X ml / Y cápsulas)
+
+**Framework de pricing (escolher UMA ancora, validar com as outras 2):**
+- **Value-anchored**: Preço = (Dream Outcome × Perceived Likelihood) / (Time Delay × Effort)  [Hormozi Value Equation]
+- **Competitor-anchored**: Mediana dos top 3 concorrentes × modificador (1.1-1.3 se diferenciação alta; 0.8-0.95 se entrada competitiva)
+- **Economics-anchored**: COGS × 4 a 6 (ecommerce direct-response padrão para viabilizar paid acquisition)
+Se as 3 ancoras divergirem > 40%, revisitar offer antes de prosseguir.
 
 **Bundles (estrutura clássica):**
 
@@ -167,7 +188,7 @@ Exemplo: "90-day results guarantee. If you don't see visible improvement in the 
 
 Crie uma tabela de unit economics pra CADA variação da oferta (solo, bundle, com bump, com upsell):
 
-| Variação | Preço | COGS | Pick&Pack ($2-3) | Frete | Gateway (3%) | Custo Total | Margem $ | Margem % | Breakeven ROAS | Target CPA (2x ROAS) | Target CPA (2.5x ROAS) |
+| Variação | AOV | COGS | Pick&Pack | Frete | Gateway | Custo Total | Margem $ | Margem % | Breakeven ROAS | Target CPA (2× ROAS) | Target CPA (3× ROAS) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | Solo | | | | | | | | | | | |
 | 3-pack | | | | | | | | | | | |
@@ -176,15 +197,32 @@ Crie uma tabela de unit economics pra CADA variação da oferta (solo, bundle, c
 | 3-pack + Bump | | | | | | | | | | | |
 | Solo + Upsell | | | | | | | | | | | |
 
-**Fórmulas:**
-- COGS total = COGS por unidade × qtd + pick&pack + frete + gateway
-- Margem $ = Preço - COGS total
-- Margem % = Margem $ / Preço
-- Breakeven ROAS = Preço / Margem $
-- Target CPA (2x ROAS) = Margem $ / 2
-- Target CPA (2.5x ROAS) = Margem $ / 2.5
+### Unit Economics — Fórmulas
 
-**Regra crítica:** Target CPA pra 2x ROAS deve ser ≥ $30 pra viabilizar scaling com ads pagos. Se der < $15-20, a oferta não sustenta ads a não ser em volume muito alto.
+Receita por unidade vendida:
+- AOV = Average Order Value (Preço × unidades médias por pedido)
+
+Custo por unidade vendida:
+- Custo Total = COGS + Frete + Pick&Pack + Gateway Fee (%)
+
+Margem por unidade:
+- Margem $ = AOV − Custo Total
+
+**Breakeven ROAS** (o mínimo de ROAS pra empatar, antes de lucro):
+- Breakeven ROAS = AOV / Margem $
+- Exemplo: AOV $100, Custo Total $40, Margem $60 → Breakeven ROAS = 100/60 = 1.67
+- Significa: precisa gerar $1.67 de revenue para cada $1 em ads só para empatar
+
+**Target CPA** (CPA máximo para N× ROAS desejado):
+- Target CPA para ROAS N = Margem $ / (N − 1)
+- Exemplo: Margem $60, quer 2× ROAS → CPA máximo = 60/(2−1) = $60
+- Para 3× ROAS → CPA máximo = 60/(3−1) = $30
+
+**PSM** (Profit-to-Spend Multiple, após cobrir CAC):
+- PSM = Margem $ / CPA observado (ex: Margem $60, CPA $30 → PSM = 2.0)
+- Viabilidade: PSM >= 1.2 é mínimo; PSM >= 1.5 é confortável
+
+**Regra crítica:** Target CPA pra 2× ROAS (= Margem $) deve ser ≥ $30 pra viabilizar scaling com ads pagos. Se Margem $ < $15-20, a oferta não sustenta ads a não ser em volume muito alto.
 
 ### ETAPA 6 — AOV Projetado (com Bump e Upsell Acceptance)
 
@@ -203,20 +241,28 @@ AOV = (% compra solo × preço solo)
 Baseline mix (ajustar com data depois):
 - 50% solo, 35% 3-pack, 15% 6-pack (mix típico com Popular destacado no 3-pack)
 
-### ETAPA 7 — PSM Projetado (Profitable Scaling Margin)
+### ETAPA 7 — PSM Projetado (Profit-to-Spend Multiple)
 
-Aplique os princípios de PSM.
+Aplique os princípios de PSM (ver Etapa 5 pra fórmula completa).
 
-**Fórmula:** PSM = LTV / (CPA + COGS)
+**Fórmula:** PSM = Margem $ / CPA observado (ou projetado)
 
-Onde LTV estima valor ao longo de 30-60-90 dias (com reorder rate se aplicável).
+Considere também LTV ao longo de 30-60-90 dias (com reorder rate se aplicável) para refinar a avaliação de escala.
 
 - **PSM < 1.0**: cada cliente perde dinheiro em escala — oferta NÃO viável
 - **PSM = 1.0-1.2**: break-even, cresce devagar com risco
 - **PSM > 1.2**: crescimento lucrativo, pode escalar com confiança
 - **PSM > 1.5**: oferta forte, escala agressiva viável
 
-Se o PSM projetado < 1.2, aponte o problema e sugira ajustes (aumentar AOV via bump mais forte, subir preço, adicionar upsell, ou redesenhar bundle structure).
+Se PSM projetado < 1.2 — oferta **não é viável** com economics atuais. Sugira em ordem:
+1. **Aumentar AOV** (primeira opção, sem arriscar volume):
+   - Bundle (ex: 3-pack desconto 15%)
+   - Upsell no checkout (complemento de $20-40 com margem alta)
+   - Assinatura com desconto 10-15% (aumenta LTV)
+2. **Reduzir COGS** (fornecedor alternativo, negociar volume, frete agregado)
+3. **Aumentar preço** (só se posicionamento competitivo permitir; re-validar pricing anchors)
+4. **Pivotar oferta** — mudar mecanismo ou público-alvo
+NUNCA "reduzir target CPA mágica"; CPA é output de eficácia, não input.
 
 ### ETAPA 8 — Viabilidade com Budget do Membro
 
@@ -229,7 +275,7 @@ Cruze unit economics com budget diário do membro (do profile):
 
 É viável? Pra qual revenue tier (da Skill 10) essa oferta leva o membro em 30/60/90 dias?
 
-### ETAPA 9 — Validação Final (5 Sanity Checks)
+### ETAPA 9 — Validação Final (Sanity Checks)
 
 Antes de salvar, responda HONESTAMENTE:
 
@@ -238,8 +284,52 @@ Antes de salvar, responda HONESTAMENTE:
 3. **As economics permitem escalar?** (PSM > 1.2, CPA target viável com budget do membro)
 4. **O stack de valor é convincente SEM inflar?** (cada bonus é real, útil, entregável)
 5. **A garantia quebra a objeção de risco identificada no market research?** (não é genérica — ataca o medo específico do avatar)
+6. **Pricing triangulado (as 3 ancoras convergem < 40% de diferença)?**
+7. **COGS breakdown completo (produto + frete + pick&pack + gateway + taxas), sem valor agregado?**
+8. **Margem $ ≥ $20 em pelo menos uma variação?** (senão CPA viável inviabiliza ads)
+9. **Bundle structure aumenta AOV sem canibalizar margem?**
+10. **breakeven_roas < 3.0?** (se >3, a oferta depende de CAC muito baixo — validar com @analyst)
 
 Se alguma resposta for "não", **itere antes de salvar**. Uma oferta fraca que passa adiante vira ad ruim, copy genérica, e membro frustrado em 30 dias.
+
+### Output Schema — `04-offer.md` + `04-offer.json`
+
+O markdown é humano; o JSON é para as skills 05/06/08/09/10. Estrutura obrigatória:
+
+`.json`:
+```json
+{
+  "offer_id": "uuid-v4",
+  "product_slug": "<do manifest>",
+  "mechanism": {
+    "name": "...",
+    "version_short": "1 frase",
+    "version_medium": "1 parágrafo",
+    "version_long": "2-3 parágrafos",
+    "sin_score": { "specificity": 9, "intrigue": 8, "novelty": 7 }
+  },
+  "pricing": {
+    "main_sku_price": 97.00,
+    "aov_expected": 127.50,
+    "currency": "BRL"
+  },
+  "cogs_breakdown": {...},
+  "unit_economics": {
+    "margin_per_unit": 62.50,
+    "breakeven_roas": 2.04,
+    "target_cpa_for_2x": 62.50,
+    "target_cpa_for_3x": 31.25,
+    "psm_theoretical": 2.0
+  },
+  "guarantee": { "type": "...", "duration_days": 30 },
+  "bonuses": [...],
+  "sanity_checks_passed": 9
+}
+```
+
+Atualizar `manifest.json`: adicionar `target_cpa`, `breakeven_roas`, `psm_theoretical`, adicionar skill em `skills_completed`.
+
+**Se `04-offer.json` falhar validação, NÃO salvar `.md`.**
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
@@ -254,7 +344,7 @@ Se alguma resposta for "não", **itere antes de salvar**. Uma oferta fraca que p
 5. AOV projetado (Etapa 6)
 6. PSM projetado (Etapa 7)
 7. Viabilidade com budget (Etapa 8)
-8. Respostas aos 5 sanity checks (Etapa 9)
+8. Respostas aos sanity checks (Etapa 9)
 
 ## Mensagem Final
 
