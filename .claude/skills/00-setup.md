@@ -19,6 +19,14 @@ Consulte a base Aura extensivamente sobre fundamentos operacionais, o estado atu
 
 ## Fluxo da Skill
 
+### Pré-flight
+
+Antes de prosseguir, valide (falha em qualquer item → aborta com instrução de correção):
+
+- [ ] `/workspace/` existe e é gravável: `mkdir -p /workspace && touch /workspace/.aura-probe && rm /workspace/.aura-probe`
+- [ ] MCP `aura` responde dentro de 10s (usar timeout explícito na chamada de teste)
+- [ ] Template HTML disponível em `.claude/templates/aura-report-template.html` (se ausente, a Etapa 5 gera HTML mínimo inline com aviso)
+
 ### ETAPA 1 — Verificação de Dependências
 
 Antes de qualquer pergunta, verifique se o ambiente técnico está OK. Dependência obrigatória: **Node.js v20+**.
@@ -30,7 +38,7 @@ Antes de qualquer pergunta, verifique se o ambiente técnico está OK. Dependên
 node --version 2>/dev/null
 
 # Node via nvm
-[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh" && nvm current 2>/dev/null
+NVM_DIR="${NVM_DIR:-$HOME/.nvm}"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && nvm current 2>/dev/null || true
 
 # Node via brew
 /opt/homebrew/bin/node --version 2>/dev/null
@@ -139,6 +147,13 @@ Salve tudo no profile pra servir de referência em TODAS as skills seguintes —
 
 ### ETAPA 5 — Salvar Profile
 
+**Antes de qualquer escrita**, garanta que o diretório de destino exista:
+
+```bash
+mkdir -p /workspace/
+mkdir -p /workspace/[produto]/   # onde [produto] = slug gerado a partir do nome do produto (ver Etapa 5B)
+```
+
 Use os valores capturados das variáveis `SITUACAO`, `BUDGET`, `TOOLS`, `LINK` e `SHOPIFY_LINK` da Etapa 3 mais os dados extraídos na Etapa 4. Salve em `/workspace/profile.md`:
 
 ```markdown
@@ -171,6 +186,35 @@ Link do produto principal: [url ou "N/A"]
 - Guarantee atual: [tipo + duração ou "nenhum"]
 - Mecanismo único atual: [nome ou "não identificado"]
 - Link de checkout: [url]
+```
+
+### ETAPA 5B — Criar Manifest (fonte única de verdade)
+
+Paralelamente ao `profile.md`, crie o arquivo `/workspace/[produto]/manifest.json`. Este é o **ÚNICO** local que todas as skills seguintes leem/atualizam para descobrir paths, progresso, e métricas. Substitui qualquer inferência manual de caminho.
+
+- `product_slug` — gere via slugify do nome do produto detectado na Etapa 4 (lowercase, ASCII, hyphens; regex `^[a-z0-9-]+$`). Se não houver produto (Situação A), use `dev-placeholder-[YYYYMMDD]` e a skill 01 substituirá depois.
+- `product_name` — nome humano do produto (ou "TBD — product research pending" para Situação A).
+- `product_url` — URL informada pelo membro, se houver.
+- `created_at` / `updated_at` — timestamps ISO-8601 UTC (mesmo valor inicial).
+- `setup_complete: true`.
+- `budget_tier` — mapeie de `BUDGET` (starter / standard / escala-inicial / escala-avancada).
+- `skills_completed: ["00-setup"]`.
+
+Schema completo em `.claude/templates/manifest-schema.json`. Valide contra o schema antes de salvar (estrutural; ignore propriedades opcionais ainda não preenchidas).
+
+Exemplo mínimo:
+
+```json
+{
+  "product_slug": "collagen-glow",
+  "product_name": "Collagen Glow",
+  "product_url": "https://example.com",
+  "created_at": "2026-04-16T13:00:00Z",
+  "updated_at": "2026-04-16T13:00:00Z",
+  "setup_complete": true,
+  "budget_tier": "standard",
+  "skills_completed": ["00-setup"]
+}
 ```
 
 ### ETAPA 6 — Confirmação + Roteamento Inteligente
@@ -214,12 +258,21 @@ Cada fase lê o que as anteriores produziram em /workspace/[produto]/ — você 
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-Salve em DOIS arquivos:
+Garanta `mkdir -p /workspace/` e `mkdir -p /workspace/[produto]/` antes de qualquer write.
+
+Salve em TRÊS arquivos:
 1. **`/workspace/profile.md`** (formato da Etapa 5 — a AI lê nas fases seguintes)
 2. **`/workspace/profile.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura)
+3. **`/workspace/[produto]/manifest.json`** (Etapa 5B — fonte única de verdade para todas as próximas skills)
 
-Se o membro já tinha um profile anterior e está refazendo, faça backup em `/workspace/.profile-backup-[YYYYMMDD-HHMMSS].md` antes de sobrescrever.
+**Validação do template HTML**: antes de escrever `profile.html`, confirme que `.claude/templates/aura-report-template.html` existe (`test -f`). Se NÃO existir, gere um HTML mínimo inline com CSS básico, um cabeçalho textual "Aura Engine — Profile" e um aviso no topo: `<!-- WARNING: template .claude/templates/aura-report-template.html missing; fallback HTML in use -->`. Nunca aborte por template ausente.
+
+Se o membro já tinha um profile anterior e está refazendo, faça backup em `/workspace/.profile-backup-[YYYYMMDD-HHMMSS].md` e do manifest em `/workspace/[produto]/.manifest-backup-[YYYYMMDD-HHMMSS].json` antes de sobrescrever.
 
 ## Mensagem Final
 
 Já coberta na Etapa 6 — roteamento específico pela situação (A/B/C/D).
+
+Adicione ao final da confirmação:
+
+> O `manifest.json` em `/workspace/[produto]/manifest.json` é a **fonte única de verdade**. Todas as próximas skills leem e atualizam este arquivo automaticamente. **NUNCA edite manualmente** — isso corrompe a coordenação entre skills.
