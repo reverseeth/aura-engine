@@ -10,10 +10,17 @@ Quando a campanha está rodando há 3+ dias e o membro precisa diagnosticar o qu
 
 ## Antes de Começar
 
+### Pré-flight
+- [ ] `08-ad-strategy.json` existe
+- [ ] Dir `/workspace/[produto]/09-analysis/` existe (`mkdir -p`)
+- [ ] Se houver análises anteriores, ler AS 2 MAIS RECENTES (para delta/trend analysis)
+
+### Contexto a carregar
+
 1. Leia `/workspace/profile.md` (budget — contexto pra decisões de scale)
 2. Leia `/workspace/[produto]/04-offer.md` (target CPA, breakeven ROAS, margem — benchmarks pra avaliar performance)
 3. Leia `/workspace/[produto]/08-ad-strategy.md` (estrutura da campanha, conceitos testados, regras de decisão)
-4. Leia `/workspace/[produto]/08-analysis/` — **SE EXISTIR**, leia análises anteriores em ordem cronológica (pra ver evolução, identificar tendências, comparar com análises passadas)
+4. Leia `/workspace/[produto]/09-analysis/` — **SE EXISTIR**, leia análises anteriores em ordem cronológica (pra ver evolução, identificar tendências, comparar com análises passadas)
 5. Consulte a base Aura extensivamente sobre 4Pi Analysis (Spend/Frequency/CPM/Cost per Result completo), 4Pi Dashboard Setup (custom metrics), creative fatigue (sinais e tratamento), revisão de Ads Perdedores (diagnostic 19 pontos), revisão de Ads Vencedores e extração de ideias, Framework de 12 Perguntas pra Feedback Loops, Aplicação de Learnings pra Novos Ads, Complete a Feedback Loop, Feedback Loops como Motor de Crescimento, ROAS Targets e Scaling, Minimum Daily Spend (por que ads ruins geram gasto), PGS, winning ad rate, funnel creative playbook (positions e signatures TOF/MOF/BOF). Cada framework que existir, aplique.
 
 ## Fluxo da Skill
@@ -36,6 +43,27 @@ Se o membro mandar screenshot, extraia os números via análise visual.
 ### ETAPA 2 — 4Pi Analysis (Ordem EXATA)
 
 Aplique os 4 Pi's **NA ORDEM** (Spend → Frequency → CPM → Cost per Result). A ordem importa — cada Pi contextualiza o próximo.
+
+#### Dados insuficientes — como proceder
+
+- **Ad set rodou < 24h**: análise 4Pi é **inválida**; apenas diagnóstico qualitativo. Marque "PRELIMINAR" no output.
+- **Ad set < 50 conversions**: CPA é ruído; use Spend + Freq + CPM apenas. CPA column = "insufficient data".
+- **Dados faltando Frequency ou CPM** (API error): tentar refetch; se persistir, documentar como `data_gap` e pular aquele Pi.
+
+#### CPM subindo: fadiga OU sazonalidade?
+
+Antes de declarar "fadiga" (que justifica creative refresh), checar:
+- Calendário: Q2-Q4 geralmente vê CPM subindo (holiday prep, Black Friday, Xmas)
+- Benchmark setor: olhe CPM médio do seu vertical na semana atual (Meta insights ou reports de terceiros)
+- Delta relativo: se seu CPM subiu 15% mas vertical subiu 20%, você está na média — NÃO é fadiga
+- Só declare fadiga se CPM subiu > 20% VS vertical e freq > 1.3
+
+#### Winner picking — ROAS ou CPA?
+
+Para decisões de "qual ad set é melhor":
+- Use ROAS quando AOV varia entre ad sets (ex: um ad set traz upsells mais)
+- Use CPA quando AOV é ~estável
+- **Regra**: Profit per ad spend = (AOV × CVR − CPA) — use isto se disponível
 
 #### Pi 1: SPEND
 
@@ -79,6 +107,23 @@ Compare CPA de cada ad set contra o **target CPA da oferta** (do `04-offer.md`):
 
 Contexto importante: **CPA de um ad set isolado não é tudo**. "a campanha overall melhorou?". Se campanha total está dentro de CPA target mesmo com 1-2 ad sets fora, a maquina tá OK. Otimiza os outliers, não destrua campanha.
 
+#### LOSER threshold (dinâmico — NOVO)
+
+**Antigo** (hardcoded): CPA > 2× target → LOSER.
+
+**Novo** (dinâmico, do `04-offer.json`):
+- `breakeven_cpa = offer.unit_economics.margin_per_unit`
+- `target_cpa_1x = breakeven_cpa × 1.0`  → loss
+- `target_cpa_2x = offer.unit_economics.target_cpa_for_2x`
+- LOSER threshold = `breakeven_cpa × 0.8` (80% do breakeven — já tá queimando dinheiro com buffer)
+- Se offer tem PSM ≥ 1.5 (high-margin), threshold = `breakeven × 0.7` (mais tolerância)
+- Se offer tem PSM < 1.2, threshold = `breakeven × 0.95` (zero tolerância)
+
+Fórmula monotônica decrescente:
+```
+loser_cpa = breakeven_cpa × (0.95 − 0.05 × max(0, min(3, offer.psm − 1)))
+```
+
 ### ETAPA 3 — Diagnóstico Por Ad Set
 
 Pra CADA ad set, classifique:
@@ -97,36 +142,36 @@ Pra CADA ad set, classifique:
 
 ### ETAPA 4 — Diagnóstico Profundo de LOSERS (19-Point Diagnostic)
 
-Consulte a base Aura sobre "revisão de ads perdedores 19 pontos". Aplique o checklist diagnóstico pra cada LOSER:
+### 19-Point Loser Diagnostic
 
-**Camada 1: Targeting/Audience**
-1. Audience estava certa pro awareness level? (se é TOF, broad é certo; se é warm, Advantage+ broad ainda ok mas specific retargeting pode performar melhor)
-2. Mercado geográfico alinhado com o que o produto atende?
-3. Idade/gênero apropriados?
+**Camada 1: Targeting (4 pontos)**
+1. Audience muito broad — CTR alto, CVR baixo
+2. Audience muito narrow — CPM alto, volume baixo
+3. Exclusões conflitantes (ex: excluir compradores mas campaign é de aquisição — conflito)
+4. Lookalike source com baixa qualidade (seed < 500 de alta qualidade)
 
-**Camada 2: Hook/Criativo**
-4. O hook do criativo grabbed attention nos primeiros 3s? (thumbstop baixo → hook fraco)
-5. O criativo comunica valor CLARO na primeira exposição (sem áudio)?
-6. O formato escolhido casa com a audience (UGC pra mainstream, demo pra technical)?
-7. A duração é apropriada (TOF curto 15-22s, BOF pode ser mais longo)?
+**Camada 2: Hook (4 pontos)**
+5. Hook não promete ganho específico
+6. Hook sem pattern interrupt visual (3 primeiros segundos)
+7. Hook não casa com awareness stage dominante
+8. Hook saturado (claim idêntico a 5+ concorrentes)
 
-**Camada 3: Copy/Messaging**
-8. Primary text tem hook forte na primeira linha (antes do "See more")?
-9. Headline é clara e ressoa com audience?
-10. Congruência ad → LP (message match, visual match, promise match)?
-11. Claim usado não é saturado (do competitor analysis)?
+**Camada 3: Copy (4 pontos)**
+9. Primary text > 125 chars (corta em mobile)
+10. CTA vago ("saiba mais" vs "ativar desconto 30%")
+11. Zero social proof específico
+12. Benefício listado sem transformação (feature, não benefit)
 
-**Camada 4: Oferta/LP**
-12. LP carrega rápido? (mobile speed score)
-13. Above-the-fold da LP comunica a promessa do ad em 3 segundos?
-14. Oferta tem stack de valor forte ou parece overpriced?
-15. Garantia visível?
+**Camada 4: Offer (4 pontos)**
+13. Preço quebra o budget do awareness stage
+14. Garantia fraca ou ausente
+15. Urgência artificial óbvia
+16. Bundle não faz sentido para o público
 
-**Camada 5: Técnico**
-16. Pixel + CAPI funcionando? (verifica no Events Manager)
-17. Eventos disparando corretamente (PageView, ViewContent, AddToCart, InitiateCheckout, Purchase)?
-18. UTMs capturando corretamente (pra atribuir no Shopify)?
-19. Gateway/checkout não tem erro técnico (test purchase)?
+**Camada 5: Técnico (3 pontos)**
+17. Pixel Match Quality < 80%
+18. Landing page carrega > 3s (mobile)
+19. Mismatch ad → landing (visual/copy)
 
 Pra cada loser, identifique **a camada onde falhou** e a hipótese específica. Documente.
 
@@ -215,12 +260,70 @@ Na seção final do relatório, documente learnings que vão alimentar próximos
 
 Isso é o "feedback loop motor de crescimento" — cada análise enriquece o próximo batch de criativos.
 
+### PII redaction (antes de salvar qualquer dump de Ads Manager)
+
+Antes de persistir dados em `/workspace/`:
+- Substituir Account IDs por `ACC-[hash 8 chars]`
+- Substituir Pixel IDs por `PX-[hash 8 chars]`
+- Remover emails em UTM/audience names (regex `[\w.+-]+@[\w.-]+\.\w+` → `[EMAIL_REDACTED]`)
+- Remover telefones em audience names (regex `\+?\d{10,15}` → `[PHONE_REDACTED]`)
+- Nota: manter hash dos IDs consistente entre execuções para correlacionar análises
+
+### Output adicional — NEXT_BATCH_IDEAS.md (fecha loop 09→07)
+
+Além de `[YYYYMMDD]-analysis.md`, gerar OBRIGATORIAMENTE:
+`/workspace/[produto]/09-analysis/NEXT_BATCH_IDEAS.md`
+
+Conteúdo:
+- **Ângulos a testar no próximo batch de creatives** (2-3 bullets específicos)
+- **Ângulos a EVITAR** (identificados como saturados ou já losers)
+- **VOC phrases não usadas ainda** que aparecem em learning de review mining
+- **Formatos a priorizar** (UGC vs studio vs static vs video — baseado em performance)
+- **Awareness stage para focar** (se campanha atual oversserve um stage)
+
+**Skill 07 DEVE ler este arquivo no pre-flight.** Isto fecha o loop 09→07.
+
+### Panorama para skill 10 (scale) — handoff
+
+Se ações próximas = 'scale', skill 10 lerá este JSON SEM precisar perguntar:
+`/workspace/[produto]/09-analysis/latest.json` (cópia do último análise) com campos:
+
+```json
+{
+  "current_daily_spend": 0,
+  "current_cpa_avg": 0,
+  "current_roas_avg": 0,
+  "active_winners_count": 0,
+  "active_losers_count": 0,
+  "health_signals": {
+    "frequency_max": 0,
+    "cpm_trend": "up|flat|down",
+    "creative_age_days": 0
+  },
+  "psm_real": 0,
+  "recommended_action": "continue|scale|refresh_creatives|kill"
+}
+```
+
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
 **Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
 
+**Garantir diretório:** `mkdir -p /workspace/[produto]/09-analysis/` antes de salvar.
 
-`/workspace/[produto]/08-analysis/[YYYYMMDD]-analysis.md` contendo todas as 10 etapas. A pasta `08-analysis/` acumula histórico — análises anteriores servem de input pra comparar evolução nas análises seguintes.
+Outputs em `/workspace/[produto]/09-analysis/`:
+- `[YYYYMMDD]-analysis.md` (contendo todas as 10 etapas — histórico cumulativo)
+- `[YYYYMMDD]-analysis.html` (companion visual)
+- `NEXT_BATCH_IDEAS.md` (input pra skill 07 no próximo batch — fecha loop)
+- `latest.json` (handoff pra skill 10 — schema acima)
+
+A pasta `09-analysis/` acumula histórico — análises anteriores servem de input pra comparar evolução nas análises seguintes.
+
+### Atualizar manifest
+
+Após salvar, atualizar `/workspace/[produto]/manifest.json`:
+- Adicionar `09-ad-analysis` em `skills_completed` (primeira vez) ou incrementar `analysis_count`
+- Registrar `last_analysis_date`, `psm_real` (calculado), `recommended_action`
 
 ## Mensagem Final
 
