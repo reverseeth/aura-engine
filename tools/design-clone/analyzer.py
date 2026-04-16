@@ -112,12 +112,28 @@ def extract_images_in_section(el):
     return imgs
 
 
+MAX_REPEAT_DEPTH = 3
+
+
+def _iter_descendants_bounded(el, max_depth: int = MAX_REPEAT_DEPTH):
+    """Itera descendentes de `el` até `max_depth` níveis (helper anti-explosão)."""
+    def _walk(node, depth):
+        if depth >= max_depth:
+            return
+        for child in node.find_all(recursive=False):
+            yield child
+            yield from _walk(child, depth + 1)
+
+    yield from _walk(el, 0)
+
+
 def extract_repeating_pattern(el):
     """
     Detecta padrões repetíveis (features, testimonials, faq items).
     Retorna lista de elementos filhos com mesma estrutura, ou [] se não houver.
+    Procura recursivamente até `MAX_REPEAT_DEPTH` (3) níveis pra evitar explosão.
     """
-    children_by_tag_class = {}
+    children_by_tag_class: dict = {}
     for child in el.find_all(recursive=False):
         key = (child.name, " ".join(sorted(child.get("class", []))))
         children_by_tag_class.setdefault(key, []).append(child)
@@ -126,7 +142,10 @@ def extract_repeating_pattern(el):
         if len(group) >= 2:
             return group
 
-    for container in el.find_all(["div", "ul", "ol"], recursive=True):
+    # Busca descendentes com limite de profundidade
+    for container in _iter_descendants_bounded(el, max_depth=MAX_REPEAT_DEPTH):
+        if container.name not in ("div", "ul", "ol", "section", "article"):
+            continue
         kids = container.find_all(recursive=False)
         if len(kids) < 2:
             continue
@@ -224,7 +243,7 @@ def main():
         sections.append({
             "index": len(sections) + 1,
             "semantic_type": sem_type,
-            "confidence": round(confidence, 2),
+            "confidence": round(min(1.0, max(0.0, confidence)), 2),
             "tag": el.name,
             "id": el.get("id"),
             "classes": el.get("class", []),
@@ -257,4 +276,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n[analyzer] interrompido pelo usuário", file=sys.stderr)
+        sys.exit(130)

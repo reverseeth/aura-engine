@@ -33,9 +33,29 @@ Depois:
 
 import argparse
 import json
+import logging
+import os
 import re
 import sys
+import tempfile
 from pathlib import Path
+
+# Módulo compartilhado (consolidação do CSS rewrite antes duplicado)
+try:
+    from _css_utils import rewrite_css_for_namespace
+except ImportError:
+    _THIS_DIR = Path(__file__).resolve().parent
+    if str(_THIS_DIR) not in sys.path:
+        sys.path.insert(0, str(_THIS_DIR))
+    from _css_utils import rewrite_css_for_namespace  # noqa: E402
+
+
+logger = logging.getLogger("design_clone.preview")
+if not logger.handlers:
+    _handler = logging.StreamHandler(sys.stderr)
+    _handler.setFormatter(logging.Formatter("%(levelname)s %(name)s: %(message)s"))
+    logger.addHandler(_handler)
+    logger.setLevel(logging.INFO)
 
 
 SECTION_SPLIT_RE = re.compile(r"\{%\s*schema\s*%\}(.*?)\{%\s*endschema\s*%\}", re.DOTALL)
@@ -45,79 +65,40 @@ CONTENT_FOR_BLOCKS_RE = re.compile(r"\{%\s*content_for\s+['\"]blocks['\"]\s*%\}"
 IF_BLOCK_RE = re.compile(r"\{%\s*if\s+section\.settings\.(\w+)\s*%\}(.*?)\{%\s*endif\s*%\}", re.DOTALL)
 SETTINGS_VAR_RE = re.compile(r"\{\{\s*section\.settings\.(\w+)(?:\s*\|\s*([^}]+?))?\s*\}\}")
 
-# Para rewrite de CSS: espelha slugify do liquid-converter
-def slugify(text, max_len=40):
-    s = re.sub(r"[^a-z0-9]+", "_", (text or "").lower()).strip("_")
-    return s[:max_len] or "field"
+
+def _path_allowlist() -> list[Path]:
+    """Allowlist para paths de input/output (anti path-traversal)."""
+    roots: list[Path] = [Path(tempfile.gettempdir()).resolve(), Path.cwd().resolve()]
+    home = os.environ.get("HOME")
+    if home:
+        roots.append((Path(home) / "aura-engine" / "workspace").resolve())
+    seen: set[str] = set()
+    out: list[Path] = []
+    for r in roots:
+        if str(r) not in seen:
+            seen.add(str(r))
+            out.append(r)
+    return out
 
 
-HEX_COLOR_RE = re.compile(r"^[0-9a-fA-F]{3,8}$")
-CSS_CLASS_SELECTOR_RE = re.compile(r"\.([a-zA-Z_][\w-]*)")
-CSS_ID_SELECTOR_RE = re.compile(r"#([a-zA-Z_][\w-]*)")
-CSS_RULE_SELECTOR_SPLIT_RE = re.compile(r"(\s*\{\s*)", re.MULTILINE)
-
-
-def rewrite_css_for_namespace(css, namespace):
-    """
-    Reescreve classes e IDs nos selectors do CSS pra casar com o namespace que o
-    converter aplicou no HTML. Só mexe na parte de selector (antes do `{`), não
-    nos valores de propriedade (pra não quebrar hex colors, content: "#foo", etc).
-    """
-    if not css or not namespace:
-        return css
-
-    def rewrite_selector_text(selector_text):
-        def class_sub(m):
-            cls = m.group(1)
-            return f".{namespace}__{slugify(cls)}"
-
-        def id_sub(m):
-            ident = m.group(1)
-            # Pula hex colors (embora em selector seja raro, melhor ser safe)
-            if HEX_COLOR_RE.match(ident) and len(ident) in (3, 4, 6, 8):
-                return m.group(0)
-            return f"#{namespace}-{slugify(ident)}"
-
-        result = CSS_CLASS_SELECTOR_RE.sub(class_sub, selector_text)
-        result = CSS_ID_SELECTOR_RE.sub(id_sub, result)
-        return result
-
-    # Split em blocks {...} pra processar só selectors
-    out = []
-    i = 0
-    n = len(css)
-    while i < n:
-        brace = css.find("{", i)
-        if brace == -1:
-            out.append(css[i:])
-            break
-        selector_part = css[i:brace]
-        # Handle @media, @supports, etc. — keep @-rule prefix untouched, only rewrite nested selectors
-        if selector_part.lstrip().startswith("@"):
-            # Push through — nested rules will be handled in recursive block processing below
-            out.append(selector_part)
-        else:
-            out.append(rewrite_selector_text(selector_part))
-        out.append("{")
-        # Find matching closing brace handling nested
-        depth = 1
-        j = brace + 1
-        while j < n and depth > 0:
-            c = css[j]
-            if c == "{":
-                depth += 1
-            elif c == "}":
-                depth -= 1
-            j += 1
-        block_content = css[brace + 1:j - 1]
-        # If this was a media/supports rule, recurse into its content
-        if selector_part.lstrip().startswith("@"):
-            out.append(rewrite_css_for_namespace(block_content, namespace))
-        else:
-            out.append(block_content)
-        out.append("}")
-        i = j
-    return "".join(out)
+def validate_path(path_str: str, must_exist: bool = False) -> Path:
+    """Resolve e valida path dentro da allowlist."""
+    if not path_str:
+        raise ValueError("Path vazio")
+    candidate = Path(path_str).expanduser().resolve()
+    allowed = _path_allowlist()
+    for root in allowed:
+        try:
+            candidate.relative_to(root)
+            if must_exist and not candidate.exists():
+                raise ValueError(f"Path {candidate!r} não existe")
+            return candidate
+        except ValueError:
+            continue
+    raise ValueError(
+        f"Path {candidate!r} fora da allowlist. Permitido em: "
+        + ", ".join(str(p) for p in allowed)
+    )
 
 
 def parse_liquid_file(liquid_path):
@@ -289,18 +270,38 @@ def main():
         print(f"ERRO: {section_path} não encontrado", file=sys.stderr)
         sys.exit(1)
 
-    markup, stylesheet, schema = parse_liquid_file(section_path)
+    try:
+        markup, stylesheet, schema = parse_liquid_file(section_path)
+    except json.JSONDecodeError as exc:
+        print(
+            f"ERRO: schema inválido em {section_path} (linha {exc.lineno} col {exc.colno}): {exc.msg}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
     defaults = settings_to_defaults(schema.get("settings", []))
 
-    images_dir = Path(args.images_dir).expanduser().resolve() if args.images_dir else None
-    if images_dir and not images_dir.exists():
-        images_dir = None
+    images_dir = None
+    if args.images_dir:
+        try:
+            images_dir = validate_path(args.images_dir, must_exist=False)
+        except ValueError as exc:
+            print(f"ERRO: --images-dir inválido: {exc}", file=sys.stderr)
+            sys.exit(1)
+        if not images_dir.exists():
+            images_dir = None
 
-    images_url_map = {}
+    images_url_map: dict = {}
     if args.images_json:
         p = Path(args.images_json).expanduser().resolve()
         if p.exists():
-            images_url_map = json.loads(p.read_text(encoding="utf-8"))
+            try:
+                images_url_map = json.loads(p.read_text(encoding="utf-8"))
+            except json.JSONDecodeError as exc:
+                print(
+                    f"ERRO: JSON inválido em {p} (linha {exc.lineno} col {exc.colno}): {exc.msg}",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
 
     markup_filled = apply_settings(markup, defaults, images_url_map)
     markup_filled = inject_image_url_placeholders(markup_filled, images_url_map, images_dir or Path("/dev/null"))
@@ -315,7 +316,11 @@ def main():
     namespace = detect_namespace(schema)
 
     html = build_html(markup_filled, stylesheet, external_css, namespace)
-    output_path = Path(args.output).expanduser().resolve()
+    try:
+        output_path = validate_path(args.output, must_exist=False)
+    except ValueError as exc:
+        print(f"ERRO: --output inválido: {exc}", file=sys.stderr)
+        sys.exit(1)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(html, encoding="utf-8")
 
@@ -327,4 +332,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n[preview] interrompido pelo usuário", file=sys.stderr)
+        sys.exit(130)
+    except Exception as exc:  # noqa: BLE001 — CLI surface
+        logger.error("falha inesperada: %s", exc)
+        sys.exit(1)
