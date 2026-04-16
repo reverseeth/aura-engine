@@ -50,10 +50,13 @@ O membro pode acionar qualquer skill por nome:
 - "competitor analysis" → skill 03
 - "offer" → skill 04
 - "copy" → skill 05
-- "creatives" → skill 06
-- "ad strategy" → skill 07
-- "ad analysis" → skill 08
-- "scale" → skill 09
+- "page" → skill 06 (construir a página no Shopify — modo A aplicar copy, modo B clonar design de concorrente)
+- "creatives" → skill 07
+- "ad strategy" → skill 08
+- "ad analysis" → skill 09
+- "scale" → skill 10
+
+ORDEM LÓGICA DE EXECUÇÃO: a página (skill 06) vem ANTES dos criativos (skill 07). Não faz sentido gerar ads pra uma página que ainda não existe. O fluxo completo é: setup → product research → market research → competitor analysis → offer → copy → **page** → creatives → ad strategy → ad analysis → scale.
 
 Ou pode simplesmente descrever o que precisa e você identifica qual skill usar.
 

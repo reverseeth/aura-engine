@@ -87,7 +87,7 @@ Pra CADA ad set, classifique:
 → Ação: escala automática via PGS. Se quer escalar mais agressivo, considera promover criativo a Champion (Post ID) e adicionar ad set dedicado.
 
 **IN FATIGUE:** CPM subindo + CTR caindo + Freq subindo ao longo dos dias (comparar com análises anteriores).
-→ Ação: refresh criativo (trocar 1-2 dos 3 criativos do 3-2-2) OU adicionar novo batch de conceitos (Skill 06). **Não pausar ainda** — pode ainda estar performando acima do breakeven mesmo com sinais de fadiga.
+→ Ação: refresh criativo (trocar 1-2 dos 3 criativos do 3-2-2) OU adicionar novo batch de conceitos (Skill 07). **Não pausar ainda** — pode ainda estar performando acima do breakeven mesmo com sinais de fadiga.
 
 **LOSER:** sem spend em 7 dias OU CPA > 2× target após 7 dias.
 → Ação: PAUSAR. Fazer diagnóstico profundo (Etapa 4) pra entender por que falhou.
@@ -138,7 +138,7 @@ Pra cada WINNER, extraia learnings aplicando o framework da vault:
 - **Por que funcionou?** (hipótese causal — ex: "hook de curiosity pattern interrupt em audience Problem Aware onde concorrentes usam authority-first")
 - **Como replicar?** (quais elementos isolar pra usar em próximos batches — ex: "o hook 'POV: você acorda com X' pode ser template pra outros conceitos")
 
-Learnings vão alimentar Skill 06 (creatives) no próximo batch — escreva de forma utilizável.
+Learnings vão alimentar Skill 07 (creatives) no próximo batch — escreva de forma utilizável.
 
 ### ETAPA 6 — Balanço de Funil
 
@@ -179,14 +179,14 @@ Compile respostas num bloco objetivo.
 
 **CURTO PRAZO (3-7 dias):**
 - Se tem fadiga: refresh de criativos nos ad sets afetados (trocar 1-2 dos 3 no 3-2-2)
-- Se falta diversidade de funil: gerar novo batch de conceitos (Skill 06) com foco na posição faltante
+- Se falta diversidade de funil: gerar novo batch de conceitos (Skill 07) com foco na posição faltante
 - Ajuste de URLs se 3-2-2-2 mostrou preferência clara de LP
 
 **MÉDIO PRAZO (2-4 semanas):**
 - Se winners estáveis: promover pra Champion (Post ID separado)
-- Se CPA está melhor que target consistentemente: reavaliar se dá pra escalar mais (vertical + horizontal — delegar pra Skill 09)
+- Se CPA está melhor que target consistentemente: reavaliar se dá pra escalar mais (vertical + horizontal — delegar pra Skill 10)
 - Se oferta parece ser o bloqueio: voltar pra Skill 04 e ajustar (bundle structure, guarantee, stack)
-- Se página parece ser o bloqueio: voltar pra Skill 05/10 e iterar
+- Se página parece ser o bloqueio: voltar pra Skill 05/06 e iterar
 
 ### ETAPA 9 — Decisão de Scaling (Recomendação Clara)
 

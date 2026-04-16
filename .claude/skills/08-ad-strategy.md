@@ -6,14 +6,14 @@ description: Engine de configuração da estrutura completa de campanha no Meta 
 # Ad Strategy Engine
 
 ## Quando Usar
-Quando o membro tem criativos editados (da Skill 06) + LP pronta (da Skill 05) + oferta ativa na loja (Skill 04), e precisa configurar a estrutura completa no Meta Ads Manager. Essa skill não é "estratégia conceitual" — é **executional playbook**, passo a passo.
+Quando o membro tem criativos editados (da Skill 07) + página pronta na loja (da Skill 07) + oferta ativa (Skill 04), e precisa configurar a estrutura completa no Meta Ads Manager. Essa skill não é "estratégia conceitual" — é **executional playbook**, passo a passo.
 
 ## Antes de Começar
 
 1. Leia `/workspace/profile.md` (budget diário — define tamanho da campanha; Meta Ads Manager conta ativa)
 2. Leia `/workspace/[produto]/04-offer.md` (CPA target vem daqui — Margem / 2 pra 2× ROAS, Margem / 2.5 pra 2.5× ROAS)
 3. Leia `/workspace/[produto]/05-copy.md` (URLs de destino — 1 ou múltiplas LPs)
-4. Leia `/workspace/[produto]/06-creatives/` (conceitos + briefings — cada conceito vira 1 ad set)
+4. Leia `/workspace/[produto]/07-creatives/` (conceitos + briefings — cada conceito vira 1 ad set)
 5. Consulte a base Aura extensivamente sobre: One Campaign Method (AndroMeta — Charley T / Disrupter Academy), Andromeda System (o que mudou no Meta e por que), Scientific Method for Meta Ads (control vs variable), 3-2-2 Flexible Ads format (estrutura e regras de teste), Performance Gate Scaling (PGS — regra automatizada de 5%), budget scaling methods (farmer/aggressive/operator), 4Pi Analysis signatures pra interpretação de dados depois, naming conventions, CAPI e Pixel Data setup (Advanced Matching + Event Quality), Ad Account e Pixel-Dataset Setup, Estrutura de Assets Anti-Ban, Automated Rules pra Lead Gen Campaigns, Minimum Daily Spend (por que ads ruins geram gasto), Scientific Method (control vs variable), Profitable Scaling Margin (PSM — Golden Ratio of Growth), Overview e Estratégia de Media Buying, ROAS Targets e Scaling (vertical vs horizontal). Aprofunde em cada sub-conceito. Operacional é detalhe — errar naming convention ou deixar "daily minimums" ativo mata campanhas.
 
 ## Fluxo da Skill
@@ -31,7 +31,7 @@ Pergunte em UMA única mensagem:
 - **Pixel não funcionando** → Events Manager do Meta > Test Events. Deve mostrar PageView, ViewContent, AddToCart, InitiateCheckout, Purchase. Se algum falta, verificar instalação no tema Shopify (Settings > Customer events > Meta pixel).
 - **CAPI não configurada** → No Shopify (ou via Triple Whale se o membro tem), habilitar "Conversions API" no Pixel. Meta > Events Manager > Settings > Set up Conversions API. Deve mostrar dupla-coluna (Browser + Server) com ≥80% de match quality.
 - **Produto não ativo** → Shopify > Products — verificar status "Active" + inventário > 0 + imagem + descrição. Link do checkout funcional.
-- **Criativos não prontos** → redirecionar pra `'creatives'` (Skill 06).
+- **Criativos não prontos** → redirecionar pra `'creatives'` (Skill 07).
 
 Não prossiga pra Etapa 2 enquanto os 3 itens não estiverem "sim".
 
@@ -65,7 +65,7 @@ Com esse limite, distribua os ad sets:
 **Tipos de ad set (dependendo do estágio do membro):**
 
 1. **Champions** (se houver — tem winning ads anteriores): ad sets com **Post IDs dos winning creatives** (use "Use existing post" pra reaproveitar social proof acumulado — likes, shares, comments)
-2. **Creative Batches**: UM ad set por conceito da Skill 06 (ex: 5 conceitos = 5 ad sets)
+2. **Creative Batches**: UM ad set por conceito da Skill 07 (ex: 5 conceitos = 5 ad sets)
 3. **Page Test** (se houver múltiplas LPs pra testar): ad set adicional com 3-2-2-2 (detalhe na Etapa 5)
 
 Se o total exceder o max, priorize: Champions > Creative Batches > Page Test. Fique dentro do limite.
@@ -96,7 +96,7 @@ Para CADA ad set (exceto Champions que usam Post IDs), configure o ad usando o f
 - **Identity**: sua Facebook Page + Instagram (mesmo handle ideal)
 
 **3-2-2 configuration (flexible ad):**
-- **3 Creatives**: upload dos 3 criativos do conceito (do briefing da Skill 06)
+- **3 Creatives**: upload dos 3 criativos do conceito (do briefing da Skill 07)
 - **2 Primary texts**: os 2 primary texts do briefing
 - **2 Headlines**: as 2 headlines do briefing
 - **Descriptions**: **deixar vazio** (per vault — descriptions raramente melhoram performance em Flexible Ad)
@@ -139,16 +139,16 @@ Aplique as regras da vault. **Cada timeline tem ação específica:**
 - **Ad set com CPA > 3× target** em 72h → pode ser considerado pra pausa se tiver outros ad sets rodando ok (mas não pause tudo impulsivamente).
 
 **DIA 7 (7 dias):**
-- Primeira avaliação completa. Rodar Skill 08 (ad-analysis) com os dados.
+- Primeira avaliação completa. Rodar Skill 09 (ad-analysis) com os dados.
 - **Critério de WINNER:** CPA ≤ target + CAMPAIGN overall improved (não olha só um ad set — olha a campanha inteira) + escalou spend nos últimos 3 dias consistentemente.
 - **Critério de LOSER:** sem spend em 7 dias OU CPA > 2× target após 7 dias. Pausar.
 - **Critério de FADIGA:** CPM subindo + CTR caindo + frequency subindo ao longo dos 7 dias. Monitorar; pode virar fadiga em 14 dias.
 
 **DIA 14 (2 semanas):**
-- Avaliação aprofundada. Rodar Skill 08 completa.
+- Avaliação aprofundada. Rodar Skill 09 completa.
 - Ad sets que pararam de performar → pausar ou iterar (trocar criativos, refresh do conceito)
 - Ad sets que escalaram bem → promover a Champion (post ID separado no próximo batch) e continuar
-- Planejar próximo batch de conceitos (Skill 06 de novo)
+- Planejar próximo batch de conceitos (Skill 07 de novo)
 
 ### ETAPA 8 — Performance Gate Scaling (PGS) — Regra Automatizada Exata
 
@@ -184,7 +184,7 @@ Documente pro membro como operar o ciclo:
 **Quando adicionar conceito novo:**
 - Sempre que um conceito existente pausar (LOSER) ou entrar em fadiga
 - Sempre que quiser expandir pra novo ângulo (ex: champion já tá MOF, adicionar TOF novo)
-- Gerar novo batch via Skill 06 (gera briefings) e adicionar como novo ad set na mesma campanha
+- Gerar novo batch via Skill 07 (gera briefings) e adicionar como novo ad set na mesma campanha
 
 **Quando promover Winner pra Champion:**
 - Ad set tem CPA consistentemente dentro do target por 14+ dias E escalou spend E PGS vem subindo budget

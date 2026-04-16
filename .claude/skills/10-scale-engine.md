@@ -12,7 +12,7 @@ Quando o membro tem campanha rodando com performance dentro/abaixo do target, qu
 
 1. Leia `/workspace/profile.md` (budget atual — define ponto de partida)
 2. Leia `/workspace/[produto]/04-offer.md` (PSM projetado — validar se a oferta sustenta escala)
-3. Leia `/workspace/[produto]/07-ad-strategy.md` (estrutura atual, PGS configurado?)
+3. Leia `/workspace/[produto]/08-ad-strategy.md` (estrutura atual, PGS configurado?)
 4. Leia TODAS as análises em `/workspace/[produto]/08-analysis/` em ordem cronológica (pra ver trajetória real de performance e winning ads estáveis)
 5. Leia scale plans anteriores em `/workspace/[produto]/09-scale-plan.md` (se existir — comparar premissas com realidade)
 6. Consulte a base Aura extensivamente sobre: mentalidade de escala (farmer vs hunter mindset, Andromeda pensar maior), budget scaling methods (5% rule, aggressive 50% trade, business-led operator), Profitable Scaling Margin (PSM — golden ratio of growth), Performance Gate Scaling (PGS completo), creative diversity como mecanismo de escala, hero offer e best customer (segundo Scale), funnel creative playbook (Olympic Rings — cobertura de posições de funil ao escalar), revenue-tier scaling model (o que otimizar em cada tier — starter / $100-500 / $500-1K / $1K-5K / $5K+), winning ad rate, More Better New (Hormozi $100M Leads — maximize → expand → diversify), ROAS Targets (vertical vs horizontal), Mentalidade de Escala (Andromeda Pensar Maior), Lead Gen Outreach (Core Four framework), canais complementares (Google Search como complemento ao FB, TikTok Shop, Amazon), e cash flow implications de escala. Aprofunde em cada framework — escala errada queima budget mais rápido que ad ruim.
@@ -50,7 +50,7 @@ Antes de aumentar spend, validar se o sistema aguenta. Falhar em qualquer um = i
 | **PSM > 1.2** | Da `04-offer.md` + performance real | Ajustar oferta (AOV, garantia, stack) ou pausar escala |
 | **Winning ads estáveis** | Min 2-3 ads performando ≤ target por 14+ dias | Focar em hit rate (mais criativos, não mais spend) |
 | **CPA estável ou melhorando** | Trend dos últimos 14 dias estável ou descendo | Diagnóstico de fadiga antes de escalar |
-| **Creative pipeline ativo** | Min 1 batch novo a cada 2-4 semanas | Recomendar Skill 06 regular |
+| **Creative pipeline ativo** | Min 1 batch novo a cada 2-4 semanas | Recomendar Skill 07 regular |
 | **Pixel/CAPI health** | Match quality ≥ 80%, sem events perdidos | Fix técnico antes de escalar |
 | **Cash flow pra COGS** | Membro tem $ pra produzir inventory em escala | Ajustar pace de escala ao cash flow disponível |
 
@@ -60,12 +60,12 @@ Pra cada pré-requisito que falha, documente o bloqueio e recomende ação espec
 
 **PGS (Performance Gate Scaling) — Base de Tudo:**
 
-Da Skill 07, o PGS deve estar ativo: 5% aumento 3×/semana quando CPA 7-day trailing está abaixo do target.
+Da Skill 08, o PGS deve estar ativo: 5% aumento 3×/semana quando CPA 7-day trailing está abaixo do target.
 
 **Matemática**: 5% × 3 × 4 semanas = ~60% aumento mensal = duplica em ~30-40 dias sem desestabilizar.
 
 - Se PGS já tá ativo e performando → não toque, deixa rodar. Simplesmente observe.
-- Se PGS não tá ativo → configure conforme Skill 07 Etapa 8.
+- Se PGS não tá ativo → configure conforme Skill 08 Etapa 8.
 
 **Quando Escalar Aggressive (acima do PGS):**
 
@@ -159,16 +159,16 @@ Operação de escala sustentável exige **ritmo constante**. Documente o membro:
 | **Terça** | PGS dispara automaticamente (10 AM) | Auto |
 | **Quarta** | Revisar learnings da semana anterior + preparar ideias de novo batch | - |
 | **Quinta** | PGS dispara automaticamente | Auto |
-| **Sexta** | **Análise semanal completa** (4Pi full + diagnóstico) | Skill 08 |
+| **Sexta** | **Análise semanal completa** (4Pi full + diagnóstico) | Skill 09 |
 | **Sábado** | PGS dispara automaticamente | Auto |
-| **Domingo** | **Preparar próximo batch** de criativos (rotacionar conceitos, produção) | Skill 06 |
+| **Domingo** | **Preparar próximo batch** de criativos (rotacionar conceitos, produção) | Skill 07 |
 
 **Monthly review** (1× ao mês, primeiro dia útil):
 - Revisar PSM real vs projetado
 - Revisar winning ad rate (% de conceitos testados que viraram winners)
 - Avaliar prontidão pra próximo tier (escala inicial → agressiva → otimização)
 - Decidir se é hora de abrir canal horizontal novo (Etapa 5)
-- Re-rodar Skill 09 se mudanças estruturais (novo canal, novo produto, nova oferta)
+- Re-rodar Skill 10 se mudanças estruturais (novo canal, novo produto, nova oferta)
 
 ### ETAPA 9 — Sinais de Alerta (Quando Parar/Ajustar)
 
@@ -176,7 +176,7 @@ Mesmo com PGS, pode ter que parar. Sinais:
 
 - **CPA 7-day sobe acima do target** → PGS vai parar de disparar (sua regra já tem essa condicional). Refresh criativo antes de qualquer escala manual.
 - **Frequency em todos os ad sets > 1.5** → audience saturada, precisa diversificar (novo batch)
-- **CPM subindo 30%+ em 14 dias** → saturation OU competição aumentou OU ad fatigue. Investigação na Skill 08.
+- **CPM subindo 30%+ em 14 dias** → saturation OU competição aumentou OU ad fatigue. Investigação na Skill 09.
 - **Cash flow gap** → spend > cash in (especialmente com payout 3-5 dias do Shopify e ads cobrando diário). Ajustar pace.
 - **Fulfillment bottleneck** → estoque acabando, 3PL atrasando. Não escale acima da capacidade operacional.
 

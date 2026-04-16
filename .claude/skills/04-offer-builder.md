@@ -227,7 +227,7 @@ Cruze unit economics com budget diário do membro (do profile):
 - AOV projetado × 3 vendas/dia = ~$Y/dia em revenue
 - Margem total projetada = $Z/dia
 
-É viável? Pra qual revenue tier (da Skill 09) essa oferta leva o membro em 30/60/90 dias?
+É viável? Pra qual revenue tier (da Skill 10) essa oferta leva o membro em 30/60/90 dias?
 
 ### ETAPA 9 — Validação Final (5 Sanity Checks)
 

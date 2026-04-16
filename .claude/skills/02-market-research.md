@@ -230,9 +230,9 @@ Este é o DOCUMENTO MAIS IMPORTANTE. Ele alimenta:
 - Skill 03 (competitor analysis usa gaps e claims identificados)
 - Skill 04 (offer usa pain points, desires, root cause, mechanism hints)
 - Skill 05 (copy usa VOC literal, lead type, awareness level, objeções)
-- Skill 06 (creatives usa trigger events, ângulos, VOC, visual hooks)
-- Skill 07 (ad strategy usa awareness pra targeting)
-- Skill 10 (page usa tudo)
+- Skill 06 (page usa tudo da copy + proof stacking)
+- Skill 07 (creatives usa trigger events, ângulos, VOC, visual hooks)
+- Skill 08 (ad strategy usa awareness pra targeting)
 
 ## Mensagem Final
 

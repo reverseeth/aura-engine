@@ -276,4 +276,4 @@ Documente a hipótese por trás de cada variação.
 
 "Copy completa pro [tipo de página]. Big Idea: [big idea]. Mecanismo aplicado: [nome]. VOC integrado, objeções quebradas, 3 variações de headline pra teste.
 
-Próximo passo: diga **'creatives'** pra gerar os briefings dos ads (hooks, scripts, 3-2-2 format) que vão levar tráfego pra essa página."
+Próximo passo: diga **'page'** pra construir a página no Shopify (aplicar a copy no tema atual ou clonar o design de um concorrente que você gosta). Só depois da página pronta é que fazemos os criativos — não adianta criar ads pra uma página que ainda não existe."

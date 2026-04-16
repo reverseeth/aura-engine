@@ -48,8 +48,10 @@ Para a dependência obrigatória:
 Também detecte ferramentas opcionais pra uso futuro, mostrando como "disponível" (não bloqueador):
 - FFmpeg: `ffmpeg -version 2>/dev/null | head -1` — paths comuns: `/opt/homebrew/bin/ffmpeg`, `/usr/local/bin/ffmpeg`, `/usr/bin/ffmpeg`. Install: `brew install ffmpeg` (Mac) ou `apt install ffmpeg` (Linux).
 - Whisper.cpp: verificar `~/whisper.cpp/main`, `/usr/local/bin/whisper-cli`, `/opt/homebrew/bin/whisper-cli`. Install: `brew install whisper-cpp` (Mac) ou `git clone https://github.com/ggerganov/whisper.cpp.git ~/whisper.cpp && cd ~/whisper.cpp && make`.
+- Python 3: `python3 --version` — necessário pra pipeline de design-clone (skill 06 modo B). Mac já vem com Python 3.
+- Playwright + BeautifulSoup (opcional — só pra design-clone no modo B da skill 06): `python3 -c "import playwright, bs4" 2>&1`. Install: `pip install -r tools/design-clone/requirements.txt && playwright install chromium`. Se o membro não for usar design-clone, pode deixar pra instalar depois.
 
-NÃO prossiga enquanto o Node não estiver OK. As ferramentas opcionais podem ficar como aviso.
+NÃO prossiga enquanto o Node não estiver OK. As ferramentas opcionais podem ficar como aviso — se o membro indicar que vai usar a skill 06 em modo de clone de design, sinalize que Playwright + BeautifulSoup precisam ser instalados antes.
 
 ### ETAPA 2 — Verificação do MCP Aura
 
