@@ -10,6 +10,21 @@ Quando o membro tem criativos editados (da Skill 07) + página pronta na loja (d
 
 ## Antes de Começar
 
+### Pré-flight (OBRIGATÓRIO)
+- [ ] `07-creatives.json` existe
+- [ ] `04-offer.json` existe (target_cpa, breakeven_roas)
+- [ ] Pixel + CAPI **validados tecnicamente** (screenshot Events Manager, Match Quality ≥ 80%)
+- [ ] Ads Manager acess: confirmar versao **Meta Marketing API ≥ v21.0 (Q1 2026)**
+- [ ] Attribution setting validado: 7d-click, 1d-view é padrão 2026 para BR/US; em EU pode ser 28d-default — confirmar com membro
+
+### Compatibilidade
+Esta skill foi testada em:
+- Meta Ads Manager **abril 2026**
+- Meta Marketing API **v21.0+**
+Se membro usa interface legada (Business Suite antigo), adaptar manualmente passos visuais.
+
+### Contexto a carregar
+
 1. Leia `/workspace/profile.md` (budget diário — define tamanho da campanha; Meta Ads Manager conta ativa)
 2. Leia `/workspace/[produto]/04-offer.md` (CPA target vem daqui — Margem / 2 pra 2× ROAS, Margem / 2.5 pra 2.5× ROAS)
 3. Leia `/workspace/[produto]/05-copy.md` (URLs de destino — 1 ou múltiplas LPs)
@@ -60,6 +75,9 @@ Exemplo:
 - Budget $100/dia, CPA target $20 → max 5 ad sets
 - Budget $300/dia, CPA target $30 → max 10 ad sets
 
+⚠️ **Warning — distribuição CBO não-uniforme**: CBO distribui para winners, não uniformemente. Com 10 ad sets e $200/dia, se 1 winner pegar 60% ($120), os outros 9 dividem $80 ($8.8 cada — insuficiente pra learning phase).
+Recomendação: começar com 3-5 ad sets, monitorar distribuição no Dia 2, podar underperformers antes de adicionar novos.
+
 Com esse limite, distribua os ad sets:
 
 **Tipos de ad set (dependendo do estágio do membro):**
@@ -102,7 +120,23 @@ Para CADA ad set (exceto Champions que usam Post IDs), configure o ad usando o f
 - **Descriptions**: **deixar vazio** (— descriptions raramente melhoram performance em Flexible Ad)
 - **CTA Button**: "Shop Now" ou "Learn More" (Shop Now pra PDP direto, Learn More pra advertorial/LP)
 - **URL**: URL da LP do conceito (do briefing)
-- **URL parameters**: adicionar UTMs: `utm_source=facebook&utm_medium=paid&utm_campaign=[produto]&utm_content=[conceito]`
+- **URL parameters**: UTMs completos (schema obrigatório):
+  ```
+  utm_source=facebook
+  utm_medium=paid_social
+  utm_campaign=[product-slug]_[YYYYMMDD]_main
+  utm_content=[concept-id]
+  utm_term=[ad-set-id]
+  utm_id=[meta-ad-id]   (dinâmico via {{ad.id}} macro)
+  ```
+
+### Flexible Ads vs Champion Post ID
+
+Flexible Ads não geram Post ID único — cada criativo tem Post ID separado. Para "champion" de Flexible:
+- Identificar o criativo com maior volume dentro do Flexible Ad
+- Recriar esse criativo como single ad (não flexible) em novo ad set
+- Rodar como "Champion" em campanha paralela
+Não tente extrair Post ID do Flexible Ad — não existe.
 
 ### ETAPA 5 — 3-2-2-2 (Se Houver Teste de LPs)
 
@@ -158,10 +192,10 @@ Aplique os princípios de PGS.
 
 Menu: **Automated Rules** > **Create New Rule** > Apply to: **All active ad sets in campaign `[Nome da Campanha]`**
 
-**Conditions (IF):**
-- **CPA** — `is less than` — `$[target CPA da oferta]`
-- **Time range**: `Last 7 days`
-- **Additional condition**: **Spend** — `is greater than` — `$[2× target CPA]` (evita mudar budget em ad set que quase não gastou)
+**Conditions (IF) — sintaxe exata do operador no Ads Manager:**
+1. CPA **is less than** `{target_cpa * 0.9}` nos últimos 3 dias
+2. AND Spend **is greater than** `{target_cpa * 2}` nos últimos 3 dias
+3. AND Frequency **is less than or equal to** `1.3` nos últimos 7 dias
 
 **Action (THEN):**
 - **Increase daily budget by** — `5%`
@@ -169,6 +203,7 @@ Menu: **Automated Rules** > **Create New Rule** > Apply to: **All active ad sets
 
 **Schedule:**
 - **Run rule**: **3x/semana** — Monday / Wednesday / Friday (ou Tue/Thu/Sat)
+- **Time window**: Last 3 days
 - **Time**: 10:00 AM local
 
 **Notifications:** ON (receber email quando a regra dispara pra auditar)
@@ -197,6 +232,13 @@ Documente pro membro como operar o ciclo:
 
 ### ETAPA 10 — Erros Comuns a Evitar ()
 
+### Unit de decisão (importante)
+- **Ad level** (criativo individual): só pause se rejeitado por policy ou claramente broken (CTR < 0.3% em 48h com spend > 2× CPA target)
+- **Ad set level** (audience + placement + budget): unit primária de pause/scale. Tome decisões aqui baseado em CPA/ROAS.
+- **Campaign level**: raramente pause; só se campanha inteira tá off-brand ou conflito com outra campanha
+
+Regra de ouro: **pause ad set, não ad individual**, a menos que seja erro crítico no ad.
+
 1. **NÃO escalar budget sem razão** — se o ad set tá dentro do target, PGS cuida. Se você subir budget manualmente +50% em um dia, desestabiliza o aprendizado. PGS a 5% é o caminho.
 2. **NÃO usar daily minimums** ("atingir $X de spend") — essa regra força Meta a gastar em impressões ruins pra cumprir meta. Deixa a fluidez de CBO operar.
 3. **NÃO pausar no ad level, pause no ad SET** — desligar ads individuais dentro de um 3-2-2 faz Meta re-balancear estranhamente. Se quer matar criativo, pause o ad set inteiro e lance outro com os criativos melhores.
@@ -204,10 +246,15 @@ Documente pro membro como operar o ciclo:
 5. **NÃO usar interests detailed targeting** (a não ser razão muito específica) — Advantage+ está batendo manual targeting em 90%+ dos casos. Adicionar interests só reduz o pool e limita algoritmo.
 6. **NÃO testar demais de uma vez** — respeitar o `budget / CPA target` limit. Mais ad sets do que isso = cada um recebe pouco spend, learning phase nunca completa, decisão impossível.
 
+### Screenshots do Ads Manager
+
+Nota: screenshots visuais do Ads Manager 2026 Q1 devem ser mantidos em `.claude/templates/ads-manager-screenshots/` — atualizar semestralmente. Se a interface mudar significativamente, adaptar passos da skill.
+
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
 **Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
 
+**Garantir diretório:** `mkdir -p /workspace/[produto]/` antes de salvar.
 
 `/workspace/[produto]/08-ad-strategy.md` contendo:
 1. Estrutura da campanha completa (Etapa 2)
@@ -218,6 +265,33 @@ Documente pro membro como operar o ciclo:
 6. PGS automated rule — setup literal pra colar no Ads Manager (Etapa 8)
 7. Plano de próximos batches (Etapa 9)
 8. Checklist de erros a evitar (Etapa 10)
+
+### JSON companion — `08-ad-strategy.json`
+
+```json
+{
+  "strategy_id": "uuid",
+  "product_slug": "...",
+  "creative_batch_ref": "07-creatives batch_id",
+  "campaign": {
+    "name": "...",
+    "objective": "conversions",
+    "budget_type": "cbo",
+    "daily_budget": 150,
+    "attribution": "7d_click_1d_view",
+    "placements": "advantage_plus"
+  },
+  "ad_sets": [],
+  "pgs_rules": [],
+  "utm_schema": {}
+}
+```
+
+### Atualizar manifest
+
+Após salvar, atualizar `/workspace/[produto]/manifest.json`:
+- Adicionar `08-ad-strategy` em `skills_completed`
+- Registrar `strategy_id`, `creative_batch_ref`, e `pgs_enabled: true/false`
 
 ## Mensagem Final
 
