@@ -5,6 +5,32 @@ description: Engine de geração de páginas Shopify a partir da copy. Usa orque
 
 # Page Engine
 
+## Fluxo em uma tela (overview)
+
+| # | Etapa | Output | Tempo típico |
+|---|---|---|---|
+| 0 | Pesquisa na base Aura + detectar produto + ler inputs + detectar tema | Variáveis `PRODUTO`, `THEME_PATH` | 2-3min |
+| 1 | Plano de sections ADAPTATIVO à estratégia (não fixo) + eyebrows criativos | Lista de sections escolhidas do menu | 3-5min |
+| 2 | Brand discovery em 1 mensagem (6 perguntas) + referência visual opcional | Estilo, cores, assets, theme path, handle | 1min (pergunta) |
+| 2.1 | Se ref visual passada: `downloader.py` → `pattern-extractor.py` | `design_system` da ref (só paleta + fontes) | 2min |
+| 3 | Orquestra 5 skills `designer-*` (color-system, typography, spacing, grid, tokens) | `/workspace/[produto]/06-design-system.md` | 3-5min |
+| 4 | `frontend-design` gera 3 variantes de hero em paralelo + ASCII preview → membro escolhe | HTML/CSS de 1 hero | 3-5min |
+| 5 | Converte hero pro padrão de **blocks inline no schema** + validação Liquid | `sections/page-[produto]-hero.liquid` | 2-3min |
+| 6 | Mesmo padrão da 5 pras demais sections do plano | 1 `.liquid` por section | 3-5min cada |
+| 7 | UX writing pass (`designer-ux-writing`) | Microcopy refinado em defaults | 2min |
+| 8 | Self-critique com 4 skills (critique + Nielsen + WCAG + QA) — **não pule** | Issues resolvidos | 5min |
+| 9 | Template JSON `templates/page.[produto].json` com blocks **pré-populados com copy real** | Template pronto | 2-3min |
+| 10 | `shopify theme duplicate` → `pull` → `cp` → `push --nodelete` | Tema unpublished "[Produto] Preview (Aura)" | 2min |
+| 10.5 | Report ao membro (links de preview + arquivos + settings + issues) | Mensagem final | 1min |
+| 11 | Iteration loop — ajustes sem regenerar do zero | Ajustes aplicados | variável |
+
+**Princípios gerais aplicados em todas as etapas:**
+- ✅ Cada section é pasta no sidebar da Shopify com blocks atômicos inline dentro (nunca theme blocks em `/blocks/`)
+- ✅ Pagina vem 100% pré-montada via `templates/page.[produto].json` (não só preset)
+- ✅ Toda cor, tamanho, tipografia, spacing editável; cada bloco tem `custom_css` textarea escape hatch
+- ✅ Safe install: sempre duplicar tema live, nunca tocar direto o ao vivo
+- ✅ Validação obrigatória via `shopify-plugin:shopify-liquid` antes de todo save
+
 ## Quando Usar
 
 Quando o membro tem copy pronta (idealmente em `/workspace/[produto]/05-copy.md` do copy-engine) e quer gerar uma página Shopify completa que seja:
@@ -71,7 +97,7 @@ Estes princípios NÃO são negociáveis. Se algum for violado, a section deve s
 3. **Theme-agnostic**. Não use classes do tema pai (`.product-card`, `.btn-primary`, etc). Use namespacing próprio: `.page-[produto]-hero`, `.page-[produto]-feature`.
 4. **Mobile-first**. Todo CSS começa pelo mobile e usa media queries pra escalar.
 5. **Semantic HTML**. `<section>`, `<article>`, `<header>`, `<h1>-<h6>` na ordem correta, `<button>` pra ações, `<a>` pra navegação, `<picture>`/`<img>` com `alt`.
-6. **WCAG 2.1 AA**. Contraste mínimo 4.5:1, focus states visíveis, ARIA quando necessário, alt em todas as imagens.
+6. **WCAG 2.1 AA** (checklist detalhado na seção "Acessibilidade" abaixo). Quality standard universal — não restringe design, garante que qualquer design gerado seja usável por todo usuário.
 7. **Validação obrigatória**. Cada arquivo passa pelo skill `shopify-plugin:shopify-liquid` (validate.mjs) antes de ser salvo. Se falhar, corrige e revalida (3 retries).
 8. **Zero JS frameworks externos**. Sem React, Vue, jQuery, libraries de animação. Use JavaScript vanilla quando absolutamente necessário, dentro de `{% javascript %}`.
 9. **Imagens via `image_picker` setting**, nunca hardcoded ou via `asset_url`. O membro sobe a foto pelo theme editor.
@@ -103,6 +129,21 @@ Quando converter HTML/CSS pra Liquid section, siga estas regras de tradução de
 1. Padrões repetíveis SEMPRE viram blocks inline, nunca settings duplicadas.
 2. Toda section tem setting `textarea custom_css` no grupo Advanced — escape hatch pra CSS livre.
 3. Todo block também tem `custom_css` próprio + `id="pu-{{ block.id }}"` no root pra scoping.
+
+### Aspect ratios de imagem — traduza pro membro
+
+Quando o setting `image_ratio` for exposto, use `info` ou opções com nomes humanos. A tabela abaixo é o mapping:
+
+| Valor técnico | Nome amigável | Uso típico |
+|---|---|---|
+| `adapt` | Adaptive (ajusta à imagem) | Default — ratio natural da foto carregada |
+| `1 / 1` | Quadrado (1:1) | Product shot, Instagram post |
+| `4 / 5` | Portrait vertical (4:5) | Hero moderno, Instagram portrait |
+| `3 / 4` | Portrait clássico (3:4) | Foto de pessoa, fashion editorial |
+| `16 / 9` | Landscape widescreen (16:9) | Video embed, banner horizontal |
+| `3 / 2` | Landscape fotografia (3:2) | Lifestyle, outdoor, reportagem |
+
+Sempre default `adapt` — é o que evita o bug "imagem quadrada em container vertical com espaço branco" (ver Limitação #5).
 
 ## Fluxo da Skill
 
@@ -789,6 +830,28 @@ Ao final diga:
 
 > "Page-engine completo. Próximo passo: rode `shopify theme dev` pra ver ao vivo, ou diga 'creatives' pra gerar briefings de criativos pra ads, ou 'scale' pra estratégia de escala."
 
+## Debug — Quando `shopify theme push` falha
+
+Quando o push retorna JSON com campo `"errors"`, leia a mensagem do erro e aja conforme a tabela:
+
+| Mensagem de erro (trecho) | Causa provável | Solução | Limitação |
+|---|---|---|---|
+| `Missing width and height attributes on img tag` | `<img>` sem dimensões — falha CLS | Use `{{ image \| image_url: width: X \| image_tag: loading: 'lazy' }}` no markup | #1 |
+| `default must be a string or datasource access path` | `url` setting com `#anchor` ou relative path como default | Deixe o default vazio ou use URL absoluto `http(s)://` ou `/path/` | #2 |
+| `invalid inline richtext: Attribute 'X' is not permitted` | `inline_richtext` com `class`/`aria`/`data` nas tags inline | Strip esses attributes antes de setar no default — só `<em>`, `<strong>`, `<br>`, `<span>`, `<a>`, `<u>`, `<p>` sem attrs | #3 |
+| `Range settings must have at most 101 steps` | `(max - min) / step > 100` | Aumente o `step` ou reduza o range | #9 |
+| `step invalid. Range settings must have at most 101 steps` | Mesmo do anterior | Mesmo | #9 |
+| `default must be a step in the range` | Default não é múltiplo válido (ex: `min: 6, step: 2, default: 15`) | Ajuste o default pra `min + N*step` | #10 |
+| `Opening tag does not have a matching closing tag` | Theme-check de HTML balance num conditional Liquid | Evite quebrar tags HTML em `{% if %}` — use atributos/classes condicionais ou container blocks | #12 |
+| `The 'id' argument should be a string` | Uso de theme blocks em `/blocks/` com `{% content_for 'block' type: block.type %}` dinâmico | Refatore pra blocks inline no schema da section com `{% case block.type %}` | #12 |
+| `Section type 'X' does not refer to an existing section file` | Template JSON referencia section que não foi installada ainda OU falhou install | Push a section antes, ou verifique ordem dos arquivos no `cp` | — |
+| `Theme block 'blocks/X.liquid' does not exist` | Mesma causa — theme blocks referenciados mas arquivos não existem | Igual acima | — |
+| `ERR_MODULE_NOT_FOUND @shopify/theme-check-common` (na validação local) | Plugin aponta pra registry privado `npm.shopify.io` | `cd <plugin-dir> && rm package-lock.json && npm install --registry=https://registry.npmjs.org/` | #8 |
+| Page template não aparece no dropdown "Theme template" do admin Pages | Admin só lista templates do tema LIVE; seu template tá na cópia unpublished | Use theme editor direto: `/admin/themes/<NEW-ID>/editor?template=page.<produto>` | #6 |
+| `shopify theme duplicate` trava esperando confirmação | Contexto não-interativo | Adicione flag `--force` | #7 |
+
+**Fluxo:** sempre leia o JSON do push (`--json`), filtre `"errors"`, resolva erro por erro consultando a tabela. Se a mensagem não bater com nenhuma linha, consulte a seção de limitações completa abaixo.
+
 ## Limitações Shopify conhecidas (descobertas em campo)
 
 Estas regras vêm do validator oficial `shopify-plugin:shopify-liquid` + push pra tema real. O converter aplica automaticamente, mas se você editar à mão, respeite:
@@ -859,6 +922,56 @@ Quando invocar o skill `frontend-design` ou gerar CSS diretamente, sempre:
 - **Border radius consistente** — define um valor base no design system (ex: 8px) e múltiplos (4px, 8px, 16px, 24px, 9999px pra pills)
 - **Focus states visíveis** — `outline: 2px solid var(--accent); outline-offset: 2px;` em foco-visible
 - **Reduced motion respect**: `@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }`
+
+## Acessibilidade — checklist obrigatório (quality standard, não template)
+
+Toda section gerada precisa passar neste checklist. São regras **universais** que **não restringem design** — valem pra qualquer paleta, tipografia, layout, e vibe visual. São o equivalente a "validar Liquid": garante que o código funciona pra todos os usuários.
+
+A skill `designer-accessibility-audit` (Etapa 8) aplica um audit WCAG 2.1 AA completo — mas desde o momento da geração (Etapas 5 e 6) respeite estas regras pra evitar retrabalho:
+
+### Conteúdo semântico
+- [ ] `<h1>` usado 1× por página (normalmente no hero); h2/h3 nas demais
+- [ ] Heading order sem pular níveis (h1 → h2 → h3, nunca h1 → h3)
+- [ ] `<section>`, `<article>`, `<header>`, `<footer>`, `<nav>`, `<main>`, `<aside>` onde aplicável
+- [ ] `<button>` pra ações (abrir modal, submit, toggle), `<a href>` pra navegação
+- [ ] FAQ usa `<details><summary>` nativo (teclado-acessível sem JS)
+
+### Texto alternativo e labels
+- [ ] Todo `<img>` tem `alt` descritivo (ou `alt=""` se for puramente decorativo)
+- [ ] Todo `<button>` com ícone sem texto tem `aria-label`
+- [ ] Todo ícone decorativo tem `aria-hidden="true"`
+- [ ] Links têm texto descritivo (nunca "clique aqui", "saiba mais" genérico — use "Read the full derm breakdown", "See all 500 reviews")
+- [ ] `<label>` associado a `<input>` via `for`/`id` em qualquer form
+
+### Contraste e cor
+- [ ] Contraste texto normal ≥ **4.5:1** (WCAG AA body text)
+- [ ] Contraste texto grande (≥18pt ou 14pt bold) ≥ **3:1**
+- [ ] Contraste elementos de UI (bordas de input, focus rings) ≥ **3:1**
+- [ ] **Cor nunca é o único indicador** de estado (ex: erro não é só vermelho — tem ícone ou texto "Erro:")
+- [ ] Liquid tem filtro nativo `color_contrast`: `{{ '#D85C4A' | color_contrast: '#FDFAF4' }}` retorna o ratio — use no designer-accessibility-audit pra validar
+
+### Foco e navegação por teclado
+- [ ] `:focus-visible` definido em **todo elemento interativo** com outline visível — ex: `outline: 2px solid var(--c-accent); outline-offset: 3px; border-radius: 4px;`
+- [ ] Tab order segue ordem visual (DOM order = reading order)
+- [ ] Nenhum elemento interativo escondido atrás de hover-only (tudo acessível via teclado)
+- [ ] Modais/drawers prendem foco dentro deles (`aria-modal="true"` + focus trap)
+
+### Movimento e animação
+- [ ] `@media (prefers-reduced-motion: reduce)` no final do stylesheet desligando **todas** `transition` e `animation`
+- [ ] Auto-play de carrosséis/videos tem botão de pause
+- [ ] Nenhuma animação que pisca mais de 3× por segundo (risco de foto-sensibilidade)
+
+### Responsividade
+- [ ] Layout funciona em 320px de largura (menor mobile típico)
+- [ ] Texto NUNCA fixa em `px` pequenos — use `clamp()` com mínimo ≥ 14px no body
+- [ ] Touch targets interativos ≥ **44×44px** em mobile (botões, links tappáveis)
+- [ ] Texto permanece legível até `zoom 200%` sem quebrar layout
+
+### Checklist final de validação
+1. Abra DevTools → Lighthouse → Accessibility. Score alvo ≥ **95/100**
+2. Rode com teclado only (desligue mouse): consegue navegar tudo? acessar todos CTAs?
+3. Teste com VoiceOver (Mac: ⌘+F5) ou NVDA (Windows): headings lidos na ordem? labels fazem sentido?
+4. Filter cores com `prefers-color-scheme: dark` (se suportar) e `prefers-contrast: high`
 
 ## Como invocar specialists
 
