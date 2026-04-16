@@ -5,6 +5,13 @@ description: Engine de escrita de copy completo baseado em market research, comp
 
 # Copy Engine
 
+### Pré-flight (OBRIGATÓRIO)
+- [ ] `/workspace/[produto]/manifest.json` existe
+- [ ] `02-market-research.json` existe → extrair `awareness_distribution`, `sophistication_stage`, `voc_phrases`
+- [ ] `03-competitor-analysis.md` existe
+- [ ] `04-offer.json` existe → extrair `mechanism`, `pricing`, `guarantee`
+Se faltar qualquer um, PARE.
+
 ## Quando Usar
 Quando o membro tem market research, competitor analysis e oferta prontos, e precisa escrever a copy da página que vai converter o tráfego pago. Copy aqui é escrita com base em decisões ESTRATÉGICAS derivadas dos documentos anteriores, não em opiniões ou intuições.
 
@@ -17,6 +24,15 @@ Quando o membro tem market research, competitor analysis e oferta prontos, e pre
 5. Consulte a base Aura extensivamente sobre copywriting: headlines (processo de 100 linhas, fórmulas clássicas de Caples/Hopkins/Schwartz/Sugarman), leads (5 tipos por awareness de Schwartz — Story Lead, Secret Lead, Proclamation Lead, Problem-Solution Lead, Offer/Direct Lead), hero sections (5 tipos e quando usar cada), 10x page plan, landing page frameworks, long-form sales page structure (15-point themeplate), VSL structure (8 blocos), advertorial blueprint (7 seções Zakaria), listicles como advertorial, techniques de persuasão (even-if, loss aversion, future pacing, belief stacking), Cialdini's 6 principles + pre-suasion, Sugarman's triggers (slippery slide, sentence rhythm, curiosity), StoryBrand SB7, Kennedy sales letter structure, proof e credibilidade (testimonials, authority, specificity de Hopkins), CTAs como call to value (não call to action), crossheads e estrutura visual, 4 decision making modalities (Spontaneous/Competitive/Humanistic/Methodical), rule of one, 7 sweeps de revisão, behavioral psychology (System 1 vs System 2), wireframing e validação, frameworks como PAS/AIDA/PASO/PCPO, brand voice e tom, e qualquer framework adjacente que apareça. **Esta skill é o coração do sistema — explore cada framework de copy a fundo.**
 
 ## Fluxo da Skill
+
+### Input Extraction (automático)
+Antes de gerar copy, carregue:
+1. `dominant_awareness` = stage com maior % em `awareness_distribution` do market research JSON
+2. `sophistication` = `sophistication_stage` (1-5)
+3. `voc_checklist` = array das 20 VOC phrases mais repetidas (substring matching em `voc_phrases`)
+4. `mechanism` = do `04-offer.json`
+5. `guarantee` + `offer_stack` = do `04-offer.json`
+Use ESTAS variáveis ao gerar — sem placeholders hardcoded.
 
 ### ETAPA 1 — Perguntas ao Membro (APENAS 2)
 
@@ -94,7 +110,9 @@ Toda página precisa SIMULTANEAMENTE servir os 4 tipos de decisor (senão perde 
 
 Apresente a estratégia (6-8 linhas no máximo) como um BRIEF antes de escrever:
 
-> Baseado no market research (awareness: Problem Aware 45%, Sophistication: Estágio 4) e gaps do competitor analysis ([gap X]), vou escrever [tipo de página] com [tipo de lead], hero [tipo], ângulo [ângulo], tom [tom], usando o framework [X]. Mecanismo único: [nome]. VOC phrases prioritárias: [3 frases-chave]. Objeções principais a quebrar: [3].
+> Baseado no market research (awareness: {{dominant_awareness}}, Sophistication: Estágio {{sophistication_stage}}) e gaps do competitor analysis ([gap X]), vou escrever [tipo de página] com [tipo de lead], hero [tipo], ângulo [ângulo], tom [tom], usando o framework [X]. Mecanismo único: {{mechanism.name}}. VOC phrases prioritárias: [3 frases-chave do voc_checklist]. Objeções principais a quebrar: [3].
+
+(Os placeholders `{{...}}` indicam valores vindos do Input Extraction — NÃO usar números fixos como "45%" ou "Estágio 4".)
 
 Não peça aprovação — segue direto pra escrita. O membro pode ajustar depois se quiser, mas o default é o sistema executar a decisão fundamentada.
 
@@ -176,6 +194,12 @@ Aplicar os frameworks de proof (Hopkins specificity, Sugarman satisfaction convi
 
 - **Social proof volume**: número de clientes, reviews, anos no mercado
 - **Specific testimonials**: 3-5 testimonials com NOMES COMPLETOS, FOTOS, e RESULTADOS ESPECÍFICOS (com datas e números quando possível)
+
+  Se o membro não tem testimonials reais ainda (lançamento novo):
+  - Use `{{TESTIMONIAL_PLACEHOLDER_1}}` no copy e liste no final:
+    "### Testimonials needed: [frase_motora, resultado_especifico, perfil_demografico] × 3"
+  - NÃO gere testimonials fictícios com nomes aleatórios.
+  - Proof stack fica com placeholder até membro coletar via email / WhatsApp com clientes existentes.
 - **Authority proof**: menções em mídia, certificações, endorsement de experts
 - **Before/After** (se visual e o produto permite): imagens com legendas
 - **Science/ingredient research**: evidência técnica se apropriado
@@ -245,7 +269,12 @@ Tom editorial (não vendedor). Use parágrafos curtos (2-4 linhas). Inclua image
 Antes de entregar, faça **7 sweeps de revisão** :
 
 1. **Clarity sweep**: cada frase é clara em primeira leitura? Jargão sem explicação?
-2. **Customer voice sweep**: usei as frases EXATAS do VOC? Onde parafraseei sem querer?
+2. **Customer voice sweep (VOC compliance)**: checklist dinâmico — passe o `voc_checklist` como lista. Para cada frase VOC:
+   - [ ] Aparece LITERAL no copy? (marca se sim)
+   - [ ] Aparece parafraseada? (marca se só aproximação)
+   - [ ] Ausente? (marca como gap)
+
+   Taxa mínima: >= 60% das top-20 VOC phrases presentes literais ou parafraseadas. Se < 60%, regerar seções fracas.
 3. **Specificity sweep**: Hopkins — cada claim genérico foi substituído por específico? ("many customers" → "12,847 customers"; "fast results" → "visible improvement in 14 days")
 4. **Flow sweep**: slippery slide de Sugarman — cada frase compele a próxima? Onde há quebra de fluxo?
 5. **Objection sweep**: cada objeção do market research foi quebrada em algum lugar? Onde está omitida?
@@ -263,17 +292,76 @@ Gere:
 
 Documente a hipótese por trás de cada variação.
 
+## Output Schema — Seções Canônicas (`05-copy.md`)
+
+O markdown DEVE ter as seções NOMEADAS ASSIM (case-sensitive, H2). Cada seção contém texto pronto pra colar, SEM comentários de instrução no output final.
+
+```
+## Hero
+### Headlines (ranked)
+### Subheadline
+### CTA Primary
+### CTA Secondary
+
+## Mechanism
+## Benefits
+## Social Proof
+## Offer Stack
+## Guarantee
+## FAQ
+## Urgency/Scarcity
+## Email Follow-up Hooks
+```
+
+## JSON Companion Obrigatório — `05-copy.json`
+
+Schema:
+```json
+{
+  "copy_id": "uuid-v4",
+  "product_slug": "...",
+  "offer_id": "ref ao 04-offer.json",
+  "hero": {
+    "headlines": [
+      {"id": "h-01", "text": "...", "type": "benefit|curiosity|authority|contrarian|big_idea", "score": 9.2, "reasoning": "..."}
+    ],
+    "top_5_ranked": ["h-01", "h-07", "h-12", "h-03", "h-18"],
+    "ab_test_picks": ["h-01", "h-07", "h-12"],
+    "subheadline": "...",
+    "cta_primary": "...",
+    "cta_secondary": "..."
+  },
+  "mechanism_copy": "...",
+  "benefits": [{"title": "...", "body": "...", "voc_refs": ["..."]}],
+  "social_proof": {"testimonials": [...], "proof_stack": [...]},
+  "offer_stack": "...",
+  "guarantee_copy": "...",
+  "faq": [{"q": "...", "a": "..."}],
+  "urgency": "...",
+  "email_hooks": ["..."],
+  "voc_compliance": { "total_checked": 20, "literal_hits": 14, "paraphrased": 5, "missing": 1 },
+  "decision_modalities_covered": ["spontaneous", "competitive", "humanistic", "methodical"]
+}
+```
+
+**Skill 06 vai ler diretamente este JSON** — se inválido, skill 06 não prossegue.
+
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
+**Antes de salvar, garanta o diretório:** `mkdir -p /workspace/[produto]/`.
 
+**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `05-copy.md` → `05-copy.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
 
-`/workspace/[produto]/05-copy.md` contendo:
+Atualizar `manifest.json`: adicionar `05-copy-engine` em `skills_completed`, atualizar `updated_at`.
+
+`/workspace/[produto]/05-copy.md` contendo (seções canônicas acima):
 1. Strategy brief (Etapa 2 — tipo de página, lead, hero, ângulo, tom, framework, modalities mapping)
 2. 20-30 headlines geradas + top 5 + 3 pra teste A/B
 3. Página completa seção por seção (Etapa 4 ou 5)
-4. Revisão após 7 sweeps (mudanças documentadas)
+4. Revisão após 7 sweeps (mudanças documentadas, incluindo VOC compliance %)
 5. Variações pra teste (Etapa 7)
+
+Também salvar `/workspace/[produto]/05-copy.json` no schema acima.
 
 ## Mensagem Final
 
