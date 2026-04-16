@@ -16,6 +16,18 @@ Quando o membro ainda não tem produto ou quer validar/encontrar um novo produto
 
 ## Fluxo da Skill
 
+### ETAPA 0 — Pre-flight
+
+Antes de qualquer outra coisa:
+
+1. Leia `/workspace/profile.md`. Se **não existir**, aborte com: `"Rode \`setup\` primeiro — profile.md ausente."`
+2. Localize `manifest.json`:
+   - Procure um `manifest.json` em `/workspace/*/manifest.json` cujo `setup_complete === true`.
+   - Se existir, leia `product_slug` — este é o path canônico para qualquer salvamento (ver Etapa SALVAR).
+   - Se **não existir**, aborte com: `"Rode \`setup\` primeiro — manifest.json ausente."`
+3. Confirme que `00-setup` está em `skills_completed` do manifest. Caso contrário, re-rode o setup.
+4. Use `product_slug` do manifest como `[produto]` padrão para todos os paths nesta skill até que o produto vencedor seja escolhido (ver Etapa SALVAR para substituição).
+
 ### ETAPA 1 — Receber Dados (Kalodata / SpyBox OU Fallback)
 
 Verifique em `/workspace/profile.md` se o membro tem SpyBox disponível.
@@ -46,6 +58,8 @@ Se você também tiver dados do Similar Web sobre os concorrentes, cole também.
 Eu pesquiso usando fontes públicas (Meta Ad Library, TikTok Shop Trending, Amazon Best Sellers, Reddit) e te volto com candidatos pra analisar."
 
 ESPERE o membro responder antes de prosseguir. Se veio com fallback, faça as buscas iniciais automaticamente e apresente 8-12 candidatos identificados antes de seguir pras próximas etapas.
+
+**Timeout de elicitação**: se o membro não responder dentro de **3 minutos**, siga automaticamente com dados públicos (Meta Ad Library, TikTok Shop Trending, Amazon Best Sellers, Reddit via web search) como fallback e sinalize claramente: `"Sem resposta após 3min — prosseguindo com web search público. Você pode me passar dados do SpyBox/Kalodata a qualquer momento e eu re-rankeio."`
 
 ### ETAPA 2 — Filtragem Técnica (Thresholds Exatos)
 
@@ -223,12 +237,29 @@ Dos concorrentes analisados, todos falam com o mesmo público? Existe segmento i
 
 ### ETAPA 9 — Ranking Final
 
+Inclua no topo do output desta etapa:
+
+```
+Ranking Generated at: YYYY-MM-DDTHH:MM:SSZ   (ISO-8601 UTC)
+Formula:
+  Total = (Magnitude × 2 + Sophistication × 2 + AwarenessFit + UMPotential + AvatarFit + OfferPotential + CreativePotential + TrendFit) / 10
+  — Magnitude e Sophistication pesam 2× (filtros mais decisivos).
+  — Todos os sub-scores são 1-10 inteiros ou com 1 casa.
+  — Min aceitável pra TESTAR: ≥ 7.5. Min aceitável pra TALVEZ: 6.0-7.4. Abaixo de 6.0 → DESCARTA.
+```
+
 Crie um ranking dos produtos sobreviventes com score de 1-10 em cada dimensão:
 
-| Produto | Magnitude | Awareness Fit | Sophistication | UM Potential | Avatar | Offer | Creative | **Total** |
-|---|---|---|---|---|---|---|---|---|
+| Produto | Magnitude | Awareness Fit | Sophistication | UM Potential | Avatar | Offer | Creative | Trend | **Total** |
+|---|---|---|---|---|---|---|---|---|---|
 
-Score final = média ponderada (Magnitude e Sophistication pesam 2x — são os filtros mais decisivos).
+Score final = média ponderada documentada acima. Apresente o cálculo numericamente pra pelo menos o Top 3.
+
+**Validação de mínimo (bloqueadora)**: se NENHUM produto atingiu score ≥ 6.0, **NÃO** declare "research completo". Em vez disso:
+
+1. Liste por que cada candidato falhou (o filtro ou score dominante).
+2. Sugira **3 novos candidatos** alinhados ao perfil do membro (budget, tools, interesse declarado) via web search em Meta Ad Library + TikTok Shop + Amazon Best Sellers.
+3. Retorne à Etapa 2 com essa nova leva. Repita até haver pelo menos 1 produto TESTAR ou o membro optar explicitamente por parar.
 
 Pra CADA produto mostre:
 
@@ -276,6 +307,8 @@ Pro produto com maior score, entregue um plano inicial (detalhado depois nas ski
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
+**Antes de qualquer write**, garanta: `mkdir -p /workspace/[produto]/`.
+
 Salve em DOIS arquivos dentro de `/workspace/[produto]/` (onde `[produto]` = slug do PRODUTO VENCEDOR, não do produto original da pesquisa — assim as fases seguintes salvam no mesmo lugar):
 
 1. **`01-product-research.md`** (a AI lê nas fases seguintes)
@@ -287,8 +320,20 @@ Conteúdo de ambos:
 - Resultados de Trends, Trademark, Meta Ad Library, Reviews (Etapas 3-6)
 - Validação de eficácia (Etapa 7)
 - Análise estratégica completa aplicando os 7 frameworks (Etapa 8)
-- Ranking final com scores e veredictos (Etapa 9)
+- Ranking final com scores e veredictos (Etapa 9) — incluindo timestamp e fórmula explícita
 - Plano preliminar pro produto #1 (Etapa 10)
+
+**Atualize o `manifest.json`** (fonte única de verdade):
+
+1. Se o `product_slug` do vencedor for diferente do slug temporário criado no setup:
+   - `mkdir -p /workspace/[novo-slug]/`
+   - Mova (ou copie + remove) o manifest existente para o novo diretório
+   - Atualize `product_slug` e `product_name` com os valores do vencedor
+2. Adicione `"01-product-research"` ao array `skills_completed` (evite duplicatas)
+3. Atualize `updated_at` com o timestamp atual (ISO-8601 UTC)
+4. Preserve todos os campos preenchidos no setup (`budget_tier`, `product_url`, etc.)
+
+Se o slug mudou, informe ao membro: `"Produto vencedor: [nome]. Movi os artefatos para /workspace/[novo-slug]/."`
 
 ## Mensagem Final
 
