@@ -1,29 +1,30 @@
 #!/usr/bin/env python3
 """
-liquid-converter.py — Aura Engine design-clone pipeline (step 3 of 3)
+liquid-converter.py — Aura Engine design-clone pipeline (step 3 of 3) · v2
 
 Recebe uma seção (HTML+CSS) identificada pelo analyzer.py e converte em Shopify
 Liquid section editável via theme editor. Substitui textos fixos por
 {{ section.settings.* }}, imagens por image_picker settings, cores por CSS
 custom properties, e padrões repetíveis por blocks separados.
 
+v2 melhorias:
+- Strip de artefatos Shopify: <link> tags CDN, web components (product-info,
+  media-gallery, use-animate, etc), data-* attributes específicos do tema
+- Detecção de blocks corrigida (acontecia ANTES do namespace, agora corretamente)
+- Dedup de settings quando texto default é idêntico
+- Naming semântico (heading_1, paragraph_2, button_label_3) ao invés de slugs
+  baseados em texto completo
+- SVGs grandes substituídos por placeholder
+- Remoção de scripts, noscript, iframe, style tags externos
+
 Uso:
     python3 liquid-converter.py \\
-        --section <path-to-section-json> \\
-        --sections-json <path-to-sections.json-from-analyzer> \\
-        --output <path-to-.liquid-output> \\
-        --blocks-dir <path-to-blocks-dir-output> \\
+        --sections-json <path> \\
+        --section-index <N> \\
+        --output <path.liquid> \\
+        --blocks-dir <path> \\
         --namespace page-<produto> \\
         --product-slug <produto>
-
-Exemplo:
-    python3 liquid-converter.py \\
-        --section-index 1 \\
-        --sections-json /tmp/clone-undone-1/sections.json \\
-        --output ~/shopify-theme/sections/page-undone-hero.liquid \\
-        --blocks-dir ~/shopify-theme/blocks \\
-        --namespace page-undone \\
-        --product-slug undone
 
 Dependências:
     pip install beautifulsoup4
@@ -43,44 +44,113 @@ except ImportError:
 
 
 # Tags cujo texto direto vira setting
-TEXT_TAGS = {"h1", "h2", "h3", "h4", "h5", "h6", "p", "span", "a", "button", "li", "blockquote", "em", "strong", "small", "label"}
-RICHTEXT_TAGS = {"p"}
+TEXT_TAGS = {
+    "h1", "h2", "h3", "h4", "h5", "h6",
+    "p", "span", "a", "button", "li",
+    "blockquote", "em", "strong", "small", "label",
+}
 LONG_TEXT_THRESHOLD = 80  # chars — acima disso usa richtext
+
+# Web components Shopify/Dawn/Horizon a desembrulhar (preserva filhos, remove wrapper)
+SHOPIFY_CUSTOM_ELEMENTS = {
+    "product-info", "product-form", "product-gallery", "product-modal",
+    "product-recently-viewed", "media-gallery", "modal-opener", "modal-dialog",
+    "slider-component", "slideshow-component", "variant-selects", "variant-radios",
+    "deferred-media", "cart-notification", "cart-drawer", "cart-remove-button",
+    "quantity-input", "quick-order-list", "pickup-availability", "pickup-availability-drawer",
+    "price-per-item", "bulk-add", "show-more-button", "use-animate", "gift-card-recipient",
+    "predictive-search", "search-form", "menu-drawer", "header-drawer",
+    "localization-form", "store-availability", "recipient-form",
+    "share-button", "details-disclosure", "details-modal",
+}
+
+# Data attributes Shopify-específicos a remover
+SHOPIFY_DATA_ATTRS = re.compile(
+    r"^data-(product-id|variant-id|section|section-id|section-type|update-url|url|"
+    r"template|product-handle|shopify|aos|oke|yotpo|judgeme|intrinsic-width|"
+    r"media-id|media-position|gallery-id|modal|zoom|animate|aria-controls|"
+    r"target|handle|action|index)"
+)
+
+BUTTON_CLASS_PATTERN = re.compile(r"(btn|button|cta|add-to-cart|buy-now)", re.IGNORECASE)
+
+MIN_TEXT_LENGTH = 2
+INLINE_SVG_MAX_LENGTH = 500  # SVGs maiores viram placeholder
 
 
 def slugify(text, max_len=40):
-    s = re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
+    s = re.sub(r"[^a-z0-9]+", "_", (text or "").lower()).strip("_")
     return s[:max_len] or "field"
 
 
-def is_script_or_style(el):
-    return el.name in ("script", "style", "noscript", "iframe")
+def looks_like_noise(text):
+    """Texto muito curto, só símbolo, ou emoji isolado — não vira setting."""
+    if not text:
+        return True
+    stripped = text.strip()
+    if len(stripped) < MIN_TEXT_LENGTH:
+        return True
+    if len(stripped) < 4 and not any(c.isalnum() for c in stripped):
+        return True
+    return False
 
 
-def remove_junk(soup):
-    """Remove tracking, scripts, analytics, frameworks."""
+def strip_shopify_artifacts(soup):
+    """Remove artefatos específicos de temas Shopify que não funcionam fora do contexto original."""
+    # Remove <link> tags (CSS externo do CDN do concorrente)
+    for tag in soup.find_all("link"):
+        tag.decompose()
+
+    # Remove <style> tags (CSS que pode referenciar assets externos)
+    for tag in soup.find_all("style"):
+        tag.decompose()
+
+    # Remove scripts, noscript, iframe
     for tag in soup.find_all(["script", "noscript", "iframe"]):
         tag.decompose()
-    for attr in ("data-tracking", "data-analytics", "data-gtm", "data-fbpixel"):
-        for el in soup.find_all(attrs={attr: True}):
-            del el[attr]
+
+    # Desembrulha web components Shopify (mantém filhos, remove o wrapper customElement)
+    for tag in soup.find_all(True):
+        if tag.name and tag.name.lower() in SHOPIFY_CUSTOM_ELEMENTS:
+            tag.unwrap()
+
+    # Remove data-* attributes específicos de temas Shopify
+    for tag in soup.find_all(True):
+        if not isinstance(tag, Tag):
+            continue
+        attrs_to_remove = [a for a in list(tag.attrs.keys()) if SHOPIFY_DATA_ATTRS.match(a)]
+        for a in attrs_to_remove:
+            del tag[a]
+
+    # Substitui SVGs grandes por placeholder (mantém ícones pequenos)
+    for svg in soup.find_all("svg"):
+        svg_str = str(svg)
+        if len(svg_str) > INLINE_SVG_MAX_LENGTH:
+            placeholder = soup.new_tag("span")
+            placeholder["class"] = ["icon-placeholder"]
+            svg.replace_with(placeholder)
+
+    return soup
 
 
 def namespace_classes(soup, namespace):
     """Substitui classes do concorrente por namespace próprio."""
     for el in soup.find_all(True):
         if el.has_attr("class"):
-            original = el["class"]
             mapped = []
-            for c in original:
-                mapped.append(f"{namespace}__{slugify(c)}")
+            seen = set()
+            for c in el["class"]:
+                new_c = f"{namespace}__{slugify(c)}"
+                if new_c not in seen:
+                    mapped.append(new_c)
+                    seen.add(new_c)
             el["class"] = mapped
         if el.has_attr("id"):
             el["id"] = f"{namespace}-{slugify(el['id'])}"
 
 
 def clean_inline_styles(soup):
-    """Remove CSS inline que referencia assets externos do concorrente."""
+    """Remove url() de inline styles (assets externos do concorrente)."""
     for el in soup.find_all(style=True):
         style = el["style"]
         style = re.sub(r"url\((?!\{\{)[^)]*\)", "", style)
@@ -91,14 +161,51 @@ def clean_inline_styles(soup):
             del el["style"]
 
 
+def derive_setting_label(el):
+    tag = el.name if el else "text"
+    if tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
+        return f"Heading ({tag})"
+    if tag == "button":
+        return "Button label"
+    if el and any(BUTTON_CLASS_PATTERN.search(c or "") for c in el.get("class", []) or []):
+        return "Button label"
+    if tag == "a":
+        return "Link label"
+    if tag == "p":
+        return "Paragraph"
+    if tag == "li":
+        return "List item"
+    if tag == "label":
+        return "Form label"
+    return "Text"
+
+
+def derive_setting_id(el, counter):
+    tag = el.name if el else "text"
+    if tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
+        return f"heading_{counter}"
+    if tag == "button":
+        return f"button_{counter}"
+    if tag == "a":
+        return f"link_{counter}"
+    if tag == "p":
+        return f"paragraph_{counter}"
+    if tag == "li":
+        return f"item_{counter}"
+    if tag == "label":
+        return f"form_label_{counter}"
+    return f"text_{counter}"
+
+
 class LiquidBuilder:
     def __init__(self, namespace, product_slug):
         self.namespace = namespace
         self.product_slug = product_slug
         self.settings = []
+        self.settings_by_default = {}  # (s_type, default) -> setting_id (dedup)
         self.blocks_schemas = {}
         self.used_ids = set()
-        self.repeating_pattern = None
+        self.counter = 0
 
     def unique_id(self, base):
         candidate = base
@@ -110,31 +217,47 @@ class LiquidBuilder:
         return candidate
 
     def add_setting(self, s_id, s_type, label, default=None, info=None):
+        # Dedup: se mesmo texto já existe como setting do mesmo tipo, reutiliza ID
+        if default and s_type in ("text", "richtext"):
+            key = (s_type, default)
+            if key in self.settings_by_default:
+                return self.settings_by_default[key]
+
         entry = {"type": s_type, "id": s_id, "label": label}
         if default is not None:
             entry["default"] = default
         if info:
             entry["info"] = info
         self.settings.append(entry)
+
+        if default and s_type in ("text", "richtext"):
+            self.settings_by_default[(s_type, default)] = s_id
         return s_id
 
-    def convert_text_node(self, el, context_label):
+    def convert_text_node(self, el):
         text = el.get_text(strip=True)
-        if not text or not text.strip():
+        if looks_like_noise(text):
             return
-        s_type = "richtext" if (el.name in RICHTEXT_TAGS or len(text) > LONG_TEXT_THRESHOLD) else "text"
-        s_id = self.unique_id(slugify(context_label or text[:30]))
+
+        self.counter += 1
+        s_type = "richtext" if (el.name == "p" or len(text) > LONG_TEXT_THRESHOLD) else "text"
+        label = derive_setting_label(el)
+        base_id = derive_setting_id(el, self.counter)
+        s_id = self.unique_id(base_id)
         default = text if s_type == "text" else f"<p>{text}</p>"
-        self.add_setting(s_id, s_type, context_label or text[:40], default=default)
+        real_id = self.add_setting(s_id, s_type, label, default=default)
+
         new_tag = BeautifulSoup("", "html.parser").new_tag(el.name)
         new_tag.attrs = dict(el.attrs)
-        placeholder = "{{ section.settings." + s_id + " }}"
+        placeholder = "{{ section.settings." + real_id + " }}"
         new_tag.append(BeautifulSoup(placeholder, "html.parser"))
         el.replace_with(new_tag)
 
     def convert_image(self, el):
-        s_id = self.unique_id(slugify((el.get("alt") or "image")))
-        self.add_setting(s_id, "image_picker", f"Image: {el.get('alt', '')}"[:60])
+        self.counter += 1
+        alt = el.get("alt") or f"image_{self.counter}"
+        s_id = self.unique_id(f"image_{self.counter}")
+        self.add_setting(s_id, "image_picker", f"Image: {alt[:40]}")
         liquid = (
             '{% if section.settings.' + s_id + ' %}'
             '<img src="{{ section.settings.' + s_id + ' | image_url: width: 1600 }}" '
@@ -146,9 +269,10 @@ class LiquidBuilder:
     def convert_link(self, el):
         text = el.get_text(strip=True)
         href = el.get("href") or "#"
-        label_id = self.unique_id(slugify((text or "link") + "_label"))
-        url_id = self.unique_id(slugify((text or "link") + "_url"))
-        self.add_setting(label_id, "text", "Link label", default=text)
+        self.counter += 1
+        label_id = self.unique_id(f"link_label_{self.counter}")
+        url_id = self.unique_id(f"link_url_{self.counter}")
+        self.add_setting(label_id, "text", "Link label", default=text or "Click here")
         self.add_setting(url_id, "url", "Link URL", default=href)
         new_a = BeautifulSoup("", "html.parser").new_tag("a")
         new_a["href"] = "{{ section.settings." + url_id + " }}"
@@ -160,70 +284,110 @@ class LiquidBuilder:
     def process(self, section_dict):
         html = section_dict["html"]
         soup = BeautifulSoup(html, "html.parser")
-        remove_junk(soup)
+
+        # Step 1: limpa artefatos Shopify ANTES do namespacing (pra classes/tags originais ainda existirem)
+        strip_shopify_artifacts(soup)
+
+        # Step 2: extrai block template SE houver padrão repetitivo (usa classes originais pré-namespace)
+        repeating = section_dict.get("repeating_pattern", {})
+        if repeating.get("detected") and repeating.get("count", 0) >= 2:
+            self._extract_block_from_repeating(soup, repeating, section_dict.get("semantic_type", "item"))
+
+        # Step 3: namespace classes (após extrair blocks)
         namespace_classes(soup, self.namespace)
         clean_inline_styles(soup)
 
-        repeating = section_dict.get("repeating_pattern", {})
-        if repeating.get("detected") and repeating.get("count", 0) >= 2:
-            child_tag = repeating["child_tag"]
-            child_classes = repeating["child_classes"]
-            container = None
-            for el in soup.find_all(child_tag):
-                if child_classes and set(child_classes).issubset(set(el.get("class", []))):
-                    container = el.parent
-                    break
-            if container:
-                block_type = slugify(section_dict.get("semantic_type") or "item")
-                block_builder = LiquidBuilder(f"{self.namespace}-{block_type}", self.product_slug)
-                first_child = container.find(child_tag)
-                if first_child:
-                    self._convert_element_recursive(first_child, block_builder)
-                    block_html = str(first_child)
-                    block_file = self._build_block_file(block_builder, block_type, block_html)
-                    self.blocks_schemas[block_type] = block_file
-                    for child in list(container.find_all(child_tag, recursive=False)):
-                        child.decompose()
-                    placeholder = f"{{% content_for 'blocks' %}}"
-                    container.append(BeautifulSoup(placeholder, "html.parser"))
-
+        # Step 4: converte texto, imagens, links
         self._convert_element_recursive(soup, self)
+
         return str(soup)
 
-    def _convert_element_recursive(self, root, builder):
-        if isinstance(root, Tag):
-            children = list(root.children)
-            for child in children:
-                if isinstance(child, Tag):
-                    if is_script_or_style(child):
-                        child.decompose()
-                        continue
-                    if child.name == "img":
-                        builder.convert_image(child)
-                        continue
-                    if child.name == "a" and child.get_text(strip=True):
-                        is_button = bool(child.find_parent(lambda t: t.name == "button")) or any(
-                            "btn" in c or "button" in c or "cta" in c for c in child.get("class", [])
-                        )
-                        if is_button or child.find(["img"]) is None:
-                            builder.convert_link(child)
-                            continue
-                    text_children = [c for c in child.children if isinstance(c, NavigableString) and c.strip()]
-                    tag_children = [c for c in child.children if isinstance(c, Tag)]
-                    if child.name in TEXT_TAGS and text_children and not tag_children:
-                        label = f"{child.name}_{slugify(child.get_text(strip=True)[:30])}"
-                        builder.convert_text_node(child, label)
-                        continue
-                    builder._convert_element_recursive(child, builder)
+    def _extract_block_from_repeating(self, soup, repeating, semantic_hint):
+        """Encontra o primeiro elemento do padrão repetitivo e usa como template de block."""
+        child_tag = repeating.get("child_tag")
+        child_classes = set(repeating.get("child_classes") or [])
 
-    def _build_block_file(self, block_builder, block_type, block_html):
+        first_match = None
+        container = None
+        for el in soup.find_all(child_tag):
+            el_classes = set(el.get("class", []) or [])
+            if child_classes and child_classes.issubset(el_classes):
+                first_match = el
+                container = el.parent
+                break
+
+        # Fallback: se não achou por classes, usa o primeiro child_tag dentro do container mais provável
+        if first_match is None:
+            for potential_container in soup.find_all(True):
+                kids = [k for k in potential_container.find_all(child_tag, recursive=False)]
+                if len(kids) >= 2:
+                    first_match = kids[0]
+                    container = potential_container
+                    break
+
+        if first_match is None or container is None:
+            return
+
+        block_type = slugify(semantic_hint) or "item"
+
+        # Constrói o block a partir do primeiro match (HTML copiado antes do namespacing)
+        block_html = str(first_match)
+        block_soup = BeautifulSoup(block_html, "html.parser")
+        strip_shopify_artifacts(block_soup)
+        namespace_classes(block_soup, f"{self.namespace}-{block_type}")
+        clean_inline_styles(block_soup)
+
+        block_builder = LiquidBuilder(f"{self.namespace}-{block_type}", self.product_slug)
+        block_builder._convert_element_recursive(block_soup, block_builder)
+        block_markup = str(block_soup)
+
+        self.blocks_schemas[block_type] = {
+            "markup": block_markup,
+            "settings": block_builder.settings,
+        }
+
+        # Substitui todos os filhos repetidos no container principal por {% content_for 'blocks' %}
+        siblings_to_remove = list(container.find_all(child_tag, recursive=False))
+        for s in siblings_to_remove:
+            s.decompose()
+        container.append(BeautifulSoup("{% content_for 'blocks' %}", "html.parser"))
+
+    def _convert_element_recursive(self, root, builder):
+        if not isinstance(root, Tag):
+            return
+        children = list(root.children)
+        for child in children:
+            if not isinstance(child, Tag):
+                continue
+            if child.name in ("script", "style", "noscript", "iframe", "link"):
+                child.decompose()
+                continue
+            if child.name == "img":
+                builder.convert_image(child)
+                continue
+            if child.name == "a" and child.get_text(strip=True):
+                has_only_text = all(
+                    isinstance(c, NavigableString) or c.name == "span"
+                    for c in child.children
+                )
+                if has_only_text:
+                    builder.convert_link(child)
+                    continue
+            text_children = [c for c in child.children if isinstance(c, NavigableString) and c.strip()]
+            tag_children = [c for c in child.children if isinstance(c, Tag)]
+            if child.name in TEXT_TAGS and text_children and not tag_children:
+                builder.convert_text_node(child)
+                continue
+            builder._convert_element_recursive(child, builder)
+
+    def build_block_file(self, block_type, block_data):
         schema = {
             "name": f"{self.product_slug}-{block_type} item",
-            "settings": block_builder.settings,
+            "settings": block_data["settings"],
         }
         content = (
             f"<div class=\"{self.namespace}-{block_type}\">\n"
-            f"{block_html}\n"
+            f"{block_data['markup']}\n"
             f"</div>\n\n"
             f"{{% stylesheet %}}\n"
             f".{self.namespace}-{block_type} {{ /* block-scoped styles */ }}\n"
@@ -235,15 +399,16 @@ class LiquidBuilder:
         return content
 
     def build_section_file(self, markup, section_name, section_tag_class, base_stylesheet=""):
+        block_types = list(self.blocks_schemas.keys())
         schema = {
             "name": section_name,
             "tag": "section",
             "class": section_tag_class,
             "settings": self.settings,
-            "blocks": [{"type": t} for t in self.blocks_schemas.keys()],
+            "blocks": [{"type": t} for t in block_types],
             "presets": [{
                 "name": section_name,
-                "blocks": [{"type": t} for t in self.blocks_schemas.keys()],
+                "blocks": ([{"type": t} for t in block_types] * 3) if block_types else [],
             }],
         }
         return (
@@ -251,6 +416,7 @@ class LiquidBuilder:
             f"{{% stylesheet %}}\n"
             f"{base_stylesheet}\n"
             f".{self.namespace} {{ /* section-scoped styles */ }}\n"
+            f".{self.namespace} .icon-placeholder {{ display: inline-block; width: 1em; height: 1em; }}\n"
             f"{{% endstylesheet %}}\n\n"
             f"{{% schema %}}\n"
             f"{json.dumps(schema, indent=2)}\n"
@@ -283,7 +449,7 @@ def main():
         sys.exit(1)
     section = sections[args.section_index - 1]
 
-    print(f"[liquid-converter] convertendo seção {args.section_index}: {section.get('semantic_type')}")
+    print(f"[liquid-converter v2] convertendo seção {args.section_index}: {section.get('semantic_type')}")
 
     builder = LiquidBuilder(args.namespace, args.product_slug)
     converted_markup = builder.process(section)
@@ -294,16 +460,19 @@ def main():
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(file_content, encoding="utf-8")
-    print(f"[liquid-converter] section salva em {output_path}")
+
+    print(f"[liquid-converter v2] section salva em {output_path}")
+    print(f"[liquid-converter v2] stats: {len(builder.settings)} settings · {len(builder.blocks_schemas)} block type(s)")
 
     if builder.blocks_schemas:
         blocks_dir.mkdir(parents=True, exist_ok=True)
-        for block_type, block_content in builder.blocks_schemas.items():
+        for block_type, block_data in builder.blocks_schemas.items():
+            block_content = builder.build_block_file(block_type, block_data)
             block_file = blocks_dir / f"{args.namespace}-{block_type}.liquid"
             block_file.write_text(block_content, encoding="utf-8")
-            print(f"[liquid-converter] block salvo em {block_file}")
+            print(f"[liquid-converter v2] block salvo em {block_file}")
 
-    print("[liquid-converter] ATENÇÃO: valide o arquivo gerado com a skill `shopify-plugin:shopify-liquid` antes de instalar no tema. Este script não substitui a validação — ele gera o Liquid, mas edge cases podem precisar ajuste manual.")
+    print("[liquid-converter v2] ATENÇÃO: sempre valide o arquivo gerado com a skill `shopify-plugin:shopify-liquid` antes de instalar no tema. Edge cases podem precisar ajuste manual.")
 
 
 if __name__ == "__main__":
