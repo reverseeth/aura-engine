@@ -213,7 +213,7 @@ Sempre default `adapt` — é o que evita o bug "imagem quadrada em container ve
 >
 > Algum ajuste antes?"
 
-6. Aguarde confirmação ou ajustes. Só depois siga pra Etapa 2.
+**6.** Aguarde confirmação ou ajustes. Só depois siga pra Etapa 2.
 
 ### REGRA CRÍTICA — Eyebrows criativos, não rótulos de framework
 
@@ -444,6 +444,7 @@ Pegue o HTML+CSS da variante escolhida (Etapa 4) e transforme numa section com b
     { "type": "header", "content": "Image" },
     { "type": "image_picker", "id": "image" },
     { "type": "select", "id": "image_ratio", "options": [{"value": "adapt", "label": "Adaptive"}, ...] },
+    { "type": "select", "id": "image_fit", "options": [{"value": "cover", "label": "Cover"}, {"value": "contain", "label": "Contain"}] },
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "color_bg_top", "default": "..." },
     { "type": "color", "id": "color_accent", "default": "..." },
@@ -516,7 +517,7 @@ Toda section da página deve expor este conjunto de blocks (adapte os type-speci
 - Offer → `pricing_tier` (name + price + strap + features richtext + CTA + badge + popular checkbox + image)
 - Guarantee → `promise_item` (title + body + accent color + icon)
 - FAQ → `faq_item` (question + answer richtext + open_by_default checkbox)
-- Mechanism → `ph_card` ou `feature_compare` (tag + value + status + list items)
+- Mechanism → `mechanism_card` (tag + value + status + list items — nomeie conforme o mecanismo real do produto, ex: `ingredient_card`, `process_step`, `science_card`)
 
 **Regra dos 4 headers em TODO bloco** (organização):
 1. `Content` — os campos de texto/imagem/url (o QUE mostra)
@@ -557,7 +558,7 @@ Loop por section:
    - `social-proof` / `proof` → bloco `review_card` (stars + quote + author + avatar + featured)
    - `faq` → bloco `faq_item` (question + answer richtext + open_by_default)
    - `offer` → bloco `pricing_tier` (name + price + features richtext + CTA + badge + popular + image)
-   - `mechanism` → bloco `feature_compare` ou `ph_card` (tag + value + status + list)
+   - `mechanism` → bloco `mechanism_card` ou `feature_compare` (tag + value + status + list — nomeie o type conforme o mecanismo real: `ingredient_card` pra skincare, `process_step` pra how-it-works, `science_card` pra claim técnico)
    - `before-after` → bloco `comparison_pair` (before_image + after_image + label)
    - `guarantee` → bloco `promise_item` (title + body + accent + icon)
    - `ingredients` → bloco `ingredient` (name + role + dosage + image)
@@ -794,10 +795,16 @@ Mostre ao membro:
 2. **Lista de arquivos criados** (paths absolutos).
 3. **Preview links** (theme editor + storefront com `?view=`).
 4. **Como subir pra produção** (quando satisfeito):
-   ```
-   # Publica a cópia como tema live (substitui o atual):
-   shopify theme publish --theme [NEW-ID] --store [LOJA].myshopify.com
-   ```
+
+   > ⚠️ **Aviso**: `shopify theme publish` substitui o tema live atual. Antes, duplique o live como backup:
+   > ```
+   > # 1. Backup do live atual (recomendado antes de publicar a cópia Aura):
+   > shopify theme duplicate --theme [LIVE-THEME-ID] --name "Pre-Aura Backup $(date +%Y%m%d)" --store [LOJA].myshopify.com --force
+   > 
+   > # 2. Depois publica a cópia Aura como live:
+   > shopify theme publish --theme [NEW-ID] --store [LOJA].myshopify.com
+   > ```
+   > Se der ruim: abre admin → Online Store → Themes → encontra "Pre-Aura Backup [data]" → Publish.
 5. **Settings expostos** por block/section (resumo compacto).
 6. **Issues conhecidas** da etapa 8.
 
@@ -813,18 +820,26 @@ Para ajustes futuros:
 - Mudanças de copy → atualize os defaults no schema E os pré-populados no template JSON
 - **Sempre** revalide com `shopify-plugin:shopify-liquid` após qualquer mudança
 
-### SALVAR
+### SALVAR (dual output obrigatório — rule 6b do CLAUDE.md)
 
-Salve um relatório completo em `/workspace/[produto]/06-page.md` contendo:
+Salve um relatório completo em **DOIS arquivos** dentro de `/workspace/[produto]/`:
 
-- Plano de sections gerado (etapa 1)
+1. **`06-page.md`** (fonte — a AI lê nas fases seguintes)
+2. **`06-page.html`** (visualização humana — o membro abre no browser)
+
+Conteúdo de ambos:
+
+- Plano de sections gerado (etapa 1) + justificativa por que incluiu/excluiu cada section
 - Brand discovery answers (etapa 2) — incluindo se usou referência visual e qual
 - Design system completo (etapa 3) — paleta, tipografia, spacing, breakpoints
 - Variante de hero escolhida + por quê (etapa 4)
-- Lista de arquivos criados (etapa 10)
-- Settings expostos por section (etapa 10)
-- Issues conhecidas (se houver)
+- Lista de arquivos criados (etapa 10) com paths absolutos
+- Settings expostos por section (resumo compacto — etapa 10.5)
+- Preview links (theme editor + storefront)
+- Issues conhecidas (se houver, da etapa 8)
 - Histórico de iterações (etapa 11) — atualize a cada refinement
+
+**Como gerar o `.html`:** use o design system de `.claude/templates/aura-report-template.html` — copie o CSS completo + estrutura de componentes (section-label, callout, note, opportunity, pill, table-wrap, quote, kpi-grid). Self-contained (CSS inline, sem server). Inclua o logo SVG do Aura no topo. Responsivo mobile (overflow-wrap, word-break em code/callout).
 
 Ao final diga:
 
