@@ -12,7 +12,7 @@ Quando a campanha está rodando há 3+ dias e o membro precisa diagnosticar o qu
 
 1. Leia `/workspace/profile.md` (budget — contexto pra decisões de scale)
 2. Leia `/workspace/[produto]/04-offer.md` (target CPA, breakeven ROAS, margem — benchmarks pra avaliar performance)
-3. Leia `/workspace/[produto]/07-ad-strategy.md` (estrutura da campanha, conceitos testados, regras de decisão)
+3. Leia `/workspace/[produto]/08-ad-strategy.md` (estrutura da campanha, conceitos testados, regras de decisão)
 4. Leia `/workspace/[produto]/08-analysis/` — **SE EXISTIR**, leia análises anteriores em ordem cronológica (pra ver evolução, identificar tendências, comparar com análises passadas)
 5. Consulte a base Aura extensivamente sobre 4Pi Analysis (Spend/Frequency/CPM/Cost per Result completo), 4Pi Dashboard Setup (custom metrics), creative fatigue (sinais e tratamento), revisão de Ads Perdedores (diagnostic 19 pontos), revisão de Ads Vencedores e extração de ideias, Framework de 12 Perguntas pra Feedback Loops, Aplicação de Learnings pra Novos Ads, Complete a Feedback Loop, Feedback Loops como Motor de Crescimento, ROAS Targets e Scaling, Minimum Daily Spend (por que ads ruins geram gasto), PGS, winning ad rate, funnel creative playbook (positions e signatures TOF/MOF/BOF). Cada framework que existir, aplique.
 
@@ -35,13 +35,13 @@ Se o membro mandar screenshot, extraia os números via análise visual.
 
 ### ETAPA 2 — 4Pi Analysis (Ordem EXATA)
 
-Aplique os 4 Pi's da vault **NA ORDEM** (Spend → Frequency → CPM → Cost per Result). A ordem importa — cada Pi contextualiza o próximo.
+Aplique os 4 Pi's **NA ORDEM** (Spend → Frequency → CPM → Cost per Result). A ordem importa — cada Pi contextualiza o próximo.
 
 #### Pi 1: SPEND
 
 "Quanto cada ad set recebeu de budget?"
 
-Observação-chave (da vault): **Meta distribui spend pra onde ele ACREDITA que está funcionando**. Se o ad set A recebeu 40% do spend total e o B só 10%, o algoritmo tá "votando" que A é melhor (independente de CPA).
+Observação-chave: **Meta distribui spend pra onde ele ACREDITA que está funcionando**. Se o ad set A recebeu 40% do spend total e o B só 10%, o algoritmo tá "votando" que A é melhor (independente de CPA).
 
 - **Ad set que recebeu muito spend** (share > 25% do total) → Meta tá confiante nele
 - **Ad set com spend < 10% do seu share esperado** → Meta não tá confiante OU ad não foi aprovado OU audience muito pequena
@@ -50,13 +50,13 @@ Se um ad set "não gastou" em 3+ dias: verificar Ads Manager > Delivery insights
 
 #### Pi 2: FREQUENCY (Sinaliza Posição no Funil)
 
-Aplicar as signatures da vault:
+Aplicar as signatures:
 
 - **Freq < 1.1** → **TOF** (Top of Funnel) — novas impressões, cold traffic
 - **Freq 1.15-1.3** → **MOF** (Middle) — starting to warm up
 - **Freq > 1.3** → **BOF** (Bottom) — retargeting-like, mesmas pessoas vendo várias vezes
 
-Se a campanha tem TODOS os ad sets com freq > 1.3, falta **diversidade no funil** — você tá esgotando a audience retardtada sem abrir pra TOF novo. Recomendação: adicionar conceito TOF-friendly (hook problem, angle curiosity).
+Se a campanha tem TODOS os ad sets com freq > 1.3, falta **diversidade no funil** — você tá esgotando a audience retargetada sem abrir pra TOF novo. Recomendação: adicionar conceito TOF-friendly (hook problem, angle curiosity).
 
 Se TODOS estão com freq < 1.1 e a campanha tá há 14+ dias, algo tá preventing Meta de re-engajar — geralmente CPM baixo + CTR muito baixo = audience não resonando.
 
@@ -77,7 +77,7 @@ Compare CPA de cada ad set contra o **target CPA da oferta** (do `04-offer.md`):
 - **CPA ≤ 2× target mas > target** → NEEDS OPTIMIZATION (iteração, não pausar ainda)
 - **CPA > 2× target após 7 dias** → LOSER (pausar)
 
-Contexto importante: **CPA de um ad set isolado não é tudo**. A vault é clara: "a campanha overall melhorou?". Se campanha total está dentro de CPA target mesmo com 1-2 ad sets fora, a maquina tá OK. Otimiza os outliers, não destrua campanha.
+Contexto importante: **CPA de um ad set isolado não é tudo**. "a campanha overall melhorou?". Se campanha total está dentro de CPA target mesmo com 1-2 ad sets fora, a maquina tá OK. Otimiza os outliers, não destrua campanha.
 
 ### ETAPA 3 — Diagnóstico Por Ad Set
 
@@ -132,7 +132,7 @@ Pra cada loser, identifique **a camada onde falhou** e a hipótese específica. 
 
 ### ETAPA 5 — Diagnóstico de WINNERS (Extração de Learnings)
 
-Pra cada WINNER, extraia learnings aplicando o framework da vault:
+Pra cada WINNER, extraia learnings aplicando o framework:
 
 - **O que funcionou?** (hook específico, ângulo, formato, CTA, LP)
 - **Por que funcionou?** (hipótese causal — ex: "hook de curiosity pattern interrupt em audience Problem Aware onde concorrentes usam authority-first")
@@ -153,7 +153,7 @@ Recomendação baseada em desbalanço:
 
 ### ETAPA 7 — Framework de 12 Perguntas (Feedback Loops)
 
-Consulte a vault sobre "Framework de 12 Perguntas pra Feedback Loops". Aplique as perguntas aos dados:
+Aplique os princípios de "Framework de 12 Perguntas pra Feedback Loops". Aplique as perguntas aos dados:
 
 1. Qual ad set teve maior ROAS e por quê?
 2. Qual teve menor ROAS e por quê?
@@ -213,9 +213,12 @@ Na seção final do relatório, documente learnings que vão alimentar próximos
 **Hipóteses ainda em teste** (precisa mais dados):
 **Ideias pra próximo batch:**
 
-Isso é o "feedback loop motor de crescimento" da vault — cada análise enriquece o próximo batch de criativos.
+Isso é o "feedback loop motor de crescimento" — cada análise enriquece o próximo batch de criativos.
 
-## SALVAR
+## SALVAR (dual output — rule 6b do CLAUDE.md)
+
+**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
+
 
 `/workspace/[produto]/08-analysis/[YYYYMMDD]-analysis.md` contendo todas as 10 etapas. A pasta `08-analysis/` acumula histórico — análises anteriores servem de input pra comparar evolução nas análises seguintes.
 

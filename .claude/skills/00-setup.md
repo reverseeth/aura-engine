@@ -208,13 +208,15 @@ Próximo passo: **'scale'**. Monto um plano baseado nos seus números — PGS pr
 Depois da mensagem específica, adicione SEMPRE:
 
 "Você pode dizer o nome de qualquer fase a qualquer momento:
-`product research` · `market research` · `competitor analysis` · `offer` · `copy` · `creatives` · `ad strategy` · `ad analysis` · `scale` · `page`
+`product research` · `market research` · `competitor analysis` · `offer` · `copy` · `page` · `creatives` · `ad strategy` · `ad analysis` · `scale`
 
 Cada fase lê o que as anteriores produziram em /workspace/[produto]/ — você nunca precisa repetir informação."
 
-## SALVAR
+## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-`/workspace/profile.md` (formato da Etapa 5).
+Salve em DOIS arquivos:
+1. **`/workspace/profile.md`** (formato da Etapa 5 — a AI lê nas fases seguintes)
+2. **`/workspace/profile.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura)
 
 Se o membro já tinha um profile anterior e está refazendo, faça backup em `/workspace/.profile-backup-[YYYYMMDD-HHMMSS].md` antes de sobrescrever.
 

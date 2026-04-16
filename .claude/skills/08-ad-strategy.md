@@ -14,7 +14,7 @@ Quando o membro tem criativos editados (da Skill 07) + página pronta na loja (d
 2. Leia `/workspace/[produto]/04-offer.md` (CPA target vem daqui — Margem / 2 pra 2× ROAS, Margem / 2.5 pra 2.5× ROAS)
 3. Leia `/workspace/[produto]/05-copy.md` (URLs de destino — 1 ou múltiplas LPs)
 4. Leia `/workspace/[produto]/07-creatives/` (conceitos + briefings — cada conceito vira 1 ad set)
-5. Consulte a base Aura extensivamente sobre: One Campaign Method (AndroMeta — Charley T / Disrupter Academy), Andromeda System (o que mudou no Meta e por que), Scientific Method for Meta Ads (control vs variable), 3-2-2 Flexible Ads format (estrutura e regras de teste), Performance Gate Scaling (PGS — regra automatizada de 5%), budget scaling methods (farmer/aggressive/operator), 4Pi Analysis signatures pra interpretação de dados depois, naming conventions, CAPI e Pixel Data setup (Advanced Matching + Event Quality), Ad Account e Pixel-Dataset Setup, Estrutura de Assets Anti-Ban, Automated Rules pra Lead Gen Campaigns, Minimum Daily Spend (por que ads ruins geram gasto), Scientific Method (control vs variable), Profitable Scaling Margin (PSM — Golden Ratio of Growth), Overview e Estratégia de Media Buying, ROAS Targets e Scaling (vertical vs horizontal). Aprofunde em cada sub-conceito. Operacional é detalhe — errar naming convention ou deixar "daily minimums" ativo mata campanhas.
+5. Consulte a base Aura extensivamente sobre: One Campaign Method, Andromeda System (o que mudou no Meta e por que), Scientific Method for Meta Ads (control vs variable), 3-2-2 Flexible Ads format (estrutura e regras de teste), Performance Gate Scaling (PGS — regra automatizada de 5%), budget scaling methods (farmer/aggressive/operator), 4Pi Analysis signatures pra interpretação de dados depois, naming conventions, CAPI e Pixel Data setup (Advanced Matching + Event Quality), Ad Account e Pixel-Dataset Setup, Estrutura de Assets Anti-Ban, Automated Rules pra Lead Gen Campaigns, Minimum Daily Spend (por que ads ruins geram gasto), Scientific Method (control vs variable), Profitable Scaling Margin (PSM — Golden Ratio of Growth), Overview e Estratégia de Media Buying, ROAS Targets e Scaling (vertical vs horizontal). Aprofunde em cada sub-conceito. Operacional é detalhe — errar naming convention ou deixar "daily minimums" ativo mata campanhas.
 
 ## Fluxo da Skill
 
@@ -37,7 +37,7 @@ Não prossiga pra Etapa 2 enquanto os 3 itens não estiverem "sim".
 
 ### ETAPA 2 — Estrutura da Campanha (One Campaign Method)
 
-Consulte a vault sobre One Campaign Method (AndroMeta). A estrutura padrão:
+Aplique os princípios de One Campaign Method. A estrutura padrão:
 
 **Configuração da campanha:**
 - **Campaign Name**: `[Produto]_[YYYYMMDD]_Main` (ex: `CollagenSerum_20260415_Main`)
@@ -54,7 +54,7 @@ Consulte a vault sobre One Campaign Method (AndroMeta). A estrutura padrão:
 
 Calcule o número máximo de ad sets ativos:
 
-**Fórmula da vault:** `Budget diário / Target CPA = max ad sets`
+**Fórmula:** `Budget diário / Target CPA = max ad sets`
 
 Exemplo:
 - Budget $100/dia, CPA target $20 → max 5 ad sets
@@ -80,7 +80,7 @@ Se o total exceder o max, priorize: Champions > Creative Batches > Page Test. Fi
   - **Location**: mercado geográfico principal (do market research — US/UK/EU/global)
   - **Age**: **18-65+** (broad — deixar Meta otimizar por idade)
   - **Gender**: **All** (a menos que o produto seja genuinamente gênero-específico com dados claros)
-  - **Detailed targeting**: **Advantage+** (automatic) — **NÃO** adicionar interests manuais. A vault é explícita: advantage+ audience está batendo manual targeting em 90%+ dos casos.
+  - **Detailed targeting**: **Advantage+** (automatic) — **NÃO** adicionar interests manuais. Importante: advantage+ audience está batendo manual targeting em 90%+ dos casos.
   - **Languages**: idioma do mercado
   - **Excluded**: nenhum (a menos que você tenha uma razão forte — ex: clientes existentes pra ads de aquisição)
 - **Placements**: **Advantage+ Placements** (automatic) — Meta distribui entre Feed/Stories/Reels/Audience Network. Não usar manual placements.
@@ -99,7 +99,7 @@ Para CADA ad set (exceto Champions que usam Post IDs), configure o ad usando o f
 - **3 Creatives**: upload dos 3 criativos do conceito (do briefing da Skill 07)
 - **2 Primary texts**: os 2 primary texts do briefing
 - **2 Headlines**: as 2 headlines do briefing
-- **Descriptions**: **deixar vazio** (per vault — descriptions raramente melhoram performance em Flexible Ad)
+- **Descriptions**: **deixar vazio** (— descriptions raramente melhoram performance em Flexible Ad)
 - **CTA Button**: "Shop Now" ou "Learn More" (Shop Now pra PDP direto, Learn More pra advertorial/LP)
 - **URL**: URL da LP do conceito (do briefing)
 - **URL parameters**: adicionar UTMs: `utm_source=facebook&utm_medium=paid&utm_campaign=[produto]&utm_content=[conceito]`
@@ -126,7 +126,7 @@ Types: `Batch` (new test), `Champion` (winning ad), `PageTest` (LP test), `Retar
 
 ### ETAPA 7 — Regras de Decisão (Timeline Dia 1/3/7/14)
 
-Aplique as regras da vault. **Cada timeline tem ação específica:**
+Aplique as regras. **Cada timeline tem ação específica:**
 
 **DIA 1 (0-24h):**
 - Deixar rodar. Não pausar. Não escalar.
@@ -152,7 +152,7 @@ Aplique as regras da vault. **Cada timeline tem ação específica:**
 
 ### ETAPA 8 — Performance Gate Scaling (PGS) — Regra Automatizada Exata
 
-Consulte a vault sobre PGS (Disrupter Academy / Charley T).
+Aplique os princípios de PGS.
 
 **Configure no Ads Manager:**
 
@@ -175,7 +175,7 @@ Menu: **Automated Rules** > **Create New Rule** > Apply to: **All active ad sets
 
 **Resultado prático**: ad sets que estão performando dentro do target recebem aumento de 5% no budget em cada trigger. 5% × 3× semana = ~15% por semana = dobra em ~30 dias. Escala vertical sistemática sem reativar fase de aprendizado.
 
-**IMPORTANTE** (per vault): PGS é SEGURO porque só escala ad sets que JÁ estão dentro do target. Não escala impulsivamente. Não desestabiliza algoritmo.
+**IMPORTANTE** (): PGS é SEGURO porque só escala ad sets que JÁ estão dentro do target. Não escala impulsivamente. Não desestabiliza algoritmo.
 
 ### ETAPA 9 — Próximos Batches
 
@@ -195,7 +195,7 @@ Documente pro membro como operar o ciclo:
 - CPA > 2× target por 7 dias → pausar imediatamente
 - Aumentar budget dos ad sets que estão performando bem (via PGS) OU adicionar conceito novo da próxima fase de criativos
 
-### ETAPA 10 — Erros Comuns a Evitar (per vault)
+### ETAPA 10 — Erros Comuns a Evitar ()
 
 1. **NÃO escalar budget sem razão** — se o ad set tá dentro do target, PGS cuida. Se você subir budget manualmente +50% em um dia, desestabiliza o aprendizado. PGS a 5% é o caminho.
 2. **NÃO usar daily minimums** ("atingir $X de spend") — essa regra força Meta a gastar em impressões ruins pra cumprir meta. Deixa a fluidez de CBO operar.
@@ -204,9 +204,12 @@ Documente pro membro como operar o ciclo:
 5. **NÃO usar interests detailed targeting** (a não ser razão muito específica) — Advantage+ está batendo manual targeting em 90%+ dos casos. Adicionar interests só reduz o pool e limita algoritmo.
 6. **NÃO testar demais de uma vez** — respeitar o `budget / CPA target` limit. Mais ad sets do que isso = cada um recebe pouco spend, learning phase nunca completa, decisão impossível.
 
-## SALVAR
+## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-`/workspace/[produto]/07-ad-strategy.md` contendo:
+**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
+
+
+`/workspace/[produto]/08-ad-strategy.md` contendo:
 1. Estrutura da campanha completa (Etapa 2)
 2. Lista detalhada de ad sets com config de audience, placement, budget (Etapa 3)
 3. Configuração 3-2-2 ou 3-2-2-2 por ad set (Etapas 4-5)

@@ -1,6 +1,6 @@
 ---
 name: copy-engine
-description: Engine de escrita de copy completo baseado em market research, competitor analysis, e oferta. Escreve PDPs, landing pages, advertoriais, ou long-form sales pages aplicando headlines (processo de 100 linhas, fórmulas da vault), leads tipados por awareness, hero sections (5 tipos), 10x page plan, frameworks de persuasão (Cialdini, Sugarman, Hopkins), proof stacking, CTAs (call to value), 7 sweeps de revisão, e linguagem EXATA do customer. Use quando o membro disser "copy", "escrever copy", "copy da página", "copy do ad", "PDP copy", "landing page copy", ou após a skill de oferta. O sistema DECIDE a estratégia de copy automaticamente — não consulta o membro sobre decisões estratégicas.
+description: Engine de escrita de copy completo baseado em market research, competitor analysis, e oferta. Escreve PDPs, landing pages, advertoriais, ou long-form sales pages aplicando headlines (processo de 100 linhas, fórmulas), leads tipados por awareness, hero sections (5 tipos), 10x page plan, frameworks de persuasão (Cialdini, Sugarman, Hopkins), proof stacking, CTAs (call to value), 7 sweeps de revisão, e linguagem EXATA do customer. Use quando o membro disser "copy", "escrever copy", "copy da página", "copy do ad", "PDP copy", "landing page copy", ou após a skill de oferta. O sistema DECIDE a estratégia de copy automaticamente — não consulta o membro sobre decisões estratégicas.
 ---
 
 # Copy Engine
@@ -14,7 +14,7 @@ Quando o membro tem market research, competitor analysis e oferta prontos, e pre
 2. Leia `/workspace/[produto]/02-market-research.md` (psychographics, awareness/sophistication, VOC literal, objeções, root cause)
 3. Leia `/workspace/[produto]/03-competitor-analysis.md` (claims saturados a evitar, gaps, posicionamento recomendado, swipe file)
 4. Leia `/workspace/[produto]/04-offer.md` (mecanismo único com 3 versões, bundles, garantia, unit economics)
-5. Consulte a base Aura extensivamente sobre copywriting: headlines (processo de 100 linhas, fórmulas clássicas de Caples/Hopkins/Schwartz/Sugarman), leads (5 tipos por awareness de Schwartz — Story Lead, Secret Lead, Proclamation Lead, Problem-Solution Lead, Offer/Direct Lead), hero sections (5 tipos e quando usar cada), 10x page plan (Copy School framework), landing page frameworks, long-form sales page structure (15-point themeplate), VSL structure (8 blocos), advertorial blueprint (7 seções Zakaria), listicles como advertorial, techniques de persuasão (even-if, loss aversion, future pacing, belief stacking), Cialdini's 6 principles + pre-suasion, Sugarman's triggers (slippery slide, sentence rhythm, curiosity), StoryBrand SB7, Kennedy sales letter structure, proof e credibilidade (testimonials, authority, specificity de Hopkins), CTAs como call to value (não call to action), crossheads e estrutura visual, 4 decision making modalities (Spontaneous/Competitive/Humanistic/Methodical), rule of one, 7 sweeps de revisão, behavioral psychology (System 1 vs System 2), wireframing e validação, frameworks como PAS/AIDA/PASO/PCPO, brand voice e tom, e qualquer framework adjacente que apareça. **Esta skill é o coração do sistema — explore cada framework de copy que a vault tiver.**
+5. Consulte a base Aura extensivamente sobre copywriting: headlines (processo de 100 linhas, fórmulas clássicas de Caples/Hopkins/Schwartz/Sugarman), leads (5 tipos por awareness de Schwartz — Story Lead, Secret Lead, Proclamation Lead, Problem-Solution Lead, Offer/Direct Lead), hero sections (5 tipos e quando usar cada), 10x page plan, landing page frameworks, long-form sales page structure (15-point themeplate), VSL structure (8 blocos), advertorial blueprint (7 seções Zakaria), listicles como advertorial, techniques de persuasão (even-if, loss aversion, future pacing, belief stacking), Cialdini's 6 principles + pre-suasion, Sugarman's triggers (slippery slide, sentence rhythm, curiosity), StoryBrand SB7, Kennedy sales letter structure, proof e credibilidade (testimonials, authority, specificity de Hopkins), CTAs como call to value (não call to action), crossheads e estrutura visual, 4 decision making modalities (Spontaneous/Competitive/Humanistic/Methodical), rule of one, 7 sweeps de revisão, behavioral psychology (System 1 vs System 2), wireframing e validação, frameworks como PAS/AIDA/PASO/PCPO, brand voice e tom, e qualquer framework adjacente que apareça. **Esta skill é o coração do sistema — explore cada framework de copy a fundo.**
 
 ## Fluxo da Skill
 
@@ -56,7 +56,7 @@ O sistema apresenta as decisões como FATO (não pedido de aprovação) e segue 
 | Product Aware | Offer Lead ou Direct Lead |
 | Most Aware | Direct Lead (apela pra oferta/urgência direto) |
 
-**Tipo de Hero Section** (5 tipos da vault):
+**Tipo de Hero Section** (5 tipos):
 - **Authority hero** (expert, doctor, scientist apresentando): indicado pra Solution Aware + high-trust products
 - **UGC/Testimonial hero**: indicado pra Problem Aware + baixa confiança inicial
 - **Product-hero** (produto em destaque): Product Aware + Most Aware
@@ -79,11 +79,11 @@ Definido pelo perfil psicográfico:
 
 **Framework de Organização:**
 - **PDP** → estrutura: Hero → Trust Bar → Benefícios → Mecanismo → Prova Social → Oferta/Stack → Garantia → FAQ → CTA final
-- **Landing Page** → 10x Page Plan (Copy School) ou PAS on Steroids
+- **Landing Page** → 10x Page Plan ou PAS on Steroids
 - **Advertorial** → 7-section blueprint (Zakaria): Headline → Lead → Background Story → Root Cause → Unique Mechanism → Product Build-Up → Product Reveal → Close
 - **Long-form Sales Page** → 15-point themeplate ou 8-block VSL structure
 
-**Como servir as 4 Decision Making Modalities** (Copy School):
+**Como servir as 4 Decision Making Modalities**:
 
 Toda página precisa SIMULTANEAMENTE servir os 4 tipos de decisor (senão perde conversão de 25-75% dos visitantes):
 
@@ -100,11 +100,11 @@ Não peça aprovação — segue direto pra escrita. O membro pode ajustar depoi
 
 ### ETAPA 3 — Headlines (Processo de 100 Linhas)
 
-Consulte a vault sobre o processo de 100 linhas (Caples, expandido) e as fórmulas clássicas.
+Aplique os princípios de o processo de 100 linhas (Caples, expandido) e as fórmulas clássicas.
 
 **3A — Geração (20-30 variações):**
 
-Gere 20-30 variações de headline aplicando as fórmulas da vault. Cobrir diferentes tipos:
+Gere 20-30 variações de headline aplicando as fórmulas. Cobrir diferentes tipos:
 
 - **Benefício direto**: "Get [outcome] without [pain]"
 - **Curiosidade**: "The [adjective] secret [audience] don't know about [topic]"
@@ -134,7 +134,7 @@ Justifique cada escolha.
 
 ### ETAPA 4 — Página Completa (Seção por Seção)
 
-Escreva a página inteira, seção por seção, na ordem definida pelo framework escolhido. Para cada seção, aplique frameworks específicos da vault.
+Escreva a página inteira, seção por seção, na ordem definida pelo framework escolhido. Para cada seção, aplique frameworks específicos.
 
 #### Hero Section
 
@@ -172,7 +172,7 @@ Inclua:
 
 #### Prova Social (Proof Stacking)
 
-Aplicar os frameworks de proof da vault (Hopkins specificity, Sugarman satisfaction conviction, Made to Stick credibility):
+Aplicar os frameworks de proof (Hopkins specificity, Sugarman satisfaction conviction, Made to Stick credibility):
 
 - **Social proof volume**: número de clientes, reviews, anos no mercado
 - **Specific testimonials**: 3-5 testimonials com NOMES COMPLETOS, FOTOS, e RESULTADOS ESPECÍFICOS (com datas e números quando possível)
@@ -191,7 +191,7 @@ Do `04-offer.md`:
 - Stack de valor: "Você recebe [X + Y + Z] no valor de $[total ancorado]. Hoje: $[preço]"
 - Savings visíveis ("Você economiza $[diff] hoje")
 
-Aplique **pricing psychology da vault**: ancoragem de preço, decoy effect (3-pack Popular faz 1-pack parecer caro e 6-pack parecer econômico), framing (foco em "savings" não em "preço").
+Aplique **pricing psychology**: ancoragem de preço, decoy effect (3-pack Popular faz 1-pack parecer caro e 6-pack parecer econômico), framing (foco em "savings" não em "preço").
 
 #### Garantia
 
@@ -228,21 +228,21 @@ Repita CTA em 3-5 pontos da página (após hero, após mecanismo, após social p
 
 ### ETAPA 5 — Se for ADVERTORIAL (Alternativa à Etapa 4)
 
-Se o tipo de página definido é Advertorial, siga a **estrutura de 7 seções** da vault (Zakaria blueprint):
+Se o tipo de página definido é Advertorial, siga a **estrutura de 7 seções** (Zakaria blueprint):
 
 1. **Irresistible Headline** (estilo editorial, não-vendedor: "The Weird 30-Second Ritual That's Changing How Women Over 40 Handle [Problem]")
 2. **Lead** que pulls readers in (primeiras 100-200 palavras — responde as 4 perguntas mentais do leitor: por que ler agora? por que isso importa? por que isso é diferente? por que vai funcionar pra mim?)
-3. **Background Story** (storytelling pessoal ou de terceiro — builds empathy + credibility — aplica a Discovery Story da vault)
+3. **Background Story** (storytelling pessoal ou de terceiro — builds empathy + credibility — aplica a Discovery Story)
 4. **Root Cause Explanation** — use a causa raiz do market research (Etapa 6 da Skill 02). Explique o problema de forma clara, externaliza a culpa (genética, hormônios, indústria — NÃO o leitor)
 5. **Unique Mechanism Reveal** — apresente o mecanismo único como a descoberta, a revelação (use a versão de 2-3 parágrafos do 04-offer.md)
 6. **Product Build-Up** — traz o produto no contexto do mecanismo. Primeiros parágrafos são sobre o MÉTODO/PRODUTO antes da oferta
-7. **Product Reveal + Close** — oferta, stack, garantia, urgência, CTA. Manipulation close da vault (scarcity real, bonus que expiram, urgency com razão)
+7. **Product Reveal + Close** — oferta, stack, garantia, urgência, CTA. Manipulation close (scarcity real, bonus que expiram, urgency com razão)
 
 Tom editorial (não vendedor). Use parágrafos curtos (2-4 linhas). Inclua imagens/quotes entre parágrafos.
 
 ### ETAPA 6 — Auto-Revisão (7 Sweeps)
 
-Antes de entregar, faça **7 sweeps de revisão** conforme a vault:
+Antes de entregar, faça **7 sweeps de revisão** :
 
 1. **Clarity sweep**: cada frase é clara em primeira leitura? Jargão sem explicação?
 2. **Customer voice sweep**: usei as frases EXATAS do VOC? Onde parafraseei sem querer?
@@ -263,7 +263,10 @@ Gere:
 
 Documente a hipótese por trás de cada variação.
 
-## SALVAR
+## SALVAR (dual output — rule 6b do CLAUDE.md)
+
+**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
+
 
 `/workspace/[produto]/05-copy.md` contendo:
 1. Strategy brief (Etapa 2 — tipo de página, lead, hero, ângulo, tom, framework, modalities mapping)

@@ -81,7 +81,7 @@ Defina a resposta estratégica certa pro estágio identificado.
 
 ### ETAPA 4 — Perfil Psicográfico Profundo
 
-Pesquise extensivamente (web search em Reddit, Amazon reviews, TikTok comments, fóruns de nicho, Quora, grupos do Facebook). Use as técnicas de review mining da vault.
+Pesquise extensivamente (web search em Reddit, Amazon reviews, TikTok comments, fóruns de nicho, Quora, grupos do Facebook). Use as técnicas de review mining.
 
 Construa o perfil em camadas:
 
@@ -123,7 +123,7 @@ Construa o perfil em camadas:
 - **Ceticismo** — "mais um scam"
 - **Identidade** — "produto não é pra alguém como eu"
 
-Pra cada objeção, sugira **como quebrar** usando os frameworks de persuasão da vault (proof, garantia, demonstração, especificidade de Hopkins, reciprocidade de Cialdini, etc).
+Pra cada objeção, sugira **como quebrar** usando os frameworks de persuasão (proof, garantia, demonstração, especificidade de Hopkins, reciprocidade de Cialdini, etc).
 
 **Trigger Events:**
 O que faz a pessoa decidir comprar AGORA? Event específico, data, situação, ponto-de-dor agudo:
@@ -157,7 +157,7 @@ A causa raiz deve ser:
 - Específica (pode ser nomeada)
 - Externaliza a culpa (não "você comeu muito" mas "seu corpo tá te sabotando POR CAUSA DE X")
 
-Esta causa raiz alimenta o **advertorial de 7 seções** da vault (Seção 4 — Root Cause Explanation) e o **corruption angle** (quem/o que corrompeu a situação: indústria, genética, envelhecimento, hormônios). Documente 2-3 opções de causa raiz pra oferta escolher depois.
+Esta causa raiz alimenta o **advertorial de 7 seções** (Seção 4 — Root Cause Explanation) e o **corruption angle** (quem/o que corrompeu a situação: indústria, genética, envelhecimento, hormônios). Documente 2-3 opções de causa raiz pra oferta escolher depois.
 
 ### ETAPA 7 — Competitive Landscape (Overview Rápido)
 
@@ -222,7 +222,10 @@ Antes de salvar, valide:
 
 Se alguma validação falhar, aprofunde naquele ponto antes de salvar.
 
-## SALVAR
+## SALVAR (dual output — rule 6b do CLAUDE.md)
+
+**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
+
 
 `/workspace/[produto]/02-market-research.md`
 
