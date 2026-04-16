@@ -242,78 +242,194 @@ Para cada variante:
 
 5. Mostre as 3 variantes ao membro. Pergunte: "Qual variante? A/B/C ou misturar elementos de duas?"
 
-### ETAPA 4.5 — Decisão de Arquitetura: Sections ou Blocks?
+### ETAPA 4.5 — Arquitetura das Sections (padrão validado)
 
-Antes de converter pra Liquid, decida como os elementos serão estruturados no tema. Duas opções:
+**Use sempre este padrão — cada section é uma "pasta" no sidebar da Shopify com blocks atômicos dentro.** Foi o que validou em campo (hero Undone em Horizon, Shopify push zero erros, ~700 settings totais entre 9 sections).
 
-**Opção A — Sections independentes (default, clássico)**
-- Cada elemento (hero, benefits, mechanism, etc) vira uma section no template
-- Ordem fixa no `templates/page.[produto].json`
-- Bom pra temas antigos (Dawn, Impulse, Sense)
-- Membro edita cada section no theme editor mas **não intercala com sections nativas facilmente**
+**Princípio central:** a section é um CONTAINER com layout + cores, e cada elemento visual (eyebrow, heading, paragraph, button-row, stats-bar, tag, trust-row, etc) é um **bloco inline** definido dentro do `{% schema %}` da própria section (não theme blocks em arquivos separados).
 
-**Opção B — Theme blocks + container section (RECOMENDADO pra Horizon e temas 2.0+)**
-- Cada elemento vira um theme block em `/blocks/page-[produto]-[tipo].liquid`
-- Uma container section `/sections/page-[produto]-main.liquid` aceita os blocks + `@theme` + `@app`
-- Membro pode: (1) drag-and-drop pra reordenar, (2) duplicar blocks, (3) ocultar individualmente, (4) intercalar com blocks nativos do tema (text, image banner, etc.), (5) adicionar sections nativas antes/depois da container
-- Testa e aprovado em Horizon
+**Vantagens desse modelo:**
+1. Section aparece organizada como pasta no sidebar ("Hero — Undone") com todos os blocks dentro
+2. Membro arrasta blocks pra reordenar, duplica, remove individualmente
+3. Membro adiciona blocks novos (Custom Liquid, Custom HTML, Divider, Spacer) sem tocar código
+4. Tudo editável: cor de cada micro-elemento, tamanho, espaçamento, font weight, letter spacing
+5. Validação passa no `shopify-plugin:shopify-liquid` (não precisa forloop grouping complexo)
 
-**Como escolher:**
-1. Cheque o tema do membro: `ls [THEME_PATH]/blocks/ | head` — se houver muitos blocks (`_card.liquid`, `_accordion-row.liquid`, etc) é Horizon ou tema moderno → **use Opção B**.
-2. Se só tem sections e poucos blocks → Opção A.
-3. Na dúvida: Opção B. Horizon é o default do Shopify desde 2024 e funciona em 99% dos temas 2.0+.
+**Como funciona:**
+- Section file (`sections/page-[produto]-[tipo].liquid`) tem:
+  - Markup com `{% for block in section.blocks %}{% case block.type %}...{% endcase %}{% endfor %}`
+  - Stylesheet self-contained com CSS vars (`var(--c-accent)`, `var(--c-heading)`)
+  - Schema inline com TODOS os blocks definidos
+- Template JSON (`templates/page.[produto].json`) tem:
+  - Section + seus blocks **pré-populados com copy real**
+  - `block_order` na ordem correta
+  - Section settings pré-configurados
 
-Pergunte ao membro apenas se o caso for ambíguo. Caso contrário, decida e siga.
+**Resultado:** membro abre `/pages/[produto]` → **página já montada, bonita, editável**. Não precisa arrastar nada.
 
-### ETAPA 5 — Convert Hero to Liquid Section
+**Não use theme blocks em arquivos separados** (`/blocks/*.liquid`) pra esta skill — testamos e o validator do Shopify bloqueia referências dinâmicas via `{% content_for 'block' type: block.type %}`. Blocks inline no schema da section é o padrão que passa.
 
-Após escolha do membro:
+### ETAPA 5 — Convert Hero to Liquid Section (padrão de blocks inline)
 
-1. Pegue o HTML/CSS da variante escolhida.
-2. **Aplique as regras de Schema Mapping** (ver tabela acima):
-   - Cada texto → setting `text` ou `richtext`
-   - Cada imagem → setting `image_picker`
-   - Cada cor → setting `color` referenciada via CSS custom property
-   - Cada link → setting `url`
-   - Cada alinhamento/tamanho/spacing → settings configuráveis
-3. Gere `{% schema %}` completo com:
-   - `name`: "Page [Produto] - Hero"
-   - `tag`: "section"
-   - `class`: namespace específico
-   - `settings`: lista completa de settings com defaults pré-populados da copy
-   - `presets`: 1 preset com nome do produto
-4. Gere `{% stylesheet %}` self-contained com:
-   - CSS custom properties no topo (do design system)
-   - Estilos da variante escolhida
-   - Mobile-first com media queries
-   - `@media (prefers-reduced-motion: reduce)` quando houver animações
-5. Gere o markup HTML usando `{{ section.settings.* }}` pra todos os textos/imagens/links/cores.
-6. **Valide com o skill `shopify-plugin:shopify-liquid`** (`validate.mjs --filename ... --filetype sections --code ...`).
-7. Se a validação falhar:
-   - Leia o erro
-   - Identifique o problema
-   - Corrija o código exato
-   - Revalide
-   - Máximo 3 retries
-8. Se a validação passar, salve em `~/shopify-theme/sections/page-[produto]-hero.liquid` (Opção A) ou `~/shopify-theme/blocks/page-[produto]-hero.liquid` (Opção B).
+Pegue o HTML+CSS da variante escolhida (Etapa 4) e transforme numa section com blocks inline. A estrutura canônica é:
 
-**Ferramenta de conversão (tools/design-clone/liquid-converter.py):**
+```liquid
+<section class="pu-hero pu-hero-{{ section.id }}" style="--c-bg: {{ section.settings.color_bg }}; --c-accent: {{ section.settings.color_accent }}; /* todas as CSS vars */">
+  <div class="pu-hero__wrap pu-hero__wrap--{{ section.settings.layout }}">
+    <div class="pu-hero__content">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
 
-Se o membro preferir, pode rodar o converter automaticamente (faz tudo acima em um passo):
+          {%- when 'eyebrow' -%}
+            <p id="pu-{{ block.id }}" class="pu-hero__eyebrow" style="{% if block.settings.color != blank %}color: {{ block.settings.color }};{% endif %} margin: {{ block.settings.space_before }}px 0 {{ block.settings.space_after }}px;" {{ block.shopify_attributes }}>
+              {{ block.settings.text }}
+            </p>
+            {%- if block.settings.custom_css != blank -%}<style>#pu-{{ block.id }} { {{ block.settings.custom_css }} }</style>{%- endif -%}
 
-```bash
-python3 tools/design-clone/liquid-converter.py \
-  --html /tmp/fresh-[produto]/hero.html \
-  --css /tmp/fresh-[produto]/hero.css \
-  --type hero \
-  --output ~/shopify-theme/[blocks|sections]/page-[produto]-hero.liquid \
-  --blocks-dir ~/shopify-theme/blocks \
-  --namespace page-[produto]-hero \
-  --product-slug [produto] \
-  --asset-type [section|block]
+          {%- when 'heading' -%}
+            <h2 id="pu-{{ block.id }}" class="pu-hero__heading pu-hero__heading--size-{{ block.settings.size }}" style="{% if block.settings.color != blank %}color: {{ block.settings.color }};{% endif %} line-height: {{ block.settings.line_height | times: 0.1 }}; margin: {{ block.settings.space_before }}px 0 {{ block.settings.space_after }}px;" {{ block.shopify_attributes }}>{{ block.settings.text }}</h2>
+            {%- if block.settings.custom_css != blank -%}<style>#pu-{{ block.id }} { {{ block.settings.custom_css }} }</style>{%- endif -%}
+
+          {# ... outros blocks: paragraph, badge, button_row, stats_bar, trust_row, divider, icon, spacer, custom_liquid, custom_html #}
+
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+
+    {%- if section.settings.show_figure -%}
+      <div class="pu-hero__figure_wrap">
+        <figure class="pu-hero__figure" data-adapt="{% if section.settings.image_ratio == 'adapt' %}true{% else %}false{% endif %}" style="{% if section.settings.image_ratio != 'adapt' %}aspect-ratio: {{ section.settings.image_ratio }};{% endif %}">
+          {%- if section.settings.image -%}
+            {{ section.settings.image | image_url: width: 1600 | image_tag: loading: 'eager', widths: '400, 800, 1200, 1600', sizes: '(min-width: 900px) 50vw, 100vw' }}
+          {%- endif -%}
+        </figure>
+        {# Tags (floating) ficam FORA do figure pra overflow não cortá-los #}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'tag' -%}
+            <span id="pu-{{ block.id }}" class="pu-hero__tag pu-hero__tag--{{ block.settings.position }}" {{ block.shopify_attributes }}>
+              {%- if block.settings.eyebrow != blank -%}<em>{{ block.settings.eyebrow }}</em>{%- endif -%}
+              <strong>{{ block.settings.title }}</strong>
+            </span>
+            {%- if block.settings.custom_css != blank -%}<style>#pu-{{ block.id }} { {{ block.settings.custom_css }} }</style>{%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{%- if section.settings.custom_css != blank -%}
+<style>.pu-hero-{{ section.id }} { {{ section.settings.custom_css }} }</style>
+{%- endif -%}
+
+{% stylesheet %}
+  /* section-scoped styles usando CSS vars do :root da section */
+  /* todos hardcoded hex viram var(--c-*) pra edição */
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "[Produto] — Hero",
+  "tag": "section",
+  "class": "page-[produto]-hero-section",
+  "settings": [
+    { "type": "header", "content": "Layout" },
+    { "type": "select", "id": "layout", "options": [...] },
+    { "type": "range", "id": "container_max", "min": 800, "max": 1600, "step": 20, "unit": "px", "default": 1280 },
+    { "type": "range", "id": "padding_y", "min": 24, "max": 200, "step": 4, "unit": "px", "default": 112 },
+    { "type": "header", "content": "Image" },
+    { "type": "image_picker", "id": "image" },
+    { "type": "select", "id": "image_ratio", "options": [{"value": "adapt", "label": "Adaptive"}, ...] },
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "color_bg_top", "default": "..." },
+    { "type": "color", "id": "color_accent", "default": "..." },
+    /* etc — cada token do design system vira uma color setting */
+    { "type": "header", "content": "Advanced" },
+    { "type": "textarea", "id": "custom_css", "label": "Section custom CSS" }
+  ],
+  "blocks": [
+    { "type": "eyebrow", "name": "Eyebrow", "settings": [...] },
+    { "type": "heading", "name": "Heading", "settings": [...] },
+    { "type": "paragraph", "name": "Paragraph", "settings": [...] },
+    { "type": "button_row", "name": "CTA row", "settings": [...] },
+    { "type": "stats_bar", "name": "Stats bar", "settings": [...] },
+    { "type": "tag", "name": "Floating tag", "settings": [...] },
+    { "type": "divider", "name": "Divider", "settings": [...] },
+    { "type": "spacer", "name": "Spacer", "settings": [...] },
+    { "type": "custom_liquid", "name": "Custom Liquid", "settings": [...] },
+    { "type": "custom_html", "name": "Custom HTML", "settings": [...] }
+  ],
+  "presets": [ { "name": "[Produto] — Hero", "blocks": [ /* todos os blocks com settings pré-populados */ ] } ]
+}
+{% endschema %}
 ```
 
-O converter faz automaticamente: extração de cores (cada hex vira color setting), labels semânticos BEM (`hero__title` → "Title"), inline_richtext pra texto misto com `<em>`/`<strong>`, image settings com aspect ratio + fit, headers de grupo, sanitização pra validação Shopify. Mesmo assim, sempre valide o output final com `shopify-plugin:shopify-liquid`.
+**Regras inegociáveis pra CADA block no schema:**
+
+1. **Agrupe settings por `header`**: Content / Style / Spacing / Advanced
+2. **Exponha toda cor visível como `color` setting**: bg, text, border, shadow, hover — tudo editável
+3. **Exponha todo tamanho como `range`**: font-size, padding, gap, radius, thickness
+4. **Toda tipografia customizável**: size select, weight select, letter-spacing select, font-family select
+5. **Toda seção tem `space_before` e `space_after` ranges** pra margens top/bottom
+6. **SEMPRE termine com `header: Advanced` + `textarea: custom_css`** — escape hatch pra CSS livre
+7. **Todo bloco emite `id="pu-{{ block.id }}"`** e fecha com `{% if block.settings.custom_css != blank %}<style>#pu-{{ block.id }} { {{ block.settings.custom_css }} }</style>{% endif %}` pra scoping
+
+**Blocks obrigatórios em TODA section** (universais): `custom_liquid`, `custom_html`, `divider`, `spacer` — escape hatches que o membro sempre vai querer ter disponíveis.
+
+**Ferramenta de ajuda:** `tools/design-clone/liquid-converter.py` gera section boilerplate (cores auto-extraídas, labels semânticos, image controls). Útil como DRAFT — depois você adapta pro padrão de blocks inline descrito aqui. Nunca use o output do converter diretamente na Aura Engine — sempre refatore pro padrão acima.
+
+**Validação obrigatória:**
+```bash
+node .../shopify-liquid/scripts/validate.mjs --filename page-[produto]-hero.liquid --filetype sections --code "$(cat file)" --model ... --client-name claude-code --artifact-id undone-hero --revision 1
+```
+Se falhar, leia o erro, ajuste, revalide (3 retries max).
+
+**Salve em:** `~/shopify-theme/sections/page-[produto]-[tipo].liquid`
+
+### Catálogo de Block Types Universais
+
+Toda section da página deve expor este conjunto de blocks (adapte os type-specific conforme a natureza da section — uma FAQ section usa `faq_item` em vez de `stat`, etc). Esses são os universais que SEMPRE estão disponíveis:
+
+| Block type | Uso | Settings obrigatórios |
+|---|---|---|
+| `eyebrow` | Label pequeno em cima de headings | text · size · weight · transform · tracking · color · dash before/after · dash color · space before/after · **custom_css** |
+| `heading` | Título (h1/h2/h3) com `<em>` italic permitido | text (inline_richtext) · size (display1/display2/h1/h2/h3) · font (serif/sans) · weight · color · italic color · line_height · letter_spacing · max_width · space before/after · **custom_css** |
+| `paragraph` | Parágrafo de texto | text (richtext) · size · color · line_height · max_width · space before/after · **custom_css** |
+| `badge` | Pill/chip com dot opcional | text · show_dot · dot_color · dot_size · dot_pulse · variant · bg · text_color · border_color · font_size · padding x/y · radius · space before/after · **custom_css** |
+| `button_row` | Container de até 3 botões inline | alignment · gap · show_arrow · radius · padding x/y · font_size · arrow_color · price_bg · price_text · por botão: show · label · url · variant · bg · text · price · space before/after · **custom_css** |
+| `stats_bar` | Container de até 5 stats em grid | columns · gap · alignment · show_divider · divider_color · divider_thickness · divider_spacing · label_color · value_color · unit_color · por stat: show · label · value (inline_richtext com `<span>` pra unit) · space before/after · **custom_css** |
+| `trust_row` | Até 6 trust items (icon + label) inline | alignment · gap x/y · show_divider · divider_color · icon_color global · label_color · por item: show · icon · label · space before/after · **custom_css** |
+| `tag` | Floating tag posicionado sobre imagem | eyebrow · title · position (tl/tr/bl/br) · rotation · theme (light/dark/accent) · bg · text · border · radius · padding · shadow_color · shadow_y · shadow_blur · **custom_css** |
+| `divider` | Linha separadora | style (solid/dashed/dotted/gradient) · color · thickness · width % · space before/after · **custom_css** |
+| `icon` | Ícone/emoji isolado | icon · size · color · space before/after · **custom_css** |
+| `spacer` | Espaço vertical custom | height |
+| `custom_liquid` | **Escape hatch.** Código Liquid/HTML arbitrário | code (`type: "liquid"`) · space before/after · **custom_css** |
+| `custom_html` | Código HTML estático | html (`type: "html"`) · space before/after · **custom_css** |
+
+**Blocks type-specific por section** (adicione ALÉM dos universais):
+- Benefits → `benefit_card` (num/icon + title + body + accent color)
+- Proof → `review_card` (quote + author + avatar + meta + featured checkbox)
+- Offer → `pricing_tier` (name + price + strap + features richtext + CTA + badge + popular checkbox + image)
+- Guarantee → `promise_item` (title + body + accent color + icon)
+- FAQ → `faq_item` (question + answer richtext + open_by_default checkbox)
+- Mechanism → `ph_card` ou `feature_compare` (tag + value + status + list items)
+
+**Regra dos 4 headers em TODO bloco** (organização):
+1. `Content` — os campos de texto/imagem/url (o QUE mostra)
+2. `Style` — cores, tamanhos, variantes, fontes (o COMO mostra)
+3. `Spacing` — space_before, space_after (o ONDE fica)
+4. `Advanced` — custom_css textarea (o ÚLTIMO recurso pra edição não-coberta)
+
+### Customização máxima — checklist por block
+
+Antes de salvar a section, verifique que CADA bloco tem:
+- [ ] TODA cor visível editável (bg, text, border, shadow, dot, underline, ícone interno)
+- [ ] TODO tamanho editável (font-size, padding x/y, radius, thickness, gap)
+- [ ] Tipografia editável (size, weight, letter-spacing, line-height, transform)
+- [ ] Spacing top/bottom por range
+- [ ] `custom_css` textarea na aba Advanced
+- [ ] Root element tem `id="pu-{{ block.id }}"` pra o CSS ser scoped
+- [ ] `<style>#pu-{{ block.id }} { {{ block.settings.custom_css }} }</style>` injetado após o markup
 
 ### ETAPA 6 — Generate Remaining Sections
 
@@ -393,107 +509,135 @@ Esta é a etapa que move qualidade de 8/10 pra 9/10. Não pule.
 
 6. Se alguma issue não for corrigível sem mudança estrutural significativa, liste pro membro como "issues conhecidas" no relatório final.
 
-### ETAPA 9 — Create Page Template
+### ETAPA 9 — Create Page Template (blocks pré-populados com a copy)
 
-Crie `~/shopify-theme/templates/page.[produto].json`. A estrutura varia pela arquitetura escolhida na Etapa 4.5:
+**REGRA DE OURO:** Quando o membro abre `/pages/[produto]` no theme editor, a página tem que estar **100% montada** com todos os blocks no lugar certo + todos os settings preenchidos com a copy real. Não é pra ele arrastar nada. Ele só edita/deleta/adiciona se quiser.
 
-**Se Opção A (sections independentes):**
+Pra isso, o `templates/page.[produto].json` **precisa listar TODOS os blocks** dentro de cada section, com settings inline. **`settings: {}` VAZIO NÃO FUNCIONA** — apesar dos defaults estarem no schema, Shopify só popula blocks no preset quando o membro adiciona a section manualmente. Pra páginas pré-montadas via template JSON, os blocks precisam estar no próprio JSON.
+
+**Padrão correto do template JSON:**
 
 ```json
 {
   "sections": {
     "hero": {
       "type": "page-[produto]-hero",
-      "settings": { "heading_1": "[da copy]", "paragraph_2": "[da copy]", "link_label_3": "[da copy]" }
-    },
-    "benefits": {
-      "type": "page-[produto]-benefits",
-      "settings": {}
-    }
-  },
-  "order": ["hero", "benefits", "mechanism", "proof", "offer", "guarantee", "faq", "cta-final"]
-}
-```
-
-**Se Opção B (theme blocks + container — recomendada pra Horizon):**
-
-Crie primeiro a container section `~/shopify-theme/sections/page-[produto]-main.liquid`:
-
-```liquid
-<div class="page-[produto]-main">
-  {% content_for 'blocks' %}
-</div>
-
-{% stylesheet %}
-.page-[produto]-main { display: flex; flex-direction: column; }
-.page-[produto]-main > * { display: block; width: 100%; }
-{% endstylesheet %}
-
-{% schema %}
-{
-  "name": "[Produto] page",
-  "tag": "section",
-  "settings": [],
-  "blocks": [
-    { "type": "page-[produto]-hero" },
-    { "type": "page-[produto]-trust-bar" },
-    { "type": "page-[produto]-benefits" },
-    { "type": "page-[produto]-mechanism" },
-    { "type": "page-[produto]-proof" },
-    { "type": "page-[produto]-offer" },
-    { "type": "page-[produto]-guarantee" },
-    { "type": "page-[produto]-faq" },
-    { "type": "page-[produto]-cta-final" },
-    { "type": "@theme" },
-    { "type": "@app" }
-  ],
-  "presets": [{
-    "name": "[Produto] page (all blocks)",
-    "blocks": [
-      { "type": "page-[produto]-hero" },
-      { "type": "page-[produto]-trust-bar" },
-      { "type": "page-[produto]-benefits" },
-      { "type": "page-[produto]-mechanism" },
-      { "type": "page-[produto]-proof" },
-      { "type": "page-[produto]-offer" },
-      { "type": "page-[produto]-guarantee" },
-      { "type": "page-[produto]-faq" },
-      { "type": "page-[produto]-cta-final" }
-    ]
-  }]
-}
-{% endschema %}
-```
-
-Então o template JSON vira:
-
-```json
-{
-  "sections": {
-    "[produto]_main": {
-      "type": "page-[produto]-main",
       "blocks": {
-        "hero": { "type": "page-[produto]-hero", "settings": {} },
-        "trust_bar": { "type": "page-[produto]-trust-bar", "settings": {} },
-        "benefits": { "type": "page-[produto]-benefits", "settings": {} },
-        "mechanism": { "type": "page-[produto]-mechanism", "settings": {} },
-        "proof": { "type": "page-[produto]-proof", "settings": {} },
-        "offer": { "type": "page-[produto]-offer", "settings": {} },
-        "guarantee": { "type": "page-[produto]-guarantee", "settings": {} },
-        "faq": { "type": "page-[produto]-faq", "settings": {} },
-        "cta_final": { "type": "page-[produto]-cta-final", "settings": {} }
+        "badge": {
+          "type": "badge",
+          "settings": {
+            "text": "[eyebrow da copy]",
+            "show_dot": true,
+            "dot_color": "[cor do design system]",
+            "variant": "solid",
+            "font_size": 13,
+            "padding_x": 14,
+            "padding_y": 7,
+            "radius": 99,
+            "space_after": 20,
+            "custom_css": ""
+          }
+        },
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "text": "[hero headline da copy, com <em>palavra</em> pra emphasis]",
+            "size": "display2",
+            "font": "serif",
+            "weight": "500",
+            "line_height": 10,
+            "letter_spacing": "-0.03em",
+            "space_after": 24
+          }
+        },
+        "paragraph": {
+          "type": "paragraph",
+          "settings": {
+            "text": "<p>[sub-headline da copy]</p>",
+            "size": "lg",
+            "line_height": 15,
+            "max_width": 48,
+            "space_after": 24
+          }
+        },
+        "cta_row": {
+          "type": "button_row",
+          "settings": {
+            "alignment": "flex-start",
+            "gap": 12,
+            "radius": 4,
+            "btn_1_show": true,
+            "btn_1_label": "[CTA principal]",
+            "btn_1_variant": "primary",
+            "btn_1_price": "[preço se aplicável]",
+            "btn_2_show": true,
+            "btn_2_label": "[CTA secundário]",
+            "btn_2_variant": "ghost",
+            "btn_3_show": false
+          }
+        },
+        "stats": {
+          "type": "stats_bar",
+          "settings": {
+            "columns": 3,
+            "show_divider": true,
+            "stat_1_show": true,
+            "stat_1_label": "[label 1]",
+            "stat_1_value": "[value 1 com <span>unit</span>]",
+            "stat_2_show": true,
+            "stat_2_label": "[label 2]",
+            "stat_2_value": "[value 2]",
+            "stat_3_show": true,
+            "stat_3_label": "[label 3]",
+            "stat_3_value": "[value 3]"
+          }
+        },
+        "tag_1": {
+          "type": "tag",
+          "settings": {"eyebrow": "[tag 1 eyebrow]", "title": "[tag 1 title]", "position": "tl", "rotation": -3, "theme": "light"}
+        },
+        "tag_2": {
+          "type": "tag",
+          "settings": {"eyebrow": "[tag 2 eyebrow]", "title": "[tag 2 title]", "position": "br", "rotation": 3, "theme": "dark"}
+        }
       },
-      "block_order": ["hero", "trust_bar", "benefits", "mechanism", "proof", "offer", "guarantee", "faq", "cta_final"],
-      "settings": {}
-    }
+      "block_order": ["badge", "heading", "paragraph", "cta_row", "stats", "tag_1", "tag_2"],
+      "settings": {
+        "layout": "split-lr",
+        "container_max": 1280,
+        "padding_y": 112,
+        "column_gap": 56,
+        "image_ratio": "adapt",
+        "image_fit": "cover",
+        "color_bg_top": "[design system bg]",
+        "color_bg_bottom": "[design system bg2]",
+        "color_text": "[design system text]",
+        "color_heading": "[design system heading]",
+        "color_accent": "[design system accent]",
+        "color_on_accent": "[design system on-accent]"
+      }
+    },
+    "benefits": { "type": "page-[produto]-benefits", "blocks": { /* eyebrow, heading, paragraph + N benefit_cards + divider + custom_liquid */ }, "block_order": [...], "settings": {} },
+    "mechanism": { ... },
+    "proof": { ... },
+    "offer": { ... },
+    "guarantee": { ... },
+    "faq": { ... },
+    "cta_final": { ... }
   },
-  "order": ["[produto]_main"]
+  "order": ["hero", "benefits", "mechanism", "proof", "offer", "guarantee", "faq", "cta_final"]
 }
 ```
 
-**Pré-popule os settings com a copy real** só quando necessário. Os defaults já estão no schema de cada block/section — geralmente o JSON pode deixar `settings: {}` e herdar os defaults.
+**Checklist final do template JSON:**
+- [ ] TODA section tem `blocks: {...}` pré-populado (não `{}`)
+- [ ] TODO block tem `settings: {...}` com os valores da copy real (não vazios)
+- [ ] Cada section tem `block_order: [...]` com a ordem correta
+- [ ] Section `settings` têm as cores do design system aplicadas
+- [ ] `order: [...]` lista todas as sections na sequência persuasiva (hero → proof → offer → cta)
+- [ ] Copy REAL populada: hero headline, sub-headline, CTAs, stats, benefits VOC, testimonials, tiers, FAQ questions+answers, CTA final — tudo do `05-copy.md`
 
-Valide o JSON contra o schema do Shopify (a skill `shopify-plugin:shopify-liquid` cobre isso indiretamente — se os arquivos individuais validam, o template deve funcionar).
+**Quando salvar:** `~/shopify-theme/templates/page.[produto].json`. O Shopify CLI faz upload via `shopify theme push` (Etapa 10).
 
 ### ETAPA 10 — Install no tema do membro (safe preview)
 
@@ -615,6 +759,20 @@ Estas regras vêm do validator oficial `shopify-plugin:shopify-liquid` + push pr
 7. **`shopify theme duplicate` precisa de `--force`** em contextos não-interativos. Sem isso trava esperando confirmação.
 
 8. **Package-lock do plugin `shopify-plugin:shopify-liquid`** aponta pro registry privado `npm.shopify.io` que requer auth. Se `node scripts/validate.mjs` falhar com `ERR_MODULE_NOT_FOUND`, rode no dir do plugin: `rm package-lock.json && npm install --registry=https://registry.npmjs.org/`.
+
+9. **Range settings: max 101 steps.** `{"min": 0, "max": 999, "step": 1}` falha push. Use `step: 10` ou reduza `max`. Fórmula: `(max - min) / step ≤ 100`.
+
+10. **Range default deve alinhar ao step.** Se `min: 6, step: 2`, defaults válidos são 6, 8, 10, 12... — 15 é inválido. Sempre cheque: `(default - min) % step == 0`.
+
+11. **Preset de section ≠ blocks em template JSON.** O `presets` do schema da section só popula blocks quando o membro ADICIONA a section manualmente via "Add section" no theme editor. Pra páginas pré-montadas via `templates/page.[produto].json`, os blocks precisam estar **dentro do template JSON** com `blocks: {...}` explícito + `block_order: [...]`. `settings: {}` vazio no template = página renderiza sem blocks. Esse é o erro mais comum.
+
+12. **Blocks inline no schema da section** (via `{% case block.type %}`) passa validação. **Theme blocks em arquivos separados** (`/blocks/*.liquid` + `{% content_for 'block' type: block.type id: block.id %}`) FALHA com "The 'id' argument should be a string" — o linter não aceita vars dinâmicas. Sempre use inline.
+
+13. **`inline_richtext` renderiza HTML no browser mas o preview editor pode mostrar raw**. Se o membro editar um stat value como `4.8<span>/5</span>`, o editor do theme mostra o `<span>` literal. Solução: `info` no setting explicando (`"info": "Use <span> for the unit"`). Em runtime renderiza correto.
+
+14. **Custom Liquid em block: use `type: "liquid"` no schema.** Shopify pré-renderiza o código em tempo de theme push. `type: "html"` aceita HTML estático (seguro contra XSS).
+
+15. **Admin API: criar página via CLI não existe.** `shopify page create` não é um comando. O membro precisa criar a página em Admin → Pages → Add page manualmente. A skill entrega theme editor URL direto (`?template=page.[produto]`) que rola sem precisar da página existir antes.
 
 ## DO NOT
 
