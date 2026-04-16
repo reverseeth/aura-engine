@@ -58,8 +58,25 @@ TEXT_TAGS = {
     "h1", "h2", "h3", "h4", "h5", "h6",
     "p", "span", "a", "button", "li",
     "blockquote", "em", "strong", "small", "label",
+    "dt", "dd", "summary", "figcaption", "cite",
 }
+# Inline tags aceitas dentro de texto misto — convertido como inline_richtext
+INLINE_TAGS = {"em", "strong", "span", "i", "b", "small", "br", "sup", "sub", "mark", "u"}
 LONG_TEXT_THRESHOLD = 80  # chars — acima disso usa richtext
+
+# Rótulos semânticos de fallback por tag quando a classe não dá pista
+TAG_LABEL_FALLBACK = {
+    "h1": "Heading", "h2": "Heading", "h3": "Subheading",
+    "h4": "Subheading", "h5": "Label", "h6": "Label",
+    "p": "Paragraph",
+    "a": "Link", "button": "Button",
+    "li": "List item",
+    "span": "Text", "strong": "Emphasis", "em": "Emphasis",
+    "dt": "Label", "dd": "Value",
+    "summary": "Summary", "figcaption": "Caption",
+    "cite": "Citation",
+    "small": "Note", "label": "Label",
+}
 
 # Web components Shopify/Dawn/Horizon a desembrulhar (preserva filhos, remove wrapper)
 SHOPIFY_CUSTOM_ELEMENTS = {
@@ -96,6 +113,77 @@ def slugify(text, max_len=40):
 HEX_COLOR_RE_VALIDATE = re.compile(r"^[0-9a-fA-F]{3,8}$")
 CSS_CLASS_SELECTOR_RE = re.compile(r"\.([a-zA-Z_][\w-]*)")
 CSS_ID_SELECTOR_RE = re.compile(r"#([a-zA-Z_][\w-]*)")
+CSS_COLOR_RE = re.compile(r"#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b")
+
+
+def semantic_label_from_classes(el, tag_name, namespace=None):
+    """Deriva rótulo humano a partir das classes BEM. Se `namespace` é passado (ex: 'page-undone-hero'),
+    remove o prefixo e o segmento final duplicado pra um label limpo (ex: 'page-undone-hero__hero_pill' → 'Pill')."""
+    classes = el.get("class", []) or []
+    for cls in classes:
+        rest = None
+        if namespace and cls.startswith(namespace + "__"):
+            rest = cls[len(namespace) + 2:]
+            last_seg = namespace.split("-")[-1] if "-" in namespace else namespace
+            if rest.startswith(last_seg + "_"):
+                rest = rest[len(last_seg) + 1:]
+            elif rest == last_seg:
+                rest = ""
+        elif "__" in cls:
+            _, rest = cls.split("__", 1)
+        if rest is not None:
+            rest = rest.split("--")[0].replace("_", " ").replace("-", " ").strip()
+            if rest:
+                return rest[0].upper() + rest[1:]
+    return TAG_LABEL_FALLBACK.get(tag_name, "Text")
+
+
+def extract_colors_from_css(css):
+    """Acha todos os hex únicos no CSS. Retorna dict {hex_normalized: setting_id}."""
+    seen = []
+    for m in CSS_COLOR_RE.finditer(css):
+        c = m.group(0).lower()
+        if len(c) == 4:
+            c = "#" + "".join(ch * 2 for ch in c[1:])
+        if c not in seen:
+            seen.append(c)
+    return {hx: f"color_{i + 1}" for i, hx in enumerate(seen)}
+
+
+def replace_colors_with_vars(css, color_map):
+    """Substitui hex codes em VALORES CSS (não selectors) por var(--color-N)."""
+    if not color_map:
+        return css
+    def repl(m):
+        c = m.group(0).lower()
+        if len(c) == 4:
+            c = "#" + "".join(ch * 2 for ch in c[1:])
+        sid = color_map.get(c)
+        return f"var(--{sid})" if sid else m.group(0)
+    # split por blocks pra só processar dentro de { ... }
+    out = []
+    i = 0
+    n = len(css)
+    while i < n:
+        brace = css.find("{", i)
+        if brace == -1:
+            out.append(css[i:])
+            break
+        out.append(css[i:brace + 1])
+        depth = 1
+        j = brace + 1
+        while j < n and depth > 0:
+            c = css[j]
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+            j += 1
+        block_content = css[brace + 1:j - 1]
+        out.append(CSS_COLOR_RE.sub(repl, block_content))
+        out.append("}")
+        i = j
+    return "".join(out)
 
 
 def rewrite_css_for_namespace(css, namespace):
@@ -229,23 +317,19 @@ def clean_inline_styles(soup):
             del el["style"]
 
 
-def derive_setting_label(el):
+def derive_setting_label(el, namespace=None):
     tag = el.name if el else "text"
+    if el is not None:
+        label = semantic_label_from_classes(el, tag, namespace=namespace)
+        if label and label not in TAG_LABEL_FALLBACK.values():
+            return label
     if tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
-        return f"Heading ({tag})"
+        return "Heading"
     if tag == "button":
         return "Button label"
     if el and any(BUTTON_CLASS_PATTERN.search(c or "") for c in el.get("class", []) or []):
         return "Button label"
-    if tag == "a":
-        return "Link label"
-    if tag == "p":
-        return "Paragraph"
-    if tag == "li":
-        return "List item"
-    if tag == "label":
-        return "Form label"
-    return "Text"
+    return TAG_LABEL_FALLBACK.get(tag, "Text")
 
 
 def derive_setting_id(el, counter):
@@ -308,8 +392,8 @@ class LiquidBuilder:
             return
 
         self.counter += 1
-        s_type = "richtext" if (el.name == "p" or len(text) > LONG_TEXT_THRESHOLD) else "text"
-        label = derive_setting_label(el)
+        s_type = "richtext" if (el.name == "p" and len(text) > LONG_TEXT_THRESHOLD) else "text"
+        label = derive_setting_label(el, namespace=self.namespace)
         base_id = derive_setting_id(el, self.counter)
         s_id = self.unique_id(base_id)
         default = text if s_type == "text" else f"<p>{text}</p>"
@@ -321,27 +405,95 @@ class LiquidBuilder:
         new_tag.append(BeautifulSoup(placeholder, "html.parser"))
         el.replace_with(new_tag)
 
+    def convert_mixed_text_node(self, el):
+        """Converte tag com texto misto + inline tags como inline_richtext (preserva <em>, <strong>, <br>, etc)."""
+        if looks_like_noise(el.get_text(strip=True)):
+            return
+
+        # Sanitiza inner HTML: inline_richtext do Shopify só aceita tags simples sem attributes (a/em/strong/br/span/p/u)
+        ALLOWED_INLINE = {"em", "strong", "br", "span", "a", "u", "p"}
+        clone = BeautifulSoup(str(el), "html.parser").find(el.name)
+        for t in clone.find_all(True):
+            if t.name not in ALLOWED_INLINE:
+                t.unwrap()
+            else:
+                t.attrs = {}
+        inner_html = "".join(str(c) for c in clone.children).strip()
+
+        self.counter += 1
+        label = derive_setting_label(el, namespace=self.namespace)
+        base_id = derive_setting_id(el, self.counter)
+        s_id = self.unique_id(base_id)
+        real_id = self.add_setting(s_id, "inline_richtext", label, default=inner_html)
+
+        new_tag = BeautifulSoup("", "html.parser").new_tag(el.name)
+        new_tag.attrs = dict(el.attrs)
+        new_tag.append(BeautifulSoup("{{ section.settings." + real_id + " }}", "html.parser"))
+        el.replace_with(new_tag)
+
     def convert_image(self, el):
         self.counter += 1
         alt = el.get("alt") or f"image_{self.counter}"
-        s_id = self.unique_id(f"image_{self.counter}")
-        self.add_setting(s_id, "image_picker", f"Image: {alt[:40]}")
+        original_classes = el.get("class", []) or []
+        class_attr = " ".join(original_classes) if original_classes else ""
+
+        image_id = self.unique_id(f"image_{self.counter}")
+        ratio_id = self.unique_id(f"{image_id}_ratio")
+        fit_id = self.unique_id(f"{image_id}_fit")
+
+        label = semantic_label_from_classes(el, "img", namespace=self.namespace)
+        if label == "Text":
+            label = f"Image: {alt[:40]}"
+
+        self.settings.append({"type": "header", "content": label})
+        self.add_setting(image_id, "image_picker", "File")
+        self.settings.append({
+            "type": "select",
+            "id": ratio_id,
+            "label": "Aspect ratio",
+            "options": [
+                {"value": "adapt", "label": "Adaptive (fit the image)"},
+                {"value": "1 / 1", "label": "Square (1:1)"},
+                {"value": "4 / 5", "label": "Portrait (4:5)"},
+                {"value": "3 / 4", "label": "Portrait (3:4)"},
+                {"value": "16 / 9", "label": "Landscape (16:9)"},
+                {"value": "3 / 2", "label": "Landscape (3:2)"},
+            ],
+            "default": "adapt",
+        })
+        self.settings.append({
+            "type": "select",
+            "id": fit_id,
+            "label": "Image fit",
+            "options": [
+                {"value": "cover", "label": "Cover (crop to fill)"},
+                {"value": "contain", "label": "Contain (fit inside, no crop)"},
+            ],
+            "default": "cover",
+        })
+
+        class_str = f"{class_attr} {self.namespace}__responsive_image".strip()
         liquid = (
-            '{% if section.settings.' + s_id + ' %}'
-            '<img src="{{ section.settings.' + s_id + ' | image_url: width: 1600 }}" '
-            'alt="{{ section.settings.' + s_id + '.alt | default: \'\' }}" loading="lazy">'
+            '<div class="' + self.namespace + '__image_wrap"'
+            ' data-adapt="{% if section.settings.' + ratio_id + ' == \'adapt\' %}true{% else %}false{% endif %}"'
+            ' style="{% if section.settings.' + ratio_id + ' != \'adapt\' %}aspect-ratio: {{ section.settings.' + ratio_id + ' }};{% endif %} --img-fit: {{ section.settings.' + fit_id + ' }}">'
+            '{% if section.settings.' + image_id + ' %}'
+            '{{ section.settings.' + image_id + " | image_url: width: 1600 | image_tag: loading: 'lazy', widths: '400, 800, 1200, 1600', sizes: '(min-width: 900px) 50vw, 100vw', class: '" + class_str + "' }}"
             '{% endif %}'
+            '</div>'
         )
         el.replace_with(BeautifulSoup(liquid, "html.parser"))
 
     def convert_link(self, el):
         text = el.get_text(strip=True)
-        href = el.get("href") or "#"
+        href = el.get("href") or ""
         self.counter += 1
         label_id = self.unique_id(f"link_label_{self.counter}")
         url_id = self.unique_id(f"link_url_{self.counter}")
         self.add_setting(label_id, "text", "Link label", default=text or "Click here")
-        self.add_setting(url_id, "url", "Link URL", default=href)
+        # Shopify url settings only accept absolute URLs or paths starting with "/". Anchors/relative fail push validation. Omit default when invalid.
+        url_default = href if href.startswith(("http://", "https://", "/")) else None
+        self.add_setting(url_id, "url", "Link URL", default=url_default)
         new_a = BeautifulSoup("", "html.parser").new_tag("a")
         new_a["href"] = "{{ section.settings." + url_id + " }}"
         if el.has_attr("class"):
@@ -446,6 +598,9 @@ class LiquidBuilder:
             if child.name in TEXT_TAGS and text_children and not tag_children:
                 builder.convert_text_node(child)
                 continue
+            if child.name in TEXT_TAGS and text_children and tag_children and all(c.name in INLINE_TAGS for c in tag_children):
+                builder.convert_mixed_text_node(child)
+                continue
             builder._convert_element_recursive(child, builder)
 
     def build_block_file(self, block_type, block_data):
@@ -466,24 +621,90 @@ class LiquidBuilder:
         )
         return content
 
-    def build_section_file(self, markup, section_name, section_tag_class, base_stylesheet=""):
+    def build_section_file(self, markup, section_name, section_tag_class, base_stylesheet="", asset_type="section"):
+        scope = "block" if asset_type == "block" else "section"
+
+        # Extrai cores do CSS e transforma em settings + vars
+        color_map = extract_colors_from_css(base_stylesheet)
+        if color_map:
+            base_stylesheet = replace_colors_with_vars(base_stylesheet, color_map)
+            color_settings = [{"type": "header", "content": "Colors"}]
+            for hex_color, s_id in color_map.items():
+                color_settings.append({
+                    "type": "color",
+                    "id": s_id,
+                    "label": f"Color {s_id.split('_')[1]}",
+                    "default": hex_color,
+                })
+            self.settings = color_settings + self.settings
+            inline_vars = "; ".join(
+                f"--{s_id}: {{{{ {scope}.settings.{s_id} }}}}"
+                for s_id in color_map.values()
+            )
+            if "<section" in markup[:200]:
+                extra = f' {{{{ block.shopify_attributes }}}}' if asset_type == "block" else ""
+                markup = re.sub(
+                    r"(<section[^>]*?)(>)",
+                    lambda m: f'{m.group(1)} style="{inline_vars}"{extra}{m.group(2)}',
+                    markup,
+                    count=1,
+                )
+
+        # Reescreve toda referência section.settings → block.settings se asset_type=block
+        if asset_type == "block":
+            markup = markup.replace("section.settings.", "block.settings.")
+            # Adiciona shopify_attributes no primeiro elemento se não tiver <section>
+            if "{{ block.shopify_attributes }}" not in markup:
+                markup = re.sub(
+                    r"(<(?:section|div|article|aside)[^>]*?)(>)",
+                    r"\1 {{ block.shopify_attributes }}\2",
+                    markup,
+                    count=1,
+                )
+
         block_types = list(self.blocks_schemas.keys())
-        schema = {
-            "name": section_name,
-            "tag": "section",
-            "class": section_tag_class,
-            "settings": self.settings,
-            "blocks": [{"type": t} for t in block_types],
-            "presets": [{
+        if asset_type == "block":
+            schema = {
                 "name": section_name,
-                "blocks": ([{"type": t} for t in block_types] * 3) if block_types else [],
-            }],
-        }
+                "tag": None,
+                "settings": self.settings,
+                "presets": [{"name": section_name}],
+            }
+        else:
+            schema = {
+                "name": section_name,
+                "tag": "section",
+                "class": section_tag_class,
+                "settings": self.settings,
+                "blocks": [{"type": t} for t in block_types],
+                "presets": [{
+                    "name": section_name,
+                    "blocks": ([{"type": t} for t in block_types] * 3) if block_types else [],
+                }],
+            }
+
+        image_helpers = (
+            f".{self.namespace}__image_wrap {{ position: relative; width: 100%; overflow: hidden; }}\n"
+            f".{self.namespace}__image_wrap img, .{self.namespace}__image_wrap .{self.namespace}__responsive_image {{ width: 100%; display: block; }}\n"
+            f".{self.namespace}__image_wrap[data-adapt='true'] img, .{self.namespace}__image_wrap[data-adapt='true'] .{self.namespace}__responsive_image {{ height: auto; object-fit: initial; }}\n"
+            f".{self.namespace}__image_wrap:not([data-adapt='true']) img, .{self.namespace}__image_wrap:not([data-adapt='true']) .{self.namespace}__responsive_image {{ height: 100%; object-fit: var(--img-fit, cover); }}\n"
+        )
+        doc_header = ""
+        if asset_type == "block":
+            doc_header = (
+                f"{{% doc %}}\n"
+                f"  Renders the {section_name} block.\n"
+                f"  @example\n"
+                f"  {{% content_for 'block', type: '{self.namespace}', id: 'example' %}}\n"
+                f"{{% enddoc %}}\n\n"
+            )
         return (
+            f"{doc_header}"
             f"{markup}\n\n"
             f"{{% stylesheet %}}\n"
             f"{base_stylesheet}\n"
-            f".{self.namespace} {{ /* section-scoped styles */ }}\n"
+            f"{image_helpers}"
+            f".{self.namespace} {{ /* {scope}-scoped styles */ }}\n"
             f".{self.namespace}__icon_placeholder {{ display: inline-block; width: 1em; height: 1em; background: currentColor; opacity: 0.2; border-radius: 2px; }}\n"
             f"{{% endstylesheet %}}\n\n"
             f"{{% schema %}}\n"
@@ -504,6 +725,8 @@ def main():
     parser.add_argument("--blocks-dir", required=True, help="Directory where blocks/*.liquid files go")
     parser.add_argument("--namespace", required=True, help="CSS namespace (e.g. page-undone-hero)")
     parser.add_argument("--product-slug", required=True, help="Product slug (e.g. undone)")
+    parser.add_argument("--asset-type", choices=["section", "block"], default="section",
+                        help="Output as Shopify section (default) or theme block (for Horizon-style composability)")
     args = parser.parse_args()
 
     output_path = Path(args.output).expanduser().resolve()
@@ -552,7 +775,7 @@ def main():
 
     section_name = f"Page {args.product_slug} — {section.get('semantic_type', 'section')}"
     section_tag_class = f"{args.namespace} {args.namespace}--{slugify(section.get('semantic_type', 'section'))}"
-    file_content = builder.build_section_file(converted_markup, section_name, section_tag_class, base_stylesheet=base_css)
+    file_content = builder.build_section_file(converted_markup, section_name, section_tag_class, base_stylesheet=base_css, asset_type=args.asset_type)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(file_content, encoding="utf-8")
