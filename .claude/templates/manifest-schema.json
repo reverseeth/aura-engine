@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine Product Manifest",
+  "description": "Single source of truth shared across all Aura Engine skills. Every skill reads and updates this manifest. DO NOT edit manually.",
+  "type": "object",
+  "required": ["product_slug", "product_name", "created_at", "updated_at", "skills_completed"],
+  "properties": {
+    "product_slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "URL-safe slug of the product. Used as the directory name under /workspace/."
+    },
+    "product_name": {
+      "type": "string",
+      "description": "Human-readable product name."
+    },
+    "product_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Primary product URL provided by the member (optional)."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp when the manifest was first created."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp of the last manifest update."
+    },
+    "setup_complete": {
+      "type": "boolean",
+      "description": "True after skill 00-setup finished successfully."
+    },
+    "budget_tier": {
+      "enum": ["starter", "standard", "escala-inicial", "escala-avancada"],
+      "description": "Internal budget tier captured from the setup input (daily ad budget)."
+    },
+    "skills_completed": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ordered list of skill IDs already completed (e.g. '00-setup', '01-product-research', '06a-page-planning', '06b-page-sections', '06c-page-deploy')."
+    },
+    "skills_pending": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Optional list of skills expected to run next."
+    },
+    "voc_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of unique, verbatim voice-of-customer phrases captured in skill 02."
+    },
+    "awareness_distribution": {
+      "type": "object",
+      "description": "Schwartz awareness distribution (sums should approximate 100).",
+      "properties": {
+        "unaware": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "problem_aware": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "solution_aware": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "product_aware": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "most_aware": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "sophistication_stage": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Schwartz sophistication stage (1-5)."
+    },
+    "psm_theoretical": {
+      "type": "number",
+      "description": "Theoretical PSM from planning."
+    },
+    "psm_real": {
+      "type": "number",
+      "description": "Calculated from live ads performance."
+    },
+    "target_cpa": {
+      "type": "number",
+      "description": "Target cost-per-acquisition in USD."
+    },
+    "breakeven_roas": {
+      "type": "number",
+      "description": "Break-even ROAS given the current offer economics."
+    }
+  },
+  "additionalProperties": true
+}
