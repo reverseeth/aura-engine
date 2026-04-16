@@ -416,7 +416,7 @@ class LiquidBuilder:
             f"{{% stylesheet %}}\n"
             f"{base_stylesheet}\n"
             f".{self.namespace} {{ /* section-scoped styles */ }}\n"
-            f".{self.namespace} .icon-placeholder {{ display: inline-block; width: 1em; height: 1em; }}\n"
+            f".{self.namespace}__icon_placeholder {{ display: inline-block; width: 1em; height: 1em; background: currentColor; opacity: 0.2; border-radius: 2px; }}\n"
             f"{{% endstylesheet %}}\n\n"
             f"{{% schema %}}\n"
             f"{json.dumps(schema, indent=2)}\n"

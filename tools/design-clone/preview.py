@@ -45,6 +45,80 @@ CONTENT_FOR_BLOCKS_RE = re.compile(r"\{%\s*content_for\s+['\"]blocks['\"]\s*%\}"
 IF_BLOCK_RE = re.compile(r"\{%\s*if\s+section\.settings\.(\w+)\s*%\}(.*?)\{%\s*endif\s*%\}", re.DOTALL)
 SETTINGS_VAR_RE = re.compile(r"\{\{\s*section\.settings\.(\w+)(?:\s*\|\s*([^}]+?))?\s*\}\}")
 
+# Para rewrite de CSS: espelha slugify do liquid-converter
+def slugify(text, max_len=40):
+    s = re.sub(r"[^a-z0-9]+", "_", (text or "").lower()).strip("_")
+    return s[:max_len] or "field"
+
+
+HEX_COLOR_RE = re.compile(r"^[0-9a-fA-F]{3,8}$")
+CSS_CLASS_SELECTOR_RE = re.compile(r"\.([a-zA-Z_][\w-]*)")
+CSS_ID_SELECTOR_RE = re.compile(r"#([a-zA-Z_][\w-]*)")
+CSS_RULE_SELECTOR_SPLIT_RE = re.compile(r"(\s*\{\s*)", re.MULTILINE)
+
+
+def rewrite_css_for_namespace(css, namespace):
+    """
+    Reescreve classes e IDs nos selectors do CSS pra casar com o namespace que o
+    converter aplicou no HTML. Só mexe na parte de selector (antes do `{`), não
+    nos valores de propriedade (pra não quebrar hex colors, content: "#foo", etc).
+    """
+    if not css or not namespace:
+        return css
+
+    def rewrite_selector_text(selector_text):
+        def class_sub(m):
+            cls = m.group(1)
+            return f".{namespace}__{slugify(cls)}"
+
+        def id_sub(m):
+            ident = m.group(1)
+            # Pula hex colors (embora em selector seja raro, melhor ser safe)
+            if HEX_COLOR_RE.match(ident) and len(ident) in (3, 4, 6, 8):
+                return m.group(0)
+            return f"#{namespace}-{slugify(ident)}"
+
+        result = CSS_CLASS_SELECTOR_RE.sub(class_sub, selector_text)
+        result = CSS_ID_SELECTOR_RE.sub(id_sub, result)
+        return result
+
+    # Split em blocks {...} pra processar só selectors
+    out = []
+    i = 0
+    n = len(css)
+    while i < n:
+        brace = css.find("{", i)
+        if brace == -1:
+            out.append(css[i:])
+            break
+        selector_part = css[i:brace]
+        # Handle @media, @supports, etc. — keep @-rule prefix untouched, only rewrite nested selectors
+        if selector_part.lstrip().startswith("@"):
+            # Push through — nested rules will be handled in recursive block processing below
+            out.append(selector_part)
+        else:
+            out.append(rewrite_selector_text(selector_part))
+        out.append("{")
+        # Find matching closing brace handling nested
+        depth = 1
+        j = brace + 1
+        while j < n and depth > 0:
+            c = css[j]
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+            j += 1
+        block_content = css[brace + 1:j - 1]
+        # If this was a media/supports rule, recurse into its content
+        if selector_part.lstrip().startswith("@"):
+            out.append(rewrite_css_for_namespace(block_content, namespace))
+        else:
+            out.append(block_content)
+        out.append("}")
+        i = j
+    return "".join(out)
+
 
 def parse_liquid_file(liquid_path):
     """Lê um arquivo .liquid e retorna (markup, stylesheet, schema_dict)."""
@@ -80,7 +154,12 @@ def apply_settings(markup, defaults, images_url_map):
         sid = m.group(1)
         inner = m.group(2)
         entry = defaults.get(sid)
-        if entry and entry.get("default"):
+        if not entry:
+            return ""
+        # image_picker: mantém sempre (preview usa placeholder)
+        if entry.get("type") == "image_picker":
+            return inner
+        if entry.get("default"):
             return inner
         return ""
 
@@ -154,10 +233,11 @@ def detect_namespace(schema):
     return "page-preview"
 
 
-def build_html(markup, stylesheet, external_css_path):
+def build_html(markup, stylesheet, external_css_path, namespace):
     external_css = ""
     if external_css_path and external_css_path.exists():
-        external_css = external_css_path.read_text(encoding="utf-8")
+        raw = external_css_path.read_text(encoding="utf-8")
+        external_css = rewrite_css_for_namespace(raw, namespace)
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -232,8 +312,9 @@ def main():
         markup_filled = CONTENT_FOR_BLOCKS_RE.sub(lambda _: blocks_markup, markup_filled)
 
     external_css = Path(args.styles).expanduser().resolve() if args.styles else None
+    namespace = detect_namespace(schema)
 
-    html = build_html(markup_filled, stylesheet, external_css)
+    html = build_html(markup_filled, stylesheet, external_css, namespace)
     output_path = Path(args.output).expanduser().resolve()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(html, encoding="utf-8")
