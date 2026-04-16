@@ -50,7 +50,7 @@ O membro pode acionar qualquer skill por nome:
 - "competitor analysis" → skill 03
 - "offer" → skill 04
 - "copy" → skill 05
-- "page" → skill 06 (construir a página no Shopify — modo A aplicar copy, modo B clonar design de concorrente)
+- "page" → skill 06 (gerar a página Shopify do zero a partir da copy, orquestrando 16 skills especialistas — design system, frontend-design, self-critique, validação Liquid)
 - "creatives" → skill 07
 - "ad strategy" → skill 08
 - "ad analysis" → skill 09

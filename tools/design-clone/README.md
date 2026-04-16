@@ -1,8 +1,6 @@
-# Design Clone — Aura Engine
+# Design Clone — Aura Engine (ferramenta auxiliar)
 
-Pipeline híbrido que extrai padrões estruturais e design signals de uma página de concorrente e gera sections Shopify Liquid editáveis com design fresh. Usado pela skill `06-page-engine` no Modo B.
-
-**Abordagem híbrida (não clone literal):** baixa → analisa sections → extrai design system (cores, fontes, spacing, radius, shadows) + patterns estruturais (layout, slots de conteúdo). Esses artefatos alimentam a skill `frontend-design`, que gera HTML/CSS fresh. O converter então transforma esse HTML fresh em Liquid. O código do concorrente nunca entra no tema do membro — só a "vibe" visual.
+**Status:** ferramenta auxiliar, não pipeline principal. A skill 06 (page-engine) gera páginas Shopify do zero a partir da copy — não clona design de concorrente. Estes scripts existem pra um único caso: **extrair sinais de paleta/tipografia de um site de referência** quando o membro passa um link na Etapa 2.1 (Brand Discovery) da skill 06. Os signals alimentam os specialists `designer-color-system` e `designer-typography-scale`. Nenhum código do concorrente vai pro tema.
 
 ## Pré-requisitos
 
@@ -11,89 +9,50 @@ pip install -r requirements.txt
 playwright install chromium
 ```
 
-## Pipeline
+## Uso no fluxo da skill 06 (único cenário suportado)
 
-### 1. `downloader.py` — Baixa a página renderizada
-
-```bash
-python3 downloader.py <URL> <output_dir>
-```
-
-Renderiza com Playwright (JS executado), faz scroll automático pra trigger lazy loading, aguarda network idle, captura HTML final, CSS computado (`computed-styles.json` com rect/bbox de cada elemento), fontes, imagens, e screenshot. Salva tudo em `<output_dir>`.
-
-### 2. `analyzer.py` — Identifica sections semanticamente
+Quando o membro passa um site de referência visual na Etapa 2.1:
 
 ```bash
-python3 analyzer.py <output_dir>
+# 1. Baixa a página renderizada
+python3 downloader.py "URL" /tmp/ref-<produto>
+
+# 2. Identifica sections (input do extractor)
+python3 analyzer.py /tmp/ref-<produto>
+
+# 3. Extrai design_system abstrato (o único output usado)
+python3 pattern-extractor.py /tmp/ref-<produto>
 ```
 
-Lê `page.html` + `styles.css` e identifica sections (hero, features, testimonials, faq, pricing, cta, etc) usando heurísticas de tags semânticas, classes comuns de ecommerce, padrões de conteúdo (H1+imagem+CTA = hero; cards repetidos = features), e padrões de layout. Salva `sections.json` com HTML + metadados + imagens + padrões de repetição de cada section.
+A skill 06 lê apenas o bloco `design_system` de `/tmp/ref-<produto>/patterns.json`:
 
-### 3. `pattern-extractor.py` — Extrai patterns + design system
-
-```bash
-python3 pattern-extractor.py <output_dir>
+```json
+{
+  "design_system": {
+    "typography": { "heading_font": "...", "body_font": "..." },
+    "colors": { "background_primary": "#...", "text_primary": "#...", "accents": [...] },
+    "shape": { "border_radius_px": 8, "shadow_style": "subtle" },
+    "spacing": { "density": "medium", "avg_padding_px": 24 }
+  }
+}
 ```
 
-Lê `sections.json` + `computed-styles.json` e produz `patterns.json` abstrato, theme-agnostic, SEM HTML/CSS do concorrente:
+Esse bloco vira input pros specialists de design na Etapa 3. O resto do `patterns.json` (sections detectadas) é ignorado — a estrutura da página vem sempre da copy do membro, não do concorrente.
 
-- **`design_system`** — signals agregados:
-  - `typography.heading_font` / `body_font` (fonte mais usada em H1-H3 e body)
-  - `colors.background_primary` / `text_primary` / `accents[]` (top 3 cores vivas ponderadas por área)
-  - `shape.border_radius_px` / `shadow_style` (none/subtle/medium/large)
-  - `spacing.density` (tight/medium/generous) / `avg_padding_px`
-- **`sections[]`** — um pattern abstrato por section:
-  - `type` (hero/features/testimonials/faq/pricing/cta)
-  - `layout` (split-lr / centered-bold / grid-3col / grid-4col / carousel / accordion-stacked / tiers-3col / full-bleed-centered)
-  - `slots` (heading, subhead, cta_label, image, features[], testimonials[], faq_items[] com length_hint e count)
-  - `visual_hints`, `description`
+## Scripts
 
-Este arquivo é o input pra skill `frontend-design` gerar HTML fresh.
+| Script | Papel no fluxo atual |
+|---|---|
+| `downloader.py` | Renderiza página com Playwright, salva HTML/CSS/fontes/imagens + `computed-styles.json` |
+| `analyzer.py` | Detecta sections semanticamente — necessário pro pattern-extractor, output ignorado pela skill |
+| `pattern-extractor.py` | **Core.** Produz `design_system` abstrato (cores, fontes, radius, shadow, density) |
+| `liquid-converter.py` | Legacy. Converte HTML (scraped ou fresh) em Liquid section. NÃO é usado pela skill 06 — ela gera Liquid direto via `frontend-design` + schema mapping próprio |
+| `preview.py` | Legacy. Renderiza `.liquid` como HTML standalone pra debug |
 
-### 4. `frontend-design` (skill, não script) — Gera HTML fresh
-
-Pra cada section em `patterns.json`, a skill 06 invoca `frontend-design` passando o pattern + design_system + conteúdo real do `05-copy.md`. Output: HTML + CSS vanilla moderno, limpo, theme-agnostic, inspirado no visual mas sem o bloat do código original.
-
-### 5. `liquid-converter.py` — Converte HTML fresh em Liquid
-
-```bash
-python3 liquid-converter.py \
-  --html <fresh_html_path> \
-  --css <fresh_css_path> \
-  --output ~/shopify-theme/sections/page-<produto>-<tipo>.liquid \
-  --blocks-dir ~/shopify-theme/blocks \
-  --namespace page-<produto>-<tipo> \
-  --product-slug <produto>
-```
-
-Converte o HTML fresh em `.liquid` editável:
-- Textos fixos viram `{{ section.settings.heading_1 }}`, `{{ section.settings.paragraph_2 }}`, etc (nomes semânticos, dedup por tipo+default)
-- Imagens viram `image_picker` settings
-- Links viram pares de `text` + `url` settings
-- Padrões repetíveis viram `blocks` separados
-- Classes namespaced (`.page-<produto>-<tipo>__*`)
-- Scripts, tracking, pixels, web components Shopify do concorrente são removidos (mas como o HTML de entrada é fresh, isso raramente é necessário)
-- `{% schema %}` completo com defaults pré-populados
-
-**IMPORTANTE:** sempre valide o arquivo gerado com a skill `shopify-plugin:shopify-liquid` antes de instalar no tema.
-
-### 6. `preview.py` — Visualiza o .liquid como HTML standalone
-
-```bash
-python3 preview.py \
-  --section <path.liquid> \
-  --blocks-dir <path> \
-  --images-dir <output_dir>/images \
-  --images-json <output_dir>/images.json \
-  --output /tmp/preview.html
-```
-
-Renderiza o `.liquid` como HTML standalone pra visualização no browser. Expande settings com defaults do schema, expande `{% content_for 'blocks' %}` com N instâncias, injeta imagens locais. Útil pra debug antes de subir pro tema.
+Os scripts legacy (`liquid-converter.py`, `preview.py`) continuam funcionais pra quem quiser cenários avançados de clone literal fora do fluxo padrão, mas **não são acionados pela skill 06**.
 
 ## Princípios
 
-- **Zero código do concorrente no output:** só design signals agregados e patterns abstratos
-- **Design fresh, não cópia:** `frontend-design` gera HTML novo inspirado na vibe
-- **Theme-agnostic:** classes e IDs sempre namespaced (`page-<produto>-<tipo>-*`)
-- **100% editável:** todo texto/imagem/cor vira setting no theme editor
-- **Validação obrigatória:** output do converter passa por `shopify-plugin:shopify-liquid` antes de instalar
+- **Zero código do concorrente no output final.** A skill 06 só extrai signals agregados (paleta + fontes + tokens); o HTML/CSS da página Shopify é gerado fresh via `frontend-design`.
+- **Theme-agnostic.** Sections geradas pela skill 06 têm namespacing próprio (`page-<produto>-<tipo>`), zero dependência do tema pai.
+- **Validação obrigatória.** Toda section .liquid gerada passa pela skill `shopify-plugin:shopify-liquid` antes de instalar no tema.

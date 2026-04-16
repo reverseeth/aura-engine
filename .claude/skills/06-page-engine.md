@@ -1,56 +1,58 @@
 ---
 name: page-engine
-description: Engine de construção de páginas Shopify em dois modos — Modo A aplica a copy da skill 05 no tema atual gerando sections premium theme-agnostic, Modo B (híbrido) baixa um concorrente, extrai padrões estruturais + design signals (cores, fontes, layout, spacing) e gera um design NOVO inspirado no visual — sem copiar código — com sections Liquid editáveis. Use quando o membro disser "page", "página", "shopify page", "build page", "clonar design", "clone page", ou após a copy estar pronta. A skill pergunta qual modo usar e orquestra toda a execução.
+description: Engine de geração de páginas Shopify a partir da copy. Usa orquestração de specialists (frontend-design + designer-* skills) pra gerar sections premium, theme-agnostic, 100% editáveis via {% schema %}, validadas com shopify-liquid. Use quando o membro disser "page", "página", "build page", "shopify page", "gerar página", ou após gerar copy e quiser ver no tema.
 ---
 
 # Page Engine
 
 ## Quando Usar
 
-Quando o membro tem copy pronta (skill 05) e precisa publicar a página na loja Shopify. A skill opera em DOIS MODOS distintos e o membro escolhe qual usar:
-
-- **Modo A — Aplicar copy no tema atual:** gera sections Liquid premium a partir da copy (fluxo clássico, do zero baseado no estilo que o membro escolher)
-- **Modo B — Clone híbrido (estrutura + design fresh):** baixa o HTML/CSS renderizado de um concorrente que o membro gostou, extrai APENAS os padrões estruturais (tipos de section, layout, slots de conteúdo) e os sinais de design (cores dominantes, famílias tipográficas, border radius, shadows, densidade de spacing) — e então GERA UM DESIGN NOVO inspirado naquele visual. Não copia o código do concorrente. Cada section é limpa, moderna, theme-agnostic, e totalmente editável via theme editor.
+Quando o membro tem copy pronta (idealmente em `/workspace/[produto]/05-copy.md` do copy-engine) e quer gerar uma página Shopify completa que seja:
+- Visualmente premium
+- Theme-agnostic (funciona em Dawn, Horizon, Impulse, Sense, Prestige, qualquer Shopify 2.0+)
+- 100% editável via theme editor (todo elemento é uma `setting`)
+- Self-contained (zero dependência do CSS do tema pai)
+- Validada antes de salvar
 
 A página vem ANTES dos criativos no fluxo do Aura Engine — não faz sentido criar ads pra uma página que ainda não existe.
-
-**Por que Modo B é híbrido e não clone literal:** clone literal do HTML do concorrente herda todos os problemas do código deles — web components específicos do tema Dawn/Horizon que não funcionam em outros temas, fontes de CDN que quebram fora do contexto original, JS custom que depende de libraries específicas, classes que colidem com o tema do membro. O resultado é sempre algo "quebrado" visualmente. A abordagem híbrida resolve isso: extrai *o que funciona* (estrutura semântica + design system) e gera *fresh* a partir disso, preservando a vibe visual sem herdar o bloat.
 
 ## Antes de Começar
 
 ### 0. Pesquisa exploratória na base Aura
 
-Consulte a base Aura extensivamente sobre: 15 fatores da estrutura de funil (framework que diagnostica PDPs e LPs), landing pages que convertem (Empathy/Trust/Offer, NESP framework), 10x page plan (Copy School framework completo), advertorials (propósito, listicles, 7-section blueprint), checkout optimization (frictionless, trust badges, bumps, savings display), profit optimization (pricing, bundles, AOV builders), hero sections (5 tipos e critérios de seleção), congruência ad→page (message match, visual match, promise match), 4 decision making modalities (Spontaneous/Competitive/Humanistic/Methodical — toda página deve servir os 4 simultaneamente), behavioral psychology (System 1 vs System 2, above-the-fold triggers), CTAs como call to VALUE, crossheads e estrutura visual, wireframing e validação de web copy, proof stacking (Hopkins specificity + social proof volume + authority markers), e qualquer framework adjacente que apareça. Aprofunde em cada sub-conceito até ter domínio completo de conversão + estrutura de página. Esses frameworks também guiam QUAIS elementos manter/adaptar no Modo B quando converte HTML de concorrente pra Liquid.
+Consulte a base Aura extensivamente sobre: 15 fatores da estrutura de funil (framework que diagnostica PDPs e LPs), landing pages que convertem (Empathy/Trust/Offer, NESP framework), 10x page plan (framework completo), advertorials (propósito, listicles, 7-section blueprint), checkout optimization (frictionless, trust badges, bumps, savings display), profit optimization (pricing, bundles, AOV builders), hero sections (5 tipos e critérios de seleção), congruência ad→page (message match, visual match, promise match), 4 decision making modalities (Spontaneous/Competitive/Humanistic/Methodical — toda página deve servir os 4 simultaneamente), behavioral psychology (System 1 vs System 2, above-the-fold triggers), CTAs como call to VALUE, crossheads e estrutura visual, wireframing e validação de web copy, proof stacking (Hopkins specificity + social proof volume + authority markers), e qualquer framework adjacente que apareça. Aprofunde em cada sub-conceito até ter domínio completo de conversão + estrutura de página.
 
 ### 1. Detectar o produto
 
-A skill precisa saber qual produto está sendo trabalhado. Detecte assim:
+A skill precisa saber **qual produto** ela está construindo a página. Detecte assim:
 
-1. Se o membro mencionou o produto explicitamente ("page para [nome-do-produto]"), use o slug exato.
-2. Caso contrário, liste os produtos disponíveis em `/workspace/` (cada subpasta é um produto):
-   - Se tiver apenas 1 produto → use ele automaticamente, mas confirme: "Vou gerar a página pro produto X. Confirma?"
-   - Se tiver múltiplos produtos → mostre lista numerada e peça pro membro escolher
-   - Se não tiver nenhum produto → diga: "Não encontrei produtos no workspace. Rode primeiro `setup` ou `product research` pra criar a estrutura."
-3. Salve o slug do produto numa variável PRODUTO que será usada em todos os paths daqui pra frente.
+1. **Se o membro mencionou o produto explicitamente** ("page para [nome-do-produto]", "build page for [slug]"), use o slug exato.
+2. **Caso contrário, liste os produtos disponíveis** em `/workspace/` (cada subpasta é um produto):
+   - Se tiver **apenas 1 produto** → use ele automaticamente, mas confirme: "Vou gerar a página pro produto X. Confirma?"
+   - Se tiver **múltiplos produtos** → mostre lista numerada e peça pro membro escolher
+   - Se não tiver **nenhum produto** → diga: "Não encontrei produtos no workspace. Rode primeiro a skill `setup` ou `product research` pra criar a estrutura, ou cole a copy diretamente aqui."
+3. **Salve o slug do produto** numa variável `PRODUTO` que será usada em todos os paths daqui pra frente. Daqui em diante, sempre que ver `[produto]` na skill, substitua pelo slug detectado.
 
 ### 2. Ler inputs obrigatórios
 
-1. OBRIGATÓRIO: leia `/workspace/[produto]/05-copy.md`.
-   - Se não existir, pergunte: "Não achei a copy desse produto. Quer rodar `copy` primeiro (recomendado), ou colar a copy direto no chat agora?"
-2. Leia `/workspace/[produto]/04-offer.md` se existir (preço, stack, guarantee — vai pra section de oferta)
-3. Leia `/workspace/[produto]/02-market-research.md` se existir (awareness level, voice of customer)
-4. Leia `/workspace/profile.md` se existir
+1. **OBRIGATÓRIO**: Leia `/workspace/[produto]/05-copy.md`.
+   - Se não existir, pergunte: "Não achei a copy desse produto. Quer rodar a skill `copy` primeiro pra gerar (recomendado), ou colar a copy direto no chat agora?"
+2. Leia `/workspace/[produto]/04-offer.md` se existir (preço, stack, garantia — vai pra section de oferta).
+3. Leia `/workspace/[produto]/02-market-research.md` se existir (pra entender awareness level e voz do cliente).
+4. Leia `/workspace/profile.md` se existir.
 
 ### 3. Detectar o tema Shopify local
 
-1. Cheque os locais padrão na ordem:
-   - `~/shopify-theme/`
+A skill precisa saber **onde o tema Shopify do membro está baixado**. Detecte assim:
+
+1. **Cheque os locais padrão na ordem**:
+   - `~/shopify-theme/` (default recomendado)
    - `~/shopify-theme/<nome-da-loja>/`
-   - Diretório atual se tiver `sections/`, `templates/`, `config/`
+   - Diretório atual se ele tiver `sections/`, `templates/`, `config/`
    - Variável de ambiente `$SHOPIFY_THEME_PATH` se existir
-2. Verifique se a estrutura é válida (precisa ter `sections/`, `blocks/`, `templates/`, `config/`).
-3. Se não encontrar, peça ao membro:
-   > "Não achei seu tema Shopify baixado. Onde ele está? Se ainda não baixou, rode num terminal real (não no `!`):
+2. **Verifique se a estrutura é válida** (precisa ter `sections/`, `blocks/`, `templates/`, `config/`).
+3. **Se não encontrar**, peça ao membro o path:
+   > "Não achei seu tema Shopify baixado. Onde ele está? Se ainda não baixou, rode em terminal real (não no `!`):
    > 
    > ```
    > mkdir -p ~/shopify-theme && cd ~/shopify-theme
@@ -58,387 +60,467 @@ A skill precisa saber qual produto está sendo trabalhado. Detecte assim:
    > ```
    > 
    > Depois me passa o caminho ou roda `page` de novo."
-4. Salve o path numa variável THEME_PATH.
+4. **Salve o path numa variável `THEME_PATH`** usada daqui pra frente.
 
-## Seleção de Modo
+## Princípios Inegociáveis
 
-Pergunte ao membro numa mensagem só:
+Estes princípios NÃO são negociáveis. Se algum for violado, a section deve ser refeita.
 
-> "Quer aplicar a copy no seu tema atual (Modo A) ou usar um concorrente como inspiração visual (Modo B)?
->
-> - **Modo A** — eu gero sections Liquid do zero, baseadas na sua copy e num estilo visual que você escolhe (minimalist, bold, clinical, wellness, ou custom)
-> - **Modo B — Clone híbrido** — você me manda um link de concorrente que gostou do visual, eu analiso a estrutura (quais sections ele usa, o layout de cada uma) e o design system (cores, fontes, spacing, radius, shadows), e gero sections novas inspiradas naquele visual, com sua copy aplicada. Não é cópia do código — é design fresh com a vibe que você curtiu."
+1. **ZERO `custom_liquid` blocks**. Todo elemento visível é uma `setting` no `{% schema %}`. O custom_liquid é proibido — é onde os geradores ruins escondem HTML cru não-editável.
+2. **Self-contained CSS**. Todo CSS vai dentro de `{% stylesheet %}` da própria section. Zero dependência de classes/variáveis do tema pai.
+3. **Theme-agnostic**. Não use classes do tema pai (`.product-card`, `.btn-primary`, etc). Use namespacing próprio: `.page-[produto]-hero`, `.page-[produto]-feature`.
+4. **Mobile-first**. Todo CSS começa pelo mobile e usa media queries pra escalar.
+5. **Semantic HTML**. `<section>`, `<article>`, `<header>`, `<h1>-<h6>` na ordem correta, `<button>` pra ações, `<a>` pra navegação, `<picture>`/`<img>` com `alt`.
+6. **WCAG 2.1 AA**. Contraste mínimo 4.5:1, focus states visíveis, ARIA quando necessário, alt em todas as imagens.
+7. **Validação obrigatória**. Cada arquivo passa pelo skill `shopify-plugin:shopify-liquid` (validate.mjs) antes de ser salvo. Se falhar, corrige e revalida (3 retries).
+8. **Zero JS frameworks externos**. Sem React, Vue, jQuery, libraries de animação. Use JavaScript vanilla quando absolutamente necessário, dentro de `{% javascript %}`.
+9. **Imagens via `image_picker` setting**, nunca hardcoded ou via `asset_url`. O membro sobe a foto pelo theme editor.
+10. **Fluid type e spacing**. Use `clamp(min, preferred, max)` pra tipografia e padding em sections importantes.
 
-Conforme a resposta, vá para a seção apropriada abaixo. **Se for Modo B**, também pergunte logo em seguida: "Manda o link do concorrente. Pode ser 1 ou vários."
+## Mapping de Schema (regras de tradução)
 
-## Princípios Inegociáveis (aplicam a AMBOS os modos)
-
-1. ZERO `custom_liquid` blocks. Todo elemento visível é uma `setting` no `{% schema %}`.
-2. Self-contained CSS. Todo CSS vai dentro de `{% stylesheet %}` da própria section.
-3. Theme-agnostic. Não use classes do tema pai. Use namespacing próprio: `.page-[produto]-hero`, `.page-[produto]-feature`.
-4. Mobile-first.
-5. Semantic HTML.
-6. WCAG 2.1 AA. Contraste mínimo 4.5:1, focus states visíveis, ARIA quando necessário.
-7. Validação obrigatória via skill `shopify-plugin:shopify-liquid` (validate.mjs). Se falhar, corrija (3 retries máximo).
-8. Zero JS frameworks externos.
-9. Imagens via `image_picker` setting.
-10. Fluid type e spacing via `clamp()`.
-
-## Mapping de Schema (regras de tradução — aplicam a AMBOS os modos)
+Quando converter HTML/CSS pra Liquid section, siga estas regras de tradução de elementos pra settings:
 
 | Elemento HTML | Setting type | Notas |
 |---|---|---|
 | Texto curto (headline, label, button text) | `text` | |
 | Texto longo (parágrafo, descrição) | `richtext` | |
-| `<h1>`-`<h6>` | `text` | |
+| `<h1>`-`<h6>` | `text` (com select pra nível semântico se relevante) | |
 | `<img>` ou `background-image` | `image_picker` | |
 | `<a href>` | `url` | Pareie com setting `text` pro label |
-| Cor | `color` | Use CSS custom property |
-| Alinhamento | `select` ou `text_alignment` | |
-| Tamanho | `select` ou `range` | |
+| Cor de fundo, texto, accent | `color` | Use CSS custom property: `style="--bg: {{ section.settings.bg }}"` |
+| Alinhamento (left/center/right) | `select` ou `text_alignment` | |
+| Tamanho (small/medium/large) | `select` ou `range` | |
 | Padding/spacing | `range` com `unit: "px"` | |
+| Largura máxima | `range` ou `select` | |
 | Toggle/visibilidade | `checkbox` | |
-| Lista de itens (features, FAQs, steps, testimonials) | **blocks** | Cada item vira um block reorderável |
+| Quantidade | `range` ou `number` | |
+| Lista de itens (features, FAQs, steps, testimonials) | **blocks** com schema próprio | Cada item vira um block reorderável |
 
-Padrões repetíveis SEMPRE viram blocks, nunca settings duplicadas.
+**Padrões repetíveis SEMPRE viram blocks**, nunca settings duplicadas. Exemplos: features, FAQs, testimonials, pricing tiers, comparison rows, ingredients, steps, badges.
 
----
+## Fluxo da Skill
 
-# MODO A — Aplicar Copy no Tema Atual
+### ETAPA 1 — Leitura e Planejamento
 
-### Etapa A1 — Leitura e Planejamento
+1. Leia o `05-copy.md` integralmente. Identifique todas as sections presentes na copy. Tipicamente:
+   - Hero
+   - Benefícios / Problema
+   - Mecanismo Único
+   - Prova Social (testimonials, reviews, números)
+   - Oferta / Stack
+   - Garantia
+   - FAQ
+   - CTA Final
+   - Opcionais: Comparação, Before/After, How it Works, Ingredientes
 
-1. Leia `05-copy.md` integralmente. Identifique todas as sections presentes. Tipicamente:
-   - Hero · Benefícios/Problema · Unique Mechanism · Prova Social · Oferta/Stack · Guarantee · FAQ · CTA Final · Opcionais (Comparação, Before/After, How it Works, Ingredientes)
-
-2. Pra cada section identificada, extraia:
+2. Para cada section identificada, extraia:
    - Nome (slug): `hero`, `benefits`, `mechanism`, `social-proof`, `offer`, `guarantee`, `faq`, `cta-final`
    - Conteúdo textual exato da copy
    - Decisão: section monolítica ou section + blocks repetíveis?
+     - Hero, mechanism, guarantee, cta-final → monolíticas
+     - Benefits, social-proof, faq, offer (stack items), before-after (pares) → section + blocks
 
-3. Mostre o plano compacto ao membro:
+3. Mostre o plano completo pro membro num formato compacto:
    ```
    PLANO DE SECTIONS PRA [produto]:
    1. hero (monolítica) — headline, subheading, CTA, imagem
    2. benefits (section + blocks) — N feature blocks
-   3. mechanism (monolítica)
-   4. social-proof (section + blocks)
-   5. offer (section + blocks)
+   3. mechanism (monolítica) — explicação do diferencial
+   4. social-proof (section + blocks) — N testimonial blocks
+   5. offer (section + blocks) — stack items como blocks
    6. guarantee (monolítica)
-   7. faq (section + blocks)
+   7. faq (section + blocks) — N faq blocks
    8. cta-final (monolítica)
    ```
    
-4. Pergunte: "Algum ajuste no plano antes de começar?"
+4. Pergunte: "Algum ajuste no plano antes de eu começar?" Aguarde confirmação ou ajustes.
 
-### Etapa A2 — Brand Discovery (uma mensagem)
+### ETAPA 2 — Brand Discovery (1 mensagem ao membro)
 
-Pergunte numa única mensagem:
+Pergunte (em UMA mensagem) só o que precisa pra começar:
 
 1. **Estilo visual desejado** (escolha 1 ou descreva custom):
-   - Minimalist editorial — off-white, sage/cream, whitespace, refined serif
+   - Minimalist editorial — off-white, sage/cream, generous whitespace, refined serif
    - Bold modern — dark backgrounds, large sans-serif, vibrant accent
    - Clinical premium — clean white, navy/gold, data-forward, technical
    - Wellness organic — warm tones, soft curves, hand-drawn touches
-   - Custom
-2. **Cores da marca** se houver (ou "escolhe pra mim")
-3. **Caminhos de assets** (logo, fotos do produto) se tiver
+   - Custom — descreva
+2. **Cores da marca** se houver (ou "escolhe pra mim baseado no estilo")
+3. **Caminhos de assets** (logo, fotos do produto) se tiver — caso contrário usa placeholders
 4. **Theme path** (default `~/shopify-theme`)
-5. **Handle do produto pro template** (default = slug do produto)
+5. **Handle do produto pro template** (default = slug do nome do produto)
+6. **Referência visual (opcional)** — "Tem algum site cujo visual você curte e quer usar como inspiração pra paleta e fontes? Passa o link (ou pula)." Se o membro passar um link, vai pra sub-etapa 2.1. Se não, pula direto pra Etapa 3.
 
-### Etapa A3 — Generate Design System
+#### ETAPA 2.1 — Referência visual (quando o membro passa link)
 
-Invoque specialists:
-1. Skill `designer-color-system` — paleta 5-7 cores
-2. Skill `designer-typography-scale` — modular scale 1.25 ou 1.333
-3. Skill `designer-spacing-system` — base 4px ou 8px
-4. Skill `designer-layout-grid` — container max 1200-1440px
-5. Skill `designer-design-token` — consolida tudo em CSS custom properties
-
-Salve em `/workspace/[produto]/06-design-system.md`.
-
-### Etapa A4 — Generate Hero (3 variantes em paralelo)
-
-Pra cada variante (A = Editorial minimalista, B = Centered bold, C = Split full-bleed):
-1. Skill `frontend-design` — HTML+CSS vanilla
-2. Skill `designer-visual-hierarchy` — valida
-3. Skill `designer-responsive-design` — mobile-first
-
-Mostre as 3 ao membro e pergunte qual escolher.
-
-### Etapa A5 — Convert Hero to Liquid Section
-
-1. Pegue o HTML/CSS da variante escolhida
-2. Aplique Schema Mapping
-3. Gere `{% schema %}` com settings + presets
-4. Gere `{% stylesheet %}` self-contained
-5. Valide com skill `shopify-plugin:shopify-liquid` (3 retries)
-6. Salve em `~/shopify-theme/sections/page-[produto]-hero.liquid`
-
-### Etapa A6 — Generate Remaining Sections
-
-Pra cada section restante:
-1. Skill `frontend-design` — gera HTML/CSS
-2. Specialists relevantes (component-spec, micro-interaction-spec, feedback-patterns)
-3. Identifique padrões repetíveis → blocks
-4. Pra cada block: arquivo separado em `~/shopify-theme/blocks/`
-5. Valide com skill `shopify-plugin:shopify-liquid`
-6. Salve
-
-### Etapa A7 — UX Writing Pass
-
-Skill `designer-ux-writing` revisa microcopy (CTAs, placeholders, alt texts, aria labels, FAQ wording).
-
-### Etapa A8 — Self-Critique Pass
-
-1. Skill `designer-design-critique` — critique o conjunto
-2. Skill `designer-heuristic-evaluation` — Nielsen
-3. Skill `designer-accessibility-audit` — WCAG 2.1 AA
-4. Skill `designer-design-qa-checklist` — QA final
-
-Aplique os fixes e revalide.
-
-### Etapa A9 — Create Page Template
-
-Crie `~/shopify-theme/templates/page.[produto].json` juntando todas as sections na ordem correta. Pré-popule todos os settings com a copy real do `05-copy.md` — membro não digita nada.
-
-### Etapa A10 — Report
-
-Mostre lista de arquivos criados (paths absolutos), como visualizar localmente (`shopify theme dev`), como editar pelo theme editor, como subir (`shopify theme push`), settings expostos por section, e issues conhecidas (se houver).
-
----
-
-# MODO B — Clone Híbrido (estrutura + design fresh)
-
-**Fluxo resumido:** baixa o concorrente → extrai APENAS padrões estruturais + sinais de design → gera HTML fresh por section via `frontend-design` → converte pra Liquid. A copy é sempre sua (do `05-copy.md`). O design herdado é a "vibe" (cores, fontes, layout, density) — não o código.
-
-### Etapa B1 — Coletar Links
-
-Já capturado na seleção de modo. Salve a lista de URLs na variável `COMPETITOR_URLS`.
-
-### Etapa B2 — Validar Dependências
-
-Verifique se Playwright + BeautifulSoup estão instalados:
-
-```bash
-python3 -c "import playwright, bs4" 2>&1
-```
-
-Se falhar: "Faltam dependências pra clonar design. Rode no terminal:
-```
-pip install -r tools/design-clone/requirements.txt
-playwright install chromium
-```
-Depois rode `page` de novo."
-
-### Etapa B3 — Download da Página Renderizada
-
-Pra cada URL em `COMPETITOR_URLS`, chame o módulo downloader:
-
-```bash
-python3 tools/design-clone/downloader.py "URL" "/tmp/clone-[produto]-[N]"
-```
-
-O downloader:
-- Usa Playwright pra renderizar JS (sem isso muitos sites ficam vazios)
-- Faz scroll automático pra triggerizar lazy loading
-- Aguarda network idle
-- Captura HTML final, `computed-styles.json` (CSS computado de cada elemento com rect/bbox), fontes, imagens
-- Salva em pasta temporária:
-  - `page.html` · `styles.css` · `computed-styles.json` · `images/` · `fonts.json` · `viewport-screenshot.png`
-
-Esses artefatos ficam como **referência** e alimentam os próximos passos. Nada desse HTML/CSS vai pra o tema do membro — é só matéria-prima pra extração.
-
-### Etapa B4 — Análise Semântica de Sections
-
-```bash
-python3 tools/design-clone/analyzer.py "/tmp/clone-[produto]-[N]"
-```
-
-O analyzer detecta as sections da página (hero, features, testimonials, faq, pricing, cta, footer, etc) usando tags semânticas, classes de ecommerce conhecidas, heurísticas de conteúdo (H1+imagem+CTA = hero; grid de 3-4 cards iguais = features) e padrões de layout. Output: `sections.json` com index, tipo semântico, confidence, padrão de repetição, imagens referenciadas, descrição curta.
-
-### Etapa B5 — Extração de Patterns + Design System
-
-Aqui está o coração do Modo B híbrido. Chame o pattern-extractor:
-
-```bash
-python3 tools/design-clone/pattern-extractor.py "/tmp/clone-[produto]-[N]"
-```
-
-O pattern-extractor (`tools/design-clone/pattern-extractor.py`) lê `sections.json` + `computed-styles.json` e produz `patterns.json` com duas partes:
-
-**1. `design_system`** — signals agregados da página inteira:
-- `typography.heading_font` · `typography.body_font` (a fonte mais usada em H1-H3 e a de body)
-- `colors.background_primary` · `colors.text_primary` · `colors.accents[]` (top 3 cores vivas ponderadas por área)
-- `shape.border_radius_px` · `shape.shadow_style` (none/subtle/medium/large)
-- `spacing.density` (tight / medium / generous) · `spacing.avg_padding_px`
-
-**2. `sections[]`** — um pattern por section, com:
-- `type` (hero/features/testimonials/faq/pricing/cta)
-- `layout` (split-lr / centered-bold / grid-3col / grid-4col / carousel / accordion-stacked / tiers-3col / full-bleed-centered)
-- `slots` (o que a section espera como conteúdo: `heading`, `subhead`, `cta_label`, `image`, `features[]`, `testimonials[]`, `faq_items[]`, `pricing_tiers[]` — com `length_hint` e `count`)
-- `visual_hints` (imagens, itens repetíveis)
-- `description`
-
-**NENHUM** HTML ou CSS do concorrente é carregado adiante. `patterns.json` é theme-agnostic e totalmente abstrato — só descreve *o que tem* e *que cara tem*, não *como tá codado*.
-
-### Etapa B6 — Membro Seleciona Sections
-
-Apresente ao membro de forma compacta, usando o `patterns.json`:
-
-> "Analisei a página. Peguei a vibe visual:
-> - Fontes: **[heading_font]** (títulos) + **[body_font]** (corpo)
-> - Cores: fundo **[background_primary]** · texto **[text_primary]** · destaques **[accents]**
-> - Shape: radius **[border_radius_px]px** · shadow **[shadow_style]**
-> - Density: **[density]** (padding médio **[avg_padding_px]px**)
-> 
-> E identifiquei essas sections:
-> 1. **[type]** — layout `[layout]` — [description]
-> 2. ...
-> 
-> Quais você quer usar na sua página? Pode dizer 'todas', '1, 3 e 5', ou descrever."
-
-Salve em `SELECTED_SECTIONS`.
-
-### Etapa B7 — Gerar HTML Fresh por Section (via `frontend-design`)
-
-Pra CADA section em `SELECTED_SECTIONS`, invoque a skill `frontend-design` passando:
-
-1. **Pattern da section** (type, layout, slots) — do `patterns.json`
-2. **Design system** (typography, colors, shape, spacing) — do `patterns.json`
-3. **Conteúdo real** — trecho correspondente do `05-copy.md` (hero headline, benefit bullets, FAQ items, etc, mapeado ao `type`)
-4. **Princípios de Qualidade Visual** desta skill (type scale, fluid clamp, hierarquia, focus states, reduced-motion)
-5. **Namespace obrigatório** — `.page-[produto]-[type]`
-
-**Prompt pattern pro frontend-design** (use um por section):
-
-> "Gere HTML + CSS vanilla pra uma section `[type]` com layout `[layout]`. Use este design system (não invente cores nem fontes): bg `[background_primary]`, text `[text_primary]`, accents `[accents]`, heading `[heading_font]`, body `[body_font]`, radius `[border_radius_px]px`, shadow `[shadow_style]`, density `[density]`. Conteúdo: `[trecho da copy]`. Slots a renderizar: `[slots]`. Namespace: `.page-[produto]-[type]`. Mobile-first, fluid type com clamp, sem JS frameworks, self-contained CSS, semantic HTML. Siga os Princípios de Qualidade Visual da skill page-engine."
-
-Isso faz o `frontend-design` produzir código **limpo, moderno, theme-agnostic** que reflete a vibe do concorrente sem herdar o bloat. O membro escolheu inspiração visual; você entregou design fresh.
-
-Se a section tem padrão repetível (`repeating_count > 0`), gere 1 instância do item — o converter vai transformar em block reorderável.
-
-Salve cada HTML/CSS gerado temporariamente em `/tmp/fresh-[produto]/[type].html` e `/tmp/fresh-[produto]/[type].css`.
-
-### Etapa B8 — Converter HTML Fresh pra Liquid
-
-Pra cada section fresh gerada, chame o converter no HTML *limpo que você acabou de gerar* (não o do concorrente):
-
-```bash
-python3 tools/design-clone/liquid-converter.py \
-  --html "/tmp/fresh-[produto]/[type].html" \
-  --css "/tmp/fresh-[produto]/[type].css" \
-  --output "[THEME_PATH]/sections/page-[produto]-[type].liquid" \
-  --blocks-dir "[THEME_PATH]/blocks/" \
-  --namespace "page-[produto]-[type]" \
-  --product-slug "[produto]"
-```
-
-O converter:
-- Mapeia textos → `{{ section.settings.heading_1 }}`, `{{ section.settings.paragraph_2 }}`, etc (nomes semânticos, dedup por tipo+default)
-- Imagens → `{{ section.settings.image_N | image_url }}` com `image_picker` setting
-- Cores hardcoded → CSS custom properties ligadas a settings `color`
-- Links → `{{ section.settings.link_url_N }}` + `link_label_N`
-- Padrões repetíveis → `blocks/page-[produto]-[type]-[nome].liquid`
-- Gera `{% schema %}` completo com settings + presets pré-populados
-- Valida com skill `shopify-plugin:shopify-liquid` (3 retries)
-
-Como o HTML de entrada já é limpo (sem web components Shopify, sem data-attrs de tema, sem scripts de analytics), o output é compacto e editável.
-
-### Etapa B9 — Install + Apply Copy + Template
-
-1. Confirme: "Vou instalar [N] sections + [M] blocks no tema em `[THEME_PATH]`. Ok?"
-2. Arquivos já foram escritos em `sections/` e `blocks/` pelo converter.
-3. Crie `[THEME_PATH]/templates/page.[produto].json` combinando as sections na ordem escolhida (default = ordem do concorrente; ajustável) e pré-populando TODOS os settings com os textos exatos do `05-copy.md`. O membro não digita nada.
-4. Se o membro tem múltiplos concorrentes, ofereça escolha por section ("hero do A + features do B").
-
-### Etapa B10 — UX Writing + Critique + Report
-
-1. Mesmo fluxo do Modo A (A7 + A8): `designer-ux-writing` → `designer-design-critique` → `designer-heuristic-evaluation` → `designer-accessibility-audit` → `designer-design-qa-checklist`.
-2. Report final mostra:
-   - Modo B híbrido, URLs analisadas, design system extraído
-   - Sections geradas (types + layouts + paths)
-   - Blocks gerados (paths)
-   - Template JSON criado
-   - Mapeamento copy → settings
-   - Como visualizar (`shopify theme dev`), editar (theme editor), e subir (`shopify theme push`)
-   - Issues conhecidas
-
----
-
-## Etapa Final (comum aos dois modos) — Iteration Loop
-
-Termine:
-
-> "Página gerada e validada. Quer ajustar? Pode pedir 'hero muito apertado, mais ar', 'cores mais escuras', 'features em 2 colunas', 'adicionar countdown'. Vou refinar sem regenerar tudo."
-
-Pra ajustes:
-- Spacing/layout → edite `{% stylesheet %}`
-- Estruturais → adicione/remova settings + blocks
-- Copy → atualize defaults no schema + pré-populados no template JSON
-- Sempre revalide com skill `shopify-plugin:shopify-liquid`
-
-## SALVAR
+**Importante:** isso NÃO é clone de design. É só extração de sinais de paleta/tipografia do site de referência pra ALIMENTAR o `designer-color-system` e o `designer-typography-scale` na Etapa 3. O design ainda é gerado do zero.
+
+1. Valide que Playwright + BeautifulSoup estão instalados:
+   ```bash
+   python3 -c "import playwright, bs4" 2>&1
+   ```
+   Se falhar: "Pra extrair signals da referência visual preciso de Playwright + BeautifulSoup. Rode no terminal real:
+   ```
+   pip install -r tools/design-clone/requirements.txt
+   playwright install chromium
+   ```
+   Ou pula a referência e escolhe um dos estilos pré-definidos."
+
+2. Baixe a página de referência:
+   ```bash
+   python3 tools/design-clone/downloader.py "URL" "/tmp/ref-[produto]"
+   ```
+
+3. Rode analyzer + pattern-extractor pra extrair signals:
+   ```bash
+   python3 tools/design-clone/analyzer.py "/tmp/ref-[produto]"
+   python3 tools/design-clone/pattern-extractor.py "/tmp/ref-[produto]"
+   ```
+
+4. Leia `/tmp/ref-[produto]/patterns.json` → extraia apenas o `design_system` (typography + colors + shape + spacing). Ignore `sections[]` — não vamos copiar estrutura, só absorver signals visuais.
+
+5. Mostre ao membro um resumo curto:
+   > "Peguei a vibe da [url]:
+   > - Fontes: **[heading_font]** (títulos) + **[body_font]** (corpo)
+   > - Paleta: fundo **[background_primary]** · texto **[text_primary]** · accents **[accents]**
+   > - Radius **[border_radius_px]px** · shadow **[shadow_style]** · density **[density]**
+   > 
+   > Vou usar isso como input pro design system. O layout e a estrutura ainda vêm da copy — só a paleta/tipografia é inspirada."
+
+6. Siga pra Etapa 3. No `designer-color-system` e `designer-typography-scale`, passe os valores extraídos como **preferência inicial** (não impositivo — o specialist pode ajustar pra garantir contraste WCAG e hierarquia).
+
+### ETAPA 3 — Generate Design System (orquestração)
+
+Antes de gerar qualquer section, defina o sistema de design completo. Invoque os specialists nessa ordem:
+
+1. **Skill `designer-color-system`**: gere paleta de 5-7 cores (background, surface, foreground, primary, accent, muted, border) baseada no estilo + cores da marca + signals da referência (se houver da Etapa 2.1). Saída: hex codes + role semântico.
+
+2. **Skill `designer-typography-scale`**: gere modular type scale (recomendado 1.25 ou 1.333) com 6 níveis (h1-h6) + body + small. Use fluid type com `clamp()`. Sugira heading font + body font (system fonts ou Google Fonts populares). Se houver referência, priorize as fontes extraídas.
+
+3. **Skill `designer-spacing-system`**: gere spacing tokens em base 4px ou 8px (xs, sm, md, lg, xl, 2xl, 3xl).
+
+4. **Skill `designer-layout-grid`**: defina container max-width (recomendado 1200-1440px), grid system, breakpoints (mobile 480, tablet 768, desktop 1024, wide 1440).
+
+5. **Skill `designer-design-token`**: consolide tudo em um conjunto de CSS custom properties que serão injetadas via `:root` no `{% stylesheet %}` de cada section.
+
+6. Salve o design system gerado em `/workspace/[produto]/06-design-system.md` como referência. Mostre ao membro um resumo compacto e peça aprovação rápida.
+
+### ETAPA 4 — Generate Hero Section (3 variantes em paralelo)
+
+A hero é a section mais importante. Gere 3 direções distintas e deixe o membro escolher.
+
+Para cada variante:
+
+1. **Skill `frontend-design`**: gere HTML + CSS (vanilla, não Tailwind) seguindo o design system da etapa 3, usando a copy real do `05-copy.md`. Inclua:
+   - Pre-headline / eyebrow tag (se a copy tiver)
+   - Headline principal
+   - Subheading
+   - CTA primário
+   - CTA secundário ou trust indicator (rating, "as seen in", etc) se a copy tiver
+   - Imagem do produto (placeholder via image_picker)
+   - Layout pode variar entre as 3 variantes:
+     - **Variante A — Editorial minimalista**: assimétrico, texto à esquerda, imagem à direita, muito whitespace, tipografia grande
+     - **Variante B — Centered bold**: tudo centralizado, headline gigante (clamp até 6rem), CTA em destaque, imagem como background sutil
+     - **Variante C — Split full-bleed**: 50/50 split, imagem ocupa metade da viewport, texto na outra metade, full-bleed mobile
+
+2. **Skill `designer-visual-hierarchy`**: valida hierarquia da variante.
+3. **Skill `designer-responsive-design`**: garante mobile-first com breakpoints corretos.
+
+4. Para cada variante gerada, prepare um preview ASCII/descrição visual da estrutura:
+   ```
+   VARIANTE A — Editorial Minimalista
+   ┌─────────────────────────────────────────┐
+   │  EYEBROW TAG                            │
+   │                                         │
+   │  Large Headline           [Product Img] │
+   │  Subheading             [              ]│
+   │                         [              ]│
+   │  [PRIMARY CTA]  →ver mais [           ]│
+   └─────────────────────────────────────────┘
+   ```
+
+5. Mostre as 3 variantes ao membro. Pergunte: "Qual variante? A/B/C ou misturar elementos de duas?"
+
+### ETAPA 5 — Convert Hero to Liquid Section
+
+Após escolha do membro:
+
+1. Pegue o HTML/CSS da variante escolhida.
+2. **Aplique as regras de Schema Mapping** (ver tabela acima):
+   - Cada texto → setting `text` ou `richtext`
+   - Cada imagem → setting `image_picker`
+   - Cada cor → setting `color` referenciada via CSS custom property
+   - Cada link → setting `url`
+   - Cada alinhamento/tamanho/spacing → settings configuráveis
+3. Gere `{% schema %}` completo com:
+   - `name`: "Page [Produto] - Hero"
+   - `tag`: "section"
+   - `class`: namespace específico
+   - `settings`: lista completa de settings com defaults pré-populados da copy
+   - `presets`: 1 preset com nome do produto
+4. Gere `{% stylesheet %}` self-contained com:
+   - CSS custom properties no topo (do design system)
+   - Estilos da variante escolhida
+   - Mobile-first com media queries
+   - `@media (prefers-reduced-motion: reduce)` quando houver animações
+5. Gere o markup HTML usando `{{ section.settings.* }}` pra todos os textos/imagens/links/cores.
+6. **Valide com o skill `shopify-plugin:shopify-liquid`** (`validate.mjs --filename ... --filetype sections --code ...`).
+7. Se a validação falhar:
+   - Leia o erro
+   - Identifique o problema
+   - Corrija o código exato
+   - Revalide
+   - Máximo 3 retries
+8. Se a validação passar, salve em `~/shopify-theme/sections/page-[produto]-hero.liquid`.
+
+### ETAPA 6 — Generate Remaining Sections
+
+Para cada section restante do plano (etapa 1), repita o processo da etapa 5 mas SEM gerar 3 variantes (uma só, baseada no estilo definido):
+
+Para cada section:
+
+1. **Skill `frontend-design`**: gera HTML/CSS premium pra essa section usando a copy real e o design system.
+2. **Specialists relevantes** (chame quando aplicável):
+   - `designer-visual-hierarchy` — sempre
+   - `designer-responsive-design` — sempre
+   - `designer-component-spec` — pra sections com componentes complexos (FAQ accordion, tabs, accordion, carousel)
+   - `designer-micro-interaction-spec` — pra hovers, focus states, transições
+   - `designer-feedback-patterns` — pra estados de confirmação (botões pressionados, etc)
+3. Identifique se a section tem **padrões repetíveis** → vire blocks:
+   - Section `benefits` → block `feature` (icon + heading + text)
+   - Section `social-proof` → block `testimonial` (quote + author + role + photo)
+   - Section `faq` → block `faq_item` (question + answer)
+   - Section `offer` → block `stack_item` (label + value + icon)
+   - Section `mechanism` (se tiver passos) → block `step` (number + heading + text)
+   - Section `before-after` → block `comparison_pair` (before + after images + label)
+4. Para cada block identificado:
+   - Crie arquivo separado em `~/shopify-theme/blocks/page-[produto]-[block-name].liquid`
+   - Inclua `{% doc %}` header com params e exemplo
+   - Schema completo com settings + preset
+   - Stylesheet self-contained
+5. Na section, use `{% content_for 'blocks' %}` pra renderizar os blocks.
+6. Schema da section deve listar os tipos de blocks aceitos:
+   ```json
+   "blocks": [
+     { "type": "page-[produto]-feature" }
+   ],
+   "presets": [
+     {
+       "name": "...",
+       "blocks": [
+         { "type": "page-[produto]-feature" },
+         { "type": "page-[produto]-feature" },
+         { "type": "page-[produto]-feature" }
+       ]
+     }
+   ]
+   ```
+7. Valida com `shopify-plugin:shopify-liquid` (section + cada block separadamente).
+8. Salva em `~/shopify-theme/sections/` e `~/shopify-theme/blocks/`.
+
+### ETAPA 7 — UX Writing Pass
+
+Após gerar todas as sections:
+
+1. **Skill `designer-ux-writing`**: revise toda a microcopy gerada nas settings de:
+   - CTAs (deve refletir valor, não ação genérica — "Buy Now" é ruim, "Start Your 30-Day Transformation" é bom)
+   - Empty states de placeholders nas settings
+   - Alt texts default das imagens
+   - Aria labels
+   - FAQ wording
+2. Aplique as melhorias diretamente nos defaults dos schemas das sections.
+
+### ETAPA 8 — Self-Critique Pass (orquestração de qualidade)
+
+Esta é a etapa que move qualidade de 8/10 pra 9/10. Não pule.
+
+1. **Skill `designer-design-critique`**: critique o conjunto completo de sections geradas. Foque em:
+   - Hierarquia visual entre sections
+   - Consistência de espaçamento
+   - Ritmo da página (a página guia o leitor naturalmente?)
+   - Originalidade (foge do padrão genérico de IA?)
+2. **Skill `designer-heuristic-evaluation`**: aplica heurísticas de Nielsen.
+3. **Skill `designer-accessibility-audit`**: WCAG 2.1 AA full audit em todas as sections.
+4. **Skill `designer-design-qa-checklist`**: QA final.
+
+5. Compile todas as issues encontradas. Pra cada issue:
+   - Identifique a section/block afetado
+   - Identifique o fix exato
+   - Aplique no código
+   - Revalide com `shopify-plugin:shopify-liquid`
+
+6. Se alguma issue não for corrigível sem mudança estrutural significativa, liste pro membro como "issues conhecidas" no relatório final.
+
+### ETAPA 9 — Create Page Template
+
+1. Crie `~/shopify-theme/templates/page.[produto].json` que junta todas as sections na ordem certa.
+
+2. Estrutura do JSON:
+   ```json
+   {
+     "sections": {
+       "hero": {
+         "type": "page-[produto]-hero",
+         "settings": {
+           "heading": "[da copy]",
+           "subheading": "[da copy]",
+           "cta_label": "[da copy]"
+         }
+       },
+       "benefits": {
+         "type": "page-[produto]-benefits",
+         "blocks": {
+           "feature-1": {
+             "type": "page-[produto]-feature",
+             "settings": { "title": "[copy]", "description": "[copy]" }
+           },
+           "feature-2": { ... }
+         },
+         "block_order": ["feature-1", "feature-2", ...],
+         "settings": {}
+       },
+       ...
+     },
+     "order": ["hero", "benefits", "mechanism", "social-proof", "offer", "guarantee", "faq", "cta-final"]
+   }
+   ```
+
+3. **Pré-popule TODOS os settings com a copy real** do 05-copy.md. O membro NÃO deve ter que digitar nada — só ajustar visualmente no theme editor.
+
+4. Valide o JSON contra o schema do Shopify (a skill `shopify-plugin:shopify-liquid` cobre isso indiretamente — se as sections individuais validam, o template deve funcionar).
+
+5. Salva.
+
+### ETAPA 10 — Report
+
+Mostre ao membro:
+
+1. **Lista de arquivos criados** (paths absolutos):
+   ```
+   Sections:
+   - ~/shopify-theme/sections/page-[produto]-hero.liquid
+   - ~/shopify-theme/sections/page-[produto]-benefits.liquid
+   ...
+   
+   Blocks:
+   - ~/shopify-theme/blocks/page-[produto]-feature.liquid
+   - ~/shopify-theme/blocks/page-[produto]-faq-item.liquid
+   ...
+   
+   Template:
+   - ~/shopify-theme/templates/page.[produto].json
+   ```
+
+2. **Como visualizar localmente** (rodar em terminal interativo, fora do `!`):
+   ```
+   cd ~/shopify-theme
+   shopify theme dev --store [domain].myshopify.com
+   ```
+   Acesse: `http://127.0.0.1:9292/pages/[produto]`
+   
+   Nota: o membro precisa criar a página em Admin → Online Store → Pages → Add page, e selecionar o template `page.[produto]` na sidebar.
+
+3. **Como editar pelo theme editor**:
+   - Admin → Online Store → Themes → Customize
+   - Pages → [produto]
+   - Cada section/block tem todas as settings expostas
+
+4. **Como subir as mudanças** (rodar em terminal real):
+   ```
+   shopify theme push --store [domain].myshopify.com --theme [theme-id]
+   ```
+
+5. **Settings expostos por section** (resumo compacto):
+   ```
+   hero — 12 settings (heading, subheading, eyebrow, cta_label, cta_link, image, ...)
+   benefits — 4 settings + N feature blocks
+   ...
+   ```
+
+6. **Issues conhecidas** (se houver da etapa 8).
+
+### ETAPA 11 — Iteration Loop
+
+Termine perguntando: 
+
+> "Página gerada e validada. Quer ajustar algo? Pode pedir coisas como: 'hero muito apertado, mais ar', 'cores mais escuras', 'features em 2 colunas em vez de 3', 'adicionar countdown na oferta'. Vou refinar sem regenerar tudo do zero."
+
+Para ajustes futuros:
+- Mudanças de spacing/layout → edite o `{% stylesheet %}` da section afetada
+- Mudanças estruturais → adicione/remova settings + blocks
+- Mudanças de copy → atualize os defaults no schema E os pré-populados no template JSON
+- **Sempre** revalide com `shopify-plugin:shopify-liquid` após qualquer mudança
+
+### SALVAR
 
 Salve um relatório completo em `/workspace/[produto]/06-page.md` contendo:
 
-- Modo escolhido (A ou B)
-- Se Modo B: URLs clonadas + seções selecionadas
-- Plano de sections
-- Brand discovery answers (se Modo A)
-- Design system (se Modo A) ou mapping copy→setting (se Modo B)
-- Lista de arquivos criados
-- Settings expostos por section
-- Issues conhecidas
-- Histórico de iterações
+- Plano de sections gerado (etapa 1)
+- Brand discovery answers (etapa 2) — incluindo se usou referência visual e qual
+- Design system completo (etapa 3) — paleta, tipografia, spacing, breakpoints
+- Variante de hero escolhida + por quê (etapa 4)
+- Lista de arquivos criados (etapa 10)
+- Settings expostos por section (etapa 10)
+- Issues conhecidas (se houver)
+- Histórico de iterações (etapa 11) — atualize a cada refinement
 
-## Mensagem Final
+Ao final diga:
 
-> "Page-engine completo. Rode `shopify theme dev` pra ver ao vivo. Próximo passo: diga **'creatives'** pra gerar os briefings de ads que vão levar tráfego pra essa página."
+> "Page-engine completo. Próximo passo: rode `shopify theme dev` pra ver ao vivo, ou diga 'creatives' pra gerar briefings de criativos pra ads, ou 'scale' pra estratégia de escala."
 
 ## DO NOT
 
-- Blocks tipo `custom_liquid`
-- Hardcode texto/imagens/cores no markup
-- Classes do tema pai
-- `asset_url` ou paths hardcoded de imagens
-- `!important` em CSS
-- IDs em selectores CSS
-- Libraries externas de JS/CSS
-- Pular validação com skill `shopify-plugin:shopify-liquid`
-- No Modo B: **copiar HTML/CSS direto do concorrente pro tema do membro** — Modo B é híbrido: extrai patterns + design signals, gera fresh, converte. Nunca joga o código cru dele em Liquid.
-- No Modo B: manter tracking scripts, analytics, pixels, web components Shopify do concorrente
-- No Modo B: manter classes do tema do concorrente — namespace sempre como `.page-[produto]-[type]`
-- No Modo B: usar fontes de CDN específicas do concorrente que podem quebrar fora do contexto — usar a família detectada via sistema (`system-ui`, Google Fonts padrão, ou a font-family nominal)
+NUNCA, em hipótese alguma:
+
+- Use blocks tipo `custom_liquid` (proibido — quebra a editabilidade)
+- Hardcode texto/imagens/cores no markup (sempre via settings)
+- Use classes do tema pai (`.product-card`, `.btn`, `.button`, etc) — sempre namespace próprio
+- Use `asset_url` ou caminhos hardcoded de imagens (sempre `image_picker`)
+- Use `!important` em CSS
+- Use IDs em selectores CSS (use classes)
+- Importe libraries externas de JS ou CSS
+- Use jQuery, React, Vue, ou qualquer framework JS
+- Salve um arquivo sem antes validar com `shopify-plugin:shopify-liquid`
+- Pule a self-critique pass (etapa 8) — é onde mora a maior parte do ganho de qualidade
+- Ignore o mobile — sempre teste mentalmente em 375px primeiro
+- Use Tailwind ou utility frameworks no output final (vanilla CSS dentro de `{% stylesheet %}`)
+- Crie sections que "funcionam só no Horizon" — sempre theme-agnostic
+- Copiar HTML/CSS do site de referência direto pro tema do membro. Referência visual (Etapa 2.1) alimenta apenas os specialists de design — o código é sempre gerado do zero via `frontend-design`.
 
 ## Princípios de Qualidade Visual (ground rules pro frontend-design)
 
-- Type scale modular 1.25 ou 1.333
-- Fluid type com `clamp()` em headings
-- Spacing generoso (5-8rem padding-block em sections importantes)
-- Hierarchy clara (h1 muito maior que h2)
-- Microinterações sutis (transitions 200-300ms ease-out)
-- Container max 1200-1440px
-- CSS Grid pra layouts 2D, Flexbox pra 1D
-- Custom properties pra tudo editável
-- Sombras sutis
-- Border radius consistente
-- Focus states visíveis
-- `@media (prefers-reduced-motion: reduce)` pra animações
+Quando invocar o skill `frontend-design` ou gerar CSS diretamente, sempre:
+
+- **Type scale modular**: 1.25 (Major Third) ou 1.333 (Perfect Fourth)
+- **Fluid type**: `font-size: clamp(min, preferred-vw, max)` em headings
+- **Spacing generoso**: padding-block 5-8rem em sections importantes (hero, oferta), 3-4rem em sections de transição
+- **Hierarchy clara**: h1 muito maior que h2, h2 maior que h3 (pelo menos 1.25x cada nível)
+- **Microinterações sutis**: hover transitions de 200-300ms ease-out, jamais bouncy
+- **Container max-width**: 1200-1440px com padding lateral generoso
+- **Container queries** quando aplicável (não só viewport queries)
+- **CSS Grid pra layouts 2D**, Flexbox pra unidimensionais
+- **Custom properties pra TUDO** que pode ser editável (cores, fontes, spacing, raios, sombras)
+- **Sombras sutis** se houver — `box-shadow` com opacity baixa, jamais "card-with-thick-shadow" padrão
+- **Border radius consistente** — define um valor base no design system (ex: 8px) e múltiplos (4px, 8px, 16px, 24px, 9999px pra pills)
+- **Focus states visíveis** — `outline: 2px solid var(--accent); outline-offset: 2px;` em foco-visible
+- **Reduced motion respect**: `@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }`
 
 ## Como invocar specialists
 
+Esta skill **orquestra outras skills**. Sempre use o **Skill tool** pra invocá-las, não tente rodar scripts diretamente. Os nomes exatos são:
+
 | Specialist | Skill name (use no Skill tool) |
 |---|---|
-| Frontend code | `frontend-design` |
-| Color system | `designer-color-system` |
-| Typography | `designer-typography-scale` |
+| Geração de código frontend | `frontend-design` |
+| Sistema de cor | `designer-color-system` |
+| Tipografia | `designer-typography-scale` |
 | Spacing | `designer-spacing-system` |
 | Layout grid | `designer-layout-grid` |
 | Design tokens | `designer-design-token` |
-| Visual hierarchy | `designer-visual-hierarchy` |
-| Responsive | `designer-responsive-design` |
-| Component spec | `designer-component-spec` |
+| Hierarquia visual | `designer-visual-hierarchy` |
+| Responsivo | `designer-responsive-design` |
+| Spec de componente | `designer-component-spec` |
 | Microinterações | `designer-micro-interaction-spec` |
 | Feedback patterns | `designer-feedback-patterns` |
 | UX writing | `designer-ux-writing` |
@@ -448,31 +530,43 @@ Salve um relatório completo em `/workspace/[produto]/06-page.md` contendo:
 | QA checklist | `designer-design-qa-checklist` |
 | **Validação Liquid** | `shopify-plugin:shopify-liquid` |
 
-Se o plugin Shopify AI Toolkit não estiver instalado: `/plugin marketplace add Shopify/shopify-ai-toolkit` + `/plugin install shopify-plugin@shopify-plugin`.
+A validação Liquid é o único specialist crítico do pipeline. Ela é parte do plugin **Shopify AI Toolkit** (instalável via `/plugin marketplace add Shopify/shopify-ai-toolkit` + `/plugin install shopify-plugin@shopify-plugin`). Se o membro não tiver o plugin instalado, instrua a instalar antes de prosseguir.
+
+## Ferramentas auxiliares (apenas pra referência visual — Etapa 2.1)
+
+Se o membro passou um site de referência na Etapa 2, essa é a cadeia de scripts Python em `tools/design-clone/`:
+
+| Script | Uso |
+|---|---|
+| `downloader.py` | Renderiza a página de referência com Playwright e salva HTML/CSS/fontes/imagens em pasta temporária |
+| `analyzer.py` | Identifica sections (ignorado no fluxo atual) |
+| `pattern-extractor.py` | Extrai `design_system` abstrato (cores, fontes, radius, shadow, density) — **ÚNICO output usado** |
+
+Os outros scripts (`liquid-converter.py`, `preview.py`) existem pra cenários avançados de clone literal, mas **não são usados no fluxo principal da skill**. A skill usa apenas o `design_system` como input adicional pros specialists `designer-color-system` e `designer-typography-scale`.
 
 ## Comandos úteis (referência pro membro)
 
-> Rodam no terminal real (não no `!` do Claude Code).
+> Estes comandos rodam no terminal **real** do membro (não dentro do `!` do Claude Code, que é não-interativo).
 
-Baixar tema Shopify (uma vez):
+Baixar o tema Shopify (uma vez):
 ```bash
 mkdir -p ~/shopify-theme && cd ~/shopify-theme
 shopify theme pull --store SUA-LOJA.myshopify.com --theme ID-DO-TEMA
 ```
 
-Preview ao vivo:
+Preview ao vivo (durante edição):
 ```bash
 cd ~/shopify-theme
 shopify theme dev --store SUA-LOJA.myshopify.com
 ```
 
-Push pro tema:
+Push pro tema (quando satisfeito):
 ```bash
 cd ~/shopify-theme
 shopify theme push --store SUA-LOJA.myshopify.com --theme ID-DO-TEMA
 ```
 
-Listar temas:
+Substitua `SUA-LOJA.myshopify.com` e `ID-DO-TEMA` pelos valores reais do membro. Pra descobrir o ID:
 ```bash
 shopify theme list --store SUA-LOJA.myshopify.com
 ```
