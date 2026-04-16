@@ -395,6 +395,7 @@ Pegue o HTML+CSS da variante escolhida (Etapa 4) e transforme numa section com b
             {%- if block.settings.custom_css != blank -%}<style>#pu-{{ block.id }} { {{ block.settings.custom_css }} }</style>{%- endif -%}
 
           {# ... outros blocks: paragraph, badge, button_row, stats_bar, trust_row, divider, icon, spacer, custom_liquid, custom_html #}
+          {# IMPORTANTE: NÃO adicione case pra 'tag' aqui — blocks tipo tag são renderizados separadamente dentro de figure_wrap (abaixo) pra ficar sobre a imagem. Adicionar case aqui causa double-render. #}
 
         {%- endcase -%}
       {%- endfor -%}
@@ -613,7 +614,7 @@ Esta é a etapa que move qualidade de 8/10 pra 9/10. Não pule.
 
 **REGRA DE OURO:** Quando o membro abre `/pages/[produto]` no theme editor, a página tem que estar **100% montada** com todos os blocks no lugar certo + todos os settings preenchidos com a copy real. Não é pra ele arrastar nada. Ele só edita/deleta/adiciona se quiser.
 
-Pra isso, o `templates/page.[produto].json` **precisa listar TODOS os blocks** dentro de cada section, com settings inline. **`settings: {}` VAZIO NÃO FUNCIONA** — apesar dos defaults estarem no schema, Shopify só popula blocks no preset quando o membro adiciona a section manualmente. Pra páginas pré-montadas via template JSON, os blocks precisam estar no próprio JSON.
+Pra isso, o `templates/page.[produto].json` **precisa listar TODOS os blocks** dentro de cada section, com settings inline. **Section sem `blocks: {...}` preenchido NÃO funciona** — se a entry tiver só `settings: {}` (sem a key `blocks`), ou `blocks: {}` vazio, a página renderiza zero blocks. Apesar dos defaults estarem no schema, o Shopify só popula blocks do preset quando o membro adiciona a section manualmente via "Add section". Pra páginas pré-montadas via template JSON, os blocks precisam estar **explícitos no próprio JSON** com `blocks: {...}` + `block_order: [...]`.
 
 **Padrão correto do template JSON:**
 
@@ -891,7 +892,7 @@ Estas regras vêm do validator oficial `shopify-plugin:shopify-liquid` + push pr
 
 10. **Range default deve alinhar ao step.** Se `min: 6, step: 2`, defaults válidos são 6, 8, 10, 12... — 15 é inválido. Sempre cheque: `(default - min) % step == 0`.
 
-11. **Preset de section ≠ blocks em template JSON.** O `presets` do schema da section só popula blocks quando o membro ADICIONA a section manualmente via "Add section" no theme editor. Pra páginas pré-montadas via `templates/page.[produto].json`, os blocks precisam estar **dentro do template JSON** com `blocks: {...}` explícito + `block_order: [...]`. `settings: {}` vazio no template = página renderiza sem blocks. Esse é o erro mais comum.
+11. **Preset de section ≠ blocks em template JSON.** O `presets` do schema da section só popula blocks quando o membro ADICIONA a section manualmente via "Add section" no theme editor. Pra páginas pré-montadas via `templates/page.[produto].json`, os blocks precisam estar **dentro do template JSON** com `blocks: {...}` explícito + `block_order: [...]`. Section entry sem a key `blocks` (ou com `blocks: {}` vazio) renderiza ZERO blocks — esse é o erro mais comum. Não confundir: `settings: {}` vazio está OK (defaults do schema assumem), o que quebra é a ausência dos `blocks`.
 
 12. **Blocks inline no schema da section** (via `{% case block.type %}`) passa validação. **Theme blocks em arquivos separados** (`/blocks/*.liquid` + `{% content_for 'block' type: block.type id: block.id %}`) FALHA com "The 'id' argument should be a string" — o linter não aceita vars dinâmicas. Sempre use inline.
 
