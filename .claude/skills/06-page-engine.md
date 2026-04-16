@@ -66,7 +66,7 @@ A skill precisa saber **onde o tema Shopify do membro está baixado**. Detecte a
 
 Estes princípios NÃO são negociáveis. Se algum for violado, a section deve ser refeita.
 
-1. **ZERO `custom_liquid` blocks**. Todo elemento visível é uma `setting` no `{% schema %}`. O custom_liquid é proibido — é onde os geradores ruins escondem HTML cru não-editável.
+1. **Proibido o block `custom_liquid` NATIVO do Shopify** (o que a plataforma adiciona por default em certos temas e esconde HTML cru não-editável). Elementos visuais sempre são settings ou blocks customizados. **Exceção:** você PODE oferecer um block type customizado chamado `custom_liquid` com setting `type: "liquid"` (documentado no Catálogo de Blocks) — isso é escape hatch editável, não o antipattern Shopify nativo.
 2. **Self-contained CSS**. Todo CSS vai dentro de `{% stylesheet %}` da própria section. Zero dependência de classes/variáveis do tema pai.
 3. **Theme-agnostic**. Não use classes do tema pai (`.product-card`, `.btn-primary`, etc). Use namespacing próprio: `.page-[produto]-hero`, `.page-[produto]-feature`.
 4. **Mobile-first**. Todo CSS começa pelo mobile e usa media queries pra escalar.
@@ -81,23 +81,28 @@ Estes princípios NÃO são negociáveis. Se algum for violado, a section deve s
 
 Quando converter HTML/CSS pra Liquid section, siga estas regras de tradução de elementos pra settings:
 
-| Elemento HTML | Setting type | Notas |
+| Elemento HTML / caso | Setting type | Notas |
 |---|---|---|
-| Texto curto (headline, label, button text) | `text` | |
-| Texto longo (parágrafo, descrição) | `richtext` | |
-| `<h1>`-`<h6>` | `text` (com select pra nível semântico se relevante) | |
-| `<img>` ou `background-image` | `image_picker` | |
-| `<a href>` | `url` | Pareie com setting `text` pro label |
-| Cor de fundo, texto, accent | `color` | Use CSS custom property: `style="--bg: {{ section.settings.bg }}"` |
-| Alinhamento (left/center/right) | `select` ou `text_alignment` | |
-| Tamanho (small/medium/large) | `select` ou `range` | |
-| Padding/spacing | `range` com `unit: "px"` | |
-| Largura máxima | `range` ou `select` | |
-| Toggle/visibilidade | `checkbox` | |
-| Quantidade | `range` ou `number` | |
-| Lista de itens (features, FAQs, steps, testimonials) | **blocks** com schema próprio | Cada item vira um block reorderável |
+| Texto curto sem formatação (label, button text, eyebrow) | `text` | |
+| Texto com `<em>`, `<strong>`, `<br>` inline (headlines com emphasis) | `inline_richtext` | Preserva inline tags no browser |
+| Parágrafo ou bloco de texto longo | `richtext` | Wrapea em `<p>` automaticamente — não envolva em `<p>` no markup |
+| `<img>` ou `background-image` | `image_picker` | Use com filtro `image_tag` pra adicionar width/height automaticamente |
+| `<a href>` + texto | `text` (label) + `url` (destino) | URL só aceita absolutos (http(s)/paths); anchor `#` inválido |
+| Cor de fundo, texto, accent, border, shadow — TODAS | `color` | Nunca hardcode hex no CSS; exponha como var `var(--c-*)` e setting |
+| Alinhamento (left/center/right) | `select` | Ou `text_alignment` se só left/center/right |
+| Tamanho (small/medium/large) com presets de CSS | `select` com classes modificadoras | |
+| Padding, margin, gap, radius, thickness, font-size | `range` com `unit: "px"` | `(max-min)/step ≤ 100`; default alinhado ao step |
+| Largura máxima em chars | `range` sem `unit` | |
+| Toggle on/off | `checkbox` | |
+| Quantidade discreta (1-10) | `range` com step 1 | |
+| Código Liquid/HTML customizável (escape hatch) | `liquid` ou `html` | `liquid` pré-renderiza, `html` é estático (XSS-safe) |
+| Custom CSS por bloco/section | `textarea` | Renderizado em `<style>` scoped via `id="pu-{{ block.id }}"` |
+| Lista de itens (FAQs, reviews, tiers, features) | **blocks inline** no schema da section | Padrões repetíveis viram blocks — reorderáveis no theme editor |
 
-**Padrões repetíveis SEMPRE viram blocks**, nunca settings duplicadas. Exemplos: features, FAQs, testimonials, pricing tiers, comparison rows, ingredients, steps, badges.
+**Regras de ouro:**
+1. Padrões repetíveis SEMPRE viram blocks inline, nunca settings duplicadas.
+2. Toda section tem setting `textarea custom_css` no grupo Advanced — escape hatch pra CSS livre.
+3. Todo block também tem `custom_css` próprio + `id="pu-{{ block.id }}"` no root pra scoping.
 
 ## Fluxo da Skill
 
@@ -491,48 +496,43 @@ Antes de salvar a section, verifique que CADA bloco tem:
 
 ### ETAPA 6 — Generate Remaining Sections
 
-Para cada section restante do plano (etapa 1), repita o processo da etapa 5 mas SEM gerar 3 variantes (uma só, baseada no estilo definido):
+Para cada section do plano (etapa 1) além do hero, aplique o MESMO padrão da Etapa 5: **uma section file com blocks inline no schema** (nunca theme blocks em `/blocks/*.liquid`).
 
-Para cada section:
+Loop por section:
 
-1. **Skill `frontend-design`**: gera HTML/CSS premium pra essa section usando a copy real e o design system.
+1. **Skill `frontend-design`**: gera HTML + CSS vanilla seguindo o design system da etapa 3 + copy real da section (vem do `05-copy.md`).
+
 2. **Specialists relevantes** (chame quando aplicável):
    - `designer-visual-hierarchy` — sempre
    - `designer-responsive-design` — sempre
-   - `designer-component-spec` — pra sections com componentes complexos (FAQ accordion, tabs, accordion, carousel)
+   - `designer-component-spec` — pra sections com componentes complexos (FAQ accordion, tabs, carousel)
    - `designer-micro-interaction-spec` — pra hovers, focus states, transições
-   - `designer-feedback-patterns` — pra estados de confirmação (botões pressionados, etc)
-3. Identifique se a section tem **padrões repetíveis** → vire blocks:
-   - Section `benefits` → block `feature` (icon + heading + text)
-   - Section `social-proof` → block `testimonial` (quote + author + role + photo)
-   - Section `faq` → block `faq_item` (question + answer)
-   - Section `offer` → block `stack_item` (label + value + icon)
-   - Section `mechanism` (se tiver passos) → block `step` (number + heading + text)
-   - Section `before-after` → block `comparison_pair` (before + after images + label)
-4. Para cada block identificado:
-   - Crie arquivo separado em `~/shopify-theme/blocks/page-[produto]-[block-name].liquid`
-   - Inclua `{% doc %}` header com params e exemplo
-   - Schema completo com settings + preset
-   - Stylesheet self-contained
-5. Na section, use `{% content_for 'blocks' %}` pra renderizar os blocks.
-6. Schema da section deve listar os tipos de blocks aceitos:
-   ```json
-   "blocks": [
-     { "type": "page-[produto]-feature" }
-   ],
-   "presets": [
-     {
-       "name": "...",
-       "blocks": [
-         { "type": "page-[produto]-feature" },
-         { "type": "page-[produto]-feature" },
-         { "type": "page-[produto]-feature" }
-       ]
-     }
-   ]
-   ```
-7. Valida com `shopify-plugin:shopify-liquid` (section + cada block separadamente).
-8. Salva em `~/shopify-theme/sections/` e `~/shopify-theme/blocks/`.
+   - `designer-feedback-patterns` — pra estados de confirmação
+
+3. Identifique os **blocks universais** (do Catálogo) que a section precisa: `eyebrow`, `heading`, `paragraph`, `button_row`, `divider`, `spacer`, `custom_liquid`, `custom_html` — normalmente todos.
+
+4. Identifique os **blocks type-specific** pra essa section:
+   - `benefits` → bloco `benefit_card` (num/icon + title + body)
+   - `social-proof` / `proof` → bloco `review_card` (stars + quote + author + avatar + featured)
+   - `faq` → bloco `faq_item` (question + answer richtext + open_by_default)
+   - `offer` → bloco `pricing_tier` (name + price + features richtext + CTA + badge + popular + image)
+   - `mechanism` → bloco `feature_compare` ou `ph_card` (tag + value + status + list)
+   - `before-after` → bloco `comparison_pair` (before_image + after_image + label)
+   - `guarantee` → bloco `promise_item` (title + body + accent + icon)
+   - `ingredients` → bloco `ingredient` (name + role + dosage + image)
+   - `how-it-works` → bloco `step` (number + title + description + image)
+
+5. Converta pro padrão de **blocks inline no schema da section** (igual Etapa 5):
+   - `{% for block in section.blocks %}{% case block.type %}...{% endcase %}{% endfor %}` no markup
+   - TODOS os blocks (universais + type-specific) definidos dentro do array `blocks` do `{% schema %}` da section
+   - Cada block com `id="pu-{{ block.id }}"` e `custom_css` na aba Advanced
+   - Section com `textarea custom_css` global
+
+6. Valide com `shopify-plugin:shopify-liquid` (só a section — blocks inline vão junto).
+
+7. Salve em `~/shopify-theme/sections/page-[produto]-[tipo].liquid`.
+
+**Não crie arquivos em `~/shopify-theme/blocks/`** pra esta skill. Theme blocks em arquivos separados falham no validator quando renderizados com `{% content_for 'block' type: block.type id: block.id %}` (ver Limitação #12).
 
 ### ETAPA 7 — UX Writing Pass
 
@@ -674,18 +674,13 @@ Pra isso, o `templates/page.[produto].json` **precisa listar TODOS os blocks** d
         "color_accent": "[design system accent]",
         "color_on_accent": "[design system on-accent]"
       }
-    },
-    "benefits": { "type": "page-[produto]-benefits", "blocks": { /* eyebrow, heading, paragraph + N benefit_cards + divider + custom_liquid */ }, "block_order": [...], "settings": {} },
-    "mechanism": { ... },
-    "proof": { ... },
-    "offer": { ... },
-    "guarantee": { ... },
-    "faq": { ... },
-    "cta_final": { ... }
+    }
   },
   "order": ["hero", "benefits", "mechanism", "proof", "offer", "guarantee", "faq", "cta_final"]
 }
 ```
+
+**Pseudocódigo acima — só o hero expandido.** Replique a estrutura pras outras sections do plano (benefits, mechanism, etc), cada uma com `blocks: {...}` + `block_order: [...]` + `settings: {...}` completos. JSON real não aceita `/* comentários */` nem `...` — todo bloco fica listado explicitamente.
 
 **Checklist final do template JSON:**
 - [ ] TODA section tem `blocks: {...}` pré-populado (não `{}`)
@@ -723,15 +718,11 @@ Pra isso, o `templates/page.[produto].json` **precisa listar TODOS os blocks** d
 
 4. **Instalar os arquivos gerados:**
    ```bash
-   # Opção B (blocks):
-   cp ~/shopify-theme-[produto]-out/blocks/page-[produto]-*.liquid ~/shopify-theme-[produto]/blocks/
-   cp ~/shopify-theme-[produto]-out/sections/page-[produto]-main.liquid ~/shopify-theme-[produto]/sections/
-   cp ~/shopify-theme-[produto]-out/templates/page.[produto].json ~/shopify-theme-[produto]/templates/
-
-   # Opção A (sections):
-   cp ~/shopify-theme-[produto]-out/sections/page-[produto]-*.liquid ~/shopify-theme-[produto]/sections/
-   cp ~/shopify-theme-[produto]-out/templates/page.[produto].json ~/shopify-theme-[produto]/templates/
+   # Copia section files + template JSON pro tema duplicado
+   cp <dir-staging>/sections/page-[produto]-*.liquid ~/shopify-theme-[produto]/sections/
+   cp <dir-staging>/templates/page.[produto].json ~/shopify-theme-[produto]/templates/
    ```
+   Onde `<dir-staging>` é onde a skill gerou os arquivos (ex: `/tmp/aura-page-[produto]/` ou diretamente no `~/shopify-theme-[produto]/` se você gerou lá). **Não tem diretório `blocks/`** — todos os blocks são inline no schema da section.
 
 5. **Push pra cópia unpublished:**
    ```bash
@@ -758,7 +749,7 @@ Pra isso, o `templates/page.[produto].json` **precisa listar TODOS os blocks** d
 
 Mostre ao membro:
 
-1. **Arquitetura usada** (Opção A sections / Opção B blocks) + justificativa.
+1. **Sections geradas** + justificativa do plano específico (por que incluiu/excluiu cada section baseado na estratégia da copy).
 2. **Lista de arquivos criados** (paths absolutos).
 3. **Preview links** (theme editor + storefront com `?view=`).
 4. **Como subir pra produção** (quando satisfeito):
@@ -836,7 +827,7 @@ Estas regras vêm do validator oficial `shopify-plugin:shopify-liquid` + push pr
 
 NUNCA, em hipótese alguma:
 
-- Use blocks tipo `custom_liquid` (proibido — quebra a editabilidade)
+- Use o block NATIVO do Shopify chamado `custom_liquid` (o que a plataforma adiciona nos temas e esconde HTML cru). Nosso block `custom_liquid` customizado (setting `type: "liquid"`) é permitido porque é editável.
 - Hardcode texto/imagens/cores no markup (sempre via settings)
 - Use classes do tema pai (`.product-card`, `.btn`, `.button`, etc) — sempre namespace próprio
 - Use `asset_url` ou caminhos hardcoded de imagens (sempre `image_picker`)
