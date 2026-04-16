@@ -41,7 +41,9 @@ Dependências:
 """
 
 import argparse
+import html as html_lib
 import json
+import logging
 import re
 import sys
 from pathlib import Path
@@ -51,6 +53,88 @@ try:
 except ImportError:
     print("ERRO: BeautifulSoup4 não instalado. Rode: pip install beautifulsoup4", file=sys.stderr)
     sys.exit(1)
+
+# Import consolidado do módulo compartilhado (evita duplicação com preview.py)
+try:
+    from _css_utils import rewrite_css_for_namespace
+except ImportError:
+    # Fallback: quando script é invocado de outro cwd, garante o import
+    _THIS_DIR = Path(__file__).resolve().parent
+    if str(_THIS_DIR) not in sys.path:
+        sys.path.insert(0, str(_THIS_DIR))
+    from _css_utils import rewrite_css_for_namespace  # noqa: E402
+
+logger = logging.getLogger("design_clone.liquid_converter")
+if not logger.handlers:
+    _handler = logging.StreamHandler(sys.stderr)
+    _handler.setFormatter(logging.Formatter("%(levelname)s %(name)s: %(message)s"))
+    logger.addHandler(_handler)
+    logger.setLevel(logging.INFO)
+
+
+VALID_SCHEMA_TYPES = {
+    "text", "inline_richtext", "richtext", "image_picker", "color", "range",
+    "select", "checkbox", "number", "url", "textarea", "header", "paragraph",
+    "color_background", "font_picker", "html", "link_list", "liquid",
+    "radio", "video", "video_url", "article", "blog", "collection",
+    "collection_list", "page", "product", "product_list",
+}
+SCHEMA_TYPES_WITHOUT_LABEL = {"header", "paragraph"}
+
+
+def escape_liquid_default(text: str) -> str:
+    """Escapa texto pra uso seguro como `default` no schema Shopify.
+
+    - HTML-escape (`<`, `>`, `&`, `"`, `'`) evita XSS ao renderizar.
+    - Escapa `{{` / `}}` pra não quebrar parsing Liquid downstream.
+    """
+    if text is None:
+        return ""
+    escaped = html_lib.escape(str(text), quote=True)
+    escaped = escaped.replace("{{", "&#123;&#123;").replace("}}", "&#125;&#125;")
+    escaped = escaped.replace("{%", "&#123;&#37;").replace("%}", "&#37;&#125;")
+    return escaped
+
+
+def validate_shopify_schema(schema: dict) -> list[str]:
+    """Valida schema Shopify e retorna lista de erros (vazia = ok)."""
+    errors: list[str] = []
+    if not isinstance(schema, dict):
+        return ["schema deve ser dict"]
+
+    def _check_settings(settings, scope_label: str) -> None:
+        if not isinstance(settings, list):
+            errors.append(f"{scope_label}: settings deve ser list")
+            return
+        ids_seen: set[str] = set()
+        for idx, setting in enumerate(settings):
+            if not isinstance(setting, dict):
+                errors.append(f"{scope_label}[{idx}]: entrada deve ser dict")
+                continue
+            s_type = setting.get("type")
+            if not s_type:
+                errors.append(f"{scope_label}[{idx}]: campo 'type' obrigatório")
+                continue
+            if s_type not in VALID_SCHEMA_TYPES:
+                errors.append(
+                    f"{scope_label}[{idx}]: type {s_type!r} inválido (válidos: {sorted(VALID_SCHEMA_TYPES)})"
+                )
+            if s_type not in SCHEMA_TYPES_WITHOUT_LABEL:
+                if not setting.get("label"):
+                    errors.append(f"{scope_label}[{idx}]: label obrigatório para type {s_type!r}")
+                sid = setting.get("id")
+                if not sid:
+                    errors.append(f"{scope_label}[{idx}]: id obrigatório para type {s_type!r}")
+                elif sid in ids_seen:
+                    errors.append(f"{scope_label}[{idx}]: id duplicado {sid!r}")
+                else:
+                    ids_seen.add(sid)
+
+    _check_settings(schema.get("settings", []), "settings")
+    for block in schema.get("blocks", []) or []:
+        if isinstance(block, dict) and "settings" in block:
+            _check_settings(block.get("settings", []), f"block[{block.get('type', '?')}].settings")
+    return errors
 
 
 # Tags cujo texto direto vira setting
@@ -186,59 +270,6 @@ def replace_colors_with_vars(css, color_map):
     return "".join(out)
 
 
-def rewrite_css_for_namespace(css, namespace):
-    """Reescreve classes/IDs em selectors CSS pra casar com o namespace aplicado no HTML.
-    Só mexe em selectors (antes do {), não em valores (pra não quebrar hex colors, content: "#foo")."""
-    if not css or not namespace:
-        return css
-
-    def rewrite_selector_text(selector_text):
-        def class_sub(m):
-            return f".{namespace}__{slugify(m.group(1))}"
-
-        def id_sub(m):
-            ident = m.group(1)
-            if HEX_COLOR_RE_VALIDATE.match(ident) and len(ident) in (3, 4, 6, 8):
-                return m.group(0)
-            return f"#{namespace}-{slugify(ident)}"
-
-        result = CSS_CLASS_SELECTOR_RE.sub(class_sub, selector_text)
-        result = CSS_ID_SELECTOR_RE.sub(id_sub, result)
-        return result
-
-    out = []
-    i = 0
-    n = len(css)
-    while i < n:
-        brace = css.find("{", i)
-        if brace == -1:
-            out.append(css[i:])
-            break
-        selector_part = css[i:brace]
-        if selector_part.lstrip().startswith("@"):
-            out.append(selector_part)
-        else:
-            out.append(rewrite_selector_text(selector_part))
-        out.append("{")
-        depth = 1
-        j = brace + 1
-        while j < n and depth > 0:
-            c = css[j]
-            if c == "{":
-                depth += 1
-            elif c == "}":
-                depth -= 1
-            j += 1
-        block_content = css[brace + 1:j - 1]
-        if selector_part.lstrip().startswith("@"):
-            out.append(rewrite_css_for_namespace(block_content, namespace))
-        else:
-            out.append(block_content)
-        out.append("}")
-        i = j
-    return "".join(out)
-
-
 def looks_like_noise(text):
     """Texto muito curto, só símbolo, ou emoji isolado — não vira setting."""
     if not text:
@@ -369,21 +400,26 @@ class LiquidBuilder:
         return candidate
 
     def add_setting(self, s_id, s_type, label, default=None, info=None):
+        # XSS/Liquid-injection guard: escapa defaults textuais antes de persistir.
+        safe_default = default
+        if default is not None and s_type in ("text", "richtext", "inline_richtext", "textarea"):
+            safe_default = escape_liquid_default(default)
+
         # Dedup: se mesmo texto já existe como setting do mesmo tipo, reutiliza ID
-        if default and s_type in ("text", "richtext"):
-            key = (s_type, default)
+        if safe_default and s_type in ("text", "richtext", "inline_richtext"):
+            key = (s_type, safe_default)
             if key in self.settings_by_default:
                 return self.settings_by_default[key]
 
         entry = {"type": s_type, "id": s_id, "label": label}
-        if default is not None:
-            entry["default"] = default
+        if safe_default is not None:
+            entry["default"] = safe_default
         if info:
             entry["info"] = info
         self.settings.append(entry)
 
-        if default and s_type in ("text", "richtext"):
-            self.settings_by_default[(s_type, default)] = s_id
+        if safe_default and s_type in ("text", "richtext", "inline_richtext"):
+            self.settings_by_default[(s_type, safe_default)] = s_id
         return s_id
 
     def convert_text_node(self, el):
@@ -608,6 +644,14 @@ class LiquidBuilder:
             "name": f"{self.product_slug}-{block_type} item",
             "settings": block_data["settings"],
         }
+        schema_errors = validate_shopify_schema(schema)
+        if schema_errors:
+            raise ValueError(
+                "Schema inválido para block '"
+                + str(block_type)
+                + "': "
+                + "; ".join(schema_errors)
+            )
         content = (
             f"<div class=\"{self.namespace}-{block_type}\">\n"
             f"{block_data['markup']}\n"
@@ -682,6 +726,12 @@ class LiquidBuilder:
                     "blocks": ([{"type": t} for t in block_types] * 3) if block_types else [],
                 }],
             }
+
+        schema_errors = validate_shopify_schema(schema)
+        if schema_errors:
+            raise ValueError(
+                "Schema inválido para section: " + "; ".join(schema_errors)
+            )
 
         image_helpers = (
             f".{self.namespace}__image_wrap {{ position: relative; width: 100%; overflow: hidden; }}\n"
@@ -758,7 +808,17 @@ def main():
         if not sections_json.exists():
             print(f"ERRO: {sections_json} não encontrado", file=sys.stderr)
             sys.exit(1)
-        data = json.loads(sections_json.read_text(encoding="utf-8"))
+        try:
+            data = json.loads(sections_json.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            print(
+                f"ERRO: JSON inválido em {sections_json} (linha {exc.lineno} col {exc.colno}): {exc.msg}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        except OSError as exc:
+            print(f"ERRO: falha ao ler {sections_json}: {exc}", file=sys.stderr)
+            sys.exit(1)
         sections = data.get("sections", [])
         if args.section_index < 1 or args.section_index > len(sections):
             print(f"ERRO: section-index {args.section_index} inválido (tem {len(sections)} seções)", file=sys.stderr)
@@ -775,7 +835,17 @@ def main():
 
     section_name = f"Page {args.product_slug} — {section.get('semantic_type', 'section')}"
     section_tag_class = f"{args.namespace} {args.namespace}--{slugify(section.get('semantic_type', 'section'))}"
-    file_content = builder.build_section_file(converted_markup, section_name, section_tag_class, base_stylesheet=base_css, asset_type=args.asset_type)
+    try:
+        file_content = builder.build_section_file(
+            converted_markup,
+            section_name,
+            section_tag_class,
+            base_stylesheet=base_css,
+            asset_type=args.asset_type,
+        )
+    except ValueError as exc:
+        print(f"ERRO: {exc}", file=sys.stderr)
+        sys.exit(1)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(file_content, encoding="utf-8")
@@ -786,7 +856,11 @@ def main():
     if builder.blocks_schemas:
         blocks_dir.mkdir(parents=True, exist_ok=True)
         for block_type, block_data in builder.blocks_schemas.items():
-            block_content = builder.build_block_file(block_type, block_data)
+            try:
+                block_content = builder.build_block_file(block_type, block_data)
+            except ValueError as exc:
+                print(f"ERRO: {exc}", file=sys.stderr)
+                sys.exit(1)
             block_file = blocks_dir / f"{args.namespace}-{block_type}.liquid"
             block_file.write_text(block_content, encoding="utf-8")
             print(f"[liquid-converter v2] block salvo em {block_file}")
@@ -795,4 +869,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n[liquid-converter v2] interrompido pelo usuário", file=sys.stderr)
+        sys.exit(130)
+    except Exception as exc:  # noqa: BLE001 — CLI surface
+        logger.error("falha inesperada: %s", exc)
+        sys.exit(1)

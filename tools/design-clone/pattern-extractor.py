@@ -22,6 +22,7 @@ Dependências:
 """
 
 import json
+import logging
 import re
 import sys
 from collections import Counter
@@ -32,6 +33,37 @@ try:
 except ImportError:
     print("ERRO: BeautifulSoup4 não instalado. Rode: pip install beautifulsoup4", file=sys.stderr)
     sys.exit(1)
+
+try:
+    import chardet  # type: ignore
+    _HAS_CHARDET = True
+except ImportError:
+    _HAS_CHARDET = False
+
+
+logger = logging.getLogger("design_clone.pattern_extractor")
+if not logger.handlers:
+    _handler = logging.StreamHandler(sys.stderr)
+    _handler.setFormatter(logging.Formatter("%(levelname)s %(name)s: %(message)s"))
+    logger.addHandler(_handler)
+    logger.setLevel(logging.INFO)
+
+
+def read_text_robust(path: Path) -> str:
+    """Lê arquivo tratando BOM (utf-8-sig) com fallback chardet → latin-1."""
+    try:
+        return path.read_text(encoding="utf-8-sig")
+    except UnicodeDecodeError:
+        pass
+    raw = path.read_bytes()
+    if _HAS_CHARDET:
+        detected = chardet.detect(raw)
+        enc = (detected or {}).get("encoding") or "latin-1"
+        try:
+            return raw.decode(enc, errors="replace")
+        except LookupError:
+            pass
+    return raw.decode("latin-1", errors="replace")
 
 
 HEX_COLOR_RE = re.compile(r"#(?:[0-9a-fA-F]{3}){1,2}\b|rgba?\([^)]+\)")
@@ -53,15 +85,23 @@ def parse_rgba(value):
 
 
 def is_vivid(rgb):
-    """True se a cor é saturada (não preto/branco/cinza)."""
+    """True se a cor é saturada (não preto, branco ou cinza próximo)."""
     if rgb is None:
         return False
     r, g, b = rgb
     mx = max(r, g, b)
     mn = min(r, g, b)
+    # Rejeita branco puro/quase-branco explicitamente
+    if mx > 240 and mn > 240:
+        return False
+    # Rejeita preto puro/quase-preto explicitamente
+    if mx < 30:
+        return False
+    # Rejeita cinza (saturação baixa)
     if mx - mn < 30:
         return False
-    if mx < 30 or mn > 220:
+    # Guard-rail adicional: luz extremamente alta com saturação baixa == off-white
+    if mn > 220:
         return False
     return True
 
@@ -323,8 +363,22 @@ def main():
         sys.exit(1)
 
     print(f"[pattern-extractor] lendo {sections_path}")
-    sections_data = json.loads(sections_path.read_text(encoding="utf-8"))
-    computed = json.loads(computed_path.read_text(encoding="utf-8")) if computed_path.exists() else []
+    try:
+        sections_data = json.loads(read_text_robust(sections_path))
+    except json.JSONDecodeError as exc:
+        print(
+            f"ERRO: JSON inválido em {sections_path} (linha {exc.lineno} col {exc.colno}): {exc.msg}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    computed = []
+    if computed_path.exists():
+        try:
+            computed = json.loads(read_text_robust(computed_path))
+        except json.JSONDecodeError as exc:
+            logger.warning(
+                "computed-styles.json inválido (%s) — seguindo sem signals de CSS computado", exc
+            )
 
     print("[pattern-extractor] extraindo design signals (cores, fontes, spacing)...")
     design_system = extract_design_signals(computed)
@@ -358,4 +412,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n[pattern-extractor] interrompido pelo usuário", file=sys.stderr)
+        sys.exit(130)

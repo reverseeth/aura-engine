@@ -16,6 +16,13 @@ Quando o membro tem produto definido e precisa entender profundamente o mercado,
 
 ## Fluxo da Skill
 
+### ETAPA 0 — Pre-flight
+
+1. Leia `/workspace/profile.md`. Se ausente → aborte: `"Rode \`setup\` primeiro."`
+2. Leia `/workspace/[produto]/manifest.json` (descubra `[produto]` a partir do manifest — único `manifest.json` com `setup_complete === true`). Se ausente → aborte: `"Rode \`setup\` primeiro."`
+3. Valide que `"01-product-research"` está em `manifest.skills_completed` E que `/workspace/[produto]/01-product-research.md` existe. Se faltar qualquer um → aborte: `"Rode \`product research\` primeiro."`
+4. Use `product_slug` do manifest como `[produto]` pra todos os paths daqui pra frente.
+
 ### ETAPA 1 — Confirmar Produto + Mercado Geográfico
 
 Verifique `/workspace/profile.md` se já tem `Link do produto principal`.
@@ -46,6 +53,16 @@ Pesquise (web search) sinais de cada nível de awareness:
 - X% Solution Aware (conhece soluções genéricas)
 - X% Product Aware (conhece categoria de produto)
 - X% Most Aware (conhece sua marca especificamente)
+
+**Defaults por categoria** — se o membro não sabe estimar e a web search não trouxer sinais suficientes, pergunte em qual bucket o nicho se encaixa e aplique o default correspondente (marque `awareness_distribution_source = "default"` no JSON companion):
+
+| Bucket | unaware | problem_aware | solution_aware | product_aware | most_aware |
+|---|---|---|---|---|---|
+| Nicho novo | 40 | 35 | 15 | 8 | 2 |
+| Nicho maduro | 10 | 25 | 30 | 25 | 10 |
+| Commodity saturado | 5 | 15 | 30 | 35 | 15 |
+
+Se o membro der um palpite, mas a pesquisa web sugerir algo diferente, use **hybrid**: média entre palpite e default (marque `awareness_distribution_source = "hybrid"`).
 
 Defina onde está a **maioria** (50%+) do mercado. Este nível vai ditar TODA a estratégia de copy, página, e criativos.
 
@@ -143,6 +160,15 @@ Das pesquisas da etapa 4, extraia e organize SEPARADAMENTE. **NUNCA PARAFRASEAR*
 
 Essas frases são ouro. Hopkins escreveu em 1923: "a boa copy fala a linguagem do consumidor". Esse é o raw material.
 
+**Fallback quando < 35 frases reais foram coletadas**: **NUNCA** gere frases artificiais/sintéticas/plausíveis. Em vez disso:
+
+1. Documente o déficit explicitamente no output: `"VOC real: N frases únicas; mínimo 35 não atingido."`
+2. Liste as fontes tentadas e as que bloquearam acesso.
+3. Adicione um alerta que a skill 05 (copy) lerá: `"skill 05 deve priorizar pesquisa manual adicional — VOC atual insuficiente pra copy direta."`
+4. Siga com as etapas restantes — não aborte.
+
+Esse déficit é rastreado no `voc_count` do manifest e no JSON companion.
+
 ### ETAPA 6 — Root Cause Research (Metodologia Zakaria)
 
 Pra cada dor central identificada, faça uma pesquisa de **causa-raiz** que será a fundação do mecanismo único da oferta:
@@ -222,27 +248,71 @@ Antes de salvar, valide:
 
 Se alguma validação falhar, aprofunde naquele ponto antes de salvar.
 
+### Data Quality Summary (antes de salvar)
+
+Inclua seção dedicada no `.md` e no `.json`:
+
+```
+## Data Quality Summary
+- VOC coletado de: Amazon reviews (N), Reddit (N), TikTok comments (N), Trustpilot (N), fóruns (N) = Total N frases únicas
+- Fontes tentadas e bloqueadas: [lista, ex: "Trustpilot (Cloudflare)", "Quora (login wall)"]
+- VOC minimum atingido? [sim / não — se não, N frases a aquém do mínimo 35]
+- Awareness distribution source: [user_estimate / default:<bucket> / hybrid / web_signals]
+- Sophistication stage confidence: [high / medium / low] + racional em 1 frase
+- Root cause candidatas baseadas em: [peer-reviewed research / specialist consensus / extrapolation]
+```
+
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
 **Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
 
 
-`/workspace/[produto]/02-market-research.md`
+**Antes de qualquer write**, garanta: `mkdir -p /workspace/[produto]/`.
+
+Salvar TRÊS artefatos:
+
+1. **`/workspace/[produto]/02-market-research.md`** — fonte canônica para AI das próximas skills
+2. **`/workspace/[produto]/02-market-research.html`** — visualização humana (template ou fallback inline)
+3. **`/workspace/[produto]/02-market-research.json`** — JSON companion estruturado:
+
+```json
+{
+  "awareness_distribution": { "unaware": 0, "problem_aware": 0, "solution_aware": 0, "product_aware": 0, "most_aware": 0 },
+  "awareness_distribution_source": "default|user_estimate|hybrid|web_signals",
+  "dominant_awareness": "problem_aware",
+  "sophistication_stage": 3,
+  "sophistication_confidence": "high|medium|low",
+  "voc_phrases": { "problem": ["..."], "desire": ["..."], "frustration": ["..."] },
+  "voc_count": 0,
+  "avatar": { "demographics": {}, "psychographics": {}, "pain_hierarchy": [], "desire_hierarchy": [] },
+  "alternative_solutions": [],
+  "root_cause_candidates": [],
+  "strategic_implications": { "page_type": "", "lead_type": "", "mechanism_type": "", "top_angles": [] }
+}
+```
 
 Este é o DOCUMENTO MAIS IMPORTANTE. Ele alimenta:
-- Skill 03 (competitor analysis usa gaps e claims identificados)
-- Skill 04 (offer usa pain points, desires, root cause, mechanism hints)
-- Skill 05 (copy usa VOC literal, lead type, awareness level, objeções)
-- Skill 06 (page usa tudo da copy + proof stacking)
-- Skill 07 (creatives usa trigger events, ângulos, VOC, visual hooks)
-- Skill 08 (ad strategy usa awareness pra targeting)
+- Skill 03 (`03-competitor-analysis`) — usa gaps e claims identificados
+- Skill 04 (`04-offer-builder`) — usa pain points, desires, root cause, mechanism hints
+- Skill 05 (`05-copy-engine`) — usa VOC literal, lead type, awareness level, objeções
+- Skill 06 (`06-page-engine`) — usa tudo da copy + proof stacking
+- Skill 07 (`07-creative-engine`) — usa trigger events, ângulos, VOC, visual hooks
+- Skill 08 (`08-ad-strategy`) — usa awareness pra targeting
+
+**Atualize o `manifest.json`** (fonte única de verdade):
+
+- `voc_count` ← número total de frases VOC únicas coletadas
+- `awareness_distribution` ← objeto com os 5 níveis em inteiros 0-100
+- `sophistication_stage` ← inteiro 1-5
+- `skills_completed` ← adicione `"02-market-research"` (sem duplicar)
+- `updated_at` ← timestamp atual ISO-8601 UTC
 
 ## Mensagem Final
 
 "Unified Research Brief completo. Este documento é a fundação de tudo — copy, criativos, ads, e página vão puxar direto daqui.
 
 Próximos passos:
-- Diga **'competitor analysis'** pra aprofundar no cenário competitivo (PDPs, ads, gaps)
-- OU diga **'offer'** se já quer montar a oferta com mecanismo único, stack, e unit economics
+- Diga **'competitor analysis'** (skill `03-competitor-analysis`) pra aprofundar no cenário competitivo (PDPs, ads, gaps)
+- OU diga **'offer'** (skill `04-offer-builder`) se já quer montar a oferta com mecanismo único, stack, e unit economics
 
 Recomendação: competitor analysis primeiro. A profundidade da análise competitiva afeta diretamente a força do posicionamento."

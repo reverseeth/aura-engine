@@ -16,9 +16,18 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<!--
+  TEMPLATE RENDERING CONTRACT:
+  - Placeholders `{{KEY}}` DEVEM receber dados ja escapados (html.escape em Python, _.escape em JS)
+  - Excecao: placeholders explicitamente marcados como `{{KEY_HTML}}` aceitam HTML sanitizado (DOMPurify ou bleach)
+  - Renderer padrao: Python com html.escape() ou Jinja2 autoescape=True
+-->
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.cdnfonts.com; font-src 'self' https://fonts.cdnfonts.com data:;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{TITLE}} — Aura Engine</title>
 <link href="https://fonts.cdnfonts.com/css/neue-montreal" rel="stylesheet">
+<style>@font-face { font-family: 'Neue Montreal Fallback'; src: local('Inter'), local('Helvetica Neue'), local('Arial'); }</style>
 <style>
   /* ═══════════════════════════════════════════════════════════════
      AURA ENGINE — DESIGN SYSTEM v1.0
@@ -31,7 +40,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { overflow-x: hidden; max-width: 100%; }
   body {
-    font-family: 'Neue Montreal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+    font-family: 'Neue Montreal', 'Neue Montreal Fallback', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
     background: #FAFAFA; color: #1A1A1A;
     min-height: 100vh; display: flex; justify-content: center;
     padding: 80px 24px 120px; -webkit-font-smoothing: antialiased;
@@ -369,7 +378,7 @@
 
   <!-- ═══════════════ HEADER ═══════════════ -->
   <h1 class="page-title">{{TITLE}}<br>{{SUBTITLE}}</h1>
-  <p class="page-subtitle">{{DESCRIPTION}}</p>
+  <p class="page-subtitle">{{DESCRIPTION_HTML}}</p>
 
   <div class="meta-bar">
     <div><strong>Produto:</strong> {{PRODUCT}}</div>

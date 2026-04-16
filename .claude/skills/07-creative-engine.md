@@ -10,12 +10,48 @@ Quando o membro tem copy pronta (Skill 05) e precisa dos briefings de criativos 
 
 ## Antes de Começar
 
+### Pré-flight (OBRIGATÓRIO)
+- [ ] `manifest.json` existe com 05-copy-engine em skills_completed
+- [ ] `04-offer.json` (target_cpa, mechanism) existe
+- [ ] `02-market-research.json` (awareness_distribution, voc_phrases) existe
+- [ ] **Pixel/CAPI validados**: pedir screenshot do Events Manager mostrando Match Quality ≥ 80% — se membro não pode fornecer, AVISAR que criativos serão desperdiçados e sugerir configurar pixel primeiro
+- [ ] Se existe `/workspace/[produto]/09-analysis/NEXT_BATCH_IDEAS.md` (output do loop 09→07 fechado), LER e usar como input para priorizar ângulos no novo batch
+
+### Quando rodar essa skill (decision tree)
+- **Primeira vez** (nunca rodou para este produto): sim, proceed
+- **Após skill 09 recomendar 'creatives'**: sim, proceed — LER NEXT_BATCH_IDEAS.md primeiro
+- **Refresh por fadiga**: só execute se `09-ad-analysis` reportou no último ciclo:
+  - `frequency > 1.4` E `ctr_drop_pct > 20` em 7 dias, OU
+  - CPM subiu > 30% em 7 dias com freq < 1.3 (saturation de audience), OU
+  - top-performing criativo tem > 14 dias de idade
+- **Diversificação** (skill 10 pediu mais diversity): use ratio "2× budget → 2× creative" só em escala >$1k/dia; abaixo disso, use 1.5×
+
+### Contexto a carregar
+
 1. Leia `/workspace/profile.md` (budget → informa quantos conceitos testar; ferramentas → informa tipo de material viável)
 2. Leia `/workspace/[produto]/02-market-research.md` (VOC literal, trigger events, objeções, dores/desejos hierarquizados, root cause — TUDO vai pra script)
 3. Leia `/workspace/[produto]/03-competitor-analysis.md` (top criativos transcritos dos concorrentes, gaps de formato/ângulo, swipe file, claims saturados)
 4. Leia `/workspace/[produto]/04-offer.md` (mecanismo único com 3 versões, stack, garantia)
 5. Leia `/workspace/[produto]/05-copy.md` (big idea, headlines top 5, CTAs, linguagem usada na LP)
-6. Consulte a base Aura extensivamente sobre: ad definitions (conceito, ângulo, variação, formato), 3-2-2 flexible ads format, ad angles (como criar, 3 verticais de pesquisa), funnel creative playbook (Olympic Rings model, TOF/MOF/BOF), hero offer e best customer, video ads (hook/bridge/hold/CTA structure, Big 4 emotions, slippery slope em vídeo), image ads (criação, breakdowns, ugly ads que convertem), building creative with AI (briefs, prompts, production), hooks (categorias, fórmulas, processo de geração), winning ad rate, creator briefs (Zakaria UGC), UGC pipeline, natural speech converter (humanizar copy AI), ad formats e roadmap criativo, processo de 9 etapas pra ads de 7-8 dígitos, partnership ads, e methodology científica de teste. Aprofunde em cada sub-conceito — criativo é onde a guerra de conversão é ganha.
+6. Consultas à base de conhecimento (tópicos-chave com resumo inline + referência):
+
+   **Hook-Bridge-Hold-CTA** (estrutura de vídeo ad):
+   - Hook (0-3s) captura atenção com pattern interrupt + Big 4 emotion dominante
+   - Bridge (3-8s) transiciona da promessa pro corpo estabelecendo credibilidade
+   - Hold (8-18s) desenvolve mecanismo/proof/benefit usando slippery slide (cada frase compelle a próxima)
+   - CTA (18-22s) call-to-value (não action) + guarantee badge visual
+   - [REF: knowledge base query — `mcp__aura__search_knowledge("hook bridge hold CTA video ads")`]
+
+   **Big 4 Emotions** (escolher 1 dominante por hook):
+   - Curiosity (pattern interrupt, mistério), Urgency (tempo/escassez real), Fear (dor amplificada), Delight (desejo/transformação)
+   - [REF: knowledge base query — `mcp__aura__search_knowledge("Big 4 Emotions hook")`]
+
+   **Slippery Slope** (Sugarman, estrutura de copy):
+   - Primeira frase existe só pra fazer ler a segunda; segunda pra fazer ler a terceira; cada linha é um gancho pro próximo
+   - Aplicação em vídeo: cada beat de 2-3s tem pattern interrupt visual ou verbal
+   - [REF: knowledge base query — `mcp__aura__search_knowledge("slippery slope Sugarman copy")`]
+
+   Tópicos adicionais a consultar conforme necessário: `[REF: mcp__aura__search_knowledge("3-2-2 flexible ads format")]`, `[REF: mcp__aura__search_knowledge("ad angles 3 research verticals")]`, `[REF: mcp__aura__search_knowledge("funnel creative playbook Olympic Rings")]`, `[REF: mcp__aura__search_knowledge("ugly ads convert image")]`, `[REF: mcp__aura__search_knowledge("UGC pipeline creator briefs Zakaria")]`, `[REF: mcp__aura__search_knowledge("natural speech converter voiceover")]`, `[REF: mcp__aura__search_knowledge("winning ad rate 9 step process")]`.
 
 ## Fluxo da Skill
 
@@ -57,7 +93,7 @@ Mostre ao membro (sem pedir confirmação):
 
 ### ETAPA 3 — Gerar Ângulos (3 Verticais da Vault)
 
-Consulte a base Aura sobre "3 research verticals competitive consumer internal" (ad angles).
+Referência: `[REF: mcp__aura__search_knowledge("3 research verticals competitive consumer internal ad angles")]`.
 
 Gere ângulos em 3 verticais:
 
@@ -274,18 +310,49 @@ Crie um resumo operacional pro membro executar:
 
 **Tempo estimado de produção:** [baseado em tipo de material disponível — UGC humano toma 3-5 dias; AI UGC toma 1-2 dias; stock + edição toma 1 dia]
 
+### Limitação Meta Flexible Ads
+
+Meta NÃO fornece breakdown por creative individual em Flexible Ad Format. Para isolar winners:
+- Adicionar UTM `utm_content=[concept-id]` único por conceito no link
+- Pós-compra, cruzar com Shopify analytics por UTM
+- Se precisar de breakdown DENTRO do Ads Manager: rodar 3 ad sets separados com 1 criativo cada (não flexible), custo: exige 3× volume de spend pra learning
+
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
 **Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo, componentes aura).
 
+**Garantir diretório:** `mkdir -p /workspace/[produto]/07-creatives/` antes de salvar.
 
-`/workspace/[produto]/07-creatives/`:
-- `07-creative-strategy.md` (overview: quantos conceitos, ângulos escolhidos, racional agregado)
-- `07-briefing-conceito-01.md` (um arquivo por conceito — Etapa 5 completa)
-- `07-briefing-conceito-02.md`
-- ...
-- `07-hooks-bank.md` (Etapa 7)
-- `06-production-summary.md` (Etapa 8)
+Outputs em `/workspace/[produto]/07-creatives/` (nomenclatura normalizada):
+
+- `07-creative-strategy.md` (estratégia macro — quantos conceitos, ângulos escolhidos, racional agregado)
+- `07-concept-01.md`, `07-concept-02.md`, `07-concept-03.md` (briefs individuais — Etapa 5 completa, um arquivo por conceito)
+- `07-hooks-bank.md` (Etapa 7 — 10 hooks alternativos)
+- `07-production-summary.md` (Etapa 8 — resumo operacional)
+- `07-creatives.json` (manifest do batch — ver schema abaixo)
+
+### JSON companion — `07-creatives.json`
+
+```json
+{
+  "batch_id": "uuid",
+  "product_slug": "...",
+  "concepts": [
+    {"id": "c-01", "name": "...", "angle": "problem|result|curiosity|social", "voc_refs": [...], "hook_variants": [...]}
+  ],
+  "primary_texts": [...],
+  "headlines": [...],
+  "total_assets": 3,
+  "format": "3-2-2",
+  "next_batch_ideas_applied": ["ref-01", "ref-02"]
+}
+```
+
+### Atualizar manifest
+
+Após salvar, atualizar `/workspace/[produto]/manifest.json`:
+- Adicionar `07-creative-engine` em `skills_completed`
+- Registrar `last_batch_id`, `batch_count`, e `next_batch_ideas_applied` (refs lidas de `NEXT_BATCH_IDEAS.md`, se houver)
 
 ## Mensagem Final
 
