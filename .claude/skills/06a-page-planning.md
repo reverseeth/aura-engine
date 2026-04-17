@@ -89,6 +89,21 @@ Pergunte ao membro pra confirmar o tipo detectado antes de prosseguir.
 4. Leia `/workspace/[produto]/03-competitor-analysis.md` se existir.
 5. Leia `/workspace/profile.md` se existir.
 
+### 0.5 Detecção de Stitch blueprint (opcional — visual reference)
+
+Verifique se existe `/workspace/[produto]/06-page/stitch-blueprint/index.html`:
+
+- **Se existe:** membro gerou mockup visual no Google Stitch (Gemini 2.5 Pro) antes de rodar a skill. Extrair tokens visuais (cores, tipografia, spacing, componentes) do HTML e usar como **design system base** no lugar do brand discovery genérico. Ver spec completa em `.claude/lib/stitch-integration/importer.md`. Esse modo é `blueprint_guided` — ETAPA 2 (Brand Discovery) é **skipada** (tokens já vêm do HTML), ETAPA 3 gera design system com constraint do blueprint.
+
+- **Se não existe:** convite opcional ao membro (uma vez, não insistir):
+  > "Antes de gerar o Liquid, você pode gerar um mockup visual de alta qualidade no **Google Stitch** (grátis, ~15min). Vantagens: vê 3-5 variações visuais antes de implementar, qualidade visual senior-designer-level, zero drift entre design e código. Se quiser: consulte `.claude/lib/stitch-integration/setup.md` (5min setup) + `prompt-templates.md` (prompts prontos por tipo de página). Depois é só salvar o HTML exportado em `/workspace/[produto]/06-page/stitch-blueprint/` e rodar esta skill de novo. Quer fazer isso primeiro ou seguir direto pra implementação?"
+  
+  Se membro disser "segue direto" ou não responder: proceder no modo `direct_generation` padrão (fluxo atual). Sem ficar perguntando em rodadas futuras.
+
+  Se membro disser "quero fazer Stitch primeiro": PARAR a skill aqui, orientar pra setup em `.claude/lib/stitch-integration/`, aguardar membro voltar com blueprint em lugar.
+
+**Nota:** Stitch é opt-in. Zero penalidade em skippar — fluxo direct_generation continua sendo o default e funciona 100% standalone.
+
 ## Princípios Inegociáveis (aplicam a TODA a cadeia)
 
 Estes princípios NÃO são negociáveis. Se algum for violado, a section deve ser refeita.

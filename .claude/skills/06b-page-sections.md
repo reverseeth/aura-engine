@@ -32,6 +32,33 @@ Valide que a skill anterior (`page-planning`) rodou:
 
 Se `06-plan.json` não existir: "Rode `page-planning` primeiro — preciso do plano de sections + design system antes de gerar Liquid."
 
+## Pré-flight adicional — Stitch Blueprint (opt-in visual guide)
+
+Verificar se existe `/workspace/[produto]/06-page/stitch-blueprint/index.html`:
+
+**Se existe (modo `blueprint_guided`):**
+1. Ler spec completa em `.claude/lib/stitch-integration/importer.md`
+2. Executar pipeline de extração:
+   - Parse HTML com BeautifulSoup (ou Claude direto) → extrair tokens visuais (cores, tipografia, spacing, radii, shadows, componentes)
+   - Salvar em `/workspace/[produto]/06-page/stitch-extracted-tokens.json`
+   - Sobrescrever/mesclar com `06-design-system.md` e `06-brand-discovery.json`
+3. Identificar correspondência section-a-section entre HTML e plan:
+   - Section hero do HTML → section hero do Liquid
+   - Mesmo pra benefits, mechanism, proof, offer, etc
+   - Salvar mapping em `stitch-section-mapping.json`
+4. Em cada geração de section Liquid (ETAPAs 4-6), injetar o HTML snippet correspondente como **visual reference** no prompt: "Gere Liquid preservando a estética visual deste HTML: [snippet]. Traduzir pra Liquid 2.0 com blocks, settings inline, Padrão 1 (color CSS vars inline), Padrão 2 (SVG icons), Padrão 4 (form /cart/add), Padrão 5 (everything editable)."
+5. Após gerar cada section, **validação de fidelidade visual:** Claude compara visualmente (via reasoning) a descrição do Liquid gerado com o HTML reference. Se divergência >20% (cores mudaram, hierarquia errada, layout distinto), regerar com prompt mais específico. Max 3 retries.
+6. Output final inclui `/workspace/[produto]/06-page/stitch-conversion-notes.md` listando:
+   - Sections convertidas 100%
+   - Sections simplificadas (e por quê — ex: animação complexa não cabe em Liquid)
+   - Assets que precisam upload manual no theme editor (imagens do Stitch são placeholders)
+
+**Se não existe (modo `direct_generation`, padrão):**
+- Proceder com fluxo atual (ETAPAs 4-6 geram do zero a partir do `06-plan.json`)
+- Zero impacto no workflow existente
+
+Ver spec completa da integração em `.claude/lib/stitch-integration/`.
+
 ## Arquitetura — Por que blocks inline no schema
 
 **Use sempre este padrão — cada section é uma "pasta" no sidebar da Shopify com blocks atômicos dentro.** Validado em campo (Horizon, Shopify push zero erros, ~700 settings totais entre 9 sections).
