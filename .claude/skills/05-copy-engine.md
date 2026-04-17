@@ -7,10 +7,21 @@ description: Engine de escrita de copy completo baseado em market research, comp
 
 ### Pré-flight (OBRIGATÓRIO)
 - [ ] `/workspace/[produto]/manifest.json` existe
-- [ ] `02-market-research.json` existe → extrair `awareness_distribution`, `sophistication_stage`, `voc_phrases`
+- [ ] `product_slug` do manifest NÃO começa com `dev-placeholder-` (senão, pare: "rode product research primeiro")
+- [ ] `02-market-research.json` existe → extrair `awareness_distribution`, `sophistication_stage`, `voc_phrases`, `voc_count`, `voc_adequacy`
+- [ ] **VOC adequacy check:** se `voc_adequacy == "insufficient"` OU `voc_count < 15` → PARE com mensagem:
+  > ⚠️  VOC atual: {N} frases únicas. Mínimo pra copy direta: 15.
+  >     Copy sem VOC real é invenção — vai soar genérica e não converter.
+  >     Opções:
+  >     1. Rode skill 02 (market-research) de novo com mais fontes (Reddit, Amazon reviews, TikTok comments)
+  >     2. Me cola manualmente 10-15 frases de clientes reais (reviews, DMs, comentários)
+  >     3. Prossiga mesmo assim reconhecendo limitação (copy ficará abstrata)
+
+  Se membro escolher 3, marca `"voc_forced_continue": true` no output pra Skill 09 diagnosticar depois.
 - [ ] `03-competitor-analysis.md` existe
 - [ ] `04-offer.json` existe → extrair `mechanism`, `pricing`, `guarantee`
-Se faltar qualquer um, PARE.
+- [ ] Extrair `product_vertical` do manifest (default "other" se ausente) — usado pelo Compliance Pre-flight (Sweep 8)
+Se faltar qualquer um (exceto VOC com opção 3), PARE.
 
 ## Quando Usar
 Quando o membro tem market research, competitor analysis e oferta prontos, e precisa escrever a copy da página que vai converter o tráfego pago. Copy aqui é escrita com base em decisões ESTRATÉGICAS derivadas dos documentos anteriores, não em opiniões ou intuições.
@@ -281,15 +292,41 @@ Antes de entregar, faça **7 sweeps de revisão** :
 6. **CTA sweep**: CTAs são call to VALUE? Aparecem em frequência certa (não muito, não pouco)?
 7. **Originality sweep**: comparar com os claims saturados do competitor analysis — onde estou usando um claim saturado? substitua por ângulo original.
 8. **Compliance Pre-flight sweep** (OBRIGATÓRIO antes de salvar o arquivo final):
-   - Para cada headline, primary text, advertorial section, CTA e crossheads gerados, rodar o checker definido em `.claude/lib/compliance-preflight/checker.md`
-   - Carregar `.claude/lib/compliance-preflight/red_flags.json` como contexto
-   - Aplicar o prompt do checker com: vertical do produto (do manifest), asset_type (headline/primary_text/etc), plataforma_alvo (Meta Ads por default)
-   - Parse da resposta JSON:
-     - Se `severity == critical`: PARAR, reportar os triggers ao membro, aplicar `rewrite_suggestion` ou pedir revisão
-     - Se `severity == high`: aplicar `rewrite_suggestion` automaticamente + logar em `/workspace/[produto]/05-compliance-log.json`
-     - Se `severity == medium`: manter copy original, logar warning
-     - Se `severity == low`: salvar silenciosamente
-   - Todas as decisões e triggers vão pro log; silencioso quando zero flags
+
+   Claude deve rodar este prompt INLINE (não invocar arquivo externo) pra cada peça de copy gerada — headlines, primary texts, advertorial sections, CTAs, crossheads:
+
+   ```
+   Você é Compliance Pre-flight Checker. Analise a copy abaixo contra Meta Ad Policy, FTC substantiation, FDA cosmetic boundary (se vertical = beauty/skincare/supplements), e AI style red flags.
+
+   Vertical: {product_vertical do manifest — default "other"}
+   Asset type: {headline | primary_text | advertorial_section | cta | crosshead}
+   Plataforma: Meta Ads (padrão)
+
+   Red flags de referência (categoria do vertical): {leia `.claude/lib/compliance-preflight/red_flags.json`, filtre pelo vertical}
+
+   Copy a analisar:
+   \"{copy_text}\"
+
+   Retorne JSON conforme `.claude/lib/compliance-preflight/output-schema.json`:
+   {
+     "risk_score": 0-100,
+     "severity": "low|medium|high|critical",
+     "overall_verdict": "APPROVE|APPROVE_WITH_EDIT|REVISE|REJECT",
+     "triggers": [{"phrase": "...", "severity": "...", "reason": "...", "eixo": "...", "suggested_replacement": "..."}],
+     "rewrite_suggestion": "..." // só se severity >= high
+     "em_dash_count": N,
+     "ai_style_score": 0-10,
+     "recommendation": "..."
+   }
+   ```
+
+   Ação conforme severity:
+   - `critical` → PARAR, reportar triggers ao membro, aplicar `rewrite_suggestion` ou pedir revisão manual
+   - `high` → aplicar `rewrite_suggestion` automaticamente + logar em `/workspace/[produto]/05-compliance-log.json`
+   - `medium` → manter copy original, logar warning
+   - `low` → salvar silenciosamente (sem output)
+
+   Log consolidado em `/workspace/[produto]/05-compliance-log.json`. Se diretório não existir, `mkdir -p` antes de escrever.
 
 Para cada sweep, documente o que mudou (as edits são o output do sweep).
 

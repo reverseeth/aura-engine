@@ -21,8 +21,9 @@ else:
 
 ### Passo 1 — Parse do HTML
 
-Carregar `index.html` com BeautifulSoup ou Claude direto lendo como string.
-Extrair:
+**Nenhuma dep externa.** Claude lê o `index.html` como string (via Read tool) e extrai os tokens abaixo via regex + LLM reasoning. NÃO use BeautifulSoup ou Playwright — skill 06b roda dentro do Claude Code, sem runtime Python adicional.
+
+Claude deve extrair:
 
 ```json
 {
@@ -104,10 +105,11 @@ Pra cada section identificada:
    Output: arquivo .liquid completo com schema
    ```
 
-2. **Validation step** após geração:
-   - Renderizar Liquid → comparar visualmente com section correspondente do Stitch
-   - Se divergência >20%, regerar com prompt mais específico
-   - Se divergência <20%, aprovar
+2. **Validation step** após geração (heurístico — sem renderização real):
+   - Claude compara lista de CSS vars geradas no Liquid vs tokens extraídos do HTML
+   - Claude confere se layout Liquid preserva hierarquia (ordem de blocks) do HTML
+   - Se >3 tokens divergem ou ordem muda, regerar com prompt mais específico (max 3 retries)
+   - Se ≤3 divergem, aprovar com log em `stitch-conversion-notes.md`
 
 ### Passo 3 — Consolidar design tokens no brand-discovery
 

@@ -21,7 +21,8 @@ Quando o membro tem produto definido e precisa entender profundamente o mercado,
 1. Leia `/workspace/profile.md`. Se ausente → aborte: `"Rode \`setup\` primeiro."`
 2. Leia `/workspace/[produto]/manifest.json` (descubra `[produto]` a partir do manifest — único `manifest.json` com `setup_complete === true`). Se ausente → aborte: `"Rode \`setup\` primeiro."`
 3. Valide que `"01-product-research"` está em `manifest.skills_completed` E que `/workspace/[produto]/01-product-research.md` existe. Se faltar qualquer um → aborte: `"Rode \`product research\` primeiro."`
-4. Use `product_slug` do manifest como `[produto]` pra todos os paths daqui pra frente.
+4. **Rejeitar slug placeholder:** se `product_slug` começa com `dev-placeholder-` → aborte: `"Produto ainda não foi validado em product research. Rode \`product research\` primeiro pra definir product_slug real."`
+5. Use `product_slug` do manifest como `[produto]` pra todos os paths daqui pra frente.
 
 ### ETAPA 1 — Confirmar Produto + Mercado Geográfico
 
@@ -164,10 +165,13 @@ Essas frases são ouro. Hopkins escreveu em 1923: "a boa copy fala a linguagem d
 
 1. Documente o déficit explicitamente no output: `"VOC real: N frases únicas; mínimo 35 não atingido."`
 2. Liste as fontes tentadas e as que bloquearam acesso.
-3. Adicione um alerta que a skill 05 (copy) lerá: `"skill 05 deve priorizar pesquisa manual adicional — VOC atual insuficiente pra copy direta."`
-4. Siga com as etapas restantes — não aborte.
+3. **Classificar severidade do déficit pra alertar skills downstream:**
+   - `voc_count >= 35` → OK, segue normal
+   - `15 <= voc_count < 35` → `voc_adequacy: "medium"`, skill 05 emite warning mas procede
+   - `voc_count < 15` → `voc_adequacy: "insufficient"`. Skill 05 DEVE bloquear no pré-flight — copy sem VOC real não é copy, é invenção. Salvar em `02-market-research.json`: `"voc_adequacy": "insufficient", "skills_blocked": ["05-copy-engine"]`
+4. Siga com as etapas restantes (awareness, sophistication, root cause) — essas não dependem de VOC quantity.
 
-Esse déficit é rastreado no `voc_count` do manifest e no JSON companion.
+Esse déficit é rastreado em `voc_count` + `voc_adequacy` do manifest e do JSON companion.
 
 ### ETAPA 6 — Root Cause Research (Metodologia Zakaria)
 

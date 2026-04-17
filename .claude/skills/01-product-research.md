@@ -59,7 +59,7 @@ Eu pesquiso usando fontes públicas (Meta Ad Library, TikTok Shop Trending, Amaz
 
 ESPERE o membro responder antes de prosseguir. Se veio com fallback, faça as buscas iniciais automaticamente e apresente 8-12 candidatos identificados antes de seguir pras próximas etapas.
 
-**Timeout de elicitação**: se o membro não responder dentro de **3 minutos**, siga automaticamente com dados públicos (Meta Ad Library, TikTok Shop Trending, Amazon Best Sellers, Reddit via web search) como fallback e sinalize claramente: `"Sem resposta após 3min — prosseguindo com web search público. Você pode me passar dados do SpyBox/Kalodata a qualquer momento e eu re-rankeio."`
+**Elicitação sem timeout automático**: Claude Code não tem timer interno dentro de uma skill. Espere a resposta do membro. Se o membro disser "não sei" ou "prossiga com dados públicos" ou se ele não souber responder de imediato, siga com fallback público (Meta Ad Library, TikTok Shop Trending, Amazon Best Sellers, Reddit via web search) e avise: `"Prosseguindo com dados públicos. Me passa SpyBox/Kalodata quando tiver e eu re-rankeio."` Não espere prazo — se membro respondeu com conteúdo vazio, é sinal de "sigo sem".
 
 ### ETAPA 2 — Filtragem Técnica (Thresholds Exatos)
 
@@ -349,4 +349,10 @@ Se NENHUM produto passou (todos TALVEZ ou DESCARTAR):
 
 "Nenhum produto dessa leva passou nos filtros críticos. Os principais bloqueios foram: [listar razões].
 
-Antes de investir tempo nesses, vale buscar novos candidatos. Volte ao Kalodata/SpyBox com filtros ajustados (ex: [sugestão]), ou me descreva outro nicho que eu rodo a busca."
+Antes de investir tempo nesses, vale buscar novos candidatos. Sugestões de filtros ajustados DERIVADOS do bloqueador mais comum nesta leva:
+- Se bloqueio dominante foi **AOV** → buscar produtos com preço base ≥ $60 OU que suportam bundle 3-unit
+- Se foi **Markup 3x+** → buscar fornecedores alternativos (1688, Alibaba Gold supplier) ou produtos com COGS < 30% do preço visto
+- Se foi **Saturação/Claims saturados** → buscar nichos adjacentes (ex: se beauty skincare saturado, testar beauty devices ou supplements beauty)
+- Se foi **Logística (peso, bateria)** → filtrar por peso < 500g e sem componentes eletrônicos
+
+Volte ao Kalodata/SpyBox com esses filtros ou me descreva outro nicho que eu rodo a busca."

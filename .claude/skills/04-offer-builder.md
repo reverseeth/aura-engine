@@ -51,8 +51,28 @@ Documente cada um em `04-offer.json` → `cogs_breakdown`.
 
 **Decisões automáticas do sistema (NÃO PERGUNTE):**
 - **Preço final**: definido pelo framework de pricing abaixo (Etapa 3), triangulando 3 ancoras (value / competitor / economics)
-- **Pick & pack**: se o membro não souber, estime ~$2-3 por unidade (ajustável depois com dado real)
-- **Gateway fee**: se o membro não souber, estime ~3% do AOV + taxa fixa (ajustável depois)
+- **Pick & pack**: se o membro não souber, estime ~$2-3 por unidade E **marcar `"pick_pack_estimated": true` no JSON companion** (membro precisa validar)
+- **Gateway fee**: se o membro não souber, estime ~3% do AOV + taxa fixa E **marcar `"gateway_fee_estimated": true`**
+
+**Sanity check obrigatório depois de calcular Unit Economics (Etapa 5):**
+
+Se `Margem $` < $20 → PARAR e avisar membro:
+> ⚠️  Margem por unidade calculada: $X. Isso é muito baixo pra ecommerce direct-response.
+>     Com margem < $20, o CPA aceitável fica < $10-15, praticamente impossível em Meta Ads hoje.
+>
+>     Causas prováveis:
+>     - COGS subestimado (provável se vc não tinha todos os itens do breakdown — veja `pick_pack_estimated`, `gateway_fee_estimated`)
+>     - Preço de venda abaixo do competitivo (vê o framework de pricing na Etapa 3)
+>     - Produto com AOV inerentemente baixo (considera bundle pra aumentar AOV)
+>
+>     Opções:
+>     1. Reveja COGS itemizado real (peça fatura pro fornecedor)
+>     2. Aumenta preço via bundle 2-3 unidades ou upsell pós-compra
+>     3. Abandona esse produto — margem não sobe via marketing
+>
+>     Prosseguir mesmo assim? (sim/não)
+
+Se continuar, marca `"margin_warning": true` no manifest pra Skills 08/10 alertarem escala agressiva.
 
 ### ETAPA 2 — MECANISMO ÚNICO (A Parte Mais Importante)
 

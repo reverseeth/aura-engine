@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS performance (
   purchases       INTEGER,
   days_active     INTEGER,
   decile_rank     INTEGER,
-  outcome         TEXT CHECK(outcome IN ('winner', 'loser', 'neutral', 'pending')),
+  outcome         TEXT CHECK(outcome IN ('winner', 'loser', 'neutral', 'pending', 'insufficient_data', 'zero_conversions')),
   measured_at     TEXT NOT NULL,
-  FOREIGN KEY (creative_id) REFERENCES creatives(id)
+  FOREIGN KEY (creative_id) REFERENCES creatives(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS dna_snapshots (

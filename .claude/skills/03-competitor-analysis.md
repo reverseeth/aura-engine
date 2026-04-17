@@ -79,6 +79,27 @@ Pra cada concorrente, acesse a página de produto (web fetch). Se tiver cloaker/
 
 **Se NENHUM fallback funcionar**: pule esse concorrente específico (**não aborte a skill inteira**). Documente em "Concorrentes descartados por inacessibilidade" com a sequência de tentativas e motivo do descarte. Continue para os demais concorrentes.
 
+**Safeguard de integridade — threshold crítico de acessibilidade:**
+
+Depois de tentar todos os concorrentes + todos os fallbacks, calcule:
+
+```
+access_rate = concorrentes_com_PDP_analisada / total_concorrentes_identificados
+```
+
+- `access_rate >= 0.5` → proceder normalmente
+- `0.3 <= access_rate < 0.5` → proceder com WARNING no output: `"Cobertura parcial — {N}/{total} concorrentes inacessíveis. Análise competitiva pode ter gaps. Considere análise manual via screenshots."`
+- `access_rate < 0.3` → **PARAR SKILL E PEDIR AÇÃO DO MEMBRO**. Não proceder com análise baseada em < 30% do universo competitivo, senão Skills 04/05 vão assumir "mercado limpo" (falsa premissa). Mensagem:
+
+  > ⚠️  Só consegui acessar {N}/{total} ({access_rate:.0%}) das PDPs de concorrentes. O resto bloqueou por bot-protection (Cloudflare, Shopify App check, etc) e todos os fallbacks falharam.
+  >
+  > Sem análise competitiva real, Skills 04 (Offer) e 05 (Copy) vão voar no escuro. Opções:
+  > 1. Me manda screenshots dos concorrentes inacessíveis por WhatsApp/paste
+  > 2. Passa pra mim dados do SpyBox/Kalodata sobre claims e estrutura deles
+  > 3. Adia competitor analysis até conseguir acesso (mudar IP, VPN, etc)
+  >
+  > O que prefere?
+
 Outros fallbacks opcionais quando possível: view-source direto, scraping via Playwright com user-agent de browser real.
 
 **Pra cada PDP, documente:**

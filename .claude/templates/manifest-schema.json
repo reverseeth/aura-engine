@@ -84,6 +84,33 @@
     "breakeven_roas": {
       "type": "number",
       "description": "Break-even ROAS given the current offer economics."
+    },
+    "product_vertical": {
+      "type": "string",
+      "enum": [
+        "beauty",
+        "skincare",
+        "supplements",
+        "health",
+        "fitness",
+        "fashion",
+        "home",
+        "pet",
+        "food",
+        "financial",
+        "tech",
+        "education",
+        "other"
+      ],
+      "description": "Product vertical used by compliance pre-flight (checker.md) to pick the right red-flag rule set. Set during skill 00-setup or 01-product-research. Default 'other' if ambiguous."
+    },
+    "copy_language": {
+      "type": "string",
+      "description": "Language of member-facing copy (e.g. 'en', 'pt-BR', 'es')."
+    },
+    "market": {
+      "type": "string",
+      "description": "Primary market (e.g. 'US', 'BR', 'EU')."
     }
   },
   "additionalProperties": true

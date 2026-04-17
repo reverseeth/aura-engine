@@ -61,8 +61,13 @@ def heuristic_score(text: str, vertical: str = "beauty") -> dict:
                 triggers.append({**item, "eixo": vkey})
 
     for item in RED_FLAGS["pattern_triggers"]["patterns"]:
-        pat = item["pattern"].replace("\\\\", "\\")
-        if re.search(pat, text, re.IGNORECASE):
+        # JSON double-encodes backslashes; after json.loads the pattern already has the real escapes
+        pat = item["pattern"]
+        try:
+            compiled = re.compile(pat, re.IGNORECASE)
+        except re.error:
+            continue
+        if compiled.search(text):
             sev = item["severity"]
             weight = {"low": 5, "medium": 12, "high": 22, "critical": 35}[sev]
             score += weight

@@ -71,7 +71,7 @@
     "patterns": [
       {"pattern": "[0-9]+% (off|discount|more|less)", "severity": "low", "reason": "OK se específico e verdadeiro"},
       {"pattern": "(3|7|14|30|60|90) days? (to|until)", "severity": "low", "reason": "Timing promises OK se documentable"},
-      {"pattern": "\\\\$[0-9]+\\\\s?(per day|daily|hour)", "severity": "high", "reason": "Income claim flag"},
+      {"pattern": "\\$[0-9]+\\s?(per day|daily|hour)", "severity": "high", "reason": "Income claim flag"},
       {"pattern": "you ?['']ll (lose|gain) [0-9]+", "severity": "high", "reason": "Specific outcome promise"},
       {"pattern": "lose [0-9]+ (pounds?|lbs?|kg)", "severity": "critical", "reason": "Weight loss specific"},
       {"pattern": "(doctors?|dermatologists?) (hate|wont tell|dont want)", "severity": "critical", "reason": "Clickbait pattern"}

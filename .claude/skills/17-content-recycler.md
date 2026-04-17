@@ -21,6 +21,23 @@ Skill auxiliar invocável. Reutiliza criativos vencedores em 9 formatos diferent
 - [ ] `.claude/lib/content-recycler/formats.json` existe (specs dos 9 formatos)
 - [ ] `.claude/lib/compliance-preflight/` existe (pra rodar check em cada derivada)
 
+**Detecção de winner (quando input é `recycle winner`):**
+
+Se membro digitou `recycle winner` (sem ID específico):
+1. Ler `/workspace/[produto]/09-analysis/latest.json` (produzido pela Skill 09)
+2. Procurar criativos com `outcome == "winner"` (CPA < target × 0.7, spend > $300, 5+ dias)
+3. Se encontrar 1 winner → usar esse creative_id
+4. Se encontrar 2+ winners → apresentar lista e perguntar qual reciclar
+5. Se encontrar ZERO winners → responder:
+   > "Campanha ainda não tem winner identificado. Critério: CPA < target × 0.7 + spend > $300 + idade > 5 dias.
+   >
+   > Opções:
+   > 1. Aguardar mais dados (normalmente 5-10 dias após launch)
+   > 2. Rodar skill 09 de novo pra atualizar análise
+   > 3. Forçar reciclagem de um criativo específico: `recycle [creative-id]`"
+6. Se `latest.json` não existir (skill 09 nunca rodou) → responder:
+   > "Skill 09 não foi rodada ainda. Preciso de dados de performance pra identificar winner automaticamente. Rode `run analysis` primeiro OU reciclar criativo específico: `recycle [creative-id]`"
+
 ## Fluxo
 
 Siga exatamente o fluxo descrito em `.claude/lib/content-recycler/recycler.md`:

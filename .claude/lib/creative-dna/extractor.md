@@ -73,17 +73,29 @@ Após o compliance check passar, adicionar:
 ### ETAPA 7.6 — DNA Registry (silent)
 
 Pra cada criativo gerado:
-1. Ler .claude/lib/creative-dna/feature_schema.json
-2. Rodar o extractor.md prompt com:
-   - briefing completo
-   - awareness_dominant do market research
-   - compliance_risk_score do Pre-flight
-3. Parse JSON response
+1. Ler .claude/lib/creative-dna/feature_schema.json (schema de features)
+2. Rodar extração INLINE (não invocar arquivo — Claude embute o prompt):
+   Claude olha o briefing do criativo + schema + contexto e gera JSON
+   conformante ao schema. Todos os enums DEVEM vir do schema; se Claude não
+   consegue classificar, usa 'not_used' ou 'none'.
+3. Validar JSON response contra feature_schema.json (checar enums + ranges
+   + campos obrigatórios). Se malformado, tentar 1 retry; se falhar de novo,
+   logar em /workspace/[produto]/creative-dna/extraction-errors.log e skip
+   esse criativo (não bloquear skill 07).
 4. Salvar features em /workspace/[produto]/creative-dna/features-[creative-id].json
-5. Invocar registry.py add (init registry se primeira vez)
+5. Invocar shell:
+   - test -f .claude/lib/creative-dna/schema.sql || abort
+   - python3 .claude/lib/creative-dna/registry.py init /workspace/[produto]
+     (idempotent — safe se já inicializado)
+   - python3 .claude/lib/creative-dna/registry.py add \
+       /workspace/[produto] [creative-id] \
+       /workspace/[produto]/creative-dna/features-[creative-id].json \
+       --product [produto-slug]
 
 Silent. Sem output pro membro.
-Se falhar extração, logar erro mas não bloquear a skill.
+Se passo 5 falhar (schema.sql missing, DB locked, etc), logar em
+extraction-errors.log — mas não bloquear skill 07 OU avisar membro se persiste
+por 3 rodadas consecutivas.
 ```
 
 ## Integração na Skill 09 (patch a adicionar)

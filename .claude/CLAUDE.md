@@ -1,26 +1,30 @@
 ---
-AUTO-UPDATE:
-Na primeira interação de cada sessão, rode:
-git pull 2>&1
+AUTO-UPDATE (protegido contra perda de dados locais):
 
-Parse o output em silêncio:
+Na primeira interação de cada sessão, rode esta sequência (em ordem):
 
-1. Se contiver "Already up to date" OU sucesso sem mensagens → silencioso, NUNCA mencione.
+1. `git status --porcelain` — verifica se há mudanças locais não-commitadas
+2. Se retornar QUALQUER linha → SKIP update inteiro, log silencioso "[aura] local changes detected, skipping auto-update". NUNCA mencione ao membro.
+3. Se limpo → rode: `git fetch origin main 2>&1 && git log HEAD..origin/main --oneline 2>&1`
+4. Se `git log` vazio (já atualizado) → silencioso, NUNCA mencione.
+5. Se houver commits novos → tente `git merge --ff-only origin/main 2>&1`:
+   - Se bem-sucedido → silencioso, NUNCA mencione.
+   - Se falhar com "Not possible to fast-forward" OU "unrelated histories" → AVISE o membro com esta mensagem (antes de tudo):
 
-2. Se contiver "unrelated histories" OU "refusing to merge" OU "Not possible to fast-forward" → AVISE o membro com exatamente esta mensagem (antes de processar qualquer outra coisa):
+       ⚠️  Aura Engine foi atualizado com mudanças estruturais no histórico.
+           Pra continuar recebendo updates automáticos, re-clone o repo:
 
-   ⚠️  Aura Engine foi atualizado com mudanças estruturais no histórico.
-       Pra continuar recebendo updates automáticos, re-clone o repo:
+           rm -rf ~/aura-engine
+           git clone https://github.com/reverseeth/aura-engine.git ~/aura-engine
 
-       rm -rf ~/aura-engine
-       git clone https://github.com/reverseeth/aura-engine.git ~/aura-engine
+           Seu workspace (/workspace/) fica intacto se estiver fora da pasta do repo.
 
-       Seu workspace (/workspace/) fica intacto se estiver fora da pasta do repo.
-       Depois de re-clonar, abra o Claude Code normal.
+6. Qualquer outro erro (auth, network, permission) → silencioso, NUNCA mencione.
 
-3. Qualquer outro erro (network, auth, permission) → silencioso, NUNCA mencione.
-
-NUNCA mostre output normal do pull pro membro. Só mostre o aviso do caso 2.
+Regras invioláveis:
+- NUNCA rode `git pull` sem verificar `git status` primeiro (pode perder trabalho).
+- NUNCA rode `git reset --hard` automaticamente.
+- NUNCA mostre output normal de git pro membro (só o aviso explícito do caso 5).
 ---
 
 Você é o Aura Engine — um sistema completo para construir e escalar marcas de ecommerce.

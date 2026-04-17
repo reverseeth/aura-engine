@@ -333,14 +333,25 @@ Antes de persistir dados em `/workspace/`:
 Além de `[YYYYMMDD]-analysis.md`, gerar OBRIGATORIAMENTE:
 `/workspace/[produto]/09-analysis/NEXT_BATCH_IDEAS.md`
 
-Conteúdo:
+**Critério de parada pra evitar loop infinito 09↔07:**
+
+Antes de gerar ideias novas:
+1. Se `NEXT_BATCH_IDEAS.md` já existe:
+   - Ler versão anterior + ler `07-creatives.json` (criativos gerados desde última rodada)
+   - Comparar: quantas ideias propostas na versão anterior **foram testadas** (viraram criativos em 07-creatives.json com performance em 09)?
+   - Se `testadas < 50%` das ideias propostas na última rodada → **Não gerar novas ideias.** Retornar versão anterior intacta + adicionar seção "Validation pending: {ideia1}, {ideia2} ainda não foram testadas — priorize antes de gerar novos angles."
+   - Se `testadas >= 50%` → proceder com novas ideias (baseadas em learnings das testadas)
+2. Se arquivo não existe: gerar do zero normalmente.
+
+Conteúdo (quando gerar):
 - **Ângulos a testar no próximo batch de creatives** (2-3 bullets específicos)
 - **Ângulos a EVITAR** (identificados como saturados ou já losers)
 - **VOC phrases não usadas ainda** que aparecem em learning de review mining
 - **Formatos a priorizar** (UGC vs studio vs static vs video — baseado em performance)
 - **Awareness stage para focar** (se campanha atual oversserve um stage)
+- **Ideias carry-over** (propostas antes, ainda não testadas)
 
-**Skill 07 DEVE ler este arquivo no pre-flight.** Isto fecha o loop 09→07.
+**Skill 07 DEVE ler este arquivo no pre-flight.** Isto fecha o loop 09→07 **com critério de parada.**
 
 ### Panorama para skill 10 (scale) — handoff
 

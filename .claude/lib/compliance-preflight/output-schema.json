@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Compliance Pre-flight Output Schema",
+  "description": "Structured output produced by the checker (either Claude-based checker.md prompt or heuristic run.py). Both MUST conform to this schema so downstream skills can consume predictably.",
+  "type": "object",
+  "required": ["risk_score", "severity", "overall_verdict", "triggers"],
+  "properties": {
+    "risk_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Aggregated risk 0-100"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"]
+    },
+    "overall_verdict": {
+      "type": "string",
+      "enum": ["APPROVE", "APPROVE_WITH_EDIT", "REVISE", "REJECT"]
+    },
+    "triggers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["phrase", "severity", "reason"],
+        "properties": {
+          "phrase": {"type": "string"},
+          "severity": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
+          "reason": {"type": "string"},
+          "eixo": {
+            "type": "string",
+            "description": "Which axis: Meta Policy, FTC, FDA, Credibility, AI Style, Universal, Pattern, or vertical-specific"
+          },
+          "suggested_replacement": {"type": "string"}
+        }
+      }
+    },
+    "rewrite_suggestion": {
+      "type": ["string", "null"],
+      "description": "Full rewrite only when severity >= high"
+    },
+    "alternative_claims": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "3 alternative compliant claims preserving persuasion"
+    },
+    "em_dash_count": {"type": "integer", "minimum": 0},
+    "ai_style_score": {"type": "integer", "minimum": 0, "maximum": 10},
+    "recommendation": {"type": "string"},
+    "heuristic_only": {
+      "type": "boolean",
+      "description": "True when produced by run.py heuristic (lightweight, ~80% accuracy). False/absent when produced by full Claude checker.md."
+    },
+    "note": {"type": "string"}
+  }
+}
