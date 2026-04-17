@@ -54,6 +54,110 @@ Se `06-plan.json` não existir: "Rode `page-planning` primeiro — preciso do pl
 
 **Não use theme blocks em arquivos separados** (`/blocks/*.liquid`) pra esta skill — testamos e o validator do Shopify bloqueia referências dinâmicas via `{% content_for 'block' type: block.type %}`. Blocks inline no schema da section é o padrão que passa.
 
+### PADRÃO 1 — Color settings devem ser injetadas INLINE no section root (CRÍTICO)
+
+**Problema observado em produção:** gerações anteriores declaravam CSS vars dentro do `{% stylesheet %}` como valores ESTÁTICOS:
+
+```liquid
+{% stylesheet %}
+  :root {
+    --color-primary: #002DD1;  /* ❌ hardcoded, ignora setting */
+    --color-bg: #FAFAFA;       /* ❌ hardcoded */
+  }
+  .section-X__cta { background: var(--color-primary); }
+{% endstylesheet %}
+```
+
+Isso faz o schema setting `color_primary` aparecer no theme editor MAS a mudança NÃO aplica na página — o CSS continua usando o hex hardcoded. Membro muda a cor, salva, abre preview, cor não muda. Bug silencioso.
+
+**Fix obrigatório:** injetar TODOS os color settings via `style=""` inline no root `<section>`:
+
+```liquid
+<section class="section-X section-X-{{ section.id }}"
+  style="
+    --c-primary: {{ section.settings.color_primary | default: '#002DD1' }};
+    --c-bg: {{ section.settings.color_bg | default: '#FAFAFA' }};
+    --c-fg: {{ section.settings.color_fg | default: '#231F20' }};
+    /* repita pra TODAS as color settings da section */
+  "
+  aria-labelledby="...">
+```
+
+E no stylesheet use `var(--c-primary)` — **SEM** declarar `:root { --c-primary: ... }` estático:
+
+```liquid
+{% stylesheet %}
+  /* ✅ certo — sem :root redeclaring vars */
+  .section-X__cta {
+    background: var(--c-primary);
+    color: var(--c-bg);
+  }
+  .section-X__heading { color: var(--c-fg); }
+{% endstylesheet %}
+```
+
+**Regra:** toda `color` setting exposta no schema TEM que ter um `{{ section.settings.color_X }}` correspondente injetado no style inline do root da section. Mesmo princípio pra `--font-*`, `--radius-*`, `--shadow-*`, `--size-*` quando esses também vierem de settings (ver Padrão 5 — "Everything editable").
+
+**Checklist no self-critique (ETAPA 8):** grep por `:root {` no stylesheet — se aparecer com CSS vars redeclaradas, é bug. Única exceção válida: `:root` definindo constantes que NÃO são settings (ex: `--font-system: -apple-system, sans-serif`).
+
+### ⚠️ PADRÃO 1.5 — CRÍTICO: SEMPRE aplicar `| escape` em valores dentro do `style=""`
+
+**Bug observado em produção (altíssimo impacto):** quando o Liquid renderiza um valor com aspas duplas internas no `style="..."` do `<section>`, o browser interpreta a primeira `"` interna como FECHAMENTO do atributo. TODAS as CSS vars declaradas DEPOIS desse ponto ficam órfãs (undefined).
+
+**Exemplo real que quebrou tudo:**
+
+```liquid
+<section style="
+  --font-heading: {{ heading_family }};    {# valor: "Playfair Display", Georgia, serif #}
+  --radius-md: 12px;
+  --shadow-md: 0 4px 12px rgba(...);
+">
+```
+
+Renderiza:
+```html
+<section style="--font-heading: "Playfair Display", Georgia, serif; --radius-md: 12px;">
+                                 ↑ browser fecha o attribute aqui
+```
+
+Resultado: `--radius-md`, `--shadow-md`, e todas as vars restantes NÃO são aplicadas. Página renderiza com bordas retas, shadows ausentes, fontes fallback, etc — tudo silencioso, nenhum erro no console.
+
+**Fix obrigatório:** aplicar `| escape` em TODA interpolação `{{ ... }}` dentro do atributo `style=""`:
+
+```liquid
+<section style="
+  --font-heading: {{ heading_family | escape }};
+  --font-body: {{ body_family | escape }};
+  --color-primary: {{ section.settings.color_primary | default: '#002DD1' | escape }};
+  --radius-md: {{ section.settings.radius_md | default: 12 }}px;
+  --shadow-md: {{ shadow_md | escape }};
+">
+```
+
+O filtro `| escape` converte `"` → `&quot;`, que o browser decodifica corretamente ao aplicar o CSS.
+
+**Aplique universalmente** em todas interpolações do `style=""`, mesmo que o valor seja numérico (não quebra). É mais seguro blanket-apply do que caso a caso.
+
+**Checklist no self-critique (ETAPA 8):** grep por `style="` no markup e confirmar que cada `{{ ... }}` dentro do atributo tem `| escape`. Se algum não tem, é bug crítico em espera.
+
+### PADRÃO 1.6 — Box-shadows de elevação devem usar `var(--shadow-*)`, NÃO hardcoded
+
+**Bug observado:** gerações declararam `--shadow-sm/md/lg` no style inline mas os stylesheets mantiveram `box-shadow: 0 4px 12px rgba(35,31,32,0.06)` HARDCODED. Resultado: mudar `shadow_intensity` no theme editor não faz nada nas regras com shadow hardcoded.
+
+**Fix:** após criar `--shadow-sm/md/lg`, fazer grep `box-shadow:` em TODOS os stylesheets e migrar:
+
+- Elevação de card/popular tier/guarantee box → `var(--shadow-md)` ou `var(--shadow-lg)`
+- Hover elevation → `var(--shadow-md)`
+- Inset shadows, focus rings (`0 0 0 3px rgba(accent, 0.3)`) → PODE manter hardcoded (indicator visual, não muda com shadow_intensity)
+
+**Auto-check:** após migration, rodar:
+
+```bash
+grep -nE "box-shadow:.*rgba" sections/page-*.liquid | grep -v "var(--shadow" | grep -v "0 0 0 3px"
+```
+
+Se retornar qualquer rule de elevação (não-focus-ring) ainda hardcoded, migrar.
+
 ## Mapping de Schema (regras de tradução)
 
 Quando converter HTML/CSS pra Liquid section, siga estas regras de tradução de elementos pra settings:
@@ -336,16 +440,84 @@ Toda section da página deve expor este conjunto de blocks (adapte os type-speci
 **Blocks type-specific por section** (adicione ALÉM dos universais):
 - Benefits → `benefit_card` (num/icon + title + body + accent color)
 - Proof → `review_card` (quote + author + avatar + meta + featured checkbox)
-- Offer → `pricing_tier` (name + price + strap + features richtext + CTA + badge + popular checkbox + image)
+- Offer → `pricing_tier` (name + price + strap + features richtext + CTA + badge + popular checkbox + image) — ver [Padrão 4](#padrão-4--offer-ctas--padrão-formactioncartadd-nativo) pro CTA funcional
 - Guarantee → `promise_item` (title + body + accent color + icon)
 - FAQ → `faq_item` (question + answer richtext + open_by_default checkbox)
 - Mechanism → `mechanism_card` (tag + value + status + list items — nomeie conforme o mecanismo real do produto, ex: `ingredient_card`, `process_step`, `science_card`)
+
+**Offer section — blocks type-specific adicionais (ver [Padrão 6](#padrão-6--countdown-banner--subscribe--save-como-blocks-especializados)):**
+
+- `countdown_banner` (limit: 1) — urgência legítima com deadline fixo (sale real, drop, launch). Markup com `data-end=""` + vanilla JS `setInterval` no `{% javascript %}`. **⚠️ Compliance Meta/TikTok:** USAR APENAS deadlines fixos reais ou integrados com Shopify sale end (`compare_at_price`). Evitar rolling per-user (cookie 24h fake scarcity) — Meta detecta e desaprova ads. Evitar reset evergreen.
+- `pricing_tier` com Subscribe & Save — apps compatíveis: Loop, Recharge, Skio, Seal, Shopify Subscriptions native (grátis). Todos registram selling plan no Shopify; front-end usa mesmo pattern `<input name="selling_plan">` hidden/radio.
 
 **Regra dos 4 headers em TODO bloco** (organização):
 1. `Content` — os campos de texto/imagem/url (o QUE mostra)
 2. `Style` — cores, tamanhos, variantes, fontes (o COMO mostra)
 3. `Spacing` — space_before, space_after (o ONDE fica)
 4. `Advanced` — custom_css textarea (o ÚLTIMO recurso pra edição não-coberta)
+
+### PADRÃO 2 — Flexibilidade máxima em ícones (3 camadas obrigatórias)
+
+**Problema observado em produção:** membros em pre-launch raramente têm os ícones "certos" que batem com o preset enum do block. Opções: (a) usar ícone errado, (b) pedir pro membro abrir código e trocar SVG (viola "everything editable"), (c) pular ícone. Nenhuma é boa.
+
+**Fix — todo block com icon deve oferecer 3 níveis de customização:**
+
+**Camada 1 — Preset enum (fast path):**
+```json
+{ "type": "select", "id": "icon",
+  "options": [
+    { "value": "none", "label": "No icon" },
+    { "value": "shield-check", "label": "Shield (check)" },
+    { "value": "package", "label": "Package" },
+    { "value": "leaf", "label": "Leaf" },
+    { "value": "sparkle", "label": "Sparkle" },
+    { "value": "check-circle", "label": "Check circle" },
+    { "value": "heart", "label": "Heart" },
+    { "value": "star", "label": "Star" }
+  ],
+  "default": "shield-check"
+}
+```
+
+**Camada 2 — Custom SVG override (power user):**
+```json
+{ "type": "textarea", "id": "icon_custom_svg",
+  "label": "Custom SVG (overrides icon above)",
+  "info": "Paste SVG code. Use viewBox='0 0 24 24' for consistent sizing. stroke='currentColor' to inherit color settings."
+}
+```
+
+**Camada 3 — Opção `none` (opt-out):** setting `icon` sempre inclui `{ "value": "none", "label": "No icon" }` como **primeira option**. Permite layouts sem ícone (ex: authority block minimalista).
+
+**Markup condicional canônico (ordem de precedência):**
+
+```liquid
+{%- if block.settings.icon_custom_svg != blank -%}
+  <span class="X__icon-wrap" aria-hidden="true">{{ block.settings.icon_custom_svg }}</span>
+{%- elsif block.settings.icon != 'none' -%}
+  <span class="X__icon-wrap" aria-hidden="true">
+    {%- case block.settings.icon -%}
+      {%- when 'shield-check' -%}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 2l8 3v7c0 5-4 9-8 10-4-1-8-5-8-10V5l8-3z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      {%- when 'package' -%}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">...</svg>
+      {%- when 'leaf' -%}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">...</svg>
+      {# etc pra cada preset do enum #}
+    {%- endcase -%}
+  </span>
+{%- endif -%}
+```
+
+**Settings de cor/tamanho do ícone** (sempre expostos junto):
+- `icon_color` (color) — usa `currentColor` via `color: {{ block.settings.icon_color }}` no wrapper
+- `icon_size` (range 12-48px, step 2, default 20)
+- `icon_bg` (color opcional) + `icon_bg_radius` + `icon_padding` se o ícone tiver container circular/rounded
+
+**Racional:** membros em pre-launch podem não ter os ícones "certos" do preset. Custom SVG permite usar brand icons específicos. `None` permite layouts sem ícone. Preset cobre 80% dos casos. Combinação das 3 camadas = flexibilidade total sem pedir ao membro pra editar código.
 
 ### Customização máxima — checklist por block
 
@@ -357,6 +529,339 @@ Antes de salvar a section, verifique que CADA bloco tem:
 - [ ] `custom_css` textarea na aba Advanced
 - [ ] Root element tem `id="pu-{{ block.id }}"` pra o CSS ser scoped
 - [ ] `<style>#pu-{{ block.id }} { {{ block.settings.custom_css }} }</style>` injetado após o markup
+
+### PADRÃO 5 — "Everything editable" (fonts, radius, shadows, sizes como settings)
+
+Membros experientes querem controle fino. Toda section deve expor como settings:
+
+**Typography group** (agrupe com `{ "type": "header", "content": "Typography" }` no schema):
+
+```json
+{ "type": "select", "id": "heading_font_preset",
+  "options": [
+    { "value": "fraunces", "label": "Fraunces (serif modern)" },
+    { "value": "playfair", "label": "Playfair Display (serif classic)" },
+    { "value": "dm_serif", "label": "DM Serif Display" },
+    { "value": "inter", "label": "Inter (sans)" },
+    { "value": "manrope", "label": "Manrope (sans geometric)" },
+    { "value": "work_sans", "label": "Work Sans" },
+    { "value": "custom", "label": "Custom (set family below)" }
+  ],
+  "default": "fraunces"
+},
+{ "type": "text", "id": "heading_font_custom_family",
+  "label": "Custom heading font-family",
+  "info": "Only used when preset = Custom. Full CSS stack, e.g. 'Playfair Display', Georgia, serif"
+}
+```
+
+Pra body: mesmo padrão (`body_font_preset` + `body_font_custom_family`).
+
+Mapeie preset pra font-family stack no preamble da section (antes do markup). **USE ASPAS SIMPLES** dentro do valor (ou aspas duplas com cuidado — se duplas, OBRIGATÓRIO aplicar `| escape` ao injetar no style inline, ver Padrão 1.5):
+
+```liquid
+{% liquid
+  case section.settings.heading_font_preset
+    when 'fraunces' ; assign heading_family = "'Fraunces', Georgia, serif"
+    when 'playfair' ; assign heading_family = "'Playfair Display', Georgia, serif"
+    when 'dm_serif' ; assign heading_family = "'DM Serif Display', Georgia, serif"
+    when 'inter' ; assign heading_family = "'Inter', -apple-system, sans-serif"
+    when 'manrope' ; assign heading_family = "'Manrope', -apple-system, sans-serif"
+    when 'work_sans' ; assign heading_family = "'Work Sans', -apple-system, sans-serif"
+    when 'custom' ; assign heading_family = section.settings.heading_font_custom_family
+    else ; assign heading_family = "Georgia, serif"
+  endcase
+%}
+```
+
+E injete no style inline do root **SEMPRE COM `| escape`** (obrigatório pra evitar quebra de HTML por aspas internas — ver [Padrão 1.5](#-padrão-15--crítico-sempre-aplicar-escape-em-valores-dentro-do-style)):
+
+```liquid
+style="
+  --font-heading: {{ heading_family | escape }};
+  --font-body: {{ body_family | escape }};
+  /* demais vars */
+"
+```
+
+**Google Fonts loader:** adicione `<link>` no TOPO de cada section (fora do `{% stylesheet %}`) — browser cacheia, deduplica automaticamente entre sections:
+
+```liquid
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+```
+
+**Shape & Sizing group:**
+
+```json
+{ "type": "header", "content": "Shape & Sizing" },
+{ "type": "range", "id": "radius_sm", "min": 0, "max": 24, "step": 2, "unit": "px", "default": 6 },
+{ "type": "range", "id": "radius_md", "min": 0, "max": 32, "step": 2, "unit": "px", "default": 12 },
+{ "type": "range", "id": "radius_lg", "min": 0, "max": 48, "step": 2, "unit": "px", "default": 20 },
+{ "type": "range", "id": "radius_pill", "min": 0, "max": 1000, "step": 10, "unit": "px", "default": 1000,
+  "info": "Use 1000 for fully rounded pills. Step is 10 (Shopify limits to 101 steps — see Limitação #9)" },
+{ "type": "select", "id": "shadow_intensity",
+  "options": [
+    { "value": "none", "label": "None" },
+    { "value": "subtle", "label": "Subtle" },
+    { "value": "medium", "label": "Medium" },
+    { "value": "strong", "label": "Strong" }
+  ],
+  "default": "subtle"
+},
+{ "type": "range", "id": "font_size_base", "min": 13, "max": 20, "step": 1, "unit": "px", "default": 16 },
+{ "type": "range", "id": "scale_ratio", "min": 115, "max": 150, "step": 5, "default": 125,
+  "info": "Typography scale ratio × 100. 125 = 1.25 (Major Third). 133 = Perfect Fourth." }
+```
+
+Mapeie `shadow_intensity` pra triple shadows via `case`:
+
+```liquid
+{% liquid
+  case section.settings.shadow_intensity
+    when 'none'
+      assign shadow_sm = 'none'
+      assign shadow_md = 'none'
+      assign shadow_lg = 'none'
+    when 'subtle'
+      assign shadow_sm = '0 1px 2px rgba(0,0,0,0.04)'
+      assign shadow_md = '0 4px 12px rgba(0,0,0,0.06)'
+      assign shadow_lg = '0 12px 32px rgba(0,0,0,0.08)'
+    when 'medium'
+      assign shadow_sm = '0 2px 4px rgba(0,0,0,0.08)'
+      assign shadow_md = '0 8px 20px rgba(0,0,0,0.10)'
+      assign shadow_lg = '0 20px 48px rgba(0,0,0,0.14)'
+    when 'strong'
+      assign shadow_sm = '0 4px 8px rgba(0,0,0,0.12)'
+      assign shadow_md = '0 12px 28px rgba(0,0,0,0.16)'
+      assign shadow_lg = '0 28px 64px rgba(0,0,0,0.22)'
+  endcase
+%}
+```
+
+E injete no style inline **com `| escape`** (ver Padrão 1.5): `--shadow-sm: {{ shadow_sm | escape }}; --shadow-md: {{ shadow_md | escape }}; --shadow-lg: {{ shadow_lg | escape }};`.
+
+**Pro scale_ratio**, divida por 100 no uso: `font-size: calc(var(--font-size-base) * pow({{ section.settings.scale_ratio | divided_by: 100.0 }}, 3))` ou pré-calcule os tamanhos no preamble.
+
+#### ⚠️ Gotcha CRÍTICO — Ao criar setting, MIGRAR TODAS as hardcoded usages no stylesheet
+
+**Bug observado em produção:** agent declarou `--shadow-sm/md/lg` corretamente, injetou inline, expôs como setting. MAS esqueceu de migrar rules existentes no stylesheet que tinham `box-shadow: 0 4px 12px rgba(35,31,32,0.06)` HARDCODED. Resultado: setting aparece no editor, membro muda `shadow_intensity` de "subtle" pra "strong", nada muda visualmente — porque as rules ignoram o CSS var.
+
+**Mesmo bug acontece com radius, font-size, font-family.**
+
+**Protocolo obrigatório ao expor token como setting:**
+
+1. Criar setting no schema
+2. Declarar CSS var correspondente no style inline do section root (com `| escape`)
+3. **Grep o stylesheet** procurando valores hardcoded do tipo antigo:
+   - `grep -n "box-shadow:" | grep -v "var(--shadow"`
+   - `grep -nE "border-radius:\s*[0-9]+"`
+   - `grep -nE "font-size:\s*[0-9.]+(rem|px)" | grep -v "var(--"`
+   - `grep -n "font-family:" | grep -v "var(--font-"`
+4. Migrar cada match pra `var(--X)`. EXCEÇÕES permitidas:
+   - Focus rings (`0 0 0 3px rgba(accent, 0.3)`) — indicator de foco, não deve mudar com shadow_intensity
+   - Mono fonts em contexto específico (ex: molecular info em ingredient cards) — mantém `"SF Mono", monospace`
+   - Clamp() em headline fluids — ok manter
+5. Re-push e testar no theme editor: mudar setting, confirmar que aplica visual.
+
+**Sem esse passo 3-4, a feature é schema-only (aparece no editor mas não funciona).**
+
+#### ⚠️ Gotcha crítico — text settings com default blank
+
+Shopify REJEITA `{ "type": "text", ..., "default": "" }` com erro `"default can't be blank"`. Pra text settings opcionais (ex: `heading_font_custom_family`), **OMITIR** o key `default` inteiro:
+
+```json
+// ❌ Rejected — "default can't be blank"
+{ "type": "text", "id": "custom_family", "default": "" }
+
+// ✅ Correct
+{ "type": "text", "id": "custom_family" }
+```
+
+**Racional:** "everything editable" é filosofia Aura. Membros NÃO sabem CSS, mas SABEM quando querem mudar a fonte, o arredondamento dos cards, ou a sombra. Expor como setting elimina necessidade de editar código.
+
+### PADRÃO 3 — Auditoria de cores por section (evita "cor não editável")
+
+**Problema observado em produção:** gerações iniciais expõem só 4-5 color settings básicos (bg, fg, primary, border). Membros reclamam: "não consigo mudar a cor do savings badge", "a borda do card popular tá fixa", "o strikethrough do preço tá azul e eu quero cinza", etc. Resultado: retrabalho manual em cada pedido de cor nova.
+
+**Fix:** antes de fechar cada section, auditar TODAS as cores visíveis no output e garantir que cada uma tem um color setting próprio no schema. Checklist mínimo por tipo de section:
+
+| Section type | Color settings obrigatórios (mínimo) |
+|---|---|
+| **Hero** | `color_eyebrow`, `color_heading`, `color_subhead`, `color_cta_bg`, `color_cta_text`, `color_cta_secondary_bg`, `color_cta_secondary_text`, `color_trust_badge_bg`, `color_trust_badge_text`, `color_trust_badge_icon`, `color_bg_top`, `color_bg_bottom`, `color_accent` |
+| **Offer / Pricing** | `color_tier_bg`, `color_tier_border`, `color_tier_popular_border`, `color_tier_popular_bg`, `color_tier_name`, `color_price`, `color_price_original` (strikethrough), `color_savings_bg`, `color_savings_text`, `color_popular_badge_bg`, `color_popular_badge_text`, `color_cta_primary_bg`, `color_cta_primary_text`, `color_cta_outline_border`, `color_cta_outline_text`, `color_value_stack_bg`, `color_value_stack_border`, `color_value_stack_item`, `color_value_stack_total` |
+| **Social proof** | `color_stat_number`, `color_stat_label`, `color_testimonial_quote`, `color_testimonial_name`, `color_testimonial_meta`, `color_authority_bg`, `color_authority_text`, `color_authority_icon`, `color_avatar_bg`, `color_star_filled`, `color_star_empty` |
+| **Comparison table** | `color_table_header_bg`, `color_table_header_text`, `color_row_alt_bg`, `color_border`, `color_highlighted_col_bg`, `color_highlighted_col_border`, `color_sticky_col_bg`, `color_sticky_col_text`, `color_checkmark`, `color_x_mark`, `color_caption` |
+| **FAQ** | `color_question_text`, `color_question_bg`, `color_answer_text`, `color_answer_bg`, `color_accordion_border`, `color_accordion_icon`, `color_accordion_icon_hover`, `color_accordion_hover_bg` |
+| **Benefits** | `color_card_bg`, `color_card_border`, `color_icon_bg`, `color_icon_fg`, `color_card_title`, `color_card_body`, `color_card_accent` |
+| **Mechanism** | `color_tag_bg`, `color_tag_text`, `color_value_text`, `color_status_ok`, `color_status_warn`, `color_list_icon`, `color_list_text`, `color_divider` |
+| **Guarantee** | `color_seal_bg`, `color_seal_border`, `color_seal_icon`, `color_seal_title`, `color_seal_body`, `color_accent` |
+
+**Regra:** qualquer elemento que o membro POSSA querer destacar ou harmonizar separadamente → color setting próprio. Média esperada: **15-30 color settings por section**. Não economize aqui.
+
+**Checklist no self-critique (ETAPA 8):** abra a section renderizada, aponte pra CADA cor visível na tela, e confirme que existe setting correspondente no schema. Se não existe, adicione antes de fechar.
+
+## PADRÃO 4 — Offer CTAs: padrão `<form action="/cart/add">` nativo
+
+**Problema observado em produção:** gerações iniciais faziam o CTA do `pricing_tier` como `<a href="...">` exigindo membro colar URL manual tipo `/cart/add?id=X`. Falhas em cascata:
+- Não funciona sem JS adicional (GET request vs POST — Shopify add-to-cart espera POST)
+- Não dispara Shopify Web Pixel `cart_updated` event
+- Meta Pixel perde o `AddToCart` event
+- Meta Conversions API, TikTok, Google Analytics, tudo fica cego
+
+**Fix canônico — form nativo com fallback:**
+
+```liquid
+{%- if block.settings.variant_id != blank -%}
+  <form action="/cart/add" method="post" enctype="multipart/form-data" class="X__form">
+    <input type="hidden" name="id" value="{{ block.settings.variant_id }}">
+    <input type="hidden" name="quantity" value="{{ block.settings.quantity | default: 1 }}">
+
+    {%- if block.settings.after_add == 'checkout' -%}
+      <input type="hidden" name="return_to" value="/checkout">
+    {%- elsif block.settings.after_add == 'cart' -%}
+      <input type="hidden" name="return_to" value="/cart">
+    {%- endif -%}
+
+    {# Subscribe & Save radio buttons (quando aplicável) #}
+    {%- if block.settings.subscribe_enabled and block.settings.subscribe_selling_plan_id != blank -%}
+      <fieldset class="X__purchase-options">
+        <legend class="visually-hidden">Purchase options</legend>
+        <label class="X__option">
+          <input type="radio" name="selling_plan" value="" checked>
+          <span>One-time purchase</span>
+        </label>
+        <label class="X__option X__option--subscribe">
+          <input type="radio" name="selling_plan" value="{{ block.settings.subscribe_selling_plan_id }}">
+          <span>
+            {{ block.settings.subscribe_frequency_label | default: 'Subscribe & save' }}
+            {%- if block.settings.subscribe_badge_text != blank -%}
+              <em class="X__save-badge">{{ block.settings.subscribe_badge_text }}</em>
+            {%- endif -%}
+          </span>
+        </label>
+      </fieldset>
+    {%- endif -%}
+
+    <button type="submit" class="X__cta">{{ block.settings.cta_text }}</button>
+  </form>
+{%- elsif block.settings.cta_fallback_url != blank -%}
+  <a href="{{ block.settings.cta_fallback_url }}" class="X__cta">{{ block.settings.cta_text }}</a>
+{%- else -%}
+  <button type="button" class="X__cta" disabled>{{ block.settings.cta_text | default: 'Coming soon' }}</button>
+{%- endif -%}
+```
+
+**Settings obrigatórios no `pricing_tier`:**
+
+| Setting | Type | Notas |
+|---|---|---|
+| `variant_id` | text | Shopify product variant ID (`shopify.com/admin/products/X/variants/Y` — Y é o ID) |
+| `quantity` | range 1-10 step 1 | Default 1 |
+| `after_add` | select (checkout / cart / stay) | `checkout` = skip cart, vai direto. `cart` = vai pro carrinho. `stay` = fica na página (drawer abre) |
+| `cta_fallback_url` | text | Fallback quando `variant_id` vazio (ex: "Coming soon" linka pra waitlist) |
+| `cta_text` | text | Ex: "Add to cart", "Start My Glow", "Buy the Kit" |
+
+**Settings Subscribe & Save (quando aplicável):**
+
+| Setting | Type | Notas |
+|---|---|---|
+| `subscribe_enabled` | checkbox | Default false |
+| `subscribe_selling_plan_id` | text | Selling plan ID gerado pelo app (Loop/Recharge/Skio/Shopify Subscriptions) |
+| `subscribe_frequency_label` | text | Ex: "Delivered every 3 months" |
+| `subscribe_discount_display` | text | Ex: "15% OFF" |
+| `subscribe_badge_text` | text | Ex: "SAVE 15%" |
+| `color_subscribe_badge_bg`, `color_subscribe_badge_text`, `color_subscribe_radio_selected`, `color_subscribe_option_bg_selected` | color | Ver [Padrão 3](#padrão-3--auditoria-de-cores-por-section-evita-cor-não-editável) |
+
+**Racional:** forms POST nativos disparam `cart_updated` via Shopify Web Pixel Manager, que propaga automaticamente pro Meta Pixel (se canal Meta instalado), Google Analytics GA4, TikTok, etc. Zero JS custom, zero configuração extra. Tudo o que o membro precisa fazer no theme editor é colar o variant_id — o resto é automático.
+
+## PADRÃO 6 — Countdown banner & Subscribe & Save como blocks especializados
+
+**Countdown banner (offer section, limit: 1):**
+
+Urgência LEGÍTIMA com deadline fixo é conversão honesta. Rolling per-user (fake scarcity) é manipulação que o Meta detecta e pune.
+
+**Settings do block `countdown_banner`:**
+
+| Setting | Type | Notas |
+|---|---|---|
+| `label_before` | text | Ex: "Offer ends in" |
+| `label_expired` | text | Ex: "Offer ended" |
+| `end_date` | text | Formato YYYY-MM-DD |
+| `end_time` | text | Formato HH:MM (24h) |
+| `timezone` | select | US/Eastern, US/Central, US/Mountain, US/Pacific, UTC |
+| `show_labels` | checkbox | Mostra "Days / Hours / Min / Sec" abaixo dos dígitos |
+| `color_bg`, `color_text`, `color_digits_bg`, `color_digits_text`, `color_labels`, `color_expired_text` | color | |
+| `digit_size` | range 24-72px | |
+| `padding_y` | range 12-48px | |
+| `custom_css` | textarea | |
+
+**Markup canônico:**
+
+```liquid
+<div id="pu-{{ block.id }}"
+     class="X__countdown"
+     data-end="{{ block.settings.end_date }}T{{ block.settings.end_time }}"
+     data-tz="{{ block.settings.timezone }}"
+     data-expired="false">
+  <span class="X__countdown-label">{{ block.settings.label_before }}</span>
+  <div class="X__countdown-digits">
+    <span><strong data-days>--</strong>{% if block.settings.show_labels %}<em>Days</em>{% endif %}</span>
+    <span><strong data-hours>--</strong>{% if block.settings.show_labels %}<em>Hours</em>{% endif %}</span>
+    <span><strong data-mins>--</strong>{% if block.settings.show_labels %}<em>Min</em>{% endif %}</span>
+    <span><strong data-secs>--</strong>{% if block.settings.show_labels %}<em>Sec</em>{% endif %}</span>
+  </div>
+  <span class="X__countdown-expired" hidden>{{ block.settings.label_expired }}</span>
+</div>
+```
+
+**JS no `{% javascript %}`:**
+
+```javascript
+document.querySelectorAll('.X__countdown').forEach(function(el){
+  var end = new Date(el.dataset.end).getTime();
+  function tick(){
+    var now = Date.now();
+    var diff = end - now;
+    if (diff <= 0) {
+      el.setAttribute('data-expired', 'true');
+      el.querySelector('.X__countdown-digits').hidden = true;
+      el.querySelector('.X__countdown-expired').hidden = false;
+      return;
+    }
+    var d = Math.floor(diff / 86400000);
+    var h = Math.floor((diff % 86400000) / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    el.querySelector('[data-days]').textContent = String(d).padStart(2,'0');
+    el.querySelector('[data-hours]').textContent = String(h).padStart(2,'0');
+    el.querySelector('[data-mins]').textContent = String(m).padStart(2,'0');
+    el.querySelector('[data-secs]').textContent = String(s).padStart(2,'0');
+  }
+  tick();
+  setInterval(tick, 1000);
+});
+```
+
+**Expired state** via CSS: `.X__countdown[data-expired="true"] { ... }` — swap color, apaga digits, mostra label.
+
+**⚠️ Compliance Meta/TikTok:**
+- **USAR:** deadlines fixos reais (sale end date, launch, drop, cohort close) OU integrado com Shopify sale via `compare_at_price` (countdown desaparece quando sale acaba automaticamente).
+- **EVITAR:** rolling per-user (cookie-based 24h fake scarcity). Meta detecta porque cada usuário vê timer diferente pra mesma oferta → flag de "misleading urgency" → ad disapproval + shadow ban.
+- **EVITAR:** reset evergreen (countdown chega a 0, recarrega pra 24h). Mesma razão.
+
+**Subscribe & Save:** ver [Padrão 4](#padrão-4--offer-ctas-padrão-formactioncartadd-nativo) pro pattern de front-end. Apps compatíveis:
+
+| App | Preço | Selling plan ID | Notas |
+|---|---|---|---|
+| Shopify Subscriptions (native) | Grátis | Admin → Products → Selling plans | Recomendado pra primeira loja |
+| Loop Subscriptions | Paid | Loop dashboard → Plans | Popular em DTC escalado |
+| Recharge | Paid | Recharge dashboard | Mais antigo, maior ecosystem |
+| Skio | Paid | Skio dashboard | UI moderna, focus em retention |
+| Seal Subscriptions | Paid | Seal dashboard | |
+
+Todos registram `selling_plan_id` no Shopify. Front-end usa mesmo pattern `<input type="radio" name="selling_plan" value="ID">`. O app cuida do resto (cobrança recorrente, cancelamento, skip).
 
 ## ETAPA 6 — Generate Remaining Sections
 
