@@ -594,28 +594,72 @@ style="
 
 **Shape & Sizing group:**
 
+Expor APENAS os radius sizes que a section realmente usa. Cada label deve descrever os elementos reais.
+
 ```json
 { "type": "header", "content": "Shape & Sizing" },
-{ "type": "range", "id": "radius_sm", "min": 0, "max": 24, "step": 2, "unit": "px", "default": 6 },
-{ "type": "range", "id": "radius_md", "min": 0, "max": 32, "step": 2, "unit": "px", "default": 12 },
-{ "type": "range", "id": "radius_lg", "min": 0, "max": 48, "step": 2, "unit": "px", "default": 20 },
-{ "type": "range", "id": "radius_pill", "min": 0, "max": 1000, "step": 10, "unit": "px", "default": 1000,
-  "info": "Use 1000 for fully rounded pills. Step is 10 (Shopify limits to 101 steps — see Limitação #9)" },
+{ "type": "range", "id": "radius_md", "label": "Medium radius (elementos REAIS da section)",
+  "min": 0, "max": 32, "step": 2, "unit": "px", "default": 12 },
+{ "type": "range", "id": "radius_pill", "label": "Pill radius (elementos REAIS da section)",
+  "min": 0, "max": 1000, "step": 10, "default": 1000,
+  "info": "Use 1000 for fully rounded pills. Step is 10 (Shopify limits to 101 steps — see Limitação #9)" }
+```
+
+> **NÃO** expor `font_size_base` nem `scale_ratio` como settings. Esses 2 settings foram removidos do padrão: exigem migração completa de todas as font-sizes da section pra funcionar (cada `font-size: 1.125rem` vira cálculo com `var(--fs-base)` e `pow(scale)`), o que adiciona risco desnecessário de regressão sem valor real pro membro. Font sizes ficam hardcoded em `rem` no stylesheet (responsive via `clamp()` quando necessário).
+
+#### Labels precisos — descrever os elementos REAIS
+
+Antes de finalizar a section, grep pelo stylesheet:
+
+- `grep -n "var(--radius-sm)"`
+- `grep -n "var(--radius-md)"`
+- `grep -n "var(--radius-lg)"`
+- `grep -n "var(--radius-pill)"`
+
+E liste no label do schema os elementos REAIS que usam cada radius. Exemplo:
+
+- ❌ Genérico: "Medium radius (cards, buttons)"
+- ✅ Preciso: "Medium radius (image wrapper)" — se só o image wrap usa na section
+- ✅ Preciso: "Pill radius (CTA button, trust badges)" — se ambos usam
+
+**Se um radius size não é usado na section, REMOVA o setting** (não exponha radius inútil). Também remova o `--radius-X` do style inline e a linha do preamble se existir — schema limpo, zero vars mortas.
+
+#### shadow_intensity: só em sections com shadow visual
+
+Nem toda section tem shadow de elevação. Antes de adicionar `shadow_intensity` setting:
+
+- grep `box-shadow:` no stylesheet
+- Se só aparece em `:focus-visible` ou `inset ring` → **NÃO adicionar** setting (focus rings não devem mudar com intensidade de shadow — são indicator de foco, hardcoded com accent color)
+- Se aparece em cards, hovers, popular tier, guarantee box → **adicionar setting + `color_shadow` pareado**
+
+Sections que tipicamente TÊM shadow: benefits (card hover), offer (popular tier), guarantee (elevated box), ingredients (cards com elevação), social-proof (testimonial cards com elevação), how-it-works (steps elevados), before-after (pair cards elevados).
+
+Sections que tipicamente NÃO têm: hero (só focus rings no CTA), trust-bar (flat, border-top/bottom), mechanism (flat), comparison-table (só borders), faq (só borders no accordion), cta-final (flat).
+
+Se REMOVER shadow_intensity: também remover o `case shadow_intensity ... endcase` do preamble e as linhas `--shadow-sm/md/lg:` do style inline. Não deixe CSS vars declaradas mas não usadas.
+
+#### Shadow color como setting (pareado com shadow_intensity)
+
+Quando adicionar `shadow_intensity`, SEMPRE pair com `color_shadow`:
+
+```json
 { "type": "select", "id": "shadow_intensity",
+  "label": "Shadow intensity",
   "options": [
     { "value": "none", "label": "None" },
-    { "value": "subtle", "label": "Subtle" },
+    { "value": "subtle", "label": "Subtle (default)" },
     { "value": "medium", "label": "Medium" },
     { "value": "strong", "label": "Strong" }
   ],
   "default": "subtle"
 },
-{ "type": "range", "id": "font_size_base", "min": 13, "max": 20, "step": 1, "unit": "px", "default": 16 },
-{ "type": "range", "id": "scale_ratio", "min": 115, "max": 150, "step": 5, "default": 125,
-  "info": "Typography scale ratio × 100. 125 = 1.25 (Major Third). 133 = Perfect Fourth." }
+{ "type": "color", "id": "color_shadow",
+  "label": "Shadow color",
+  "default": "#231F20",
+  "info": "Base color for all shadows. Opacity is controlled by Shadow intensity." }
 ```
 
-Mapeie `shadow_intensity` pra triple shadows via `case`:
+Preamble — só mapeia opacities (cor vem do setting):
 
 ```liquid
 {% liquid
@@ -625,24 +669,39 @@ Mapeie `shadow_intensity` pra triple shadows via `case`:
       assign shadow_md = 'none'
       assign shadow_lg = 'none'
     when 'subtle'
-      assign shadow_sm = '0 1px 2px rgba(0,0,0,0.04)'
-      assign shadow_md = '0 4px 12px rgba(0,0,0,0.06)'
-      assign shadow_lg = '0 12px 32px rgba(0,0,0,0.08)'
+      assign shadow_opacity_sm = '0.04'
+      assign shadow_opacity_md = '0.06'
+      assign shadow_opacity_lg = '0.08'
     when 'medium'
-      assign shadow_sm = '0 2px 4px rgba(0,0,0,0.08)'
-      assign shadow_md = '0 8px 20px rgba(0,0,0,0.10)'
-      assign shadow_lg = '0 20px 48px rgba(0,0,0,0.14)'
+      assign shadow_opacity_sm = '0.08'
+      assign shadow_opacity_md = '0.12'
+      assign shadow_opacity_lg = '0.16'
     when 'strong'
-      assign shadow_sm = '0 4px 8px rgba(0,0,0,0.12)'
-      assign shadow_md = '0 12px 28px rgba(0,0,0,0.16)'
-      assign shadow_lg = '0 28px 64px rgba(0,0,0,0.22)'
+      assign shadow_opacity_sm = '0.12'
+      assign shadow_opacity_md = '0.18'
+      assign shadow_opacity_lg = '0.24'
   endcase
 %}
 ```
 
-E injete no style inline **com `| escape`** (ver Padrão 1.5): `--shadow-sm: {{ shadow_sm | escape }}; --shadow-md: {{ shadow_md | escape }}; --shadow-lg: {{ shadow_lg | escape }};`.
+Style inline — usa `color-mix()` pra combinar cor + opacity:
 
-**Pro scale_ratio**, divida por 100 no uso: `font-size: calc(var(--font-size-base) * pow({{ section.settings.scale_ratio | divided_by: 100.0 }}, 3))` ou pré-calcule os tamanhos no preamble.
+```liquid
+style="
+  {%- if section.settings.shadow_intensity == 'none' -%}
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  {%- else -%}
+  --c-shadow: {{ section.settings.color_shadow | default: '#231F20' | escape }};
+  --shadow-sm: 0 1px 2px color-mix(in srgb, {{ section.settings.color_shadow | default: '#231F20' }} {{ shadow_opacity_sm | times: 100 }}%, transparent);
+  --shadow-md: 0 4px 12px color-mix(in srgb, {{ section.settings.color_shadow | default: '#231F20' }} {{ shadow_opacity_md | times: 100 }}%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, {{ section.settings.color_shadow | default: '#231F20' }} {{ shadow_opacity_lg | times: 100 }}%, transparent);
+  {%- endif -%}
+"
+```
+
+`color-mix(in srgb, hex X%, transparent)` é suportado em ~94% de browsers modernos (Chrome 111+, Safari 16.2+, Firefox 113+). Fallback CSS é complicado e aceita-se o risco nesse nice-to-have (shadow color é customização fina, não load-bearing).
 
 #### ⚠️ Gotcha CRÍTICO — Ao criar setting, MIGRAR TODAS as hardcoded usages no stylesheet
 
