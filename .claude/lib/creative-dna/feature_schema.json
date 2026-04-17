@@ -1,0 +1,164 @@
+{
+  "version": "1.0",
+  "description": "Features estruturadas extraídas de cada criativo. Claude usa este schema pra garantir consistência na extração.",
+  "features": {
+    "hook_type": {
+      "type": "enum",
+      "values": [
+        "voc_literal",
+        "confession_with_trigger_event",
+        "specificity_number",
+        "question_direct",
+        "reframe_contrarian",
+        "pattern_interrupt_visual",
+        "story_personal",
+        "proclamation",
+        "secret_reveal",
+        "problem_agitation"
+      ],
+      "description": "Categoria primária do hook"
+    },
+    "hook_duration_seconds": {
+      "type": "number",
+      "range": [1, 5],
+      "description": "Segundos usados pro hook antes do bridge"
+    },
+    "hook_has_specific_number": {
+      "type": "boolean",
+      "description": "Hook contém número específico (idade, $, %, count)?"
+    },
+    "pain_agitation_position": {
+      "type": "enum",
+      "values": ["s0-s3", "s3-s8", "s8-s12", "not_used"],
+      "description": "Janela temporal da agitação de dor"
+    },
+    "mechanism_reveal_position": {
+      "type": "enum",
+      "values": ["s0-s3", "s3-s6", "s6-s10", "s10-s15", "s15_plus", "not_revealed"],
+      "description": "Quando mechanism é revelado no vídeo"
+    },
+    "social_proof_density": {
+      "type": "enum",
+      "values": ["none", "low", "medium", "high"],
+      "description": "Quantidade de proof points no criativo"
+    },
+    "cta_tone": {
+      "type": "enum",
+      "values": [
+        "call_to_value",
+        "call_to_action_direct",
+        "identity_preservation",
+        "urgency",
+        "anti_urgency",
+        "curiosity_tease"
+      ],
+      "description": "Estilo do call to action final"
+    },
+    "voice_profile": {
+      "type": "enum",
+      "values": [
+        "female_25_35",
+        "female_35_45",
+        "female_40_plus_warm",
+        "female_40_plus_authoritative",
+        "male_30_40",
+        "male_40_plus",
+        "text_only",
+        "multiple_voices"
+      ],
+      "description": "Perfil da voz principal"
+    },
+    "voiceover_pause_avg_ms": {
+      "type": "number",
+      "range": [0, 1000],
+      "description": "Pausa média entre frases em ms (0 se text-only)"
+    },
+    "text_overlay_frequency": {
+      "type": "enum",
+      "values": ["none", "sparse", "medium", "heavy_submagic"],
+      "description": "Densidade de text overlays no vídeo"
+    },
+    "visual_cuts_per_second": {
+      "type": "number",
+      "range": [0, 3],
+      "description": "Média de cuts/segundo (proxy de ritmo editorial)"
+    },
+    "numbers_in_copy_count": {
+      "type": "number",
+      "range": [0, 20],
+      "description": "Total de números específicos no script (Hopkins specificity)"
+    },
+    "avatar_age_depicted": {
+      "type": "number",
+      "range": [18, 80],
+      "description": "Idade do avatar/persona depicted (0 se sem pessoa)"
+    },
+    "format": {
+      "type": "enum",
+      "values": [
+        "ugc_real_person",
+        "ugc_ai_avatar",
+        "stolen_ugc_stitch",
+        "motion_graphic",
+        "motion_graphic_hybrid",
+        "stock_footage",
+        "static_image",
+        "carousel"
+      ],
+      "description": "Formato primário de produção"
+    },
+    "duration_total_seconds": {
+      "type": "number",
+      "range": [5, 120],
+      "description": "Duração total do criativo"
+    },
+    "big_idea_explicit": {
+      "type": "boolean",
+      "description": "Big idea é verbalizada no vídeo?"
+    },
+    "objection_addressed_count": {
+      "type": "number",
+      "range": [0, 5],
+      "description": "Objeções do market research endereçadas no criativo"
+    },
+    "guarantee_mentioned": {
+      "type": "boolean",
+      "description": "Guarantee é mencionada explicitamente?"
+    },
+    "price_mentioned": {
+      "type": "boolean",
+      "description": "Preço é mencionado no criativo (ou só na LP)?"
+    },
+    "urgency_mechanism": {
+      "type": "enum",
+      "values": ["none", "scarcity_real", "time_limit", "social_pressure", "curiosity_gap"],
+      "description": "Tipo de urgency usada (se alguma)"
+    },
+    "compliance_risk_score": {
+      "type": "number",
+      "range": [0, 100],
+      "description": "Score do Compliance Pre-flight — útil pra correlacionar com Meta disapproval histórico"
+    }
+  },
+  "contextual_features": {
+    "description": "Features derivadas do contexto do briefing, não do criativo em si",
+    "features": {
+      "awareness_level_target": {
+        "type": "enum",
+        "values": ["unaware", "problem_aware", "solution_aware", "product_aware", "most_aware"]
+      },
+      "funnel_position": {
+        "type": "enum",
+        "values": ["TOF", "MOF", "BOF", "retarget"]
+      },
+      "angle_vertical": {
+        "type": "enum",
+        "values": ["competitive", "consumer", "internal"]
+      },
+      "big_4_emotion_dominant": {
+        "type": "enum",
+        "values": ["curiosity", "urgency", "fear", "delight"]
+      }
+    }
+  }
+}

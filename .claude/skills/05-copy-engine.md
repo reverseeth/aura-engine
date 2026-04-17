@@ -280,6 +280,16 @@ Antes de entregar, faça **7 sweeps de revisão** :
 5. **Objection sweep**: cada objeção do market research foi quebrada em algum lugar? Onde está omitida?
 6. **CTA sweep**: CTAs são call to VALUE? Aparecem em frequência certa (não muito, não pouco)?
 7. **Originality sweep**: comparar com os claims saturados do competitor analysis — onde estou usando um claim saturado? substitua por ângulo original.
+8. **Compliance Pre-flight sweep** (OBRIGATÓRIO antes de salvar o arquivo final):
+   - Para cada headline, primary text, advertorial section, CTA e crossheads gerados, rodar o checker definido em `.claude/lib/compliance-preflight/checker.md`
+   - Carregar `.claude/lib/compliance-preflight/red_flags.json` como contexto
+   - Aplicar o prompt do checker com: vertical do produto (do manifest), asset_type (headline/primary_text/etc), plataforma_alvo (Meta Ads por default)
+   - Parse da resposta JSON:
+     - Se `severity == critical`: PARAR, reportar os triggers ao membro, aplicar `rewrite_suggestion` ou pedir revisão
+     - Se `severity == high`: aplicar `rewrite_suggestion` automaticamente + logar em `/workspace/[produto]/05-compliance-log.json`
+     - Se `severity == medium`: manter copy original, logar warning
+     - Se `severity == low`: salvar silenciosamente
+   - Todas as decisões e triggers vão pro log; silencioso quando zero flags
 
 Para cada sweep, documente o que mudou (as edits são o output do sweep).
 

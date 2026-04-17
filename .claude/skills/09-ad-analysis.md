@@ -25,20 +25,44 @@ Quando a campanha está rodando há 3+ dias e o membro precisa diagnosticar o qu
 
 ## Fluxo da Skill
 
-### ETAPA 1 — Receber Dados
+### ETAPA 1 — Obter Dados (AUTO via MCP, fallback manual)
 
-Diga ao membro (uma única mensagem):
+**PRIMEIRO TENTE AUTO-PULL via Meta MCP (preferível):**
 
-"Cola os dados do Ads Manager aqui — screenshot ou números. Preciso ver por ad set: Spend, Frequency, CPM, CPC, Cost per Purchase, ROAS. E quantos dias cada ad set está rodando."
+1. Verificar se MCP `meta-ads` está disponível:
+   ```
+   test_mcp = invoke("meta-ads", "ping") ou equivalente
+   ```
 
-ESPERE a resposta. Se enviar dados incompletos, peça só o que faltou — não re-explique a pergunta.
+2. Se MCP disponível:
+   a. Invocar receita `sync-campaign-from-meta.md`:
+      ```
+      invoke_recipe("sync-campaign-from-meta", {
+        campaign_name: read_manifest("08_campaign_name"),
+        date_preset: "last_7d"
+      })
+      ```
+   b. Receita salva pull completo em `/workspace/[produto]/09-analysis/raw-pull-[timestamp].json`
+   c. Parse JSON em tabela estruturada internamente:
 
-Parse os dados em uma tabela estruturada internamente:
+   | Ad Set | Days Running | Spend | Freq | CPM | CPC | CTR | CPA | ROAS | Thumbstop | Hold15s |
+   |---|---|---|---|---|---|---|---|---|---|---|
 
-| Ad Set | Days Running | Spend | Freq | CPM | CPC | CTR | CPA | ROAS |
-|---|---|---|---|---|---|---|---|---|
+   d. **ZERO interação com o membro nesse fluxo.** Silent pull, pronto pra ETAPA 2.
 
-Se o membro mandar screenshot, extraia os números via análise visual.
+3. Se MCP falhar (não configurado, token expirado, rate limit):
+   a. Logar erro em `/workspace/[produto]/09-analysis/mcp-errors.log`
+   b. Fallback ao modo manual: pedir ao membro:
+
+      "MCP do Meta Ads não respondeu (motivo: [erro]). Cola os dados aqui — screenshot ou números. Preciso ver por ad set: Spend, Frequency, CPM, CPC, Cost per Purchase, ROAS. E quantos dias cada ad set está rodando."
+
+      ESPERE a resposta. Parse manual.
+
+**Indicar ao membro no output final qual modo foi usado:**
+- Modo auto: "Dados puxados via MCP em [timestamp]"
+- Modo manual: "Dados via print do membro em [timestamp]"
+
+Esta é a diferença entre Skill 09 sob demanda vs Skill 09 autônoma.
 
 ### ETAPA 2 — 4Pi Analysis (Ordem EXATA)
 
@@ -259,6 +283,41 @@ Na seção final do relatório, documente learnings que vão alimentar próximos
 **Ideias pra próximo batch:**
 
 Isso é o "feedback loop motor de crescimento" — cada análise enriquece o próximo batch de criativos.
+
+### ETAPA 11 — DNA Update (silent — feedback automático pro registry)
+
+Pra cada criativo analisado nesta rodada:
+
+1. Classificar outcome:
+   - `winner`: CPA < target × 0.8 E spend > $300 E decile_rank 1-2
+   - `loser`: CPA > target × 1.5 OU killed antes de $100 spend
+   - `neutral`: demais
+
+2. Compor performance JSON:
+   ```json
+   {
+     "cpa": X, "ctr": Y, "roas": Z, "spend": W,
+     "thumbstop_3s": A, "hold_15s": B,
+     "impressions": N, "clicks": M, "purchases": P,
+     "days_active": D, "decile_rank": R,
+     "outcome": "winner|loser|neutral"
+   }
+   ```
+
+3. Salvar em `/workspace/[produto]/creative-dna/perf-[creative-id].json`
+
+4. Invocar silenciosamente:
+   ```
+   python3 .claude/lib/creative-dna/registry.py update /workspace/[produto] [creative-id] /workspace/[produto]/creative-dna/perf-[creative-id].json
+   ```
+
+5. Se total de criativos com performance ≥ 10 E (total atual % 5 == 0):
+   ```
+   python3 .claude/lib/creative-dna/registry.py dna /workspace/[produto] --product [slug]
+   ```
+   Atualiza `/workspace/[produto]/creative-dna/dna-profile.json` que será usado na próxima Skill 07.
+
+Silent. Membro não vê. Apenas o efeito: próximo briefing começa a refletir padrões aprendidos.
 
 ### PII redaction (antes de salvar qualquer dump de Ads Manager)
 

@@ -1,0 +1,88 @@
+{
+  "version": "1.0",
+  "formats": [
+    {
+      "id": "advertorial_1500w",
+      "name": "Advertorial editorial (1500 words)",
+      "output_file": "advertorial-1500w.md",
+      "length_words": [1200, 1800],
+      "structure": "Zakaria 7-section (hook → story → pivot → mechanism → proof → offer → close)",
+      "tone": "editorial, story-first, low pitch intensity",
+      "compliance_notes": "Meta scraper lê LP — mesma rigor do ad copy"
+    },
+    {
+      "id": "email_sequence_5",
+      "name": "Email welcome sequence (5 emails)",
+      "output_file": "email-sequence.md",
+      "length_words": [800, 1200],
+      "structure": "E1 story hook, E2 mechanism deeper, E3 social proof, E4 objection break, E5 CTA with guarantee",
+      "tone": "personal, conversational, segmented by signup trigger",
+      "compliance_notes": "CAN-SPAM compliant + unsubscribe footer"
+    },
+    {
+      "id": "organic_tiktok_20s",
+      "name": "Organic TikTok post (20s)",
+      "output_file": "organic-tiktok-20s.md",
+      "length_words": [60, 100],
+      "structure": "hook (2s) → payoff tease (5s) → mechanism glimpse (8s) → soft pointer (5s)",
+      "tone": "authentic, creator-voice, non-salesy",
+      "compliance_notes": "TikTok organic is less strict but watch age-restricted topics (beauty mentions of injectables auto-flag)"
+    },
+    {
+      "id": "blog_seo_post",
+      "name": "SEO blog post",
+      "output_file": "blog-seo-post.md",
+      "length_words": [1500, 2200],
+      "structure": "H1 with keyword → intro hook → H2 mechanism explained → H2 symptoms/triggers → H2 solutions → H2 product mention (soft) → H2 FAQ → CTA",
+      "tone": "informational, authoritative, optimized for featured snippet",
+      "compliance_notes": "Google E-E-A-T, YMYL considerations, schema markup",
+      "additional_fields": ["meta_title", "meta_description", "keyword_target", "related_keywords", "schema_jsonld"]
+    },
+    {
+      "id": "pinterest_carousel_8",
+      "name": "Pinterest carousel (8 pins)",
+      "output_file": "pinterest-carousel-8.md",
+      "length_words": [200, 400],
+      "structure": "Pin 1: hook visual + claim. Pin 2-3: problem. Pin 4-5: mechanism. Pin 6-7: solution/product. Pin 8: CTA saved link",
+      "tone": "visual-first, aspirational, low-pitch",
+      "compliance_notes": "Pinterest restricts before/after weight/beauty claims heavily"
+    },
+    {
+      "id": "youtube_preroll_15s",
+      "name": "YouTube pre-roll (15s non-skippable)",
+      "output_file": "youtube-preroll-15s.md",
+      "length_words": [40, 60],
+      "structure": "hook 0-2s → mechanism punch 3-10s → CTA 11-15s",
+      "tone": "punchy, direct, high energy",
+      "compliance_notes": "YouTube/Google Ads medical device + drug claim strict"
+    },
+    {
+      "id": "sms_welcome",
+      "name": "SMS welcome message",
+      "output_file": "sms-welcome.md",
+      "length_words": [20, 30],
+      "length_chars": [120, 160],
+      "structure": "hook phrase → one benefit → link",
+      "tone": "conversational, first-name casual, no-pitch",
+      "compliance_notes": "TCPA compliant, STOP to opt-out, sender ID"
+    },
+    {
+      "id": "package_insert",
+      "name": "Package insert card (physical)",
+      "output_file": "package-insert.md",
+      "length_words": [120, 200],
+      "structure": "Welcome headline → 3-step how-to-use → secondary benefit → referral invitation",
+      "tone": "warm, premium, onboarding",
+      "compliance_notes": "Physical collateral — FDA cosmetic labeling rules apply if making claims"
+    },
+    {
+      "id": "podcast_ad_30s",
+      "name": "Podcast host-read ad (30s audio)",
+      "output_file": "podcast-ad-30s.md",
+      "length_words": [75, 100],
+      "structure": "host transition (5s) → problem framing (8s) → mechanism (10s) → CTA + promo code (7s)",
+      "tone": "host-voice conversational, testimonial-like, warm",
+      "compliance_notes": "Audio-only so no visual claims but verbal claims still subject to FTC"
+    }
+  ]
+}

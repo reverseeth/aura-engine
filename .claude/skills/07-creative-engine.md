@@ -295,6 +295,71 @@ Cada hook = 1-2 frases, formato de vídeo hook ou image headline.
 
 Esses hooks ficam na biblioteca pra usar depois — quando um conceito escala, a gente pivota os hooks dele pra esses 10 antes de ter que criar conceito novo do zero.
 
+### ETAPA 7.4 — Carregar DNA aprendido (PRE-STEP silent)
+
+Antes de finalizar os briefings, checar se existe DNA de criativos anteriores deste produto:
+
+1. Verificar se `/workspace/[produto]/creative-dna/dna-profile.json` existe
+2. Se existir E `total_creatives >= 10`:
+   - Extrair top 5 features com maior delta winners vs losers
+   - Injetar como constraint soft no prompt de refinamento: "Baseado em DNA de N criativos anteriores, priorizar [features]. Reservar 20% de variação pra novelty."
+3. Se não existir ou total < 10: proceder normalmente sem bias
+
+Silent. Membro não vê esse step.
+
+### ETAPA 7.5 — Compliance Pre-flight (OBRIGATÓRIO antes de salvar)
+
+Antes de finalizar os briefings e hooks bank, rodar compliance check em TODA peça de copy que vai pro consumidor final.
+
+**Invocação:**
+1. Ler `.claude/lib/compliance-preflight/checker.md` (prompt completo) e `.claude/lib/compliance-preflight/red_flags.json` (base de regras)
+2. Para CADA item abaixo, rodar o checker:
+   - Hook (primeiros 3s do script de cada criativo)
+   - Voiceover script completo (se houver)
+   - Primary text de cada ad (2 versões por conceito)
+   - Headlines (2 por conceito)
+   - Text overlays (todos os beats)
+   - Hooks Bank (10 alternativos)
+3. Parse da resposta JSON:
+   - `severity == critical`: PARAR, reportar ao membro, aplicar `rewrite_suggestion` ou pedir revisão manual
+   - `severity == high`: aplicar `rewrite_suggestion` automaticamente, logar em `/workspace/[produto]/07-compliance-log.json`
+   - `severity == medium`: manter original, logar warning
+   - `severity == low`: salvar silenciosamente
+4. Sanity pass final: zero termos ad-flag (Botox, filler, injection, cure, treat) em qualquer peça pública. Travessão (—) zero em headlines, ≤2 em copy longa.
+
+Output log em `/workspace/[produto]/07-compliance-log.json`:
+```json
+{
+  "checked_at": "ISO timestamp",
+  "total_pieces": 45,
+  "flags_critical": 0,
+  "flags_high": 2,
+  "flags_medium": 3,
+  "pieces_rewritten": 2,
+  "triggers_by_eixo": {"Meta Policy": 3, "FTC": 2, "AI Style": 1},
+  "details": [...]
+}
+```
+
+### ETAPA 7.6 — DNA Registry Extraction (silent)
+
+Após compliance pass, pra cada criativo gerado:
+
+1. Ler `.claude/lib/creative-dna/feature_schema.json` e `.claude/lib/creative-dna/extractor.md`
+2. Rodar o extractor prompt com:
+   - Briefing completo do criativo
+   - Awareness level dominante do market research
+   - Compliance risk score do Pre-flight
+3. Parse JSON response (features estruturadas conforme schema)
+4. Salvar em `/workspace/[produto]/creative-dna/features-[creative-id].json`
+5. Invocar:
+   ```
+   python3 .claude/lib/creative-dna/registry.py init /workspace/[produto]  # se ainda não inicializado
+   python3 .claude/lib/creative-dna/registry.py add /workspace/[produto] [creative-id] features-[creative-id].json --product [slug]
+   ```
+
+Silent pro membro. Se extração falhar (Claude retorna malformed JSON), logar erro em `/workspace/[produto]/creative-dna/extraction-errors.log` mas não bloquear skill.
+
 ### ETAPA 8 — Resumo de Produção
 
 Crie um resumo operacional pro membro executar:
