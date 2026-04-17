@@ -16,7 +16,7 @@
 - [ ] Video_path existe
 - [ ] Ad set existe no ad account
 - [ ] Primary text + headline + CTA já em `/workspace/[produto]/07-creatives/`
-- [ ] UTM convention definida no manifest (ex: `utm_campaign=<brand>_20260417_main`)
+- [ ] UTM convention definida no manifest (`utm_campaign` derivado do campaign_name da strategy)
 
 ## Steps
 
@@ -87,29 +87,29 @@ ad = meta_ads.ad.create(
 
 ### 6. Log + reporta de volta
 ```json
-// /workspace/[produto]/automation-log.jsonl (append)
+// /workspace/[produto]/automation-log.jsonl (append) — shape
 {
-  "timestamp": "2026-04-17T15:30:00Z",
+  "timestamp": "<ISO>",
   "action": "upload_creative",
-  "creative_id": "<creative-id>",
-  "ad_id_meta": "12345678",
-  "ad_set_id": "87654321",
-  "video_id": "vid_abc123",
+  "creative_id": "<id do briefing>",
+  "ad_id_meta": "<Meta ad ID>",
+  "ad_set_id": "<Meta ad set ID>",
+  "video_id": "<Meta video ID>",
   "status": "PAUSED",
-  "utm": "utm_source=facebook&utm_campaign=<brand>_20260417_main&utm_content=<creative-id>",
+  "utm": "utm_source=facebook&utm_campaign=<campaign_slug>&utm_content=<creative_id>",
   "pixel_wired": true
 }
 ```
 
-Mensagem ao membro:
+Mensagem ao membro (estrutura):
 ```
-✓ Criativo <creative-id> subido no Meta.
-  Ad ID: 12345678 (paused)
-  Ad set: <ad_set_name>
+✓ Criativo <creative_id> subido no Meta.
+  Ad ID: <Meta ad ID> (paused)
+  Ad set: <ad set name>
   UTM wired, pixel attached.
 
   Pra ativar: Meta Ads Manager → selecionar ad → toggle ON.
-  Ou: "Claude, ativa o ad 12345678"
+  Ou: "Claude, ativa o ad <ad_id>"
 ```
 
 ## Rollback

@@ -131,60 +131,46 @@ Não é só policy — é: o skeptic vai descartar?
 
 ---
 
-## Exemplos de uso
+## Exemplos de uso (shapes — não usar copy real de nenhum membro aqui)
 
-### Exemplo 1 — Copy <brand> (beauty)
+### Exemplo 1 — Copy com múltiplos triggers (beauty vertical)
 
-Input:
-> "Get the glow of Botox without the needle. <absorption-multiple> absorption in just 5 seconds. Guaranteed results in 90 days or your money back."
+Shape de entrada: copy de ad ou page que contém termos red-flag (palavras
+específicas variam por vertical — ver `red_flags.json`).
 
-Output esperado:
+Shape do output esperado (JSON estruturado):
 ```json
 {
-  "risk_score": 78,
-  "severity": "critical",
-  "overall_verdict": "REVISE",
+  "risk_score": "<0-100>",
+  "severity": "<low|medium|high|critical>",
+  "overall_verdict": "<APPROVE|APPROVE_WITH_EDIT|REVISE|REJECT>",
   "triggers": [
     {
-      "phrase": "Botox",
-      "eixo": "Meta Policy",
-      "severity": "critical",
-      "reason": "Trademark + prescription drug reference; auto-disapproval beauty vertical",
-      "suggested_replacement": "the appointment"
-    },
-    {
-      "phrase": "Guaranteed results",
-      "eixo": "FTC",
-      "severity": "high",
-      "reason": "Absolute claim requires substantiation; FTC flag",
-      "suggested_replacement": "90-day money-back if no visible improvement"
-    },
-    {
-      "phrase": "<absorption-multiple> absorption",
-      "eixo": "FDA",
-      "severity": "high",
-      "reason": "'Absorption' in beauty context adjacent to drug claim",
-      "suggested_replacement": "reaches deeper layers of skin"
+      "phrase": "<termo detectado na copy>",
+      "eixo": "<Meta Policy|FTC|FDA|Credibility|AI Style>",
+      "severity": "<low|medium|high|critical>",
+      "reason": "<por que é problema, qual política viola>",
+      "suggested_replacement": "<substituição compliant>"
     }
   ],
-  "rewrite_suggestion": "Get the glow of the appointment without the needle. Your skincare reaches deeper layers in 5 seconds. 90-day money-back if no visible improvement.",
-  "alternative_claims": [
-    "Skip the needle conversation. 5-second ritual, 90 days to visible change.",
-    "The skincare approach that works where products usually stop.",
-    "What the derm chair offers, the 5-second ritual delivers without it."
-  ],
-  "em_dash_count": 0,
-  "ai_style_score": 3,
-  "recommendation": "Substituir 3 termos flaggados antes de submeter. Teto de risco após rewrite: ~15."
+  "rewrite_suggestion": "<copy inteira reescrita se severity >= high>",
+  "alternative_claims": ["<3 alternativas compliant que preservam intenção persuasiva>"],
+  "em_dash_count": "<int>",
+  "ai_style_score": "<0-10>",
+  "recommendation": "<próxima ação 1-2 frases>"
 }
 ```
 
-### Exemplo 2 — Copy limpa
+O checker deve:
+1. Detectar palavras de `red_flags.json` (Botox, filler, injection, cure, etc por vertical)
+2. Detectar padrões regex (claim absoluto, income claim, before/after em headline)
+3. Contar travessões em headlines (permitir 0) e em copy longa (permitir até 2)
+4. Detectar frases genéricas de LLM ("Are you tired of", "Imagine a world")
+5. Propor rewrite preservando ângulo persuasivo original
 
-Input:
-> "Your skin has a 4-hour window where it absorbs more. The <brand> 5-second ritual opens it. 90-day money-back."
+### Exemplo 2 — Copy limpa (zero flags)
 
-Output esperado:
+Shape esperado quando copy não tem triggers:
 ```json
 {
   "risk_score": 12,

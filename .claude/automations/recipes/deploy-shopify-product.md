@@ -22,26 +22,26 @@
 ### 1. Criar produto base
 ```
 product = shopify.product.create({
-  title: product_name,           // "<brand> <product> System"
-  vendor: brand_name,            // "<brand>"
-  product_type: "Beauty & Personal Care",
+  title: product_name,           // lê do manifest.product_name
+  vendor: brand_name,            // lê do manifest.brand_name
+  product_type: derived_from_category,  // da skill 01
   status: "draft",               // sempre draft, humano publica
-  tags: ["skincare", "at-home", "anti-aging", brand_name],
+  tags: derived_tags_from_category_and_brand,
   body_html: extract_description_from_copy(description_md)
 })
 ```
 
 ### 2. Criar 3 variants
 ```
-for tier in offer_tiers:
+for tier in offer_tiers:     // lê do 04-offer.json
     variant = shopify.variant.create(product.id, {
-      title: tier.name,              // "Starter", "Popular", "BestValue"
-      price: tier.price,             // 49, 119, 199
-      compare_at_price: tier.compare_price,  // se tiver "de"
-      sku: tier.sku,                 // "<BRAND>-MI-01", etc
-      inventory_quantity: 100,
+      title: tier.name,
+      price: tier.price,
+      compare_at_price: tier.compare_price,
+      sku: tier.sku,
+      inventory_quantity: tier.initial_inventory,
       inventory_management: "shopify",
-      weight: 0.12,                  // kg
+      weight: tier.weight_kg,
       weight_unit: "kg",
       option1: tier.name
     })
@@ -58,17 +58,17 @@ for img_path in images:
 ```
 
 ### 4. Wire Variant IDs no template.json
-Ler `/workspace/[produto]/06-page/staging/templates/page.<brand>-<product-slug>.json`:
+Ler o template gerado pela skill 06 (caminho derivado do product_slug do manifest).
 
 ```
+template_path = f"/workspace/{product_slug}/06-page/staging/templates/page.{product_slug}.json"
 sections_to_patch = ["offer"]
 for section_id in sections_to_patch:
     replace(
       template[section_id].settings,
       placeholders={
-        "VARIANT_ID_STARTER": wire_variant_ids["Starter"],
-        "VARIANT_ID_POPULAR": wire_variant_ids["Popular"],
-        "VARIANT_ID_BESTVALUE": wire_variant_ids["BestValue"]
+        variant_placeholder: wire_variant_ids[tier.name]
+        for tier in offer_tiers
       }
     )
 ```
@@ -77,7 +77,7 @@ Salvar template atualizado:
 ```
 shopify.theme.asset.update(
   theme_id=profile.shopify_theme_id,
-  key="templates/page.<brand>-<product-slug>.json",
+  key=f"templates/page.{product_slug}.json",
   value=json.dumps(template)
 )
 ```
@@ -97,17 +97,17 @@ shopify.theme.asset.update(
 }
 ```
 
-Mensagem:
+Mensagem ao membro (estrutura — valores vêm do manifest do membro):
 ```
-✓ Produto <brand> <product> criado no Shopify (draft).
-  3 variants: Starter $49, Popular $119, BestValue $199
-  Variant IDs wired no template page.<brand>-<product-slug>.
-  Imagens uploaded: 5
+✓ Produto <product_name> criado no Shopify (draft).
+  <N> variants: <tier_list_com_preços>
+  Variant IDs wired no template page.<product_slug>.
+  Imagens uploaded: <N>
 
   Next steps:
   1. Abra Admin → Products → review → Publish
   2. Admin → Pages → criar Page vinculada ao template
-  3. Preview: https://[store].myshopify.com/products/<brand>-<product-slug>
+  3. Preview: https://<store>.myshopify.com/products/<product_slug>
 ```
 
 ## Rollback

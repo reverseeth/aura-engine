@@ -60,7 +60,7 @@ shopify.theme.asset.update(
 ```
 campaign = meta_ads.campaign.create(
   ad_account_id,
-  name=strategy.campaign_name,  // "<brand>_20260417_Main"
+  name=strategy.campaign_name,  // do 08-ad-strategy.json
   objective="OUTCOME_SALES",
   status="PAUSED",
   special_ad_categories=[],
@@ -158,66 +158,62 @@ manifest.update({
 })
 ```
 
-Log consolidado:
+Log consolidado (shape — valores vêm dos arquivos do membro):
 ```json
 {
-  "timestamp": "2026-04-17T15:30:00Z",
+  "timestamp": "<ISO timestamp>",
   "action": "full_deploy",
-  "product_slug": "<product-slug>",
-  "mode": "staging",
+  "product_slug": "<do manifest>",
+  "mode": "<staging|live|dry-run>",
   "stages_completed": 8,
   "shopify": {
-    "product_id": "gid://shopify/Product/8123456",
+    "product_id": "<Shopify GID>",
     "product_status": "draft",
-    "variants_count": 3,
+    "variants_count": "<N>",
     "template_patched": true
   },
   "meta": {
-    "campaign_id": "23845123",
+    "campaign_id": "<id>",
     "campaign_status": "PAUSED",
-    "ad_sets_created": 3,
-    "ads_uploaded": 6,
-    "ads_pending_video": 3,
+    "ad_sets_created": "<N>",
+    "ads_uploaded": "<N>",
+    "ads_pending_video": "<N>",
     "pgs_rule_enabled": true
   },
   "next_steps": [
-    "Produzir 3 vídeos faltantes: [<creative-id>, <creative-id>, <creative-id>]",
+    "Produzir <N> vídeos faltantes",
     "Quando prontos: 'sobe os vídeos faltantes'",
     "Review Meta Ads Manager — tudo paused",
-    "Activate: 'Claude, ativa a campanha <brand>_20260417_Main'"
+    "Activate: 'ativa a campanha <campaign_name>'"
   ]
 }
 ```
 
-Mensagem final ao membro:
+Mensagem final ao membro (estrutura):
 ```
-✓ FULL DEPLOY concluído — mode: staging
+✓ FULL DEPLOY concluído — mode: <mode>
 
 Shopify:
-  ✓ Produto criado (draft): <brand> <product> System
-  ✓ 3 variants: Starter $49, Popular $119, BestValue $199
-  ✓ Variant IDs wired no template page.[slug].json
+  ✓ Produto criado (draft): <product_name>
+  ✓ <N> variants: <tier_list_com_preços>
+  ✓ Variant IDs wired no template page.<product_slug>.json
   ✓ Tema atualizado (unpublished)
 
 Meta Ads (tudo PAUSED):
-  ✓ Campaign: <brand>_20260417_Main ($100/dia CBO)
-  ✓ Ad Sets:
-    - <ad_set_name> ($40/dia, 40%)
-    - <ad_set_name> ($35/dia, 35%)
-    - <ad_set_name> ($25/dia, 25%)
-  ✓ 6 criativos uploaded
-  ⏳ 3 criativos aguardando vídeos:
-      <creative-id>, <creative-id>, <creative-id>
-  ✓ PGS rule enabled: +5% MWF 10AM EST quando CPA < $40.50 & Spend > $90 & Freq ≤ 1.3
+  ✓ Campaign: <campaign_name> (<budget>/dia CBO)
+  ✓ <N> Ad Sets criados com budget share da strategy
+  ✓ <N> criativos uploaded
+  ⏳ <N> criativos aguardando vídeos
+  ✓ PGS rule enabled: +5% MWF 10AM EST conforme thresholds da strategy
 
 Creative DNA Registry:
-  ✓ 6 criativos registered com features extraídas
+  ✓ <N> criativos registered com features extraídas
   ⏳ Performance update virá via Skill 09 após 3-7 dias
 
 Quando quiser:
-  - "sobe os vídeos faltantes" (quando produzir os 3)
+  - "sobe os vídeos faltantes" (quando produzir)
   - "review Meta Ads Manager" (pra checar tudo paused)
-  - "ativa a campanha <brand>" (GO)
+  - "ativa a campanha <campaign_name>" (GO)
   - "run analysis" (depois de 3+ dias de dados)
 ```
 

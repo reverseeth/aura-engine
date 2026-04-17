@@ -151,42 +151,42 @@ def classify_outcome(metrics, target_cpa, min_spend=100):
 
 ### 7. Salvar pull estruturado
 
-`/workspace/[produto]/09-analysis/raw-pull-[YYYYMMDDTHHMMSS].json`:
+`/workspace/[produto]/09-analysis/raw-pull-[YYYYMMDDTHHMMSS].json` (shape do output — valores são preenchidos pela Meta API):
 
 ```json
 {
-  "pulled_at": "2026-04-17T15:30:00Z",
+  "pulled_at": "<ISO timestamp>",
   "source": "meta_mcp",
   "date_preset": "last_7d",
   "campaign": {
-    "id": "23845123",
-    "name": "<brand>_20260417_Main",
-    "status": "ACTIVE",
-    "daily_budget": 10000,
-    "insights": { "spend": 712.4, "roas": 1.87, "cpm": 18.2, ... }
+    "id": "<Meta campaign ID>",
+    "name": "<campaign_name do manifest>",
+    "status": "<ACTIVE|PAUSED>",
+    "daily_budget": "<cents>",
+    "insights": { "spend": "...", "roas": "...", "cpm": "...", ... }
   },
   "ad_sets": [
     {
-      "id": "12345678",
-      "name": "<ad_set_name>",
-      "status": "ACTIVE",
-      "daily_budget_share": 0.40,
-      "days_running": 11,
+      "id": "<Meta ad set ID>",
+      "name": "<ad set name da strategy>",
+      "status": "<ACTIVE|PAUSED>",
+      "daily_budget_share": "<decimal>",
+      "days_running": "<int>",
       "insights": { ... },
-      "derived": { "cpa": 41.20, "roas": 2.1, ... },
+      "derived": { "cpa": "...", "roas": "...", ... },
       "placements": { ... },
       "ads": [
         {
-          "id": "99887766",
-          "name": "Ad_<creative-id>",
-          "creative_id_aura": "<creative-id>",
-          "days_running": 11,
+          "id": "<Meta ad ID>",
+          "name": "Ad_<creative_id_do_aura>",
+          "creative_id_aura": "<id do briefing>",
+          "days_running": "<int>",
           "insights": { ... },
           "derived": {
-            "cpa": 38.40, "ctr": 1.42, "thumbstop_3s": 0.34,
-            "hold_15s": 0.22, "roas": 2.3
+            "cpa": "...", "ctr": "...", "thumbstop_3s": "...",
+            "hold_15s": "...", "roas": "..."
           },
-          "outcome": "winner",
+          "outcome": "<winner|loser|neutral|insufficient_data>",
           "creative_hash": "abc123def"
         }
       ]
@@ -216,15 +216,15 @@ shell(f"python3 .claude/lib/creative-dna/registry.py update /workspace/[produto]
 ### 9. Log de automação
 
 ```json
-// /workspace/[produto]/automation-log.jsonl (append)
+// /workspace/[produto]/automation-log.jsonl (append) — shape, valores reais do pull
 {
-  "timestamp": "2026-04-17T15:30:00Z",
+  "timestamp": "<ISO>",
   "action": "sync_campaign",
-  "campaign_id": "23845123",
-  "ads_synced": 9,
-  "outcomes": {"winner": 1, "neutral": 5, "loser": 2, "insufficient_data": 1},
-  "dna_registry_updated": 8,
-  "output_file": "/workspace/[produto]/09-analysis/raw-pull-20260417T153000.json"
+  "campaign_id": "<Meta ID>",
+  "ads_synced": "<N>",
+  "outcomes": {"winner": "<N>", "neutral": "<N>", "loser": "<N>", "insufficient_data": "<N>"},
+  "dna_registry_updated": "<N>",
+  "output_file": "/workspace/[produto]/09-analysis/raw-pull-<timestamp>.json"
 }
 ```
 

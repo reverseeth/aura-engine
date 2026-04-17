@@ -45,9 +45,9 @@ Zero. Só tokens Claude.
 ## Roda assim
 
 ```
-recycle <creative-id>-plateau-confession
+recycle <creative-id>
 ```
 
 O sistema lê o concept, consulta base Aura sobre formato de cada derivada,
 gera 9 versões, passa compliance em cada, salva tudo em pasta dedicada.
-Entrega: "9 derivadas prontas em /workspace/<product-slug>/17-recycled/<creative-id>/"
+Entrega: "9 derivadas prontas em /workspace/[produto]/17-recycled/[creative-id]/"

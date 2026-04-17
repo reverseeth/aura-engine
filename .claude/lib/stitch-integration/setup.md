@@ -26,14 +26,16 @@ No free tier tu tem:
 No campo de input, cola:
 
 ```
-Generate a modern product detail page (PDP) for a skincare product.
-Audience: women 38-52, <avatar-lifestage>.
+Generate a modern product detail page (PDP).
+Audience: [descrição curta do avatar do seu produto].
 Style: clean, premium, editorial.
 Components needed: hero with product shot, benefit section, mechanism explanation,
 social proof, 3-tier pricing, guarantee, FAQ, final CTA.
-Color palette: dark text on off-white background, single accent color (blue).
+Color palette: dark text on off-white background, single accent color.
 Typography: modern serif for headlines, clean sans-serif for body.
 ```
+
+(Substitua os colchetes pelos valores do seu produto antes de colar no Stitch.)
 
 Clicar "Generate". Em ~45-60s, Stitch gera 1 screen.
 

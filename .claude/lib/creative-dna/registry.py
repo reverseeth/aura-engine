@@ -3,11 +3,11 @@ Creative DNA Registry — CRUD + análise + DNA extraction.
 
 Uso:
     python registry.py init /workspace/<product-slug>
-    python registry.py add <creative-id> <features.json>
-    python registry.py update <creative-id> <performance.json>
-    python registry.py stats <product-slug>
-    python registry.py dna <product-slug>
-    python registry.py show
+    python registry.py add /workspace/<product-slug> <creative-id> <features.json> --product <slug>
+    python registry.py update /workspace/<product-slug> <creative-id> <performance.json>
+    python registry.py stats /workspace/<product-slug> --product <slug>
+    python registry.py dna /workspace/<product-slug> --product <slug>
+    python registry.py show /workspace/<product-slug>
 """
 
 from __future__ import annotations

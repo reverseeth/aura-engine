@@ -28,20 +28,21 @@ recycle winner
 
 ### ETAPA 2 — Extração de essência
 
-Ler o criativo fonte e destilar:
+Ler o criativo fonte e destilar em shape estruturado (valores são extraídos do briefing do membro, não pré-definidos):
+
 ```json
 {
   "source_id": "<creative-id>",
-  "big_idea": "<brand-tagline>",
-  "hook_essence": "<hook-opening> from booking the appointment my derm suggested.",
-  "mechanism": "<mechanism-description> via 5-second stamp",
-  "key_numbers": ["44", "<absorption-pct>", "300×", "14 days", "5 seconds"],
-  "avatar": "<avatar-lifestage> woman 38-52, <avatar-segment>",
-  "brand_voice": "confession, identity-preservation, anti-injectables",
-  "proof_points": ["<product-spec>", "<proof-claim> by week 8"],
-  "offer_core": "90-day money-back, keep the stamp",
-  "cta_essence": "<brand-cta>",
-  "forbidden_words": ["Botox", "filler", "injection", "cure", "treat"]
+  "big_idea": "<one-sentence thesis extraído do briefing>",
+  "hook_essence": "<primeira frase/hook do criativo>",
+  "mechanism": "<descrição do UMP/UMS em 5-12 palavras>",
+  "key_numbers": ["<Hopkins specificity numbers usados no criativo>"],
+  "avatar": "<descrição resumida do avatar target>",
+  "brand_voice": "<tom dominante derivado do briefing>",
+  "proof_points": ["<proof points mais repetidos no briefing>"],
+  "offer_core": "<garantia + pricing principal resumido>",
+  "cta_essence": "<call to value final do criativo>",
+  "forbidden_words": ["<red-flag words do CLAUDE.md + blocklist do membro>"]
 }
 ```
 

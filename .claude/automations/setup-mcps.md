@@ -65,7 +65,7 @@ Edit `~/.claude/mcp.json` (cria se não existe):
       "command": "npx",
       "args": ["-y", "@shopify/ai-toolkit", "serve"],
       "env": {
-        "SHOPIFY_STORE": "<store>.myshopify.com"
+        "SHOPIFY_STORE": "<sua-loja>.myshopify.com"
       }
     }
   }

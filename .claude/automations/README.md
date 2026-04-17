@@ -35,13 +35,13 @@ Em `recipes/`:
 
 ## Como invocar
 
-Membro diz linguagem natural:
+Membro diz linguagem natural (padrões — troque pelos valores reais do seu produto):
 
 ```
-"Claude, sobe o criativo aprovado c01 pro ad set <ad_set> em modo pausado."
-"Claude, pausa o ad set <ad_set> — CPA tá acima do target."
-"Claude, cria o produto <brand> <product> no Shopify com 3 variants e wire no PDP."
-"Claude, rotaciona o winner c01 — sobe 3 variações."
+"Claude, sobe o criativo aprovado <creative_id> pro ad set <nome> em modo pausado."
+"Claude, pausa o ad set <nome> — CPA tá acima do target."
+"Claude, cria o produto no Shopify com 3 variants e wire no PDP."
+"Claude, rotaciona o winner <creative_id> — sobe 3 variações."
 ```
 
 Claude identifica a receita apropriada em `recipes/`, executa step-by-step usando
