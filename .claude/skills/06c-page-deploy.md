@@ -343,6 +343,8 @@ shopify theme push \
 
 O `--nodelete` preserva tudo que já existe no tema copiado. Se aparecer `"warning": "..."` no JSON com campo `"errors"`, resolva os erros (veja "Debug — Quando push falha" abaixo) e re-push.
 
+**⚠️ Push direto em tema LIVE** (caso o membro explicitamente queira — raro, preferir sempre cópia unpublished): inclua `--allow-live`. Detalhe em [Padrão 7 — Push em tema live requer `--allow-live`](#padrão-7--push-em-tema-live-requer---allow-live).
+
 ### 10.6 Dar o preview link ao membro
 
 Theme editor direto no template:
@@ -425,6 +427,18 @@ Para ajustes futuros:
 - **Sempre** revalide com `shopify-plugin:shopify-liquid` após qualquer mudança.
 - **Sempre** rode o snippet Python de validação do template JSON antes de push — erros pegos aqui evitam 80% dos problemas.
 
+### Checklist de validação por iteração (padrões cross-skill)
+
+Antes de qualquer push (iteration ou primeiro deploy), cruze com os padrões documentados na `page-sections`:
+
+- [ ] **Padrão 1** — Toda color setting tem `{{ section.settings.color_X }}` correspondente injetado no `style=""` inline do root da section. Sem `:root { --c-X: ... }` estático no stylesheet. Teste: mude uma cor no theme editor → deve aplicar na preview.
+- [ ] **Padrão 2** — Blocks com icon têm preset enum + `icon_custom_svg` textarea + opção `none`. Markup condicional respeita ordem de precedência (custom SVG > preset > none).
+- [ ] **Padrão 3** — Cada cor visível na section tem color setting próprio (média 15-30 por section). Auditoria visual: aponte pra cada elemento colorido, confirme setting no schema.
+- [ ] **Padrão 4** — Pricing tier CTAs usam `<form action="/cart/add" method="post">` com settings `variant_id`, `quantity`, `after_add`, `cta_fallback_url`. Teste: clique no CTA → Shopify Web Pixel dispara `cart_updated` (confira no DevTools Network tab).
+- [ ] **Padrão 5** — Fonts, radius, shadows, font_size_base, scale_ratio expostos como settings. Text settings opcionais sem `default` (omit key). Google Fonts `<link>` no topo de cada section.
+- [ ] **Padrão 6** — Countdown banner (se existir) usa deadline fixo, não rolling per-user. Subscribe & Save (se existir) usa hidden radio `name="selling_plan"` com ID do app.
+- [ ] **Padrão 7** — Se push é em tema LIVE, flag `--allow-live` está no comando + backup foi criado primeiro.
+
 Atualize `06-deploy-report.json` a cada iteração (campo novo `iterations: [...]` com timestamp + mudanças).
 
 ## SALVAR (dual output obrigatório — rule 6b do CLAUDE.md)
@@ -467,8 +481,72 @@ Quando o push retorna JSON com campo `"errors"`, leia a mensagem do erro e aja c
 | `shopify theme duplicate` trava esperando confirmação | Contexto não-interativo | Flag `--force` já incluída no comando da 10.2 — confira se não foi removida |
 | Blocks aparecem vazios na preview | Template JSON tem `"blocks": {}` ou ausente | Rode o snippet Python da ETAPA 9 — vai pegar o erro antes |
 | `Missing width and height attributes on img tag` e outros erros de Liquid | Problema nas sections, não no template JSON | Volte pra `page-sections` Debug table |
+| Push trava esperando confirmação quando target é tema LIVE | Shopify CLI bloqueia push em live sem confirmação interativa | Adicione flag `--allow-live` (ver [Padrão 7](#padrão-7--push-em-tema-live-requer---allow-live)) |
+| Cor mudada no theme editor não aplica na página | CSS var hardcoded no `:root` do stylesheet em vez de injetada inline no root da section | Volte pra `page-sections` [Padrão 1](06b-page-sections.md#padrão-1--color-settings-devem-ser-injetadas-inline-no-section-root-crítico) — refator pro pattern de style inline |
+| Meta Pixel / GA4 não registra AddToCart quando membro clica no CTA do pricing_tier | CTA usa `<a href="/cart/add?id=X">` em vez de form POST nativo | Volte pra `page-sections` [Padrão 4](06b-page-sections.md#padrão-4--offer-ctas-padrão-formactioncartadd-nativo) — refator pro form `/cart/add` |
 
 **Fluxo:** sempre leia o JSON do push (`--json`), filtre `"errors"`, resolva erro por erro. Pra erros de Liquid (sections), consulte a tabela de debug em `page-sections`.
+
+### PADRÃO 7 — Push em tema LIVE requer `--allow-live`
+
+**Problema observado em produção:** Shopify CLI bloqueia push em tema com `"role": "live"` sem confirmação interativa (prompt "Are you sure you want to push to the live theme? [y/N]"). Em contexto não-interativo (agent, script, CI), o comando TRAVA esperando input que nunca chega. Agent fica pendurado, membro acha que caiu.
+
+**Fix obrigatório:** sempre incluir `--allow-live` quando pushando em tema live:
+
+```bash
+shopify theme push \
+  --theme "$LIVE_THEME_ID" \
+  --store "$STORE" \
+  --path "$THEME_DIR" \
+  --nodelete \
+  --allow-live \
+  --json
+```
+
+**Protocolo SAFE de push no LIVE (quando o membro explicitamente pede):**
+
+```bash
+# 1. Backup PRIMEIRO (sempre — insurance barata contra erro humano)
+shopify theme duplicate \
+  --theme "$LIVE_THEME_ID" \
+  --name "Pre-[feature] Backup $(date +%Y%m%d-%H%M)" \
+  --store "$STORE" \
+  --force \
+  --json
+
+# 2. Pull do live pra diretório local (source of truth atual)
+mkdir -p /tmp/theme-live-$PRODUTO
+shopify theme pull \
+  --theme "$LIVE_THEME_ID" \
+  --store "$STORE" \
+  --path "/tmp/theme-live-$PRODUTO" \
+  --force
+
+# 3. Copy APENAS os arquivos novos (sections + template JSON) pro live dir
+cp "$STAGING_DIR"/sections/page-"$PRODUTO"-*.liquid "/tmp/theme-live-$PRODUTO"/sections/
+mkdir -p "/tmp/theme-live-$PRODUTO"/templates
+cp "$STAGING_DIR"/templates/page."$PRODUTO".json "/tmp/theme-live-$PRODUTO"/templates/
+
+# 4. Push com --allow-live --nodelete
+shopify theme push \
+  --theme "$LIVE_THEME_ID" \
+  --store "$STORE" \
+  --path "/tmp/theme-live-$PRODUTO" \
+  --nodelete \
+  --allow-live \
+  --json
+
+# 5. Verificar JSON procurando "errors" e "warning"
+#    Se houver errors: ROLLBACK via publish do backup
+#    shopify theme publish --theme $BACKUP_ID --store $STORE
+```
+
+**Regras de ouro pra push no live:**
+- **NUNCA** pushar no live sem backup prévio. O `shopify theme duplicate` é insurance barata (30 segundos, zero custo).
+- **SEMPRE** usar `--nodelete` em push no live — protege arquivos que você não copiou.
+- **SEMPRE** ler o `--json` output procurando `"errors"` (não só `"warning"`).
+- Se qualquer erro: rollback imediato com `shopify theme publish --theme $BACKUP_ID --store $STORE`.
+- O fluxo padrão da Aura Engine (ETAPA 10) usa cópia unpublished justamente pra evitar esse risco. Push direto no live é exceção, não regra.
 
 ## Como invocar specialists
 

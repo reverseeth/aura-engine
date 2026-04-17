@@ -103,6 +103,9 @@ Estes princípios NÃO são negociáveis. Se algum for violado, a section deve s
 8. **Zero JS frameworks externos**. Sem React, Vue, jQuery, libraries de animação. Use JavaScript vanilla quando absolutamente necessário, dentro de `{% javascript %}`.
 9. **Imagens via `image_picker` setting**, nunca hardcoded ou via `asset_url`. O membro sobe a foto pelo theme editor.
 10. **Fluid type e spacing**. Use `clamp(min, preferred, max)` pra tipografia e padding em sections importantes.
+11. **Color settings são injetadas INLINE no root da section** (via `style="--c-primary: {{ section.settings.color_primary }};"`), nunca hardcoded em `:root` do stylesheet. Sem isso, a mudança no theme editor não aplica. Detalhe completo em `page-sections` (Padrão crítico — Color settings inline).
+12. **Everything editable** — fonts, radius, shadows, sizes são settings no schema, não valores fixos no CSS. O membro não sabe CSS mas sabe quando quer mudar a fonte. Detalhe em `page-sections` (Padrão "Everything editable").
+13. **Granularidade máxima de cores** — toda cor visível tem color setting próprio (média 15-30 por section). Checklist por tipo de section em `page-sections` (Auditoria de cores).
 
 ## ETAPA 1 — Leitura e Planejamento (adaptativo à estratégia)
 
@@ -157,6 +160,14 @@ Estes princípios NÃO são negociáveis. Se algum for violado, a section deve s
 - Monolítica (só settings, sem blocks) ou com blocks?
 - Quais blocks atômicos do catálogo universal (eyebrow, heading, paragraph, etc — ver `page-sections`)
 - Quais blocks type-specific (benefit_card, pricing_tier, review_card, faq_item, etc)
+- **Quais settings de customização máxima** vão ser expostos no schema (planeje desde já pra não esquecer):
+  - Todas as cores visíveis têm color setting próprio (15-30 settings por section — auditoria detalhada em `page-sections`)
+  - Fonts (heading + body) como select preset + text custom family
+  - Radius (sm/md/lg/pill), shadow intensity (none/subtle/medium/strong), font_size_base, scale_ratio como ranges
+  - Ícones: preset enum + `icon_custom_svg` textarea (overrides preset) + opção `none`
+  - Pricing tier CTAs: usar form `/cart/add` nativo, NÃO link — precisa settings `variant_id`, `quantity`, `after_add`, `cta_fallback_url`, + subscribe & save (se aplicável)
+  - Countdown banner (se offer tem urgência real): deadline fixo + timezone + labels + colors
+- **Regra:** a filosofia do Aura Engine é "everything editable". Membros não sabem CSS mas sabem quando querem mudar algo. Tudo que pode virar setting, vira — o cap é o limite de 250 settings/section do Shopify.
 
 **5. Mostre o plano ao membro** antes de começar. Exemplo:
 
