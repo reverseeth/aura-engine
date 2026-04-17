@@ -312,7 +312,7 @@ Pro produto com maior score, entregue um plano inicial (detalhado depois nas ski
 Salve em DOIS arquivos dentro de `/workspace/[produto]/` (onde `[produto]` = slug do PRODUTO VENCEDOR, não do produto original da pesquisa — assim as fases seguintes salvam no mesmo lugar):
 
 1. **`01-product-research.md`** (a AI lê nas fases seguintes)
-2. **`01-product-research.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura)
+2. **`01-product-research.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto))
 
 Conteúdo de ambos:
 - Lista completa de todos os produtos analisados (mesmo os descartados, com razão)

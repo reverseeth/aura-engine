@@ -262,7 +262,7 @@ Garanta `mkdir -p /workspace/` e `mkdir -p /workspace/[produto]/` antes de qualq
 
 Salve em TRÊS arquivos:
 1. **`/workspace/profile.md`** (formato da Etapa 5 — a AI lê nas fases seguintes)
-2. **`/workspace/profile.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura)
+2. **`/workspace/profile.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto))
 3. **`/workspace/[produto]/manifest.json`** (Etapa 5B — fonte única de verdade para todas as próximas skills)
 
 **Validação do template HTML**: antes de escrever `profile.html`, confirme que `.claude/templates/aura-report-template.html` existe (`test -f`). Se NÃO existir, gere um HTML mínimo inline com CSS básico, um cabeçalho textual "Aura Engine — Profile" e um aviso no topo: `<!-- WARNING: template .claude/templates/aura-report-template.html missing; fallback HTML in use -->`. Nunca aborte por template ausente.
