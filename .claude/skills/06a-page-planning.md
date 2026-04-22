@@ -89,34 +89,25 @@ Pergunte ao membro pra confirmar o tipo detectado antes de prosseguir.
 4. Leia `/workspace/[produto]/03-competitor-analysis.md` se existir.
 5. Leia `/workspace/profile.md` se existir.
 
-### 0.5 Detecção de Stitch blueprint (opcional — visual reference)
+### 0.5 Design blueprint via Claude Design (obrigatório)
 
-Verifique se existe `/workspace/[produto]/06-page/stitch-blueprint/index.html`:
+Antes de gerar o Liquid, a skill **gera um blueprint visual via Claude Design** (artifacts da claude.ai) com **4 variações visuais A / B / C / D** no mesmo canvas, pra que o membro escolha a direção antes do código ser escrito.
 
-- **Se existe:** membro gerou mockup visual no Google Stitch (Gemini 2.5 Pro) antes de rodar a skill. Extrair tokens visuais (cores, tipografia, spacing, componentes) do HTML e usar como **design system base** no lugar do brand discovery genérico. Ver spec completa em `.claude/lib/stitch-integration/importer.md`. Esse modo é `blueprint_guided` — ETAPA 2 (Brand Discovery) é **skipada** (tokens já vêm do HTML), ETAPA 3 gera design system com constraint do blueprint.
+**Fluxo:**
 
-- **Se não existe:** convite opcional ao membro baseado em flag persistente:
-  
-  Primeiro, checar `manifest.stitch_mode`:
-  - `stitch_mode == "skip"` → ignorar Stitch (membro já disse não quer), proceder em `direct_generation`
-  - `stitch_mode == "pending"` → blueprint tá sendo feito externamente. Avisar: "Você estava preparando o Stitch blueprint. Ainda não encontrei `/workspace/[produto]/06-page/stitch-blueprint/`. Quer esperar ou seguir direto? (esperar / seguir)"
-  - `stitch_mode` ausente → primeiro encontro. Oferecer:
-    
-    > "Antes de gerar o Liquid, você pode gerar um mockup visual de alta qualidade no **Google Stitch** (grátis, ~15min). Vantagens: vê 3-5 variações visuais antes de implementar, qualidade visual senior-designer-level, zero drift entre design e código.
-    >
-    > Opções:
-    > 1. **Sim, quero fazer Stitch primeiro** — vou pausar a skill; siga `.claude/lib/stitch-integration/setup.md` + `prompt-templates.md`; salve o HTML exportado em `/workspace/[produto]/06-page/stitch-blueprint/`; rode `page` de novo quando pronto
-    > 2. **Não, siga direto** — gero Liquid do zero agora (fluxo padrão)
-    > 3. **Não essa vez** — sigo agora mas me pergunte de novo no próximo produto
-    >
-    > (1 / 2 / 3?)"
-  
-  Atualizar `manifest.stitch_mode` conforme resposta:
-  - Resposta 1 → `stitch_mode: "pending"`, PARAR skill aqui, mensagem: "Rodando Stitch externamente. Quando `stitch-blueprint/` aparecer, digite `page` de novo."
-  - Resposta 2 → `stitch_mode: "skip"` (não pergunta mais pra esse produto), proceder `direct_generation`
-  - Resposta 3 → não escrever flag (pergunta de novo na próxima rodada), proceder `direct_generation`
+1. Absorva o 05-copy.md + 04-offer.md + brand snapshot (fontes, paleta, tom) e monte um prompt de design contendo:
+   - Tipo de página detectado (PDP / Landing / Advertorial / Hybrid)
+   - Sections mandatórias (hero, oferta, mecanismo, proof, FAQ, final CTA, etc. — vem da ETAPA 4)
+   - Restrições inegociáveis (fontes, paleta, acessibilidade, acabamento editorial vs commerce)
+   - Voice-of-customer hooks que devem aparecer nos headings
+2. Gere o blueprint como artifact HTML no Claude Design com **4 variações (A, B, C, D)** lado-a-lado no mesmo canvas. Cada variação é um take visual diferente do mesmo layout/sections — não são páginas diferentes, são tratamentos diferentes da mesma página (tipografia mais editorial vs mais utilitária, paleta warm vs cool, densidade alta vs respiro, hierarquia de proof diferente, etc.).
+3. Apresente ao membro: *"Gerei 4 variações visuais (A/B/C/D). Abre o artifact no Claude Design e me diz qual você quer (ou mix tipo 'A hero + C proof')."*
+4. Membro confirma direção → salvar referência visual em `/workspace/[produto]/06-page/design-blueprint/index.html` (download do artifact) e tokens extraídos em `design-tokens.json`.
+5. Skill prossegue usando essa variação como constraint visual na ETAPA 3 (design system) e ETAPA 6 (section generation).
 
-**Nota:** Stitch é opt-in. Zero penalidade em skippar — fluxo direct_generation continua sendo o default e funciona 100% standalone.
+**Aspect ratio de preview:** sempre desktop + mobile no mesmo canvas (breakpoint 375px + 1440px lado-a-lado).
+
+**Regra:** não pular essa etapa. Liquid sem blueprint aprovado = drift visual garantido e N rodadas de retrabalho.
 
 ## Princípios Inegociáveis (aplicam a TODA a cadeia)
 

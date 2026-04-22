@@ -32,32 +32,25 @@ Valide que a skill anterior (`page-planning`) rodou:
 
 Se `06-plan.json` não existir: "Rode `page-planning` primeiro — preciso do plano de sections + design system antes de gerar Liquid."
 
-## Pré-flight adicional — Stitch Blueprint (opt-in visual guide)
+## Pré-flight adicional — Design Blueprint via Claude Design
 
-Verificar se existe `/workspace/[produto]/06-page/stitch-blueprint/index.html`:
+Na skill `page-planning` (06a), o membro aprovou uma das 4 variações visuais (A/B/C/D) geradas como artifact no Claude Design. O HTML dessa variação está salvo em `/workspace/[produto]/06-page/design-blueprint/index.html` + tokens em `design-tokens.json`.
 
-**Se existe (modo `blueprint_guided`):**
-1. Ler spec completa em `.claude/lib/stitch-integration/importer.md`
-2. Executar pipeline de extração:
-   - Parse HTML com BeautifulSoup (ou Claude direto) → extrair tokens visuais (cores, tipografia, spacing, radii, shadows, componentes)
-   - Salvar em `/workspace/[produto]/06-page/stitch-extracted-tokens.json`
-   - Sobrescrever/mesclar com `06-design-system.md` e `06-brand-discovery.json`
-3. Identificar correspondência section-a-section entre HTML e plan:
+**Pipeline de uso do blueprint nessa skill:**
+
+1. Ler tokens em `/workspace/[produto]/06-page/design-tokens.json` (cores, tipografia, spacing, radii, shadows, componentes)
+2. Identificar correspondência section-a-section entre o HTML blueprint e o `06-plan.json`:
    - Section hero do HTML → section hero do Liquid
-   - Mesmo pra benefits, mechanism, proof, offer, etc
-   - Salvar mapping em `stitch-section-mapping.json`
-4. Em cada geração de section Liquid (ETAPAs 4-6), injetar o HTML snippet correspondente como **visual reference** no prompt: "Gere Liquid preservando a estética visual deste HTML: [snippet]. Traduzir pra Liquid 2.0 com blocks, settings inline, Padrão 1 (color CSS vars inline), Padrão 2 (SVG icons), Padrão 4 (form /cart/add), Padrão 5 (everything editable)."
-5. Após gerar cada section, **validação de fidelidade visual:** Claude compara visualmente (via reasoning) a descrição do Liquid gerado com o HTML reference. Se divergência >20% (cores mudaram, hierarquia errada, layout distinto), regerar com prompt mais específico. Max 3 retries.
-6. Output final inclui `/workspace/[produto]/06-page/stitch-conversion-notes.md` listando:
+   - Mesmo pra features, mechanism, proof, offer, FAQ, etc
+   - Salvar mapping em `design-section-mapping.json`
+3. Em cada geração de section Liquid (ETAPAs 4-6), injetar o HTML snippet correspondente como **visual reference** no prompt: "Gere Liquid preservando a estética visual deste HTML: [snippet]. Traduzir pra Liquid 2.0 com blocks, settings inline, Padrão 1 (color CSS vars inline), Padrão 2 (SVG icons), Padrão 4 (form /cart/add), Padrão 5 (everything editable)."
+4. Após gerar cada section, **validação de fidelidade visual:** comparar (via reasoning) a descrição do Liquid gerado com o HTML reference. Se divergência > 20% (cores mudaram, hierarquia errada, layout distinto), regerar com prompt mais específico. Max 3 retries por section.
+5. Output final inclui `/workspace/[produto]/06-page/design-conversion-notes.md` listando:
    - Sections convertidas 100%
    - Sections simplificadas (e por quê — ex: animação complexa não cabe em Liquid)
-   - Assets que precisam upload manual no theme editor (imagens do Stitch são placeholders)
+   - Assets que precisam upload manual no theme editor (imagens do blueprint são placeholders)
 
-**Se não existe (modo `direct_generation`, padrão):**
-- Proceder com fluxo atual (ETAPAs 4-6 geram do zero a partir do `06-plan.json`)
-- Zero impacto no workflow existente
-
-Ver spec completa da integração em `.claude/lib/stitch-integration/`.
+**Se blueprint ausente:** PARE a skill e direcione pra `page-planning` (06a). Não existe modo `direct_generation` — toda página passa por blueprint aprovado antes do código.
 
 ## Arquitetura — Por que blocks inline no schema
 

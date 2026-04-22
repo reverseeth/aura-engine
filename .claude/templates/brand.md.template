@@ -1,0 +1,116 @@
+# Brand Snapshot — {{ PRODUCT_SLUG }}
+
+Este arquivo é **single-source-of-truth** pra identidade visual e editorial da marca. Todas as skills que geram output pro consumidor final (PDP/LP/ad) carregam este arquivo pra manter consistência cross-artifact.
+
+Localização: `/workspace/[produto]/brand.md`
+
+---
+
+## 1. Posicionamento (1 frase)
+
+> [Frase curta que resume o ângulo estratégico — vem da Etapa 7 do 03-competitor-analysis e do 04-offer mechanism]
+
+## 2. Tom de voz
+
+**Arquétipo dominante**: [Sage / Caregiver / Hero / Magician / Rebel / Explorer / Lover / Everyman / Jester / Ruler / Creator / Innocent — escolher 1]
+
+**Atributos do tom** (3-5):
+- [ex: autoritativo mas acessível]
+- [ex: baseado em evidência, não hype]
+- [ex: direto, sem jargão médico]
+
+**O que NUNCA dizer**:
+- [ex: clichês saturados do nicho]
+- [ex: palavras ad-flag já conhecidas]
+
+## 3. Paleta de cores
+
+Preencher com valores reais (hex) — NÃO placeholders:
+
+```
+primary: #______
+primary_dark: #______
+accent: #______
+bg_light: #______
+bg_dark: #______
+text_primary: #______
+text_secondary: #______
+border_subtle: #______
+success: #______
+warning: #______
+danger: #______
+```
+
+**Regras de aplicação**:
+- CTA primário sempre `primary` (nunca accent)
+- Bg de seção alterna `bg_light` / `bg_dark`
+- Texto body sempre `text_primary` sobre `bg_light`
+
+## 4. Tipografia
+
+```
+heading_font: "[Font Name]", sans-serif
+heading_weight: 700
+body_font: "[Font Name]", sans-serif
+body_weight: 400
+```
+
+Fontes usadas na página devem ser Google Fonts OU self-hosted com `<link rel="preload">` pra não flashar no load.
+
+## 5. Logo
+
+- Arquivo SVG: `/workspace/[produto]/brand/logo.svg`
+- Dimensões de referência: altura 40px em desktop nav, 32px em mobile
+- Variação monocromática (1 cor) pra overlays: `/workspace/[produto]/brand/logo-mono.svg`
+
+## 6. Grid & spacing
+
+- Container max-width: 1200px (desktop) / 100% (mobile)
+- Gutter: 24px desktop / 16px mobile
+- Section vertical padding: 80px desktop / 48px mobile
+- Border-radius: 8px cards, 4px buttons, 2px inputs
+
+## 7. Motion
+
+- Duration padrão: 200ms (micro-interactions), 400ms (section reveals)
+- Easing: `cubic-bezier(0.4, 0, 0.2, 1)` (material ease-in-out)
+- **Zero** animações que dependem de JS complexo — CSS-only sempre que possível
+
+## 8. Imagery guidelines
+
+- Hero photography: [estilo descrito — ex: "natural lighting, clean background, product em primeiro plano"]
+- UGC: [aceitável/não aceitável — e se sim, em quais sections]
+- Stock photo: [OK/não OK — se sim, com qual filter/treatment aplicado pra uniformizar]
+
+## 9. Ícones
+
+SVG inline sempre (nunca emoji em UI consumidor final — regra 7 CLAUDE.md).
+
+- Lib preferida: [Lucide / Heroicons outline / Phosphor / custom]
+- Stroke: 1.5-2px
+- Size: 16-18px em trust rows, 20-24px em feature blocks
+
+## 10. Copy conventions
+
+- Títulos: Title Case (capitalize major words)
+- Body: sentence case
+- Números: "1,000" com vírgula pra thousands (US format)
+- Moeda: "$" prefix, 2 casas decimais ("$29.99")
+- Data: "April 15, 2026" (full) ou "4/15" (compact)
+
+## 11. Disclaimers (ad-safe)
+
+Disclaimers legais que aparecem em ads/páginas (reutilizar pra manter consistência):
+
+- "[Disclaimer 1]"
+- "[Disclaimer 2]"
+
+## Update log
+
+| Data | Campo alterado | Motivo |
+|------|----------------|--------|
+| [ISO] | [ex: primary color] | [ex: membro pediu ajuste após Claude Design variant B] |
+
+---
+
+**Regra:** qualquer skill que gera output consumidor-final (05, 06, 06b, 06c, 07) DEVE carregar este arquivo ANTES de gerar. Mudanças aqui são propagadas automaticamente no próximo render (não há duplicação de cor/fonte em código).

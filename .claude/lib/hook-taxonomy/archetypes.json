@@ -1,0 +1,159 @@
+{
+  "version": "1.0.0",
+  "emotions": ["curiosity", "urgency", "fear", "delight"],
+  "archetypes": [
+    {
+      "id": "pattern_interrupt",
+      "emotion": "curiosity",
+      "name": "Pattern Interrupt",
+      "signals": ["cena visual inesperada", "pergunta incompleta", "juxtaposition"],
+      "structure": "Unexpected visual or statement + implicit question",
+      "best_for_funnel": ["TOF"],
+      "format_fit": ["ugc_human", "ugc_ai", "motion_graphic", "stolen_footage"]
+    },
+    {
+      "id": "secret_reveal",
+      "emotion": "curiosity",
+      "name": "Secret Reveal",
+      "signals": ["the one thing nobody tells you", "insider knowledge"],
+      "structure": "[Authority archetype] never told you about [topic]",
+      "best_for_funnel": ["TOF", "MOF"],
+      "format_fit": ["ugc_human", "ugc_ai", "founder_led"]
+    },
+    {
+      "id": "contrarian",
+      "emotion": "curiosity",
+      "name": "Contrarian",
+      "signals": ["challenge consensus", "opposite of common advice"],
+      "structure": "Everyone says [X]. They're wrong. Here's why.",
+      "best_for_funnel": ["TOF", "MOF"],
+      "format_fit": ["ugc_human", "founder_led", "motion_graphic"]
+    },
+    {
+      "id": "listicle_open",
+      "emotion": "curiosity",
+      "name": "Listicle Open",
+      "signals": ["number + quick list promise"],
+      "structure": "[N] things about [topic] — starting with one you haven't heard",
+      "best_for_funnel": ["TOF"],
+      "format_fit": ["motion_graphic", "ugc_ai", "carousel"]
+    },
+    {
+      "id": "question_hook",
+      "emotion": "curiosity",
+      "name": "Question Hook",
+      "signals": ["unresolved question that demands completion"],
+      "structure": "Ever wondered why [observation]?",
+      "best_for_funnel": ["TOF", "MOF"],
+      "format_fit": ["ugc_human", "ugc_ai", "demo"]
+    },
+    {
+      "id": "tempo_escasso",
+      "emotion": "urgency",
+      "name": "Time Pressure",
+      "signals": ["explicit window", "countdown"],
+      "structure": "Only [N] hours/days left for [offer]",
+      "best_for_funnel": ["BOF"],
+      "format_fit": ["static_image", "motion_graphic", "ugc_human"]
+    },
+    {
+      "id": "ultima_chance",
+      "emotion": "urgency",
+      "name": "Last Chance",
+      "signals": ["stock ending", "offer expiring"],
+      "structure": "Last [N] left at this price",
+      "best_for_funnel": ["BOF"],
+      "format_fit": ["static_image", "motion_graphic"]
+    },
+    {
+      "id": "trend_expiring",
+      "emotion": "urgency",
+      "name": "Cultural Moment",
+      "signals": ["fleeting seasonal/event window"],
+      "structure": "Before [event/season] ends",
+      "best_for_funnel": ["MOF", "BOF"],
+      "format_fit": ["ugc_human", "stolen_footage", "motion_graphic"]
+    },
+    {
+      "id": "missed_opportunity",
+      "emotion": "urgency",
+      "name": "Missed Opportunity",
+      "signals": ["inaction consequence"],
+      "structure": "If you don't [action] now, [negative outcome]",
+      "best_for_funnel": ["MOF"],
+      "format_fit": ["ugc_human", "founder_led"]
+    },
+    {
+      "id": "pain_amplification",
+      "emotion": "fear",
+      "name": "Pain Amplification",
+      "signals": ["current pain explicit + visual trigger"],
+      "structure": "Still dealing with [pain]?",
+      "best_for_funnel": ["TOF", "MOF"],
+      "format_fit": ["ugc_human", "ugc_ai", "demo"]
+    },
+    {
+      "id": "warning",
+      "emotion": "fear",
+      "name": "Warning",
+      "signals": ["alert about wrong behavior"],
+      "structure": "Stop doing [X] before [consequence]",
+      "best_for_funnel": ["MOF"],
+      "format_fit": ["ugc_human", "founder_led", "motion_graphic"]
+    },
+    {
+      "id": "comparative_loss",
+      "emotion": "fear",
+      "name": "Comparative Loss",
+      "signals": ["others achieving, you not"],
+      "structure": "Everyone else [has outcome] — why not you?",
+      "best_for_funnel": ["MOF"],
+      "format_fit": ["ugc_human", "ugc_ai"]
+    },
+    {
+      "id": "regret_future",
+      "emotion": "fear",
+      "name": "Future Regret",
+      "signals": ["future pacing negative"],
+      "structure": "In [time horizon], you'll wish you had [action]",
+      "best_for_funnel": ["MOF"],
+      "format_fit": ["ugc_human", "founder_led"]
+    },
+    {
+      "id": "transformation",
+      "emotion": "delight",
+      "name": "Transformation",
+      "signals": ["before-after implicit"],
+      "structure": "[Person] had [problem], now [outcome]",
+      "best_for_funnel": ["MOF", "BOF"],
+      "format_fit": ["ugc_human", "demo", "ugc_ai"]
+    },
+    {
+      "id": "aspiration",
+      "emotion": "delight",
+      "name": "Aspiration",
+      "signals": ["future self positive"],
+      "structure": "Imagine waking up and [outcome]",
+      "best_for_funnel": ["TOF", "MOF"],
+      "format_fit": ["motion_graphic", "ugc_ai", "ugc_human"]
+    },
+    {
+      "id": "discovery",
+      "emotion": "delight",
+      "name": "Discovery",
+      "signals": ["finding that solves"],
+      "structure": "I found the [thing] that actually [benefit]",
+      "best_for_funnel": ["MOF", "BOF"],
+      "format_fit": ["ugc_human", "founder_led", "ugc_ai"]
+    },
+    {
+      "id": "peer_validation",
+      "emotion": "delight",
+      "name": "Peer Validation",
+      "signals": ["social proof from similar peers"],
+      "structure": "[N] people like you already [outcome]",
+      "best_for_funnel": ["BOF"],
+      "format_fit": ["ugc_human", "ugc_ai", "static_image"]
+    }
+  ]
+}

@@ -16,6 +16,41 @@ Quando o membro tem criativos editados (da Skill 07) + página pronta na loja (d
 - [ ] Pixel + CAPI **validados tecnicamente** (screenshot Events Manager, Match Quality ≥ 80%)
 - [ ] Ads Manager acess: confirmar versao **Meta Marketing API ≥ v21.0 (Q1 2026)**
 - [ ] Attribution setting validado: 7d-click, 1d-view é padrão 2026 para BR/US; em EU pode ser 28d-default — confirmar com membro
+- [ ] **Analytics stack definido** — ver decision tree abaixo (sem isso o membro não vai conseguir ler dados corretamente depois)
+
+### Analytics stack — decision tree
+
+A Skill 09 (ad-analysis) depende de dados confiáveis de atribuição. Antes de lançar, escolher a stack correta. **Considerar APENAS 4 opções** — não sugerir Elevar, Stape, Littledata, Segment, ou qualquer outra:
+
+| Stack | Quando recomendar | Custo | Complexidade de setup |
+|-------|-------------------|-------|-----------------------|
+| **Meta App nativo na Shopify** (padrão) | Budget < $1k/dia, membro early-stage, pixel simples | Grátis | Baixa (1-click install) |
+| **Wetracked** | Membro quer tracking melhor que o padrão Shopify+Meta, sem pagar Triple Whale | $29-99/mês | Média |
+| **Triple Whale** | Budget $1k+/dia, múltiplos canais (Meta + TikTok + Google), precisa de visão consolidada de LTV/CAC/NCROAS | $129-499/mês | Média-Alta |
+| **Aimerce** | Budget > $3k/dia, membro com capital, quer AI-driven attribution com modelagem server-side avançada | $200+/mês | Alta |
+
+**Fluxo de decisão no Pré-flight:**
+
+1. Pergunte: "Você usa Meta App (padrão Shopify), Wetracked, Triple Whale ou Aimerce?"
+2. Se "nenhum" → recomendar **Meta App nativo** (Shopify Settings > Apps > Install Meta) + CAPI ON. Baseline sempre.
+3. Se membro já tem um dos quatro ativo → confirmar configuração:
+   - Meta App: verificar CAPI dupla-coluna no Events Manager, match quality ≥ 80%
+   - Wetracked: confirmar que pixel tá snippet enviando server-side events correlacionados
+   - Triple Whale: confirmar que Pixel da TW tá instalado + Sonar (server-side) ON + Meta Ads conectado
+   - Aimerce: confirmar Aimerce Pixel + server-side container ativo + identity resolution funcionando
+
+**NUNCA** sugerir:
+- Elevar / Stape / Littledata (complexidade desnecessária pro perfil do membro)
+- GTM server-side custom setup (suporte inexistente)
+- Segment ou CDPs (enterprise, fora do escopo do Aura Engine)
+
+**Budget mapping (regra simples):**
+- < $500/dia → Meta App bastam
+- $500-$1k/dia → Meta App OU Wetracked (se membro quer ficha técnica melhor)
+- $1k-$3k/dia → Triple Whale vira payback claro
+- $3k+/dia → Aimerce entra como opção premium
+
+Se o membro usa stack ≠ das 4 acima, PARAR e alinhar antes de rodar esta skill — dados ruins depois inviabilizam Skill 09.
 
 ### Compatibilidade
 Esta skill foi testada em:

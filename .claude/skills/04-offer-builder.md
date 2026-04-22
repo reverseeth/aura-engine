@@ -132,6 +132,72 @@ Para o mecanismo recomendado, escreva:
 - **Versão de 1 parágrafo** (pra PDP e body de ads): explica como funciona + por que é diferente, em ~3-4 frases.
 - **Versão de 2-3 parágrafos** (pra landing page dedicada ou advertorial — expansão completa): inclui causa raiz do problema + como o mecanismo a endereça + por que os outros mecanismos não funcionam + evidência (ingredient research, estudos, se disponível).
 
+### ETAPA 2.5 — Research Foundation (OBRIGATÓRIO — Lastro de Evidência)
+
+Mecanismo sem lastro científico/empírico é claim vazio e vira copy fraca, ad reprovado e member frustrado. Antes de prosseguir pra Etapa 3, você DEVE construir a base de evidência que sustenta o mecanismo recomendado.
+
+**Fontes a consultar (web search extensivo):**
+
+1. **Estudos científicos / papers peer-reviewed**
+   - PubMed (`site:pubmed.ncbi.nlm.nih.gov`)
+   - Google Scholar (`site:scholar.google.com`)
+   - ResearchGate, ScienceDirect, NIH
+   - Queries: nome do ingrediente/processo + "clinical trial", "peer-reviewed", "mechanism of action", "efficacy study", "randomized controlled trial"
+
+2. **Press releases / comunicados de pesquisa institucional**
+   - Harvard Health Publishing, Mayo Clinic, Cleveland Clinic, WebMD
+   - Press releases de fornecedores de ingrediente (Lonza, DSM, BASF, etc — têm whitepapers técnicos)
+
+3. **Regulatório / referências oficiais**
+   - FDA GRAS status (se aplicável)
+   - EMA monographs, EFSA opinions
+   - USP Pharmacopeia
+
+4. **Reviews sistemáticas e meta-análises** (evidência de maior grau)
+   - Cochrane Library
+   - Meta-analyses em periódicos da especialidade
+
+5. **Patents** (ingrediente/processo protegido)
+   - Google Patents — procurar prior art que sustenta o mecanismo
+
+**Para CADA claim do mecanismo (causa-raiz, ingrediente ativo, resultado esperado, diferenciação), documente:**
+
+```json
+{
+  "claim": "texto do claim",
+  "evidence_type": "peer_reviewed_study|meta_analysis|press_release|regulatory|patent|empirical_observation",
+  "source_title": "título completo",
+  "source_url": "url completa",
+  "source_date": "YYYY-MM-DD",
+  "strength": "strong|moderate|weak",
+  "strength_rationale": "por que essa classificação",
+  "quote_or_summary": "trecho literal ou resumo 1-2 frases",
+  "usage_rights": "public|paywalled|needs_permission"
+}
+```
+
+**Regras de rigor (NÃO NEGOCIÁVEIS):**
+
+- Proibido inventar estudo ou extrapolar além do que a fonte afirma literalmente
+- Proibido citar "estudos mostram que..." sem fonte rastreável com URL
+- Se a evidência é `weak` (anecdotal, in-vitro só, animal study único, tamanho amostral pequeno), o claim precisa ser suavizado ("helps with", "supports", "may contribute") — não afirmado categoricamente
+- Se NENHUMA evidência for encontrada pra um claim central, o mecanismo precisa ser reformulado antes de prosseguir — não escreva copy sobre fundação vazia
+
+**Output dessa etapa:**
+
+Arquivo `/workspace/[produto]/04-research-foundation.json` contendo:
+```json
+{
+  "mechanism_name": "...",
+  "evidence_items": [ { ... } ],
+  "summary_statement": "2-3 frases resumindo a base de evidência do mecanismo",
+  "confidence_score": "high|medium|low",
+  "gaps_and_risks": "claims que ficaram sem lastro forte — a serem suavizados na copy"
+}
+```
+
+Esse arquivo é lido pelas skills 05 (copy) e 07 (creatives) pra ancorar afirmações com fonte verificável. Copy sem `research-foundation.json` acessível roda com warning "claims unverified — escalate carefully".
+
 ### ETAPA 3 — Estrutura de Oferta
 
 Monte a arquitetura econômica completa:
@@ -309,6 +375,7 @@ Antes de salvar, responda HONESTAMENTE:
 8. **Margem $ ≥ $20 em pelo menos uma variação?** (senão CPA viável inviabiliza ads)
 9. **Bundle structure aumenta AOV sem canibalizar margem?**
 10. **breakeven_roas < 3.0?** (se >3, a oferta depende de CAC muito baixo — validar com @analyst)
+11. **`04-research-foundation.json` existe e cobre todos os claims centrais do mecanismo com fonte rastreável?** (sem fundação de evidência, copy da Skill 05 sai sem lastro — bloqueante)
 
 Se alguma resposta for "não", **itere antes de salvar**. Uma oferta fraca que passa adiante vira ad ruim, copy genérica, e membro frustrado em 30 dias.
 
@@ -358,13 +425,16 @@ Atualizar `manifest.json`: adicionar `target_cpa`, `breakeven_roas`, `psm_theore
 
 `/workspace/[produto]/04-offer.md` contendo:
 1. Mecanismo único recomendado (com scoring das 5-7 opções geradas) + 3 versões (1 frase / 1 parágrafo / 2-3 parágrafos)
-2. Estrutura de oferta completa (produto principal, bundles, bump, upsell, stack de valor)
-3. Garantia recomendada + copy
-4. Tabela de unit economics (Etapa 5)
-5. AOV projetado (Etapa 6)
-6. PSM projetado (Etapa 7)
-7. Viabilidade com budget (Etapa 8)
-8. Respostas aos sanity checks (Etapa 9)
+2. **Research Foundation** (Etapa 2.5) — evidências que sustentam o mecanismo, com fontes rastreáveis
+3. Estrutura de oferta completa (produto principal, bundles, bump, upsell, stack de valor)
+4. Garantia recomendada + copy
+5. Tabela de unit economics (Etapa 5)
+6. AOV projetado (Etapa 6)
+7. PSM projetado (Etapa 7)
+8. Viabilidade com budget (Etapa 8)
+9. Respostas aos sanity checks (Etapa 9)
+
+Também salvar companion `04-research-foundation.json` conforme schema da Etapa 2.5.
 
 ## Mensagem Final
 

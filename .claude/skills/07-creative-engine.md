@@ -55,23 +55,40 @@ Quando o membro tem copy pronta (Skill 05) e precisa dos briefings de criativos 
 
 ## Fluxo da Skill
 
-### ETAPA 1 — Material Disponível (Pergunta 1)
+### ETAPA 1 — Material Disponível + Creator Archetype (Pergunta 1)
 
 Pergunte:
 
 "Que tipo de material você tem pra montar os ads?
-- Clips do TikTok/Reels de outros criadores
+- Clips do TikTok/Reels de outros criadores (stolen-footage style)
 - Vídeos do fornecedor/fabricante
-- UGC gerado por AI (Higgsfield, etc)
+- UGC gerado por AI (Higgsfield, Arcads, HeyGen, etc)
 - Fotos de produto
+- Creator humano contratado (pago pra gravar)
+- Self-recorded (você mesmo grava)
 - Mix de tudo acima"
 
-Use a resposta pra influenciar o FORMATO dos conceitos recomendados:
-- Só fotos de produto → prioriza imagem estática + carrossel educativo + motion graphics simples
-- Só clips do TikTok → prioriza UGC-style, cortes rápidos, stolen-footage-style hooks
-- AI UGC (Higgsfield/Arcads) → prioriza avatar-driven com natural speech converter
-- Vídeos fornecedor → prioriza demonstração + before-after + ingredient spotlight
-- Mix → distribui conceitos em formatos variados (diversidade é escala — princípio)
+**Creator Archetype Auto-Selection (realista):**
+
+A maioria dos membros NÃO vai pagar creator humano ($150-500 por vídeo) e NÃO vai querer gravar a si mesmo (barreira alta). Selecione archetype default com base na resposta + budget do profile:
+
+| Resposta do membro | Budget < $500/mês | Budget $500-2k/mês | Budget > $2k/mês |
+|--------------------|-------------------|--------------------|-------------------|
+| "não tenho nada" / "só fotos" | **AI UGC + stock + motion graphics** (default) | AI UGC + founder-led opcional | AI UGC + 1-2 creators humanos |
+| "tenho clips do TikTok" | Stolen-footage + AI UGC | Stolen-footage + AI UGC | Stolen-footage + creator humano |
+| "tenho vídeo do fornecedor" | Demonstração + motion graphics | Demo + AI UGC complementar | Demo + creator humano |
+| "posso gravar eu mesmo" | Founder-led + AI UGC | Founder-led + AI UGC | Founder-led + creator humano |
+| "tenho creator contratado" | Raro — mas priorize o creator | Creator humano primary | Creator humano primary |
+
+**Default geral (se membro estiver em dúvida):** AI UGC + stock + motion graphics. Esse mix é acessível, escalável, e cobre 80% dos cenários.
+
+Use o archetype pra influenciar FORMATO e SCRIPT dos conceitos:
+- **AI UGC** (Higgsfield/Arcads): avatar-driven, natural speech converter obrigatório pra não soar robotizado, duração 15-22s ideal
+- **Stolen-footage**: cortes rápidos, UGC-style hooks de pattern interrupt, nenhuma voz off
+- **Motion graphics**: claim-heavy, text-forward, ideal pra listicle hooks e mechanism explainers
+- **Founder-led**: talking head caseiro, tom pessoal, storytelling, duração 25-45s
+- **Demonstração**: close-up do produto em uso, b-roll intercalado, mínimo de talking, foco em proof visual
+- **Creator humano**: UGC tradicional com spokesperson, maior range de duração e complexidade de script
 
 ### ETAPA 2 — Calcular Quantidade de Conceitos
 
@@ -140,6 +157,115 @@ Quer ajustar algum antes de eu gerar os briefings completos?"
 
 - Se o membro disser "tá bom" / "segue" / "manda" → vai pra Etapa 5
 - Se pedir ajuste → aplique e confirme antes de gerar briefings
+
+### ETAPA 4.5 — Regras estruturais globais (aplicadas a TODO briefing)
+
+Antes de gerar briefings individuais, estas regras se aplicam a qualquer conceito, independente de vertical/formato:
+
+**A. Aspect ratio — sempre 9:16**
+
+Todo criativo (vídeo ou imagem) é produzido em **9:16 (1080×1920)**. Meta/Instagram/TikTok rodam Reels/Stories nessa razão, e versões 1:1/4:5 derivam do 9:16 via crop central ou re-framing manual (documentar esse crop no briefing quando aplicável). Nunca produza 4:5 ou 1:1 como versão primária — vai perder placements de Reels/Stories/TikTok.
+
+**B. Plataforma primária — TikTok vs Meta difference**
+
+Pergunte ao membro (se não estiver no profile): "Esse batch vai rodar primariamente em Meta (FB/IG) ou TikTok?" Use a resposta pra calibrar o briefing:
+
+| Aspecto | Meta (FB/IG Reels) | TikTok |
+|---------|---------------------|--------|
+| Hook timing | 0-3s com pattern interrupt forte | 0-2s — TikTok penaliza mais rápido |
+| Tom | Mais polido aceitável | Mais cru/UGC-native convert melhor |
+| Duration ideal | 15-22s TOF, até 45s MOF | 12-20s cap — scroll é mais rápido |
+| Text overlay | Importante pra hook retention | Essencial — muitos assistem sem som |
+| CTA | Explícito + badge visual | Soft CTA ("link na bio" não funciona em ad — usar CTA button nativo) |
+| Música/trending sound | Menos crítico | Trending sound aumenta reach orgânico — aproveitar |
+| Format | Flexible Ad Format permite variações dentro de 1 ad | 1 criativo = 1 ad set |
+
+Se o batch roda em **ambas** as plataformas, o briefing tem 2 versões do script: Meta-optimized e TikTok-optimized. Não assuma portabilidade 1:1.
+
+**C. Word count validation por duration (spoken script)**
+
+Cadência de fala natural pra ad é **2.3 a 2.8 palavras por segundo** (mais lento que fala casual pra dar tempo de processar). Use esse range pra validar se o script cabe na duração alvo.
+
+| Duration alvo | Word count ideal (fala) | Word count teto absoluto |
+|---------------|-------------------------|--------------------------|
+| 10s | 23-28 palavras | 30 |
+| 15s | 35-42 palavras | 45 |
+| 22s | 50-62 palavras | 68 |
+| 30s | 70-85 palavras | 92 |
+| 45s | 105-125 palavras | 135 |
+
+**Regra:** ao gerar script de voiceover/fala, ANTES de salvar, conte as palavras e confirme que cabe no range. Se estourar, corte — não deixe o editor precisar acelerar a fala pra caber (soa robótico e destrói retention).
+
+Text overlay não conta nesse cálculo — overlay roda em paralelo à fala.
+
+**D. Spoken vs Overlay — disciplina de jargão técnico**
+
+Siglas, números complexos, nomes científicos, compostos químicos, unidades de medida e claims regulatórios são **sempre text overlay**, **nunca** na fala. Regras:
+
+- Siglas (qualquer acrônimo de 2+ letras maiúsculas) → overlay
+- Números com decimais, percentuais, ou unidades técnicas → overlay (`"48.5% improvement"`, `"2,500 IU"`)
+- Nomes de ingrediente/composto químico complexos → overlay
+- Estudos citados com N amostral, duração, peer-review status → overlay ou gráfico
+- Regulatory references (FDA status, clinical trial phase) → overlay ou disclaimer
+
+**Motivo:** a fala precisa fluir emocionalmente. Siglas/números faladas quebram ritmo, desligam avatares 35+, soam clinicamente desinteressante. No overlay, o mesmo dado ganha peso de evidência visual sem matar cadência.
+
+**Regra de ouro:** se a frase contém ≥2 elementos técnicos, quebrar — a parte emocional vai na fala, os dados duros vão no overlay lado-a-lado.
+
+**E. Big 4 Emotions — obrigatório marcar dominante no hook**
+
+Todo criativo (e todo hook na Hooks Bank) DEVE declarar explicitamente qual das Big 4 emotions domina:
+
+- **Curiosity** — pattern interrupt, mistério, pergunta incompleta, "o que poucos sabem"
+- **Urgency** — tempo escasso, janela limitada, risco de perder
+- **Fear** — dor amplificada, consequência negativa, "se você não fizer X"
+- **Delight** — desejo/transformação, imagem de futuro melhor, prazer antecipado
+
+NÃO permitir hook sem emoção dominante atribuída. Se o hook não encaixa em nenhuma das 4, ele é fraco — reescrever.
+
+**F. VOC traceability — cada claim/hook linka a VOC phrase**
+
+Cada hook, cada primary text, cada headline precisa ser rastreável a uma fonte no `02-market-research.json` (VOC phrases, trigger events, objeções, dores hierarquizadas). Documentar no output JSON:
+
+```json
+{
+  "asset_id": "c-01-h-03",
+  "text": "texto do hook",
+  "voc_source": {
+    "ref_id": "voc-phrase-0042",
+    "original_phrase": "frase exata do review/post/comment",
+    "source_type": "amazon_review|reddit_thread|tiktok_comment|g2_review|...",
+    "confidence": "direct_quote|paraphrase|inferred_pattern"
+  },
+  "emotion_dominant": "curiosity|urgency|fear|delight"
+}
+```
+
+Claim sem VOC rastreável **OU** sem evidência no `04-research-foundation.json` da Skill 04 = marcar `"voc_source": null, "requires_manual_review": true` e listar no output final pra o membro validar. Proibido inventar frase de avatar sem lastro.
+
+**G. Hook-swap — OPCIONAL, não sempre**
+
+O padrão "1 body × N hook variants" (manter corpo do vídeo e só trocar hook) funciona BEM quando:
+- Conceito ganhou e quer testar variações de abertura sem refazer produção
+- Body é genérico (product demo, lifestyle footage, motion graphics reutilizável)
+- Budget não comporta refilmagem/re-render
+
+Hook-swap NÃO funciona quando:
+- Conceito depende de storytelling coeso (founder-led, UGC narrativo)
+- Ângulo do hook é tão específico que o body precisa acompanhar (ex: hook de causa-raiz exige body educacional)
+- Plataforma detecta "same-body creative" como duplicata (TikTok especificamente)
+
+**Regra:** na Etapa 5, declare explicitamente `hook_swap_viable: true|false` por conceito. Se `false`, Etapa 7 (Hooks Bank) gera hooks pra FUTUROS conceitos novos (não pra swap no atual).
+
+**H. Compliance pré-geração (gate leve antes da Etapa 7.5)**
+
+Além do compliance pass final da Etapa 7.5, aplicar **soft check** durante geração:
+
+- Zero travessão (—) em headlines (regra 8a do CLAUDE.md)
+- Zero palavras ad-flag (Botox/Filler/Injection/Cure/Treat/Anti-aging literal) em qualquer peça de copy pra consumidor (regra 8b)
+- Substituições automáticas do CLAUDE.md já aplicadas na primeira geração (não deixar pro compliance checker consertar depois)
+
+Esse soft check evita 80% do retrabalho pós-compliance.
 
 ### ETAPA 5 — Gerar Briefings Completos (Um Por Conceito)
 
@@ -284,16 +410,22 @@ Se o membro só tem uma LP, recomende adaptações (sessões-chave a adicionar n
 
 ### ETAPA 7 — Hooks Bank (10 Alternativas)
 
-Pra uso em iterações futuras (quando o conceito ganhar e você quer testar variações de hook sem refazer o conceito inteiro), gere **10 hooks alternativos** categorizados:
+Pra uso em iterações futuras, gere **10 hooks alternativos** categorizados. **Só aplique swap se o conceito tiver `hook_swap_viable: true` na Etapa 4.5.G** — senão, esses hooks servem como semente pra conceitos NOVOS, não pra trocar no conceito atual.
 
 - **Problema** (3 hooks): frases de abertura que lideram com a dor
 - **Resultado** (3 hooks): frases que lideram com o outcome desejado
 - **Curiosidade** (2 hooks): que despertam mistério ou pattern interrupt
 - **Prova social** (2 hooks): que lideram com testimonial ou número
 
+Cada hook deve declarar:
+- Big 4 emotion dominante (curiosity/urgency/fear/delight)
+- VOC source (ref ao `02-market-research.json`, conforme Etapa 4.5.F)
+- Word count (≤ 10 palavras ideal pro primeiro beat do vídeo)
+- Aspect ratio: 9:16 (sempre)
+
 Cada hook = 1-2 frases, formato de vídeo hook ou image headline.
 
-Esses hooks ficam na biblioteca pra usar depois — quando um conceito escala, a gente pivota os hooks dele pra esses 10 antes de ter que criar conceito novo do zero.
+Esses hooks ficam na biblioteca pra iteração futura.
 
 ### ETAPA 7.4 — Carregar DNA aprendido (PRE-STEP silent)
 
@@ -402,14 +534,46 @@ Outputs em `/workspace/[produto]/07-creatives/` (nomenclatura normalizada):
 {
   "batch_id": "uuid",
   "product_slug": "...",
+  "creator_archetype_default": "ai_ugc|stolen_footage|motion_graphics|founder_led|demo|creator_human",
+  "platform_primary": "meta|tiktok|both",
+  "aspect_ratio_primary": "9:16",
   "concepts": [
-    {"id": "c-01", "name": "...", "angle": "problem|result|curiosity|social", "voc_refs": [...], "hook_variants": [...]}
+    {
+      "id": "c-01",
+      "name": "...",
+      "angle": "problem|result|curiosity|social|authority|comparison|controversy|identification",
+      "vertical": "competitive|consumer|internal",
+      "awareness_level": "unaware|problem_aware|solution_aware|product_aware|most_aware",
+      "funnel_position": "TOF|MOF|BOF",
+      "hook_swap_viable": true,
+      "format": "video_ugc|video_demo|static_image|carousel|motion_graphic",
+      "duration_target_seconds": 22,
+      "word_count_spoken": 55,
+      "word_count_within_limit": true,
+      "hooks": [
+        {
+          "text": "texto do hook",
+          "emotion_dominant": "curiosity",
+          "voc_source": { "ref_id": "voc-phrase-0042", "original_phrase": "...", "confidence": "direct_quote" }
+        }
+      ],
+      "primary_texts": [
+        { "text": "...", "angle": "A|B", "voc_source": {...}, "compliance_clean": true }
+      ],
+      "headlines": [
+        { "text": "...", "frame": "benefit|urgency|offer|question", "voc_source": {...}, "compliance_clean": true }
+      ]
+    }
   ],
-  "primary_texts": [...],
-  "headlines": [...],
   "total_assets": 3,
   "format": "3-2-2",
-  "next_batch_ideas_applied": ["ref-01", "ref-02"]
+  "next_batch_ideas_applied": ["ref-01", "ref-02"],
+  "compliance_summary": {
+    "ad_flag_words_found": 0,
+    "em_dash_in_headlines": 0,
+    "unresolved_claims_without_voc": 0,
+    "unresolved_claims_without_research_foundation": 0
+  }
 }
 ```
 

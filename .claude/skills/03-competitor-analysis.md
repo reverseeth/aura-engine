@@ -177,6 +177,74 @@ Se todos os top criativos estão numa posição só, o concorrente tem **funil d
 
 > ⚠ Classificação 4Pi aqui é especulativa (sem métricas reais de performance dos concorrentes). Re-valide TOF/MOF/BOF quando houver ads LIVE nossos com dados de frequency/CPM/CTR reais — a classificação pode mudar significativamente.
 
+### ETAPA 3C — Scaled Creative Deep Analysis (opcional, mas recomendado)
+
+Se o membro tiver acesso a plataformas de inteligência de criativos (Adsparo, SpyBox, Kalodata, Pipiads, Foreplay, Minea, Atria) ou listas curadas de criativos que ESCALARAM (não apenas "ativos"), peça pra enviar:
+
+1. **URLs públicas** de vídeo ad (Meta Ad Library direct links, TikTok urls, ou assets hospedados)
+2. **Uploads de vídeo/imagem** diretamente pro workspace (salvar em `/workspace/[produto]/03-creatives-inbox/`)
+3. **CSV/planilha** com lista de criativos + métricas se disponível (spend, days live, impressions estimadas)
+
+Critério de curadoria do membro: só criativos que ESCALARAM (proxy: 90+ dias ativos com variação semanal, OU métricas diretas de plataforma de inteligência mostrando alto spend/impressões). Ads recém-lançados NÃO servem pra essa análise — a ideia é extrair padrões do que o mercado já VALIDOU.
+
+**Pipeline de análise profunda:**
+
+Para cada criativo recebido:
+
+**1. Transcrição de áudio (vídeos):**
+- Usar Whisper `medium` OU `turbo-large` — NUNCA `base` ou `small` (essas geram transcrição com erros demais pra análise confiável)
+- Se o membro tem OpenAI API: `whisper-1` endpoint (baseline, equivalente a turbo-large)
+- CLI local: `whisper <arquivo> --model medium --language en` (ou `turbo` se disponível)
+- Output obrigatório: transcript com timestamps por palavra (`word_timestamps=true`) pra mapear hook/bridge/hold/CTA
+- Salvar em `/workspace/[produto]/03-creatives-inbox/transcripts/[creative-id].json`
+
+**2. Extração de padrões (por criativo):**
+- Hook primeiros 3s: texto literal + Big 4 emotion dominante (curiosity/urgency/fear/delight)
+- Bridge 3-8s: técnica de transição usada
+- Hold 8-end: mecanismo apresentado, proof elements, slippery slope detectável
+- CTA: call-to-value vs call-to-action, urgência explícita ou não
+- Visual beats: corte a cada X segundos, pattern interrupts, b-roll vs talking head
+- Text overlay strategy: siglas/claims técnicos em overlay vs falados, tempo de exibição
+- Aspect ratio usado (9:16 quase sempre pra Reels/Stories/TikTok)
+
+**3. Agregação de padrões (cross-creative):**
+
+Depois de transcrever N criativos, identifique:
+
+- **Hook archetypes recorrentes**: quais formas de abrir aparecem em ≥ 30% dos criativos escalados?
+- **Claim overlap**: quais afirmações aparecem em múltiplos criativos (e devem ser consideradas "validadas pelo mercado")?
+- **Duration distribution**: histograma de durações — qual faixa concentra os escalados? (típico: 15-22s pra TOF, 25-45s pra MOF)
+- **Format mix**: % UGC humano / AI UGC / stock + motion / demonstração / antes-depois
+- **Spoken vs overlay split**: claims técnicos ficam em overlay ou na fala? Padrão dominante?
+- **CTA cadence**: CTA único no final OU CTA bumper no meio + final?
+- **Music/SFX patterns**: música, sem música, só ambience
+- **Opening visual**: talking head close, product shot, b-roll lifestyle, text card
+
+Output obrigatório: `/workspace/[produto]/03-creative-patterns.json`:
+
+```json
+{
+  "analyzed_at": "ISO timestamp",
+  "creatives_analyzed_count": 12,
+  "transcription_model": "whisper-medium|whisper-turbo-large",
+  "hook_archetypes": [
+    { "pattern": "descrição", "frequency_pct": 42, "examples_creative_ids": ["c-03","c-07","c-11"] }
+  ],
+  "recurring_claims": [
+    { "claim": "texto", "count": 5, "market_validated": true }
+  ],
+  "duration_histogram": { "0-15s": 2, "15-22s": 5, "22-30s": 3, "30-45s": 2 },
+  "format_distribution": { "ugc_human": 5, "ugc_ai": 3, "motion_graphic": 2, "demo": 2 },
+  "spoken_vs_overlay_policy": "siglas/numbers em overlay; claims emocionais falados",
+  "cta_pattern": "CTA bumper em 50% + final CTA em 100%",
+  "opening_visual_pattern": "talking head close-up (67%), product shot (25%), other (8%)"
+}
+```
+
+Esse arquivo vira input crítico pra Skill 07 (Creative Engine) — criativos novos nascem ancorados em padrões validados + 20-30% de novelty intencional pra testar rupturas.
+
+**Se membro NÃO enviar criativos**: pular essa etapa e prosseguir. A skill 07 roda em modo "cold" (sem patterns de referência) — funciona, mas com menos sinal de mercado.
+
 ### ETAPA 4 — Claims Compilation Completa
 
 Compile TODOS os claims que os concorrentes fazem, classificados por tipo:
@@ -352,11 +420,13 @@ Seção obrigatória no output (md + json):
 
 **Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
-Salvar TRÊS artefatos:
+Salvar os seguintes artefatos:
 
 1. **`/workspace/[produto]/03-competitor-analysis.md`**
 2. **`/workspace/[produto]/03-competitor-analysis.html`**
-3. **`/workspace/[produto]/03-competitor-analysis.json`** — JSON companion estruturado:
+3. **`/workspace/[produto]/03-competitor-analysis.json`** — JSON companion estruturado (ver abaixo)
+4. **`/workspace/[produto]/03-creative-patterns.json`** — SE membro forneceu criativos pra análise profunda (Etapa 3C); senão, pular. Schema definido na própria Etapa 3C.
+5. **`/workspace/[produto]/03-creatives-inbox/transcripts/[creative-id].json`** — transcripts Whisper individuais (um por criativo).
 
 ```json
 {

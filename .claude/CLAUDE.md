@@ -93,16 +93,19 @@ O membro pode acionar qualquer skill por nome:
 - "setup" → skill 00
 - "product research" → skill 01
 - "market research" → skill 02
-- "competitor analysis" → skill 03
-- "offer" → skill 04
+- "competitor analysis" → skill 03 (inclui análise profunda de criativos escalados dos concorrentes via Whisper transcription — ETAPA 3C)
+- "offer" → skill 04 (inclui Research Foundation obrigatória — ETAPA 2.5)
 - "copy" → skill 05
-- "page" → skill 06 (gerar a página Shopify do zero a partir da copy, orquestrando 16 skills especialistas — design system, frontend-design, self-critique, validação Liquid)
+- "page" → skill 06 (blueprint visual via Claude Design com 4 variações A/B/C/D obrigatório antes de gerar Liquid)
 - "creatives" → skill 07
-- "ad strategy" → skill 08
+- "ad strategy" → skill 08 (inclui analytics decision tree — Meta App / Wetracked / Triple Whale / Aimerce)
 - "ad analysis" → skill 09
 - "scale" → skill 10
+- "consistency audit" ou "audit" → skill 11 (cross-phase drift detection antes de launch)
+- "retention" ou "email flows" ou "klaviyo" → skill 12
+- "bonus delivery" → skill 13
 
-ORDEM LÓGICA DE EXECUÇÃO: a página (skill 06) vem ANTES dos criativos (skill 07). Não faz sentido gerar ads pra uma página que ainda não existe. O fluxo completo é: setup → product research → market research → competitor analysis → offer → copy → **page** → creatives → ad strategy → ad analysis → scale.
+ORDEM LÓGICA DE EXECUÇÃO: setup → product research → market research → competitor analysis → offer → copy → **page** → creatives → **consistency audit** (pré-launch) → ad strategy → ad analysis → scale → retention (pós-launch) → bonus delivery (pós-launch).
 
 Ou pode simplesmente descrever o que precisa e você identifica qual skill usar.
 
