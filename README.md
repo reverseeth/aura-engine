@@ -38,6 +38,7 @@ And operational rules em `.claude/rules/` (auto-loaded quando relevantes):
 
 - `shopify-theme-safety.md` — pull-before-edit, `--nodelete`, silent push rejection diagnosis
 - `pre-launch-gates.md` — Compliance gate + Promise↔Config gate (blocking, não-negociável)
+- `post-task-self-audit.md` — auto-auditoria obrigatória após toda skill/tarefa importante (6 gates)
 - `iteration-driven-refinement.md` — skills geram draft + convite pra iteração, não "pronto"
 - `troubleshooting-patterns.md` — árvore de diagnóstico pra issues recorrentes
 - `member-stage-awareness.md` — adapta tom/recomendação a starter/validating/scaling
@@ -86,6 +87,7 @@ Queries starting with `aura:` consult the knowledge base.
 ├── rules/                 # operational rules (auto-loaded)
 │   ├── shopify-theme-safety.md
 │   ├── pre-launch-gates.md
+│   ├── post-task-self-audit.md
 │   ├── iteration-driven-refinement.md
 │   ├── troubleshooting-patterns.md
 │   ├── member-stage-awareness.md
