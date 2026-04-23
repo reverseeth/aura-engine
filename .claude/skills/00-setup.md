@@ -188,6 +188,21 @@ Link do produto principal: [url ou "N/A"]
 - Link de checkout: [url]
 ```
 
+### ETAPA 5A — Inicializar `brand.md` do produto (opcional, mas recomendado)
+
+Se SITUACAO ≠ A (membro já tem produto), copie `.claude/templates/brand.md.template` pra `/workspace/[produto]/brand.md` e preencha os fields que conseguiu extrair automaticamente na ETAPA 4 (dados da página):
+
+- `{{ PRODUCT_SLUG }}` → slug do produto
+- Paleta de cores: extrair do CSS/design da loja (se acessível)
+- Fontes: extrair do CSS da loja
+- Logo path: `/workspace/[produto]/brand/logo.svg` (criar diretório; membro upa depois)
+
+Fields que NÃO conseguiu extrair ficam como placeholders `[preencher]`. Avise ao membro:
+
+> "Criei `/workspace/[produto]/brand.md` com o que consegui extrair da sua loja. Abre e completa o que ficou como `[preencher]` antes de rodar `page` — isso é single-source-of-truth pra identidade visual e editorial."
+
+Se SITUACAO = A (sem produto ainda), pule essa etapa. `brand.md` é criado depois que o produto é definido na Skill 01.
+
 ### ETAPA 5B — Criar Manifest (fonte única de verdade)
 
 Paralelamente ao `profile.md`, crie o arquivo `/workspace/[produto]/manifest.json`. Este é o **ÚNICO** local que todas as skills seguintes leem/atualizam para descobrir paths, progresso, e métricas. Substitui qualquer inferência manual de caminho.
@@ -260,10 +275,11 @@ Cada fase lê o que as anteriores produziram em /workspace/[produto]/ — você 
 
 Garanta `mkdir -p /workspace/` e `mkdir -p /workspace/[produto]/` antes de qualquer write.
 
-Salve em TRÊS arquivos:
+Salve em QUATRO arquivos:
 1. **`/workspace/profile.md`** (formato da Etapa 5 — a AI lê nas fases seguintes)
 2. **`/workspace/profile.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto))
 3. **`/workspace/[produto]/manifest.json`** (Etapa 5B — fonte única de verdade para todas as próximas skills)
+4. **`/workspace/[produto]/brand.md`** (Etapa 5A — apenas se SITUACAO ≠ A; copiado de `.claude/templates/brand.md.template` com fields auto-extraídos preenchidos)
 
 **Validação do template HTML**: antes de escrever `profile.html`, confirme que `.claude/templates/aura-report-template.html` existe (`test -f`). Se NÃO existir, gere um HTML mínimo inline com CSS básico, um cabeçalho textual "Aura Engine — Profile" e um aviso no topo: `<!-- WARNING: template .claude/templates/aura-report-template.html missing; fallback HTML in use -->`. Nunca aborte por template ausente.
 

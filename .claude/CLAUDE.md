@@ -122,5 +122,9 @@ Quando precisar buscar na base, use queries como:
 - Criativos: "ad angles concepts variations", "3-2-2 flexible ads format", "ad formats roadmap creative", "hooks video ads", "funnel creative playbook"
 - Meta Ads: "scientific method meta ads control variable", "one campaign method AndroMeta", "4Pi analysis spend frequency CPM", "budget scaling methods 5% rule", "performance gate scaling PGS"
 - Scale: "scaling strategy vertical horizontal", "creative diversity scaling mechanism"
+- Consistency audit: "cross-phase consistency launch checklist", "mechanism coherence VOC traceability"
+- Retention (email flows): "email lifecycle welcome abandoned cart post-purchase winback", "Klaviyo flow trigger replenishment"
+- Bonus delivery: "offer stack bonus types digital community physical", "post-purchase delivery tracking access rate"
+- Content recycler: "1 winner 9 derivatives formats advertorial email TikTok blog Pinterest", "creative essence extraction reusable"
 
 Faça buscas com deep=true para resultados mais completos.

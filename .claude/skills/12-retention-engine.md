@@ -118,11 +118,21 @@ Pra cada email gerado:
 - **Reply-to**: endereço monitorado (replies de cliente vão pra algum lugar)
 - **Spam trigger words check**: rodar `compliance-preflight` no subject + body. Palavras tipo "FREE!!!", "ACT NOW", "GUARANTEED" no subject reduzem inbox rate
 
-## Output
+## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-- `/workspace/[produto]/12-retention/[fluxo]/` — HTML files por email + metadata JSON
-- `/workspace/[produto]/12-retention-log.json` — log de flows criados + timestamps + status
-- Atualizar `manifest.json.skills_completed` com `12-retention-engine`
+**Garantir diretório:** `mkdir -p /workspace/[produto]/12-retention/` antes de salvar.
+
+Salvar:
+
+1. **`/workspace/[produto]/12-retention/[fluxo]/email-N.html`** — HTML pronto de cada email do fluxo (consumidor final; responsive table-based email HTML, NÃO o design-system Aura)
+2. **`/workspace/[produto]/12-retention/[fluxo]/flow-metadata.json`** — metadata de cada email (subject, preview, trigger, delay)
+3. **`/workspace/[produto]/12-retention.md`** — relatório operacional do setup pra AI ler em skills futuras (resumo dos fluxos criados, triggers, status)
+4. **`/workspace/[produto]/12-retention.html`** — visualização humana (AI report) usando `.claude/templates/aura-report-template.html` como base. Logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por fluxo, `.pill` pra status (DRAFT/ACTIVE), `.callout` pra avisos de compliance.
+5. **`/workspace/[produto]/12-retention-log.json`** — log de flows criados + timestamps + status + delivery results
+
+**Distinção importante:** os emails em si (item 1) são HTML de email marketing (table-based, inline styles pra ESP compatibility) — NÃO usam o design-system Aura, NÃO têm logo Aura. Já os relatórios internos (itens 3-4) seguem a rule 6b do CLAUDE.md normalmente.
+
+Atualizar `manifest.json.skills_completed` com `"12-retention-engine"`.
 
 ## Regras de rigor
 

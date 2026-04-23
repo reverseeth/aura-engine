@@ -101,10 +101,10 @@ Gere 5-7 opções de mecanismo único. Cada um com:
 - **New** (soa novo pro mercado, mesmo que a ciência subjacente seja antiga — reformulação criativa de algo conhecido)
 
 Nomes pode vir de:
-- Renomear ingredientes existentes pra novo propósito (ex: "Ceramide Matrix" em vez de "ceramidas")
-- Combinar 2-3 features em conceito unificado (ex: "Triple Peptide Stack")
-- Nomear um processo interno (ex: "48-Hour Activation")
-- Reposicionar uma feature secundária como central (ex: transformar "com antioxidantes" em "Free Radical Neutralization System")
+- Renomear ingredientes/componentes existentes pra novo propósito (ex: num suplemento: "Bioavailable Matrix" em vez de "complexo"; num wearable: "Adaptive Core Module" em vez de "sensor")
+- Combinar 2-3 features em conceito unificado (ex: "Triple Action Stack", "Dual Channel System")
+- Nomear um processo interno (ex: "48-Hour Activation Protocol", "7-Day Reset Method")
+- Reposicionar uma feature secundária como central (ex: transformar feature "com antioxidantes" em "Free Radical Neutralization System"; feature "bateria de 72h" em "Perpetual Charge Architecture")
 
 **2B — Avaliação Rigorosa:**
 
@@ -128,7 +128,7 @@ Recomende o mecanismo com maior score total, com justificativa explícita por qu
 
 Para o mecanismo recomendado, escreva:
 
-- **Versão de 1 frase** (pra headlines, hooks, ads): ex: "Nossa fórmula ativa a Triple Collagen Cascade em 48 horas."
+- **Versão de 1 frase** (pra headlines, hooks, ads): ex: "Nossa fórmula ativa o [Mechanism Name] em 48 horas." (produto-agnóstico — adaptar ao vertical: skincare, supplement, fitness, gadget, etc)
 - **Versão de 1 parágrafo** (pra PDP e body de ads): explica como funciona + por que é diferente, em ~3-4 frases.
 - **Versão de 2-3 parágrafos** (pra landing page dedicada ou advertorial — expansão completa): inclui causa raiz do problema + como o mecanismo a endereça + por que os outros mecanismos não funcionam + evidência (ingredient research, estudos, se disponível).
 
@@ -203,7 +203,7 @@ Esse arquivo é lido pelas skills 05 (copy) e 07 (creatives) pra ancorar afirma�
 Monte a arquitetura econômica completa:
 
 **Produto Principal:**
-- **Nome do produto** (se ainda não tem, sugira — pode incluir mecanismo no nome: ex: "ClariForm — Collagen Cascade Serum")
+- **Nome do produto** (se ainda não tem, sugira — pode incluir mecanismo no nome: ex: "[Brand] — [Mechanism Name] [Category]", adaptar ao vertical)
 - **Preço base**: ver framework de pricing abaixo (triangulação de 3 ancoras)
 - **Core deliverable**: o produto em si (1 unidade / X ml / Y cápsulas)
 

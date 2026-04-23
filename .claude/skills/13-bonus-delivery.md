@@ -160,11 +160,20 @@ Skill integra com:
 3. **Access tracking** — sempre que possível, medir se o bonus foi acessado. Bonus nunca acessado é indicador de offer fraca.
 4. **Fallback graceful** — se Notion API/Figma API falha, skill gera PDF como último recurso E avisa membro pra manual setup do formato original depois.
 
-## Output
+## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-- `/workspace/[produto]/bonuses/[bonus-id]/` — assets do bonus (PDF, scripts, screenshots, etc)
-- `/workspace/[produto]/bonuses/delivery-pipeline.md` — doc operacional de cada bonus (como foi setupado, como acessar, como trackear)
-- `/workspace/[produto]/bonus-delivery-log.json` — log running de deliveries
+**Garantir diretório:** `mkdir -p /workspace/[produto]/bonuses/` antes de salvar.
+
+Salvar:
+
+1. **`/workspace/[produto]/bonuses/[bonus-id]/`** — assets do bonus (PDF, scripts, screenshots, templates, etc — formato conforme type do bonus)
+2. **`/workspace/[produto]/13-bonus-delivery.md`** — doc operacional pra AI ler em skills futuras: cada bonus com type, delivery channel, trigger, assets path
+3. **`/workspace/[produto]/13-bonus-delivery.html`** — visualização humana usando `.claude/templates/aura-report-template.html` como base. Logo SVG Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por bonus, `.pill` pra type tag, `.kpi-grid` pra access rate (quando disponível).
+4. **`/workspace/[produto]/13-bonus-delivery-log.json`** — log running de deliveries + access tracking
+
+**Distinção importante:** os assets do bonus em si (item 1) seguem o design da marca do membro (não do Aura) — PDF do bonus, email HTML, template Notion, etc. Já o relatório interno (itens 2-3) segue rule 6b do CLAUDE.md.
+
+Atualizar `manifest.json.skills_completed` com `"13-bonus-delivery"`.
 
 ## Mensagem Final
 

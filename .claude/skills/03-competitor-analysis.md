@@ -189,7 +189,39 @@ Critério de curadoria do membro: só criativos que ESCALARAM (proxy: 90+ dias a
 
 **Pipeline de análise profunda:**
 
-Para cada criativo recebido:
+**Pré-flight de transcrição** (antes do primeiro criativo):
+
+Valide que Whisper está acessível — uma das três opções DEVE estar disponível:
+
+```bash
+# Opção 1: openai-whisper instalado localmente
+python3 -c "import whisper; print('ok')" 2>/dev/null
+
+# Opção 2: faster-whisper (recomendado pra batch > 10 criativos)
+python3 -c "import faster_whisper; print('ok')" 2>/dev/null
+
+# Opção 3: OpenAI API (Whisper endpoint)
+test -n "$OPENAI_API_KEY" && echo "ok"
+```
+
+Se NENHUMA disponível, mostre ao membro:
+
+```
+Pra análise profunda de criativos, preciso de Whisper. Opções:
+
+1. Local (sem custo recorrente):
+   pip install openai-whisper      # baseline
+   pip install faster-whisper      # 4-5x mais rápido
+
+2. API (pay-per-use, ~$0.006/min):
+   export OPENAI_API_KEY=sk-...
+
+Escolhe uma e me avisa quando tiver setup.
+```
+
+PARE a Etapa 3C até membro confirmar. Se o membro quiser pular essa etapa, documente `creative_deep_analysis_skipped: true` no JSON companion e prossiga sem.
+
+**Para cada criativo recebido:**
 
 **1. Transcrição de áudio (vídeos):**
 - Usar Whisper `medium` OU `turbo-large` — NUNCA `base` ou `small` (essas geram transcrição com erros demais pra análise confiável)

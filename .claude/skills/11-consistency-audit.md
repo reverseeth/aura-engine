@@ -101,9 +101,24 @@ Ler todos os artefatos disponíveis (só os que existem):
 **M4. Duration/word count mismatch**
 - Script marcado pra 22s mas word count cabe em 15s (ou vice-versa) → `severity: medium`, `fix: ajustar duration ou cortar script`
 
-### ETAPA 3 — Output
+### ETAPA 3 — Output (dual output — rule 6b do CLAUDE.md)
 
-Gerar `/workspace/[produto]/11-consistency-audit.{md,html,json}`:
+**Garantir diretório:** `mkdir -p /workspace/[produto]/` antes de salvar.
+
+Salvar TRÊS artefatos em `/workspace/[produto]/`:
+
+1. **`11-consistency-audit.md`** — fonte legível pela AI e pelo membro
+2. **`11-consistency-audit.html`** — visualização humana usando `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained). Logo SVG do Aura no topo copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto. Usar componentes:
+   - `.danger` pra critical issues
+   - `.callout` pra high
+   - `.note` pra medium
+   - `.pill` pra status tags (BLOCK/CAUTION/GO)
+   - `.kpi-grid` pra counters (critical/high/medium)
+3. **`11-consistency-audit.json`** — machine-readable schema abaixo
+
+Atualizar `/workspace/[produto]/manifest.json` adicionando `"11-consistency-audit"` em `skills_completed`.
+
+Schema do JSON:
 
 ```json
 {

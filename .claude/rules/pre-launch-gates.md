@@ -3,7 +3,6 @@ name: pre-launch-gates
 description: Gates automáticos inegociáveis antes de qualquer launch (página deploy ou ads go-live). Dois gates principais — Compliance (ad-flag words) e Promise↔Config (copy promete X, loja precisa entregar X).
 paths:
   - .claude/skills/05-copy-engine.md
-  - .claude/skills/06-page-engine.md
   - .claude/skills/06b-page-sections.md
   - .claude/skills/06c-page-deploy.md
   - .claude/skills/07-creative-engine.md
