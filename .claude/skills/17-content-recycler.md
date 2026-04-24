@@ -25,10 +25,10 @@ Skill auxiliar invocável. Reutiliza criativos vencedores em 9 formatos diferent
 
 Se membro digitou `recycle winner` (sem ID específico):
 1. Ler `/workspace/[produto]/09-analysis/latest.json` (produzido pela Skill 09)
-2. Procurar criativos com `outcome == "winner"` (CPA < target × 0.7, spend > $300, 5+ dias)
-3. Se encontrar 1 winner → usar esse creative_id
-4. Se encontrar 2+ winners → apresentar lista e perguntar qual reciclar
-5. Se encontrar ZERO winners → responder:
+2. Extrair `latest.winners[]` (array populado pela skill 09 com `outcome == "winner"` — critério: CPA < target × 0.7, spend_total > $300, days_active > 5)
+3. Se `winners.length === 1` → usar `winners[0].creative_id`
+4. Se `winners.length >= 2` → apresentar lista (id + cpa + roas + spend) e perguntar qual reciclar
+5. Se `winners.length === 0` OU campo `winners` ausente (versão antiga do latest.json) → responder:
    > "Campanha ainda não tem winner identificado. Critério: CPA < target × 0.7 + spend > $300 + idade > 5 dias.
    >
    > Opções:

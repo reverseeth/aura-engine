@@ -251,6 +251,22 @@ Liste tudo que vem no pacote com valor ancorado:
 
 Cada bonus é REAL (entregável), não inflado artificialmente. O stack cria percepção de valor desproporcional ao preço.
 
+**OBRIGATÓRIO — Registrar bonuses no campo top-level `bonuses[]` do `04-offer.json`.** Skill 13 (bonus-delivery) lê desse campo pra montar o pipeline de entrega. Pra cada bonus do stack, gerar entry:
+
+```json
+{
+  "id": "bonus-01",
+  "name": "texto igual ao da stack",
+  "description": "1-2 frases do que é e por que vale",
+  "value_anchored": 49,
+  "type": "digital_guide | digital_template | physical_freebie | community_access | video_series | consultation_call | discount_code | trial_extension | workbook | checklist",
+  "format_hint": "pdf | notion | figma | wistia | in_box | klaviyo_email | shopify_discount | circle_invite",
+  "delivery_trigger": "post_purchase | on_signup | day_7_post_purchase | on_first_reorder"
+}
+```
+
+**Tipos NÃO default pra "PDF":** escolher o type que realmente bate com o avatar. Se membro disser "bonus é PDF só porque é fácil", questionar: "Esse avatar REALMENTE quer PDF? Pra [avatar profile], [alternative type] costuma ter access rate maior." Documentar essa decisão.
+
 ### ETAPA 4 — Garantia (Risk Reversal)
 
 Consulte a base Aura sobre tipos de garantia e escolha:
@@ -409,7 +425,17 @@ O markdown é humano; o JSON é para as skills 05/06/08/09/10. Estrutura obrigat
     "psm_theoretical": 2.0
   },
   "guarantee": { "type": "...", "duration_days": 30 },
-  "bonuses": [...],
+  "bonuses": [
+    {
+      "id": "bonus-01",
+      "name": "nome humano",
+      "description": "o que é / por que vale",
+      "value_anchored": 49,
+      "type": "digital_guide|digital_template|physical_freebie|community_access|video_series|consultation_call|discount_code|trial_extension|workbook|checklist",
+      "format_hint": "pdf|notion|figma|wistia|in_box|klaviyo_email|shopify_discount|circle_invite",
+      "delivery_trigger": "post_purchase|on_signup|day_7_post_purchase|on_first_reorder"
+    }
+  ],
   "sanity_checks_passed": 9
 }
 ```

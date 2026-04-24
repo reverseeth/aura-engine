@@ -20,8 +20,11 @@ description: Engine de escrita de copy completo baseado em market research, comp
   Se membro escolher 3, marca `"voc_forced_continue": true` no output pra Skill 09 diagnosticar depois.
 - [ ] `03-competitor-analysis.md` existe
 - [ ] `04-offer.json` existe → extrair `mechanism`, `pricing`, `guarantee`
+- [ ] `04-research-foundation.json` existe → extrair `evidence_items[]`, `confidence_score`, `gaps_and_risks`
+  - Se ausente: WARN "Research foundation não rodou (Skill 04 Etapa 2.5). Claims na copy vão sair sem lastro verificável. Opções: (1) voltar pra skill 04 e rodar Etapa 2.5; (2) prosseguir marcando `claims_unverified: true` no output — skill 11 (consistency-audit) vai bloquear launch depois."
+  - Se existe mas `confidence_score == "low"`: WARN "Evidence weak — claims fortes (clinically proven, X% melhoria) vão ser suavizados automaticamente pra 'helps with', 'designed to support'. Skill 11 vai re-validar antes de launch."
 - [ ] Extrair `product_vertical` do manifest (default "other" se ausente) — usado pelo Compliance Pre-flight (Sweep 8)
-Se faltar qualquer um (exceto VOC com opção 3), PARE.
+Se faltar qualquer um (exceto VOC com opção 3 e research-foundation com acknowledgment), PARE.
 
 ## Quando Usar
 Quando o membro tem market research, competitor analysis e oferta prontos, e precisa escrever a copy da página que vai converter o tráfego pago. Copy aqui é escrita com base em decisões ESTRATÉGICAS derivadas dos documentos anteriores, não em opiniões ou intuições.

@@ -31,12 +31,16 @@ Ler todos os artefatos disponíveis (só os que existem):
 - `02-market-research.{md,json}` → extract `voc_phrases[]`, `awareness_distribution`, `sophistication_stage`
 - `03-competitor-analysis.{md,json}` → extract `claims_saturation[]`, `swipe_adapt[]`, `positioning_recommendation`
 - `03-creative-patterns.json` (se existir) → extract `hook_archetypes[]`, `recurring_claims[]`
-- `04-offer.{md,json}` → extract `mechanism.name`, `mechanism.version_short`, `guarantee`, `pricing`
-- `04-research-foundation.json` → extract `evidence_items[]`, claims supported
+- `04-offer.{md,json}` → extract `mechanism.name`, `mechanism.version_short`, `guarantee`, `pricing`, `bonuses[]`
+- `04-research-foundation.json` → extract `evidence_items[]`, claims supported, `confidence_score`
+  - **Se AUSENTE:** automaticamente criar CRITICAL issue C2b "Research foundation não rodou — todos os claims de copy/ads saem sem lastro verificável. Rode Skill 04 Etapa 2.5 antes de launch." Não pule check, flagre como critical.
 - `05-copy.{md,json}` → extract headlines, hero, mechanism mentions, claims, promises
-- `06-plan.json`, `06-brand-snapshot.md`, `06-design-tokens.json` (se existir)
+- `06-page/06-plan.json` → extract `sections_plan[]`, `section_order`, `brand_discovery`
+- `06-page/06-design-system.md` → extract paleta, tipografia (pra comparar com blueprint/tokens)
+- `06-page/design-blueprint/design-tokens.json` (se Claude Design rodou) → tokens extraídos da variação aprovada
 - `07-creatives/07-creatives.json` → extract hooks, primary_texts, headlines per concept
 - `08-ad-strategy.json`
+- `09-analysis/latest.json` (se existir) → extract `psm_real`, `winners[]`, `recommended_action`
 
 ### ETAPA 2 — Check battery (ordenada por severity)
 

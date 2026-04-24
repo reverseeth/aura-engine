@@ -136,17 +136,33 @@ Contexto importante: **CPA de um ad set isolado não é tudo**. "a campanha over
 **Antigo** (hardcoded): CPA > 2× target → LOSER.
 
 **Novo** (dinâmico, do `04-offer.json`):
-- `breakeven_cpa = offer.unit_economics.margin_per_unit`
-- `target_cpa_1x = breakeven_cpa × 1.0`  → loss
-- `target_cpa_2x = offer.unit_economics.target_cpa_for_2x`
-- LOSER threshold = `breakeven_cpa × 0.8` (80% do breakeven — já tá queimando dinheiro com buffer)
-- Se offer tem PSM ≥ 1.5 (high-margin), threshold = `breakeven × 0.7` (mais tolerância)
-- Se offer tem PSM < 1.2, threshold = `breakeven × 0.95` (zero tolerância)
 
-Fórmula monotônica decrescente:
+Paths canônicos (lendo `04-offer.json` real):
+- `breakeven_cpa = offer.unit_economics.weighted_margin_per_order` (campo top-level em `unit_economics`)
+- `target_cpa_2x = offer.unit_economics.target_cpa_primary_2x`
+- `target_cpa_3x = offer.unit_economics.target_cpa_primary_3x`
+
+**PSM effective** (derivado — NÃO existe campo `offer.psm` direto):
 ```
-loser_cpa = breakeven_cpa × (0.95 − 0.05 × max(0, min(3, offer.psm − 1)))
+psm_effective = max(target_cpa_2x, target_cpa_3x) / observed_cpa_avg_last_7d
 ```
+Se `09-analysis/latest.json` anterior tem `psm_real` calculado, usar esse valor (mais recente que cálculo frame-a-frame).
+
+**Fallback** se campos não existirem (oferta antiga):
+- `breakeven_cpa = offer.unit_economics.variations[0].margin_dollar` (primeira variação — geralmente solo)
+- `psm_effective = 1.2` (conservador)
+
+**Threshold LOSER**:
+- PSM ≥ 1.5 (high-margin): `loser_cpa = breakeven * 0.7`
+- PSM entre 1.2 e 1.5: `loser_cpa = breakeven * 0.8`
+- PSM < 1.2: `loser_cpa = breakeven * 0.95`
+
+Fórmula compacta (ASCII puro):
+```
+psm_clamped = max(1.0, min(3.0, psm_effective))
+loser_cpa = breakeven_cpa * (0.95 - 0.05 * (psm_clamped - 1))
+```
+Exemplos: PSM=1.0 → 0.95×breakeven. PSM=2.0 → 0.85×breakeven. PSM=3.0 → 0.75×breakeven.
 
 ### ETAPA 3 — Diagnóstico Por Ad Set
 
@@ -353,27 +369,53 @@ Conteúdo (quando gerar):
 
 **Skill 07 DEVE ler este arquivo no pre-flight.** Isto fecha o loop 09→07 **com critério de parada.**
 
-### Panorama para skill 10 (scale) — handoff
+### Panorama para skill 10 (scale) e skill 17 (content-recycler) — handoff
 
-Se ações próximas = 'scale', skill 10 lerá este JSON SEM precisar perguntar:
-`/workspace/[produto]/09-analysis/latest.json` (cópia do último análise) com campos:
+Se ações próximas = 'scale', skill 10 lerá este JSON SEM precisar perguntar.
+Se membro invoca `recycle winner`, skill 17 lerá esse JSON pra achar winner ID.
+
+`/workspace/[produto]/09-analysis/latest.json` (cópia do último análise):
 
 ```json
 {
+  "analysis_id": "uuid",
+  "analyzed_at": "ISO timestamp",
   "current_daily_spend": 0,
   "current_cpa_avg": 0,
   "current_roas_avg": 0,
   "active_winners_count": 0,
   "active_losers_count": 0,
+  "winners": [
+    { "creative_id": "c-01", "ad_set_id": "...", "cpa": 0, "roas": 0, "spend_total": 0, "days_active": 0, "outcome": "winner" }
+  ],
+  "losers": [
+    { "creative_id": "c-03", "reason": "cpa_over_2x|no_spend|creative_policy", "days_active": 0, "outcome": "loser" }
+  ],
   "health_signals": {
     "frequency_max": 0,
     "cpm_trend": "up|flat|down",
-    "creative_age_days": 0
+    "creative_age_days_oldest": 0,
+    "creative_age_days_newest": 0
   },
   "psm_real": 0,
+  "margin_per_order_weighted": 0,
   "recommended_action": "continue|scale|refresh_creatives|kill"
 }
 ```
+
+**Importante:** `winners[]` contém a lista completa de criativos vencedores (não só a contagem). Skill 17 filtra esse array procurando `outcome == "winner"` + `spend_total > 300` + `days_active > 5`.
+
+### Atualização do manifest (OBRIGATÓRIO — single source of truth)
+
+Após gerar `latest.json`, atualizar `manifest.json` com campos canônicos:
+
+- `manifest.psm_real` ← `psm_real` calculado nesta análise (skill 10 lê daqui, não de latest.json)
+- `manifest.last_analysis_date` ← timestamp desta análise
+- `manifest.analysis_count` ← incrementar +1
+- `manifest.last_cpa_avg` ← `current_cpa_avg`
+- `manifest.last_roas_avg` ← `current_roas_avg`
+
+Por que atualizar manifest: skills 10, 11, 17 leem `manifest.psm_real` como fonte canônica. Latest.json é histórico por análise; manifest é o estado atual consolidado.
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 

@@ -72,12 +72,30 @@ POST /ajax/flow/action/{aid}/status  → ativa/desativa action
 
 ### Auth via session cookie
 
-Internal API usa session cookie do Klaviyo (login no dashboard). Pedir ao membro:
+Internal API usa session cookie do Klaviyo (login no dashboard).
 
-1. Login no Klaviyo (https://www.klaviyo.com)
+**⚠ SEGURANÇA:** esse cookie dá acesso full à conta Klaviyo. **NUNCA** pedir pro membro colar o cookie direto no chat — o conteúdo fica em histórico de mensagens e é risco de vazamento. Sempre via arquivo local.
+
+**Fluxo seguro:**
+
+1. Membro loga no Klaviyo (https://www.klaviyo.com)
 2. DevTools → Application → Cookies → copiar valor de `_klaviyo_session`
-3. Paste no prompt da skill (salvar em `.env.local` dentro do `/workspace/[produto]/` — gitignored)
-4. Cookie tem validade de ~7 dias; re-pedir se expirado
+3. Membro abre terminal e roda:
+   ```bash
+   mkdir -p ~/aura-engine/workspace/[produto]
+   echo "KLAVIYO_SESSION=<cole-aqui-o-valor>" > ~/aura-engine/workspace/[produto]/.env.local
+   chmod 600 ~/aura-engine/workspace/[produto]/.env.local
+   ```
+4. Skill lê via `cat /workspace/[produto]/.env.local` — **nunca** pede cookie pelo chat
+5. Cookie tem validade de ~7 dias. Quando expira (detectado via 401 no primeiro request), skill pede membro refazer passos 2-3. Nunca cola novo cookie na conversa.
+
+**Verificação pré-uso:**
+```bash
+test -f /workspace/[produto]/.env.local && grep -q "KLAVIYO_SESSION=" /workspace/[produto]/.env.local
+```
+Se falha: instruir membro a criar arquivo conforme fluxo acima. PARAR a skill até confirmar.
+
+**Rotação:** recomendar membro regenerar o cookie a cada 30 dias (logout + login no Klaviyo → novo valor) como boa prática de segurança.
 
 ### Fluxo de execução
 
