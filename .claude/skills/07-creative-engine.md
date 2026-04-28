@@ -396,7 +396,67 @@ Se o conceito é TOF (cold traffic, awareness low), a LP precisa de mais educaç
 
 ---
 
-### ETAPA 6 — Recomendação de LP Congruente
+### ETAPA 5.7 — Production-ready prompts (Higgsfield + GPT Image 2.0)
+
+Após gerar os briefings (Etapa 5), pra CADA conceito, gerar prompts production-ready prontos pra colar nas ferramentas de geração externas. Não é etapa opcional — é parte do entregável final.
+
+**Diretores disponíveis** (em `.claude/lib/prompt-directors/`):
+
+| Director | Ferramenta alvo | Quando invocar |
+|---|---|---|
+| `marketing-studio-director.md` | Higgsfield Marketing Studio (vídeo) | Conceito com componente de vídeo (qualquer formato: UGC, demo, motion graphic, hyper motion, TV spot, etc) |
+| `gpt-image-2-director.md` | GPT Image 2.0 (imagem) | Conceito com componente de imagem estática (PDP-style hero, layout denso com texto, infografia, mockup, ou single-frame cinematográfico) |
+
+**Processo por conceito:**
+
+1. Identificar quais formatos o conceito tem (vídeo? imagem? ambos? — vem da Etapa 5 do briefing)
+2. Para cada formato presente, carregar o director correspondente:
+   - Vídeo → ler `.claude/lib/prompt-directors/marketing-studio-director.md`
+   - Imagem → ler `.claude/lib/prompt-directors/gpt-image-2-director.md`
+3. Compor input pro director extraindo do briefing:
+   - **Pra Higgsfield (vídeo)**: hook completo + bridge + hold + CTA + visual descriptions de cada beat + duração + creator archetype + plataforma primária + product/avatar attached (se houver)
+   - **Pra GPT Image 2.0 (imagem)**: descrição visual principal + texto overlay + estilo + proof elements + estrutura de layout (se denso) ou cena cinematográfica (se single-frame)
+4. Rodar o director conforme as regras do SKILL.md dele:
+   - Marketing Studio: identifica preset (UGC/Tutorial/Unboxing/Hyper Motion/Product Review/TV Spot/Wild Card/UGC Virtual Try On/Pro Virtual Try On), aplica preset-specific rules, retorna 1 parágrafo + link Higgsfield
+   - GPT Image 2.0: roteia entre Format A (JSON estruturado pra layout denso), Format B (prosa cinematográfica pra single image), ou Format C (meta-prompt pra theme-only) — retorna code block do prompt
+5. Salvar 1 arquivo por conceito × por formato em `/workspace/[produto]/07-creatives/prompts/`:
+   - `prompt-c01-video.txt` — prompt Higgsfield do conceito 01
+   - `prompt-c01-image.txt` — prompt GPT Image 2.0 do conceito 01 (se conceito tem imagem)
+   - etc
+
+**Inputs herdados (CRÍTICO — não duplicar trabalho):**
+
+- A copy exata (hook, headline, subhead, dialogue) vem do briefing — director NÃO inventa copy nova, só formata
+- Product fidelity: se o membro tem foto do produto, o prompt do director menciona explicitamente "<<<image_1>>> = product"
+- Avatar fidelity: se há foto de avatar/creator, mesma referência `<<<image_n>>>`
+- Aspect ratio 9:16 já é regra global (Etapa 4.5.A) — director NÃO especifica aspect, ferramenta seleciona
+
+**Hard rule — directors são opacos:**
+
+Os SKILL.md dos directors são canônicos. Não modificar conteúdo deles dentro da Skill 07. Se a saída precisar de ajuste, ajustar o INPUT (extrato do briefing) que vai pro director, não o director. Se houver bug recorrente em algum director, atualizar `.claude/lib/prompt-directors/[director].md` em commit separado.
+
+**Output secundário — `prompts-index.json`:**
+
+Em `/workspace/[produto]/07-creatives/prompts/prompts-index.json`:
+
+```json
+{
+  "generated_at": "ISO",
+  "concepts": [
+    {
+      "concept_id": "c-01",
+      "video_prompt_file": "prompt-c01-video.txt",
+      "video_director": "marketing-studio-director",
+      "video_preset": "UGC|Tutorial|...",
+      "image_prompt_file": "prompt-c01-image.txt",
+      "image_director": "gpt-image-2-director",
+      "image_format": "json|prose|meta"
+    }
+  ]
+}
+```
+
+
 
 Pra cada conceito, documente explicitamente qual LP da fase de copy ele deve direcionar:
 
@@ -499,9 +559,9 @@ Crie um resumo operacional pro membro executar:
 | Item | Quantidade | Onde editar/gerar |
 |---|---|---|
 | Vídeos a filmar | [X] | [UGC com pessoa real / telefone próprio / contratar creator] |
-| Vídeos a gerar com AI | [Y] | [Higgsfield / Arcads / etc + script fornecido] |
+| Vídeos a gerar com Higgsfield Marketing Studio | [Y] | Prompts prontos em `prompts/prompt-c0X-video.txt` — colar direto no Higgsfield, link de generation já incluído no fim do prompt |
 | Voiceovers a gerar | [Z] | ElevenLabs com scripts fornecidos (voz recomendada: [voz]) |
-| Imagens a criar | [W] | [Photoshop / Canva / AI / stock + descrição fornecida] |
+| Imagens a gerar com GPT Image 2.0 | [W] | Prompts prontos em `prompts/prompt-c0X-image.txt` — colar direto no GPT Image 2.0 (formato JSON estruturado, prosa cinematográfica, ou meta-prompt conforme caso) |
 | Primary texts prontos | [N × 2] | Copy pra colar no Ads Manager |
 | Headlines prontas | [N × 2] | Copy pra colar |
 
@@ -527,6 +587,8 @@ Outputs em `/workspace/[produto]/07-creatives/` (nomenclatura normalizada):
 - `07-hooks-bank.md` (Etapa 7 — 10 hooks alternativos)
 - `07-production-summary.md` (Etapa 8 — resumo operacional)
 - `07-creatives.json` (manifest do batch — ver schema abaixo)
+- `prompts/prompt-c01-video.txt`, `prompts/prompt-c01-image.txt`, ... (Etapa 5.7 — prompts production-ready de Higgsfield/GPT Image 2.0, um arquivo por conceito × formato)
+- `prompts/prompts-index.json` (index dos prompts gerados — director usado, preset, formato)
 
 ### JSON companion — `07-creatives.json`
 
@@ -562,7 +624,21 @@ Outputs em `/workspace/[produto]/07-creatives/` (nomenclatura normalizada):
       ],
       "headlines": [
         { "text": "...", "frame": "benefit|urgency|offer|question", "voc_source": {...}, "compliance_clean": true }
-      ]
+      ],
+      "production_prompts": {
+        "video": {
+          "file": "prompts/prompt-c01-video.txt",
+          "director": "marketing-studio-director",
+          "preset": "UGC|Tutorial|Unboxing|Hyper Motion|Product Review|TV Spot|Wild Card|UGC Virtual Try On|Pro Virtual Try On",
+          "tool_url": "https://higgsfield.ai/s/general-higgsfieldai-vKnfpx"
+        },
+        "image": {
+          "file": "prompts/prompt-c01-image.txt",
+          "director": "gpt-image-2-director",
+          "format": "json|prose|meta",
+          "tool": "GPT Image 2.0"
+        }
+      }
     }
   ],
   "total_assets": 3,
@@ -587,6 +663,10 @@ Após salvar, atualizar `/workspace/[produto]/manifest.json`:
 
 "Briefings de criativos prontos. Próximos passos:
 
-- Filme os vídeos seguindo os scripts (ou gere com AI UGC se aplicável)
-- Gere voiceovers no ElevenLabs com os scripts marcados
-- Agora edite os vídeos usando sua ferramenta de edição preferida (CapCut, Submagic, Captions, ou similar). Os briefings acima têm tudo que você precisa: scripts, hooks, text overlays, e estrutura do ad. Quando os criativos estiverem prontos, diga 'ad strategy' pra montar a campanha no Meta."
+- **Vídeos**: abra `/workspace/[produto]/07-creatives/prompts/prompt-c0X-video.txt` — cole no Higgsfield Marketing Studio (link de generation já incluído no fim do prompt). Cada prompt já tem preset, camera, ação, ambiente, dialogue (se houver) prontos pra rodar
+- **Imagens**: abra `/workspace/[produto]/07-creatives/prompts/prompt-c0X-image.txt` — cole no GPT Image 2.0. Cada prompt já vem no formato ideal pro tipo de imagem (JSON estruturado pra layouts densos, prosa cinematográfica pra single-frame, meta-prompt pra theme-only)
+- **Voiceovers** (se conceito tem): gere no ElevenLabs com os scripts marcados nos briefings
+- **Edição** (se aplicável): junte vídeo + voiceover + text overlays no CapCut/Submagic/Captions. Os briefings têm scripts, hooks, e text overlays prontos
+- **Filmagem manual** (se conceito é UGC humano): use o briefing como roteiro
+
+Quando os criativos estiverem prontos, diga 'ad strategy' pra montar a campanha no Meta."
