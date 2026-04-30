@@ -51,7 +51,7 @@ Identifique **5-10 concorrentes** ATIVOS (têm ads rodando agora + loja funciona
 - **Acessível (2xx / 3xx)** → inclua na análise principal
 - **Inacessível (4xx, 5xx, timeout, DNS error)** → **NÃO** inclua na análise principal. Liste numa seção dedicada **"Concorrentes descartados por inacessibilidade"** com: URL, status/erro, e hora do check.
 
-Se a inacessibilidade for por Cloudflare/bot-protection (status 403/503 + header `cf-*`), tente o fallback da Etapa 2 antes de descartar (Wayback → Google Cache → archive.today).
+Se a inacessibilidade for por Cloudflare/bot-protection (status 403/503 + header `cf-*`), tente o fallback da Etapa 2 antes de descartar (Wayback → archive.today).
 
 ### ETAPA 1B — Ads Screenshots dos Concorrentes
 
@@ -70,14 +70,10 @@ Pra cada concorrente, acesse a página de produto (web fetch). Se tiver cloaker/
 - Consulte `https://archive.org/wayback/available?url=<url>` e valide que `archived_snapshots.closest` existe e `timestamp` é dos últimos 365 dias.
 - Se houver, faça fetch do snapshot.
 
-**Tentativa 2 — Google Cache**:
-- `https://webcache.googleusercontent.com/search?q=cache:<url>`
-- Valide que o body não é a página de erro do Google (contém conteúdo da PDP).
-
-**Tentativa 3 — archive.today**:
+**Tentativa 2 — archive.today**:
 - Tente `https://archive.ph/newest/<url>` e valide redirect para snapshot real.
 
-**Se NENHUM fallback funcionar**: pule esse concorrente específico (**não aborte a skill inteira**). Documente em "Concorrentes descartados por inacessibilidade" com a sequência de tentativas e motivo do descarte. Continue para os demais concorrentes.
+**Se NENHUM fallback funcionar**: pule esse concorrente específico (**não aborte a skill inteira**). Documente em "Concorrentes descartados por inacessibilidade" com a sequência de tentativas (`wayback`, `archive_today`) e motivo do descarte. Continue para os demais concorrentes.
 
 **Safeguard de integridade — threshold crítico de acessibilidade:**
 
@@ -441,7 +437,7 @@ Seção obrigatória no output (md + json):
 ## Data Source Audit
 - Concorrentes analisados: N
 - Concorrentes descartados por inacessibilidade: [lista com URL + motivo + fallbacks tentados]
-- Fontes usadas: Meta Ad Library (N ads analisados), Wayback Machine (N snapshots), Google Cache (N hits), archive.today (N hits), scraping direto (N páginas)
+- Fontes usadas: Meta Ad Library (N ads analisados), Wayback Machine (N snapshots), archive.today (N hits), scraping direto (N páginas)
 - Métricas reais disponíveis: [sim/não — note que Meta Ad Library público NÃO inclui CPM/freq/CTR]
 - Timestamp da coleta: YYYY-MM-DDTHH:MM:SSZ
 ```
@@ -466,7 +462,7 @@ Salvar os seguintes artefatos:
     { "name": "", "url": "", "accessible": true, "price_base": 0, "mechanism": "", "main_claim": "", "positioning": "", "strengths": [], "weaknesses": [] }
   ],
   "competitors_discarded": [
-    { "url": "", "reason": "http_403|timeout|no_snapshot", "fallbacks_tried": ["wayback","gcache","archive_today"] }
+    { "url": "", "reason": "http_403|timeout|no_snapshot", "fallbacks_tried": ["wayback","archive_today"] }
   ],
   "claims_saturation": [
     { "claim": "", "count": 0, "total": 0, "saturation": "HIGH|MEDIUM|LOW|ABSENT" }
@@ -476,7 +472,7 @@ Salvar os seguintes artefatos:
   "swipe_adapt": [ { "item": "", "why": "", "how_to_adapt": "", "where_to_use": "" } ],
   "swipe_avoid": [ { "item": "", "why_avoid": "", "alternative": "" } ],
   "positioning_recommendation": { "angle": "", "mechanism": "", "avatar_segment": "", "page_type": "" },
-  "data_source_audit": { "collected_at": "", "meta_ad_library_ads_count": 0, "wayback_hits": 0, "gcache_hits": 0, "archive_today_hits": 0 }
+  "data_source_audit": { "collected_at": "", "meta_ad_library_ads_count": 0, "wayback_hits": 0, "archive_today_hits": 0 }
 }
 ```
 

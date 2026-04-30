@@ -3,7 +3,7 @@ name: content-recycler
 description: Pega 1 criativo winner e gera 9 derivadas adaptadas a canais diferentes (advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube pre-roll, SMS, package insert, podcast ad). Multiplica ROI do mesmo criativo por 5-10× sem produção nova. Use quando o membro disser "recycle [id]", "reaproveitar winner", "content recycler", "tirar mais dos ads". Zero infra externa, só Claude + Python.
 ---
 
-# Content Recycler (Skill 17)
+# Content Recycler (Skill 14)
 
 Skill auxiliar invocável. Reutiliza criativos vencedores em 9 formatos diferentes.
 
@@ -51,19 +51,25 @@ Siga exatamente o fluxo descrito em `.claude/lib/content-recycler/recycler.md`:
 
 ## Output
 
-Pasta `/workspace/[produto]/17-recycled/[source-id]/` com:
+Pasta `/workspace/[produto]/14-recycled/[source-id]/` com:
 - `README.md` — índice + instruções de distribuição
+- `README.html` — companion humano (rule 6b do CLAUDE.md)
 - `essence.json` — essência extraída (reusável)
 - `compliance-log.json` — log consolidado
-- 9 arquivos `.md`, um por formato
+- 9 arquivos `.md`, um por formato (advertorial, email, TikTok, blog, Pinterest, YouTube preroll, SMS, package insert, podcast)
+- 9 arquivos `.html` correspondentes — um pra cada `.md` (rule 6b: dual output obrigatório)
+
+## SALVAR (dual output — rule 6b do CLAUDE.md)
+
+Toda derivada salva em `/workspace/[produto]/14-recycled/[source-id]/` DEVE ter `.md` (fonte pra AI) + `.html` companion (visualização humana). Use `.claude/templates/aura-report-template.html` como base — copie o CSS inline e a logo SVG do `.claude/templates/aura-logo-snippet.html` LITERALMENTE no topo do `<body>`. NUNCA gere HTML sem a logo SVG nem com texto "AURA"/"Aura Engine" no lugar dela.
 
 ## Sucesso
 
-- [ ] 9 arquivos gerados
+- [ ] 9 arquivos `.md` gerados
+- [ ] 9 arquivos `.html` companion gerados (rule 6b)
 - [ ] Cada um passa compliance check (severity ≤ medium)
 - [ ] Essence.json salvo
-- [ ] README.md com índice pronto
-- [ ] HTML companion (se aplicável a advertorial/blog)
+- [ ] README.md + README.html com índice pronto
 
 ## Customização
 
@@ -80,7 +86,7 @@ Próxima rodada da skill gera automaticamente também esse formato.
 
 ```
 ✓ Content Recycler rodou em [source-id]
-  9 formatos gerados em /workspace/[produto]/17-recycled/[source-id]/
+  9 formatos gerados em /workspace/[produto]/14-recycled/[source-id]/
 
   Compliance: [X críticos, Y high, Z medium, W low]
   Rewrites aplicados: [N]

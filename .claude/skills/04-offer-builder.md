@@ -419,12 +419,16 @@ O markdown é humano; o JSON é para as skills 05/06/08/09/10. Estrutura obrigat
   "cogs_breakdown": {...},
   "unit_economics": {
     "margin_per_unit": 62.50,
+    "weighted_margin_per_order": 78.30,
     "breakeven_roas": 2.04,
     "target_cpa_for_2x": 62.50,
     "target_cpa_for_3x": 31.25,
+    "target_cpa_primary_2x": 62.50,
+    "target_cpa_primary_3x": 31.25,
     "psm_theoretical": 2.0
   },
   "guarantee": { "type": "...", "duration_days": 30 },
+  "offer_stack": "Stack montado: produto principal $97 + Bonus 01 ($49) + Bonus 02 ($39) + Bonus 03 ($29) = valor total ancorado $214. Membro paga $97 (savings de $117). String pré-montada para a Skill 05 usar literal em copy de página/ad sem reformatar.",
   "bonuses": [
     {
       "id": "bonus-01",
@@ -441,6 +445,8 @@ O markdown é humano; o JSON é para as skills 05/06/08/09/10. Estrutura obrigat
 ```
 
 Atualizar `manifest.json`: adicionar `target_cpa`, `breakeven_roas`, `psm_theoretical`, adicionar skill em `skills_completed`.
+
+**Nota sobre nomenclatura dos unit_economics** — emite os campos `weighted_margin_per_order`, `target_cpa_primary_2x` e `target_cpa_primary_3x` em paralelo aos legacy (`margin_per_unit`, `target_cpa_for_2x/3x`) porque a Skill 09 (ad-analysis) lê pelos nomes "primary"/"weighted". `weighted_margin_per_order` = margem média ponderada por AOV (considera bumps + upsells), enquanto `margin_per_unit` é a margem unitária do SKU principal. Se a oferta não tem bump/upsell, os dois valores são iguais. `offer_stack` é a string pré-montada que a Skill 05 consome literal.
 
 **Se `04-offer.json` falhar validação, NÃO salvar `.md`.**
 

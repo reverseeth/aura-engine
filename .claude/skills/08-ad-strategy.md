@@ -70,6 +70,11 @@ Se membro usa interface legada (Business Suite antigo), adaptar manualmente pass
 
 ### ETAPA 1 — Verificação de Pré-Requisitos
 
+**Gate de consistência (Skill 11)** — antes da pergunta abaixo, ler `/workspace/[produto]/11-consistency-audit.json` se existir:
+- Se `launch_recommendation == "BLOCK"` → **ABORTAR**. Drift entre criativos/copy/oferta vai virar disapproval ou ad com mismatch ad↔landing. Mostrar findings críticos ao membro e pedir pra rodar `consistency audit` após corrigir. Override só com `compliance_override` no manifest.
+- Se `CAUTION` → mostrar warnings, pedir OK explícito antes de prosseguir.
+- Se `GO` ou arquivo não existe → seguir verificação normal (recomendar skill 11 antes de launch crítico, mas não bloquear).
+
 Pergunte em UMA única mensagem:
 
 "Antes de montar a campanha, confirma: Pixel + CAPI funcionando? Produto ativo na loja? Criativos prontos? Me diz 'sim' ou o que ainda falta."
@@ -327,6 +332,7 @@ Nota: screenshots visuais do Ads Manager 2026 Q1 devem ser mantidos em `.claude/
 Após salvar, atualizar `/workspace/[produto]/manifest.json`:
 - Adicionar `08-ad-strategy` em `skills_completed`
 - Registrar `strategy_id`, `creative_batch_ref`, e `pgs_enabled: true/false`
+- **Gravar `08_campaign_name`** com o nome da campanha gerado na ETAPA 6 (naming convention). A Skill 09 (ad-analysis) lê esse campo via `read_manifest("08_campaign_name")` pra cruzar com dados do Meta. Sem ele, a 09 cai em fallback de adivinhação.
 
 ## Mensagem Final
 

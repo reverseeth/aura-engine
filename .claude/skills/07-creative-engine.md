@@ -456,7 +456,7 @@ Em `/workspace/[produto]/07-creatives/prompts/prompts-index.json`:
 }
 ```
 
-
+### ETAPA 6 — LP Congruency (Mapeamento Conceito → Landing Page)
 
 Pra cada conceito, documente explicitamente qual LP da fase de copy ele deve direcionar:
 

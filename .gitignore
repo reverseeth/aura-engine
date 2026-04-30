@@ -27,3 +27,8 @@ Thumbs.db
 .claude/scheduled_tasks.lock
 .claude/settings.local.json
 .claude/local.settings.json
+
+# OpenAI Codex CLI — local-only, never push
+AGENTS.md
+.Codex/
+.codex/

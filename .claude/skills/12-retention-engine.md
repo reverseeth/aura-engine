@@ -11,6 +11,12 @@ Depois que a campanha de ads está rodando e o membro tem tráfego chegando (≥
 
 ## Pré-flight
 
+### Gate de consistência (Skill 11)
+Antes das checagens abaixo, ler `/workspace/[produto]/11-consistency-audit.json` se existir:
+- Se `launch_recommendation == "BLOCK"` → **ABORTAR**. Os fluxos de email vão herdar o drift detectado (mecanismo divergente, VOC sem rastreio, oferta diferente da página) e propagar inconsistência pra base de subscribers. Pedir correção via skill 11 primeiro.
+- Se `CAUTION` → exibir warnings e pedir OK do membro antes de gerar fluxos.
+- Se `GO` ou arquivo não existe → prosseguir.
+
 - [ ] `/workspace/[produto]/manifest.json` com `08-ad-strategy` em `skills_completed`
 - [ ] ESP identificado no `profile.md` (`esp: "klaviyo" | "omnisend" | "mailerlite" | "none"`)
 - [ ] Se ESP = "none" → PARAR e recomendar Klaviyo (free tier até 250 contatos + Shopify integration nativa)

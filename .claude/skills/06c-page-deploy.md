@@ -18,6 +18,12 @@ Esta é a **terceira** das 3 skills da cadeia Page Engine modularizada. Ela:
 
 Valide antes de qualquer ação:
 
+### Gate de consistência (Skill 11)
+Antes de qualquer outra checagem, ler `/workspace/[produto]/11-consistency-audit.json` se existir:
+- Se o arquivo existe E `launch_recommendation == "BLOCK"` → **ABORTAR deploy**. Mostrar ao membro os items críticos do `findings[]` e pedir pra rodar `consistency audit` de novo após corrigir, OU adicionar `compliance_override` no manifest se o membro entender o risco.
+- Se `launch_recommendation == "CAUTION"` → mostrar warnings e pedir confirmação explícita do membro antes de prosseguir.
+- Se `launch_recommendation == "GO"` ou arquivo não existe → seguir pré-flight normal (recomendar rodar skill 11 primeiro se não existir, mas não bloquear).
+
 ### Skill anterior
 - [ ] `/workspace/[produto]/06-page/06-plan.json` existe e é parseável
 - [ ] `/workspace/[produto]/06-page/06-sections-report.md` existe
