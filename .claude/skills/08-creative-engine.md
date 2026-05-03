@@ -55,6 +55,17 @@ Quando o membro tem copy pronta (Skill 06) e precisa dos briefings de criativos 
 
 ## Fluxo da Skill
 
+### ETAPA 0.5 — TrendTrack MCP (opcional, se conectado)
+
+Verifique se há tools com prefixo `mcp__trendtrack__` disponíveis. Se SIM, use ANTES de gerar ângulos na ETAPA 3:
+
+- **`mcp__trendtrack__creative_inspiration_pack`** com vertical do produto → retorna hooks, landing pages, ângulos e media benchmarks já validados no nicho. Use como sinal extra na ideação das 3 verticais (junto com VOC + competitor analysis + base Aura).
+- **`mcp__trendtrack__scan_ad`** em ads escalados detectados pela skill 03 → decomposição precisa de hook + ângulo + scaling assessment, alimenta Hooks Bank (ETAPA 7) com archetypes reais.
+
+Não substitui a ideação criativa nem força copy-paste de hooks alheios — é input adicional pra evitar reinventar formatos que sabemos que funcionam ou repetir claims já saturados. Limite: 1-2 chamadas por batch.
+
+Se TrendTrack NÃO estiver disponível, siga ETAPAs 1-8 normalmente.
+
 ### ETAPA 1 — Material Disponível + Creator Archetype (Pergunta 1)
 
 Pergunte:

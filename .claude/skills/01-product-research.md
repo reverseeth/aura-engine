@@ -28,6 +28,18 @@ Antes de qualquer outra coisa:
 3. Confirme que `00-setup` está em `skills_completed` do manifest. Caso contrário, re-rode o setup.
 4. Use `product_slug` do manifest como `[produto]` padrão para todos os paths nesta skill até que o produto vencedor seja escolhido (ver Etapa SALVAR para substituição).
 
+### ETAPA 0.5 — TrendTrack MCP (opcional, se conectado)
+
+Verifique se há tools com prefixo `mcp__trendtrack__` disponíveis na sessão. Se SIM, use como fonte PRIMÁRIA antes de cair em scraping/Meta Ad Library público:
+
+- **`mcp__trendtrack__find_winning_products`** com `niche` ou keyword → retorna top winners reais com revenue/growth metrics. Use pra validar/sugerir ideias antes da ETAPA 1.
+- **`mcp__trendtrack__search_shops`** → busca lojas vendendo produto similar; serve como fonte alternativa pra ETAPA 5 (Meta Ad Library) com dados de revenue agregados.
+- **`mcp__trendtrack__creative_inspiration_pack`** com vertical → captura hooks/ângulos validados que servem como sinal extra na ETAPA 8 (análise estratégica).
+
+Custa créditos TrendTrack. Use 2-4 chamadas no máximo aqui — não saia explorando. Se uma chamada falhar (auth expirou, rate limit), siga fluxo tradicional sem avisar o membro (silent fallback).
+
+Se TrendTrack NÃO estiver disponível, pule esta etapa e siga normalmente.
+
 ### ETAPA 1 — Receber Dados (Kalodata / SpyBox OU Fallback)
 
 Verifique em `/workspace/profile.md` se o membro tem SpyBox disponível.

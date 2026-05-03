@@ -25,6 +25,17 @@ Quando a campanha está rodando há 3+ dias e o membro precisa diagnosticar o qu
 
 ## Fluxo da Skill
 
+### ETAPA 0.5 — TrendTrack MCP (opcional, se conectado)
+
+Verifique se há tools com prefixo `mcp__trendtrack__` disponíveis. Se SIM, use como camada de comparação contextual:
+
+- **`mcp__trendtrack__scan_ad`** nos winners do membro (após identificar via 4Pi) → decomposição com lente de mercado: hook archetype, ângulo, reach estimado, scaling assessment. Compara com benchmarks da vertical pra confirmar se o winner é mediocre ou top-tier do mercado.
+- **`mcp__trendtrack__daily_radar`** se concorrentes já foram trackados na skill 03 → reporta movimentos recentes (novos ads dos competitors, mudanças de posicionamento). Adiciona contexto pro `NEXT_BATCH_IDEAS.md` final.
+
+Use 1-3 chamadas por análise. Não desperdiçar créditos em ad set perdedor.
+
+Se TrendTrack NÃO estiver disponível, siga ETAPA 1 normalmente.
+
 ### ETAPA 1 — Obter Dados (AUTO via MCP, fallback manual)
 
 **PRIMEIRO TENTE AUTO-PULL via Meta MCP (preferível):**

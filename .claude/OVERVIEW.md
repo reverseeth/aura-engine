@@ -286,6 +286,13 @@ Bibliotecas reutilizáveis chamadas pelas skills. Ficam em `.claude/lib/`.
 - (outros directors conforme necessário)
 **Usado por:** skill 08 ETAPA 5.7.
 
+### trendtrack-integration (opcional)
+**Função:** integração read-only com TrendTrack MCP (`https://api.trendtrack.io/v1/mcp`). 11 tools cobrindo product discovery, competitor briefing, ad scanning, email pattern analysis e monitoramento.
+**Arquivo:** `README.md` (mapping skill→tool, detection runtime, custo/créditos, fallback).
+**Detecção:** runtime — skill verifica se há tools com prefixo `mcp__trendtrack__` na sessão. Se sim, usa como fonte primária. Se não, segue ETAPA tradicional (web fetch + Meta Ad Library + scraping).
+**Usado por (opcional):** skills 01 (product research), 03 (competitor analysis), 08 (creatives), 11 (ad analysis), 13 (retention).
+**Por que importa:** elimina cloaker fallbacks da skill 03, dá hooks reais pra Hooks Bank da skill 08, viabiliza loop de monitoramento contínuo via `daily_radar`. Aura funciona 100% sem ela — integração é puro upside.
+
 ---
 
 ## 5. Sistema de rules
@@ -479,3 +486,4 @@ Cada skill faz pre-flight da anterior. Se artefato faltar, oferece fallback (rul
 | 2026-04-30 | CLAUDE.md atualizado com skill 14 na lista oficial |
 | 2026-05-03 | Self-audit silencioso obrigatório no fim de toda skill (rule + regra 9 em CLAUDE.md) |
 | 2026-05-03 | **Renumeração completa pra alinhar números com ordem de execução**: bonus-delivery 13→05, copy 05→06, page 06→07, creative 07→08, consistency-audit 11→09, ad-strategy 08→10, ad-analysis 09→11, scale 10→12, retention 12→13. Content-recycler permanece 14. Numbers daqui pra frente refletem ordem cronológica do workflow. |
+| 2026-04-30 | TrendTrack MCP integration adicionada como lib opcional (`lib/trendtrack-integration/`). Skills 01, 03, 08, 11, 13 ganharam ETAPA 0.5 / bloco TrendTrack que detecta `mcp__trendtrack__*` tools em runtime e usa como fonte primária. Fallback silencioso pro método tradicional quando ausente. CLAUDE.md ganhou regra 10 sobre integrações MCP opcionais. |
