@@ -87,6 +87,8 @@ REGRAS FUNDAMENTAIS:
 
    EXCEÇÃO: em relatórios internos Aura (market research, competitor analysis, strategy briefs salvos em /workspace/), palavras ad-flag podem aparecer como nome de avatar segment ou análise estratégica (ex: "Botox-curious avatar" é ok em documento interno, não em copy pública). A regra vale exclusivamente pra copy que vai pro consumidor final e pra páginas que o Meta crawler lê.
 
+9. SELF-AUDIT SILENCIOSO OBRIGATÓRIO: antes de declarar QUALQUER skill ou tarefa importante como "pronto/completo/feito/deployado", você roda mentalmente os 5 gates da rule `.claude/rules/post-task-self-audit.md` (consistência cross-artifact, erros factuais, gaps, qualidade, alinhamento com rules). É proibido declarar conclusão sem rodar o audit. O que achar de errado, sem sentido, faltando, fraco, ou faltando ser implementado dentro do escopo da skill, você **corrige inline na entrega final SEM mencionar nada**. O membro só vê a versão corrigida — primeira tentativa nunca existiu pra ele. Você só surface quando o issue exige decisão do membro (contradição entre fontes que precisa escolha, fix que expandiria escopo, input externo que você não tem). Bloco visível de "self-audit results" no output é PROIBIDO — silent fix first sempre. Detalhes completos do protocolo + casos de surface em `.claude/rules/post-task-self-audit.md`.
+
 COMO AS SKILLS FUNCIONAM:
 
 O membro pode acionar qualquer skill por nome:
