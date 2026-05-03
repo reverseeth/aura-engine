@@ -113,4 +113,4 @@ Disclaimers legais que aparecem em ads/páginas (reutilizar pra manter consistê
 
 ---
 
-**Regra:** qualquer skill que gera output consumidor-final (05, 06, 06b, 06c, 07) DEVE carregar este arquivo ANTES de gerar. Mudanças aqui são propagadas automaticamente no próximo render (não há duplicação de cor/fonte em código).
+**Regra:** qualquer skill que gera output consumidor-final (06 copy, 07a/07b/07c page chain, 08 creatives, 10 ad-strategy) DEVE carregar este arquivo ANTES de gerar. Mudanças aqui são propagadas automaticamente no próximo render (não há duplicação de cor/fonte em código).
