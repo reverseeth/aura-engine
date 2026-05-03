@@ -272,7 +272,7 @@ Mesmo com PGS, pode ter que parar. Sinais:
 - **Cash flow gap** → spend > cash in (especialmente com payout 3-5 dias do Shopify e ads cobrando diário). Ajustar pace.
 - **Fulfillment bottleneck** → estoque acabando, 3PL atrasando. Não escale acima da capacidade operacional.
 
-### Quando 10 recomenda voltar para 07 (ciclo explícito)
+### Quando 12 recomenda voltar para 08 (ciclo explícito)
 
 Se algum destes sinais → invoke skill 08 para novo batch:
 - Top 3 creatives têm > 14 dias de idade
@@ -300,11 +300,11 @@ Outputs em `/workspace/[produto]/12-scale/`:
   7. Checklist operacional semanal (Etapa 8)
   8. Sinais de alerta (Etapa 9)
 
-- `12-scale-directives.md` (fecha ciclo 10→07):
+- `12-scale-directives.md` (fecha ciclo 12→08):
   - Budget atual + budget alvo (30d)
   - Canais ativos + canais a ativar
   - PSM real atual
-  - Sinais que trigger volta para 07 (creative refresh)
+  - Sinais que trigger volta para 08 (creative refresh)
   - Bloqueios de cash flow (se houver)
 
 - `12-scale.json` (JSON companion):

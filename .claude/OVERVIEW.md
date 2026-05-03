@@ -215,7 +215,7 @@ Cada skill é um arquivo `.md` com frontmatter (nome + descrição) + corpo estr
 ### Skill 09 — Consistency Audit
 **Trigger:** "consistency audit" ou "audit"
 **O que faz:**
-- Cross-phase drift detection: confere se mecanismo, awareness stage, VOC, oferta batem entre todos os artefatos (skills 02 → 04 → 05 → 06 → 07 → 08)
+- Cross-phase drift detection: confere se mecanismo, awareness stage, VOC, oferta batem entre todos os artefatos (skills 02 → 03 → 04 → 06 → 07 → 08)
 - Identifica VOC traceability (frases na copy/ads vêm da pesquisa)
 - Verifica promise↔config (promessas de copy batem com config da loja Shopify)
 
