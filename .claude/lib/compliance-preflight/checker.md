@@ -1,7 +1,7 @@
 # Compliance Pre-flight Checker
 
 Prompt estruturado que Claude usa pra avaliar copy/ad antes de salvar como final.
-Invocado automaticamente pelas Skills 06 e 07, ou manualmente via
+Invocado automaticamente pelas Skills 06 (copy) e 08 (creatives), ou manualmente via
 `compliance check [arquivo]`.
 
 ## Como invocar

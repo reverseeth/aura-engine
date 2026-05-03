@@ -196,7 +196,7 @@ Arquivo `/workspace/[produto]/04-research-foundation.json` contendo:
 }
 ```
 
-Esse arquivo é lido pelas skills 06 (copy) e 07 (creatives) pra ancorar afirmações com fonte verificável. Copy sem `research-foundation.json` acessível roda com warning "claims unverified — escalate carefully".
+Esse arquivo é lido pelas skills 06 (copy) e 08 (creatives) pra ancorar afirmações com fonte verificável. Copy sem `research-foundation.json` acessível roda com warning "claims unverified — escalate carefully".
 
 ### ETAPA 3 — Estrutura de Oferta
 

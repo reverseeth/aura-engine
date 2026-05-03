@@ -311,7 +311,7 @@ Apresente em tabela:
 | Claim | Categoria | Quantos usam | Classificação | Ação |
 |---|---|---|---|---|
 
-**Claims Saturation matrix (output obrigatório)**: além da tabela acima, gere uma matriz enxuta focada em saturação — usada pelas skills 04 e 05 para escolher/evitar claims:
+**Claims Saturation matrix (output obrigatório)**: além da tabela acima, gere uma matriz enxuta focada em saturação — usada pelas skills 04 e 06 para escolher/evitar claims:
 
 ```
 ## Claims Saturation
