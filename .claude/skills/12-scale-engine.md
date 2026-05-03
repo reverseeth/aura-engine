@@ -280,7 +280,7 @@ Se algum destes sinais → invoke skill 08 para novo batch:
 - Escala cruzou 2× budget (precisa creative diversity)
 - TikTok/canal novo habilitado (precisa creative nativo)
 
-Skill 08 lerá `NEXT_BATCH_IDEAS.md` atualizado (de 09) + `12-scale-directives.md` (novo, abaixo).
+Skill 08 lerá `NEXT_BATCH_IDEAS.md` atualizado (de 11) + `12-scale-directives.md` (novo, abaixo).
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 

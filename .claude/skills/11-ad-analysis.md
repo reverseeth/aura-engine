@@ -1,6 +1,6 @@
 ---
 name: ad-analysis
-description: Engine de análise de performance de Meta Ads usando 4Pi Analysis (Spend → Frequency → CPM → Cost per Result), 19-point diagnostic pra losers, extração de learnings de winners, framework de 12 perguntas (feedback loops), e recomendações acionáveis imediato/curto/médio prazo. Use quando o membro disser "ad analysis", "análise de ads", "analisar performance", "ver resultado", "diagnóstico", ou após 3-7+ dias rodando a campanha da Skill 08. Entrega decisões concretas — escalar, pausar, refresh de criativos, ou ajustar oferta/página.
+description: Engine de análise de performance de Meta Ads usando 4Pi Analysis (Spend → Frequency → CPM → Cost per Result), 19-point diagnostic pra losers, extração de learnings de winners, framework de 12 perguntas (feedback loops), e recomendações acionáveis imediato/curto/médio prazo. Use quando o membro disser "ad analysis", "análise de ads", "analisar performance", "ver resultado", "diagnóstico", ou após 3-7+ dias rodando a campanha da Skill 10. Entrega decisões concretas — escalar, pausar, refresh de criativos, ou ajustar oferta/página.
 ---
 
 # Ad Analysis Engine
