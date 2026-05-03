@@ -28,6 +28,21 @@ Quando o membro tem produto definido e market research feito, e precisa mapear o
 4. Valide que `skills_completed` do manifest contém `"01-product-research"` E `"02-market-research"`.
 5. Falhou qualquer item → aborte com mensagem específica: `"Rode \`<skill faltante>\` primeiro."`
 
+### ETAPA 0.5 — TrendTrack MCP (opcional, se conectado)
+
+Verifique se há tools com prefixo `mcp__trendtrack__` disponíveis. Se SIM, use TrendTrack como fonte primária pra ETAPAs 1-3 e fallback de Cloudflare/cloaker fica desnecessário:
+
+- **`mcp__trendtrack__search_shops`** com niche/keyword → substitui Etapa 1 manual de identificação de concorrentes (browse 1M+ Shopify stores indexados, com revenue/growth signals).
+- **`mcp__trendtrack__find_similar_shops`** após identificar 1 concorrente forte → encontra adjacentes ranqueados por similaridade.
+- **`mcp__trendtrack__brief_competitor`** com domínio → substitui ETAPA 2 (PDP analysis) + ETAPA 3 (ads no Meta Ad Library) numa chamada só, retornando deep-dive com ads, email patterns, opportunities. Fim das corridas com cloaker/archive.today.
+- **`mcp__trendtrack__scan_ad`** com URL/ID de ad → substitui análise manual de hook/ângulo na ETAPA 3, e dá assessment de scaling (volume + reach).
+
+Pra cada concorrente, prefira 1 chamada `brief_competitor` em vez de 4-5 chamadas web fetch. Custa créditos — não desperdiçar em concorrente irrelevante. Limite: 5-10 concorrentes principais.
+
+Se uma chamada falhar → silent fallback pra ETAPA tradicional, sem avisar membro.
+
+Se TrendTrack NÃO estiver disponível, pule esta etapa e siga ETAPAs 1-3 normalmente.
+
 ### ETAPA 1 — Identificar Concorrentes
 
 Se o product research já identificou concorrentes, use essa lista como base (5-10 marcas). Se não, pergunte:

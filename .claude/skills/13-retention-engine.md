@@ -23,6 +23,14 @@ Antes das checagens abaixo, ler `/workspace/[produto]/09-consistency-audit.json`
 - [ ] `04-offer.md` carregado (pra saber reorder rate, guarantee period, bonuses entregáveis)
 - [ ] `02-market-research.md` carregado (objeções = hooks de win-back; dores = hooks de abandoned cart)
 
+## TrendTrack MCP (opcional, se conectado)
+
+Se há tools com prefixo `mcp__trendtrack__` disponíveis:
+
+- **`mcp__trendtrack__analyze_shop_emails`** com domínio de 1-3 concorrentes do `03-competitor-analysis.md` → retorna padrões reais de cadência, subject lines e content categories da concorrência. Use como referência (não copy-paste) pra calibrar timing dos fluxos abaixo (welcome series, abandoned cart, post-purchase) com benchmark de mercado.
+
+Se TrendTrack NÃO estiver disponível, segue templates abaixo direto, baseados em VOC + offer.
+
 ## Fluxos base (templates — adaptam ao produto)
 
 ### 1. Welcome Series (novo subscriber, sem compra ainda)

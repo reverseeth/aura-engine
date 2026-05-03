@@ -494,7 +494,12 @@ workspace/                 ← criado por skill 00, organizado por produto
           <tr>
             <td><strong>prompt-directors</strong></td>
             <td>Directors de prompt pra ferramentas externas. Hoje tem <code>marketing-studio-director.md</code> (Higgsfield Marketing Studio: UGC, Tutorial, Unboxing, Hyper Motion, Product Review, TV Spot, Wild Card, Virtual Try On).</td>
-            <td>07 (ETAPA 5.7)</td>
+            <td>08 (ETAPA 5.7)</td>
+          </tr>
+          <tr>
+            <td><strong>trendtrack-integration</strong> <span class="pill">opcional</span></td>
+            <td>Integração read-only com TrendTrack MCP (<code>https://api.trendtrack.io/v1/mcp</code>). 11 tools (product discovery, competitor briefing, ad scanning, email patterns, monitoring). Detecção runtime: se há tools com prefixo <code>mcp__trendtrack__</code> na sessão, usa como fonte primária; senão, fallback silencioso pro método tradicional. Aura funciona 100% sem ela.</td>
+            <td>01, 03, 08, 11, 13</td>
           </tr>
         </tbody>
       </table>
@@ -721,6 +726,7 @@ workspace/                 ← criado por skill 00, organizado por produto
           <tr><td>2026-04-30</td><td>CLAUDE.md atualizado com skill 14 na lista oficial</td></tr>
           <tr><td>2026-05-03</td><td>Self-audit silencioso obrigatório no fim de toda skill (rule + regra 9 em CLAUDE.md)</td></tr>
           <tr><td>2026-05-03</td><td><strong>Renumeração completa pra alinhar números com ordem de execução</strong>: bonus-delivery 13→05, copy 05→06, page 06→07, creative 07→08, consistency-audit 11→09, ad-strategy 08→10, ad-analysis 09→11, scale 10→12, retention 12→13. Numbers daqui pra frente refletem ordem cronológica.</td></tr>
+          <tr><td>2026-04-30</td><td>TrendTrack MCP integration adicionada como lib opcional (<code>lib/trendtrack-integration/</code>). Skills 01, 03, 08, 11, 13 ganharam ETAPA 0.5 / bloco TrendTrack que detecta <code>mcp__trendtrack__*</code> tools em runtime e usa como fonte primária. Fallback silencioso pro método tradicional quando ausente. CLAUDE.md ganhou regra 10 sobre integrações MCP opcionais.</td></tr>
         </tbody>
       </table>
     </div>
