@@ -85,7 +85,7 @@ access_rate = concorrentes_com_PDP_analisada / total_concorrentes_identificados
 
 - `access_rate >= 0.5` → proceder normalmente
 - `0.3 <= access_rate < 0.5` → proceder com WARNING no output: `"Cobertura parcial — {N}/{total} concorrentes inacessíveis. Análise competitiva pode ter gaps. Considere análise manual via screenshots."`
-- `access_rate < 0.3` → **PARAR SKILL E PEDIR AÇÃO DO MEMBRO**. Não proceder com análise baseada em < 30% do universo competitivo, senão Skills 04/05 vão assumir "mercado limpo" (falsa premissa). Mensagem:
+- `access_rate < 0.3` → **PARAR SKILL E PEDIR AÇÃO DO MEMBRO**. Não proceder com análise baseada em < 30% do universo competitivo, senão Skills 04/06 vão assumir "mercado limpo" (falsa premissa). Mensagem:
 
   > ⚠️  Só consegui acessar {N}/{total} ({access_rate:.0%}) das PDPs de concorrentes. O resto bloqueou por bot-protection (Cloudflare, Shopify App check, etc) e todos os fallbacks falharam.
   >
@@ -269,9 +269,9 @@ Output obrigatório: `/workspace/[produto]/03-creative-patterns.json`:
 }
 ```
 
-Esse arquivo vira input crítico pra Skill 07 (Creative Engine) — criativos novos nascem ancorados em padrões validados + 20-30% de novelty intencional pra testar rupturas.
+Esse arquivo vira input crítico pra Skill 08 (Creative Engine) — criativos novos nascem ancorados em padrões validados + 20-30% de novelty intencional pra testar rupturas.
 
-**Se membro NÃO enviar criativos**: pular essa etapa e prosseguir. A skill 07 roda em modo "cold" (sem patterns de referência) — funciona, mas com menos sinal de mercado.
+**Se membro NÃO enviar criativos**: pular essa etapa e prosseguir. A skill 08 roda em modo "cold" (sem patterns de referência) — funciona, mas com menos sinal de mercado.
 
 ### ETAPA 4 — Claims Compilation Completa
 

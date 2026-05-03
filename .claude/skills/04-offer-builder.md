@@ -72,7 +72,7 @@ Se `Margem $` < $20 → PARAR e avisar membro:
 >
 >     Prosseguir mesmo assim? (sim/não)
 
-Se continuar, marca `"margin_warning": true` no manifest pra Skills 08/10 alertarem escala agressiva.
+Se continuar, marca `"margin_warning": true` no manifest pra Skills 10/12 alertarem escala agressiva.
 
 ### ETAPA 2 — MECANISMO ÚNICO (A Parte Mais Importante)
 
@@ -196,7 +196,7 @@ Arquivo `/workspace/[produto]/04-research-foundation.json` contendo:
 }
 ```
 
-Esse arquivo é lido pelas skills 05 (copy) e 07 (creatives) pra ancorar afirmações com fonte verificável. Copy sem `research-foundation.json` acessível roda com warning "claims unverified — escalate carefully".
+Esse arquivo é lido pelas skills 06 (copy) e 07 (creatives) pra ancorar afirmações com fonte verificável. Copy sem `research-foundation.json` acessível roda com warning "claims unverified — escalate carefully".
 
 ### ETAPA 3 — Estrutura de Oferta
 
@@ -251,7 +251,7 @@ Liste tudo que vem no pacote com valor ancorado:
 
 Cada bonus é REAL (entregável), não inflado artificialmente. O stack cria percepção de valor desproporcional ao preço.
 
-**OBRIGATÓRIO — Registrar bonuses no campo top-level `bonuses[]` do `04-offer.json`.** Skill 13 (bonus-delivery) lê desse campo pra montar o pipeline de entrega. Pra cada bonus do stack, gerar entry:
+**OBRIGATÓRIO — Registrar bonuses no campo top-level `bonuses[]` do `04-offer.json`.** Skill 05 (bonus-delivery) lê desse campo pra montar o pipeline de entrega. Pra cada bonus do stack, gerar entry:
 
 ```json
 {
@@ -375,7 +375,7 @@ Cruze unit economics com budget diário do membro (do profile):
 - AOV projetado × 3 vendas/dia = ~$Y/dia em revenue
 - Margem total projetada = $Z/dia
 
-É viável? Pra qual revenue tier (da Skill 10) essa oferta leva o membro em 30/60/90 dias?
+É viável? Pra qual revenue tier (da Skill 12) essa oferta leva o membro em 30/60/90 dias?
 
 ### ETAPA 9 — Validação Final (Sanity Checks)
 
@@ -391,13 +391,13 @@ Antes de salvar, responda HONESTAMENTE:
 8. **Margem $ ≥ $20 em pelo menos uma variação?** (senão CPA viável inviabiliza ads)
 9. **Bundle structure aumenta AOV sem canibalizar margem?**
 10. **breakeven_roas < 3.0?** (se >3, a oferta depende de CAC muito baixo — validar com @analyst)
-11. **`04-research-foundation.json` existe e cobre todos os claims centrais do mecanismo com fonte rastreável?** (sem fundação de evidência, copy da Skill 05 sai sem lastro — bloqueante)
+11. **`04-research-foundation.json` existe e cobre todos os claims centrais do mecanismo com fonte rastreável?** (sem fundação de evidência, copy da Skill 06 sai sem lastro — bloqueante)
 
 Se alguma resposta for "não", **itere antes de salvar**. Uma oferta fraca que passa adiante vira ad ruim, copy genérica, e membro frustrado em 30 dias.
 
 ### Output Schema — `04-offer.md` + `04-offer.json`
 
-O markdown é humano; o JSON é para as skills 05/06/08/09/10. Estrutura obrigatória:
+O markdown é humano; o JSON é para as skills 06/07/10/11/12. Estrutura obrigatória:
 
 `.json`:
 ```json
@@ -428,7 +428,7 @@ O markdown é humano; o JSON é para as skills 05/06/08/09/10. Estrutura obrigat
     "psm_theoretical": 2.0
   },
   "guarantee": { "type": "...", "duration_days": 30 },
-  "offer_stack": "Stack montado: produto principal $97 + Bonus 01 ($49) + Bonus 02 ($39) + Bonus 03 ($29) = valor total ancorado $214. Membro paga $97 (savings de $117). String pré-montada para a Skill 05 usar literal em copy de página/ad sem reformatar.",
+  "offer_stack": "Stack montado: produto principal $97 + Bonus 01 ($49) + Bonus 02 ($39) + Bonus 03 ($29) = valor total ancorado $214. Membro paga $97 (savings de $117). String pré-montada para a Skill 06 usar literal em copy de página/ad sem reformatar.",
   "bonuses": [
     {
       "id": "bonus-01",
@@ -446,7 +446,7 @@ O markdown é humano; o JSON é para as skills 05/06/08/09/10. Estrutura obrigat
 
 Atualizar `manifest.json`: adicionar `target_cpa`, `breakeven_roas`, `psm_theoretical`, adicionar skill em `skills_completed`.
 
-**Nota sobre nomenclatura dos unit_economics** — emite os campos `weighted_margin_per_order`, `target_cpa_primary_2x` e `target_cpa_primary_3x` em paralelo aos legacy (`margin_per_unit`, `target_cpa_for_2x/3x`) porque a Skill 09 (ad-analysis) lê pelos nomes "primary"/"weighted". `weighted_margin_per_order` = margem média ponderada por AOV (considera bumps + upsells), enquanto `margin_per_unit` é a margem unitária do SKU principal. Se a oferta não tem bump/upsell, os dois valores são iguais. `offer_stack` é a string pré-montada que a Skill 05 consome literal.
+**Nota sobre nomenclatura dos unit_economics** — emite os campos `weighted_margin_per_order`, `target_cpa_primary_2x` e `target_cpa_primary_3x` em paralelo aos legacy (`margin_per_unit`, `target_cpa_for_2x/3x`) porque a Skill 11 (ad-analysis) lê pelos nomes "primary"/"weighted". `weighted_margin_per_order` = margem média ponderada por AOV (considera bumps + upsells), enquanto `margin_per_unit` é a margem unitária do SKU principal. Se a oferta não tem bump/upsell, os dois valores são iguais. `offer_stack` é a string pré-montada que a Skill 06 consome literal.
 
 **Se `04-offer.json` falhar validação, NÃO salvar `.md`.**
 

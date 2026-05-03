@@ -1,6 +1,6 @@
-# Prompt Directors (lib auxiliar da Skill 07)
+# Prompt Directors (lib auxiliar da Skill 08)
 
-Diretores de prompt que convertem conceito de criativo em prompt production-ready pra ferramenta de geração específica. Invocados pela Skill 07 (creative-engine) após geração dos briefings.
+Diretores de prompt que convertem conceito de criativo em prompt production-ready pra ferramenta de geração específica. Invocados pela Skill 08 (creative-engine) após geração dos briefings.
 
 ## Arquivos
 
@@ -17,12 +17,12 @@ Cada director é um SKILL.md com:
 - Hard rules (o que sempre fazer / nunca fazer)
 - Exemplos
 
-Quando a Skill 07 chega na ETAPA 5.7 (Prompt Generation), ela:
+Quando a Skill 08 chega na ETAPA 5.7 (Prompt Generation), ela:
 1. Lê o briefing do conceito gerado
 2. Decide qual director invocar (vídeo? imagem? ambos?)
 3. Carrega o SKILL.md do director
 4. Roda o prompt do director sobre o conceito
-5. Salva o output (prompt production-ready) em `/workspace/[produto]/07-creatives/prompts/`
+5. Salva o output (prompt production-ready) em `/workspace/[produto]/08-creatives/prompts/`
 
 ## Output esperado
 
@@ -33,8 +33,8 @@ Cada director gera 1 prompt production-ready por conceito, pronto pra colar na f
 
 ## Não confundir com
 
-- A Skill 07 em si (que orquestra e gera os briefings de alto nível)
-- O briefing do conceito (script segundo-a-segundo, primary texts, headlines) — esses são output da Skill 07 padrão
+- A Skill 08 em si (que orquestra e gera os briefings de alto nível)
+- O briefing do conceito (script segundo-a-segundo, primary texts, headlines) — esses são output da Skill 08 padrão
 - Os directors transformam o briefing em prompt EXECUTÁVEL pelas ferramentas externas
 
 ## Importação

@@ -1,6 +1,6 @@
 # Hook Taxonomy
 
-Catálogo de archetypes de hook pra ad creatives. Usado pela Skill 07 (creative-engine) pra gerar variações com cobertura de emotions e formatos diferentes, e pela Skill 03 (competitor-analysis) pra classificar criativos escalados dos concorrentes.
+Catálogo de archetypes de hook pra ad creatives. Usado pela Skill 08 (creative-engine) pra gerar variações com cobertura de emotions e formatos diferentes, e pela Skill 03 (competitor-analysis) pra classificar criativos escalados dos concorrentes.
 
 ## Estrutura
 
@@ -70,5 +70,5 @@ Esses são ilustrativos. Sempre gerar o hook específico pro produto/avatar/VOC 
 ## Integração com Skills
 
 - **Skill 03 Etapa 3C** (scaled creative deep analysis): classifica criativos escalados dos concorrentes usando esse taxonomy. Preenche `hook_archetypes[]` em `03-creative-patterns.json`.
-- **Skill 07 Etapa 4.5.E + Etapa 7**: cada hook gerado declara archetype + emotion. Hooks Bank final tem cobertura balanceada.
-- **Skill 09** (ad-analysis): quando winner é identificado, registra archetype do hook pra aprender padrão ao longo do tempo (creative DNA).
+- **Skill 08 Etapa 4.5.E + Etapa 7**: cada hook gerado declara archetype + emotion. Hooks Bank final tem cobertura balanceada.
+- **Skill 11** (ad-analysis): quando winner é identificado, registra archetype do hook pra aprender padrão ao longo do tempo (creative DNA).

@@ -17,12 +17,12 @@ description: Engine de escrita de copy completo baseado em market research, comp
   >     2. Me cola manualmente 10-15 frases de clientes reais (reviews, DMs, comentários)
   >     3. Prossiga mesmo assim reconhecendo limitação (copy ficará abstrata)
 
-  Se membro escolher 3, marca `"voc_forced_continue": true` no output pra Skill 09 diagnosticar depois.
+  Se membro escolher 3, marca `"voc_forced_continue": true` no output pra Skill 11 diagnosticar depois.
 - [ ] `03-competitor-analysis.md` existe
 - [ ] `04-offer.json` existe → extrair `mechanism`, `pricing`, `guarantee`
 - [ ] `04-research-foundation.json` existe → extrair `evidence_items[]`, `confidence_score`, `gaps_and_risks`
-  - Se ausente: WARN "Research foundation não rodou (Skill 04 Etapa 2.5). Claims na copy vão sair sem lastro verificável. Opções: (1) voltar pra skill 04 e rodar Etapa 2.5; (2) prosseguir marcando `claims_unverified: true` no output — skill 11 (consistency-audit) vai bloquear launch depois."
-  - Se existe mas `confidence_score == "low"`: WARN "Evidence weak — claims fortes (clinically proven, X% melhoria) vão ser suavizados automaticamente pra 'helps with', 'designed to support'. Skill 11 vai re-validar antes de launch."
+  - Se ausente: WARN "Research foundation não rodou (Skill 04 Etapa 2.5). Claims na copy vão sair sem lastro verificável. Opções: (1) voltar pra skill 04 e rodar Etapa 2.5; (2) prosseguir marcando `claims_unverified: true` no output — skill 09 (consistency-audit) vai bloquear launch depois."
+  - Se existe mas `confidence_score == "low"`: WARN "Evidence weak — claims fortes (clinically proven, X% melhoria) vão ser suavizados automaticamente pra 'helps with', 'designed to support'. Skill 09 vai re-validar antes de launch."
 - [ ] Extrair `product_vertical` do manifest (default "other" se ausente) — usado pelo Compliance Pre-flight (Sweep 8)
 Se faltar qualquer um (exceto VOC com opção 3 e research-foundation com acknowledgment), PARE.
 
@@ -325,11 +325,11 @@ Antes de entregar, faça **7 sweeps de revisão** :
 
    Ação conforme severity:
    - `critical` → PARAR, reportar triggers ao membro, aplicar `rewrite_suggestion` ou pedir revisão manual
-   - `high` → aplicar `rewrite_suggestion` automaticamente + logar em `/workspace/[produto]/05-compliance-log.json`
+   - `high` → aplicar `rewrite_suggestion` automaticamente + logar em `/workspace/[produto]/06-compliance-log.json`
    - `medium` → manter copy original, logar warning
    - `low` → salvar silenciosamente (sem output)
 
-   Log consolidado em `/workspace/[produto]/05-compliance-log.json`. Se diretório não existir, `mkdir -p` antes de escrever.
+   Log consolidado em `/workspace/[produto]/06-compliance-log.json`. Se diretório não existir, `mkdir -p` antes de escrever.
 
 Para cada sweep, documente o que mudou (as edits são o output do sweep).
 
@@ -342,7 +342,7 @@ Gere:
 
 Documente a hipótese por trás de cada variação.
 
-## Output Schema — Seções Canônicas (`05-copy.md`)
+## Output Schema — Seções Canônicas (`06-copy.md`)
 
 O markdown DEVE ter as seções NOMEADAS ASSIM (case-sensitive, H2). Cada seção contém texto pronto pra colar, SEM comentários de instrução no output final.
 
@@ -363,7 +363,7 @@ O markdown DEVE ter as seções NOMEADAS ASSIM (case-sensitive, H2). Cada seçã
 ## Email Follow-up Hooks
 ```
 
-## JSON Companion Obrigatório — `05-copy.json`
+## JSON Companion Obrigatório — `06-copy.json`
 
 Schema:
 ```json
@@ -394,24 +394,24 @@ Schema:
 }
 ```
 
-**Skill 06 vai ler diretamente este JSON** — se inválido, skill 06 não prossegue.
+**Skill 07 vai ler diretamente este JSON** — se inválido, skill 07 não prossegue.
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
 **Antes de salvar, garanta o diretório:** `mkdir -p /workspace/[produto]/`.
 
-**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `05-copy.md` → `05-copy.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `06-copy.md` → `06-copy.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
-Atualizar `manifest.json`: adicionar `05-copy-engine` em `skills_completed`, atualizar `updated_at`.
+Atualizar `manifest.json`: adicionar `06-copy-engine` em `skills_completed`, atualizar `updated_at`.
 
-`/workspace/[produto]/05-copy.md` contendo (seções canônicas acima):
+`/workspace/[produto]/06-copy.md` contendo (seções canônicas acima):
 1. Strategy brief (Etapa 2 — tipo de página, lead, hero, ângulo, tom, framework, modalities mapping)
 2. 20-30 headlines geradas + top 5 + 3 pra teste A/B
 3. Página completa seção por seção (Etapa 4 ou 5)
 4. Revisão após 7 sweeps (mudanças documentadas, incluindo VOC compliance %)
 5. Variações pra teste (Etapa 7)
 
-Também salvar `/workspace/[produto]/05-copy.json` no schema acima.
+Também salvar `/workspace/[produto]/06-copy.json` no schema acima.
 
 ## Mensagem Final
 

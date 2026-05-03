@@ -22,8 +22,8 @@ recycle winner
 
 ### ETAPA 1 — Identificação do winner
 
-1. Se `[creative-id]` fornecido: ler `/workspace/[produto]/07-creatives/07-concept-XX.md` correspondente
-2. Se `winner`: consultar `/workspace/[produto]/09-analysis/latest.json` (se existir) e pegar o criativo com menor CPA e spend > $300
+1. Se `[creative-id]` fornecido: ler `/workspace/[produto]/08-creatives/08-concept-XX.md` correspondente
+2. Se `winner`: consultar `/workspace/[produto]/11-analysis/latest.json` (se existir) e pegar o criativo com menor CPA e spend > $300
 3. Se nenhum dos dois disponível: perguntar ao membro qual criativo reciclar
 
 ### ETAPA 2 — Extração de essência

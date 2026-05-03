@@ -6,12 +6,12 @@ description: Engine de configuração da estrutura completa de campanha no Meta 
 # Ad Strategy Engine
 
 ## Quando Usar
-Quando o membro tem criativos editados (da Skill 07) + página pronta na loja (da Skill 07) + oferta ativa (Skill 04), e precisa configurar a estrutura completa no Meta Ads Manager. Essa skill não é "estratégia conceitual" — é **executional playbook**, passo a passo.
+Quando o membro tem criativos editados (da Skill 08) + página pronta na loja (da Skill 07) + oferta ativa (Skill 04), e precisa configurar a estrutura completa no Meta Ads Manager. Essa skill não é "estratégia conceitual" — é **executional playbook**, passo a passo.
 
 ## Antes de Começar
 
 ### Pré-flight (OBRIGATÓRIO)
-- [ ] `07-creatives.json` existe
+- [ ] `08-creatives.json` existe
 - [ ] `04-offer.json` existe (target_cpa, breakeven_roas)
 - [ ] Pixel + CAPI **validados tecnicamente** (screenshot Events Manager, Match Quality ≥ 80%)
 - [ ] Ads Manager acess: confirmar versao **Meta Marketing API ≥ v21.0 (Q1 2026)**
@@ -20,7 +20,7 @@ Quando o membro tem criativos editados (da Skill 07) + página pronta na loja (d
 
 ### Analytics stack — decision tree
 
-A Skill 09 (ad-analysis) depende de dados confiáveis de atribuição. Antes de lançar, escolher a stack correta. **Considerar APENAS 4 opções** — não sugerir Elevar, Stape, Littledata, Segment, ou qualquer outra:
+A Skill 11 (ad-analysis) depende de dados confiáveis de atribuição. Antes de lançar, escolher a stack correta. **Considerar APENAS 4 opções** — não sugerir Elevar, Stape, Littledata, Segment, ou qualquer outra:
 
 | Stack | Quando recomendar | Custo | Complexidade de setup |
 |-------|-------------------|-------|-----------------------|
@@ -50,7 +50,7 @@ A Skill 09 (ad-analysis) depende de dados confiáveis de atribuição. Antes de 
 - $1k-$3k/dia → Triple Whale vira payback claro
 - $3k+/dia → Aimerce entra como opção premium
 
-Se o membro usa stack ≠ das 4 acima, PARAR e alinhar antes de rodar esta skill — dados ruins depois inviabilizam Skill 09.
+Se o membro usa stack ≠ das 4 acima, PARAR e alinhar antes de rodar esta skill — dados ruins depois inviabilizam Skill 11.
 
 ### Compatibilidade
 Esta skill foi testada em:
@@ -62,18 +62,18 @@ Se membro usa interface legada (Business Suite antigo), adaptar manualmente pass
 
 1. Leia `/workspace/profile.md` (budget diário — define tamanho da campanha; Meta Ads Manager conta ativa)
 2. Leia `/workspace/[produto]/04-offer.md` (CPA target vem daqui — Margem / 2 pra 2× ROAS, Margem / 2.5 pra 2.5× ROAS)
-3. Leia `/workspace/[produto]/05-copy.md` (URLs de destino — 1 ou múltiplas LPs)
-4. Leia `/workspace/[produto]/07-creatives/` (conceitos + briefings — cada conceito vira 1 ad set)
+3. Leia `/workspace/[produto]/06-copy.md` (URLs de destino — 1 ou múltiplas LPs)
+4. Leia `/workspace/[produto]/08-creatives/` (conceitos + briefings — cada conceito vira 1 ad set)
 5. Consulte a base Aura extensivamente sobre: One Campaign Method, Andromeda System (o que mudou no Meta e por que), Scientific Method for Meta Ads (control vs variable), 3-2-2 Flexible Ads format (estrutura e regras de teste), Performance Gate Scaling (PGS — regra automatizada de 5%), budget scaling methods (farmer/aggressive/operator), 4Pi Analysis signatures pra interpretação de dados depois, naming conventions, CAPI e Pixel Data setup (Advanced Matching + Event Quality), Ad Account e Pixel-Dataset Setup, Estrutura de Assets Anti-Ban, Automated Rules pra Lead Gen Campaigns, Minimum Daily Spend (por que ads ruins geram gasto), Scientific Method (control vs variable), Profitable Scaling Margin (PSM — Golden Ratio of Growth), Overview e Estratégia de Media Buying, ROAS Targets e Scaling (vertical vs horizontal). Aprofunde em cada sub-conceito. Operacional é detalhe — errar naming convention ou deixar "daily minimums" ativo mata campanhas.
 
 ## Fluxo da Skill
 
 ### ETAPA 1 — Verificação de Pré-Requisitos
 
-**Gate de consistência (Skill 11)** — antes da pergunta abaixo, ler `/workspace/[produto]/11-consistency-audit.json` se existir:
+**Gate de consistência (Skill 09)** — antes da pergunta abaixo, ler `/workspace/[produto]/09-consistency-audit.json` se existir:
 - Se `launch_recommendation == "BLOCK"` → **ABORTAR**. Drift entre criativos/copy/oferta vai virar disapproval ou ad com mismatch ad↔landing. Mostrar findings críticos ao membro e pedir pra rodar `consistency audit` após corrigir. Override só com `compliance_override` no manifest.
 - Se `CAUTION` → mostrar warnings, pedir OK explícito antes de prosseguir.
-- Se `GO` ou arquivo não existe → seguir verificação normal (recomendar skill 11 antes de launch crítico, mas não bloquear).
+- Se `GO` ou arquivo não existe → seguir verificação normal (recomendar skill 09 antes de launch crítico, mas não bloquear).
 
 Pergunte em UMA única mensagem:
 
@@ -86,7 +86,7 @@ Pergunte em UMA única mensagem:
 - **Pixel não funcionando** → Events Manager do Meta > Test Events. Deve mostrar PageView, ViewContent, AddToCart, InitiateCheckout, Purchase. Se algum falta, verificar instalação no tema Shopify (Settings > Customer events > Meta pixel).
 - **CAPI não configurada** → No Shopify (ou via Triple Whale se o membro tem), habilitar "Conversions API" no Pixel. Meta > Events Manager > Settings > Set up Conversions API. Deve mostrar dupla-coluna (Browser + Server) com ≥80% de match quality.
 - **Produto não ativo** → Shopify > Products — verificar status "Active" + inventário > 0 + imagem + descrição. Link do checkout funcional.
-- **Criativos não prontos** → redirecionar pra `'creatives'` (Skill 07).
+- **Criativos não prontos** → redirecionar pra `'creatives'` (Skill 08).
 
 Não prossiga pra Etapa 2 enquanto os 3 itens não estiverem "sim".
 
@@ -123,7 +123,7 @@ Com esse limite, distribua os ad sets:
 **Tipos de ad set (dependendo do estágio do membro):**
 
 1. **Champions** (se houver — tem winning ads anteriores): ad sets com **Post IDs dos winning creatives** (use "Use existing post" pra reaproveitar social proof acumulado — likes, shares, comments)
-2. **Creative Batches**: UM ad set por conceito da Skill 07 (ex: 5 conceitos = 5 ad sets)
+2. **Creative Batches**: UM ad set por conceito da Skill 08 (ex: 5 conceitos = 5 ad sets)
 3. **Page Test** (se houver múltiplas LPs pra testar): ad set adicional com 3-2-2-2 (detalhe na Etapa 5)
 
 Se o total exceder o max, priorize: Champions > Creative Batches > Page Test. Fique dentro do limite.
@@ -154,7 +154,7 @@ Para CADA ad set (exceto Champions que usam Post IDs), configure o ad usando o f
 - **Identity**: sua Facebook Page + Instagram (mesmo handle ideal)
 
 **3-2-2 configuration (flexible ad):**
-- **3 Creatives**: upload dos 3 criativos do conceito (do briefing da Skill 07)
+- **3 Creatives**: upload dos 3 criativos do conceito (do briefing da Skill 08)
 - **2 Primary texts**: os 2 primary texts do briefing
 - **2 Headlines**: as 2 headlines do briefing
 - **Descriptions**: **deixar vazio** (— descriptions raramente melhoram performance em Flexible Ad)
@@ -213,16 +213,16 @@ Aplique as regras. **Cada timeline tem ação específica:**
 - **Ad set com CPA > 3× target** em 72h → pode ser considerado pra pausa se tiver outros ad sets rodando ok (mas não pause tudo impulsivamente).
 
 **DIA 7 (7 dias):**
-- Primeira avaliação completa. Rodar Skill 09 (ad-analysis) com os dados.
+- Primeira avaliação completa. Rodar Skill 11 (ad-analysis) com os dados.
 - **Critério de WINNER:** CPA ≤ target + CAMPAIGN overall improved (não olha só um ad set — olha a campanha inteira) + escalou spend nos últimos 3 dias consistentemente.
 - **Critério de LOSER:** sem spend em 7 dias OU CPA > 2× target após 7 dias. Pausar.
 - **Critério de FADIGA:** CPM subindo + CTR caindo + frequency subindo ao longo dos 7 dias. Monitorar; pode virar fadiga em 14 dias.
 
 **DIA 14 (2 semanas):**
-- Avaliação aprofundada. Rodar Skill 09 completa.
+- Avaliação aprofundada. Rodar Skill 11 completa.
 - Ad sets que pararam de performar → pausar ou iterar (trocar criativos, refresh do conceito)
 - Ad sets que escalaram bem → promover a Champion (post ID separado no próximo batch) e continuar
-- Planejar próximo batch de conceitos (Skill 07 de novo)
+- Planejar próximo batch de conceitos (Skill 08 de novo)
 
 ### ETAPA 8 — Performance Gate Scaling (PGS) — Regra Automatizada Exata
 
@@ -259,7 +259,7 @@ Documente pro membro como operar o ciclo:
 **Quando adicionar conceito novo:**
 - Sempre que um conceito existente pausar (LOSER) ou entrar em fadiga
 - Sempre que quiser expandir pra novo ângulo (ex: champion já tá MOF, adicionar TOF novo)
-- Gerar novo batch via Skill 07 (gera briefings) e adicionar como novo ad set na mesma campanha
+- Gerar novo batch via Skill 08 (gera briefings) e adicionar como novo ad set na mesma campanha
 
 **Quando promover Winner pra Champion:**
 - Ad set tem CPA consistentemente dentro do target por 14+ dias E escalou spend E PGS vem subindo budget
@@ -296,7 +296,7 @@ Nota: screenshots visuais do Ads Manager 2026 Q1 devem ser mantidos em `.claude/
 
 **Garantir diretório:** `mkdir -p /workspace/[produto]/` antes de salvar.
 
-`/workspace/[produto]/08-ad-strategy.md` contendo:
+`/workspace/[produto]/10-ad-strategy.md` contendo:
 1. Estrutura da campanha completa (Etapa 2)
 2. Lista detalhada de ad sets com config de audience, placement, budget (Etapa 3)
 3. Configuração 3-2-2 ou 3-2-2-2 por ad set (Etapas 4-5)
@@ -306,13 +306,13 @@ Nota: screenshots visuais do Ads Manager 2026 Q1 devem ser mantidos em `.claude/
 7. Plano de próximos batches (Etapa 9)
 8. Checklist de erros a evitar (Etapa 10)
 
-### JSON companion — `08-ad-strategy.json`
+### JSON companion — `10-ad-strategy.json`
 
 ```json
 {
   "strategy_id": "uuid",
   "product_slug": "...",
-  "creative_batch_ref": "07-creatives batch_id",
+  "creative_batch_ref": "08-creatives batch_id",
   "campaign": {
     "name": "...",
     "objective": "conversions",
@@ -330,9 +330,9 @@ Nota: screenshots visuais do Ads Manager 2026 Q1 devem ser mantidos em `.claude/
 ### Atualizar manifest
 
 Após salvar, atualizar `/workspace/[produto]/manifest.json`:
-- Adicionar `08-ad-strategy` em `skills_completed`
+- Adicionar `10-ad-strategy` em `skills_completed`
 - Registrar `strategy_id`, `creative_batch_ref`, e `pgs_enabled: true/false`
-- **Gravar `08_campaign_name`** com o nome da campanha gerado na ETAPA 6 (naming convention). A Skill 09 (ad-analysis) lê esse campo via `read_manifest("08_campaign_name")` pra cruzar com dados do Meta. Sem ele, a 09 cai em fallback de adivinhação.
+- **Gravar `10_campaign_name`** com o nome da campanha gerado na ETAPA 6 (naming convention). A Skill 11 (ad-analysis) lê esse campo via `read_manifest("10_campaign_name")` pra cruzar com dados do Meta. Sem ele, a 09 cai em fallback de adivinhação.
 
 ## Mensagem Final
 

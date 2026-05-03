@@ -57,7 +57,7 @@ Quando uma skill do Aura Engine não entrega resultado esperado, seguir esse dia
 
 **Fix**: aplicar protocolo da `shopify-theme-safety.md` Regra 5 (silent push rejection diagnosis)
 
-### 5. Skill 07 gerou conceitos muito similares
+### 5. Skill 08 gerou conceitos muito similares
 
 **Sintomas**: N conceitos do batch parecem variações do mesmo conceito
 
@@ -67,7 +67,7 @@ Quando uma skill do Aura Engine não entrega resultado esperado, seguir esse dia
 |-------|-------|-----|
 | Market research raso (poucos gaps) | `02-market-research.json` tem < 5 gaps? | Re-rodar Skill 02 profundo |
 | Competitor analysis incompleto | `03-creative-patterns.json` ausente | Rodar Skill 03 Etapa 3C com criativos |
-| Prompt de ideação sem diversity constraint | Skill 07 Etapa 3 — geração das 3 verticais | Forçar ≥ 2 emotions + ≥ 3 archetypes |
+| Prompt de ideação sem diversity constraint | Skill 08 Etapa 3 — geração das 3 verticais | Forçar ≥ 2 emotions + ≥ 3 archetypes |
 | Research foundation com 1 claim dominante só | Só 1 mecanismo anchored | Ampliar evidence base na 04 |
 
 ### 6. Ad rodou 3 dias sem gastar

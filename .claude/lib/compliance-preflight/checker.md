@@ -1,12 +1,12 @@
 # Compliance Pre-flight Checker
 
 Prompt estruturado que Claude usa pra avaliar copy/ad antes de salvar como final.
-Invocado automaticamente pelas Skills 05 e 07, ou manualmente via
+Invocado automaticamente pelas Skills 06 e 07, ou manualmente via
 `compliance check [arquivo]`.
 
 ## Como invocar
 
-### Automático (dentro de Skills 05/07)
+### Automático (dentro de Skills 06/08)
 
 Qualquer peça de copy gerada (headline, primary text, script, hook, overlay)
 passa por este checker antes de ser salva no arquivo final. Padrão de chamada:
@@ -189,7 +189,7 @@ Shape esperado quando copy não tem triggers:
 
 ## Integração nas Skills
 
-### Skill 05 (copy-engine) — patch a adicionar
+### Skill 06 (copy-engine) — patch a adicionar
 
 Após cada geração de copy (headline, primary text, section, advertorial), antes
 de salvar no arquivo final, adicionar step:
@@ -209,7 +209,7 @@ Se `overall_verdict` == "REJECT" ou severity == "critical":
 
 Se `overall_verdict` == "REVISE" ou severity == "high":
   - Aplicar `rewrite_suggestion` automaticamente
-  - Logar em /workspace/[produto]/05-compliance-log.json
+  - Logar em /workspace/[produto]/06-compliance-log.json
 
 Se `overall_verdict` == "APPROVE_WITH_EDIT" ou severity == "medium":
   - Mostrar alerta: "Compliance check sugere ajustes — ver log"
@@ -221,7 +221,7 @@ Se `overall_verdict` == "APPROVE":
   - Log mínimo
 ```
 
-### Skill 07 (creative-engine) — patch a adicionar
+### Skill 08 (creative-engine) — patch a adicionar
 
 Mesma lógica em cada:
 - Hook (primeiros 3s do script)
@@ -230,7 +230,7 @@ Mesma lógica em cada:
 - Headlines
 - Text overlays
 
-Logs consolidados em `/workspace/[produto]/07-compliance-log.json`.
+Logs consolidados em `/workspace/[produto]/08-compliance-log.json`.
 
 ---
 

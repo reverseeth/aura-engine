@@ -2,11 +2,11 @@
 name: pre-launch-gates
 description: Gates automáticos inegociáveis antes de qualquer launch (página deploy ou ads go-live). Dois gates principais — Compliance (ad-flag words) e Promise↔Config (copy promete X, loja precisa entregar X).
 paths:
-  - .claude/skills/05-copy-engine.md
-  - .claude/skills/06b-page-sections.md
-  - .claude/skills/06c-page-deploy.md
-  - .claude/skills/07-creative-engine.md
-  - .claude/skills/08-ad-strategy.md
+  - .claude/skills/06-copy-engine.md
+  - .claude/skills/07b-page-sections.md
+  - .claude/skills/07c-page-deploy.md
+  - .claude/skills/08-creative-engine.md
+  - .claude/skills/10-ad-strategy.md
 ---
 
 # Pre-launch Gates (NON-NEGOTIABLE)
@@ -17,11 +17,11 @@ Dois gates BLOQUEIAM qualquer deploy de página ou go-live de ad. Gate não é w
 
 ### Onde aplica
 
-- **Skill 05** (copy-engine) — ANTES de salvar qualquer peça final de copy
-- **Skill 06b** (page sections generation) — ANTES de compilar Liquid com copy injetada
-- **Skill 06c** (page deploy) — ANTES do push pra Shopify
-- **Skill 07** (creative-engine) — ANTES de finalizar briefing (já existe Etapa 7.5)
-- **Skill 08** (ad-strategy) — ANTES de entregar instrução "colar no Ads Manager"
+- **Skill 06** (copy-engine) — ANTES de salvar qualquer peça final de copy
+- **Skill 07b** (page sections generation) — ANTES de compilar Liquid com copy injetada
+- **Skill 07c** (page deploy) — ANTES do push pra Shopify
+- **Skill 08** (creative-engine) — ANTES de finalizar briefing (já existe Etapa 7.5)
+- **Skill 10** (ad-strategy) — ANTES de entregar instrução "colar no Ads Manager"
 
 ### Como invocar
 
@@ -61,11 +61,11 @@ Meta/TikTok ad policy (aplicam a copy pra consumidor final, incluindo landing pa
 ### Disciplinas cruzadas
 
 - **Em dash (—)**: zero em headlines, ≤2 em copy longa (regra 8a do CLAUDE.md)
-- **Siglas/números técnicos**: text overlay em ad, não na fala (skill 07 Etapa 4.5.D)
+- **Siglas/números técnicos**: text overlay em ad, não na fala (skill 08 Etapa 4.5.D)
 
 ### Bypass emergencial
 
-NÃO há bypass automático. Se o membro insistir em publicar copy com `severity: high` sem rewrite, marcar `manifest.json → compliance_override: { "at": "ISO", "by": "member", "risk_acknowledged": true }` e avisar que está contra policy. Registrar pra que a Skill 09 (ad-analysis) saiba que esse ad pode ter disapproval e não atribua falha a creative quality.
+NÃO há bypass automático. Se o membro insistir em publicar copy com `severity: high` sem rewrite, marcar `manifest.json → compliance_override: { "at": "ISO", "by": "member", "risk_acknowledged": true }` e avisar que está contra policy. Registrar pra que a Skill 11 (ad-analysis) saiba que esse ad pode ter disapproval e não atribua falha a creative quality.
 
 ---
 
@@ -77,8 +77,8 @@ A copy promete "Free shipping", "90-day money-back guarantee", "Use code AURA20 
 
 ### Onde aplica
 
-- **Skill 06c** (page-deploy) — ANTES de push final
-- **Skill 08** (ad-strategy) — ANTES de liberar campanha pra publicação
+- **Skill 07c** (page-deploy) — ANTES de push final
+- **Skill 10** (ad-strategy) — ANTES de liberar campanha pra publicação
 
 ### Promises rastreadas e validação
 
@@ -115,7 +115,7 @@ Pra cada promise que aparece na copy/páginas/ads, validar contra config real da
      "items": [
        {
          "promise": "Free shipping worldwide",
-         "source": "05-copy.md hero section",
+         "source": "06-copy.md hero section",
          "validation": "shipping_zones",
          "status": "fail",
          "reason": "Shipping zone 'Rest of world' tem $24.99 rate; apenas US é free",

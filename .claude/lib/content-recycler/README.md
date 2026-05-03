@@ -13,7 +13,7 @@ critérios de winner — CPA < target × 0.7 E spend > $300 E idade > 5 dias.
 ## Input
 
 Um criativo de referência — qualquer um destes:
-- Briefing completo de `/workspace/[produto]/07-creatives/07-concept-XX.md`
+- Briefing completo de `/workspace/[produto]/08-creatives/08-concept-XX.md`
 - Ad script + primary text + headlines
 - Copy de advertorial ou PDP
 

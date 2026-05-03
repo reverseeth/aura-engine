@@ -1,21 +1,21 @@
 # Recipe: Sync Campaign from Meta Ads (via MCP)
 
-Puxa estado completo de uma campanha Meta Ads via MCP e salva estruturado pra Skill 09 processar sem precisar de print.
+Puxa estado completo de uma campanha Meta Ads via MCP e salva estruturado pra Skill 11 processar sem precisar de print.
 
 ## Triggers (linguagem natural)
 - "sync campanha [nome]"
 - "pull dados do Meta"
-- Invocado automaticamente pela Skill 09 ETAPA 1
+- Invocado automaticamente pela Skill 11 ETAPA 1
 
 ## Input
-- `campaign_name` OU `campaign_id` — identificador da campanha (do manifest `08_campaign_name`)
+- `campaign_name` OU `campaign_id` — identificador da campanha (do manifest `10_campaign_name`)
 - `date_preset` — default `"last_7d"`. Opções: `last_3d`, `last_14d`, `last_30d`, `maximum`
 - `include_creative_hashes` — default `true` (útil pra Creative DNA)
 
 ## Pre-flight
 - [ ] MCP `meta-ads` conectado (test via ping)
 - [ ] Ad account ID configurado em env
-- [ ] `08-ad-strategy.json` existe (referência do que deveria estar rodando)
+- [ ] `10-ad-strategy.json` existe (referência do que deveria estar rodando)
 
 ## Steps
 
@@ -151,7 +151,7 @@ def classify_outcome(metrics, target_cpa, min_spend=100):
 
 ### 7. Salvar pull estruturado
 
-`/workspace/[produto]/09-analysis/raw-pull-[YYYYMMDDTHHMMSS].json` (shape do output — valores são preenchidos pela Meta API):
+`/workspace/[produto]/11-analysis/raw-pull-[YYYYMMDDTHHMMSS].json` (shape do output — valores são preenchidos pela Meta API):
 
 ```json
 {
@@ -224,13 +224,13 @@ shell(f"python3 .claude/lib/creative-dna/registry.py update /workspace/[produto]
   "ads_synced": "<N>",
   "outcomes": {"winner": "<N>", "neutral": "<N>", "loser": "<N>", "insufficient_data": "<N>"},
   "dna_registry_updated": "<N>",
-  "output_file": "/workspace/[produto]/09-analysis/raw-pull-<timestamp>.json"
+  "output_file": "/workspace/[produto]/11-analysis/raw-pull-<timestamp>.json"
 }
 ```
 
-### 10. Retornar pro caller (Skill 09)
+### 10. Retornar pro caller (Skill 11)
 
-Skill 09 recebe o path do JSON e lê direto. ETAPA 2 da Skill 09 processa como se tivesse vindo de print, mas com 100% accuracy e sem intervenção humana.
+Skill 11 recebe o path do JSON e lê direto. ETAPA 2 da Skill 11 processa como se tivesse vindo de print, mas com 100% accuracy e sem intervenção humana.
 
 ## Output esperado
 
@@ -241,9 +241,9 @@ Skill 09 recebe o path do JSON e lê direto. ETAPA 2 da Skill 09 processa como s
 
 ## Error handling
 
-- **Token expirado**: tentar refresh via long-lived token. Se falhar, fallback Skill 09 pro modo manual.
+- **Token expirado**: tentar refresh via long-lived token. Se falhar, fallback Skill 11 pro modo manual.
 - **Rate limit**: exponential backoff (60s, 120s, 240s). Depois de 3 retries, falhar.
-- **Campaign não existe**: erro explícito ao Skill 09, que aborta.
+- **Campaign não existe**: erro explícito ao Skill 11, que aborta.
 - **Zero ad sets ativos**: warning mas segue (campaign pode estar pausada pra investigação).
 
 ## Performance

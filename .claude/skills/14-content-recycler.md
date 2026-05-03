@@ -16,7 +16,7 @@ Skill auxiliar invocável. Reutiliza criativos vencedores em 9 formatos diferent
 ## Pré-flight
 
 - [ ] `manifest.json` existe
-- [ ] Pelo menos 1 criativo em `/workspace/[produto]/07-creatives/` OU membro forneceu fonte alternativa
+- [ ] Pelo menos 1 criativo em `/workspace/[produto]/08-creatives/` OU membro forneceu fonte alternativa
 - [ ] `.claude/lib/content-recycler/recycler.md` existe (este lib é o engine)
 - [ ] `.claude/lib/content-recycler/formats.json` existe (specs dos 9 formatos)
 - [ ] `.claude/lib/compliance-preflight/` existe (pra rodar check em cada derivada)
@@ -24,8 +24,8 @@ Skill auxiliar invocável. Reutiliza criativos vencedores em 9 formatos diferent
 **Detecção de winner (quando input é `recycle winner`):**
 
 Se membro digitou `recycle winner` (sem ID específico):
-1. Ler `/workspace/[produto]/09-analysis/latest.json` (produzido pela Skill 09)
-2. Extrair `latest.winners[]` (array populado pela skill 09 com `outcome == "winner"` — critério: CPA < target × 0.7, spend_total > $300, days_active > 5)
+1. Ler `/workspace/[produto]/11-analysis/latest.json` (produzido pela Skill 11)
+2. Extrair `latest.winners[]` (array populado pela skill 11 com `outcome == "winner"` — critério: CPA < target × 0.7, spend_total > $300, days_active > 5)
 3. Se `winners.length === 1` → usar `winners[0].creative_id`
 4. Se `winners.length >= 2` → apresentar lista (id + cpa + roas + spend) e perguntar qual reciclar
 5. Se `winners.length === 0` OU campo `winners` ausente (versão antiga do latest.json) → responder:
@@ -33,10 +33,10 @@ Se membro digitou `recycle winner` (sem ID específico):
    >
    > Opções:
    > 1. Aguardar mais dados (normalmente 5-10 dias após launch)
-   > 2. Rodar skill 09 de novo pra atualizar análise
+   > 2. Rodar skill 11 de novo pra atualizar análise
    > 3. Forçar reciclagem de um criativo específico: `recycle [creative-id]`"
-6. Se `latest.json` não existir (skill 09 nunca rodou) → responder:
-   > "Skill 09 não foi rodada ainda. Preciso de dados de performance pra identificar winner automaticamente. Rode `run analysis` primeiro OU reciclar criativo específico: `recycle [creative-id]`"
+6. Se `latest.json` não existir (skill 11 nunca rodou) → responder:
+   > "Skill 11 não foi rodada ainda. Preciso de dados de performance pra identificar winner automaticamente. Rode `run analysis` primeiro OU reciclar criativo específico: `recycle [creative-id]`"
 
 ## Fluxo
 

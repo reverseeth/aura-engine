@@ -61,10 +61,10 @@ Membro do Aura Engine não é dev. Se skill trava ou workspace fica em estado ru
 
 ### ES5 — Klaviyo session cookie expirado mid-skill
 
-**Sintoma**: Skill 12 (retention-engine) falha autenticação no meio
+**Sintoma**: Skill 13 (retention-engine) falha autenticação no meio
 
 **Path**:
-1. Salvar progresso parcial em `/workspace/[produto]/12-retention/[fluxo]/.partial-state.json`
+1. Salvar progresso parcial em `/workspace/[produto]/13-retention/[fluxo]/.partial-state.json`
 2. Avisar: "Cookie Klaviyo expirou. Loga de novo, copia novo cookie, e me manda. Retomo de onde parei."
 3. Next run, skill lê `.partial-state.json` e continua
 
