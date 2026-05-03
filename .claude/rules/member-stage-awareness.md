@@ -43,7 +43,7 @@ Aura Engine atende membros em 3 estágios bem diferentes. Mesma skill precisa ad
 - Recomendações balanceadas (6-8 conceitos por batch)
 - Foco em iteração: "o que aprendemos no último batch?"
 - Introduzir tools intermediárias (Wetracked, creator humano 1-2)
-- Skill 09 (ad-analysis) como núcleo do workflow
+- Skill 11 (ad-analysis) como núcleo do workflow
 - PGS padrão (5%/3×week)
 - Linguagem: técnica mas com context
 
@@ -56,13 +56,13 @@ Aura Engine atende membros em 3 estágios bem diferentes. Mesma skill precisa ad
 - `skills_completed.length > 10`
 - `batch_count 4+`
 - Champions ativos (multiple winner Post IDs)
-- Revenue tier 3+ atingido (Skill 10)
+- Revenue tier 3+ atingido (Skill 12)
 
 **Como skill deve se comportar**:
 - Recomendações agressivas (10-15 conceitos, batches semanais)
 - Foco em diversificação (horizontal scale, new angles, new placements)
 - Tools premium (Triple Whale, Aimerce, creator humano scale)
-- Skill 10 (scale-engine) como núcleo
+- Skill 12 (scale-engine) como núcleo
 - PGS mais agressivo ou custom automation
 - Linguagem: executive, concisa, assume expertise
 
@@ -86,7 +86,7 @@ Toda skill ANTES de executar:
 Alguns elementos são inegociáveis em qualquer stage:
 
 - Research foundation (Skill 04 Etapa 2.5)
-- VOC traceability (Skill 07 Etapa 4.5.F)
+- VOC traceability (Skill 08 Etapa 4.5.F)
 - Compliance pre-flight
 - Promise↔Config gate
 - Shopify theme safety
@@ -105,6 +105,6 @@ Esses não relaxam pro iniciante nem aceleram pro escalador — são baseline.
 
 ## Update de stage
 
-Stage pode mudar durante uso. Skill 10 (scale-engine) revisita stage a cada execução. Se membro graduou de validating → scaling, atualizar `manifest.json.stage` e avisar:
+Stage pode mudar durante uso. Skill 12 (scale-engine) revisita stage a cada execução. Se membro graduou de validating → scaling, atualizar `manifest.json.stage` e avisar:
 
 > "Você graduou de 'validating' pra 'scaling'. A partir de agora as skills vão operar mais agressivas — batches maiores, tools premium como opção, PGS automático mais ambicioso."

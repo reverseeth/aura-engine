@@ -18,16 +18,16 @@ Esta é a **terceira** das 3 skills da cadeia Page Engine modularizada. Ela:
 
 Valide antes de qualquer ação:
 
-### Gate de consistência (Skill 11)
-Antes de qualquer outra checagem, ler `/workspace/[produto]/11-consistency-audit.json` se existir:
+### Gate de consistência (Skill 09)
+Antes de qualquer outra checagem, ler `/workspace/[produto]/09-consistency-audit.json` se existir:
 - Se o arquivo existe E `launch_recommendation == "BLOCK"` → **ABORTAR deploy**. Mostrar ao membro os items críticos do `findings[]` e pedir pra rodar `consistency audit` de novo após corrigir, OU adicionar `compliance_override` no manifest se o membro entender o risco.
 - Se `launch_recommendation == "CAUTION"` → mostrar warnings e pedir confirmação explícita do membro antes de prosseguir.
-- Se `launch_recommendation == "GO"` ou arquivo não existe → seguir pré-flight normal (recomendar rodar skill 11 primeiro se não existir, mas não bloquear).
+- Se `launch_recommendation == "GO"` ou arquivo não existe → seguir pré-flight normal (recomendar rodar skill 09 primeiro se não existir, mas não bloquear).
 
 ### Skill anterior
-- [ ] `/workspace/[produto]/06-page/06-plan.json` existe e é parseável
-- [ ] `/workspace/[produto]/06-page/06-sections-report.md` existe
-- [ ] `/workspace/[produto]/manifest.json` tem `06b-page-sections` em `skills_completed`
+- [ ] `/workspace/[produto]/07-page/07-plan.json` existe e é parseável
+- [ ] `/workspace/[produto]/07-page/07-sections-report.md` existe
+- [ ] `/workspace/[produto]/manifest.json` tem `07b-page-sections` em `skills_completed`
 - [ ] `<staging>/sections/page-[produto]-*.liquid` tem ao menos 1 arquivo
 
 ### Shopify CLI
@@ -53,9 +53,9 @@ Todos os comandos desta skill usam estas variáveis. **Defina no topo** (substit
 
 ```bash
 PRODUTO="[slug]"
-STAGING_DIR="/workspace/${PRODUTO}/06-page/staging"
-THEME_DIR="/workspace/${PRODUTO}/06-page/theme-clone"
-OUTPUT_DIR="/workspace/${PRODUTO}/06-page"
+STAGING_DIR="/workspace/${PRODUTO}/07-page/staging"
+THEME_DIR="/workspace/${PRODUTO}/07-page/theme-clone"
+OUTPUT_DIR="/workspace/${PRODUTO}/07-page"
 STORE=""  # preenchido abaixo
 ```
 
@@ -192,7 +192,7 @@ Pra isso, o `templates/page.[produto].json` **precisa listar TODOS os blocks** d
 - [ ] Cada section tem `block_order: [...]` com a ordem correta
 - [ ] Section `settings` têm as cores do design system aplicadas
 - [ ] `order: [...]` lista todas as sections na sequência persuasiva (hero → proof → offer → cta)
-- [ ] Copy REAL populada: hero headline, sub-headline, CTAs, stats, benefits VOC, testimonials, tiers, FAQ questions+answers, CTA final — tudo do `05-copy.md`
+- [ ] Copy REAL populada: hero headline, sub-headline, CTAs, stats, benefits VOC, testimonials, tiers, FAQ questions+answers, CTA final — tudo do `06-copy.md`
 
 **Quando salvar:** `<staging>/templates/page.[produto].json`.
 
@@ -214,7 +214,7 @@ import re
 from pathlib import Path
 
 PRODUTO = "<slug>"
-STAGING = Path(f"/workspace/{PRODUTO}/06-page/staging")
+STAGING = Path(f"/workspace/{PRODUTO}/07-page/staging")
 TEMPLATE_JSON = STAGING / "templates" / f"page.{PRODUTO}.json"
 SECTIONS_DIR = STAGING / "sections"
 
@@ -367,13 +367,13 @@ https://$STORE/pages/$PRODUTO?preview_theme_id=$NEW_THEME_ID
 
 ## ETAPA 10.5 — Report ao membro
 
-Gere **2 arquivos** de report em `/workspace/[produto]/06-page/`:
+Gere **2 arquivos** de report em `/workspace/[produto]/07-page/`:
 
-### 1. `06-deploy-report.md` (humano)
+### 1. `07-deploy-report.md` (humano)
 
 Conteúdo:
 
-1. **Sections geradas** + justificativa do plano específico (copie da `06-plan.md`).
+1. **Sections geradas** + justificativa do plano específico (copie da `07-plan.md`).
 2. **Lista de arquivos criados** (paths absolutos):
    - `<staging>/sections/page-[produto]-*.liquid`
    - `<staging>/templates/page.[produto].json`
@@ -393,7 +393,7 @@ Conteúdo:
 5. **Settings expostos** por block/section (resumo compacto).
 6. **Issues conhecidas** da `page-sections` ETAPA 8 + quaisquer warnings do push.
 
-### 2. `06-deploy-report.json` (machine-readable)
+### 2. `07-deploy-report.json` (machine-readable)
 
 ```json
 {
@@ -413,8 +413,8 @@ Conteúdo:
   "validation_passed": true,
   "validation_errors": [],
   "push_warnings": [],
-  "staging_dir": "/workspace/<produto>/06-page/staging",
-  "theme_clone_dir": "/workspace/<produto>/06-page/theme-clone",
+  "staging_dir": "/workspace/<produto>/07-page/staging",
+  "theme_clone_dir": "/workspace/<produto>/07-page/theme-clone",
   "deployed_at": "2026-MM-DDTHH:MM:SSZ"
 }
 ```
@@ -445,22 +445,22 @@ Antes de qualquer push (iteration ou primeiro deploy), cruze com os padrões doc
 - [ ] **Padrão 6** — Countdown banner (se existir) usa deadline fixo, não rolling per-user. Subscribe & Save (se existir) usa hidden radio `name="selling_plan"` com ID do app.
 - [ ] **Padrão 7** — Se push é em tema LIVE, flag `--allow-live` está no comando + backup foi criado primeiro.
 
-Atualize `06-deploy-report.json` a cada iteração (campo novo `iterations: [...]` com timestamp + mudanças).
+Atualize `07-deploy-report.json` a cada iteração (campo novo `iterations: [...]` com timestamp + mudanças).
 
 ## SALVAR (dual output obrigatório — rule 6b do CLAUDE.md)
 
-Salve um relatório completo em **DOIS arquivos** dentro de `/workspace/[produto]/06-page/`:
+Salve um relatório completo em **DOIS arquivos** dentro de `/workspace/[produto]/07-page/`:
 
-1. **`06-page.md`** (fonte — a AI lê nas fases seguintes)
-2. **`06-page.html`** (visualização humana — o membro abre no browser)
-3. **`06-deploy-report.json`** (machine-readable)
+1. **`07-page.md`** (fonte — a AI lê nas fases seguintes)
+2. **`07-page.html`** (visualização humana — o membro abre no browser)
+3. **`07-deploy-report.json`** (machine-readable)
 
-Conteúdo de `06-page.md` + `06-page.html`:
+Conteúdo de `07-page.md` + `07-page.html`:
 
-- Plano de sections (copie de `06-plan.md`) + justificativa por que incluiu/excluiu cada section
+- Plano de sections (copie de `07-plan.md`) + justificativa por que incluiu/excluiu cada section
 - Brand discovery answers (da `page-planning`) — incluindo se usou referência visual e qual
-- Design system completo (copie de `06-design-system.md`) — paleta, tipografia, spacing, breakpoints
-- Variante de hero escolhida + por quê (da `06-sections-report.md`)
+- Design system completo (copie de `07-design-system.md`) — paleta, tipografia, spacing, breakpoints
+- Variante de hero escolhida + por quê (da `07-sections-report.md`)
 - Lista de arquivos criados com paths absolutos
 - Settings expostos por section (resumo compacto)
 - Preview links (theme editor + storefront)
@@ -469,7 +469,7 @@ Conteúdo de `06-page.md` + `06-page.html`:
 
 **Como gerar o `.html`:** use o design system de `.claude/templates/aura-report-template.html` — copie o CSS completo + estrutura de componentes (section-label, callout, note, opportunity, pill, table-wrap, quote, kpi-grid). Self-contained (CSS inline, sem server). Inclua o logo SVG do Aura no topo. Responsivo mobile (overflow-wrap, word-break em code/callout).
 
-Atualize `/workspace/[produto]/manifest.json` adicionando `06c-page-deploy` ao array `skills_completed`.
+Atualize `/workspace/[produto]/manifest.json` adicionando `07c-page-deploy` ao array `skills_completed`.
 
 Ao final diga:
 
@@ -488,8 +488,8 @@ Quando o push retorna JSON com campo `"errors"`, leia a mensagem do erro e aja c
 | Blocks aparecem vazios na preview | Template JSON tem `"blocks": {}` ou ausente | Rode o snippet Python da ETAPA 9 — vai pegar o erro antes |
 | `Missing width and height attributes on img tag` e outros erros de Liquid | Problema nas sections, não no template JSON | Volte pra `page-sections` Debug table |
 | Push trava esperando confirmação quando target é tema LIVE | Shopify CLI bloqueia push em live sem confirmação interativa | Adicione flag `--allow-live` (ver [Padrão 7](#padrão-7--push-em-tema-live-requer---allow-live)) |
-| Cor mudada no theme editor não aplica na página | CSS var hardcoded no `:root` do stylesheet em vez de injetada inline no root da section | Volte pra `page-sections` [Padrão 1](06b-page-sections.md#padrão-1--color-settings-devem-ser-injetadas-inline-no-section-root-crítico) — refator pro pattern de style inline |
-| Meta Pixel / GA4 não registra AddToCart quando membro clica no CTA do pricing_tier | CTA usa `<a href="/cart/add?id=X">` em vez de form POST nativo | Volte pra `page-sections` [Padrão 4](06b-page-sections.md#padrão-4--offer-ctas-padrão-formactioncartadd-nativo) — refator pro form `/cart/add` |
+| Cor mudada no theme editor não aplica na página | CSS var hardcoded no `:root` do stylesheet em vez de injetada inline no root da section | Volte pra `page-sections` [Padrão 1](07b-page-sections.md#padrão-1--color-settings-devem-ser-injetadas-inline-no-section-root-crítico) — refator pro pattern de style inline |
+| Meta Pixel / GA4 não registra AddToCart quando membro clica no CTA do pricing_tier | CTA usa `<a href="/cart/add?id=X">` em vez de form POST nativo | Volte pra `page-sections` [Padrão 4](07b-page-sections.md#padrão-4--offer-ctas-padrão-formactioncartadd-nativo) — refator pro form `/cart/add` |
 
 **Fluxo:** sempre leia o JSON do push (`--json`), filtre `"errors"`, resolva erro por erro. Pra erros de Liquid (sections), consulte a tabela de debug em `page-sections`.
 
@@ -567,8 +567,8 @@ Quaisquer ajustes de código/design disparados no iteration loop (ETAPA 11) re-i
 ## Referências cruzadas
 
 - **Skill anterior:** `page-sections` (gera os `.liquid` consumidos aqui)
-- **Primeira skill da cadeia:** `page-planning` (gera `06-plan.json` + `06-design-system.md`)
-- **Próxima skill no fluxo Aura Engine:** `07-creative-engine` (gera briefings de criativos pra ads depois que a página está no ar)
+- **Primeira skill da cadeia:** `page-planning` (gera `07-plan.json` + `07-design-system.md`)
+- **Próxima skill no fluxo Aura Engine:** `08-creative-engine` (gera briefings de criativos pra ads depois que a página está no ar)
 
 ## Comandos úteis (referência pro membro)
 

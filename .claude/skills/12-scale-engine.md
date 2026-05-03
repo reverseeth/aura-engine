@@ -11,17 +11,17 @@ Quando o membro tem campanha rodando com performance dentro/abaixo do target, qu
 ## Antes de Começar
 
 ### Pré-flight
-- [ ] `08-ad-strategy.json` + `09-analysis-latest.json` existem (`/workspace/[produto]/09-analysis/latest.json`)
-- [ ] Manifest tem `09-ad-analysis` em `skills_completed`
+- [ ] `10-ad-strategy.json` + `11-analysis-latest.json` existem (`/workspace/[produto]/11-analysis/latest.json`)
+- [ ] Manifest tem `11-ad-analysis` em `skills_completed`
 - [ ] `psm_real` foi calculado em ≥ 1 análise recente (senão, rodar 09 primeiro)
 
 ### Contexto a carregar
 
 1. Leia `/workspace/profile.md` (budget atual — define ponto de partida)
 2. Leia `/workspace/[produto]/04-offer.md` (PSM projetado — validar se a oferta sustenta escala)
-3. Leia `/workspace/[produto]/08-ad-strategy.md` (estrutura atual, PGS configurado?)
-4. Leia TODAS as análises em `/workspace/[produto]/09-analysis/` em ordem cronológica (pra ver trajetória real de performance e winning ads estáveis) + `latest.json` (handoff da skill 09)
-5. Leia scale plans anteriores em `/workspace/[produto]/10-scale/` (se existir — comparar premissas com realidade)
+3. Leia `/workspace/[produto]/10-ad-strategy.md` (estrutura atual, PGS configurado?)
+4. Leia TODAS as análises em `/workspace/[produto]/11-analysis/` em ordem cronológica (pra ver trajetória real de performance e winning ads estáveis) + `latest.json` (handoff da skill 11)
+5. Leia scale plans anteriores em `/workspace/[produto]/12-scale/` (se existir — comparar premissas com realidade)
 6. Consulte a base Aura extensivamente sobre: mentalidade de escala (farmer vs hunter mindset, Andromeda pensar maior), budget scaling methods (5% rule, aggressive 50% trade, business-led operator), Profitable Scaling Margin (PSM — golden ratio of growth), Performance Gate Scaling (PGS completo), creative diversity como mecanismo de escala, hero offer e best customer (segundo Scale), funnel creative playbook (Olympic Rings — cobertura de posições de funil ao escalar), revenue-tier scaling model (o que otimizar em cada tier — starter / $100-500 / $500-1K / $1K-5K / $5K+), winning ad rate, More Better New (Hormozi $100M Leads — maximize → expand → diversify), ROAS Targets (vertical vs horizontal), Mentalidade de Escala (Andromeda Pensar Maior), Lead Gen Outreach (Core Four framework), canais complementares (Google Search como complemento ao FB, TikTok Shop, Amazon), e cash flow implications de escala. Aprofunde em cada framework — escala errada queima budget mais rápido que ad ruim.
 
 ### Cálculo de PSM real (vs teórico)
@@ -75,7 +75,7 @@ Antes de aumentar spend, validar se o sistema aguenta. Falhar em qualquer um = i
 | **PSM > 1.2** | Da `04-offer.md` + performance real | Ajustar oferta (AOV, garantia, stack) ou pausar escala |
 | **Winning ads estáveis** | Min 2-3 ads performando ≤ target por 14+ dias | Focar em hit rate (mais criativos, não mais spend) |
 | **CPA estável ou melhorando** | Trend dos últimos 14 dias estável ou descendo | Diagnóstico de fadiga antes de escalar |
-| **Creative pipeline ativo** | Min 1 batch novo a cada 2-4 semanas | Recomendar Skill 07 regular |
+| **Creative pipeline ativo** | Min 1 batch novo a cada 2-4 semanas | Recomendar Skill 08 regular |
 | **Pixel/CAPI health** | Match quality ≥ 80%, sem events perdidos | Fix técnico antes de escalar |
 | **Cash flow pra COGS** | Membro tem $ pra produzir inventory em escala | Ajustar pace de escala ao cash flow disponível |
 
@@ -85,12 +85,12 @@ Pra cada pré-requisito que falha, documente o bloqueio e recomende ação espec
 
 **PGS (Performance Gate Scaling) — Base de Tudo:**
 
-Da Skill 08, o PGS deve estar ativo: 5% aumento 3×/semana quando CPA 7-day trailing está abaixo do target.
+Da Skill 10, o PGS deve estar ativo: 5% aumento 3×/semana quando CPA 7-day trailing está abaixo do target.
 
 **Matemática**: 5% × 3 × 4 semanas = ~60% aumento mensal = duplica em ~30-40 dias sem desestabilizar.
 
 - Se PGS já tá ativo e performando → não toque, deixa rodar. Simplesmente observe.
-- Se PGS não tá ativo → configure conforme Skill 08 Etapa 8.
+- Se PGS não tá ativo → configure conforme Skill 10 Etapa 8.
 
 **Quando Escalar Aggressive (acima do PGS):**
 
@@ -161,7 +161,7 @@ TikTok exige native creative style:
 - Trends musicais relevantes (não stock music)
 - Duração sweet spot: 15-30s (vs Meta 6-15s)
 
-**Bridge**: antes de rodar creatives em TikTok, invocar SKILL 07 novamente com flag `platform=tiktok` — skill deve re-orientar hooks + primary texts para linguagem TikTok-native. NÃO copy-paste Meta → TikTok.
+**Bridge**: antes de rodar creatives em TikTok, invocar SKILL 08 novamente com flag `platform=tiktok` — skill deve re-orientar hooks + primary texts para linguagem TikTok-native. NÃO copy-paste Meta → TikTok.
 
 ### Google ads em 2026
 
@@ -251,16 +251,16 @@ Operação de escala sustentável exige **ritmo constante**. Documente o membro:
 | **Terça** | PGS dispara automaticamente (10 AM) | Auto |
 | **Quarta** | Revisar learnings da semana anterior + preparar ideias de novo batch | - |
 | **Quinta** | PGS dispara automaticamente | Auto |
-| **Sexta** | **Análise semanal completa** (4Pi full + diagnóstico) | Skill 09 |
+| **Sexta** | **Análise semanal completa** (4Pi full + diagnóstico) | Skill 11 |
 | **Sábado** | PGS dispara automaticamente | Auto |
-| **Domingo** | **Preparar próximo batch** de criativos (rotacionar conceitos, produção) | Skill 07 |
+| **Domingo** | **Preparar próximo batch** de criativos (rotacionar conceitos, produção) | Skill 08 |
 
 **Monthly review** (1× ao mês, primeiro dia útil):
 - Revisar PSM real vs projetado
 - Revisar winning ad rate (% de conceitos testados que viraram winners)
 - Avaliar prontidão pra próximo tier (escala inicial → agressiva → otimização)
 - Decidir se é hora de abrir canal horizontal novo (Etapa 5)
-- Re-rodar Skill 10 se mudanças estruturais (novo canal, novo produto, nova oferta)
+- Re-rodar Skill 12 se mudanças estruturais (novo canal, novo produto, nova oferta)
 
 ### ETAPA 9 — Sinais de Alerta (Quando Parar/Ajustar)
 
@@ -268,29 +268,29 @@ Mesmo com PGS, pode ter que parar. Sinais:
 
 - **CPA 7-day sobe acima do target** → PGS vai parar de disparar (sua regra já tem essa condicional). Refresh criativo antes de qualquer escala manual.
 - **Frequency em todos os ad sets > 1.5** → audience saturada, precisa diversificar (novo batch)
-- **CPM subindo 30%+ em 14 dias** → saturation OU competição aumentou OU ad fatigue. Investigação na Skill 09.
+- **CPM subindo 30%+ em 14 dias** → saturation OU competição aumentou OU ad fatigue. Investigação na Skill 11.
 - **Cash flow gap** → spend > cash in (especialmente com payout 3-5 dias do Shopify e ads cobrando diário). Ajustar pace.
 - **Fulfillment bottleneck** → estoque acabando, 3PL atrasando. Não escale acima da capacidade operacional.
 
-### Quando 10 recomenda voltar para 07 (ciclo explícito)
+### Quando 12 recomenda voltar para 08 (ciclo explícito)
 
-Se algum destes sinais → invoke skill 07 para novo batch:
+Se algum destes sinais → invoke skill 08 para novo batch:
 - Top 3 creatives têm > 14 dias de idade
 - Frequency max > 1.4 com CTR caindo > 20% vs baseline
 - Escala cruzou 2× budget (precisa creative diversity)
 - TikTok/canal novo habilitado (precisa creative nativo)
 
-Skill 07 lerá `NEXT_BATCH_IDEAS.md` atualizado (de 09) + `10-scale-directives.md` (novo, abaixo).
+Skill 08 lerá `NEXT_BATCH_IDEAS.md` atualizado (de 11) + `12-scale-directives.md` (novo, abaixo).
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
 **Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
-**Garantir diretório:** `mkdir -p /workspace/[produto]/10-scale/` antes de salvar.
+**Garantir diretório:** `mkdir -p /workspace/[produto]/12-scale/` antes de salvar.
 
-Outputs em `/workspace/[produto]/10-scale/`:
+Outputs em `/workspace/[produto]/12-scale/`:
 
-- `10-scale-plan.md` contendo:
+- `12-scale-plan.md` contendo:
   1. Classificação de estágio (Etapa 2)
   2. Análise de prontidão com bloqueios identificados (Etapa 3)
   3. Plano vertical — PGS config + critérios de aggressive (Etapa 4)
@@ -300,14 +300,14 @@ Outputs em `/workspace/[produto]/10-scale/`:
   7. Checklist operacional semanal (Etapa 8)
   8. Sinais de alerta (Etapa 9)
 
-- `10-scale-directives.md` (fecha ciclo 10→07):
+- `12-scale-directives.md` (fecha ciclo 12→08):
   - Budget atual + budget alvo (30d)
   - Canais ativos + canais a ativar
   - PSM real atual
-  - Sinais que trigger volta para 07 (creative refresh)
+  - Sinais que trigger volta para 08 (creative refresh)
   - Bloqueios de cash flow (se houver)
 
-- `10-scale.json` (JSON companion):
+- `12-scale.json` (JSON companion):
 
 ```json
 {
@@ -338,7 +338,7 @@ Outputs em `/workspace/[produto]/10-scale/`:
 ### Atualizar manifest
 
 Após salvar, atualizar `/workspace/[produto]/manifest.json`:
-- Adicionar `10-scale-engine` em `skills_completed`
+- Adicionar `12-scale-engine` em `skills_completed`
 - Registrar `plan_id`, `psm_real`, `stage`, `active_channels`
 
 ## Mensagem Final

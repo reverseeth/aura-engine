@@ -40,7 +40,7 @@
     "skills_completed": {
       "type": "array",
       "items": { "type": "string" },
-      "description": "Ordered list of skill IDs already completed (e.g. '00-setup', '01-product-research', '06a-page-planning', '06b-page-sections', '06c-page-deploy')."
+      "description": "Ordered list of skill IDs already completed (e.g. '00-setup', '01-product-research', '07a-page-planning', '07b-page-sections', '07c-page-deploy')."
     },
     "skills_pending": {
       "type": "array",

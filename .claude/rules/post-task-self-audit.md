@@ -46,9 +46,9 @@ Antes de declarar conclusão, rodar mentalmente (e corrigir inline o que encontr
 
 Re-ler os artefatos relevantes das fases ANTERIORES e confirmar que o output atual **não contradiz, não duplica errado, não ignora**:
 
-- Se gerou copy (Skill 05): mecanismo nomeado bate literal com `04-offer.json`? VOC phrases vêm de `02-market-research.json` (não inventadas)?
-- Se gerou ad (Skill 07): awareness level alinha com `02`? Gaps explorados vêm de `03`? Promise bate com `04-offer`?
-- Se rodou consistency audit (Skill 11): revisou TODOS os 9+ artefatos, não só os últimos 2?
+- Se gerou copy (Skill 06): mecanismo nomeado bate literal com `04-offer.json`? VOC phrases vêm de `02-market-research.json` (não inventadas)?
+- Se gerou ad (Skill 08): awareness level alinha com `02`? Gaps explorados vêm de `03`? Promise bate com `04-offer`?
+- Se rodou consistency audit (Skill 09): revisou TODOS os 9+ artefatos, não só os últimos 2?
 - Se modificou framework (rule, skill, lib): checou impacto em skills downstream que referenciam?
 
 **Drift detectado → auto-fix inline.** Realinhar nomes, substituir VOC inventada por VOC real, corrigir awareness reference. Sem mencionar.
@@ -117,7 +117,7 @@ Exemplo: market research diz mecanismo "Lipid Barrier Repair", mas oferta diz "C
 
 ### 2. Fix expandiria escopo além do pedido
 
-Exemplo: você pediu copy. AI quer adicionar uma seção de proof que não estava no plano da skill 05. Adicionar seria scope creep silencioso.
+Exemplo: você pediu copy. AI quer adicionar uma seção de proof que não estava no plano da skill 06. Adicionar seria scope creep silencioso.
 
 **Surface curto:** "Notei que faltaria seção de proof pra skill ficar mais forte, mas isso não estava no plano original. Adiciono?"
 
@@ -134,7 +134,7 @@ Exemplo: cálculo do PSM real depende de dado de Stripe que membro não passou. 
 
 ## Modo "deep audit" (skills peso crítico)
 
-Em Skills 04 (offer), 05 (copy), 06c (deploy), 07 (creatives), 08 (ad-strategy), 11 (consistency-audit), o silent audit é EXPANDIDO:
+Em Skills 04 (offer), 06 (copy), 07c (deploy), 08 (creatives), 09 (consistency-audit), 10 (ad-strategy), o silent audit é EXPANDIDO:
 
 - Re-ler as skills anteriores da cadeia (não só artefatos JSON)
 - Verificar se `04-research-foundation.json` sustenta todo claim forte

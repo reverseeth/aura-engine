@@ -60,7 +60,7 @@ Mensagem:
   Motivo: CPA $52.40 vs target $45.00 (+16%)
   Frequency estava em 1.42 (fatigue iminente)
 
-  Sugestão: rodar Skill 09 pra analysis + Skill 07 pra refresh
+  Sugestão: rodar Skill 11 pra analysis + Skill 08 pra refresh
 ```
 
 ## Reverse (reativar)

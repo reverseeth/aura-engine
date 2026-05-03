@@ -1,8 +1,8 @@
 # Creative DNA Feature Extractor — prompt structured
 
-Usado pela Skill 07 imediatamente após gerar um briefing completo. Extrai features em formato padronizado e salva no registry.
+Usado pela Skill 08 imediatamente após gerar um briefing completo. Extrai features em formato padronizado e salva no registry.
 
-## Fluxo de invocação (a Skill 07 executa isso internamente)
+## Fluxo de invocação (a Skill 08 executa isso internamente)
 
 1. Depois de completar ETAPA 5 (briefings) e ETAPA 7.5 (compliance), pra cada criativo gerado:
 2. Rodar este prompt de extração abaixo
@@ -18,7 +18,7 @@ Você é o Creative DNA Extractor. Leia o briefing do criativo abaixo e extraia 
 
 Schema: {conteúdo completo de feature_schema.json}
 
-Briefing do criativo: {conteúdo do 07-concept-XX.md ou script}
+Briefing do criativo: {conteúdo do 08-concept-XX.md ou script}
 
 Contexto adicional:
 - Awareness level alvo (do market research): {awareness_dominant}
@@ -65,7 +65,7 @@ Valores enum DEVEM vir do schema. Se impossível classificar, use "not_used" ou 
 Numerics: inferir do briefing (ex: contar números específicos, calcular cuts/s).
 ```
 
-## Integração na Skill 07 (patch a adicionar na ETAPA 7.5)
+## Integração na Skill 08 (patch a adicionar na ETAPA 7.5)
 
 Após o compliance check passar, adicionar:
 
@@ -81,7 +81,7 @@ Pra cada criativo gerado:
 3. Validar JSON response contra feature_schema.json (checar enums + ranges
    + campos obrigatórios). Se malformado, tentar 1 retry; se falhar de novo,
    logar em /workspace/[produto]/creative-dna/extraction-errors.log e skip
-   esse criativo (não bloquear skill 07).
+   esse criativo (não bloquear skill 08).
 4. Salvar features em /workspace/[produto]/creative-dna/features-[creative-id].json
 5. Invocar shell:
    - test -f .claude/lib/creative-dna/schema.sql || abort
@@ -94,13 +94,13 @@ Pra cada criativo gerado:
 
 Silent. Sem output pro membro.
 Se passo 5 falhar (schema.sql missing, DB locked, etc), logar em
-extraction-errors.log — mas não bloquear skill 07 OU avisar membro se persiste
+extraction-errors.log — mas não bloquear skill 08 OU avisar membro se persiste
 por 3 rodadas consecutivas.
 ```
 
-## Integração na Skill 09 (patch a adicionar)
+## Integração na Skill 11 (patch a adicionar)
 
-Quando Skill 09 roda análise de performance:
+Quando Skill 11 roda análise de performance:
 
 ```
 ### ETAPA X — DNA Update (silent)
@@ -126,7 +126,7 @@ Se for a 10ª rodada (ou múltiplo de 10), rodar também:
 Silent.
 ```
 
-## Integração na Skill 07 próxima rodada
+## Integração na Skill 08 próxima rodada
 
 Antes de gerar briefings (ETAPA 3 ou 5):
 

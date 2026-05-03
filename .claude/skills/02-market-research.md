@@ -167,8 +167,8 @@ Essas frases são ouro. Hopkins escreveu em 1923: "a boa copy fala a linguagem d
 2. Liste as fontes tentadas e as que bloquearam acesso.
 3. **Classificar severidade do déficit pra alertar skills downstream:**
    - `voc_count >= 35` → OK, segue normal
-   - `15 <= voc_count < 35` → `voc_adequacy: "medium"`, skill 05 emite warning mas procede
-   - `voc_count < 15` → `voc_adequacy: "insufficient"`. Skill 05 DEVE bloquear no pré-flight — copy sem VOC real não é copy, é invenção. Salvar em `02-market-research.json`: `"voc_adequacy": "insufficient", "skills_blocked": ["05-copy-engine"]`
+   - `15 <= voc_count < 35` → `voc_adequacy: "medium"`, skill 06 emite warning mas procede
+   - `voc_count < 15` → `voc_adequacy: "insufficient"`. Skill 06 DEVE bloquear no pré-flight — copy sem VOC real não é copy, é invenção. Salvar em `02-market-research.json`: `"voc_adequacy": "insufficient", "skills_blocked": ["06-copy-engine"]`
 4. Siga com as etapas restantes (awareness, sophistication, root cause) — essas não dependem de VOC quantity.
 
 Esse déficit é rastreado em `voc_count` + `voc_adequacy` do manifest e do JSON companion.
@@ -298,10 +298,10 @@ Salvar TRÊS artefatos:
 Este é o DOCUMENTO MAIS IMPORTANTE. Ele alimenta:
 - Skill 03 (`03-competitor-analysis`) — usa gaps e claims identificados
 - Skill 04 (`04-offer-builder`) — usa pain points, desires, root cause, mechanism hints
-- Skill 05 (`05-copy-engine`) — usa VOC literal, lead type, awareness level, objeções
-- Skill 06 (`06-page-engine`) — usa tudo da copy + proof stacking
-- Skill 07 (`07-creative-engine`) — usa trigger events, ângulos, VOC, visual hooks
-- Skill 08 (`08-ad-strategy`) — usa awareness pra targeting
+- Skill 06 (`06-copy-engine`) — usa VOC literal, lead type, awareness level, objeções
+- Skill 07 (cadeia `07a-page-planning` → `07b-page-sections` → `07c-page-deploy`) — usa tudo da copy + proof stacking
+- Skill 08 (`08-creative-engine`) — usa trigger events, ângulos, VOC, visual hooks
+- Skill 10 (`10-ad-strategy`) — usa awareness pra targeting
 
 **Atualize o `manifest.json`** (fonte única de verdade):
 

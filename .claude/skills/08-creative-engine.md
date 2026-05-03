@@ -6,25 +6,25 @@ description: Engine de criação de briefings de criativos para Meta Ads (3-2-2 
 # Creative Engine
 
 ## Quando Usar
-Quando o membro tem copy pronta (Skill 05) e precisa dos briefings de criativos pra rodar no Meta. Cada briefing é completo: tudo que precisa pra filmar ou gerar (UGC humano, UGC com AI, stock, ou imagem), editar, e subir no Ads Manager.
+Quando o membro tem copy pronta (Skill 06) e precisa dos briefings de criativos pra rodar no Meta. Cada briefing é completo: tudo que precisa pra filmar ou gerar (UGC humano, UGC com AI, stock, ou imagem), editar, e subir no Ads Manager.
 
 ## Antes de Começar
 
 ### Pré-flight (OBRIGATÓRIO)
-- [ ] `manifest.json` existe com 05-copy-engine em skills_completed
+- [ ] `manifest.json` existe com 06-copy-engine em skills_completed
 - [ ] `04-offer.json` (target_cpa, mechanism) existe
 - [ ] `02-market-research.json` (awareness_distribution, voc_phrases) existe
 - [ ] **Pixel/CAPI validados**: pedir screenshot do Events Manager mostrando Match Quality ≥ 80% — se membro não pode fornecer, AVISAR que criativos serão desperdiçados e sugerir configurar pixel primeiro
-- [ ] Se existe `/workspace/[produto]/09-analysis/NEXT_BATCH_IDEAS.md` (output do loop 09→07 fechado), LER e usar como input para priorizar ângulos no novo batch
+- [ ] Se existe `/workspace/[produto]/11-analysis/NEXT_BATCH_IDEAS.md` (output do loop 11→08 fechado), LER e usar como input para priorizar ângulos no novo batch
 
 ### Quando rodar essa skill (decision tree)
 - **Primeira vez** (nunca rodou para este produto): sim, proceed
-- **Após skill 09 recomendar 'creatives'**: sim, proceed — LER NEXT_BATCH_IDEAS.md primeiro
-- **Refresh por fadiga**: só execute se `09-ad-analysis` reportou no último ciclo:
+- **Após skill 11 recomendar 'creatives'**: sim, proceed — LER NEXT_BATCH_IDEAS.md primeiro
+- **Refresh por fadiga**: só execute se `11-ad-analysis` reportou no último ciclo:
   - `frequency > 1.4` E `ctr_drop_pct > 20` em 7 dias, OU
   - CPM subiu > 30% em 7 dias com freq < 1.3 (saturation de audience), OU
   - top-performing criativo tem > 14 dias de idade
-- **Diversificação** (skill 10 pediu mais diversity): use ratio "2× budget → 2× creative" só em escala >$1k/dia; abaixo disso, use 1.5×
+- **Diversificação** (skill 12 pediu mais diversity): use ratio "2× budget → 2× creative" só em escala >$1k/dia; abaixo disso, use 1.5×
 
 ### Contexto a carregar
 
@@ -32,7 +32,7 @@ Quando o membro tem copy pronta (Skill 05) e precisa dos briefings de criativos 
 2. Leia `/workspace/[produto]/02-market-research.md` (VOC literal, trigger events, objeções, dores/desejos hierarquizados, root cause — TUDO vai pra script)
 3. Leia `/workspace/[produto]/03-competitor-analysis.md` (top criativos transcritos dos concorrentes, gaps de formato/ângulo, swipe file, claims saturados)
 4. Leia `/workspace/[produto]/04-offer.md` (mecanismo único com 3 versões, stack, garantia)
-5. Leia `/workspace/[produto]/05-copy.md` (big idea, headlines top 5, CTAs, linguagem usada na LP)
+5. Leia `/workspace/[produto]/06-copy.md` (big idea, headlines top 5, CTAs, linguagem usada na LP)
 6. Consultas à base de conhecimento (tópicos-chave com resumo inline + referência):
 
    **Hook-Bridge-Hold-CTA** (estrutura de vídeo ad):
@@ -419,7 +419,7 @@ Após gerar os briefings (Etapa 5), pra CADA conceito, gerar prompts production-
 4. Rodar o director conforme as regras do SKILL.md dele:
    - Marketing Studio: identifica preset (UGC/Tutorial/Unboxing/Hyper Motion/Product Review/TV Spot/Wild Card/UGC Virtual Try On/Pro Virtual Try On), aplica preset-specific rules, retorna 1 parágrafo + link Higgsfield
    - GPT Image 2.0: roteia entre Format A (JSON estruturado pra layout denso), Format B (prosa cinematográfica pra single image), ou Format C (meta-prompt pra theme-only) — retorna code block do prompt
-5. Salvar 1 arquivo por conceito × por formato em `/workspace/[produto]/07-creatives/prompts/`:
+5. Salvar 1 arquivo por conceito × por formato em `/workspace/[produto]/08-creatives/prompts/`:
    - `prompt-c01-video.txt` — prompt Higgsfield do conceito 01
    - `prompt-c01-image.txt` — prompt GPT Image 2.0 do conceito 01 (se conceito tem imagem)
    - etc
@@ -433,11 +433,11 @@ Após gerar os briefings (Etapa 5), pra CADA conceito, gerar prompts production-
 
 **Hard rule — directors são opacos:**
 
-Os SKILL.md dos directors são canônicos. Não modificar conteúdo deles dentro da Skill 07. Se a saída precisar de ajuste, ajustar o INPUT (extrato do briefing) que vai pro director, não o director. Se houver bug recorrente em algum director, atualizar `.claude/lib/prompt-directors/[director].md` em commit separado.
+Os SKILL.md dos directors são canônicos. Não modificar conteúdo deles dentro da Skill 08. Se a saída precisar de ajuste, ajustar o INPUT (extrato do briefing) que vai pro director, não o director. Se houver bug recorrente em algum director, atualizar `.claude/lib/prompt-directors/[director].md` em commit separado.
 
 **Output secundário — `prompts-index.json`:**
 
-Em `/workspace/[produto]/07-creatives/prompts/prompts-index.json`:
+Em `/workspace/[produto]/08-creatives/prompts/prompts-index.json`:
 
 ```json
 {
@@ -514,12 +514,12 @@ Antes de finalizar os briefings e hooks bank, rodar compliance check em TODA pe�
    - Hooks Bank (10 alternativos)
 3. Parse da resposta JSON:
    - `severity == critical`: PARAR, reportar ao membro, aplicar `rewrite_suggestion` ou pedir revisão manual
-   - `severity == high`: aplicar `rewrite_suggestion` automaticamente, logar em `/workspace/[produto]/07-compliance-log.json`
+   - `severity == high`: aplicar `rewrite_suggestion` automaticamente, logar em `/workspace/[produto]/08-compliance-log.json`
    - `severity == medium`: manter original, logar warning
    - `severity == low`: salvar silenciosamente
 4. Sanity pass final: zero termos ad-flag (Botox, filler, injection, cure, treat) em qualquer peça pública. Travessão (—) zero em headlines, ≤2 em copy longa.
 
-Output log em `/workspace/[produto]/07-compliance-log.json`:
+Output log em `/workspace/[produto]/08-compliance-log.json`:
 ```json
 {
   "checked_at": "ISO timestamp",
@@ -578,19 +578,19 @@ Meta NÃO fornece breakdown por creative individual em Flexible Ad Format. Para 
 
 **Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
-**Garantir diretório:** `mkdir -p /workspace/[produto]/07-creatives/` antes de salvar.
+**Garantir diretório:** `mkdir -p /workspace/[produto]/08-creatives/` antes de salvar.
 
-Outputs em `/workspace/[produto]/07-creatives/` (nomenclatura normalizada):
+Outputs em `/workspace/[produto]/08-creatives/` (nomenclatura normalizada):
 
-- `07-creative-strategy.md` (estratégia macro — quantos conceitos, ângulos escolhidos, racional agregado)
-- `07-concept-01.md`, `07-concept-02.md`, `07-concept-03.md` (briefs individuais — Etapa 5 completa, um arquivo por conceito)
-- `07-hooks-bank.md` (Etapa 7 — 10 hooks alternativos)
-- `07-production-summary.md` (Etapa 8 — resumo operacional)
-- `07-creatives.json` (manifest do batch — ver schema abaixo)
+- `08-creative-strategy.md` (estratégia macro — quantos conceitos, ângulos escolhidos, racional agregado)
+- `08-concept-01.md`, `08-concept-02.md`, `08-concept-03.md` (briefs individuais — Etapa 5 completa, um arquivo por conceito)
+- `08-hooks-bank.md` (Etapa 7 — 10 hooks alternativos)
+- `08-production-summary.md` (Etapa 8 — resumo operacional)
+- `08-creatives.json` (manifest do batch — ver schema abaixo)
 - `prompts/prompt-c01-video.txt`, `prompts/prompt-c01-image.txt`, ... (Etapa 5.7 — prompts production-ready de Higgsfield/GPT Image 2.0, um arquivo por conceito × formato)
 - `prompts/prompts-index.json` (index dos prompts gerados — director usado, preset, formato)
 
-### JSON companion — `07-creatives.json`
+### JSON companion — `08-creatives.json`
 
 ```json
 {
@@ -656,15 +656,15 @@ Outputs em `/workspace/[produto]/07-creatives/` (nomenclatura normalizada):
 ### Atualizar manifest
 
 Após salvar, atualizar `/workspace/[produto]/manifest.json`:
-- Adicionar `07-creative-engine` em `skills_completed`
+- Adicionar `08-creative-engine` em `skills_completed`
 - Registrar `last_batch_id`, `batch_count`, e `next_batch_ideas_applied` (refs lidas de `NEXT_BATCH_IDEAS.md`, se houver)
 
 ## Mensagem Final
 
 "Briefings de criativos prontos. Próximos passos:
 
-- **Vídeos**: abra `/workspace/[produto]/07-creatives/prompts/prompt-c0X-video.txt` — cole no Higgsfield Marketing Studio (link de generation já incluído no fim do prompt). Cada prompt já tem preset, camera, ação, ambiente, dialogue (se houver) prontos pra rodar
-- **Imagens**: abra `/workspace/[produto]/07-creatives/prompts/prompt-c0X-image.txt` — cole no GPT Image 2.0. Cada prompt já vem no formato ideal pro tipo de imagem (JSON estruturado pra layouts densos, prosa cinematográfica pra single-frame, meta-prompt pra theme-only)
+- **Vídeos**: abra `/workspace/[produto]/08-creatives/prompts/prompt-c0X-video.txt` — cole no Higgsfield Marketing Studio (link de generation já incluído no fim do prompt). Cada prompt já tem preset, camera, ação, ambiente, dialogue (se houver) prontos pra rodar
+- **Imagens**: abra `/workspace/[produto]/08-creatives/prompts/prompt-c0X-image.txt` — cole no GPT Image 2.0. Cada prompt já vem no formato ideal pro tipo de imagem (JSON estruturado pra layouts densos, prosa cinematográfica pra single-frame, meta-prompt pra theme-only)
 - **Voiceovers** (se conceito tem): gere no ElevenLabs com os scripts marcados nos briefings
 - **Edição** (se aplicável): junte vídeo + voiceover + text overlays no CapCut/Submagic/Captions. Os briefings têm scripts, hooks, e text overlays prontos
 - **Filmagem manual** (se conceito é UGC humano): use o briefing como roteiro

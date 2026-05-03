@@ -20,7 +20,7 @@ Sistema completo pra construir e escalar marcas de ecommerce. Funciona dentro do
 .claude/
 ├── CLAUDE.md              ← instruções fundamentais (idioma, copy rules, dual output)
 ├── OVERVIEW.md            ← este documento
-├── skills/                ← 17 skills (numeradas 00-14, com 06a/06b/06c)
+├── skills/                ← 15 skills (00-14, sendo 07 dividida em 07a/07b/07c — 17 arquivos .md no total)
 ├── lib/                   ← bibliotecas reutilizáveis chamadas pelas skills
 ├── rules/                 ← diretrizes carregadas automaticamente por contexto
 ├── hooks/                 ← scripts que rodam em eventos do Claude Code
@@ -36,21 +36,21 @@ workspace/                 ← criado por skill 00, organizado por produto
     ├── 03-competitor-analysis.md
     ├── 03-creative-patterns.json
     ├── 04-offer.md / .json / 04-research-foundation.json
-    ├── 05-copy.md / .json
-    ├── 06-page/           ← cadeia 06a → 06b → 06c
-    ├── 07-creatives.json + briefings .md por conceito
-    ├── 08-ad-strategy.md / .json
-    ├── 09-analysis/       ← uma análise por execução + latest.json
-    ├── 10-scale/
-    ├── 11-consistency-audit.json / .md
-    ├── 12-retention/      ← fluxos por canal
-    ├── 13-bonus-delivery/
+    ├── 05-bonus-delivery/
+    ├── 06-copy.md / .json
+    ├── 07-page/           ← cadeia 07a → 07b → 07c
+    ├── 08-creatives.json + briefings .md por conceito
+    ├── 09-consistency-audit.json / .md
+    ├── 10-ad-strategy.md / .json
+    ├── 11-analysis/       ← uma análise por execução + latest.json
+    ├── 12-scale/
+    ├── 13-retention/      ← fluxos por canal
     └── 14-recycled/[source-id]/   ← derivadas de 1 winner
 ```
 
 ---
 
-## 3. As 14 skills (em detalhe)
+## 3. As 15 skills (em detalhe)
 
 Cada skill é um arquivo `.md` com frontmatter (nome + descrição) + corpo estruturado em ETAPAs. O Claude lê a skill, segue as etapas, e salva os artefatos prescritos.
 
@@ -112,54 +112,54 @@ Cada skill é um arquivo `.md` com frontmatter (nome + descrição) + corpo estr
 - 11 sanity checks antes de salvar
 
 **Outputs críticos pro próximo skill:**
-- `bonuses[]` array (lido por skill 13 bonus-delivery)
-- `offer_stack` string (lido por skill 05 copy)
-- `unit_economics.weighted_margin_per_order` + `target_cpa_primary_2x/3x` (lido por skill 09 ad-analysis)
+- `bonuses[]` array (lido por skill 05 bonus-delivery)
+- `offer_stack` string (lido por skill 06 copy)
+- `unit_economics.weighted_margin_per_order` + `target_cpa_primary_2x/3x` (lido por skill 11 ad-analysis)
 
 **Output:** `04-offer.md` + `04-offer.json` + `04-research-foundation.json`.
 
-### Skill 05 — Copy Engine
+### Skill 06 — Copy Engine
 **Trigger:** "copy"
 **O que faz:**
 - Headlines (process de geração — adapta o "Process of 100" de Caples ao volume necessário)
 - Lead types selecionados por awareness stage (Story, Problem-Solution, Secret, Offer, Proclamation, Direct)
 - Hero section apropriado ao tipo de página
 - Bullets, social proof, FAQ, urgency
-- Email hooks (pra skill 12 reutilizar)
+- Email hooks (pra skill 13 reutilizar)
 - 8 sweeps de revisão (clarity, VOC, specificity, flow, objection, CTA, originality, compliance)
 - Compliance pre-flight inline (rule 8b do CLAUDE.md)
 
-**Output:** `05-copy.md` + `05-copy.json` (lido pela skill 06 page chain).
+**Output:** `06-copy.md` + `06-copy.json` (lido pela skill 07 page chain).
 
-### Skill 06 — Page Engine (cadeia 06a → 06b → 06c)
+### Skill 07 — Page Engine (cadeia 07a → 07b → 07c)
 
 **Por que está dividida em 3:** o monolítico tinha 1055 linhas. Quebrar em 3 melhora performance e permite iteration loop em fase específica sem regenerar tudo.
 
-#### 06a — Page Planning
+#### 07a — Page Planning
 **Trigger:** "page" (entry point) ou "page-planning" direto
-- Pre-flight (skill 05 completa, manifest válido)
+- Pre-flight (skill 06 completa, manifest válido)
 - Detecta tipo de página (advertorial vs landing vs hybrid)
 - Brand discovery + opcional referência visual
 - Design system orchestration: cor → typography → spacing → grid → tokens
-**Output:** `06-page/06-design-system.md` + `06-plan.md` + `06-plan.json`
+**Output:** `07-page/07-design-system.md` + `07-plan.md` + `07-plan.json`
 
-#### 06b — Page Sections
+#### 07b — Page Sections
 - Gera 3 variantes de hero (membro escolhe A/B/C)
 - Converte pra padrão de blocks inline no schema Shopify
 - Replica pras demais sections do plano
 - UX writing pass + self-critique (Nielsen + WCAG 2.1 AA)
 - Validação Liquid via `shopify-plugin:shopify-liquid` com retry logic
-**Output:** arquivos `.liquid` em `<staging>/sections/` + `06-sections-report.md`
+**Output:** arquivos `.liquid` em `<staging>/sections/` + `07-sections-report.md`
 
-#### 06c — Page Deploy
-- **Gate de skill 11** (consistency audit) no pre-flight: se BLOCK, aborta
+#### 07c — Page Deploy
+- **Gate de skill 09** (consistency audit) no pre-flight: se BLOCK, aborta
 - Cria `templates/page.[produto].json` com blocks pré-populados
 - Validação OBRIGATÓRIA de blocks (não-vazios, types válidos)
 - Deploy seguro: duplicate theme → pull → cp → push --nodelete
 - Smoke test pós-push (curl no storefront, grep marker)
-**Output:** preview URLs + `06-deploy-report.md` + `.json`
+**Output:** preview URLs + `07-deploy-report.md` + `.json`
 
-### Skill 07 — Creative Engine
+### Skill 08 — Creative Engine
 **Trigger:** "creatives"
 **O que faz:**
 - ETAPA 1: detecta material disponível + creator archetype
@@ -175,22 +175,22 @@ Cada skill é um arquivo `.md` com frontmatter (nome + descrição) + corpo estr
 - ETAPA 7.6: DNA registry extraction (silent — alimenta `lib/creative-dna/registry.py`)
 - ETAPA 8: resumo de produção
 
-**Output:** `07-creatives.json` + 1 briefing `.md` por conceito.
+**Output:** `08-creatives.json` + 1 briefing `.md` por conceito.
 
-### Skill 08 — Ad Strategy
+### Skill 10 — Ad Strategy
 **Trigger:** "ad strategy"
 **O que faz:**
-- **Gate de skill 11** no pre-flight (BLOCK se drift crítico)
+- **Gate de skill 09** no pre-flight (BLOCK se drift crítico)
 - Verificação de pré-requisitos (Pixel, CAPI, produto ativo, criativos prontos)
 - Estrutura de campanha (One Campaign Method)
 - Ad sets em estrutura 3-2-2 (3 conceitos × 2 hooks × 2 thumbnails)
-- Naming convention padrão (campaign_name único por batch — gravado no manifest pra skill 09 cruzar)
+- Naming convention padrão (campaign_name único por batch — gravado no manifest pra skill 11 cruzar)
 - Decisão por timeline (dia 1/3/7/14)
 - PGS (Performance Gate Scaling) automático
 
-**Output:** `08-ad-strategy.md` + `.json` + manifest atualizado com `08_campaign_name`.
+**Output:** `10-ad-strategy.md` + `.json` + manifest atualizado com `10_campaign_name`.
 
-### Skill 09 — Ad Analysis
+### Skill 11 — Ad Analysis
 **Trigger:** "ad analysis"
 **O que faz:**
 - 4Pi analysis (Spend, Frequency, CPM, Cost per Result)
@@ -199,54 +199,54 @@ Cada skill é um arquivo `.md` com frontmatter (nome + descrição) + corpo estr
 - Identifica WINNERs (CPA < target × 0.7, spend > $300, idade > 5 dias)
 - Recomenda iteração ou scale
 
-**Output:** `09-analysis/[timestamp].json` + `09-analysis/latest.json` (handoff pra skill 10 e skill 14).
+**Output:** `11-analysis/[timestamp].json` + `11-analysis/latest.json` (handoff pra skill 12 e skill 14).
 
-### Skill 10 — Scale Engine
+### Skill 12 — Scale Engine
 **Trigger:** "scale"
 **O que faz:**
-- Pre-flight (skills 08 + 09 completas)
+- Pre-flight (skills 10 + 11 completas)
 - Vertical scaling (5% rule do PGS)
 - Horizontal scaling (novos ad sets, novos placements, novos angles)
 - Champion promotion (Post ID dedicated)
 - Diversification (stage scaling tem requisitos diferentes — Tier 1/2/3+)
 
-**Output:** `10-scale/[timestamp].md` + plano de execução.
+**Output:** `12-scale/[timestamp].md` + plano de execução.
 
-### Skill 11 — Consistency Audit
+### Skill 09 — Consistency Audit
 **Trigger:** "consistency audit" ou "audit"
 **O que faz:**
-- Cross-phase drift detection: confere se mecanismo, awareness stage, VOC, oferta batem entre todos os artefatos (skills 02 → 04 → 05 → 06 → 07 → 08)
+- Cross-phase drift detection: confere se mecanismo, awareness stage, VOC, oferta batem entre todos os artefatos (skills 02 → 03 → 04 → 06 → 07 → 08)
 - Identifica VOC traceability (frases na copy/ads vêm da pesquisa)
 - Verifica promise↔config (promessas de copy batem com config da loja Shopify)
 
-**Output:** `11-consistency-audit.json` com `launch_recommendation: "BLOCK" | "CAUTION" | "GO"`.
+**Output:** `09-consistency-audit.json` com `launch_recommendation: "BLOCK" | "CAUTION" | "GO"`.
 
-**Como vira gate:** skills 06c, 08, 12 leem esse JSON no pre-flight. Se BLOCK, abortam.
+**Como vira gate:** skills 07c, 10, 13 leem esse JSON no pre-flight. Se BLOCK, abortam.
 
-### Skill 12 — Retention Engine
+### Skill 13 — Retention Engine
 **Trigger:** "retention", "email flows", "klaviyo"
 **O que faz:**
-- **Gate de skill 11** no pre-flight
+- **Gate de skill 09** no pre-flight
 - Pre-flight: ESP identificado (Klaviyo / Omnisend / MailerLite), ≥50 compras
 - Fluxos base: welcome series, abandoned cart, post-purchase, browse abandon, win-back, replenishment
 - Adapta cada fluxo ao produto (lê `04-offer.md` pra reorder rate, guarantee, bonuses)
 - Templates Klaviyo (HTML + flow JSON)
 
-**Output:** `12-retention/[fluxo].md` + arquivos exportáveis.
+**Output:** `13-retention/[fluxo].md` + arquivos exportáveis.
 
-### Skill 13 — Bonus Delivery
+### Skill 05 — Bonus Delivery
 **Trigger:** "bonus delivery"
 **O que faz:**
 - Lê `04-offer.json.bonuses[]`
 - Pra cada bonus, gera pipeline de entrega conforme `delivery_trigger` (post-purchase, on-signup, day-7, on-first-reorder)
 - Templates por tipo: digital guide → PDF, community access → Circle invite, video series → Wistia hosted, etc.
 
-**Output:** `13-bonus-delivery/[bonus-id]/` com assets + instruções de upload.
+**Output:** `05-bonus-delivery/[bonus-id]/` com assets + instruções de upload.
 
 ### Skill 14 — Content Recycler (anteriormente 17)
 **Trigger:** "content recycler" ou "recycle [creative-id]" ou "recycle winner"
 **O que faz:**
-- Lê 1 criativo winner (input direto OU detecta automático via `09-analysis/latest.json.winners[]`)
+- Lê 1 criativo winner (input direto OU detecta automático via `11-analysis/latest.json.winners[]`)
 - Extrai essência (big idea, hook, mechanism, avatar, voice) pra `essence.json`
 - Gera 9 derivadas em formatos diferentes: advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad
 - Compliance pre-flight em cada derivada (severity ≥ high dispara auto-rewrite)
@@ -263,7 +263,7 @@ Bibliotecas reutilizáveis chamadas pelas skills. Ficam em `.claude/lib/`.
 **Função:** detecta palavras ad-flag (Botox, weight loss, cure, treat, anti-aging, before & after, guaranteed, etc.) que disparam disapproval automático no Meta/TikTok.
 **Entry point:** `run.py --input <texto> --config red_flags.json --schema output-schema.json`
 **Output:** JSON com `severity: critical | high | medium | low` + `rewrite_suggestion`.
-**Usado por:** skills 05, 06b, 06c, 07, 14 (e por dentro do 08 implicitamente via gate de 11).
+**Usado por:** skills 06, 07b, 07c, 08, 14 (e por dentro do 10 implicitamente via gate de 09).
 
 ### content-recycler
 **Função:** engine prompt-driven da skill 14.
@@ -271,12 +271,12 @@ Bibliotecas reutilizáveis chamadas pelas skills. Ficam em `.claude/lib/`.
 **Como customizar:** adicionar formato novo = editar `formats.json` com `id`, `name`, `output_file`, `length_words`, `structure`, `tone`, `compliance_notes`. Próxima execução pega automaticamente.
 
 ### creative-dna
-**Função:** registry de DNA aprendido entre produtos. Cada vez que skill 07 gera conceitos, extrai padrões (winning hook archetypes, structural patterns, voice signatures) e salva. Próxima execução em outro produto consulta o registry e adapta.
+**Função:** registry de DNA aprendido entre produtos. Cada vez que skill 08 gera conceitos, extrai padrões (winning hook archetypes, structural patterns, voice signatures) e salva. Próxima execução em outro produto consulta o registry e adapta.
 **Por que importa:** é o cross-product learning. Membros que rodam vários produtos têm vantagem cumulativa.
 **Arquivos:** `registry.py` (CRUD), `archetypes.json` (catálogo).
 
 ### hook-taxonomy
-**Função:** taxonomia de hooks usada pela skill 07 (categorização Problema/Resultado/Curiosidade/Prova social).
+**Função:** taxonomia de hooks usada pela skill 08 (categorização Problema/Resultado/Curiosidade/Prova social).
 **Arquivos:** `archetypes.json` (catálogo). README cita `patterns.md` que ainda não existe — documentação pendente, não bloqueia uso.
 
 ### prompt-directors
@@ -284,7 +284,7 @@ Bibliotecas reutilizáveis chamadas pelas skills. Ficam em `.claude/lib/`.
 **Arquivos:**
 - `marketing-studio-director.md` — Higgsfield Marketing Studio (UGC, Tutorial, Unboxing, Hyper Motion, Product Review, TV Spot, Wild Card, Virtual Try On)
 - (outros directors conforme necessário)
-**Usado por:** skill 07 ETAPA 5.7.
+**Usado por:** skill 08 ETAPA 5.7.
 
 ---
 
@@ -294,7 +294,7 @@ Diretrizes em `.claude/rules/` carregadas automaticamente pelo Claude Code confo
 
 | Rule | Quando aplica |
 |------|--------------|
-| `pre-launch-gates.md` | NON-NEGOTIABLE. Define dois gates: ad-flag compliance (skills 05, 06b, 06c, 07, 08) e Promise↔Config (skills 06c, 08) |
+| `pre-launch-gates.md` | NON-NEGOTIABLE. Define dois gates: ad-flag compliance (skills 06, 07b, 07c, 08, 10) e Promise↔Config (skills 07c, 10) |
 | `shopify-theme-safety.md` | Toda operação Shopify CLI. Pull antes de edit, --nodelete, marker verification, smoke test pós-push |
 | `iteration-driven-refinement.md` | Skills que geram asset (copy, briefing, página). Primeira versão é draft, max 3 iterações antes de escalate |
 | `member-stage-awareness.md` | Toda skill. Detecta starter/validating/scaling pelo manifest e adapta tom + recomendações |
@@ -355,29 +355,29 @@ Cada produto vive em `/workspace/[slug]/`. Estrutura típica após cadeia comple
 ├── 03-creative-patterns.json
 ├── 04-offer.md / .html / .json
 ├── 04-research-foundation.json
-├── 05-copy.md / .html / .json
-├── 06-page/
-│   ├── 06-design-system.md
-│   ├── 06-plan.md / .json
-│   ├── 06-sections-report.md
-│   └── 06-deploy-report.md / .json
-├── 07-creatives.json
-├── 07-creatives/
+├── 06-copy.md / .html / .json
+├── 07-page/
+│   ├── 07-design-system.md
+│   ├── 07-plan.md / .json
+│   ├── 07-sections-report.md
+│   └── 07-deploy-report.md / .json
+├── 08-creatives.json
+├── 08-creatives/
 │   ├── briefing-c01.md / .html
 │   ├── prompt-c01-image.txt
 │   └── ... (1 set por conceito)
-├── 08-ad-strategy.md / .html / .json
-├── 09-analysis/
+├── 10-ad-strategy.md / .html / .json
+├── 11-analysis/
 │   ├── 2026-04-15.json
 │   ├── 2026-04-22.json
 │   └── latest.json
-├── 10-scale/
-├── 11-consistency-audit.md / .html / .json
-├── 12-retention/
+├── 12-scale/
+├── 09-consistency-audit.md / .html / .json
+├── 13-retention/
 │   ├── welcome-series.md / .html
 │   ├── abandoned-cart.md / .html
 │   └── ... (1 por fluxo)
-├── 13-bonus-delivery/
+├── 05-bonus-delivery/
 │   └── [bonus-id]/
 └── 14-recycled/
     └── [source-id]/
@@ -422,9 +422,9 @@ Cada produto vive em `/workspace/[slug]/`. Estrutura típica após cadeia comple
 
 ## 10. Memória persistente — creative-dna registry
 
-Cross-product learning. A skill 07 (creatives) salva DNA toda vez que executa: hook archetypes que funcionaram, voice signatures, structural patterns. Próxima execução em outro produto consulta esse registry e adapta sem reinventar.
+Cross-product learning. A skill 08 (creatives) salva DNA toda vez que executa: hook archetypes que funcionaram, voice signatures, structural patterns. Próxima execução em outro produto consulta esse registry e adapta sem reinventar.
 
-**Como ler/escrever:** via `lib/creative-dna/registry.py`. Skill 07 chama em silent steps (ETAPA 7.4 carrega, ETAPA 7.6 escreve).
+**Como ler/escrever:** via `lib/creative-dna/registry.py`. Skill 08 chama em silent steps (ETAPA 7.4 carrega, ETAPA 7.6 escreve).
 
 **O que NÃO entra no registry:** dados específicos do produto (nomes, claims, preços). Só padrões abstratos.
 
@@ -440,26 +440,28 @@ Ordem canônica pra um produto novo:
 3. market research              → VOC, awareness, drivers (mais consultado)
 4. competitor analysis          → 5-10 concorrentes, padrões, gaps
 5. offer                        → mecanismo, pricing, stack, garantia
-6. copy                         → copy completa pra todas sections
-7. page                         → 06a (planning) → 06b (sections) → 06c (deploy)
-8. creatives                    → 6-15 conceitos com briefings
-9. consistency audit            → cross-phase drift check (gate)
-10. ad strategy                 → estrutura de campanha, naming, PGS
+6. bonus delivery (asset prep)  → PDFs/emails/Circle invites dos bonuses
+7. copy                         → copy completa pra todas sections
+8. page                         → 07a (planning) → 07b (sections) → 07c (deploy)
+9. creatives                    → 6-15 conceitos com briefings
+10. consistency audit            → cross-phase drift check (gate)
+11. ad strategy                 → estrutura de campanha, naming, PGS
    --- LAUNCH ---
-11. ad analysis (após 3-7 dias) → 4Pi, diagnóstico, decisões
-12. scale (após winners)        → vertical + horizontal
-13. retention (≥50 compras)     → fluxos Klaviyo
-14. bonus delivery (paralelo)   → entrega dos bonuses do stack
+12. ad analysis (após 3-7 dias) → 4Pi, diagnóstico, decisões
+13. scale (após winners)        → vertical + horizontal
+14. retention (≥50 compras)     → fluxos Klaviyo
 15. content recycler (após winner consolidado) → 9 derivadas do criativo top
 ```
 
 Cada skill faz pre-flight da anterior. Se artefato faltar, oferece fallback (rule `emergency-escape-paths.md` — ES1).
 
-**Iteration loop normal:** depois de cada launch, ad analysis + iteração de creatives ou copy é o ciclo. Skill 11 (consistency audit) reroda antes de cada relaunch crítico.
+**Iteration loop normal:** depois de cada launch, ad analysis + iteração de creatives ou copy é o ciclo. Skill 09 (consistency audit) reroda antes de cada relaunch crítico.
 
 ---
 
 ## 12. Mudanças recentes (registro)
+
+> Os números abaixo refletem a numeração das skills **na época de cada mudança**. Renumerações posteriores não modificam histórico.
 
 | Data | Mudança |
 |------|---------|
@@ -473,5 +475,7 @@ Cada skill faz pre-flight da anterior. Se artefato faltar, oferece fallback (rul
 | 2026-04-30 | Google Cache removido do fallback chain do skill 03 (descontinuado set/2024) |
 | 2026-04-30 | URL Higgsfield hardcoded substituída por URL genérica em `prompt-directors/marketing-studio-director.md` |
 | 2026-04-30 | Libs órfãs deletadas: `shocking-stats`, `whisper-transcribe`, `section-patterns` |
-| 2026-04-30 | Skill 14 ganha companion `.html` obrigatório (rule 6b) |
+| 2026-04-30 | Skill 14 (ex-17) ganha companion `.html` obrigatório (rule 6b) |
 | 2026-04-30 | CLAUDE.md atualizado com skill 14 na lista oficial |
+| 2026-05-03 | Self-audit silencioso obrigatório no fim de toda skill (rule + regra 9 em CLAUDE.md) |
+| 2026-05-03 | **Renumeração completa pra alinhar números com ordem de execução**: bonus-delivery 13→05, copy 05→06, page 06→07, creative 07→08, consistency-audit 11→09, ad-strategy 08→10, ad-analysis 09→11, scale 10→12, retention 12→13. Content-recycler permanece 14. Numbers daqui pra frente refletem ordem cronológica do workflow. |

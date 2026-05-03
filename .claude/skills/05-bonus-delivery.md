@@ -141,7 +141,7 @@ Métrica crítica: % de customers que REALMENTE acessam o bonus. Se < 30%, bonus
 Skill integra com:
 
 - **Shopify Admin API** (criar discount code, add free line item)
-- **Klaviyo/ESP** (trigger email post-purchase — usa Skill 12 retention-engine como executor)
+- **Klaviyo/ESP** (trigger email post-purchase — usa Skill 13 retention-engine como executor)
 - **File hosting** (S3, R2, ou Shopify Files API pra PDFs/digital assets)
 
 ## Anti-patterns (FORBIDDEN)
@@ -167,13 +167,13 @@ Skill integra com:
 Salvar:
 
 1. **`/workspace/[produto]/bonuses/[bonus-id]/`** — assets do bonus (PDF, scripts, screenshots, templates, etc — formato conforme type do bonus)
-2. **`/workspace/[produto]/13-bonus-delivery.md`** — doc operacional pra AI ler em skills futuras: cada bonus com type, delivery channel, trigger, assets path
-3. **`/workspace/[produto]/13-bonus-delivery.html`** — visualização humana usando `.claude/templates/aura-report-template.html` como base. Logo SVG Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por bonus, `.pill` pra type tag, `.kpi-grid` pra access rate (quando disponível).
-4. **`/workspace/[produto]/13-bonus-delivery-log.json`** — log running de deliveries + access tracking
+2. **`/workspace/[produto]/05-bonus-delivery.md`** — doc operacional pra AI ler em skills futuras: cada bonus com type, delivery channel, trigger, assets path
+3. **`/workspace/[produto]/05-bonus-delivery.html`** — visualização humana usando `.claude/templates/aura-report-template.html` como base. Logo SVG Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por bonus, `.pill` pra type tag, `.kpi-grid` pra access rate (quando disponível).
+4. **`/workspace/[produto]/05-bonus-delivery-log.json`** — log running de deliveries + access tracking
 
 **Distinção importante:** os assets do bonus em si (item 1) seguem o design da marca do membro (não do Aura) — PDF do bonus, email HTML, template Notion, etc. Já o relatório interno (itens 2-3) segue rule 6b do CLAUDE.md.
 
-Atualizar `manifest.json.skills_completed` com `"13-bonus-delivery"`.
+Atualizar `manifest.json.skills_completed` com `"05-bonus-delivery"`.
 
 ## Mensagem Final
 

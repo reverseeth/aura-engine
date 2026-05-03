@@ -13,13 +13,13 @@ critérios de winner — CPA < target × 0.7 E spend > $300 E idade > 5 dias.
 ## Input
 
 Um criativo de referência — qualquer um destes:
-- Briefing completo de `/workspace/[produto]/07-creatives/07-concept-XX.md`
+- Briefing completo de `/workspace/[produto]/08-creatives/08-concept-XX.md`
 - Ad script + primary text + headlines
 - Copy de advertorial ou PDP
 
 ## Output — 9 formatos derivados
 
-Salvos em `/workspace/[produto]/17-recycled/[source-id]/`:
+Salvos em `/workspace/[produto]/14-recycled/[source-id]/`:
 
 1. **advertorial-1500w.md** — advertorial editorial longa pra LP ou blog
 2. **email-sequence.md** — 5 emails (welcome → mechanism → social proof → objection → CTA)
@@ -50,4 +50,4 @@ recycle <creative-id>
 
 O sistema lê o concept, consulta base Aura sobre formato de cada derivada,
 gera 9 versões, passa compliance em cada, salva tudo em pasta dedicada.
-Entrega: "9 derivadas prontas em /workspace/[produto]/17-recycled/[creative-id]/"
+Entrega: "9 derivadas prontas em /workspace/[produto]/14-recycled/[creative-id]/"

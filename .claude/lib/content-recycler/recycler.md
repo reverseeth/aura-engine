@@ -22,8 +22,8 @@ recycle winner
 
 ### ETAPA 1 — Identificação do winner
 
-1. Se `[creative-id]` fornecido: ler `/workspace/[produto]/07-creatives/07-concept-XX.md` correspondente
-2. Se `winner`: consultar `/workspace/[produto]/09-analysis/latest.json` (se existir) e pegar o criativo com menor CPA e spend > $300
+1. Se `[creative-id]` fornecido: ler `/workspace/[produto]/08-creatives/08-concept-XX.md` correspondente
+2. Se `winner`: consultar `/workspace/[produto]/11-analysis/latest.json` (se existir) e pegar o criativo com menor CPA e spend > $300
 3. Se nenhum dos dois disponível: perguntar ao membro qual criativo reciclar
 
 ### ETAPA 2 — Extração de essência
@@ -46,7 +46,7 @@ Ler o criativo fonte e destilar em shape estruturado (valores são extraídos do
 }
 ```
 
-Salvar em `/workspace/[produto]/17-recycled/[source-id]/essence.json` pra referência de todos os formatos.
+Salvar em `/workspace/[produto]/14-recycled/[source-id]/essence.json` pra referência de todos os formatos.
 
 ### ETAPA 3 — Consultar base Aura sobre cada formato
 
@@ -71,11 +71,11 @@ Pra cada formato:
 3. Gerar derivada respeitando `length_words`, `structure`, `tone`
 4. Rodar Compliance Pre-flight (`.claude/lib/compliance-preflight/checker.md`)
 5. Se severity >= high: auto-rewrite e log
-6. Salvar em `/workspace/[produto]/17-recycled/[source-id]/[output_file]`
+6. Salvar em `/workspace/[produto]/14-recycled/[source-id]/[output_file]`
 
 ### ETAPA 5 — Gerar índice + relatório
 
-Criar `/workspace/[produto]/17-recycled/[source-id]/README.md`:
+Criar `/workspace/[produto]/14-recycled/[source-id]/README.md`:
 
 ```markdown
 # Content Recycler Output — [source-id]
@@ -123,7 +123,7 @@ Caso queira adicionar formato novo (ex: LinkedIn, Substack, Twitter thread), edi
 
 ### ETAPA 6 — Compliance log consolidado
 
-Salvar log consolidado em `/workspace/[produto]/17-recycled/[source-id]/compliance-log.json`:
+Salvar log consolidado em `/workspace/[produto]/14-recycled/[source-id]/compliance-log.json`:
 
 ```json
 {
@@ -149,7 +149,7 @@ Salvar log consolidado em `/workspace/[produto]/17-recycled/[source-id]/complian
 ## Estrutura final de arquivos
 
 ```
-/workspace/[produto]/17-recycled/
+/workspace/[produto]/14-recycled/
 └── <creative-id>/
     ├── README.md                     ← índice + instruções
     ├── essence.json                  ← essência extraída (pra reuso)

@@ -11,13 +11,13 @@ antes de submeter copy/ad. Abordagem A — Claude-based, zero infra externa.
 
 ## Onde é invocado
 
-**Skill 05 (copy-engine)** — antes de finalizar cada peça de copy (headlines,
+**Skill 06 (copy-engine)** — antes de finalizar cada peça de copy (headlines,
 primary texts, advertorial, PDP sections)
 
-**Skill 07 (creative-engine)** — antes de finalizar cada briefing (scripts,
+**Skill 08 (creative-engine)** — antes de finalizar cada briefing (scripts,
 voiceover, text overlays)
 
-**Skill 11+ qualquer** — invocável on-demand via `compliance check [arquivo]`
+**Qualquer skill on-demand** — invocável via `compliance check [arquivo]` em qualquer fase
 
 ## Output
 

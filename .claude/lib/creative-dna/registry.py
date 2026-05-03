@@ -127,7 +127,7 @@ def compute_dna(db_path: Path, product_slug: str) -> dict:
             "error": "insufficient_data",
             "creatives_with_performance": len(rows),
             "minimum_required": MIN_CREATIVES_FOR_DNA,
-            "message": f"Need at least {MIN_CREATIVES_FOR_DNA} creatives with measured performance to extract DNA. Keep running Skill 09 to accumulate data.",
+            "message": f"Need at least {MIN_CREATIVES_FOR_DNA} creatives with measured performance to extract DNA. Keep running Skill 11 to accumulate data.",
         }
 
     winners = [r for r in rows if r["outcome"] == "winner"]

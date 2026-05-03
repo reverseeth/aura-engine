@@ -11,19 +11,19 @@
 
 ## Pre-flight
 - [ ] Winner tem CPA < target × 0.8 E spend > $300 E age > 5 days
-- [ ] Skill 07 disponível pra gerar variations
+- [ ] Skill 08 disponível pra gerar variations
 - [ ] Content Recycler disponível (#17)
 
 ## Steps
 
 ### 1. Identificar winner + extrair DNA
 ```
-winner = read(/workspace/[produto]/07-creatives/07-concept-XX.md)
+winner = read(/workspace/[produto]/08-creatives/08-concept-XX.md)
 dna = read(/workspace/[produto]/creative-dna/dna-profile.json)  # se existe
 ```
 
 ### 2. Gerar N variações preservando DNA
-Invocar Skill 07 em modo "rotation":
+Invocar Skill 08 em modo "rotation":
 ```
 Pra cada N:
   briefing = skill_07.generate_rotation(
@@ -36,7 +36,7 @@ Pra cada N:
 Cada variação muda UM eixo; preserva mechanism, CTA, proof stack.
 
 ### 3. Rodar compliance + DNA extraction em cada
-(Automático via ETAPAs 7.5 + 7.6 da Skill 07)
+(Automático via ETAPAs 7.5 + 7.6 da Skill 08)
 
 ### 4. Upload pro Meta (invocar `upload-creative-to-meta.md` pra cada)
 ```

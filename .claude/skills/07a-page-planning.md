@@ -14,10 +14,10 @@ Esta é a **primeira** das 3 skills da cadeia Page Engine modularizada. Ela:
 5. Extrai signals de referência visual (se membro colar URL)
 6. Orquestra 5 specialists pra gerar o design system completo
 
-**Outputs gravados em `/workspace/[produto]/06-page/`:**
-- `06-design-system.md` — paleta, tipografia, spacing, grid, tokens
-- `06-plan.md` — plano de sections + justificativa
-- `06-plan.json` — mesmo plano, machine-readable (consumido pela `page-sections`)
+**Outputs gravados em `/workspace/[produto]/07-page/`:**
+- `07-design-system.md` — paleta, tipografia, spacing, grid, tokens
+- `07-plan.md` — plano de sections + justificativa
+- `07-plan.json` — mesmo plano, machine-readable (consumido pela `page-sections`)
 
 Depois desta skill, rode `page-sections` pra converter em Liquid.
 
@@ -25,19 +25,19 @@ Depois desta skill, rode `page-sections` pra converter em Liquid.
 
 Antes de qualquer outra coisa, valide:
 
-- [ ] `/workspace/[produto]/manifest.json` existe e tem `05-copy-engine` em `skills_completed`
-- [ ] `/workspace/[produto]/05-copy.json` existe e é parseável
+- [ ] `/workspace/[produto]/manifest.json` existe e tem `06-copy-engine` em `skills_completed`
+- [ ] `/workspace/[produto]/06-copy.json` existe e é parseável
 - [ ] `/workspace/[produto]/04-offer.json` existe
-- [ ] Dir de output: `/workspace/[produto]/06-page/` (criar com `mkdir -p` se não existir)
+- [ ] Dir de output: `/workspace/[produto]/07-page/` (criar com `mkdir -p` se não existir)
 
 Se algum item faltar:
-- Copy não gerada → "Não achei `05-copy.json`. Rode a skill `copy-engine` primeiro."
+- Copy não gerada → "Não achei `06-copy.json`. Rode a skill `copy-engine` primeiro."
 - Offer não gerada → "Não achei `04-offer.json`. Rode `offer-builder` primeiro."
-- Manifest inexistente ou sem `05-copy-engine` → peça pra completar o fluxo anterior antes.
+- Manifest inexistente ou sem `06-copy-engine` → peça pra completar o fluxo anterior antes.
 
 ## Quando Usar
 
-Quando o membro tem copy pronta (em `/workspace/[produto]/05-copy.md` / `05-copy.json`) e quer começar a gerar uma página Shopify completa que seja:
+Quando o membro tem copy pronta (em `/workspace/[produto]/06-copy.md` / `06-copy.json`) e quer começar a gerar uma página Shopify completa que seja:
 - Visualmente premium
 - Theme-agnostic (funciona em Dawn, Horizon, Impulse, Sense, Prestige, qualquer Shopify 2.0+)
 - 100% editável via theme editor (todo elemento é uma `setting`)
@@ -74,7 +74,7 @@ Antes do plano de sections, decida o TIPO da página baseado na copy:
 | **hybrid** | copy começa com hook narrativo mas converge pra produto específico e tem offer stack | Advertorial na abertura + landing nos últimos 40% da página |
 
 **Como detectar programaticamente:**
-1. Leia o primeiro bloco de copy do `05-copy.json`.
+1. Leia o primeiro bloco de copy do `06-copy.json`.
 2. Conte: headlines no estilo "How I [verb]..." / "The [adjective] [noun] that..." → advertorial
 3. Se tem **offer stack explícito** (pricing tiers, bundles com preços) no topo → landing
 4. Se tem narrativa MAS também pricing logo no topo → hybrid
@@ -83,7 +83,7 @@ Pergunte ao membro pra confirmar o tipo detectado antes de prosseguir.
 
 ### 0.4 Ler inputs obrigatórios
 
-1. **OBRIGATÓRIO**: Leia `/workspace/[produto]/05-copy.md` e `/workspace/[produto]/05-copy.json`.
+1. **OBRIGATÓRIO**: Leia `/workspace/[produto]/06-copy.md` e `/workspace/[produto]/06-copy.json`.
 2. Leia `/workspace/[produto]/04-offer.md` / `04-offer.json` (preço, stack, garantia — vai pra section de oferta).
 3. Leia `/workspace/[produto]/02-market-research.md` se existir (pra entender awareness level e voz do cliente).
 4. Leia `/workspace/[produto]/03-competitor-analysis.md` se existir.
@@ -95,14 +95,14 @@ Antes de gerar o Liquid, a skill **gera um blueprint visual via Claude Design** 
 
 **Fluxo:**
 
-1. Absorva o 05-copy.md + 04-offer.md + brand snapshot (fontes, paleta, tom) e monte um prompt de design contendo:
+1. Absorva o 06-copy.md + 04-offer.md + brand snapshot (fontes, paleta, tom) e monte um prompt de design contendo:
    - Tipo de página detectado (PDP / Landing / Advertorial / Hybrid)
    - Sections mandatórias (hero, oferta, mecanismo, proof, FAQ, final CTA, etc. — vem da ETAPA 4)
    - Restrições inegociáveis (fontes, paleta, acessibilidade, acabamento editorial vs commerce)
    - Voice-of-customer hooks que devem aparecer nos headings
 2. Gere o blueprint como artifact HTML no Claude Design com **4 variações (A, B, C, D)** lado-a-lado no mesmo canvas. Cada variação é um take visual diferente do mesmo layout/sections — não são páginas diferentes, são tratamentos diferentes da mesma página (tipografia mais editorial vs mais utilitária, paleta warm vs cool, densidade alta vs respiro, hierarquia de proof diferente, etc.).
 3. Apresente ao membro: *"Gerei 4 variações visuais (A/B/C/D). Abre o artifact no Claude Design e me diz qual você quer (ou mix tipo 'A hero + C proof')."*
-4. Membro confirma direção → salvar referência visual em `/workspace/[produto]/06-page/design-blueprint/index.html` (download do artifact) e tokens extraídos em `design-tokens.json`.
+4. Membro confirma direção → salvar referência visual em `/workspace/[produto]/07-page/design-blueprint/index.html` (download do artifact) e tokens extraídos em `design-tokens.json`.
 5. Skill prossegue usando essa variação como constraint visual na ETAPA 3 (design system) e ETAPA 6 (section generation).
 
 **Aspect ratio de preview:** sempre desktop + mobile no mesmo canvas (breakpoint 375px + 1440px lado-a-lado).
@@ -129,9 +129,9 @@ Estes princípios NÃO são negociáveis. Se algum for violado, a section deve s
 
 ## ETAPA 1 — Leitura e Planejamento (adaptativo à estratégia)
 
-**A página NÃO tem estrutura fixa.** Cada produto merece um plano de sections que reflita sua estratégia específica — awareness level do mercado (Schwartz), sophistication stage (Bond), nível de ceticismo, complexidade do produto, categoria, tipo de decisão (impulse vs considered), presença ou não de mecanismo único, etc. A skill 05 (copy) já definiu essas decisões — respeite-as.
+**A página NÃO tem estrutura fixa.** Cada produto merece um plano de sections que reflita sua estratégia específica — awareness level do mercado (Schwartz), sophistication stage (Bond), nível de ceticismo, complexidade do produto, categoria, tipo de decisão (impulse vs considered), presença ou não de mecanismo único, etc. A skill 06 (copy) já definiu essas decisões — respeite-as.
 
-**1. Leia `05-copy.md` + `02-market-research.md` + `03-competitor-analysis.md` + `04-offer.md`** pra entender:
+**1. Leia `06-copy.md` + `02-market-research.md` + `03-competitor-analysis.md` + `04-offer.md`** pra entender:
 - Awareness level do mercado (Unaware → Most Aware)
 - Sophistication stage (1-5)
 - Nível de ceticismo (baixo/médio/alto)
@@ -205,7 +205,7 @@ Estes princípios NÃO são negociáveis. Se algum for violado, a section deve s
 
 ### REGRA CRÍTICA — Eyebrows criativos, não rótulos de framework
 
-**Os nomes "Mechanism", "Offer Stack", "Guarantee Block", "Social Proof", "FAQ Estratégica" são LABELS INTERNOS do framework de copy.** São os "nomes de pasta" usados no `05-copy.md` pra você saber onde cada coisa vai. **Nunca** apareçam literal na página do cliente — soa como template genérico.
+**Os nomes "Mechanism", "Offer Stack", "Guarantee Block", "Social Proof", "FAQ Estratégica" são LABELS INTERNOS do framework de copy.** São os "nomes de pasta" usados no `06-copy.md` pra você saber onde cada coisa vai. **Nunca** apareçam literal na página do cliente — soa como template genérico.
 
 **No eyebrow da section (quando tiver), use uma tag CRIATIVA, específica do produto.** Referencie o mecanismo real, o benefício central, ou um ângulo da marca. Exemplos:
 
@@ -361,15 +361,15 @@ Use **Skill tool** na ordem:
 5. `/designer-design-token` com params: `output_format=css-variables`
    - Consolide tudo em um conjunto de CSS custom properties que serão injetadas via `:root` no `{% stylesheet %}` de cada section.
 
-**Output agregado em `/workspace/[produto]/06-page/06-design-system.md`** como referência. Mostre ao membro um resumo compacto e peça aprovação rápida.
+**Output agregado em `/workspace/[produto]/07-page/07-design-system.md`** como referência. Mostre ao membro um resumo compacto e peça aprovação rápida.
 
 ## Outputs (ao final da skill)
 
-Salve em `/workspace/[produto]/06-page/`:
+Salve em `/workspace/[produto]/07-page/`:
 
-- **`06-design-system.md`** — design system completo (paleta, tipografia, spacing, grid, tokens)
-- **`06-plan.md`** — plano de sections humanizado (justificativa de cada section incluída/excluída)
-- **`06-plan.json`** — plano machine-readable consumido pela `page-sections`:
+- **`07-design-system.md`** — design system completo (paleta, tipografia, spacing, grid, tokens)
+- **`07-plan.md`** — plano de sections humanizado (justificativa de cada section incluída/excluída)
+- **`07-plan.json`** — plano machine-readable consumido pela `page-sections`:
   ```json
   {
     "produto": "[slug]",
@@ -388,12 +388,12 @@ Salve em `/workspace/[produto]/06-page/`:
       "handle": "[slug]",
       "reference_url": "https://..."
     },
-    "design_system_ref": "06-design-system.md",
+    "design_system_ref": "07-design-system.md",
     "generated_at": "2026-...Z"
   }
   ```
 
-Atualize `/workspace/[produto]/manifest.json` adicionando `06a-page-planning` ao array `skills_completed`.
+Atualize `/workspace/[produto]/manifest.json` adicionando `07a-page-planning` ao array `skills_completed`.
 
 Ao final diga ao membro:
 
@@ -401,7 +401,7 @@ Ao final diga ao membro:
 
 ## Referências cruzadas
 
-- **Próxima skill:** `page-sections` (consome `06-plan.json` + `06-design-system.md`)
+- **Próxima skill:** `page-sections` (consome `07-plan.json` + `07-design-system.md`)
 - **Skill final da cadeia:** `page-deploy` (deploy no Shopify)
 - **Catálogo completo de blocks** (universais + type-specific) está em `page-sections` — não repita aqui.
 - **Ferramentas auxiliares de referência visual:** `tools/design-clone/downloader.py`, `analyzer.py`, `pattern-extractor.py`. Estes scripts compartilham `_css_utils.py` (util de rewrite de CSS namespace).

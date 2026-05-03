@@ -8,13 +8,13 @@
 ## Input
 - `product_slug` — do manifest
 - `offer_tiers` — do `04-offer.json` (Starter, Popular, BestValue com preços e SKUs)
-- `description_md` — caminho do `05-copy.md` (seção PDP ou description)
+- `description_md` — caminho do `06-copy.md` (seção PDP ou description)
 - `images` — array de paths locais
 
 ## Pre-flight
 - [ ] Shopify MCP conectado
 - [ ] `04-offer.json` existe com 3 tiers
-- [ ] `05-copy.md` existe
+- [ ] `06-copy.md` existe
 - [ ] Imagens disponíveis (ou stock placeholders marcados)
 
 ## Steps
@@ -58,10 +58,10 @@ for img_path in images:
 ```
 
 ### 4. Wire Variant IDs no template.json
-Ler o template gerado pela skill 06 (caminho derivado do product_slug do manifest).
+Ler o template gerado pela skill 07 (caminho derivado do product_slug do manifest).
 
 ```
-template_path = f"/workspace/{product_slug}/06-page/staging/templates/page.{product_slug}.json"
+template_path = f"/workspace/{product_slug}/07-page/staging/templates/page.{product_slug}.json"
 sections_to_patch = ["offer"]
 for section_id in sections_to_patch:
     replace(

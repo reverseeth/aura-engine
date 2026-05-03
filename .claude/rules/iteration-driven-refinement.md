@@ -23,7 +23,7 @@ NÃO dizer "pronto!" ou "pode lançar" — esse framing bloqueia feedback honest
 
 ### 2. Checkpoint mid-run quando skill é longa
 
-Skills que rodam > 5 minutos (ex: 06-page-engine, 07-creative-engine com 8+ conceitos) têm checkpoints:
+Skills que rodam > 5 minutos (ex: cadeia 07a/07b/07c page, 08-creative-engine com 8+ conceitos) têm checkpoints:
 
 - Antes de gerar Liquid, mostrar blueprint: "Aprova a direção ou ajusto?"
 - Depois de 2-3 conceitos de ad, mostrar um: "Tom e ângulo tão OK ou roda diferente?"

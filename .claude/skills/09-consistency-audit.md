@@ -9,7 +9,7 @@ description: Auditoria cross-phase que valida consistência entre os artefatos g
 
 Antes de launch oficial (ads go-live + page em produção), rodar esta skill pra pegar incoerências acumuladas ao longo das skills 01-08. Exemplos reais de drift:
 
-- Mecanismo único nomeado "X" na skill 04 virou "X-alt" nas variações de hook da skill 07
+- Mecanismo único nomeado "X" na skill 04 virou "X-alt" nas variações de hook da skill 08
 - VOC phrase repetida 12x no market research NÃO aparece em nenhum hook do ad batch
 - Claim "clinically proven" aparece no hero da página mas `04-research-foundation.json` não tem estudo correspondente
 - Guarantee copy diz "90 days" mas `04-offer.json` diz 30 days
@@ -34,13 +34,13 @@ Ler todos os artefatos disponíveis (só os que existem):
 - `04-offer.{md,json}` → extract `mechanism.name`, `mechanism.version_short`, `guarantee`, `pricing`, `bonuses[]`
 - `04-research-foundation.json` → extract `evidence_items[]`, claims supported, `confidence_score`
   - **Se AUSENTE:** automaticamente criar CRITICAL issue C2b "Research foundation não rodou — todos os claims de copy/ads saem sem lastro verificável. Rode Skill 04 Etapa 2.5 antes de launch." Não pule check, flagre como critical.
-- `05-copy.{md,json}` → extract headlines, hero, mechanism mentions, claims, promises
-- `06-page/06-plan.json` → extract `sections_plan[]`, `section_order`, `brand_discovery`
-- `06-page/06-design-system.md` → extract paleta, tipografia (pra comparar com blueprint/tokens)
-- `06-page/design-blueprint/design-tokens.json` (se Claude Design rodou) → tokens extraídos da variação aprovada
-- `07-creatives/07-creatives.json` → extract hooks, primary_texts, headlines per concept
-- `08-ad-strategy.json`
-- `09-analysis/latest.json` (se existir) → extract `psm_real`, `winners[]`, `recommended_action`
+- `06-copy.{md,json}` → extract headlines, hero, mechanism mentions, claims, promises
+- `07-page/07-plan.json` → extract `sections_plan[]`, `section_order`, `brand_discovery`
+- `07-page/07-design-system.md` → extract paleta, tipografia (pra comparar com blueprint/tokens)
+- `07-page/design-blueprint/design-tokens.json` (se Claude Design rodou) → tokens extraídos da variação aprovada
+- `08-creatives/08-creatives.json` → extract hooks, primary_texts, headlines per concept
+- `10-ad-strategy.json`
+- `11-analysis/latest.json` (se existir) → extract `psm_real`, `winners[]`, `recommended_action`
 
 ### ETAPA 2 — Check battery (ordenada por severity)
 
@@ -48,17 +48,17 @@ Ler todos os artefatos disponíveis (só os que existem):
 
 **C1. Mecanismo name consistency**
 - `04-offer.json.mechanism.name` deve aparecer LITERALMENTE em:
-  - Pelo menos 1 headline de `05-copy.md`
-  - Pelo menos 1 hook em `07-creatives.json`
+  - Pelo menos 1 headline de `06-copy.md`
+  - Pelo menos 1 hook em `08-creatives.json`
 - Se ausente em ambos → `severity: critical`, `fix: inject mechanism name in hero + at least 1 hook`
 
 **C2. Claim sem research foundation**
-- Pra cada claim forte em `05-copy.md` (hero, mechanism section, proof blocks) e `07-creatives.json` (hooks + primary_texts):
+- Pra cada claim forte em `06-copy.md` (hero, mechanism section, proof blocks) e `08-creatives.json` (hooks + primary_texts):
   - Cross-check com `04-research-foundation.json.evidence_items[]`
   - Se o claim NÃO tem match → `severity: critical`, `fix: add evidence OR soften claim ("helps with" instead of "proven to")`
 
 **C3. Guarantee copy divergente**
-- `04-offer.json.guarantee.duration_days` vs texto em `05-copy.md` guarantee section vs `07-creatives.json` primary_texts
+- `04-offer.json.guarantee.duration_days` vs texto em `06-copy.md` guarantee section vs `08-creatives.json` primary_texts
 - Divergência (30 vs 60 vs 90 dias) → `severity: critical`
 
 **C4. Promessa sem config**
@@ -72,11 +72,11 @@ Ler todos os artefatos disponíveis (só os que existem):
 #### HIGH (recomendar fix antes de launch)
 
 **H1. VOC coverage**
-- Top 20 VOC phrases mais repetidas em `02-market-research.json` → quantas aparecem (mesmo paraphrased) em hooks/headlines/primary_texts da skill 07?
+- Top 20 VOC phrases mais repetidas em `02-market-research.json` → quantas aparecem (mesmo paraphrased) em hooks/headlines/primary_texts da skill 08?
 - Coverage < 30% → `severity: high` (copy não tá espelhando voz do cliente)
 
 **H2. Awareness alignment**
-- Awareness dominante em `02-market-research.json` deve alinhar com tipo de lead escolhido em `05-copy.md`
+- Awareness dominante em `02-market-research.json` deve alinhar com tipo de lead escolhido em `06-copy.md`
 - Unaware/Problem Aware → deveria ser Story/Secret Lead
 - Product/Most Aware → deveria ser Offer/Direct Lead
 - Mismatch → `severity: high`
@@ -88,7 +88,7 @@ Ler todos os artefatos disponíveis (só os que existem):
 - Mismatch com `04-offer.mechanism` → `severity: high`
 
 **H4. Ad angles diversification**
-- `07-creatives.json.concepts[]` deve cobrir ≥ 2 emotions diferentes e ≥ 3 archetypes distintos
+- `08-creatives.json.concepts[]` deve cobrir ≥ 2 emotions diferentes e ≥ 3 archetypes distintos
 - Se concentrado em 1 emotion ou 1 archetype → `severity: high`, `fix: gerar concept complementar`
 
 #### MEDIUM (nice to fix)
@@ -111,16 +111,16 @@ Ler todos os artefatos disponíveis (só os que existem):
 
 Salvar TRÊS artefatos em `/workspace/[produto]/`:
 
-1. **`11-consistency-audit.md`** — fonte legível pela AI e pelo membro
-2. **`11-consistency-audit.html`** — visualização humana usando `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained). Logo SVG do Aura no topo copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto. Usar componentes:
+1. **`09-consistency-audit.md`** — fonte legível pela AI e pelo membro
+2. **`09-consistency-audit.html`** — visualização humana usando `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained). Logo SVG do Aura no topo copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto. Usar componentes:
    - `.danger` pra critical issues
    - `.callout` pra high
    - `.note` pra medium
    - `.pill` pra status tags (BLOCK/CAUTION/GO)
    - `.kpi-grid` pra counters (critical/high/medium)
-3. **`11-consistency-audit.json`** — machine-readable schema abaixo
+3. **`09-consistency-audit.json`** — machine-readable schema abaixo
 
-Atualizar `/workspace/[produto]/manifest.json` adicionando `"11-consistency-audit"` em `skills_completed`.
+Atualizar `/workspace/[produto]/manifest.json` adicionando `"09-consistency-audit"` em `skills_completed`.
 
 Schema do JSON:
 
@@ -138,7 +138,7 @@ Schema do JSON:
     {
       "check_id": "C2",
       "severity": "critical",
-      "artifact": "05-copy.md hero section",
+      "artifact": "06-copy.md hero section",
       "issue": "Claim 'visibly firmer skin in 14 days' não tem evidence em 04-research-foundation.json",
       "fix_suggested": "Adicionar study com N=X amostra OR reescrever como 'designed to help with firmness'",
       "auto_fixable": false
@@ -163,6 +163,6 @@ Markdown com o mesmo conteúdo em formato humano (componentes `.danger` pra crit
 - High: [N]
 - Medium: [N]
 
-Report salvo em `/workspace/[produto]/11-consistency-audit.html`. Abre no browser pra revisar cada issue com fix sugerido.
+Report salvo em `/workspace/[produto]/09-consistency-audit.html`. Abre no browser pra revisar cada issue com fix sugerido.
 
 Depois de corrigir, rode `consistency-audit` de novo pra re-validar."

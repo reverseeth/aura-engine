@@ -191,7 +191,7 @@
 
   <div class="meta-bar">
     <div><strong>Versão:</strong> abril 2026</div>
-    <div><strong>Skills:</strong> 14 (numeradas 00-14, com 06a/06b/06c)</div>
+    <div><strong>Skills:</strong> 14 (numeradas 00-14, com 07a/07b/07c)</div>
     <div><strong>Plataforma:</strong> Claude Code (Anthropic CLI)</div>
     <div><strong>Output:</strong> /workspace/[produto]/</div>
   </div>
@@ -201,7 +201,7 @@
     <ol>
       <li><a href="#s1">O que é o Aura Engine</a></li>
       <li><a href="#s2">Arquitetura geral</a></li>
-      <li><a href="#s3">As 14 skills (em detalhe)</a></li>
+      <li><a href="#s3">As 15 skills (em detalhe)</a></li>
       <li><a href="#s4">Sistema de libs</a></li>
       <li><a href="#s5">Sistema de rules</a></li>
       <li><a href="#s6">Sistema de hooks</a></li>
@@ -226,7 +226,7 @@
     <div class="ascii-tree">.claude/
 ├── CLAUDE.md              ← instruções fundamentais (idioma, copy rules, dual output)
 ├── OVERVIEW.md / .html    ← este documento
-├── skills/                ← 17 arquivos .md (skills 00-14, com 06a/06b/06c)
+├── skills/                ← 17 arquivos .md (skills 00-14, com 07a/07b/07c)
 ├── lib/                   ← bibliotecas reutilizáveis chamadas pelas skills
 ├── rules/                 ← diretrizes carregadas automaticamente por contexto
 ├── hooks/                 ← scripts que rodam em eventos do Claude Code
@@ -241,7 +241,7 @@ workspace/                 ← criado por skill 00, organizado por produto
   </div>
 
   <div class="section" id="s3">
-    <div class="section-label"><span class="num">03</span>As 14 skills (em detalhe)</div>
+    <div class="section-label"><span class="num">03</span>As 15 skills (em detalhe)</div>
     <p>Cada skill é um arquivo <code>.md</code> com frontmatter (nome + descrição) + corpo estruturado em ETAPAs. O Claude lê a skill, segue as etapas, e salva os artefatos prescritos.</p>
 
     <div class="skill-card">
@@ -296,9 +296,9 @@ workspace/                 ← criado por skill 00, organizado por produto
       <div class="skill-section">
         <strong>Outputs críticos pro próximo skill:</strong>
         <ul>
-          <li><code>bonuses[]</code> array → lido por skill 13 (bonus-delivery)</li>
-          <li><code>offer_stack</code> string → lido por skill 05 (copy)</li>
-          <li><code>unit_economics.weighted_margin_per_order</code> + <code>target_cpa_primary_2x/3x</code> → lido por skill 09 (ad-analysis)</li>
+          <li><code>bonuses[]</code> array → lido por skill 05 (bonus-delivery)</li>
+          <li><code>offer_stack</code> string → lido por skill 06 (copy)</li>
+          <li><code>unit_economics.weighted_margin_per_order</code> + <code>target_cpa_primary_2x/3x</code> → lido por skill 11 (ad-analysis)</li>
         </ul>
       </div>
       <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">04-offer.md/html/json</span> <span class="pill pill-output">04-research-foundation.json</span></div>
@@ -310,50 +310,50 @@ workspace/                 ← criado por skill 00, organizado por produto
         <span class="skill-name">Copy Engine</span>
         <span class="pill pill-trigger">"copy"</span>
       </div>
-      <div class="skill-desc">Headlines (process adapta o "Process of 100" de Caples ao volume necessário). Lead types selecionados por awareness (Story, Problem-Solution, Secret, Offer, Proclamation, Direct). Hero apropriado ao tipo de página, bullets, social proof, FAQ, urgency, email hooks (pra skill 12 reutilizar). 8 sweeps de revisão (clarity, VOC, specificity, flow, objection, CTA, originality, compliance).</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">05-copy.md/html/json</span></div>
+      <div class="skill-desc">Headlines (process adapta o "Process of 100" de Caples ao volume necessário). Lead types selecionados por awareness (Story, Problem-Solution, Secret, Offer, Proclamation, Direct). Hero apropriado ao tipo de página, bullets, social proof, FAQ, urgency, email hooks (pra skill 13 reutilizar). 8 sweeps de revisão (clarity, VOC, specificity, flow, objection, CTA, originality, compliance).</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">06-copy.md/html/json</span></div>
     </div>
 
     <div class="skill-card">
       <div class="skill-head">
         <span class="pill pill-skill">06</span>
-        <span class="skill-name">Page Engine — cadeia 06a → 06b → 06c</span>
+        <span class="skill-name">Page Engine — cadeia 07a → 07b → 07c</span>
         <span class="pill pill-trigger">"page"</span>
       </div>
       <div class="skill-desc"><strong>Por que está dividida em 3:</strong> o monolítico tinha 1055 linhas. Quebrar em 3 melhora performance e permite iteration loop em fase específica sem regenerar tudo.</div>
 
       <div class="skill-section">
-        <strong>06a — Page Planning</strong>
+        <strong>07a — Page Planning</strong>
         <ul>
-          <li>Pre-flight (skill 05 completa, manifest válido)</li>
+          <li>Pre-flight (skill 06 completa, manifest válido)</li>
           <li>Detecta tipo de página (advertorial vs landing vs hybrid)</li>
           <li>Brand discovery + opcional referência visual</li>
           <li>Design system orchestration: cor → typography → spacing → grid → tokens</li>
-          <li><strong>Output:</strong> <code>06-page/06-design-system.md</code> + <code>06-plan.md</code> + <code>06-plan.json</code></li>
+          <li><strong>Output:</strong> <code>07-page/07-design-system.md</code> + <code>07-plan.md</code> + <code>07-plan.json</code></li>
         </ul>
       </div>
 
       <div class="skill-section">
-        <strong>06b — Page Sections</strong>
+        <strong>07b — Page Sections</strong>
         <ul>
           <li>Gera 3 variantes de hero (membro escolhe A/B/C)</li>
           <li>Converte pro padrão de blocks inline no schema Shopify</li>
           <li>Replica pras demais sections do plano</li>
           <li>UX writing pass + self-critique (Nielsen + WCAG 2.1 AA)</li>
           <li>Validação Liquid via <code>shopify-plugin:shopify-liquid</code> com retry logic</li>
-          <li><strong>Output:</strong> arquivos <code>.liquid</code> em <code>&lt;staging&gt;/sections/</code> + <code>06-sections-report.md</code></li>
+          <li><strong>Output:</strong> arquivos <code>.liquid</code> em <code>&lt;staging&gt;/sections/</code> + <code>07-sections-report.md</code></li>
         </ul>
       </div>
 
       <div class="skill-section">
-        <strong>06c — Page Deploy</strong>
+        <strong>07c — Page Deploy</strong>
         <ul>
-          <li><span class="pill pill-gate">GATE</span> Skill 11 (consistency audit) no pre-flight: se <code>BLOCK</code>, aborta</li>
+          <li><span class="pill pill-gate">GATE</span> Skill 09 (consistency audit) no pre-flight: se <code>BLOCK</code>, aborta</li>
           <li>Cria <code>templates/page.[produto].json</code> com blocks pré-populados</li>
           <li>Validação OBRIGATÓRIA de blocks (não-vazios, types válidos)</li>
           <li>Deploy seguro: duplicate theme → pull → cp → push --nodelete</li>
           <li>Smoke test pós-push (curl no storefront, grep marker)</li>
-          <li><strong>Output:</strong> preview URLs + <code>06-deploy-report.md/json</code></li>
+          <li><strong>Output:</strong> preview URLs + <code>07-deploy-report.md/json</code></li>
         </ul>
       </div>
     </div>
@@ -381,7 +381,7 @@ workspace/                 ← criado por skill 00, organizado por produto
           <li><strong>ETAPA 8:</strong> resumo de produção</li>
         </ul>
       </div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">07-creatives.json</span> + 1 briefing <code>.md</code> por conceito</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">08-creatives.json</span> + 1 briefing <code>.md</code> por conceito</div>
     </div>
 
     <div class="skill-card">
@@ -391,8 +391,8 @@ workspace/                 ← criado por skill 00, organizado por produto
         <span class="pill pill-trigger">"ad strategy"</span>
       </div>
       <div class="skill-desc">Verificação de pré-requisitos (Pixel, CAPI, produto ativo, criativos prontos), estrutura de campanha (One Campaign Method), ad sets em estrutura 3-2-2, naming convention padrão. PGS (Performance Gate Scaling) automático.</div>
-      <div class="callout"><strong><span class="pill pill-gate">GATE</span> Skill 11</strong> roda no pre-flight. Se <code>BLOCK</code>, aborta. Drift entre criativos/copy/oferta vira disapproval ou ad com mismatch ad↔landing.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">08-ad-strategy.md/html/json</span> + manifest com <code>08_campaign_name</code> (lido pela 09)</div>
+      <div class="callout"><strong><span class="pill pill-gate">GATE</span> Skill 09</strong> roda no pre-flight. Se <code>BLOCK</code>, aborta. Drift entre criativos/copy/oferta vira disapproval ou ad com mismatch ad↔landing.</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">10-ad-strategy.md/html/json</span> + manifest com <code>10_campaign_name</code> (lido pela 11)</div>
     </div>
 
     <div class="skill-card">
@@ -402,7 +402,7 @@ workspace/                 ← criado por skill 00, organizado por produto
         <span class="pill pill-trigger">"ad analysis"</span>
       </div>
       <div class="skill-desc">4Pi analysis (Spend, Frequency, CPM, Cost per Result). LOSER detection dinâmico (lê <code>04-offer.json.unit_economics.weighted_margin_per_order</code> + <code>target_cpa_primary_2x/3x</code>). 19-Point Loser Diagnostic em 4 camadas (targeting, hook, copy, oferta). Identifica WINNERs (CPA &lt; target × 0.7, spend &gt; $300, idade &gt; 5 dias).</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">09-analysis/[timestamp].json</span> + <span class="pill pill-output">09-analysis/latest.json</span> (handoff pra skill 10 e 14)</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">11-analysis/[timestamp].json</span> + <span class="pill pill-output">11-analysis/latest.json</span> (handoff pra skill 12 e 14)</div>
     </div>
 
     <div class="skill-card">
@@ -411,8 +411,8 @@ workspace/                 ← criado por skill 00, organizado por produto
         <span class="skill-name">Scale Engine</span>
         <span class="pill pill-trigger">"scale"</span>
       </div>
-      <div class="skill-desc">Pre-flight (skills 08 + 09 completas). Vertical scaling (5% rule do PGS), horizontal scaling (novos ad sets, placements, angles), Champion promotion (Post ID dedicated), diversification por stage (Tier 1/2/3+).</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">10-scale/[timestamp].md</span> + plano de execução</div>
+      <div class="skill-desc">Pre-flight (skills 10 + 11 completas). Vertical scaling (5% rule do PGS), horizontal scaling (novos ad sets, placements, angles), Champion promotion (Post ID dedicated), diversification por stage (Tier 1/2/3+).</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">12-scale/[timestamp].md</span> + plano de execução</div>
     </div>
 
     <div class="skill-card">
@@ -422,9 +422,9 @@ workspace/                 ← criado por skill 00, organizado por produto
         <span class="pill pill-trigger">"consistency audit"</span>
         <span class="pill pill-trigger">"audit"</span>
       </div>
-      <div class="skill-desc">Cross-phase drift detection: confere se mecanismo, awareness stage, VOC, oferta batem entre todos os artefatos (skills 02 → 04 → 05 → 06 → 07 → 08). Identifica VOC traceability (frases na copy/ads vêm da pesquisa). Verifica promise↔config (promessas batem com config da loja).</div>
-      <div class="opportunity"><strong>Como vira gate:</strong> skills 06c, 08, 12 leem o JSON desta skill no pre-flight. Se <code>launch_recommendation == "BLOCK"</code>, abortam. Drift entre fases para de chegar em produção.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">11-consistency-audit.md/html/json</span> com <code>launch_recommendation: "BLOCK" | "CAUTION" | "GO"</code></div>
+      <div class="skill-desc">Cross-phase drift detection: confere se mecanismo, awareness stage, VOC, oferta batem entre todos os artefatos (skills 02 → 03 → 04 → 06 → 07 → 08). Identifica VOC traceability (frases na copy/ads vêm da pesquisa). Verifica promise↔config (promessas batem com config da loja).</div>
+      <div class="opportunity"><strong>Como vira gate:</strong> skills 07c, 08, 12 leem o JSON desta skill no pre-flight. Se <code>launch_recommendation == "BLOCK"</code>, abortam. Drift entre fases para de chegar em produção.</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">09-consistency-audit.md/html/json</span> com <code>launch_recommendation: "BLOCK" | "CAUTION" | "GO"</code></div>
     </div>
 
     <div class="skill-card">
@@ -436,8 +436,8 @@ workspace/                 ← criado por skill 00, organizado por produto
         <span class="pill pill-trigger">"klaviyo"</span>
       </div>
       <div class="skill-desc">Pre-flight: ESP identificado (Klaviyo / Omnisend / MailerLite), ≥50 compras. Fluxos base: welcome series, abandoned cart, post-purchase, browse abandon, win-back, replenishment. Adapta cada fluxo ao produto (lê <code>04-offer.md</code>).</div>
-      <div class="callout"><strong><span class="pill pill-gate">GATE</span> Skill 11</strong> no pre-flight: se <code>BLOCK</code>, aborta. Fluxos herdam drift detectado (mecanismo divergente, oferta diferente da página) e propagariam inconsistência pra base de subscribers.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">12-retention/[fluxo].md</span> + arquivos exportáveis</div>
+      <div class="callout"><strong><span class="pill pill-gate">GATE</span> Skill 09</strong> no pre-flight: se <code>BLOCK</code>, aborta. Fluxos herdam drift detectado (mecanismo divergente, oferta diferente da página) e propagariam inconsistência pra base de subscribers.</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">13-retention/[fluxo].md</span> + arquivos exportáveis</div>
     </div>
 
     <div class="skill-card">
@@ -447,7 +447,7 @@ workspace/                 ← criado por skill 00, organizado por produto
         <span class="pill pill-trigger">"bonus delivery"</span>
       </div>
       <div class="skill-desc">Lê <code>04-offer.json.bonuses[]</code>. Pra cada bonus, gera pipeline de entrega conforme <code>delivery_trigger</code> (post-purchase, on-signup, day-7, on-first-reorder). Templates por tipo: digital guide → PDF, community access → Circle invite, video series → Wistia hosted, etc.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">13-bonus-delivery/[bonus-id]/</span> com assets + instruções de upload</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">05-bonus-delivery/[bonus-id]/</span> com assets + instruções de upload</div>
     </div>
 
     <div class="skill-card">
@@ -458,7 +458,7 @@ workspace/                 ← criado por skill 00, organizado por produto
         <span class="pill pill-trigger">"recycle [id]"</span>
         <span class="pill pill-trigger">"recycle winner"</span>
       </div>
-      <div class="skill-desc">Lê 1 criativo winner (input direto OU detecta automático via <code>09-analysis/latest.json.winners[]</code>). Extrai essência (big idea, hook, mechanism, avatar, voice). Gera 9 derivadas em formatos diferentes: advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad. Compliance pre-flight em cada derivada.</div>
+      <div class="skill-desc">Lê 1 criativo winner (input direto OU detecta automático via <code>11-analysis/latest.json.winners[]</code>). Extrai essência (big idea, hook, mechanism, avatar, voice). Gera 9 derivadas em formatos diferentes: advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad. Compliance pre-flight em cada derivada.</div>
       <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">14-recycled/[source-id]/</span> com 9 <code>.md</code> + 9 <code>.html</code> + <code>README.md/html</code> + <code>essence.json</code> + <code>compliance-log.json</code></div>
     </div>
   </div>
@@ -474,7 +474,7 @@ workspace/                 ← criado por skill 00, organizado por produto
           <tr>
             <td><strong>compliance-preflight</strong></td>
             <td>Detecta palavras ad-flag (Botox, weight loss, cure, treat, anti-aging, before & after, guaranteed) que disparam disapproval no Meta/TikTok. Output: <code>severity</code> + <code>rewrite_suggestion</code>.</td>
-            <td>05, 06b, 06c, 07, 14</td>
+            <td>05, 07b, 07c, 07, 14</td>
           </tr>
           <tr>
             <td><strong>content-recycler</strong></td>
@@ -483,12 +483,12 @@ workspace/                 ← criado por skill 00, organizado por produto
           </tr>
           <tr>
             <td><strong>creative-dna</strong></td>
-            <td>Registry de DNA aprendido entre produtos. Skill 07 salva padrões abstratos (winning hook archetypes, voice signatures); próxima execução em outro produto consulta e adapta.</td>
+            <td>Registry de DNA aprendido entre produtos. Skill 08 salva padrões abstratos (winning hook archetypes, voice signatures); próxima execução em outro produto consulta e adapta.</td>
             <td>07</td>
           </tr>
           <tr>
             <td><strong>hook-taxonomy</strong></td>
-            <td>Taxonomia de hooks (Problema/Resultado/Curiosidade/Prova social) usada na skill 07. Catálogo em <code>archetypes.json</code>.</td>
+            <td>Taxonomia de hooks (Problema/Resultado/Curiosidade/Prova social) usada na skill 08. Catálogo em <code>archetypes.json</code>.</td>
             <td>07</td>
           </tr>
           <tr>
@@ -500,7 +500,7 @@ workspace/                 ← criado por skill 00, organizado por produto
       </table>
     </div>
 
-    <div class="opportunity"><strong>Cross-product learning:</strong> creative-dna é o que dá vantagem cumulativa pra membro que roda vários produtos. A skill 07 fica mais inteligente a cada produto rodado.</div>
+    <div class="opportunity"><strong>Cross-product learning:</strong> creative-dna é o que dá vantagem cumulativa pra membro que roda vários produtos. A skill 08 fica mais inteligente a cada produto rodado.</div>
   </div>
 
   <div class="section" id="s5">
@@ -511,7 +511,7 @@ workspace/                 ← criado por skill 00, organizado por produto
       <table>
         <thead><tr><th>Rule</th><th>Quando aplica</th></tr></thead>
         <tbody>
-          <tr><td><code>pre-launch-gates</code></td><td><strong>NON-NEGOTIABLE.</strong> Define dois gates: ad-flag compliance (skills 05, 06b, 06c, 07, 08) e Promise↔Config (skills 06c, 08).</td></tr>
+          <tr><td><code>pre-launch-gates</code></td><td><strong>NON-NEGOTIABLE.</strong> Define dois gates: ad-flag compliance (skills 06, 07b, 07c, 08, 10) e Promise↔Config (skills 07c, 10).</td></tr>
           <tr><td><code>shopify-theme-safety</code></td><td>Toda operação Shopify CLI. Pull antes de edit, <code>--nodelete</code>, marker verification, smoke test pós-push.</td></tr>
           <tr><td><code>iteration-driven-refinement</code></td><td>Skills que geram asset (copy, briefing, página). Primeira versão é draft, max 3 iterações antes de escalate.</td></tr>
           <tr><td><code>member-stage-awareness</code></td><td>Toda skill. Detecta starter / validating / scaling pelo manifest e adapta tom + recomendações.</td></tr>
@@ -581,30 +581,30 @@ workspace/                 ← criado por skill 00, organizado por produto
 ├── 03-creative-patterns.json
 ├── 04-offer.md / .html / .json
 ├── 04-research-foundation.json
-├── 05-copy.md / .html / .json
-├── 06-page/
-│   ├── 06-design-system.md
-│   ├── 06-plan.md / .json
-│   ├── 06-sections-report.md
-│   └── 06-deploy-report.md / .json
-├── 07-creatives.json
-├── 07-creatives/
+├── 05-bonus-delivery/
+│   └── [bonus-id]/
+├── 06-copy.md / .html / .json
+├── 07-page/
+│   ├── 07-design-system.md
+│   ├── 07-plan.md / .json
+│   ├── 07-sections-report.md
+│   └── 07-deploy-report.md / .json
+├── 08-creatives.json
+├── 08-creatives/
 │   ├── briefing-c01.md / .html
 │   ├── prompt-c01-image.txt
 │   └── ... (1 set por conceito)
-├── 08-ad-strategy.md / .html / .json
-├── 09-analysis/
+├── 09-consistency-audit.md / .html / .json
+├── 10-ad-strategy.md / .html / .json
+├── 11-analysis/
 │   ├── 2026-04-15.json
 │   ├── 2026-04-22.json
 │   └── latest.json
-├── 10-scale/
-├── 11-consistency-audit.md / .html / .json
-├── 12-retention/
+├── 12-scale/
+├── 13-retention/
 │   ├── welcome-series.md / .html
 │   ├── abandoned-cart.md / .html
 │   └── ... (1 por fluxo)
-├── 13-bonus-delivery/
-│   └── [bonus-id]/
 └── 14-recycled/
     └── [source-id]/
         ├── README.md / .html
@@ -666,8 +666,8 @@ workspace/                 ← criado por skill 00, organizado por produto
 
   <div class="section" id="s10">
     <div class="section-label"><span class="num">10</span>Memória persistente — creative-dna registry</div>
-    <p>Cross-product learning. A skill 07 (creatives) salva DNA toda vez que executa: hook archetypes que funcionaram, voice signatures, structural patterns. Próxima execução em outro produto consulta esse registry e adapta sem reinventar.</p>
-    <div class="note"><strong>Como ler/escrever:</strong> via <code>lib/creative-dna/registry.py</code>. Skill 07 chama em silent steps (ETAPA 7.4 carrega, ETAPA 7.6 escreve).</div>
+    <p>Cross-product learning. A skill 08 (creatives) salva DNA toda vez que executa: hook archetypes que funcionaram, voice signatures, structural patterns. Próxima execução em outro produto consulta esse registry e adapta sem reinventar.</p>
+    <div class="note"><strong>Como ler/escrever:</strong> via <code>lib/creative-dna/registry.py</code>. Skill 08 chama em silent steps (ETAPA 7.4 carrega, ETAPA 7.6 escreve).</div>
     <div class="opportunity"><strong>O que NÃO entra no registry:</strong> dados específicos do produto (nomes, claims, preços). Só padrões abstratos.</div>
   </div>
 
@@ -681,8 +681,9 @@ workspace/                 ← criado por skill 00, organizado por produto
       <li><strong>market research</strong> — VOC, awareness, drivers (mais consultado)</li>
       <li><strong>competitor analysis</strong> — 5-10 concorrentes, padrões, gaps</li>
       <li><strong>offer</strong> — mecanismo, pricing, stack, garantia</li>
+      <li><strong>bonus delivery (asset prep)</strong> — PDFs/emails/Circle invites dos bonuses</li>
       <li><strong>copy</strong> — copy completa pra todas sections</li>
-      <li><strong>page</strong> — 06a (planning) → 06b (sections) → 06c (deploy)</li>
+      <li><strong>page</strong> — 07a (planning) → 07b (sections) → 07c (deploy)</li>
       <li><strong>creatives</strong> — 6-15 conceitos com briefings</li>
       <li><strong>consistency audit</strong> — cross-phase drift check (gate)</li>
       <li><strong>ad strategy</strong> — estrutura de campanha, naming, PGS</li>
@@ -690,17 +691,17 @@ workspace/                 ← criado por skill 00, organizado por produto
       <li><strong>ad analysis</strong> (após 3-7 dias) — 4Pi, diagnóstico, decisões</li>
       <li><strong>scale</strong> (após winners) — vertical + horizontal</li>
       <li><strong>retention</strong> (≥50 compras) — fluxos Klaviyo</li>
-      <li><strong>bonus delivery</strong> (paralelo) — entrega dos bonuses do stack</li>
       <li><strong>content recycler</strong> (após winner consolidado) — 9 derivadas do criativo top</li>
     </ol>
 
     <div class="callout"><strong>Cada skill faz pre-flight da anterior.</strong> Se artefato faltar, oferece fallback (rule <code>emergency-escape-paths</code> — ES1).</div>
-    <div class="note"><strong>Iteration loop normal:</strong> depois de cada launch, ad analysis + iteração de creatives ou copy é o ciclo. Skill 11 (consistency audit) reroda antes de cada relaunch crítico.</div>
+    <div class="note"><strong>Iteration loop normal:</strong> depois de cada launch, ad analysis + iteração de creatives ou copy é o ciclo. Skill 09 (consistency audit) reroda antes de cada relaunch crítico.</div>
   </div>
 
   <div class="section" id="s12">
     <div class="section-label"><span class="num">12</span>Mudanças recentes</div>
-    <p>Registro das correções e upgrades aplicados em abril/2026:</p>
+    <p>Registro das correções e upgrades.</p>
+    <div class="note"><strong>Importante:</strong> os números abaixo refletem a numeração das skills <strong>na época de cada mudança</strong>. Renumerações posteriores não modificam o histórico.</div>
 
     <div class="table-wrap">
       <table>
@@ -716,8 +717,10 @@ workspace/                 ← criado por skill 00, organizado por produto
           <tr><td>2026-04-30</td><td>Google Cache removido do fallback chain do skill 03 (descontinuado set/2024)</td></tr>
           <tr><td>2026-04-30</td><td>URL Higgsfield hardcoded substituída por URL genérica em <code>prompt-directors/marketing-studio-director.md</code></td></tr>
           <tr><td>2026-04-30</td><td>Libs órfãs deletadas: <code>shocking-stats</code>, <code>whisper-transcribe</code>, <code>section-patterns</code></td></tr>
-          <tr><td>2026-04-30</td><td>Skill 14 ganha companion <code>.html</code> obrigatório (rule 6b)</td></tr>
+          <tr><td>2026-04-30</td><td>Skill 14 (ex-17) ganha companion <code>.html</code> obrigatório (rule 6b)</td></tr>
           <tr><td>2026-04-30</td><td>CLAUDE.md atualizado com skill 14 na lista oficial</td></tr>
+          <tr><td>2026-05-03</td><td>Self-audit silencioso obrigatório no fim de toda skill (rule + regra 9 em CLAUDE.md)</td></tr>
+          <tr><td>2026-05-03</td><td><strong>Renumeração completa pra alinhar números com ordem de execução</strong>: bonus-delivery 13→05, copy 05→06, page 06→07, creative 07→08, consistency-audit 11→09, ad-strategy 08→10, ad-analysis 09→11, scale 10→12, retention 12→13. Numbers daqui pra frente refletem ordem cronológica.</td></tr>
         </tbody>
       </table>
     </div>

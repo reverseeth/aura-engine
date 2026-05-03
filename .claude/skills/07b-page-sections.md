@@ -16,7 +16,7 @@ Esta é a **segunda** das 3 skills da cadeia Page Engine modularizada. Ela:
 
 **Outputs gravados em:**
 - `<staging>/sections/page-[produto]-[tipo].liquid` — 1 arquivo Liquid por section
-- `/workspace/[produto]/06-page/06-sections-report.md` — relatório das sections geradas
+- `/workspace/[produto]/07-page/07-sections-report.md` — relatório das sections geradas
 
 Depois desta skill, rode `page-deploy` pra criar o template JSON e deployar no Shopify.
 
@@ -24,33 +24,33 @@ Depois desta skill, rode `page-deploy` pra criar o template JSON e deployar no S
 
 Valide que a skill anterior (`page-planning`) rodou:
 
-- [ ] `/workspace/[produto]/06-page/06-plan.json` existe e é parseável
-- [ ] `/workspace/[produto]/06-page/06-design-system.md` existe
-- [ ] `/workspace/[produto]/manifest.json` tem `06a-page-planning` em `skills_completed`
-- [ ] Dir de staging: `/workspace/[produto]/06-page/staging/sections/` (criar com `mkdir -p` se não existir)
+- [ ] `/workspace/[produto]/07-page/07-plan.json` existe e é parseável
+- [ ] `/workspace/[produto]/07-page/07-design-system.md` existe
+- [ ] `/workspace/[produto]/manifest.json` tem `07a-page-planning` em `skills_completed`
+- [ ] Dir de staging: `/workspace/[produto]/07-page/staging/sections/` (criar com `mkdir -p` se não existir)
 - [ ] Plugin `shopify-plugin:shopify-liquid` disponível (tente invocá-lo em modo dry — se falhar, avise membro e peça `/plugin install shopify-plugin@shopify-plugin`)
 
-Se `06-plan.json` não existir: "Rode `page-planning` primeiro — preciso do plano de sections + design system antes de gerar Liquid."
+Se `07-plan.json` não existir: "Rode `page-planning` primeiro — preciso do plano de sections + design system antes de gerar Liquid."
 
 ## Pré-flight adicional — Design Blueprint via Claude Design
 
-Na skill `page-planning` (06a), o membro aprovou uma das 4 variações visuais (A/B/C/D) geradas como artifact no Claude Design. O HTML dessa variação está salvo em `/workspace/[produto]/06-page/design-blueprint/index.html` + tokens em `design-tokens.json`.
+Na skill `page-planning` (07a), o membro aprovou uma das 4 variações visuais (A/B/C/D) geradas como artifact no Claude Design. O HTML dessa variação está salvo em `/workspace/[produto]/07-page/design-blueprint/index.html` + tokens em `design-tokens.json`.
 
 **Pipeline de uso do blueprint nessa skill:**
 
-1. Ler tokens em `/workspace/[produto]/06-page/design-tokens.json` (cores, tipografia, spacing, radii, shadows, componentes)
-2. Identificar correspondência section-a-section entre o HTML blueprint e o `06-plan.json`:
+1. Ler tokens em `/workspace/[produto]/07-page/design-tokens.json` (cores, tipografia, spacing, radii, shadows, componentes)
+2. Identificar correspondência section-a-section entre o HTML blueprint e o `07-plan.json`:
    - Section hero do HTML → section hero do Liquid
    - Mesmo pra features, mechanism, proof, offer, FAQ, etc
    - Salvar mapping em `design-section-mapping.json`
 3. Em cada geração de section Liquid (ETAPAs 4-6), injetar o HTML snippet correspondente como **visual reference** no prompt: "Gere Liquid preservando a estética visual deste HTML: [snippet]. Traduzir pra Liquid 2.0 com blocks, settings inline, Padrão 1 (color CSS vars inline), Padrão 2 (SVG icons), Padrão 4 (form /cart/add), Padrão 5 (everything editable)."
 4. Após gerar cada section, **validação de fidelidade visual:** comparar (via reasoning) a descrição do Liquid gerado com o HTML reference. Se divergência > 20% (cores mudaram, hierarquia errada, layout distinto), regerar com prompt mais específico. Max 3 retries por section.
-5. Output final inclui `/workspace/[produto]/06-page/design-conversion-notes.md` listando:
+5. Output final inclui `/workspace/[produto]/07-page/design-conversion-notes.md` listando:
    - Sections convertidas 100%
    - Sections simplificadas (e por quê — ex: animação complexa não cabe em Liquid)
    - Assets que precisam upload manual no theme editor (imagens do blueprint são placeholders)
 
-**Se blueprint ausente:** PARE a skill e direcione pra `page-planning` (06a). Não existe modo `direct_generation` — toda página passa por blueprint aprovado antes do código.
+**Se blueprint ausente:** PARE a skill e direcione pra `page-planning` (07a). Não existe modo `direct_generation` — toda página passa por blueprint aprovado antes do código.
 
 ## Arquitetura — Por que blocks inline no schema
 
@@ -226,7 +226,7 @@ A hero é a section mais importante. Gere 3 direções distintas e deixe o membr
 
 Para cada variante:
 
-1. **Skill `frontend-design`**: gere HTML + CSS (vanilla, não Tailwind) seguindo o design system da `page-planning`, usando a copy real do `05-copy.md`. Inclua:
+1. **Skill `frontend-design`**: gere HTML + CSS (vanilla, não Tailwind) seguindo o design system da `page-planning`, usando a copy real do `06-copy.md`. Inclua:
    - Pre-headline / eyebrow tag (se a copy tiver)
    - Headline principal
    - Subheading
@@ -944,11 +944,11 @@ Todos registram `selling_plan_id` no Shopify. Front-end usa mesmo pattern `<inpu
 
 ## ETAPA 6 — Generate Remaining Sections
 
-Para cada section do plano (`06-plan.json`) além do hero, aplique o MESMO padrão da Etapa 5: **uma section file com blocks inline no schema** (nunca theme blocks em `/blocks/*.liquid`).
+Para cada section do plano (`07-plan.json`) além do hero, aplique o MESMO padrão da Etapa 5: **uma section file com blocks inline no schema** (nunca theme blocks em `/blocks/*.liquid`).
 
 Loop por section:
 
-1. **Skill `frontend-design`**: gera HTML + CSS vanilla seguindo o design system + copy real da section (vem do `05-copy.md`).
+1. **Skill `frontend-design`**: gera HTML + CSS vanilla seguindo o design system + copy real da section (vem do `06-copy.md`).
 
 2. **Specialists relevantes** (chame quando aplicável):
    - `designer-visual-hierarchy` — sempre
@@ -1200,7 +1200,7 @@ Os scripts `liquid-converter.py` e `preview.py` **não são usados no fluxo prin
 Salve:
 
 - **`<staging>/sections/page-[produto]-[tipo].liquid`** — 1 arquivo por section (hero + demais do plano)
-- **`/workspace/[produto]/06-page/06-sections-report.md`** — relatório das sections geradas:
+- **`/workspace/[produto]/07-page/07-sections-report.md`** — relatório das sections geradas:
   - Variante de hero escolhida + por quê
   - Lista de arquivos `.liquid` gerados (paths absolutos)
   - Blocks universais + type-specific por section
@@ -1208,7 +1208,7 @@ Salve:
   - Issues conhecidas (se houver)
   - Próximo passo: "Rode `page-deploy` pra criar o template JSON e fazer deploy."
 
-Atualize `/workspace/[produto]/manifest.json` adicionando `06b-page-sections` ao array `skills_completed`.
+Atualize `/workspace/[produto]/manifest.json` adicionando `07b-page-sections` ao array `skills_completed`.
 
 ## Referências cruzadas
 

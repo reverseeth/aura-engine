@@ -14,12 +14,12 @@ Receita orquestradora que faz deploy completo de produto em Shopify + estrutura 
 
 ## Pre-flight (OBRIGATÓRIO — falha se faltar)
 
-- [ ] `manifest.json` completo com `08-ad-strategy` em `skills_completed`
+- [ ] `manifest.json` completo com `10-ad-strategy` em `skills_completed`
 - [ ] `04-offer.json` com 3 tiers
-- [ ] `05-copy.md` pronto
-- [ ] `06-page/staging/` deployed (template + sections)
-- [ ] `07-creatives/` com briefings prontos
-- [ ] `08-ad-strategy.json` com estrutura de campanha definida
+- [ ] `06-copy.md` pronto
+- [ ] `07-page/staging/` deployed (template + sections)
+- [ ] `08-creatives/` com briefings prontos
+- [ ] `10-ad-strategy.json` com estrutura de campanha definida
 - [ ] MCP `meta-ads` conectado e testado
 - [ ] MCP `shopify` conectado e testado
 - [ ] Ad Account ID válido
@@ -37,7 +37,7 @@ Invoca `deploy-shopify-product.md`:
 result_1 = invoke_recipe("deploy-shopify-product", {
   product_slug: manifest.product_slug,
   offer_tiers: offer.tiers,
-  description_md: "/workspace/[produto]/05-copy.md",
+  description_md: "/workspace/[produto]/06-copy.md",
   images: manifest.images_paths || []
 })
 ```
@@ -46,7 +46,7 @@ result_1 = invoke_recipe("deploy-shopify-product", {
 - `product_id`, `variant_ids {Starter, Popular, BestValue}`, status: draft
 
 ### Stage 2 — Wire Variant IDs no template da PDP
-Ler template `/workspace/[produto]/06-page/staging/templates/page.[slug].json`, substituir placeholders `VARIANT_ID_STARTER|POPULAR|BESTVALUE` pelos IDs reais do Stage 1. Push via Shopify CLI.
+Ler template `/workspace/[produto]/07-page/staging/templates/page.[slug].json`, substituir placeholders `VARIANT_ID_STARTER|POPULAR|BESTVALUE` pelos IDs reais do Stage 1. Push via Shopify CLI.
 
 ```
 shopify.theme.asset.update(
@@ -60,7 +60,7 @@ shopify.theme.asset.update(
 ```
 campaign = meta_ads.campaign.create(
   ad_account_id,
-  name=strategy.campaign_name,  // do 08-ad-strategy.json
+  name=strategy.campaign_name,  // do 10-ad-strategy.json
   objective="OUTCOME_SALES",
   status="PAUSED",
   special_ad_categories=[],
@@ -97,14 +97,14 @@ ad_set = meta_ads.ad_set.create(
 ```
 
 ### Stage 5 — Upload criativos (se .mp4 existirem)
-Verifica `/workspace/[produto]/07-creatives/videos/` pra cada criativo briefing.
+Verifica `/workspace/[produto]/08-creatives/videos/` pra cada criativo briefing.
 
 Pra cada vídeo existente, invocar `upload-creative-to-meta.md`:
 ```
 invoke_recipe("upload-creative-to-meta", {
   creative_id: "<creative-id>",
   ad_set_name: "<ad_set_name>",
-  video_path: "/workspace/[produto]/07-creatives/videos/<creative-id>.mp4",
+  video_path: "/workspace/[produto]/08-creatives/videos/<creative-id>.mp4",
   status: "PAUSED"
 })
 ```
@@ -143,7 +143,7 @@ invoke_recipe("sync-campaign-from-meta", {
 })
 ```
 
-Salva state inicial em `/workspace/[produto]/09-analysis/raw-pull-[timestamp].json` como baseline.
+Salva state inicial em `/workspace/[produto]/11-analysis/raw-pull-[timestamp].json` como baseline.
 
 ### Stage 8 — Update manifest + log
 
@@ -208,7 +208,7 @@ Meta Ads (tudo PAUSED):
 
 Creative DNA Registry:
   ✓ <N> criativos registered com features extraídas
-  ⏳ Performance update virá via Skill 09 após 3-7 dias
+  ⏳ Performance update virá via Skill 11 após 3-7 dias
 
 Quando quiser:
   - "sobe os vídeos faltantes" (quando produzir)

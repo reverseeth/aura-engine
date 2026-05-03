@@ -1,6 +1,6 @@
 ---
 name: ad-analysis
-description: Engine de análise de performance de Meta Ads usando 4Pi Analysis (Spend → Frequency → CPM → Cost per Result), 19-point diagnostic pra losers, extração de learnings de winners, framework de 12 perguntas (feedback loops), e recomendações acionáveis imediato/curto/médio prazo. Use quando o membro disser "ad analysis", "análise de ads", "analisar performance", "ver resultado", "diagnóstico", ou após 3-7+ dias rodando a campanha da Skill 07. Entrega decisões concretas — escalar, pausar, refresh de criativos, ou ajustar oferta/página.
+description: Engine de análise de performance de Meta Ads usando 4Pi Analysis (Spend → Frequency → CPM → Cost per Result), 19-point diagnostic pra losers, extração de learnings de winners, framework de 12 perguntas (feedback loops), e recomendações acionáveis imediato/curto/médio prazo. Use quando o membro disser "ad analysis", "análise de ads", "analisar performance", "ver resultado", "diagnóstico", ou após 3-7+ dias rodando a campanha da Skill 10. Entrega decisões concretas — escalar, pausar, refresh de criativos, ou ajustar oferta/página.
 ---
 
 # Ad Analysis Engine
@@ -11,16 +11,16 @@ Quando a campanha está rodando há 3+ dias e o membro precisa diagnosticar o qu
 ## Antes de Começar
 
 ### Pré-flight
-- [ ] `08-ad-strategy.json` existe
-- [ ] Dir `/workspace/[produto]/09-analysis/` existe (`mkdir -p`)
+- [ ] `10-ad-strategy.json` existe
+- [ ] Dir `/workspace/[produto]/11-analysis/` existe (`mkdir -p`)
 - [ ] Se houver análises anteriores, ler AS 2 MAIS RECENTES (para delta/trend analysis)
 
 ### Contexto a carregar
 
 1. Leia `/workspace/profile.md` (budget — contexto pra decisões de scale)
 2. Leia `/workspace/[produto]/04-offer.md` (target CPA, breakeven ROAS, margem — benchmarks pra avaliar performance)
-3. Leia `/workspace/[produto]/08-ad-strategy.md` (estrutura da campanha, conceitos testados, regras de decisão)
-4. Leia `/workspace/[produto]/09-analysis/` — **SE EXISTIR**, leia análises anteriores em ordem cronológica (pra ver evolução, identificar tendências, comparar com análises passadas)
+3. Leia `/workspace/[produto]/10-ad-strategy.md` (estrutura da campanha, conceitos testados, regras de decisão)
+4. Leia `/workspace/[produto]/11-analysis/` — **SE EXISTIR**, leia análises anteriores em ordem cronológica (pra ver evolução, identificar tendências, comparar com análises passadas)
 5. Consulte a base Aura extensivamente sobre 4Pi Analysis (Spend/Frequency/CPM/Cost per Result completo), 4Pi Dashboard Setup (custom metrics), creative fatigue (sinais e tratamento), revisão de Ads Perdedores (diagnostic 19 pontos), revisão de Ads Vencedores e extração de ideias, Framework de 12 Perguntas pra Feedback Loops, Aplicação de Learnings pra Novos Ads, Complete a Feedback Loop, Feedback Loops como Motor de Crescimento, ROAS Targets e Scaling, Minimum Daily Spend (por que ads ruins geram gasto), PGS, winning ad rate, funnel creative playbook (positions e signatures TOF/MOF/BOF). Cada framework que existir, aplique.
 
 ## Fluxo da Skill
@@ -38,11 +38,11 @@ Quando a campanha está rodando há 3+ dias e o membro precisa diagnosticar o qu
    a. Invocar receita `sync-campaign-from-meta.md`:
       ```
       invoke_recipe("sync-campaign-from-meta", {
-        campaign_name: read_manifest("08_campaign_name"),
+        campaign_name: read_manifest("10_campaign_name"),
         date_preset: "last_7d"
       })
       ```
-   b. Receita salva pull completo em `/workspace/[produto]/09-analysis/raw-pull-[timestamp].json`
+   b. Receita salva pull completo em `/workspace/[produto]/11-analysis/raw-pull-[timestamp].json`
    c. Parse JSON em tabela estruturada internamente:
 
    | Ad Set | Days Running | Spend | Freq | CPM | CPC | CTR | CPA | ROAS | Thumbstop | Hold15s |
@@ -51,7 +51,7 @@ Quando a campanha está rodando há 3+ dias e o membro precisa diagnosticar o qu
    d. **ZERO interação com o membro nesse fluxo.** Silent pull, pronto pra ETAPA 2.
 
 3. Se MCP falhar (não configurado, token expirado, rate limit):
-   a. Logar erro em `/workspace/[produto]/09-analysis/mcp-errors.log`
+   a. Logar erro em `/workspace/[produto]/11-analysis/mcp-errors.log`
    b. Fallback ao modo manual: pedir ao membro:
 
       "MCP do Meta Ads não respondeu (motivo: [erro]). Cola os dados aqui — screenshot ou números. Preciso ver por ad set: Spend, Frequency, CPM, CPC, Cost per Purchase, ROAS. E quantos dias cada ad set está rodando."
@@ -62,7 +62,7 @@ Quando a campanha está rodando há 3+ dias e o membro precisa diagnosticar o qu
 - Modo auto: "Dados puxados via MCP em [timestamp]"
 - Modo manual: "Dados via print do membro em [timestamp]"
 
-Esta é a diferença entre Skill 09 sob demanda vs Skill 09 autônoma.
+Esta é a diferença entre Skill 11 sob demanda vs Skill 11 autônoma.
 
 ### ETAPA 2 — 4Pi Analysis (Ordem EXATA)
 
@@ -146,7 +146,7 @@ Paths canônicos (lendo `04-offer.json` real):
 ```
 psm_effective = max(target_cpa_2x, target_cpa_3x) / observed_cpa_avg_last_7d
 ```
-Se `09-analysis/latest.json` anterior tem `psm_real` calculado, usar esse valor (mais recente que cálculo frame-a-frame).
+Se `11-analysis/latest.json` anterior tem `psm_real` calculado, usar esse valor (mais recente que cálculo frame-a-frame).
 
 **Fallback** se campos não existirem (oferta antiga):
 - `breakeven_cpa = offer.unit_economics.variations[0].margin_dollar` (primeira variação — geralmente solo)
@@ -172,7 +172,7 @@ Pra CADA ad set, classifique:
 → Ação: escala automática via PGS. Se quer escalar mais agressivo, considera promover criativo a Champion (Post ID) e adicionar ad set dedicado.
 
 **IN FATIGUE:** CPM subindo + CTR caindo + Freq subindo ao longo dos dias (comparar com análises anteriores).
-→ Ação: refresh criativo (trocar 1-2 dos 3 criativos do 3-2-2) OU adicionar novo batch de conceitos (Skill 07). **Não pausar ainda** — pode ainda estar performando acima do breakeven mesmo com sinais de fadiga.
+→ Ação: refresh criativo (trocar 1-2 dos 3 criativos do 3-2-2) OU adicionar novo batch de conceitos (Skill 08). **Não pausar ainda** — pode ainda estar performando acima do breakeven mesmo com sinais de fadiga.
 
 **LOSER:** sem spend em 7 dias OU CPA > 2× target após 7 dias.
 → Ação: PAUSAR. Fazer diagnóstico profundo (Etapa 4) pra entender por que falhou.
@@ -223,7 +223,7 @@ Pra cada WINNER, extraia learnings aplicando o framework:
 - **Por que funcionou?** (hipótese causal — ex: "hook de curiosity pattern interrupt em audience Problem Aware onde concorrentes usam authority-first")
 - **Como replicar?** (quais elementos isolar pra usar em próximos batches — ex: "o hook 'POV: você acorda com X' pode ser template pra outros conceitos")
 
-Learnings vão alimentar Skill 07 (creatives) no próximo batch — escreva de forma utilizável.
+Learnings vão alimentar Skill 08 (creatives) no próximo batch — escreva de forma utilizável.
 
 ### ETAPA 6 — Balanço de Funil
 
@@ -264,14 +264,14 @@ Compile respostas num bloco objetivo.
 
 **CURTO PRAZO (3-7 dias):**
 - Se tem fadiga: refresh de criativos nos ad sets afetados (trocar 1-2 dos 3 no 3-2-2)
-- Se falta diversidade de funil: gerar novo batch de conceitos (Skill 07) com foco na posição faltante
+- Se falta diversidade de funil: gerar novo batch de conceitos (Skill 08) com foco na posição faltante
 - Ajuste de URLs se 3-2-2-2 mostrou preferência clara de LP
 
 **MÉDIO PRAZO (2-4 semanas):**
 - Se winners estáveis: promover pra Champion (Post ID separado)
-- Se CPA está melhor que target consistentemente: reavaliar se dá pra escalar mais (vertical + horizontal — delegar pra Skill 10)
+- Se CPA está melhor que target consistentemente: reavaliar se dá pra escalar mais (vertical + horizontal — delegar pra Skill 12)
 - Se oferta parece ser o bloqueio: voltar pra Skill 04 e ajustar (bundle structure, guarantee, stack)
-- Se página parece ser o bloqueio: voltar pra Skill 05/06 e iterar
+- Se página parece ser o bloqueio: voltar pra Skill 06/07 e iterar
 
 ### ETAPA 9 — Decisão de Scaling (Recomendação Clara)
 
@@ -331,7 +331,7 @@ Pra cada criativo analisado nesta rodada:
    ```
    python3 .claude/lib/creative-dna/registry.py dna /workspace/[produto] --product [slug]
    ```
-   Atualiza `/workspace/[produto]/creative-dna/dna-profile.json` que será usado na próxima Skill 07.
+   Atualiza `/workspace/[produto]/creative-dna/dna-profile.json` que será usado na próxima Skill 08.
 
 Silent. Membro não vê. Apenas o efeito: próximo briefing começa a refletir padrões aprendidos.
 
@@ -344,17 +344,17 @@ Antes de persistir dados em `/workspace/`:
 - Remover telefones em audience names (regex `\+?\d{10,15}` → `[PHONE_REDACTED]`)
 - Nota: manter hash dos IDs consistente entre execuções para correlacionar análises
 
-### Output adicional — NEXT_BATCH_IDEAS.md (fecha loop 09→07)
+### Output adicional — NEXT_BATCH_IDEAS.md (fecha loop 11→08)
 
 Além de `[YYYYMMDD]-analysis.md`, gerar OBRIGATORIAMENTE:
-`/workspace/[produto]/09-analysis/NEXT_BATCH_IDEAS.md`
+`/workspace/[produto]/11-analysis/NEXT_BATCH_IDEAS.md`
 
 **Critério de parada pra evitar loop infinito 09↔07:**
 
 Antes de gerar ideias novas:
 1. Se `NEXT_BATCH_IDEAS.md` já existe:
-   - Ler versão anterior + ler `07-creatives.json` (criativos gerados desde última rodada)
-   - Comparar: quantas ideias propostas na versão anterior **foram testadas** (viraram criativos em 07-creatives.json com performance em 09)?
+   - Ler versão anterior + ler `08-creatives.json` (criativos gerados desde última rodada)
+   - Comparar: quantas ideias propostas na versão anterior **foram testadas** (viraram criativos em 08-creatives.json com performance em 09)?
    - Se `testadas < 50%` das ideias propostas na última rodada → **Não gerar novas ideias.** Retornar versão anterior intacta + adicionar seção "Validation pending: {ideia1}, {ideia2} ainda não foram testadas — priorize antes de gerar novos angles."
    - Se `testadas >= 50%` → proceder com novas ideias (baseadas em learnings das testadas)
 2. Se arquivo não existe: gerar do zero normalmente.
@@ -367,14 +367,14 @@ Conteúdo (quando gerar):
 - **Awareness stage para focar** (se campanha atual oversserve um stage)
 - **Ideias carry-over** (propostas antes, ainda não testadas)
 
-**Skill 07 DEVE ler este arquivo no pre-flight.** Isto fecha o loop 09→07 **com critério de parada.**
+**Skill 08 DEVE ler este arquivo no pre-flight.** Isto fecha o loop 11→08 **com critério de parada.**
 
-### Panorama para skill 10 (scale) e skill 17 (content-recycler) — handoff
+### Panorama para skill 12 (scale) e skill 14 (content-recycler) — handoff
 
-Se ações próximas = 'scale', skill 10 lerá este JSON SEM precisar perguntar.
-Se membro invoca `recycle winner`, skill 17 lerá esse JSON pra achar winner ID.
+Se ações próximas = 'scale', skill 12 lerá este JSON SEM precisar perguntar.
+Se membro invoca `recycle winner`, skill 14 lerá esse JSON pra achar winner ID.
 
-`/workspace/[produto]/09-analysis/latest.json` (cópia do último análise):
+`/workspace/[produto]/11-analysis/latest.json` (cópia do último análise):
 
 ```json
 {
@@ -403,38 +403,38 @@ Se membro invoca `recycle winner`, skill 17 lerá esse JSON pra achar winner ID.
 }
 ```
 
-**Importante:** `winners[]` contém a lista completa de criativos vencedores (não só a contagem). Skill 17 filtra esse array procurando `outcome == "winner"` + `spend_total > 300` + `days_active > 5`.
+**Importante:** `winners[]` contém a lista completa de criativos vencedores (não só a contagem). Skill 14 filtra esse array procurando `outcome == "winner"` + `spend_total > 300` + `days_active > 5`.
 
 ### Atualização do manifest (OBRIGATÓRIO — single source of truth)
 
 Após gerar `latest.json`, atualizar `manifest.json` com campos canônicos:
 
-- `manifest.psm_real` ← `psm_real` calculado nesta análise (skill 10 lê daqui, não de latest.json)
+- `manifest.psm_real` ← `psm_real` calculado nesta análise (skill 12 lê daqui, não de latest.json)
 - `manifest.last_analysis_date` ← timestamp desta análise
 - `manifest.analysis_count` ← incrementar +1
 - `manifest.last_cpa_avg` ← `current_cpa_avg`
 - `manifest.last_roas_avg` ← `current_roas_avg`
 
-Por que atualizar manifest: skills 10, 11, 17 leem `manifest.psm_real` como fonte canônica. Latest.json é histórico por análise; manifest é o estado atual consolidado.
+Por que atualizar manifest: skills 12 e 14 leem `manifest.psm_real` como fonte canônica. Latest.json é histórico por análise; manifest é o estado atual consolidado.
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
 **Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
-**Garantir diretório:** `mkdir -p /workspace/[produto]/09-analysis/` antes de salvar.
+**Garantir diretório:** `mkdir -p /workspace/[produto]/11-analysis/` antes de salvar.
 
-Outputs em `/workspace/[produto]/09-analysis/`:
+Outputs em `/workspace/[produto]/11-analysis/`:
 - `[YYYYMMDD]-analysis.md` (contendo todas as 10 etapas — histórico cumulativo)
 - `[YYYYMMDD]-analysis.html` (companion visual)
-- `NEXT_BATCH_IDEAS.md` (input pra skill 07 no próximo batch — fecha loop)
-- `latest.json` (handoff pra skill 10 — schema acima)
+- `NEXT_BATCH_IDEAS.md` (input pra skill 08 no próximo batch — fecha loop)
+- `latest.json` (handoff pra skill 12 — schema acima)
 
-A pasta `09-analysis/` acumula histórico — análises anteriores servem de input pra comparar evolução nas análises seguintes.
+A pasta `11-analysis/` acumula histórico — análises anteriores servem de input pra comparar evolução nas análises seguintes.
 
 ### Atualizar manifest
 
 Após salvar, atualizar `/workspace/[produto]/manifest.json`:
-- Adicionar `09-ad-analysis` em `skills_completed` (primeira vez) ou incrementar `analysis_count`
+- Adicionar `11-ad-analysis` em `skills_completed` (primeira vez) ou incrementar `analysis_count`
 - Registrar `last_analysis_date`, `psm_real` (calculado), `recommended_action`
 
 ## Mensagem Final

@@ -4,11 +4,11 @@ Sistema de memória que aprende, a cada criativo produzido e medido, **qual comb
 
 ## O que faz
 
-1. **Extract** — quando Skill 07 gera briefing, extrai 15-20 features estruturadas
+1. **Extract** — quando Skill 08 gera briefing, extrai 15-20 features estruturadas
 2. **Store** — salva em SQLite local (ou JSON) no workspace do produto
-3. **Update** — quando Skill 09 roda, atualiza cada criativo com performance real
+3. **Update** — quando Skill 11 roda, atualiza cada criativo com performance real
 4. **Learn** — calcula correlações entre features e outcome (winner/loser)
-5. **Inject** — próxima Skill 07 recebe DNA aprendido como constraint no briefing
+5. **Inject** — próxima Skill 08 recebe DNA aprendido como constraint no briefing
 
 ## Arquitetura
 
@@ -22,9 +22,9 @@ Sistema de memória que aprende, a cada criativo produzido e medido, **qual comb
 
 ## Integração silenciosa com Skills
 
-- **Skill 07 (generate briefing)** → extrai features + salva no DB (sem membro ver)
-- **Skill 09 (ad analysis)** → atualiza performance + outcome (sem membro ver)
-- **Skill 07 (próxima rodada)** → carrega dna-profile.json e enviesa briefing
+- **Skill 08 (generate briefing)** → extrai features + salva no DB (sem membro ver)
+- **Skill 11 (ad analysis)** → atualiza performance + outcome (sem membro ver)
+- **Skill 08 (próxima rodada)** → carrega dna-profile.json e enviesa briefing
 
 Silent end-to-end. Membro só vê o benefício via criativos que performam melhor.
 
