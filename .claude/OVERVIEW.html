@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.cdnfonts.com; font-src 'self' https://fonts.cdnfonts.com data:;">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visão Geral — Aura Engine</title>
+<link href="https://fonts.cdnfonts.com/css/neue-montreal" rel="stylesheet">
+<style>@font-face { font-family: 'Neue Montreal Fallback'; src: local('Inter'), local('Helvetica Neue'), local('Arial'); }</style>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; max-width: 100%; }
+  body {
+    font-family: 'Neue Montreal', 'Neue Montreal Fallback', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+    background: #FAFAFA; color: #1A1A1A;
+    min-height: 100vh; display: flex; justify-content: center;
+    padding: 80px 24px 120px; -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 820px; width: 100%; }
+
+  .logo-wrap { margin-bottom: 12px; }
+  .logo-wrap svg { height: 40px; width: auto; }
+
+  .page-title {
+    font-size: 28px; font-weight: 600; color: #1A1A1A;
+    margin-top: 28px; margin-bottom: 8px;
+    letter-spacing: -0.3px; line-height: 1.25;
+  }
+  .page-subtitle {
+    font-size: 15px; color: #999; font-weight: 400;
+    margin-bottom: 24px; letter-spacing: 0.2px;
+  }
+
+  .meta-bar {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px 24px; padding: 18px 20px;
+    background: #F5F5F5; border-radius: 10px;
+    margin-bottom: 48px;
+    font-size: 13.5px; color: #555; line-height: 1.6;
+  }
+  .meta-bar strong { color: #1A1A1A; font-weight: 600; }
+
+  .toc { background: #F5F5F5; border-radius: 10px; padding: 20px 24px; margin-bottom: 64px; }
+  .toc-title { font-size: 11px; font-weight: 600; color: #1A1A1A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; }
+  .toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc-counter; }
+  .toc li { counter-increment: toc-counter; margin-bottom: 6px; font-size: 14px; color: #555; line-height: 1.5; }
+  .toc li::before { content: counter(toc-counter, decimal-leading-zero) ". "; color: #BBB; font-weight: 500; margin-right: 6px; }
+  .toc a { color: #1A1A1A; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.15s; }
+  .toc a:hover { border-bottom-color: #1A1A1A; }
+
+  .section { margin-bottom: 64px; }
+  .section-label {
+    font-size: 11px; font-weight: 600; color: #1A1A1A;
+    text-transform: uppercase; letter-spacing: 2px;
+    margin-bottom: 28px; padding-bottom: 12px;
+    border-bottom: 1px solid #E8E8E8;
+  }
+  .section-label .num { display: inline-block; margin-right: 10px; color: #AAA; }
+
+  .subsection { margin-bottom: 32px; }
+  .subsection-title { font-size: 16px; font-weight: 600; color: #1A1A1A; margin-bottom: 12px; letter-spacing: -0.1px; }
+
+  p { font-size: 15px; color: #444; line-height: 1.7; margin-bottom: 14px; }
+  p strong { color: #1A1A1A; font-weight: 600; }
+  ul, ol { margin: 8px 0 18px 22px; color: #444; font-size: 15px; line-height: 1.75; }
+  li { margin-bottom: 6px; }
+  li strong { color: #1A1A1A; font-weight: 600; }
+  code {
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 13px; background: #F0F0F0; padding: 1px 6px; border-radius: 4px; color: #1A1A1A;
+    word-break: break-all; overflow-wrap: anywhere;
+  }
+
+  .table-wrap { overflow-x: auto; margin: 14px 0 20px; border: 1px solid #E8E8E8; border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th {
+    text-align: left; font-weight: 600; color: #1A1A1A;
+    background: #F5F5F5; padding: 12px 14px;
+    border-bottom: 1px solid #E8E8E8;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  td { padding: 12px 14px; color: #444; border-bottom: 1px solid #EFEFEF; vertical-align: top; line-height: 1.55; }
+  tr:last-child td { border-bottom: none; }
+  td strong { color: #1A1A1A; font-weight: 600; }
+  td code { font-size: 12.5px; }
+
+  .note {
+    font-size: 14px; color: #555; line-height: 1.65;
+    padding: 14px 16px; background: #F5F5F5;
+    border-radius: 8px; margin: 14px 0;
+    word-break: break-word; overflow-wrap: anywhere;
+  }
+  .note strong { color: #1A1A1A; font-weight: 600; }
+
+  .callout {
+    font-size: 14.5px; color: #1A1A1A; line-height: 1.65;
+    padding: 16px 18px; background: #FFF8E1;
+    border-left: 3px solid #E8B93A;
+    border-radius: 0 8px 8px 0; margin: 16px 0;
+    word-break: break-word; overflow-wrap: anywhere;
+  }
+  .callout strong { font-weight: 600; }
+
+  .opportunity {
+    font-size: 14.5px; color: #1A1A1A; line-height: 1.65;
+    padding: 16px 18px; background: #ECF8E5;
+    border-left: 3px solid #4A9A2E;
+    border-radius: 0 8px 8px 0; margin: 16px 0;
+    word-break: break-word; overflow-wrap: anywhere;
+  }
+  .opportunity strong { font-weight: 600; }
+
+  .danger {
+    font-size: 14.5px; color: #1A1A1A; line-height: 1.65;
+    padding: 16px 18px; background: #FDECEC;
+    border-left: 3px solid #B03A3A;
+    border-radius: 0 8px 8px 0; margin: 16px 0;
+    word-break: break-word; overflow-wrap: anywhere;
+  }
+  .danger strong { font-weight: 600; }
+
+  .pill { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 100px; letter-spacing: 0.3px; margin-right: 4px; }
+  .pill-skill { background: #1A1A1A; color: #FFF; font-weight: 600; }
+  .pill-trigger { background: #DFF0FF; color: #2563A8; font-family: 'SF Mono', 'Fira Code', monospace; }
+  .pill-output { background: #ECF8E5; color: #4A7A1E; }
+  .pill-gate { background: #FFF4DC; color: #8A6300; }
+  .pill-deprecated { background: #FDECEC; color: #B03A3A; }
+
+  .skill-card {
+    background: #FFF; border: 1px solid #E8E8E8;
+    border-radius: 12px; padding: 22px 24px; margin-bottom: 16px;
+  }
+  .skill-card .skill-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .skill-card .skill-name { font-size: 17px; font-weight: 600; color: #1A1A1A; letter-spacing: -0.1px; }
+  .skill-card .skill-desc { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 10px; }
+  .skill-card .skill-section { font-size: 13.5px; color: #444; line-height: 1.65; margin-top: 10px; }
+  .skill-card .skill-section strong { color: #1A1A1A; }
+  .skill-card .skill-section ul { margin: 4px 0 4px 18px; font-size: 13.5px; }
+
+  .ascii-tree {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px; line-height: 1.55; color: #333;
+    background: #F5F5F5; border-radius: 10px;
+    padding: 20px; white-space: pre; overflow-x: auto;
+    margin: 12px 0 20px;
+  }
+
+  .flow-list { counter-reset: flow; list-style: none; margin: 16px 0; padding: 0; }
+  .flow-list li {
+    counter-increment: flow;
+    background: #FFF; border: 1px solid #E8E8E8;
+    border-radius: 10px; padding: 14px 18px 14px 56px;
+    margin-bottom: 10px; position: relative;
+    font-size: 14px; color: #333; line-height: 1.55;
+  }
+  .flow-list li::before {
+    content: counter(flow, decimal-leading-zero);
+    position: absolute; left: 16px; top: 14px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px; color: #999; font-weight: 600;
+    background: #F0F0F0; padding: 3px 8px; border-radius: 6px;
+  }
+  .flow-list li strong { color: #1A1A1A; font-weight: 600; }
+
+  hr { border: none; border-top: 1px solid #E8E8E8; margin: 56px 0; }
+  .footer { font-size: 13px; color: #BBB; line-height: 1.6; text-align: center; margin-top: 64px; }
+
+  @media (max-width: 640px) {
+    body { padding: 40px 16px 80px; }
+    .page-title { font-size: 22px; }
+    .meta-bar { grid-template-columns: 1fr; font-size: 13px; }
+    th, td { padding: 10px 10px; font-size: 12.5px; }
+    .section { margin-bottom: 48px; }
+    .skill-card { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="logo-wrap" role="img" aria-label="Aura Engine">
+    <svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <title>Aura Engine</title>
+      <path d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z" fill="#1A1A1A"/>
+    </svg>
+  </div>
+
+  <h1 class="page-title">Visão Geral Completa</h1>
+  <p class="page-subtitle">Tudo que existe no Aura Engine: o que cada peça faz, como conectam, e como uma sessão flui do início ao fim.</p>
+
+  <div class="meta-bar">
+    <div><strong>Versão:</strong> abril 2026</div>
+    <div><strong>Skills:</strong> 14 (numeradas 00-14, com 06a/06b/06c)</div>
+    <div><strong>Plataforma:</strong> Claude Code (Anthropic CLI)</div>
+    <div><strong>Output:</strong> /workspace/[produto]/</div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">Sumário</div>
+    <ol>
+      <li><a href="#s1">O que é o Aura Engine</a></li>
+      <li><a href="#s2">Arquitetura geral</a></li>
+      <li><a href="#s3">As 14 skills (em detalhe)</a></li>
+      <li><a href="#s4">Sistema de libs</a></li>
+      <li><a href="#s5">Sistema de rules</a></li>
+      <li><a href="#s6">Sistema de hooks</a></li>
+      <li><a href="#s7">Templates</a></li>
+      <li><a href="#s8">Workspace structure</a></li>
+      <li><a href="#s9">Convenções operacionais</a></li>
+      <li><a href="#s10">Memória persistente — creative-dna</a></li>
+      <li><a href="#s11">Como rodar uma sessão completa do zero</a></li>
+      <li><a href="#s12">Mudanças recentes</a></li>
+    </ol>
+  </div>
+
+  <div class="section" id="s1">
+    <div class="section-label"><span class="num">01</span>O que é o Aura Engine</div>
+    <p>Sistema completo pra construir e escalar marcas de ecommerce. Funciona dentro do Claude Code (CLI da Anthropic) como um conjunto de skills + libs + rules + hooks que se ativam por contexto. O membro descreve o que precisa, o Aura identifica em qual fase está e executa a skill apropriada.</p>
+    <div class="callout"><strong>Princípio central:</strong> cada fase produz artefatos versionados em <code>/workspace/[produto]/</code> que alimentam a próxima. Nada é jogado fora — copy bebe da pesquisa, criativos bebem da copy, ads bebem dos criativos, retenção bebe da venda.</div>
+    <div class="note"><strong>Filosofia de output:</strong> todo arquivo <code>.md</code> salvo tem um <code>.html</code> companion no mesmo diretório. O <code>.md</code> é a fonte que a AI lê na fase seguinte; o <code>.html</code> é a versão que o membro abre no browser pra ler com calma.</div>
+  </div>
+
+  <div class="section" id="s2">
+    <div class="section-label"><span class="num">02</span>Arquitetura geral</div>
+    <div class="ascii-tree">.claude/
+├── CLAUDE.md              ← instruções fundamentais (idioma, copy rules, dual output)
+├── OVERVIEW.md / .html    ← este documento
+├── skills/                ← 17 arquivos .md (skills 00-14, com 06a/06b/06c)
+├── lib/                   ← bibliotecas reutilizáveis chamadas pelas skills
+├── rules/                 ← diretrizes carregadas automaticamente por contexto
+├── hooks/                 ← scripts que rodam em eventos do Claude Code
+├── templates/             ← templates HTML, schemas JSON, snippets de logo
+└── settings.json          ← configuração do Claude Code (hooks, permissions)
+
+workspace/                 ← criado por skill 00, organizado por produto
+└── [produto-slug]/
+    ├── manifest.json      ← estado central do produto (single source of truth)
+    ├── profile.md         ← contexto do membro (budget, tools, experiência)
+    └── 01..14 (artefatos por fase)</div>
+  </div>
+
+  <div class="section" id="s3">
+    <div class="section-label"><span class="num">03</span>As 14 skills (em detalhe)</div>
+    <p>Cada skill é um arquivo <code>.md</code> com frontmatter (nome + descrição) + corpo estruturado em ETAPAs. O Claude lê a skill, segue as etapas, e salva os artefatos prescritos.</p>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">00</span>
+        <span class="skill-name">Setup</span>
+        <span class="pill pill-trigger">"setup"</span>
+      </div>
+      <div class="skill-desc">Cria <code>/workspace/</code> com slug do produto, coleta dados do membro (budget, ESP, ferramentas, mercado) pra <code>profile.md</code>, inicializa <code>manifest.json</code>, detecta se o membro já está em meio a outro produto.</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">manifest.json</span> <span class="pill pill-output">profile.md</span></div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">01</span>
+        <span class="skill-name">Product Research</span>
+        <span class="pill pill-trigger">"product research"</span>
+      </div>
+      <div class="skill-desc">Avalia produtos contra critérios de validação (mass desire, mass urgency, mass uniqueness), aplica framework de Schwartz (sophistication 1-5), recomenda go/no-go. Se membro não tem produto, sugere viáveis no nicho.</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">01-product-research.md/html</span></div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">02</span>
+        <span class="skill-name">Market Research</span>
+        <span class="pill pill-trigger">"market research"</span>
+      </div>
+      <div class="skill-desc">VOC mining em Reddit, fóruns, reviews, TikTok. Identifica frases exatas (verbatim), mapeia awareness distribution (% unaware/problem/solution/product/most aware), drivers psicográficos, objeções por intensidade.</div>
+      <div class="callout"><strong>Por que importa:</strong> documento mais consultado do sistema. Skills 04 (oferta), 05 (copy), 07 (criativos) leem dele pra fundamentar tudo.</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">02-market-research.md/html/json</span></div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">03</span>
+        <span class="skill-name">Competitor Analysis</span>
+        <span class="pill pill-trigger">"competitor analysis"</span>
+      </div>
+      <div class="skill-desc">Identifica 5-10 concorrentes ativos via Meta Ad Library + Similarweb. Análise de PDPs (estrutura, headlines, mecanismos, garantias). ETAPA 3C: análise profunda de criativos escalados via Whisper transcription.</div>
+      <div class="note"><strong>Fallback chain pra páginas bloqueadas:</strong> Wayback Machine → archive.today (Google Cache foi descontinuado em set/2024 e foi removido da skill).</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">03-competitor-analysis.md/html</span> <span class="pill pill-output">03-creative-patterns.json</span></div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">04</span>
+        <span class="skill-name">Offer Builder</span>
+        <span class="pill pill-trigger">"offer"</span>
+      </div>
+      <div class="skill-desc">Constrói mecanismo único (UMP/UMS theory). ETAPA 2.5 obrigatória — Research Foundation: cada claim do mecanismo precisa de evidência rastreável. Pricing triangulado, stack de bonuses, garantia que ataca objeção #1, unit economics, 11 sanity checks.</div>
+      <div class="skill-section">
+        <strong>Outputs críticos pro próximo skill:</strong>
+        <ul>
+          <li><code>bonuses[]</code> array → lido por skill 13 (bonus-delivery)</li>
+          <li><code>offer_stack</code> string → lido por skill 05 (copy)</li>
+          <li><code>unit_economics.weighted_margin_per_order</code> + <code>target_cpa_primary_2x/3x</code> → lido por skill 09 (ad-analysis)</li>
+        </ul>
+      </div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">04-offer.md/html/json</span> <span class="pill pill-output">04-research-foundation.json</span></div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">05</span>
+        <span class="skill-name">Copy Engine</span>
+        <span class="pill pill-trigger">"copy"</span>
+      </div>
+      <div class="skill-desc">Headlines (process adapta o "Process of 100" de Caples ao volume necessário). Lead types selecionados por awareness (Story, Problem-Solution, Secret, Offer, Proclamation, Direct). Hero apropriado ao tipo de página, bullets, social proof, FAQ, urgency, email hooks (pra skill 12 reutilizar). 8 sweeps de revisão (clarity, VOC, specificity, flow, objection, CTA, originality, compliance).</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">05-copy.md/html/json</span></div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">06</span>
+        <span class="skill-name">Page Engine — cadeia 06a → 06b → 06c</span>
+        <span class="pill pill-trigger">"page"</span>
+      </div>
+      <div class="skill-desc"><strong>Por que está dividida em 3:</strong> o monolítico tinha 1055 linhas. Quebrar em 3 melhora performance e permite iteration loop em fase específica sem regenerar tudo.</div>
+
+      <div class="skill-section">
+        <strong>06a — Page Planning</strong>
+        <ul>
+          <li>Pre-flight (skill 05 completa, manifest válido)</li>
+          <li>Detecta tipo de página (advertorial vs landing vs hybrid)</li>
+          <li>Brand discovery + opcional referência visual</li>
+          <li>Design system orchestration: cor → typography → spacing → grid → tokens</li>
+          <li><strong>Output:</strong> <code>06-page/06-design-system.md</code> + <code>06-plan.md</code> + <code>06-plan.json</code></li>
+        </ul>
+      </div>
+
+      <div class="skill-section">
+        <strong>06b — Page Sections</strong>
+        <ul>
+          <li>Gera 3 variantes de hero (membro escolhe A/B/C)</li>
+          <li>Converte pro padrão de blocks inline no schema Shopify</li>
+          <li>Replica pras demais sections do plano</li>
+          <li>UX writing pass + self-critique (Nielsen + WCAG 2.1 AA)</li>
+          <li>Validação Liquid via <code>shopify-plugin:shopify-liquid</code> com retry logic</li>
+          <li><strong>Output:</strong> arquivos <code>.liquid</code> em <code>&lt;staging&gt;/sections/</code> + <code>06-sections-report.md</code></li>
+        </ul>
+      </div>
+
+      <div class="skill-section">
+        <strong>06c — Page Deploy</strong>
+        <ul>
+          <li><span class="pill pill-gate">GATE</span> Skill 11 (consistency audit) no pre-flight: se <code>BLOCK</code>, aborta</li>
+          <li>Cria <code>templates/page.[produto].json</code> com blocks pré-populados</li>
+          <li>Validação OBRIGATÓRIA de blocks (não-vazios, types válidos)</li>
+          <li>Deploy seguro: duplicate theme → pull → cp → push --nodelete</li>
+          <li>Smoke test pós-push (curl no storefront, grep marker)</li>
+          <li><strong>Output:</strong> preview URLs + <code>06-deploy-report.md/json</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">07</span>
+        <span class="skill-name">Creative Engine</span>
+        <span class="pill pill-trigger">"creatives"</span>
+      </div>
+      <div class="skill-desc">Pipeline completo de geração de criativos.</div>
+      <div class="skill-section">
+        <ul>
+          <li><strong>ETAPA 1:</strong> detecta material disponível + creator archetype</li>
+          <li><strong>ETAPA 2:</strong> calcula quantidade de conceitos por stage do membro (3-4 starter, 6-8 validating, 10-15 scaling)</li>
+          <li><strong>ETAPA 3:</strong> gera ângulos das 3 verticais (problema, resultado, identidade)</li>
+          <li><strong>ETAPA 4.5:</strong> regras estruturais globais (VOC traceability, hook rotation, swap viability)</li>
+          <li><strong>ETAPA 5:</strong> briefings completos por conceito</li>
+          <li><strong>ETAPA 5.7:</strong> production-ready prompts (Higgsfield + GPT Image 2.0)</li>
+          <li><strong>ETAPA 6:</strong> LP congruency mapping (qual LP cada conceito direciona)</li>
+          <li><strong>ETAPA 7:</strong> hooks bank (10 alternativas pra iterações futuras)</li>
+          <li><strong>ETAPA 7.4:</strong> carrega DNA aprendido do registry (cross-product learning)</li>
+          <li><strong>ETAPA 7.5:</strong> compliance pre-flight (rule 8b)</li>
+          <li><strong>ETAPA 7.6:</strong> DNA registry extraction (silent — alimenta <code>lib/creative-dna/registry.py</code>)</li>
+          <li><strong>ETAPA 8:</strong> resumo de produção</li>
+        </ul>
+      </div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">07-creatives.json</span> + 1 briefing <code>.md</code> por conceito</div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">08</span>
+        <span class="skill-name">Ad Strategy</span>
+        <span class="pill pill-trigger">"ad strategy"</span>
+      </div>
+      <div class="skill-desc">Verificação de pré-requisitos (Pixel, CAPI, produto ativo, criativos prontos), estrutura de campanha (One Campaign Method), ad sets em estrutura 3-2-2, naming convention padrão. PGS (Performance Gate Scaling) automático.</div>
+      <div class="callout"><strong><span class="pill pill-gate">GATE</span> Skill 11</strong> roda no pre-flight. Se <code>BLOCK</code>, aborta. Drift entre criativos/copy/oferta vira disapproval ou ad com mismatch ad↔landing.</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">08-ad-strategy.md/html/json</span> + manifest com <code>08_campaign_name</code> (lido pela 09)</div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">09</span>
+        <span class="skill-name">Ad Analysis</span>
+        <span class="pill pill-trigger">"ad analysis"</span>
+      </div>
+      <div class="skill-desc">4Pi analysis (Spend, Frequency, CPM, Cost per Result). LOSER detection dinâmico (lê <code>04-offer.json.unit_economics.weighted_margin_per_order</code> + <code>target_cpa_primary_2x/3x</code>). 19-Point Loser Diagnostic em 4 camadas (targeting, hook, copy, oferta). Identifica WINNERs (CPA &lt; target × 0.7, spend &gt; $300, idade &gt; 5 dias).</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">09-analysis/[timestamp].json</span> + <span class="pill pill-output">09-analysis/latest.json</span> (handoff pra skill 10 e 14)</div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">10</span>
+        <span class="skill-name">Scale Engine</span>
+        <span class="pill pill-trigger">"scale"</span>
+      </div>
+      <div class="skill-desc">Pre-flight (skills 08 + 09 completas). Vertical scaling (5% rule do PGS), horizontal scaling (novos ad sets, placements, angles), Champion promotion (Post ID dedicated), diversification por stage (Tier 1/2/3+).</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">10-scale/[timestamp].md</span> + plano de execução</div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">11</span>
+        <span class="skill-name">Consistency Audit</span>
+        <span class="pill pill-trigger">"consistency audit"</span>
+        <span class="pill pill-trigger">"audit"</span>
+      </div>
+      <div class="skill-desc">Cross-phase drift detection: confere se mecanismo, awareness stage, VOC, oferta batem entre todos os artefatos (skills 02 → 04 → 05 → 06 → 07 → 08). Identifica VOC traceability (frases na copy/ads vêm da pesquisa). Verifica promise↔config (promessas batem com config da loja).</div>
+      <div class="opportunity"><strong>Como vira gate:</strong> skills 06c, 08, 12 leem o JSON desta skill no pre-flight. Se <code>launch_recommendation == "BLOCK"</code>, abortam. Drift entre fases para de chegar em produção.</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">11-consistency-audit.md/html/json</span> com <code>launch_recommendation: "BLOCK" | "CAUTION" | "GO"</code></div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">12</span>
+        <span class="skill-name">Retention Engine</span>
+        <span class="pill pill-trigger">"retention"</span>
+        <span class="pill pill-trigger">"email flows"</span>
+        <span class="pill pill-trigger">"klaviyo"</span>
+      </div>
+      <div class="skill-desc">Pre-flight: ESP identificado (Klaviyo / Omnisend / MailerLite), ≥50 compras. Fluxos base: welcome series, abandoned cart, post-purchase, browse abandon, win-back, replenishment. Adapta cada fluxo ao produto (lê <code>04-offer.md</code>).</div>
+      <div class="callout"><strong><span class="pill pill-gate">GATE</span> Skill 11</strong> no pre-flight: se <code>BLOCK</code>, aborta. Fluxos herdam drift detectado (mecanismo divergente, oferta diferente da página) e propagariam inconsistência pra base de subscribers.</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">12-retention/[fluxo].md</span> + arquivos exportáveis</div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">13</span>
+        <span class="skill-name">Bonus Delivery</span>
+        <span class="pill pill-trigger">"bonus delivery"</span>
+      </div>
+      <div class="skill-desc">Lê <code>04-offer.json.bonuses[]</code>. Pra cada bonus, gera pipeline de entrega conforme <code>delivery_trigger</code> (post-purchase, on-signup, day-7, on-first-reorder). Templates por tipo: digital guide → PDF, community access → Circle invite, video series → Wistia hosted, etc.</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">13-bonus-delivery/[bonus-id]/</span> com assets + instruções de upload</div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-head">
+        <span class="pill pill-skill">14</span>
+        <span class="skill-name">Content Recycler</span>
+        <span class="pill pill-trigger">"content recycler"</span>
+        <span class="pill pill-trigger">"recycle [id]"</span>
+        <span class="pill pill-trigger">"recycle winner"</span>
+      </div>
+      <div class="skill-desc">Lê 1 criativo winner (input direto OU detecta automático via <code>09-analysis/latest.json.winners[]</code>). Extrai essência (big idea, hook, mechanism, avatar, voice). Gera 9 derivadas em formatos diferentes: advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad. Compliance pre-flight em cada derivada.</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">14-recycled/[source-id]/</span> com 9 <code>.md</code> + 9 <code>.html</code> + <code>README.md/html</code> + <code>essence.json</code> + <code>compliance-log.json</code></div>
+    </div>
+  </div>
+
+  <div class="section" id="s4">
+    <div class="section-label"><span class="num">04</span>Sistema de libs</div>
+    <p>Bibliotecas reutilizáveis chamadas pelas skills. Ficam em <code>.claude/lib/</code>.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Lib</th><th>Função</th><th>Usado por</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>compliance-preflight</strong></td>
+            <td>Detecta palavras ad-flag (Botox, weight loss, cure, treat, anti-aging, before & after, guaranteed) que disparam disapproval no Meta/TikTok. Output: <code>severity</code> + <code>rewrite_suggestion</code>.</td>
+            <td>05, 06b, 06c, 07, 14</td>
+          </tr>
+          <tr>
+            <td><strong>content-recycler</strong></td>
+            <td>Engine prompt-driven da skill 14. Arquivos: <code>recycler.md</code> + <code>formats.json</code>. Customizável: adicionar formato = editar <code>formats.json</code>.</td>
+            <td>14</td>
+          </tr>
+          <tr>
+            <td><strong>creative-dna</strong></td>
+            <td>Registry de DNA aprendido entre produtos. Skill 07 salva padrões abstratos (winning hook archetypes, voice signatures); próxima execução em outro produto consulta e adapta.</td>
+            <td>07</td>
+          </tr>
+          <tr>
+            <td><strong>hook-taxonomy</strong></td>
+            <td>Taxonomia de hooks (Problema/Resultado/Curiosidade/Prova social) usada na skill 07. Catálogo em <code>archetypes.json</code>.</td>
+            <td>07</td>
+          </tr>
+          <tr>
+            <td><strong>prompt-directors</strong></td>
+            <td>Directors de prompt pra ferramentas externas. Hoje tem <code>marketing-studio-director.md</code> (Higgsfield Marketing Studio: UGC, Tutorial, Unboxing, Hyper Motion, Product Review, TV Spot, Wild Card, Virtual Try On).</td>
+            <td>07 (ETAPA 5.7)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="opportunity"><strong>Cross-product learning:</strong> creative-dna é o que dá vantagem cumulativa pra membro que roda vários produtos. A skill 07 fica mais inteligente a cada produto rodado.</div>
+  </div>
+
+  <div class="section" id="s5">
+    <div class="section-label"><span class="num">05</span>Sistema de rules</div>
+    <p>Diretrizes em <code>.claude/rules/</code> carregadas automaticamente pelo Claude Code conforme contexto. Cada rule tem escopo específico.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rule</th><th>Quando aplica</th></tr></thead>
+        <tbody>
+          <tr><td><code>pre-launch-gates</code></td><td><strong>NON-NEGOTIABLE.</strong> Define dois gates: ad-flag compliance (skills 05, 06b, 06c, 07, 08) e Promise↔Config (skills 06c, 08).</td></tr>
+          <tr><td><code>shopify-theme-safety</code></td><td>Toda operação Shopify CLI. Pull antes de edit, <code>--nodelete</code>, marker verification, smoke test pós-push.</td></tr>
+          <tr><td><code>iteration-driven-refinement</code></td><td>Skills que geram asset (copy, briefing, página). Primeira versão é draft, max 3 iterações antes de escalate.</td></tr>
+          <tr><td><code>member-stage-awareness</code></td><td>Toda skill. Detecta starter / validating / scaling pelo manifest e adapta tom + recomendações.</td></tr>
+          <tr><td><code>emergency-escape-paths</code></td><td>Toda skill. ES1-ES7 cobrem skill travada, workspace corrompido, compliance bloqueando, Shopify push rejeitado, Klaviyo cookie expirado, rate limit, conflito de edição.</td></tr>
+          <tr><td><code>troubleshooting-patterns</code></td><td>Quando skill não entrega. Árvore de diagnóstico estruturada antes de "desistir".</td></tr>
+          <tr><td><code>post-task-self-audit</code></td><td>Toda skill peso médio/alto. 6 gates antes de declarar "completo" — cross-artifact consistency, erros factuais, gaps, qualidade, alinhamento de rules.</td></tr>
+          <tr><td><code>reverse-order-insertion</code></td><td>Quando AI insere múltiplos elementos em arquivo (page.json sections, Liquid blocks). Inserir em ordem reversa pra line numbers não shiftarem.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note"><strong>Rules são diretrizes, não código enforced.</strong> O Claude lê e aplica. A camada de enforcement real são os hooks.</div>
+  </div>
+
+  <div class="section" id="s6">
+    <div class="section-label"><span class="num">06</span>Sistema de hooks</div>
+    <p>Scripts em <code>.claude/hooks/</code> registrados em <code>.claude/settings.json</code>. Rodam em eventos específicos do Claude Code.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">post-start.sh</div>
+      <p><strong>Quando:</strong> abertura de sessão Claude Code (1× por dia, com lock).<br><strong>O que faz:</strong> adiciona alias <code>aura</code> no shell rc do membro pra ele poder digitar <code>aura</code> em qualquer terminal e cair no diretório certo.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Hooks globais (vindos de ~/.claude/settings.json)</div>
+      <ul>
+        <li><code>enforce-git-push-authority.sh</code> — só @devops pode push</li>
+        <li><code>sql-governance.py</code> — bloqueia SQL perigoso</li>
+        <li><code>enforce-delegation.cjs</code> — orchestrators não podem executar</li>
+        <li><code>enforce-architecture-first.cjs</code> — docs antes de código protegido</li>
+        <li><code>enforce-story-gate.cjs</code> — story obrigatória antes de código</li>
+        <li><code>synapse-wrapper.cjs</code> — context injection no prompt do usuário</li>
+      </ul>
+      <div class="note">Esses hooks vêm do framework SINAPSE global (<code>~/.claude/</code>). Aura Engine herda eles mas não depende deles.</div>
+    </div>
+  </div>
+
+  <div class="section" id="s7">
+    <div class="section-label"><span class="num">07</span>Sistema de templates</div>
+    <p>Em <code>.claude/templates/</code>.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">aura-report-template.html</div>
+      <p>Template HTML self-contained (CSS inline, sem server) usado por toda skill que gera companion <code>.html</code>. Tem componentes: <code>section-label</code>, <code>callout</code>, <code>note</code>, <code>opportunity</code>, <code>danger</code>, <code>table-wrap</code>, <code>quote</code>, <code>pill</code>, <code>winner</code>, <code>kpi-grid</code>. Responsivo mobile.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">aura-logo-snippet.html</div>
+      <p>Bloco SVG da logo Aura (6 linhas). <strong>Obrigatório no topo de TODO <code>.html</code> gerado</strong>, copiado literalmente. Proibido substituir por texto. Existe pra branding consistency.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">manifest-schema.json</div>
+      <p>JSON Schema (draft-07) pro <code>manifest.json</code> de cada produto. Tem <code>additionalProperties: true</code> — skills podem gravar campos extras sem violar schema. Os campos obrigatórios são <code>product_slug</code>, <code>product_name</code>, <code>created_at</code>, <code>updated_at</code>, <code>skills_completed</code>.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s8">
+    <div class="section-label"><span class="num">08</span>Workspace structure</div>
+    <p>Cada produto vive em <code>/workspace/[slug]/</code>. Estrutura típica após cadeia completa:</p>
+
+    <div class="ascii-tree">/workspace/produto-x/
+├── manifest.json              ← estado central, lido e atualizado por toda skill
+├── 01-product-research.md / .html
+├── 02-market-research.md / .html / .json
+├── 03-competitor-analysis.md / .html
+├── 03-creative-patterns.json
+├── 04-offer.md / .html / .json
+├── 04-research-foundation.json
+├── 05-copy.md / .html / .json
+├── 06-page/
+│   ├── 06-design-system.md
+│   ├── 06-plan.md / .json
+│   ├── 06-sections-report.md
+│   └── 06-deploy-report.md / .json
+├── 07-creatives.json
+├── 07-creatives/
+│   ├── briefing-c01.md / .html
+│   ├── prompt-c01-image.txt
+│   └── ... (1 set por conceito)
+├── 08-ad-strategy.md / .html / .json
+├── 09-analysis/
+│   ├── 2026-04-15.json
+│   ├── 2026-04-22.json
+│   └── latest.json
+├── 10-scale/
+├── 11-consistency-audit.md / .html / .json
+├── 12-retention/
+│   ├── welcome-series.md / .html
+│   ├── abandoned-cart.md / .html
+│   └── ... (1 por fluxo)
+├── 13-bonus-delivery/
+│   └── [bonus-id]/
+└── 14-recycled/
+    └── [source-id]/
+        ├── README.md / .html
+        ├── essence.json
+        ├── compliance-log.json
+        ├── advertorial.md / .html
+        ├── email-sequence.md / .html
+        └── ... (9 formatos)</div>
+
+    <div class="note"><code>/workspace/profile.md</code> (no nível do workspace, fora do produto) tem dados do membro: budget, ESP, ferramentas, mercado, idioma de copy.</div>
+  </div>
+
+  <div class="section" id="s9">
+    <div class="section-label"><span class="num">09</span>Convenções operacionais</div>
+
+    <div class="subsection">
+      <div class="subsection-title">Idioma e estilo (rule 0 do CLAUDE.md)</div>
+      <ul>
+        <li>Relatórios internos: português claro, sem jargão acadêmico, termos de marketing em inglês quando naturais (VOC, hook, CTA, ROAS)</li>
+        <li>Copy pro consumidor final: inglês US (mercado padrão Aura)</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Dual output (.md + .html) — rule 6b</div>
+      <ul>
+        <li><code>.md</code> é a fonte que a AI lê na próxima fase</li>
+        <li><code>.html</code> é a versão humana (browser)</li>
+        <li>HTML usa o template <code>aura-report-template.html</code> + logo SVG no topo</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Logo SVG obrigatória</div>
+      <ul>
+        <li>Bloco SVG copiado literalmente de <code>aura-logo-snippet.html</code></li>
+        <li>Proibido substituir por texto "AURA" / "Aura Engine" / qualquer variação textual</li>
+        <li>Sem fallback: se não copiar, parar e avisar</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Ícones SVG, nunca emojis em UI consumidor — rule 7</div>
+      <ul>
+        <li>PDPs, landings, checkouts: SVGs inline (Lucide, Heroicons, Phosphor, custom)</li>
+        <li>Specs: 16-18px em listas, 20-24px em features, stroke 1.5-2px</li>
+        <li><strong>EXCEÇÃO:</strong> relatórios internos em /workspace/ podem usar emojis pra escaneamento</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Copy rules (rule 8)</div>
+      <ul>
+        <li><strong>8a</strong> — minimizar travessão (—). Em headlines, zero. Em copy longa, ≤2.</li>
+        <li><strong>8b</strong> — ad-flag word substitutions automáticas pra Meta/TikTok policy (Botox → "the appointment", Filler → "injectables", etc.)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section" id="s10">
+    <div class="section-label"><span class="num">10</span>Memória persistente — creative-dna registry</div>
+    <p>Cross-product learning. A skill 07 (creatives) salva DNA toda vez que executa: hook archetypes que funcionaram, voice signatures, structural patterns. Próxima execução em outro produto consulta esse registry e adapta sem reinventar.</p>
+    <div class="note"><strong>Como ler/escrever:</strong> via <code>lib/creative-dna/registry.py</code>. Skill 07 chama em silent steps (ETAPA 7.4 carrega, ETAPA 7.6 escreve).</div>
+    <div class="opportunity"><strong>O que NÃO entra no registry:</strong> dados específicos do produto (nomes, claims, preços). Só padrões abstratos.</div>
+  </div>
+
+  <div class="section" id="s11">
+    <div class="section-label"><span class="num">11</span>Como rodar uma sessão completa do zero</div>
+    <p>Ordem canônica pra um produto novo:</p>
+
+    <ol class="flow-list">
+      <li><strong>setup</strong> — cria workspace, profile, manifest</li>
+      <li><strong>product research</strong> — valida produto, define vertical</li>
+      <li><strong>market research</strong> — VOC, awareness, drivers (mais consultado)</li>
+      <li><strong>competitor analysis</strong> — 5-10 concorrentes, padrões, gaps</li>
+      <li><strong>offer</strong> — mecanismo, pricing, stack, garantia</li>
+      <li><strong>copy</strong> — copy completa pra todas sections</li>
+      <li><strong>page</strong> — 06a (planning) → 06b (sections) → 06c (deploy)</li>
+      <li><strong>creatives</strong> — 6-15 conceitos com briefings</li>
+      <li><strong>consistency audit</strong> — cross-phase drift check (gate)</li>
+      <li><strong>ad strategy</strong> — estrutura de campanha, naming, PGS</li>
+      <li><strong>— LAUNCH —</strong></li>
+      <li><strong>ad analysis</strong> (após 3-7 dias) — 4Pi, diagnóstico, decisões</li>
+      <li><strong>scale</strong> (após winners) — vertical + horizontal</li>
+      <li><strong>retention</strong> (≥50 compras) — fluxos Klaviyo</li>
+      <li><strong>bonus delivery</strong> (paralelo) — entrega dos bonuses do stack</li>
+      <li><strong>content recycler</strong> (após winner consolidado) — 9 derivadas do criativo top</li>
+    </ol>
+
+    <div class="callout"><strong>Cada skill faz pre-flight da anterior.</strong> Se artefato faltar, oferece fallback (rule <code>emergency-escape-paths</code> — ES1).</div>
+    <div class="note"><strong>Iteration loop normal:</strong> depois de cada launch, ad analysis + iteração de creatives ou copy é o ciclo. Skill 11 (consistency audit) reroda antes de cada relaunch crítico.</div>
+  </div>
+
+  <div class="section" id="s12">
+    <div class="section-label"><span class="num">12</span>Mudanças recentes</div>
+    <p>Registro das correções e upgrades aplicados em abril/2026:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Data</th><th>Mudança</th></tr></thead>
+        <tbody>
+          <tr><td>2026-04-30</td><td>Skill 06 deprecated removida (era só redirecionamento)</td></tr>
+          <tr><td>2026-04-30</td><td>Skill 17 renomeada pra 14 (numeração contígua)</td></tr>
+          <tr><td>2026-04-30</td><td>Drift 04↔09 corrigido (<code>weighted_margin_per_order</code>, <code>target_cpa_primary_2x/3x</code> adicionados ao output do 04)</td></tr>
+          <tr><td>2026-04-30</td><td>Drift 04↔05 corrigido (<code>offer_stack</code> adicionado ao output do 04)</td></tr>
+          <tr><td>2026-04-30</td><td>Drift 08↔09 corrigido (skill 08 grava <code>08_campaign_name</code> no manifest)</td></tr>
+          <tr><td>2026-04-30</td><td>ETAPA 6 missing em skill 07 corrigida (LP Congruency tem header)</td></tr>
+          <tr><td>2026-04-30</td><td>Skill 11 vira hard gate em 06c, 08, 12 (lê <code>launch_recommendation</code>, aborta em BLOCK)</td></tr>
+          <tr><td>2026-04-30</td><td>Google Cache removido do fallback chain do skill 03 (descontinuado set/2024)</td></tr>
+          <tr><td>2026-04-30</td><td>URL Higgsfield hardcoded substituída por URL genérica em <code>prompt-directors/marketing-studio-director.md</code></td></tr>
+          <tr><td>2026-04-30</td><td>Libs órfãs deletadas: <code>shocking-stats</code>, <code>whisper-transcribe</code>, <code>section-patterns</code></td></tr>
+          <tr><td>2026-04-30</td><td>Skill 14 ganha companion <code>.html</code> obrigatório (rule 6b)</td></tr>
+          <tr><td>2026-04-30</td><td>CLAUDE.md atualizado com skill 14 na lista oficial</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="footer">Aura © 2026</p>
+
+</div>
+</body>
+</html>

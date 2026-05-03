@@ -96,16 +96,17 @@ O membro pode acionar qualquer skill por nome:
 - "competitor analysis" → skill 03 (inclui análise profunda de criativos escalados dos concorrentes via Whisper transcription — ETAPA 3C)
 - "offer" → skill 04 (inclui Research Foundation obrigatória — ETAPA 2.5)
 - "copy" → skill 05
-- "page" → skill 06 (blueprint visual via Claude Design com 4 variações A/B/C/D obrigatório antes de gerar Liquid)
+- "page" → skill 06 (cadeia 06a → 06b → 06c: planejamento, geração de sections Liquid, deploy Shopify)
 - "creatives" → skill 07
 - "ad strategy" → skill 08 (inclui analytics decision tree — Meta App / Wetracked / Triple Whale / Aimerce)
 - "ad analysis" → skill 09
 - "scale" → skill 10
-- "consistency audit" ou "audit" → skill 11 (cross-phase drift detection antes de launch)
+- "consistency audit" ou "audit" → skill 11 (cross-phase drift detection antes de launch — gate de bloqueio pra 06c/08/12)
 - "retention" ou "email flows" ou "klaviyo" → skill 12
 - "bonus delivery" → skill 13
+- "content recycler" ou "recycle" → skill 14 (1 winner → 9 derivadas em formatos diferentes)
 
-ORDEM LÓGICA DE EXECUÇÃO: setup → product research → market research → competitor analysis → offer → copy → **page** → creatives → **consistency audit** (pré-launch) → ad strategy → ad analysis → scale → retention (pós-launch) → bonus delivery (pós-launch).
+ORDEM LÓGICA DE EXECUÇÃO: setup → product research → market research → competitor analysis → offer → copy → **page (06a/06b/06c)** → creatives → **consistency audit** (pré-launch) → ad strategy → ad analysis → scale → retention (pós-launch) → bonus delivery (pós-launch) → content recycler (pós-winner).
 
 Ou pode simplesmente descrever o que precisa e você identifica qual skill usar.
 

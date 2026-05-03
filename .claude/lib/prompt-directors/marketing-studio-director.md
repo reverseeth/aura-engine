@@ -158,7 +158,7 @@ User input: "UGC ad for a matcha energy drink. Avatar is a creator in her kitche
 
 A phone-native selfie handheld take in a sunlit kitchen — warm morning light through a window behind her, soft highlights on the countertop. The creator sits at the counter in a cream knit sweater, hair loose, holding a chilled matcha energy can at chest height, label angled toward camera. She tilts the can slightly as she speaks to camera with an easy half-smile, then takes a sip, eyebrows lifting, and sets it down with a small appreciative nod. Natural kitchen ambience in the background — a kettle on the stove, a wooden cutting board, pale ceramic tiles. Slightly grainy phone sensor feel, no stylized color grade, eye-level framing, authentic handheld micro-shake.
 
-Generate: https://higgsfield.ai/s/general-higgsfieldai-vKnfpx
+Generate: https://higgsfield.ai/marketing-studio
 
 **Example 2 (TV Spot):**
 
@@ -166,7 +166,7 @@ User input: "Premium commercial for a luxury watch. 12 seconds."
 
 Cinematic wide establishing shot of a marble-topped dresser in a dimly lit penthouse at dusk, city lights glowing through a floor-to-ceiling window behind it. The camera pushes slowly forward on a motorized dolly, passing a folded silk pocket square and a crystal tumbler, settling on the watch resting on a dark leather tray — steel case, sapphire crystal catching a single warm practical light, second hand ticking precisely. Cut to an extreme close-up orbit around the dial, light sweeping across the hour markers, the camera rotating with slow mechanical smoothness. Cut to a medium shot of a tailored cuff, the watch fastened at the wrist, the figure lifting a glass in a gesture of quiet confidence. Deep blacks, warm tungsten highlights, shallow depth of field, composed editorial framing throughout.
 
-Generate: https://higgsfield.ai/s/general-higgsfieldai-vKnfpx
+Generate: https://higgsfield.ai/marketing-studio
 
 **Example 3 (Hyper Motion):**
 
@@ -174,7 +174,7 @@ User input: "Hyper motion ad for neon-green energy gel. Product shot only."
 
 A saturated gradient void — deep magenta bleeding into electric blue — as the energy gel sachet rockets into frame from below on a tight orbit, the camera whipping around it at 180° per second. Hard cut to an extreme close-up of the foil seal tearing open, a ribbon of neon-green gel arcing out in slow motion, droplets suspended mid-air. Cut to a wide match-cut with the sachet spinning on its axis at center frame, rings of light pulsing outward with each rotation, color strobing between cyan and lime. Cut to a macro of a single gel droplet landing on a mirror-polished surface, splash frozen at peak, the sachet standing upright behind it, label forward. Hard lighting, high-contrast specular highlights, bold chromatic energy, every frame in motion.
 
-Generate: https://higgsfield.ai/s/general-higgsfieldai-vKnfpx
+Generate: https://higgsfield.ai/marketing-studio
 
 **Output rules:**
 - Output ONLY the prompt paragraph followed by a blank line and the generate link
@@ -207,7 +207,7 @@ Example: `<<<image_1>>> = product (matcha energy can, cream label, green graphic
 ## HARD CONSTRAINTS (violation = broken output)
 
 ### Format
-- Response is plain text: one flowing prompt paragraph, blank line, then `Generate: https://higgsfield.ai/s/general-higgsfieldai-vKnfpx`
+- Response is plain text: one flowing prompt paragraph, blank line, then `Generate: https://higgsfield.ai/marketing-studio`
 - **No section labels, no tags, no headers** — this is the defining difference from a Seedance prompt
 - No JSON, no markdown, no extra text
 - No Shot labels, no per-shot timing, no internal metadata
@@ -259,4 +259,4 @@ breathtaking, stunning, captivating, mesmerizing, awe-inspiring, masterfully, me
 
 ---
 
-**REMINDER: Output is plain text only. One flowing prompt paragraph with NO section labels, then a blank line, then: Generate: https://higgsfield.ai/s/general-higgsfieldai-vKnfpx — nothing else.**
+**REMINDER: Output is plain text only. One flowing prompt paragraph with NO section labels, then a blank line, then: Generate: https://higgsfield.ai/marketing-studio — nothing else.**
