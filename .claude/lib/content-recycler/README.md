@@ -19,7 +19,7 @@ Um criativo de referência — qualquer um destes:
 
 ## Output — 9 formatos derivados
 
-Salvos em `/workspace/[produto]/17-recycled/[source-id]/`:
+Salvos em `/workspace/[produto]/14-recycled/[source-id]/`:
 
 1. **advertorial-1500w.md** — advertorial editorial longa pra LP ou blog
 2. **email-sequence.md** — 5 emails (welcome → mechanism → social proof → objection → CTA)
@@ -50,4 +50,4 @@ recycle <creative-id>
 
 O sistema lê o concept, consulta base Aura sobre formato de cada derivada,
 gera 9 versões, passa compliance em cada, salva tudo em pasta dedicada.
-Entrega: "9 derivadas prontas em /workspace/[produto]/17-recycled/[creative-id]/"
+Entrega: "9 derivadas prontas em /workspace/[produto]/14-recycled/[creative-id]/"
