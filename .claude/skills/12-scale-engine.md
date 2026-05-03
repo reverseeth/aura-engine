@@ -161,7 +161,7 @@ TikTok exige native creative style:
 - Trends musicais relevantes (não stock music)
 - Duração sweet spot: 15-30s (vs Meta 6-15s)
 
-**Bridge**: antes de rodar creatives em TikTok, invocar SKILL 07 novamente com flag `platform=tiktok` — skill deve re-orientar hooks + primary texts para linguagem TikTok-native. NÃO copy-paste Meta → TikTok.
+**Bridge**: antes de rodar creatives em TikTok, invocar SKILL 08 novamente com flag `platform=tiktok` — skill deve re-orientar hooks + primary texts para linguagem TikTok-native. NÃO copy-paste Meta → TikTok.
 
 ### Google ads em 2026
 
