@@ -89,9 +89,35 @@ O alias `aura` (`cd ~/aura-engine && claude`) é criado automaticamente pelo hoo
 
 Se o shell do membro não for zsh nem bash (ex: fish, nushell), o hook pula silenciosamente — nesse caso não mostre a mensagem acima.
 
+### ETAPA 2.6 — Idioma dos Relatórios (PERGUNTA 1, ANTES DE QUALQUER OUTRA)
+
+**ANTES de qualquer outra pergunta, pergunte o idioma.** Os relatórios internos (market research, competitor analysis, offer briefs, copy docs, ad strategy, audits, etc.) precisam ser gerados num idioma que o membro entenda — sem isso ele não consegue usar nada do que a Aura produz.
+
+Pergunte exatamente assim, em português E em inglês na mesma mensagem (membro escolhe sem precisar entender uma das línguas):
+
+> **Antes de tudo / Before we start:**
+>
+> Em qual idioma você quer os relatórios internos (market research, briefings, análises)?
+> Which language do you want for internal reports (market research, briefings, analyses)?
+>
+> **1.** Português (padrão Brasil)
+> **2.** English (international members)
+>
+> Responda só `1` ou `2` / Reply just `1` or `2`.
+
+Capture a resposta em `REPORT_LANGUAGE`:
+- `1` → `"pt-BR"`
+- `2` → `"en"`
+
+**A partir desse ponto, TODA conversa com o membro acontece no idioma escolhido.** Se ele escolheu inglês, faça as 4 perguntas da ETAPA 3 traduzidas, gere o `profile.md` em inglês, e a partir dali todas as skills futuras vão respeitar essa escolha lendo `profile.md.report_language`.
+
+**Importante:** copy pro consumidor final (ads, landing pages, PDPs do mercado US) **continua sempre em inglês** independente dessa escolha. Essa escolha vale só pra documentação INTERNA do membro (relatórios, análises, briefings que ele lê pra entender o trabalho). A regra 0 do CLAUDE.md detalha.
+
 ### ETAPA 3 — Onboarding do Membro (Perguntas por Texto)
 
 O onboarding é feito por perguntas de texto simples. Apresente as 4 perguntas numa única mensagem bem formatada e peça pro membro responder numa mensagem só, no formato que preferir. Isso reduz fricção e funciona em qualquer ambiente (inclusive dentro do Claude Code, que não tem TTY interativo).
+
+**Use o idioma escolhido na ETAPA 2.6.** Se `REPORT_LANGUAGE = "en"`, traduz as 4 perguntas pra inglês.
 
 Formato da mensagem a enviar:
 
@@ -158,6 +184,9 @@ Use os valores capturados das variáveis `SITUACAO`, `BUDGET`, `TOOLS`, `LINK` e
 
 ```markdown
 # Perfil do Membro
+
+## Idioma dos relatórios
+report_language: [pt-BR | en]
 
 ## Situação
 Situação: [A / B / C / D — por extenso]
