@@ -501,11 +501,17 @@ workspace/                 ← criado por skill 00, organizado por produto
             <td>Integração read-only com TrendTrack MCP (<code>https://api.trendtrack.io/v1/mcp</code>). 11 tools (product discovery, competitor briefing, ad scanning, email patterns, monitoring). Detecção runtime: se há tools com prefixo <code>mcp__trendtrack__</code> na sessão, usa como fonte primária; senão, fallback silencioso pro método tradicional. Aura funciona 100% sem ela.</td>
             <td>01, 03, 08, 11, 13</td>
           </tr>
+          <tr>
+            <td><strong>automations/ (Meta + Shopify)</strong></td>
+            <td>Não é uma lib em <code>.claude/lib/</code> — vive em <code>.claude/automations/</code> (setup + 6 recipes). Cascade resiliente pra Meta Ads: <strong>(1)</strong> MCP oficial da Meta <code>mcp.facebook.com/ads</code> (open beta desde 2026-04-29, tools <code>mcp__meta__ads_*</code>, 29 tools incluindo industry benchmarks + dataset quality + auction ranking + anomaly signal); <strong>(2)</strong> Pipeboard MCP 3rd party (tools <code>mcp__meta-ads__*</code>) como fallback automático quando oficial está disabled no rollout; <strong>(3)</strong> manual quando ambos falham. Recipes: <code>sync-campaign-from-meta-official.md</code> (preferencial), <code>sync-campaign-from-meta.md</code> (fallback), <code>pause-ad-set.md</code>, <code>upload-creative-to-meta.md</code>, deploy/rotate. Setup em <code>setup-mcps.md</code>.</td>
+            <td>10, 11</td>
+          </tr>
         </tbody>
       </table>
     </div>
 
     <div class="opportunity"><strong>Cross-product learning:</strong> creative-dna é o que dá vantagem cumulativa pra membro que roda vários produtos. A skill 08 fica mais inteligente a cada produto rodado.</div>
+    <div class="callout"><strong>Por que cascade no Meta:</strong> o MCP oficial está em rollout gradual — alguns ad accounts aparecem "disabled" mesmo após setup correto. Manter Pipeboard como fallback elimina dependência da Meta liberar acesso. Aura nunca trava por causa de MCP.</div>
   </div>
 
   <div class="section" id="s5">
@@ -727,6 +733,7 @@ workspace/                 ← criado por skill 00, organizado por produto
           <tr><td>2026-05-03</td><td>Self-audit silencioso obrigatório no fim de toda skill (rule + regra 9 em CLAUDE.md)</td></tr>
           <tr><td>2026-05-03</td><td><strong>Renumeração completa pra alinhar números com ordem de execução</strong>: bonus-delivery 13→05, copy 05→06, page 06→07, creative 07→08, consistency-audit 11→09, ad-strategy 08→10, ad-analysis 09→11, scale 10→12, retention 12→13. Numbers daqui pra frente refletem ordem cronológica.</td></tr>
           <tr><td>2026-04-30</td><td>TrendTrack MCP integration adicionada como lib opcional (<code>lib/trendtrack-integration/</code>). Skills 01, 03, 08, 11, 13 ganharam ETAPA 0.5 / bloco TrendTrack que detecta <code>mcp__trendtrack__*</code> tools em runtime e usa como fonte primária. Fallback silencioso pro método tradicional quando ausente. CLAUDE.md ganhou regra 10 sobre integrações MCP opcionais.</td></tr>
+          <tr><td>2026-05-11</td><td>Meta MCP oficial (<code>mcp.facebook.com/ads</code>, open beta desde 2026-04-29) integrado em cascade. Nova receita <code>sync-campaign-from-meta-official.md</code> usa as 29 tools nativas (incluindo industry benchmarks, dataset quality, auction ranking, opportunity score, anomaly signal que não existem no Pipeboard). Skill 11 ETAPA 1 vira cascade: oficial → Pipeboard → manual. <code>pause-ad-set.md</code> ganha cascade interno. <code>setup-mcps.md</code> documenta os dois caminhos. CLAUDE.md regra 10 expandida pra mencionar Meta MCP.</td></tr>
         </tbody>
       </table>
     </div>
