@@ -211,7 +211,7 @@
       <li><a href="#s9">Estrutura do workspace</a></li>
       <li><a href="#s10">Convenções operacionais</a></li>
       <li><a href="#s11">Memória persistente — registry creative-dna</a></li>
-      <li><a href="#s12">Integrações MCP opcionais — Meta + TrendTrack</a></li>
+      <li><a href="#s12">Integrações MCP opcionais — Meta + TrendTrack + Refero</a></li>
       <li><a href="#s13">Como rodar uma sessão completa do zero</a></li>
       <li><a href="#s14">Mudanças recentes</a></li>
     </ol>
@@ -575,6 +575,11 @@
             <td>01, 03, 08, 11, 13</td>
           </tr>
           <tr>
+            <td><strong>refero-integration</strong> <span class="pill pill-optional">opcional</span></td>
+            <td>Integração com Refero Design MCP (<code>lorecraft-io/refero-design-mcp</code>, pacote npm local). Catálogo curado de ~200 design systems de sites premium (Cursor, Linear, Vercel, Notion, Stripe). 6 tools: <code>refero_search</code>, <code>refero_get</code>, <code>refero_similar</code>, <code>refero_list</code>, <code>refero_design_md</code>, <code>refero_refresh</code>. Detecção runtime via prefixo <code>mcp__refero__</code>. Cascade na skill 07a ETAPA 2.1: Refero → <code>tools/design-clone/</code> → manual. Complementar ao Claude Design (ETAPA 0.5), não concorrente.</td>
+            <td>07a (ETAPA 2.1)</td>
+          </tr>
+          <tr>
             <td><strong>automations/ (Meta + Shopify)</strong></td>
             <td>Não é uma lib em <code>.claude/lib/</code> — vive em <code>.claude/automations/</code> (setup + 6 receitas). Cascade resiliente pra Meta Ads: <strong>(1)</strong> MCP oficial da Meta <code>mcp.facebook.com/ads</code> (open beta desde 2026-04-29, tools <code>mcp__meta__ads_*</code>, 29 tools incluindo industry benchmarks + dataset quality + auction ranking + anomaly signal); <strong>(2)</strong> MCP Pipeboard 3rd-party (tools <code>mcp__meta-ads__*</code>) como fallback automático quando o oficial está disabled no rollout gradual; <strong>(3)</strong> paste manual quando ambos falham. Receitas: <code>sync-campaign-from-meta-official.md</code> (preferencial), <code>sync-campaign-from-meta.md</code> (fallback), <code>pause-ad-set.md</code>, <code>upload-creative-to-meta.md</code>, deploy/rotate. Setup em <code>setup-mcps.md</code>.</td>
             <td>10, 11</td>
@@ -776,7 +781,7 @@
   </div>
 
   <div class="section" id="s12">
-    <div class="section-label"><span class="num">12</span>Integrações MCP opcionais — Meta + TrendTrack</div>
+    <div class="section-label"><span class="num">12</span>Integrações MCP opcionais — Meta + TrendTrack + Refero</div>
     <p>A Aura é desenhada em volta de um padrão cascade resiliente pra MCPs externos. Cada skill enriquecida detecta tools MCP disponíveis em runtime e usa como fonte primária; ausência de tools dispara fallback silencioso pro método tradicional. O membro nunca vê estado quebrado.</p>
 
     <h3 style="font-size: 18px; font-weight: 600; margin-top: 32px; margin-bottom: 12px;">12.1 — Meta Ads MCP (cascade: oficial → Pipeboard → manual)</h3>
@@ -886,6 +891,55 @@
     <div class="note"><strong>Custos &amp; créditos:</strong> TrendTrack usa sistema de créditos. Quando uma skill planeja &gt;5 chamadas, roda <code>check_credits</code> primeiro e mostra projeção de uso pro membro. Chamadas que falham (auth expirada, rate limit, server down) são logadas silenciosamente e a skill cai pro fallback sem interromper.</div>
 
     <div class="note"><strong>Privacidade:</strong> OAuth read-only. A Aura não armazena tokens — eles ficam no Claude Desktop/Code do membro via o framework MCP. Aura só consome via tool calls em runtime.</div>
+
+    <hr style="margin: 48px 0 32px;">
+
+    <h3 style="font-size: 18px; font-weight: 600; margin-top: 16px; margin-bottom: 12px;">12.3 — Refero MCP (design system curado)</h3>
+
+    <p>Refero é um catálogo curado de ~200 design systems de sites premium (Cursor, Linear, Vercel, Notion, Stripe, etc.). O MCP é pacote npm local (<code>lorecraft-io/refero-design-mcp</code>) que a Aura consulta na skill 07a (page planning) ETAPA 2.1 Brand Discovery pra extrair signals coerentes de cor/typography/spacing sem inventar do zero nem fazer scraping.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Como o membro conecta (opcional)</div>
+      <ul>
+        <li><strong>Claude Code:</strong> <code>claude mcp add refero -- npx -y fidgetcoding-refero-mcp</code></li>
+      </ul>
+      <p>Sem auth obrigatória. Não confundir com o <code>mcp_token</code> que aparece na URL do <code>styles.refero.design</code> — esse é só do front-end web e não é usado pelo MCP.</p>
+      <p>Opcionais (qualidade de busca):</p>
+      <ul>
+        <li><code>OPENAI_API_KEY</code> — habilita semantic search via embeddings (default cai pra BM25 keyword)</li>
+        <li><code>REFERO_MCP_VAULT_DIR</code> — permite Refero escrever <code>DESIGN.md</code> direto no workspace</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">As 6 tools</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tool</th><th>Categoria</th><th>Propósito</th></tr></thead>
+          <tbody>
+            <tr><td><code>refero_search</code></td><td>Discover</td><td>Vibe search natural ("editorial premium", "techy clean SaaS") retorna sites do catálogo</td></tr>
+            <tr><td><code>refero_get</code></td><td>Inspect</td><td>Pega designSystem completo de 1 site (UUID, hostname, ou nome)</td></tr>
+            <tr><td><code>refero_similar</code></td><td>Inspect</td><td>Similar styles ranking nativo do Refero</td></tr>
+            <tr><td><code>refero_list</code></td><td>Browse</td><td>Catálogo com filtros tema/tag</td></tr>
+            <tr><td><code>refero_design_md</code></td><td>Generate</td><td>Renderiza style como <code>DESIGN.md</code>; opcionalmente escreve em disco</td></tr>
+            <tr><td><code>refero_refresh</code></td><td>Maintenance</td><td>Bypass cache 24h</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Cascade na skill 07a ETAPA 2.1</div>
+      <ol>
+        <li><strong>Refero MCP</strong> (preferencial) — catálogo curado, designSystems estruturados. Aura busca pela vibe descrita pelo membro ou pega style específico se o membro nomeou um site (ex: "vibe da Linear").</li>
+        <li><strong><code>tools/design-clone/</code></strong> (fallback ad-hoc) — extração via Playwright quando o membro passa URL <strong>fora</strong> do catálogo Refero (ex: PDP de concorrente nichado tipo Qure, Seranova).</li>
+        <li><strong>Manual</strong> — membro descreve a vibe em texto ou escolhe um dos 8 estilos pré-definidos.</li>
+      </ol>
+    </div>
+
+    <div class="callout"><strong>Não é concorrente do Claude Design:</strong> os dois rodam em sequência. Refero (ETAPA 2.1) entrega <em>signals técnicos</em> da vibe escolhida (cores role-tagged, typography tokens, spacing); Claude Design (ETAPA 0.5) entrega <em>4 variações visuais</em> renderizadas no canvas pra membro escolher a direção. Refero é input pros specialists, Claude Design é decisão visual do membro.</div>
+
+    <div class="note"><strong>Privacidade:</strong> MCP local, sem tokens persistidos. Cache em <code>~/.cache/refero-mcp/</code> com TTL 24h. Catálogo livre — único custo opcional é uso de embeddings OpenAI quando <code>OPENAI_API_KEY</code> setado (~$0.0001 por busca, irrelevante).</div>
   </div>
 
   <div class="section" id="s13">
@@ -936,6 +990,7 @@
           <tr><td>2026-04-30</td><td>CLAUDE.md atualizado com skill 14 na lista oficial</td></tr>
           <tr><td>2026-04-30</td><td><strong>Integração MCP TrendTrack</strong> adicionada como lib opcional (<code>lib/trendtrack-integration/</code>). Skills 01, 03, 08, 11, 13 ganham ETAPAs condicionais que detectam tools <code>mcp__trendtrack__*</code> em runtime. Fallback silencioso quando ausente. CLAUDE.md ganha rule 10 sobre integrações MCP opcionais.</td></tr>
           <tr><td>2026-05-11</td><td><strong>Integração do MCP oficial da Meta</strong> (<code>mcp.facebook.com/ads</code>, open beta desde 2026-04-29). Nova receita <code>sync-campaign-from-meta-official.md</code> usa as 29 tools nativas (incluindo industry benchmarks, dataset quality, auction ranking, opportunity score, anomaly signal que não existem no Pipeboard). Skill 11 ETAPA 1 vira cascade: oficial → Pipeboard → manual. <code>pause-ad-set.md</code> ganha cascade interno. <code>setup-mcps.md</code> documenta os dois caminhos em paralelo. CLAUDE.md rule 10 expandida pra mencionar Meta MCP.</td></tr>
+          <tr><td>2026-05-11</td><td><strong>Integração Refero MCP</strong> (<code>lorecraft-io/refero-design-mcp</code>). Catálogo curado de ~200 design systems premium alimentando a skill 07a ETAPA 2.1 Brand Discovery via 6 tools. Cascade: Refero → <code>tools/design-clone/</code> → manual. Complementar ao Claude Design (ETAPA 0.5 continua gerando 4 variações visuais), não concorrente. CLAUDE.md rule 10 expandida pra mencionar Refero. Nova lib <code>refero-integration/</code>.</td></tr>
           <tr><td>2026-05-03</td><td>Self-audit silencioso obrigatório no fim de toda skill (rule + CLAUDE.md rule 9)</td></tr>
           <tr><td>2026-05-03</td><td><strong>Renumeração completa das skills pra match com a ordem de execução:</strong> bonus-delivery 13→05, copy 05→06, page 06→07, creatives 07→08, consistency-audit 11→09, ad-strategy 08→10, ad-analysis 09→11, scale 10→12, retention 12→13. Content-recycler permanece 14. Números daqui pra frente refletem o workflow cronológico.</td></tr>
           <tr><td>2026-05-04</td><td>Skill 00 setup agora pergunta o idioma de relatório (<code>pt-BR</code> ou <code>en</code>) como primeira pergunta; salvo em <code>profile.md</code> como <code>report_language</code>. Toda skill lê antes de gerar relatórios internos.</td></tr>

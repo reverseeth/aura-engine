@@ -288,9 +288,53 @@ Quando o membro responder, **valide cada cor fornecida** antes de aceitar:
 
 3. **Se o membro não passar cor alguma** ("escolhe pra mim"), pule a validação — o `designer-color-system` vai gerar do estilo.
 
-### ETAPA 2.1 — Referência visual (quando o membro passa link)
+### ETAPA 2.1 — Referência visual (cascade: Refero MCP → design-clone → manual)
 
-**Importante:** isso NÃO é clone de design. É só extração de sinais de paleta/tipografia do site de referência pra ALIMENTAR o `designer-color-system` e o `designer-typography-scale` na Etapa 3. O design ainda é gerado do zero.
+**Importante:** isso NÃO é clone de design. É só extração de sinais de paleta/tipografia da referência pra ALIMENTAR o `designer-color-system` e o `designer-typography-scale` na Etapa 3. O design ainda é gerado do zero.
+
+Cascade resiliente — Aura tenta 3 caminhos em ordem:
+
+#### Caminho 1 — Refero MCP (preferencial, catálogo curado)
+
+Detecta tools com prefixo `mcp__refero__refero_*` na sessão. Se disponíveis, vibe search no catálogo de ~200 design systems curados (Cursor, Linear, Vercel, Notion, Stripe, etc.).
+
+1. Construir query de busca a partir da Brand Discovery + descrição do membro. Exemplos:
+   - Membro disse "editorial premium magazine 45+" → `query="editorial magazine ultralight italic premium document"`
+   - Membro disse "techy clean SaaS" → `query="modern SaaS clean tech minimal"`
+   - Membro pediu "vibe da Linear" → pular query, ir direto pro Caminho 1.b
+
+2. Executar busca:
+   ```
+   results = mcp__refero__refero_search(query=<query>, limit=5)
+   ```
+
+3. **Caminho 1.b — quando membro nomeou um site específico** (Linear, Cursor, Notion, etc.):
+   ```
+   style = mcp__refero__refero_get(hostname="<site>.com")
+   # se hostname falha, tentar refero_search com o nome
+   ```
+
+4. Apresentar 2-3 candidatos ao membro com 1 linha cada (nome + 1-frase do `northStar` summary). Esperar membro escolher um (ou pedir mais 3 com search refinada).
+
+5. Quando escolhido, puxar designSystem completo:
+   ```
+   chosen = mcp__refero__refero_get(uuid=<id_escolhido>)
+   ```
+
+6. Extrair `chosen.designSystem` → typography + colors role-tagged + spacing + radius + dos/donts. Esses signals vão **direto** pros specialists `designer-color-system` + `designer-typography-scale` na ETAPA 3 (sem precisar de Playwright/scraping).
+
+7. **Opcional:** se `REFERO_MCP_VAULT_DIR` estiver setado, escrever `DESIGN.md` direto pro workspace:
+   ```
+   mcp__refero__refero_design_md(uuid=<id>, write_to_disk=true, path="/workspace/[produto]/07-page/DESIGN.md")
+   ```
+
+8. Mostre ao membro um resumo curto (mesmo formato do passo 6 do Caminho 2 abaixo).
+
+Se Refero retorna zero resultados úteis OU o membro não gostou de nenhum candidato, cair pro Caminho 2.
+
+#### Caminho 2 — `tools/design-clone/` (fallback, extração ad-hoc)
+
+Acionado quando o membro passa **URL específica fora do catálogo Refero** (ex: PDP de concorrente nichado tipo Qure, Seranova, marca obscura de microneedling). Refero é generalista top-200; concorrente nichado raramente está lá.
 
 **Validação de tooling (antes de rodar):**
 
@@ -298,7 +342,7 @@ Quando o membro responder, **valide cada cor fornecida** antes de aceitar:
    ```bash
    test -f tools/design-clone/downloader.py && echo "OK" || echo "MISSING"
    ```
-   Se `MISSING`, **pule esta etapa graciosamente**: informe o membro que o sistema de extração visual não está disponível neste projeto e peça pra colar descrição manual da referência (ou simplesmente escolher um dos estilos pré-definidos).
+   Se `MISSING`, **pule esta etapa graciosamente**: informe o membro que o sistema de extração visual não está disponível neste projeto e pula pro Caminho 3.
 
 2. Valide que Playwright + BeautifulSoup estão instalados:
    ```bash
@@ -324,13 +368,27 @@ Quando o membro responder, **valide cada cor fornecida** antes de aceitar:
 
 5. Leia `/tmp/ref-[produto]/patterns.json` → extraia apenas o `design_system` (typography + colors + shape + spacing). Ignore `sections[]` — não vamos copiar estrutura, só absorver signals visuais.
 
-6. Mostre ao membro um resumo curto:
-   > "Peguei a vibe da [url]:
-   > - Fontes: **[heading_font]** (títulos) + **[body_font]** (corpo)
-   > - Paleta: fundo **[background_primary]** · texto **[text_primary]** · accents **[accents]**
-   > - Radius **[border_radius_px]px** · shadow **[shadow_style]** · density **[density]**
-   > 
-   > Vou usar isso como input pro design system. O layout e a estrutura ainda vêm da copy — só a paleta/tipografia é inspirada."
+#### Caminho 3 — Manual (último recurso)
+
+Quando Refero não tem match útil E membro não tem URL específica (ou design-clone indisponível):
+
+- Peça descrição em texto livre da vibe ("editorial sério, low-pressure, italic em palavras-chave") OU
+- Ofereça os 8 estilos pré-definidos (Modern Clean, Bold Editorial, Premium Minimal, Warm Lifestyle, Tech Sharp, Atelier Document, Apothecary Calm, Luxe Magazine) — membro escolhe um e a skill prossegue com tokens default desse estilo.
+
+#### Output (independente do caminho)
+
+Mostre ao membro um resumo curto:
+> "Peguei a vibe [da Linear via Refero / de [url] via extração / do estilo Atelier Document]:
+> - Fontes: **[heading_font]** (títulos) + **[body_font]** (corpo)
+> - Paleta: fundo **[background_primary]** · texto **[text_primary]** · accents **[accents]**
+> - Radius **[border_radius_px]px** · shadow **[shadow_style]** · density **[density]**
+>
+> Vou usar isso como input pro design system. O layout e a estrutura ainda vêm da copy — só a paleta/tipografia é inspirada."
+
+**Indicar no relatório final qual caminho foi usado:**
+- Caminho 1: "Brand signals via Refero MCP — estilo: [nome]"
+- Caminho 2: "Brand signals via design-clone — URL: [link]"
+- Caminho 3: "Brand signals via descrição manual / estilo pré-definido [nome]"
 
 7. Siga pra Etapa 3. No `designer-color-system` e `designer-typography-scale`, passe os valores extraídos como **preferência inicial** (não impositivo — o specialist pode ajustar pra garantir contraste WCAG e hierarquia).
 

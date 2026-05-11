@@ -94,6 +94,33 @@ Edit `~/.claude/mcp.json` (cria se não existe):
 
 > **Importante — naming:** o connector oficial usa `meta` (vira tools `mcp__meta__*`). O Pipeboard usa `meta-ads` (vira tools `mcp__meta-ads__*`). Não troque os nomes — as receitas detectam por prefixo.
 
+## 3.5. Conectar Refero MCP (opcional, 2min — design system curado)
+
+Se o membro quer alimentar a skill 07a Brand Discovery com design systems curados de top sites (~200 sites premium tipo Cursor, Linear, Vercel), conecte o Refero MCP. Sem ele, Aura cai pro `tools/design-clone/` (Playwright) ou pergunta manual.
+
+```bash
+claude mcp add refero -- npx -y fidgetcoding-refero-mcp
+```
+
+Opcional (qualidade de busca):
+
+```bash
+# Pra semantic search via embeddings (default cai pra BM25 keyword)
+export OPENAI_API_KEY="sk-..."
+
+# Pra Refero escrever DESIGN.md direto no workspace
+export REFERO_MCP_VAULT_DIR="$HOME/aura-engine/workspace"
+```
+
+Reinicie o Claude Code. Tools com prefixo `mcp__refero__` aparecem. Sem auth obrigatória — o `mcp_token` que aparece na URL do `styles.refero.design` é só do front-end web, não do MCP.
+
+**Testar:**
+```
+Claude, vibe search no refero pra "editorial premium magazine"
+```
+
+Detalhes completos em `.claude/lib/refero-integration/README.md`.
+
 ## 4. Conectar Shopify (3min)
 
 Você provavelmente já tem Shopify CLI autenticado. Verificar:

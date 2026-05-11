@@ -116,6 +116,8 @@ REGRAS FUNDAMENTAIS:
 
     **(b) TrendTrack MCP — enrichment de research.** Se houver tools com prefixo `mcp__trendtrack__` na sessão, várias skills (01, 03, 08, 11, 13) usam essas tools como fonte primária pra product research, competitor analysis, criativos, ad-analysis e retention. Se NÃO houver, skills seguem método tradicional (web fetch, Meta Ad Library público, scraping). Detalhes completos em `.claude/lib/trendtrack-integration/README.md`.
 
+    **(c) Refero MCP — design system curado.** Se houver tools com prefixo `mcp__refero__` na sessão, a skill 07a (page planning) ETAPA 2.1 Brand Discovery usa o catálogo curado de ~200 sites premium (Cursor, Linear, Vercel, Notion, Stripe, etc.) como fonte primária de signals de cor/typography/spacing. Cascade: Refero → `tools/design-clone/` (extração via Playwright pra concorrentes nichados fora do catálogo) → manual. Setup via `claude mcp add refero -- npx -y fidgetcoding-refero-mcp`. Não é concorrente do Claude Design — Refero entrega designSystem técnico, Claude Design (ETAPA 0.5) entrega 4 variações visuais; rodam em sequência. Detalhes em `.claude/lib/refero-integration/README.md`.
+
     Outras integrações MCP (Klaviyo oficial, Shopify Dev MCP, Stripe, etc.) podem ser adicionadas no futuro seguindo o mesmo padrão de detecção automática + fallback silencioso.
 
 COMO AS SKILLS FUNCIONAM:
