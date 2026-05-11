@@ -293,6 +293,23 @@ Bibliotecas reutilizáveis chamadas pelas skills. Ficam em `.claude/lib/`.
 **Usado por (opcional):** skills 01 (product research), 03 (competitor analysis), 08 (creatives), 11 (ad analysis), 13 (retention).
 **Por que importa:** elimina cloaker fallbacks da skill 03, dá hooks reais pra Hooks Bank da skill 08, viabiliza loop de monitoramento contínuo via `daily_radar`. Aura funciona 100% sem ela — integração é puro upside.
 
+### automations/ (Meta Ads + Shopify, cascade resiliente)
+**Não é uma lib em `.claude/lib/`** — vive em `.claude/automations/` (setup-mcps.md + 6 receitas em `recipes/`). Mas funciona como integration layer: skills delegam aqui.
+
+**Stack Meta Ads (cascade automático):**
+1. **MCP oficial da Meta** — `mcp.facebook.com/ads` (open beta desde 2026-04-29). Tools com prefixo `mcp__meta__ads_*`. 29 tools: campaign create/manage, catalog (10 tools), insights, datasets (Pixel/CAPI quality), industry benchmarks, auction ranking, opportunity score, anomaly signal. OAuth via Business Suite — zero token manual.
+2. **Pipeboard MCP** — `pipeboard-co/meta-ads-mcp` (3rd party). Tools com prefixo `mcp__meta-ads__*`. Long-lived token Meta Marketing API (60d). Fallback automático quando o oficial está disabled no rollout gradual da beta.
+3. **Manual** — membro cola screenshot quando ambos MCPs falham.
+
+**Receitas em `recipes/`:**
+- `sync-campaign-from-meta-official.md` — pull completo via MCP oficial (preferencial); inclui dataset health + industry benchmarks
+- `sync-campaign-from-meta.md` — fallback Pipeboard
+- `pause-ad-set.md` — cascade oficial→Pipeboard pra pausar ad set (PGS guard)
+- `upload-creative-to-meta.md` — continua via Pipeboard (oficial não aceita arquivo local)
+- `deploy-shopify-product.md`, `rotate-winning-creative.md`, `full-deploy.md`
+
+**Setup:** documentado em `.claude/automations/setup-mcps.md`. Instala ambos os Meta MCPs em paralelo pra ter resiliência.
+
 ---
 
 ## 5. Sistema de rules
@@ -487,3 +504,4 @@ Cada skill faz pre-flight da anterior. Se artefato faltar, oferece fallback (rul
 | 2026-05-03 | Self-audit silencioso obrigatório no fim de toda skill (rule + regra 9 em CLAUDE.md) |
 | 2026-05-03 | **Renumeração completa pra alinhar números com ordem de execução**: bonus-delivery 13→05, copy 05→06, page 06→07, creative 07→08, consistency-audit 11→09, ad-strategy 08→10, ad-analysis 09→11, scale 10→12, retention 12→13. Content-recycler permanece 14. Numbers daqui pra frente refletem ordem cronológica do workflow. |
 | 2026-04-30 | TrendTrack MCP integration adicionada como lib opcional (`lib/trendtrack-integration/`). Skills 01, 03, 08, 11, 13 ganharam ETAPA 0.5 / bloco TrendTrack que detecta `mcp__trendtrack__*` tools em runtime e usa como fonte primária. Fallback silencioso pro método tradicional quando ausente. CLAUDE.md ganhou regra 10 sobre integrações MCP opcionais. |
+| 2026-05-11 | Meta MCP oficial (`mcp.facebook.com/ads`, open beta desde 2026-04-29) integrado em cascade. Nova receita `sync-campaign-from-meta-official.md` usa as 29 tools nativas (incluindo industry benchmarks, dataset quality, auction ranking, opportunity score, anomaly signal que não existem no Pipeboard). Skill 11 ETAPA 1 vira cascade: oficial → Pipeboard → manual. `pause-ad-set.md` ganha cascade interno. `setup-mcps.md` documenta os dois caminhos. CLAUDE.md regra 10 expandida pra mencionar Meta MCP. |

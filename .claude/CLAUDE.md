@@ -105,7 +105,18 @@ REGRAS FUNDAMENTAIS:
 
 9. SELF-AUDIT SILENCIOSO OBRIGATÓRIO: antes de declarar QUALQUER skill ou tarefa importante como "pronto/completo/feito/deployado", você roda mentalmente os 5 gates da rule `.claude/rules/post-task-self-audit.md` (consistência cross-artifact, erros factuais, gaps, qualidade, alinhamento com rules). É proibido declarar conclusão sem rodar o audit. O que achar de errado, sem sentido, faltando, fraco, ou faltando ser implementado dentro do escopo da skill, você **corrige inline na entrega final SEM mencionar nada**. O membro só vê a versão corrigida — primeira tentativa nunca existiu pra ele. Você só surface quando o issue exige decisão do membro (contradição entre fontes que precisa escolha, fix que expandiria escopo, input externo que você não tem). Bloco visível de "self-audit results" no output é PROIBIDO — silent fix first sempre. Detalhes completos do protocolo + casos de surface em `.claude/rules/post-task-self-audit.md`.
 
-10. INTEGRAÇÕES MCP OPCIONAIS: o Aura Engine detecta MCPs externos conectados pelo membro (Claude Desktop ou Code) e enriquece skills automaticamente quando disponíveis. **TrendTrack MCP** é o caso principal — se houver tools com prefixo `mcp__trendtrack__` na sessão, várias skills (01, 03, 08, 11, 13) usam essas tools como fonte primária pra product research, competitor analysis, criativos, ad-analysis e retention. Se NÃO houver, skills seguem método tradicional (web fetch, Meta Ad Library público, scraping). Detalhes completos em `.claude/lib/trendtrack-integration/README.md`. Outras integrações MCP (Klaviyo oficial, Shopify Dev MCP, Stripe, etc.) podem ser adicionadas no futuro seguindo o mesmo padrão de detecção automática + fallback silencioso.
+10. INTEGRAÇÕES MCP OPCIONAIS: o Aura Engine detecta MCPs externos conectados pelo membro (Claude Desktop ou Code) e enriquece skills automaticamente quando disponíveis. Duas integrações principais hoje:
+
+    **(a) Meta Ads MCP — cascade resiliente.** Skill 11 (ad-analysis) e receitas de automação (`sync-campaign-from-meta-official.md`, `pause-ad-set.md`, `upload-creative-to-meta.md`) tentam 3 caminhos em ordem:
+    - Primeiro: **MCP oficial da Meta** (`mcp.facebook.com/ads`, lançado em open beta 2026-04-29) — tools com prefixo `mcp__meta__ads_*`. 29 tools cobrindo campaign management, catalogs, insights, datasets, industry benchmarks, auction ranking, opportunity score, anomaly signal. OAuth via Business Suite, sem token manual.
+    - Segundo: **Pipeboard MCP** (3rd party, `pipeboard-co/meta-ads-mcp`) — tools com prefixo `mcp__meta-ads__*`. Fallback automático quando o oficial está "disabled" no rollout gradual da beta ou indisponível.
+    - Terceiro: fallback manual (membro cola screenshot/dados).
+
+    Setup completo em `.claude/automations/setup-mcps.md`.
+
+    **(b) TrendTrack MCP — enrichment de research.** Se houver tools com prefixo `mcp__trendtrack__` na sessão, várias skills (01, 03, 08, 11, 13) usam essas tools como fonte primária pra product research, competitor analysis, criativos, ad-analysis e retention. Se NÃO houver, skills seguem método tradicional (web fetch, Meta Ad Library público, scraping). Detalhes completos em `.claude/lib/trendtrack-integration/README.md`.
+
+    Outras integrações MCP (Klaviyo oficial, Shopify Dev MCP, Stripe, etc.) podem ser adicionadas no futuro seguindo o mesmo padrão de detecção automática + fallback silencioso.
 
 COMO AS SKILLS FUNCIONAM:
 

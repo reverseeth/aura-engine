@@ -1,11 +1,18 @@
-# Recipe: Sync Campaign from Meta Ads (via MCP)
+# Recipe: Sync Campaign from Meta Ads (via Pipeboard MCP — LEGACY/FALLBACK)
 
-Puxa estado completo de uma campanha Meta Ads via MCP e salva estruturado pra Skill 11 processar sem precisar de print.
+Puxa estado completo de uma campanha Meta Ads via **MCP 3rd party do Pipeboard** (`pipeboard-co/meta-ads-mcp`) e salva estruturado pra Skill 11 processar sem print.
+
+> **⚠️ Use o caminho preferencial primeiro.** Desde maio/2026 existe MCP oficial da Meta (`mcp.facebook.com/ads`) — ver `sync-campaign-from-meta-official.md`. Esta receita continua como **fallback automático** quando:
+> - Ad account ainda não foi liberado no rollout gradual da open beta oficial
+> - OAuth do Business Suite falhou ou foi revogado
+> - Skill 11 testou o oficial e recebeu erro `account_disabled_in_official_beta`
+>
+> A Skill 11 ETAPA 1 tenta o oficial primeiro e cai pra esta receita silenciosamente em caso de falha.
 
 ## Triggers (linguagem natural)
-- "sync campanha [nome]"
-- "pull dados do Meta"
-- Invocado automaticamente pela Skill 11 ETAPA 1
+- "sync campanha [nome]" (apenas se membro forçar Pipeboard)
+- "pull dados do Meta via pipeboard"
+- Invocado automaticamente pela Skill 11 ETAPA 1 **como fallback do oficial**
 
 ## Input
 - `campaign_name` OU `campaign_id` — identificador da campanha (do manifest `10_campaign_name`)
@@ -156,7 +163,8 @@ def classify_outcome(metrics, target_cpa, min_spend=100):
 ```json
 {
   "pulled_at": "<ISO timestamp>",
-  "source": "meta_mcp",
+  "source": "meta_mcp_pipeboard",
+  "fallback_reason": "<account_disabled_in_official_beta | oauth_failed | official_unreachable | forced_by_member>",
   "date_preset": "last_7d",
   "campaign": {
     "id": "<Meta campaign ID>",
@@ -220,6 +228,8 @@ shell(f"python3 .claude/lib/creative-dna/registry.py update /workspace/[produto]
 {
   "timestamp": "<ISO>",
   "action": "sync_campaign",
+  "source": "meta_mcp_pipeboard",
+  "fallback_reason": "<motivo do fallback do oficial>",
   "campaign_id": "<Meta ID>",
   "ads_synced": "<N>",
   "outcomes": {"winner": "<N>", "neutral": "<N>", "loser": "<N>", "insufficient_data": "<N>"},

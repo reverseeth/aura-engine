@@ -36,44 +36,66 @@ Use 1-3 chamadas por análise. Não desperdiçar créditos em ad set perdedor.
 
 Se TrendTrack NÃO estiver disponível, siga ETAPA 1 normalmente.
 
-### ETAPA 1 — Obter Dados (AUTO via MCP, fallback manual)
+### ETAPA 1 — Obter Dados (cascade: oficial → Pipeboard → manual)
 
-**PRIMEIRO TENTE AUTO-PULL via Meta MCP (preferível):**
+Aura tenta 3 caminhos em ordem. Cada falha cai pro próximo silenciosamente — o membro vê apenas a versão final com label indicando qual modo entregou os dados.
 
-1. Verificar se MCP `meta-ads` está disponível:
+#### Caminho 1 — Meta MCP **oficial** (preferencial desde 2026-04-29)
+
+1. Verificar se tools com prefixo `mcp__meta__ads_` (ou `mcp__meta-official__ads_` dependendo do nome do connector) estão na sessão:
    ```
-   test_mcp = invoke("meta-ads", "ping") ou equivalente
+   official_mcp_available = qualquer tool começando com mcp__meta__ads_get_ad_accounts existe
    ```
 
-2. Se MCP disponível:
-   a. Invocar receita `sync-campaign-from-meta.md`:
-      ```
-      invoke_recipe("sync-campaign-from-meta", {
-        campaign_name: read_manifest("10_campaign_name"),
-        date_preset: "last_7d"
-      })
-      ```
-   b. Receita salva pull completo em `/workspace/[produto]/11-analysis/raw-pull-[timestamp].json`
-   c. Parse JSON em tabela estruturada internamente:
+2. Se sim, tentar listar contas:
+   ```
+   accounts = mcp__meta__ads_get_ad_accounts()
+   ```
+   - Sucesso E ad_account do membro NÃO marcado "disabled" → invocar receita `sync-campaign-from-meta-official.md`
+   - Conta marcada "disabled" no rollout gradual da beta → logar `account_disabled_in_official_beta` em `mcp-errors.log` e cair pro Caminho 2
+   - OAuth expirado → tentar uma única re-autorização inline; se membro recusa, cair pro Caminho 2
 
-   | Ad Set | Days Running | Spend | Freq | CPM | CPC | CTR | CPA | ROAS | Thumbstop | Hold15s |
-   |---|---|---|---|---|---|---|---|---|---|---|
+3. Receita oficial salva pull completo em `/workspace/[produto]/11-analysis/raw-pull-[timestamp].json` com `source: "meta_mcp_official"` + blocos extras (`dataset_health`, `market_context` com industry benchmarks, auction ranking, opportunity score, anomalies). **ZERO interação com o membro.** Vá pra ETAPA 2.
 
-   d. **ZERO interação com o membro nesse fluxo.** Silent pull, pronto pra ETAPA 2.
+#### Caminho 2 — Meta MCP via Pipeboard (3rd party, fallback)
 
-3. Se MCP falhar (não configurado, token expirado, rate limit):
-   a. Logar erro em `/workspace/[produto]/11-analysis/mcp-errors.log`
-   b. Fallback ao modo manual: pedir ao membro:
+Acionado quando o Caminho 1 falha. Verificar se MCP legado `meta-ads` (binary local do Pipeboard) está disponível:
 
-      "MCP do Meta Ads não respondeu (motivo: [erro]). Cola os dados aqui — screenshot ou números. Preciso ver por ad set: Spend, Frequency, CPM, CPC, Cost per Purchase, ROAS. E quantos dias cada ad set está rodando."
+```
+pipeboard_mcp_available = tools com prefixo mcp__meta-ads__ existem
+```
 
-      ESPERE a resposta. Parse manual.
+Se sim, invocar receita legacy `sync-campaign-from-meta.md` com `fallback_reason` preenchido conforme o motivo do Caminho 1 ter falhado. JSON resultado tem `source: "meta_mcp_pipeboard"` e o mesmo shape base (sem os blocos `dataset_health` e `market_context` exclusivos do oficial).
 
-**Indicar ao membro no output final qual modo foi usado:**
-- Modo auto: "Dados puxados via MCP em [timestamp]"
-- Modo manual: "Dados via print do membro em [timestamp]"
+#### Caminho 3 — Manual (último recurso)
 
-Esta é a diferença entre Skill 11 sob demanda vs Skill 11 autônoma.
+Quando ambos MCPs falham (não configurados, ambos token/OAuth expirados, ambos rate-limited):
+
+1. Logar ambos os erros em `/workspace/[produto]/11-analysis/mcp-errors.log`
+2. Pedir ao membro:
+
+   > "MCP do Meta Ads não respondeu (motivo: oficial=[erro], pipeboard=[erro]). Cola os dados aqui — screenshot ou números. Preciso ver por ad set: Spend, Frequency, CPM, CPC, Cost per Purchase, ROAS. E quantos dias cada ad set está rodando."
+
+3. ESPERE a resposta. Parse manual. Marcar `source: "manual_paste"` internamente.
+
+#### Output final — declarar o modo usado
+
+No final da análise, header do relatório indica qual modo foi usado:
+
+- **Caminho 1 (oficial):** "Dados puxados via Meta MCP oficial em [timestamp]. Industry benchmarks incluídos."
+- **Caminho 2 (Pipeboard):** "Dados via Pipeboard MCP em [timestamp] (oficial indisponível: [motivo])."
+- **Caminho 3 (manual):** "Dados colados pelo membro em [timestamp]."
+
+Esta é a diferença entre Skill 11 totalmente autônoma (caminho 1 ou 2) vs sob demanda (caminho 3).
+
+#### Quando dados oficiais existem, integrá-los na 4Pi analysis
+
+Se `raw-pull.market_context.industry_benchmark` está presente:
+- **Pi 3 CPM judgment:** comparar membro vs vertical em vez de absoluto. Ex: "membro CPM $42 vs vertical p50 $38 → 10% acima da mediana, dentro do esperado". Sem isso, CPM $42 sozinho não diz nada.
+- **CPM subindo (fadiga vs sazonalidade):** se `anomalies_detected` confirma anomalia, decisão é mais confiante.
+- **Auction ranking `below_avg` em quality OU engagement OU conversion** → marcador independente de problema do creative que entra no 19-Point Diagnostic.
+
+Se `dataset_health.match_quality_score < 7` → marcar warning no relatório: "Match quality ruim, CPAs podem estar inflados por undercounting de conversões". Antes esse contexto só vinha do Events Manager manualmente.
 
 ### ETAPA 2 — 4Pi Analysis (Ordem EXATA)
 
