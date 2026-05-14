@@ -120,6 +120,31 @@ REGRAS FUNDAMENTAIS:
 
     Outras integrações MCP (Klaviyo oficial, Shopify Dev MCP, Stripe, etc.) podem ser adicionadas no futuro seguindo o mesmo padrão de detecção automática + fallback silencioso.
 
+11. SEPARAÇÃO ABSOLUTA — FRAMEWORK vs WORKSPACE (INEGOCIÁVEL):
+
+    A pasta `~/aura-engine/` contém DOIS conteúdos com regras opostas de versionamento. Confundir os dois pode commitar produto pessoal do membro num repo público.
+
+    **FRAMEWORK (vai pro GitHub público `github.com/reverseeth/aura-engine`):**
+    - `.claude/` (skills, rules, hooks, libs, templates, CLAUDE.md, OVERVIEW)
+    - `tools/`
+    - `README.md`, `.gitignore`, `LICENSE`
+
+    **WORKSPACE (LOCAL-ONLY, JAMAIS commitar/pushar):**
+    - `workspace/` (todo o conteúdo exceto o `workspace/.gitkeep` placeholder)
+    - Qualquer arquivo dentro de `workspace/[produto-slug]/` (manifest.json, profile.md, market-research, copy, criativos, ads, etc.)
+    - Qualquer arquivo da marca pessoal do membro (Solvn ou qualquer outro produto que ele esteja rodando)
+
+    **Regras invioláveis:**
+
+    a) NUNCA rode `git add workspace/` ou `git add workspace/qualquer-coisa`. NUNCA force com `git add -f`.
+    b) NUNCA commite arquivos de marca pessoal do membro mesmo que o `.gitignore` esteja faltando ou tenha sido editado.
+    c) ANTES de qualquer `git commit`/`push`, rode `git status` e confirme: cada arquivo staged pertence ao FRAMEWORK, não ao WORKSPACE.
+    d) Se o membro pedir "commita isso" ou "push isso", PRIMEIRO classifique o que ele quer: framework ou workspace? Se workspace → RECUSE e explique. Se misturado → commite só os do framework, exclua os do workspace.
+    e) `.gitignore` cobre `workspace/*` (proteção em camada 1). O hook git `.git/hooks/pre-commit` (instalado automaticamente pelo post-start) bloqueia mecanicamente qualquer commit que misture os dois (proteção em camada 2). Esta regra é a camada 3 — o agent não tenta nem essas operações.
+    f) Em caso de qualquer dúvida sobre se um arquivo é framework ou workspace: não commite. Pergunte ao membro.
+
+    **Por que esta separação importa:** o framework é open-source público; o workspace contém a estratégia de marca, pricing, oferta, criativos, performance de ads, listas de email — tudo que dá vantagem competitiva ao membro. Vazar isso pro repo público destrói o trabalho dele.
+
 COMO AS SKILLS FUNCIONAM:
 
 O membro pode acionar qualquer skill por nome:
