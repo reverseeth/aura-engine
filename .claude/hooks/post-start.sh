@@ -54,8 +54,61 @@ run_hook() {
     echo "[aura] alias 'aura' ja configurado em $SHELL_RC"
   fi
 
+  # Instala o pre-commit guard local (proteção mecânica contra commit do workspace)
+  install_pre_commit_guard "$AURA_HOME"
+
   # Marca que já rodou hoje — não roda de novo até o próximo dia
   touch "$FLAG_DAILY" 2>/dev/null || true
+}
+
+# Instala o hook git pre-commit local apontando pro guard versionado.
+# Idempotente: se já está instalado e correto, não faz nada.
+install_pre_commit_guard() {
+  local aura_home="$1"
+  local hook_target="$aura_home/.git/hooks/pre-commit"
+  local guard_source="$aura_home/.claude/hooks/pre-commit-guard.sh"
+
+  # Só age se estamos num clone git válido com hooks dir
+  [ -d "$aura_home/.git/hooks" ] || return 0
+  [ -f "$guard_source" ] || return 0
+
+  # Garante que o guard tem permissão de execução
+  chmod +x "$guard_source" 2>/dev/null || true
+
+  # Se já existe e aponta pro guard, nada a fazer
+  if [ -f "$hook_target" ] && grep -q "pre-commit-guard.sh" "$hook_target" 2>/dev/null; then
+    return 0
+  fi
+
+  # Se existe outro pre-commit (de outra ferramenta tipo husky/pre-commit framework),
+  # preserva ele e adiciona chamada ao guard como ESTÁGIO ADICIONAL
+  if [ -f "$hook_target" ]; then
+    # Backup e wrap
+    cp "$hook_target" "${hook_target}.aura-backup"
+    cat > "$hook_target" <<EOF
+#!/bin/bash
+# Aura Engine + hook original combinados
+set -e
+
+# 1. Roda hook original primeiro
+if [ -f "${hook_target}.aura-backup" ]; then
+  bash "${hook_target}.aura-backup" "\$@" || exit \$?
+fi
+
+# 2. Roda guard da Aura
+bash "$guard_source" "\$@"
+EOF
+  else
+    # Cria hook novo apontando pro guard
+    cat > "$hook_target" <<EOF
+#!/bin/bash
+# Aura Engine pre-commit guard
+exec bash "$guard_source" "\$@"
+EOF
+  fi
+
+  chmod +x "$hook_target"
+  echo "[aura] pre-commit guard instalado em .git/hooks/pre-commit (protege workspace/ e segredos)"
 }
 
 # Execução simples sem flock se não disponível
