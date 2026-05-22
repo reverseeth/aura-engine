@@ -209,6 +209,8 @@ Cadência de fala natural pra ad é **2.3 a 2.8 palavras por segundo** (mais len
 
 Text overlay não conta nesse cálculo — overlay roda em paralelo à fala.
 
+**Limite por take do Higgsfield + multi-shot:** cada geração do Higgsfield Marketing Studio é 1 clipe de no máximo **15s**, renderizado do zero (sem memória dos clipes anteriores). Se o script falado de um conceito passa de ~43 palavras (~15s), NÃO acelere a fala nem corte por padrão — **divida o criativo em múltiplos takes ≤15s**: o **hook fica num take**, o **body (mecanismo/prova/CTA) começa no take seguinte** (hook e body nunca no mesmo take), cada take 100% autocontido (sem referência a outro clipe). A lógica completa de split está no `marketing-studio-director.md` (seção MULTI-SHOT SPLITTING). Quando há split, o entregável vira **1 pasta por conceito com 1 arquivo por take**.
+
 **D. Spoken vs Overlay — disciplina de jargão técnico**
 
 Siglas, números complexos, nomes científicos, compostos químicos, unidades de medida e claims regulatórios são **sempre text overlay**, **nunca** na fala. Regras:
@@ -430,10 +432,11 @@ Após gerar os briefings (Etapa 5), pra CADA conceito, gerar prompts production-
 4. Rodar o director conforme as regras do SKILL.md dele:
    - Marketing Studio: identifica preset (UGC/Tutorial/Unboxing/Hyper Motion/Product Review/TV Spot/Wild Card/UGC Virtual Try On/Pro Virtual Try On), aplica preset-specific rules, retorna 1 parágrafo + link Higgsfield
    - GPT Image 2.0: roteia entre Format A (JSON estruturado pra layout denso), Format B (prosa cinematográfica pra single image), ou Format C (meta-prompt pra theme-only) — retorna code block do prompt
-5. Salvar 1 arquivo por conceito × por formato em `/workspace/[produto]/08-creatives/prompts/`:
-   - `prompt-c01-video.txt` — prompt Higgsfield do conceito 01
-   - `prompt-c01-image.txt` — prompt GPT Image 2.0 do conceito 01 (se conceito tem imagem)
-   - etc
+5. Salvar em `/workspace/[produto]/08-creatives/prompts/`:
+   - **Vídeo curto (≤15s, take único):** 1 arquivo `prompt-c01-video.txt`
+   - **Vídeo longo (>15s, multi-shot):** 1 PASTA por conceito (`c01-[slug]/`) com 1 arquivo por take (`shot-1.txt`, `shot-2.txt`, …). Shot 1 = hook; body começa no shot 2 (hook e body NUNCA no mesmo take, cada take autocontido). Cada arquivo de take tem: cabeçalho (conceito, hook, nº do shot, duração estimada, preset), o parágrafo pra colar na ferramenta, o link de generation, e ABAIXO as notas pro membro (produto SIM/NÃO, consistência avatar/cenário, pronúncia) — notas nunca dentro do parágrafo colado.
+   - **Imagem:** `prompt-c01-image.txt` (se conceito tem componente de imagem)
+   - Quando split, também salvar `_LEIA-PRIMEIRO.txt` na raiz de `prompts/` explicando ordem dos takes, durações e como juntar no editor com 1 voiceover por cima
 
 **Inputs herdados (CRÍTICO — não duplicar trabalho):**
 
@@ -457,6 +460,11 @@ Em `/workspace/[produto]/08-creatives/prompts/prompts-index.json`:
     {
       "concept_id": "c-01",
       "video_prompt_file": "prompt-c01-video.txt",
+      "video_prompt_folder": "c01-slug/ (quando multi-shot; senão null)",
+      "video_shots": [
+        { "file": "shot-1.txt", "phase": "hook", "duration_sec": 4, "product_ref": false },
+        { "file": "shot-2.txt", "phase": "body", "duration_sec": 14, "product_ref": true }
+      ],
       "video_director": "marketing-studio-director",
       "video_preset": "UGC|Tutorial|...",
       "image_prompt_file": "prompt-c01-image.txt",

@@ -19,7 +19,7 @@ No structured fields — you parse everything from the text.
 
 **Extract from user text:**
 - **Preset:** determine which of the 9 Marketing Studio presets fits the concept (see router below). If the user names a preset, use it.
-- **Duration:** if mentioned, respect it. If not, default to ~10 seconds. Hard cap: 15 seconds.
+- **Duration:** estimate it from the spoken script, don't stamp a fixed time on every clip (a fixed 10s makes a long script race and sound robotic). Natural ad pace is ~2.8–3.0 words/second, so **~43 words ≈ 15 seconds**. Hard cap per clip: 15 seconds. If the script needs more than 15s, split into multiple self-contained shots (see MULTI-SHOT SPLITTING).
 - **Camera:** if user specifies camera movement or angle (e.g., "selfie angle," "low-angle product hero," "orbit"), it MUST appear in the final prompt. User camera direction overrides all defaults.
 - **Product/Avatar inputs:** whether these are attached. Reference them explicitly in the prompt.
 
@@ -148,6 +148,36 @@ Hard rendering constraints:
 
 ---
 
+## MULTI-SHOT SPLITTING (creatives longer than 15s)
+
+Marketing Studio generates **one clip per generation, 15 seconds max, and each clip is rendered from scratch — the generator has NO memory of previous clips.** When a creative's spoken script needs more than 15s, do NOT cram it into one prompt. Split it into multiple self-contained shots, each ≤15s, that the user generates separately and stitches in an editor under one continuous voiceover.
+
+### How to split
+1. **Estimate spoken duration by word count.** At ~2.8–3.0 words/second, **~43 words ≈ 15s** — that is the hard cap per shot.
+2. **Hook and body are ALWAYS separate shots — never mix them in the same take.** Shot 1 = the hook only (the scroll-stopping opener). The body (mechanism / explanation / proof / CTA) starts at shot 2. Jamming the first body line onto the end of the hook shot reads as a mistake and breaks the edit.
+3. **Pack the body into the fewest shots where each is ≤43 words (~15s).** Split on sentence boundaries (never mid-sentence). Balance the groups so you don't leave a tiny 3–5s leftover at the end — distribute evenly across the shots you actually need.
+4. **Give each shot its own honest duration estimate** from its own word count (a 9-word hook ≈ 4s; a 40-word body beat ≈ 14s). Never stamp one fixed time on every shot.
+
+### Each shot is 100% self-contained (no cross-shot references)
+Because the generator can't see prior clips, **never** write "the same woman," "same room as before," "in all three shots," "continuing from the last shot," or any phrase that assumes another clip. Each prompt describes its scene, person, and setting in full, as if it were the only clip. Cross-shot phrases don't work and actively confuse the model (it may try to cram several people or scenes into one clip).
+- **Consistency of the person across shots is solved by the avatar image, not by text.** Attach the SAME avatar image to every shot. When an avatar image is attached, do NOT describe the person's face, skin, hair, or age — let the image define them (this also stops the model from amplifying or altering features between takes; if a result looks off, the fix is the avatar IMAGE, not more text). The environment can still drift slightly between takes even when described identically — accept it or regenerate the odd one.
+- Put "use the same avatar / same setting across shots" in a NOTE for the user, OUTSIDE the paragraph that gets pasted into the tool.
+
+### Product across shots
+- **No-product shots (e.g. the hook): say so explicitly.** Some presets (especially Product Review) make the person hold/show a product even with no product image attached — the model then invents a fake product, often with garbled text on it. In a no-product shot write: "no product, packaging, label, logo, or readable text anywhere in frame."
+- **Product shots:** attach the real product image and add to the fidelity line "no added text, letters, names, or logos on it (the reference has none)" — this stops the model from stamping a misspelled brand name onto the product.
+
+### Preset choice affects product fidelity
+Stylized animation presets (Hyper Motion) **re-create** the product in CGI and routinely distort its shape/label. When faithful product appearance matters, prefer a person-led preset that uses the real product photo (UGC, Product Review) over animation. Reserve Hyper Motion for abstract/mechanism visuals where the product is shown as a clean still, not animated.
+
+### Brand name pronunciation
+If a brand name is spelled in a way text-to-speech will mispronounce (no vowel, unusual cluster), add a phonetic **audio direction** in parentheses, e.g. "(Audio direction: the brand name is pronounced [PHO-net-ic], soft final n, never spelled out letter by letter.)". **Never change the written spelling of the brand to force the sound** — the brand stays spelled correctly everywhere (speech text, on-screen text, logo, URL). Only the pronunciation is guided.
+
+### Realism and lighting (when realism is the goal)
+For realistic (non-stylized) creatives, state realism and resolution explicitly ("ultra-realistic, photorealistic 8K, true-to-life detail") and give **lighting matched to the actual location** instead of a generic "natural light": a bathroom reads as warm overhead + mirror glow (not blown-out window daylight), a bedroom as a warm lamp key, a window corner as soft directional daylight. Specify a flattering, dimensional setup (key + gentle shadow), not flat lighting. Keep the candid/authentic phone-filmed feel in the FILMING and the room, never in the person's face or skin.
+
+---
+
 ## OUTPUT FORMAT
 
 Output the prompt as **one continuous flowing paragraph** — no section labels, no tags, no headers. Everything (style, camera, action, environment, audio if applicable) is woven into natural production prose. Followed by a blank line and the generation link. Nothing else.
@@ -227,6 +257,8 @@ Example: `<<<image_1>>> = product (matcha energy can, cream label, green graphic
 - Preset register must be honored (UGC ≠ TV Spot register, even for the same product)
 - Product must be explicitly placed in frame at all times it's meant to be visible
 - Default: in medias res. Ad already in progress unless user says "starts with…" or "ends with…"
+- Em-dash (—) is an AI tell — avoid it in spoken copy/CTA woven into the prompt; use periods, commas, or short sentences instead
+- When a creative exceeds 15s, split into self-contained shots (hook and body in separate takes) — never write cross-shot references into a prompt
 
 ### Antislop — never use
 breathtaking, stunning, captivating, mesmerizing, awe-inspiring, masterfully, meticulously, exquisitely, beautifully crafted, cinematic masterpiece, visual feast, a symphony of, seamlessly, effortlessly, flawlessly, cutting-edge, state-of-the-art, next-level, rich tapestry, vibrant tapestry, kaleidoscope of, elevate, unlock, unleash, harness, groundbreaking, a testament to, speaks volumes, resonates deeply, game-changer, revolutionary, redefine, reimagine
