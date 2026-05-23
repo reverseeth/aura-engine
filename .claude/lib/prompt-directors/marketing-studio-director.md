@@ -165,6 +165,7 @@ Because the generator can't see prior clips, **never** write "the same woman," "
 
 ### Product across shots
 - **No-product shots (e.g. the hook): say so explicitly.** Some presets (especially Product Review) make the person hold/show a product even with no product image attached — the model then invents a fake product, often with garbled text on it. In a no-product shot write: "no product, packaging, label, logo, or readable text anywhere in frame."
+- **A no-product hook in a product-led preset should be rendered as UGC (talking-head), not the product preset.** Labeling a shot "Product Review" (or Unboxing / Tutorial) when no product is on screen is contradictory and pushes the model to invent a product. Render the hook shot as UGC and switch to the product-led preset only from the body shots onward, where the product actually appears.
 - **Product shots:** attach the real product image and add to the fidelity line "no added text, letters, names, or logos on it (the reference has none)" — this stops the model from stamping a misspelled brand name onto the product.
 
 ### Preset choice affects product fidelity
