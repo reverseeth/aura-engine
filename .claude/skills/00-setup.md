@@ -21,11 +21,13 @@ Consulte a base Aura extensivamente sobre fundamentos operacionais, o estado atu
 
 ### Pré-flight
 
-Antes de prosseguir, valide (falha em qualquer item → aborta com instrução de correção):
+Antes de prosseguir, valide:
 
-- [ ] `/workspace/` existe e é gravável: `mkdir -p /workspace && touch /workspace/.aura-probe && rm /workspace/.aura-probe`
-- [ ] MCP `aura` responde dentro de 10s (usar timeout explícito na chamada de teste)
-- [ ] Template HTML disponível em `.claude/templates/aura-report-template.html` (se ausente, a Etapa 5 gera HTML mínimo inline com aviso)
+- [ ] `workspace/` existe e é gravável: `mkdir -p workspace && touch workspace/.aura-probe && rm workspace/.aura-probe` — se falhar (permissão), pare e dê a instrução de correção (sem permissão de escrita não há onde salvar nada).
+- [ ] MCP `aura` responde dentro de 10s (usar timeout explícito na chamada de teste) — se falhar, pare e mostre o comando de reconexão da ETAPA 2 (é a fonte de dados do sistema, não há fallback aqui).
+- [ ] Template HTML disponível em `.claude/templates/aura-report-template.html` — se ausente, NÃO pare: a Etapa 5 gera HTML mínimo inline com aviso.
+
+> **report_language (rule 0 — INVIOLÁVEL):** esta skill é onde o `report_language` é DEFINIDO (ETAPA 2.6). A partir do momento em que o membro escolhe, TODA conversa e TODO output interno (.md/.html/.json descritivo) usam esse idioma; antes disso, default é `pt-BR`. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language. A escolha é gravada em `workspace/profile.md` E espelhada em `manifest.report_language`.
 
 ### ETAPA 1 — Verificação de Dependências
 
@@ -45,13 +47,21 @@ NVM_DIR="${NVM_DIR:-$HOME/.nvm}"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh
 /usr/local/bin/node --version 2>/dev/null
 ```
 
-Se não encontrar:
+**Valide o NÚMERO da major version, não só presença.** Parseie a saída (ex: `v20.11.0` → major `20`):
+
+```bash
+NODE_MAJOR=$(node --version 2>/dev/null | sed -E 's/^v([0-9]+).*/\1/')
+[ -n "$NODE_MAJOR" ] && [ "$NODE_MAJOR" -ge 20 ] && echo "OK ($NODE_MAJOR)" || echo "FAIL"
+```
+
+Se Node estiver ausente OU a major < 20, trate como FALHA (não prossiga) e mostre a instrução de upgrade:
 - Mac via nvm: `nvm install 20 && nvm use 20`
-- Mac via brew: `brew install node`
+- Mac via brew: `brew install node` (ou `brew upgrade node` se já instalado em versão antiga)
+- Windows: `winget install OpenJS.NodeJS.LTS` (ou nvm-windows: `nvm install 20 && nvm use 20`)
 
 Para a dependência obrigatória:
-- ✅ se instalada, com versão
-- ❌ se não, com instrução exata
+- ✅ se instalada com major ≥ 20, mostrando a versão
+- ❌ se ausente OU major < 20, com a instrução exata de upgrade acima
 
 Também detecte ferramentas opcionais pra uso futuro, mostrando como "disponível" (não bloqueador):
 - FFmpeg: `ffmpeg -version 2>/dev/null | head -1` — paths comuns: `/opt/homebrew/bin/ffmpeg`, `/usr/local/bin/ffmpeg`, `/usr/bin/ffmpeg`. Install: `brew install ffmpeg` (Mac) ou `apt install ffmpeg` (Linux).
@@ -133,6 +143,11 @@ Formato da mensagem a enviar:
 >
 > **3. Ferramentas que você tem acesso** (marca as que se aplicam): SpyBox · Shopify · ElevenLabs · Meta Ads Manager
 >
+> **3b. Plataforma de email (ESP)** que você usa — escolha uma:
+> - A) Klaviyo
+> - B) Omnisend / MailerLite / Shopify Email
+> - C) Nenhum ainda
+>
 > **4. Link da sua loja e do produto principal** (se A, pula)
 >  → Se tem Shopify, link da loja Shopify também.
 
@@ -140,6 +155,7 @@ Depois que o membro responder, parseie a resposta e extraia:
 - `SITUACAO` → A, B, C ou D
 - `BUDGET` → número em dólares
 - `TOOLS` → lista das ferramentas mencionadas (SpyBox, Shopify, ElevenLabs, Meta Ads Manager)
+- `ESP` → plataforma de email escolhida na 3b: `klaviyo` (A), `omnisend` / `mailerlite` / `shopify-email` conforme o que o membro citar (B), ou `none` (C)
 - `LINK` → URL do produto principal (se SITUACAO ≠ A)
 - `SHOPIFY_LINK` → URL da loja Shopify (se TOOLS contém Shopify)
 
@@ -151,7 +167,7 @@ Classifique o budget internamente pra uso futuro (não mostre ao membro):
 - $200-1000/dia → escala-inicial
 - $1000+/dia → escala-avançada
 
-Capture TODAS as respostas (`SITUACAO`, `BUDGET`, `TOOLS`, `LINK`, `SHOPIFY_LINK`) pra usar na Etapa 4 (auto-extração) e Etapa 5 (salvar profile).
+Capture TODAS as respostas (`SITUACAO`, `BUDGET`, `TOOLS`, `ESP`, `LINK`, `SHOPIFY_LINK`) pra usar na Etapa 4 (auto-extração) e Etapa 5 (salvar profile).
 
 ### ETAPA 4 — Auto-Extração de Dados da Loja
 
@@ -166,8 +182,10 @@ SE o membro forneceu link do produto, faça **web fetch da página** automaticam
 - Tipo de hero section (vídeo, imagem, gif)
 - Presença de mecanismo único (sim/não + nome se tiver)
 - Link de checkout
+- **Cores dominantes** — extraia os hex principais (background, texto, accent/CTA) do CSS ou do computed style da página (`:root` custom properties, classes de botão/header). Capture 3-5 hex.
+- **Font-families** — extraia as `font-family` declaradas (heading e body) do CSS/`@font-face` ou computed style.
 
-Se a página estiver bloqueada (Cloudflare, login wall), documente "não acessível" sem falhar. O importante é capturar o que consegue.
+Se a página estiver bloqueada (Cloudflare, login wall), documente "não acessível" sem falhar. O importante é capturar o que consegue. Cores/fontes que não der pra extrair ficam como `[preencher]` na ETAPA 5A.
 
 Salve tudo no profile pra servir de referência em TODAS as skills seguintes — nunca mais perguntamos essas informações ao membro.
 
@@ -176,11 +194,11 @@ Salve tudo no profile pra servir de referência em TODAS as skills seguintes —
 **Antes de qualquer escrita**, garanta que o diretório de destino exista:
 
 ```bash
-mkdir -p /workspace/
-mkdir -p /workspace/[produto]/   # onde [produto] = slug gerado a partir do nome do produto (ver Etapa 5B)
+mkdir -p workspace/
+mkdir -p workspace/[produto]/   # onde [produto] = slug gerado a partir do nome do produto (ver Etapa 5B)
 ```
 
-Use os valores capturados das variáveis `SITUACAO`, `BUDGET`, `TOOLS`, `LINK` e `SHOPIFY_LINK` da Etapa 3 mais os dados extraídos na Etapa 4. Salve em `/workspace/profile.md`:
+Use os valores capturados das variáveis `SITUACAO`, `BUDGET`, `TOOLS`, `ESP`, `LINK` e `SHOPIFY_LINK` da Etapa 3 mais os dados extraídos na Etapa 4. Salve em `workspace/profile.md`:
 
 ```markdown
 # Perfil do Membro
@@ -199,6 +217,7 @@ Data do setup: [YYYY-MM-DD]
 - Shopify: [sim + link / não]
 - ElevenLabs: [sim/não]
 - Meta Ads Manager: [sim + conta ativa / não]
+- ESP (plataforma de email): [klaviyo / omnisend / mailerlite / shopify-email / none]
 
 ## Produto (se aplicável)
 Link da loja: [url ou "N/A"]
@@ -219,44 +238,67 @@ Link do produto principal: [url ou "N/A"]
 
 ### ETAPA 5A — Inicializar `brand.md` do produto (opcional, mas recomendado)
 
-Se SITUACAO ≠ A (membro já tem produto), copie `.claude/templates/brand.md.template` pra `/workspace/[produto]/brand.md` e preencha os fields que conseguiu extrair automaticamente na ETAPA 4 (dados da página):
+Se SITUACAO ≠ A (membro já tem produto), copie `.claude/templates/brand.md.template` pra `workspace/[produto]/brand.md` e preencha os fields que conseguiu extrair automaticamente na ETAPA 4 (dados da página):
 
 - `{{ PRODUCT_SLUG }}` → slug do produto
-- Paleta de cores: extrair do CSS/design da loja (se acessível)
-- Fontes: extrair do CSS da loja
-- Logo path: `/workspace/[produto]/brand/logo.svg` (criar diretório; membro upa depois)
+- Paleta de cores: preencha com os hex dominantes (background, texto, accent/CTA) extraídos na ETAPA 4
+- Fontes: preencha com as font-families (heading e body) extraídas na ETAPA 4
+- Logo path: `workspace/[produto]/brand/logo.svg` (criar diretório; membro upa depois)
 
-Fields que NÃO conseguiu extrair ficam como placeholders `[preencher]`. Avise ao membro:
+Fields que NÃO conseguiu extrair (página bloqueada, hex/fontes não detectados) ficam como placeholders `[preencher]`. Avise ao membro:
 
-> "Criei `/workspace/[produto]/brand.md` com o que consegui extrair da sua loja. Abre e completa o que ficou como `[preencher]` antes de rodar `page` — isso é single-source-of-truth pra identidade visual e editorial."
+> "Criei `workspace/[produto]/brand.md` com o que consegui extrair da sua loja. Abre e completa o que ficou como `[preencher]` antes de rodar `page` — isso é single-source-of-truth pra identidade visual e editorial."
 
 Se SITUACAO = A (sem produto ainda), pule essa etapa. `brand.md` é criado depois que o produto é definido na Skill 01.
 
+> **Escape (ES1):** se `.claude/templates/brand.md.template` estiver ausente, não aborte — ofereça **(A)** gerar um `brand.md` mínimo inline com os fields auto-extraídos e o resto como `[preencher]`, OU **(B)** pular a criação do brand.md agora marcando `manifest.skipped_preflight += ["brand.md.template"]` e avisando que recomenda re-executar antes de `page`.
+
 ### ETAPA 5B — Criar Manifest (fonte única de verdade)
 
-Paralelamente ao `profile.md`, crie o arquivo `/workspace/[produto]/manifest.json`. Este é o **ÚNICO** local que todas as skills seguintes leem/atualizam para descobrir paths, progresso, e métricas. Substitui qualquer inferência manual de caminho.
+Paralelamente ao `profile.md`, crie o arquivo `workspace/[produto]/manifest.json`. Este é o **ÚNICO** local que todas as skills seguintes leem/atualizam para descobrir paths, progresso, e métricas. Substitui qualquer inferência manual de caminho.
 
 - `product_slug` — gere via slugify do nome do produto detectado na Etapa 4 (lowercase, ASCII, hyphens; regex `^[a-z0-9-]+$`). Se não houver produto (Situação A), use `dev-placeholder-[YYYYMMDD]` e a skill 01 substituirá depois.
 - `product_name` — nome humano do produto (ou "TBD — product research pending" para Situação A).
 - `product_url` — URL informada pelo membro, se houver.
+- `store_url` — URL da loja Shopify (de `SHOPIFY_LINK`), se o membro deu o link.
 - `created_at` / `updated_at` — timestamps ISO-8601 UTC (mesmo valor inicial).
 - `setup_complete: true`.
-- `budget_tier` — mapeie de `BUDGET` (starter / standard / escala-inicial / escala-avancada).
+- `budget_tier` — mapeie de `BUDGET` (starter / standard / escala-inicial / escala-avancada). Campo ECONÔMICO, separado de `stage`.
+- `stage` — mapeie da `SITUACAO`: A/B → `starter`, C → `validating`, D → `scaling`.
+- `market` — default `"US"`.
+- `copy_language` — default `"en"` (copy consumidor-final é sempre inglês US).
+- `report_language` — valor capturado em `REPORT_LANGUAGE` na ETAPA 2.6 (`pt-BR` ou `en`), espelhando o `profile.md`.
+- `esp` — valor de `ESP` (`klaviyo` / `omnisend` / `mailerlite` / `shopify-email` / `none`).
+- `product_vertical` — infira do nome/descrição auto-extraídos na ETAPA 4 (ex: `skincare`, `supplement`, `fitness`, `home`, `pet`, `apparel`). Se ambíguo, pergunte em 1 linha; default `"other"`.
 - `skills_completed: ["00-setup"]`.
+
+**Se SITUACAO = C ou D (já vende):** faça 2 perguntas opcionais rápidas (1 mensagem só) e grave o que vier:
+- AOV médio aproximado → `aov_baseline` (número em dólares).
+- Margem ou COGS aproximada por pedido → `cogs_estimate` (número em dólares).
+Se o membro não souber/responder, deixe vazio. Para SITUACAO A/B deixe ambos vazios — a skill 04 (offer) preenche depois.
 
 Schema completo em `.claude/templates/manifest-schema.json`. Valide contra o schema antes de salvar (estrutural; ignore propriedades opcionais ainda não preenchidas).
 
-Exemplo mínimo:
+Exemplo:
 
 ```json
 {
   "product_slug": "collagen-glow",
   "product_name": "Collagen Glow",
   "product_url": "https://example.com",
+  "store_url": "https://example.myshopify.com",
   "created_at": "2026-04-16T13:00:00Z",
   "updated_at": "2026-04-16T13:00:00Z",
   "setup_complete": true,
   "budget_tier": "standard",
+  "stage": "validating",
+  "market": "US",
+  "copy_language": "en",
+  "report_language": "pt-BR",
+  "esp": "klaviyo",
+  "product_vertical": "skincare",
+  "aov_baseline": 72,
+  "cogs_estimate": 14,
   "skills_completed": ["00-setup"]
 }
 ```
@@ -296,23 +338,23 @@ Próximo passo: **'scale'**. Monto um plano baseado nos seus números — PGS pr
 Depois da mensagem específica, adicione SEMPRE:
 
 "Você pode dizer o nome de qualquer fase a qualquer momento:
-`product research` · `market research` · `competitor analysis` · `offer` · `copy` · `page` · `creatives` · `ad strategy` · `ad analysis` · `scale`
+`product research` · `market research` · `competitor analysis` · `offer` · `bonus delivery` · `copy` · `page` · `creatives` · `consistency audit` (ou `audit`) · `ad strategy` · `ad analysis` · `scale` · `retention` (ou `email flows` / `klaviyo`) · `content recycler` (ou `recycle`)
 
-Cada fase lê o que as anteriores produziram em /workspace/[produto]/ — você nunca precisa repetir informação."
+Cada fase lê o que as anteriores produziram em workspace/[produto]/ — você nunca precisa repetir informação."
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-Garanta `mkdir -p /workspace/` e `mkdir -p /workspace/[produto]/` antes de qualquer write.
+Garanta `mkdir -p workspace/` e `mkdir -p workspace/[produto]/` antes de qualquer write.
 
 Salve em QUATRO arquivos:
-1. **`/workspace/profile.md`** (formato da Etapa 5 — a AI lê nas fases seguintes)
-2. **`/workspace/profile.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto))
-3. **`/workspace/[produto]/manifest.json`** (Etapa 5B — fonte única de verdade para todas as próximas skills)
-4. **`/workspace/[produto]/brand.md`** (Etapa 5A — apenas se SITUACAO ≠ A; copiado de `.claude/templates/brand.md.template` com fields auto-extraídos preenchidos)
+1. **`workspace/profile.md`** (formato da Etapa 5 — a AI lê nas fases seguintes)
+2. **`workspace/profile.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto))
+3. **`workspace/[produto]/manifest.json`** (Etapa 5B — fonte única de verdade para todas as próximas skills)
+4. **`workspace/[produto]/brand.md`** (Etapa 5A — apenas se SITUACAO ≠ A; copiado de `.claude/templates/brand.md.template` com fields auto-extraídos preenchidos)
 
 **Validação do template HTML**: antes de escrever `profile.html`, confirme que `.claude/templates/aura-report-template.html` existe (`test -f`). Se NÃO existir, gere um HTML mínimo inline com CSS básico, um cabeçalho textual "Aura Engine — Profile" e um aviso no topo: `<!-- WARNING: template .claude/templates/aura-report-template.html missing; fallback HTML in use -->`. Nunca aborte por template ausente.
 
-Se o membro já tinha um profile anterior e está refazendo, faça backup em `/workspace/.profile-backup-[YYYYMMDD-HHMMSS].md` e do manifest em `/workspace/[produto]/.manifest-backup-[YYYYMMDD-HHMMSS].json` antes de sobrescrever.
+Se o membro já tinha um profile anterior e está refazendo, faça backup em `workspace/.profile-backup-[YYYYMMDD-HHMMSS].md` e do manifest em `workspace/[produto]/.manifest-backup-[YYYYMMDD-HHMMSS].json` antes de sobrescrever.
 
 ## Mensagem Final
 
@@ -320,4 +362,4 @@ Já coberta na Etapa 6 — roteamento específico pela situação (A/B/C/D).
 
 Adicione ao final da confirmação:
 
-> O `manifest.json` em `/workspace/[produto]/manifest.json` é a **fonte única de verdade**. Todas as próximas skills leem e atualizam este arquivo automaticamente. **NUNCA edite manualmente** — isso corrompe a coordenação entre skills.
+> O `manifest.json` em `workspace/[produto]/manifest.json` é a **fonte única de verdade**. Todas as próximas skills leem e atualizam este arquivo automaticamente. **NUNCA edite manualmente** — isso corrompe a coordenação entre skills.

@@ -10,23 +10,25 @@ Quando o membro tem produto definido e market research feito, e precisa mapear o
 
 ## Antes de Começar
 
-1. Leia `/workspace/profile.md`
-2. Leia `/workspace/[produto]/01-product-research.md` (se existir — tem concorrentes já identificados)
-3. Leia `/workspace/[produto]/02-market-research.md` (overview competitivo básico + gaps já identificados)
-4. Consulte a base Aura extensivamente sobre competitor research (extração de claims, organização de swipe files), reconnaissance engine (técnicas de research via social), cloaker breaking (quando concorrentes escondem páginas), alternative solution research (mapeando TUDO que o avatar já tentou), market sophistication (claims saturados), análise de ad angles, classificação de criativos por posição no funil (4Pi signatures TOF/MOF/BOF), swipe file method, e os 15 fatores da estrutura de funil. Aprofunde em cada sub-conceito — esta skill opera em detalhe EXECUTIVO, não conceitual.
+1. Leia `workspace/profile.md`. Leia o campo `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language`. Ressalva específica desta skill: copy literal de concorrentes (headlines, hooks, claims, transcrições de ads) permanece no idioma original do ad — é evidência, não tradução.
+2. Leia `workspace/[produto]/01-product-research.md` (se existir — tem concorrentes já identificados)
+3. Leia `workspace/[produto]/02-market-research.md` (overview competitivo básico + gaps já identificados)
+4. **Puxe os SISTEMAS NOMEADOS da base** — NUNCA use query genérica tipo "competitor analysis". Pra cada ETAPA, rode `search_knowledge` (com `deep=true`) usando a `best_query` exata de cada framework relevante listado nas próprias ETAPAs abaixo. O índice completo do domínio desta skill (domínio `competitor-positioning`, 31 frameworks) está em **`.claude/lib/kb-index/`** (`frameworks.json` + `README.md` com o mapa skill→domínio). Esta skill opera em detalhe EXECUTIVO, não conceitual — puxe o sistema completo de cada framework, não o resumo de superfície.
+
+> **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (domínio `competitor-positioning`; o README mapeia skill→domínio). Os blocos `**Nome do framework** (rode \`best_query\`)` embutidos nas ETAPAs abaixo são os de MAIOR IMPACTO — não a lista inteira. Quando uma ETAPA precisar de mais profundidade, consulte o índice.
 
 ## Fluxo da Skill
 
 ### ETAPA 0 — Pre-flight
 
-1. Leia `/workspace/profile.md`. Se ausente → aborte: `"Rode \`setup\` primeiro."`
-2. Leia `/workspace/[produto]/manifest.json` (identifique `[produto]` via manifest com `setup_complete === true`). Se ausente → aborte: `"Rode \`setup\` primeiro."`
+1. Leia `workspace/profile.md`. Se TOTALMENTE ausente → sem profile não há o que inferir; ofereça rodar o setup inline: `"Não achei seu profile. Rode \`setup\` agora (eu conduzo aqui mesmo) e a gente segue."`
+2. Leia `workspace/[produto]/manifest.json` (identifique `[produto]` via manifest com `setup_complete === true`). Se TOTALMENTE ausente → ofereça rodar o setup inline (mesma mensagem do item 1).
 3. Valide a existência de TODOS os arquivos obrigatórios:
-   - `/workspace/[produto]/01-product-research.md`
-   - `/workspace/[produto]/02-market-research.md`
-   - `/workspace/[produto]/02-market-research.json`
+   - `workspace/[produto]/01-product-research.md`
+   - `workspace/[produto]/02-market-research.md`
+   - `workspace/[produto]/02-market-research.json`
 4. Valide que `skills_completed` do manifest contém `"01-product-research"` E `"02-market-research"`.
-5. Falhou qualquer item → aborte com mensagem específica: `"Rode \`<skill faltante>\` primeiro."`
+5. Se faltar qualquer arquivo obrigatório dos itens 3-4 (mas profile + manifest existem), NÃO aborte seco. Ofereça ≥2 caminhos: **(A)** Rodar a skill faltante agora (`product research` ou `market research`), OU **(B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["<arquivo>"]` e avisando no output final que recomenda re-executar com o arquivo real. Default conservador = (A).
 
 ### ETAPA 0.5 — TrendTrack MCP (opcional, se conectado)
 
@@ -70,7 +72,7 @@ Se a inacessibilidade for por Cloudflare/bot-protection (status 403/503 + header
 
 ### ETAPA 1B — Ads Screenshots dos Concorrentes
 
-Verifique no `/workspace/profile.md` se o membro tem SpyBox/Adsparo.
+Verifique no `workspace/profile.md` se o membro tem SpyBox/Adsparo.
 
 **SE TEM:**
 "Cola screenshots dos ads mais escalados dos concorrentes — se tiver acesso ao SpyBox ou Adsparo. Se não tiver esses screenshots em mãos agora, tudo bem: sigo com o Meta Ad Library público."
@@ -78,6 +80,11 @@ Verifique no `/workspace/profile.md` se o membro tem SpyBox/Adsparo.
 **SE NÃO TEM:** pule a pergunta, use Meta Ad Library público direto na Etapa 3.
 
 ### ETAPA 2 — Análise de PDPs dos Concorrentes
+
+**Frameworks a puxar da base ANTES de analisar (rode cada `best_query`):**
+- **Competitor Research Process (Extracting Claims)** (rode `competitor research process extracting claims messaging hooks customer feedback differentiation`) — o método de extração estruturada que organiza tudo abaixo.
+- **Schwartz Market Sophistication — 5 Stages** (rode `market sophistication five stages Schwartz enlarge claim new mechanism identity skepticism`) — pra ler em que stage de sofisticação o mercado está pela forma como os concorrentes tratam o claim/mecanismo.
+- **Schwartz Mechanization Stages — Name / Describe / Feature** (rode `Schwartz mechanization stages name describe feature mechanism promise reason why headline`) — pra classificar COMO cada concorrente apresenta o mecanismo (só nomeia? descreve? detalha feature?).
 
 Pra cada concorrente, acesse a página de produto (web fetch). Se tiver cloaker/Cloudflare bloqueando, execute os fallbacks **em sequência** (pare na primeira que retornar snapshot válido com > 500 bytes de HTML):
 
@@ -104,7 +111,7 @@ access_rate = concorrentes_com_PDP_analisada / total_concorrentes_identificados
 
   > ⚠️  Só consegui acessar {N}/{total} ({access_rate:.0%}) das PDPs de concorrentes. O resto bloqueou por bot-protection (Cloudflare, Shopify App check, etc) e todos os fallbacks falharam.
   >
-  > Sem análise competitiva real, Skills 04 (Offer) e 05 (Copy) vão voar no escuro. Opções:
+  > Sem análise competitiva real, Skills 04 (Offer) e 06 (Copy) vão voar no escuro. Opções:
   > 1. Me manda screenshots dos concorrentes inacessíveis por WhatsApp/paste
   > 2. Passa pra mim dados do SpyBox/Kalodata sobre claims e estrutura deles
   > 3. Adia competitor analysis até conseguir acesso (mudar IP, VPN, etc)
@@ -121,7 +128,7 @@ Outros fallbacks opcionais quando possível: view-source direto, scraping via Pl
 - **Sub-headline exata**
 - **Como apresenta o produto**: foto, vídeo (quanto tempo?), GIF, demonstração
 - **Bullet points de benefício** (copie as primeiras 5)
-- **Mecanismo único?** Qual nome? Como apresenta? (ingredient, process, tech, combo)
+- **Mecanismo único?** Qual nome? Como apresenta? (ingredient, process, tech, combo). Classifique a apresentação pelos **Schwartz Mechanization Stages** (Name / Describe / Feature): só dá nome ao mecanismo, descreve como funciona, ou detalha cada feature? O stage de mecanização revela em que ponto da sofisticação o concorrente acha que o mercado está.
 - **Stack visual de valor?** Quantos itens? Com ancoragem de preço?
 - **Preço**: base + bundles oferecidos (2-pack, 3-pack, subscription) com % savings
 - **Guarantee**: tipo (money-back, satisfaction, results-based), duração (30/60/90 dias), copy exata
@@ -134,13 +141,17 @@ Outros fallbacks opcionais quando possível: view-source direto, scraping via Pl
 **Copy analysis (frameworks):**
 - **Tipo de lead** (Story, Secret, Proclamation, Problem-Solution, Offer, Direct — identificar aplicando os 5 tipos de lead por awareness de Schwartz)
 - **Nível de awareness que a página assume** do visitante (dita onde no funil essa LP está)
-- **Gatilhos de persuasão usados** (escassez, autoridade, prova social, reciprocidade, compromisso — identifique quais da lista dos 6 de Cialdini)
+- **Gatilhos de persuasão usados** (escassez, autoridade, prova social, reciprocidade, compromisso — identifique quais da lista dos 6 de Cialdini). Anote também se o concorrente usa **Vampire Claims / Vampire Video** (rode `vampire claims vampire video mosaic structure architectural support single USP`) — elementos chamativos que roubam atenção do claim central, sinal de página mal-arquitetada que você pode explorar.
 - **Grande promessa** (qual é? quão específica?)
 - **Quais objeções a página tenta quebrar** (com que técnica)
 - **Tom de voz** (sofisticado, casual, técnico, emocional, urgente, educativo)
 - **Congruência ad→página**: se o concorrente tem ads ativos, a LP espelha o ad? (Message match, visual match, promise match)
 
 ### ETAPA 3 — Análise de Ads no Meta Ad Library (Agrupamento Por Aparições)
+
+**Frameworks a puxar da base ANTES de varrer ads (rode cada `best_query`):**
+- **Reconnaissance Engine (Competitive Research via Social)** (rode `reconnaissance engine competitive research via social Instagram transcribe competitor videos algorithm`) — método de research via social/algoritmo pra achar e transcrever os criativos que o concorrente está rodando além do Meta Ad Library.
+- **Winning Ad Extraction / Processing Learnings** (rode `winning ads extracting strategies process learnings AdSpy shares validated hook why it works`) — como extrair o "porquê funciona" de cada criativo escalado, não só descrever.
 
 Pra cada concorrente, pesquise no Meta Ad Library (web fetch / scraping via Playwright quando possível).
 
@@ -193,7 +204,7 @@ Se todos os top criativos estão numa posição só, o concorrente tem **funil d
 Se o membro tiver acesso a plataformas de inteligência de criativos (Adsparo, SpyBox, Kalodata, Pipiads, Foreplay, Minea, Atria) ou listas curadas de criativos que ESCALARAM (não apenas "ativos"), peça pra enviar:
 
 1. **URLs públicas** de vídeo ad (Meta Ad Library direct links, TikTok urls, ou assets hospedados)
-2. **Uploads de vídeo/imagem** diretamente pro workspace (salvar em `/workspace/[produto]/03-creatives-inbox/`)
+2. **Uploads de vídeo/imagem** diretamente pro workspace (salvar em `workspace/[produto]/03-creatives-inbox/`)
 3. **CSV/planilha** com lista de criativos + métricas se disponível (spend, days live, impressions estimadas)
 
 Critério de curadoria do membro: só criativos que ESCALARAM (proxy: 90+ dias ativos com variação semanal, OU métricas diretas de plataforma de inteligência mostrando alto spend/impressões). Ads recém-lançados NÃO servem pra essa análise — a ideia é extrair padrões do que o mercado já VALIDOU.
@@ -230,16 +241,16 @@ Pra análise profunda de criativos, preciso de Whisper. Opções:
 Escolhe uma e me avisa quando tiver setup.
 ```
 
-PARE a Etapa 3C até membro confirmar. Se o membro quiser pular essa etapa, documente `creative_deep_analysis_skipped: true` no JSON companion e prossiga sem.
+PARE a Etapa 3C até membro confirmar. Se nenhum Whisper estiver disponível e o membro não conseguir configurar, grave `creative_deep_analysis.status: "whisper_unavailable"` no JSON companion e prossiga sem. Se o membro quiser pular essa etapa, grave `creative_deep_analysis.status: "skipped"` e prossiga sem.
 
 **Para cada criativo recebido:**
 
 **1. Transcrição de áudio (vídeos):**
-- Usar Whisper `medium` OU `turbo-large` — NUNCA `base` ou `small` (essas geram transcrição com erros demais pra análise confiável)
-- Se o membro tem OpenAI API: `whisper-1` endpoint (baseline, equivalente a turbo-large)
-- CLI local: `whisper <arquivo> --model medium --language en` (ou `turbo` se disponível)
+- Usar Whisper `medium` OU `large-v3-turbo` (na CLI: `--model turbo`) — NUNCA `base` ou `small` (essas geram transcrição com erros demais pra análise confiável)
+- Se o membro tem OpenAI API: `whisper-1` endpoint (baseline, equivalente a `large-v2`)
+- CLI local: `whisper <arquivo> --model medium --language en` (ou `--model turbo` se disponível)
 - Output obrigatório: transcript com timestamps por palavra (`word_timestamps=true`) pra mapear hook/bridge/hold/CTA
-- Salvar em `/workspace/[produto]/03-creatives-inbox/transcripts/[creative-id].json`
+- Salvar em `workspace/[produto]/03-creatives-inbox/transcripts/[creative-id].json`
 
 **2. Extração de padrões (por criativo):**
 - Hook primeiros 3s: texto literal + Big 4 emotion dominante (curiosity/urgency/fear/delight)
@@ -263,13 +274,13 @@ Depois de transcrever N criativos, identifique:
 - **Music/SFX patterns**: música, sem música, só ambience
 - **Opening visual**: talking head close, product shot, b-roll lifestyle, text card
 
-Output obrigatório: `/workspace/[produto]/03-creative-patterns.json`:
+Output obrigatório: `workspace/[produto]/03-creative-patterns.json`:
 
 ```json
 {
   "analyzed_at": "ISO timestamp",
   "creatives_analyzed_count": 12,
-  "transcription_model": "whisper-medium|whisper-turbo-large",
+  "transcription_model": "whisper-medium|whisper-large-v3-turbo|whisper-1",
   "hook_archetypes": [
     { "pattern": "descrição", "frequency_pct": 42, "examples_creative_ids": ["c-03","c-07","c-11"] }
   ],
@@ -286,9 +297,15 @@ Output obrigatório: `/workspace/[produto]/03-creative-patterns.json`:
 
 Esse arquivo vira input crítico pra Skill 08 (Creative Engine) — criativos novos nascem ancorados em padrões validados + 20-30% de novelty intencional pra testar rupturas.
 
-**Se membro NÃO enviar criativos**: pular essa etapa e prosseguir. A skill 08 roda em modo "cold" (sem patterns de referência) — funciona, mas com menos sinal de mercado.
+Quando esta etapa rodar até o fim, grave no JSON companion `creative_deep_analysis.status: "completed"`, `creative_deep_analysis.creatives_analyzed_count` (N transcritos) e `creative_deep_analysis.patterns_file` (path do `03-creative-patterns.json`). Assim as skills 08/09 leem o status direto, sem adivinhar a existência do arquivo.
+
+**Se membro NÃO enviar criativos**: pular essa etapa e prosseguir, gravando `creative_deep_analysis.status: "skipped"`. A skill 08 roda em modo "cold" (sem patterns de referência) — funciona, mas com menos sinal de mercado.
 
 ### ETAPA 4 — Claims Compilation Completa
+
+**Frameworks a puxar da base ANTES de classificar (rode cada `best_query`):**
+- **The Preemptive Claim (Schlitz / Live Steam)** (rode `preemptive claim Hopkins Schlitz live steam own common claim first to say`) — um claim COMUM (não único) que ninguém ainda CRAVOU como dono pode virar oportunidade forte se você for o primeiro a explicá-lo. Aplique ao classificar claims COMUM/RARO: existe claim que todos têm mas ninguém "possui"?
+- **Schwartz Market Sophistication — 5 Stages** (rode `market sophistication five stages Schwartz enlarge claim new mechanism identity skepticism`) — a saturação de claims é o sintoma direto do stage de sofisticação. Stage 3-5 exige mecanismo novo/identidade, não claim ampliado.
 
 Compile TODOS os claims que os concorrentes fazem, classificados por tipo:
 
@@ -343,6 +360,10 @@ Regra de conversão: ≥70% dos concorrentes → ALTA / evitar; 30-69% → MÉDI
 
 Esta é a etapa mais negligenciada E mais valiosa. Não basta mapear concorrentes diretos — mapeie TUDO que o avatar já tentou pra resolver o problema.
 
+**Frameworks a puxar da base ANTES de mapear (rode cada `best_query`):**
+- **Category Economics / 'Pork and Beans' Insight** (rode `Hopkins pork and beans category economics what behavior replacing true competition status quo`) — a verdadeira concorrência não é outro DTC, é o comportamento/status quo que seu produto substitui. Use isso pra enquadrar TODA alternativa (DIY, profissional, status quo "não fazer nada").
+- **Consumer Insights Database (3-source lift)** (rode `consumer insights database review mining Reddit Amazon ad comments three source lift customer language`) — método de review mining cross-fonte (Reddit + Amazon + ad comments) pra descobrir o que o avatar já tentou e abandonou, na linguagem dele.
+
 Pesquise (web search + review mining):
 
 **Soluções concorrentes diretas** (já cobertas nas etapas 1-3)
@@ -366,7 +387,13 @@ Esta análise é crítica pra montar a **oferta**: seu produto não compete só 
 
 ### ETAPA 6 — Gap Analysis Completo
 
-A parte mais valiosa estrategicamente. Identifique:
+A parte mais valiosa estrategicamente.
+
+**Frameworks a puxar da base ANTES de mapear gaps (rode cada `best_query`):**
+- **Cherchez le Creneau — 8 Types of Holes in the Mind** (rode `cherchez le creneau eight types holes in the mind size price age gender distribution`) — o sistema completo dos 8 tipos de "buraco" na mente (tamanho, preço, idade, gênero, distribuição, etc.). Cada tipo de gap abaixo (público, messaging, oferta, mecanismo) deve ser cruzado contra esses 8 buracos pra não perder um vetor de diferenciação.
+- **New Mechanism / New Information / New Identity (The Big 3)** (rode `new mechanism new information new identity Big 3 sophisticated market break resistance`) — quando o mercado está saturado (claims ALTA na Etapa 4), o gap de MECANISMO abaixo se resolve por uma das 3 rotas: mecanismo novo, informação nova, ou identidade nova.
+
+Identifique:
 
 **Gaps de público (Avatar):**
 - Segmento que NENHUM concorrente aborda (ex: todos falam com mulheres 25-35, ninguém fala com 45+; todos focam em iniciantes, ninguém com avançadas)
@@ -391,12 +418,21 @@ A parte mais valiosa estrategicamente. Identifique:
 - Ninguém tem subscription/refill?
 - Ninguém tem bump de checkout?
 
-**Gaps de mecanismo:**
+**Gaps de mecanismo** (cruze com **The Big 3** acima — mecanismo/informação/identidade nova):
 - Todos usam o mesmo mecanismo genérico? Qual?
 - Existe espaço pra criar mecanismo proprietário baseado em ingrediente/processo único do seu produto?
-- Existe combinação de ingredientes que ninguém nomeou?
+- Existe combinação de ingredientes que ninguém nomeou? (gap de **mecanismo novo** — rota mais forte em mercado sofisticado)
 
 ### ETAPA 7 — Síntese Estratégica
+
+**Frameworks a puxar da base ANTES de sintetizar (rode cada `best_query`) — estes sustentam a Recomendação de Posicionamento (#4) e o Swipe File (#5):**
+- **Reeves' Unique Selling Proposition (USP) — 3-Part Test** (rode `USP unique selling proposition Reeves three requirements proposition uniqueness selling power`) — teste de 3 partes pra validar se a diferenciação proposta é proposição + única + com poder de venda.
+- **Three Roads to a USP (Three Roads to Rome)** (rode `three roads to a USP find real difference improve product preemptive claim`) — as 3 rotas pra construir USP quando o produto parece paridade (achar diferença real / melhorar produto / preemptive claim).
+- **Ries & Trout Positioning — The Mental/Product Ladder** (rode `positioning Ries Trout mental ladder product ladder battle for the mind perception`) — pra situar onde o produto entra na escada mental do mercado vs concorrentes.
+- **The Against Position / Uncola & Repositioning the Competition** (rode `against position uncola repositioning the competition Avis Tylenol aspirin inconvenient truth`) — quando o líder domina, posicione-se CONTRA ele (Avis/Uncola). Rota direta pra recomendação de ângulo principal.
+- **Kennedy USP Construction Formula** (rode `Kennedy USP construction formula narrow positioning meaningful specifics guarantee Domino's`) — fórmula prática (positioning estreito + especificidade + garantia) pra cravar a recomendação em 1 frase acionável.
+- **Swipe File Method & Handcopy Practice** (rode `swipe file method handcopy practice Kennedy collect organize winning ads patterning technique`) — método pra organizar o swipe file do #5 abaixo (o que ADAPTAR, princípio extraído, não copiar literal).
+- **Storytelling as Hardest-to-Replicate Angle (Founder Story / Villain)** (rode `storytelling hardest to replicate founder story villain narrative defensible angle status quo`) — quando todo gap tático é copiável, a narrativa (founder story / vilão) é o ângulo mais defensável. Considere na recomendação de ângulo.
 
 Compile tudo num relatório acionável:
 
@@ -459,17 +495,17 @@ Seção obrigatória no output (md + json):
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Antes de qualquer write**, garanta: `mkdir -p /workspace/[produto]/`.
+**Antes de qualquer write**, garanta: `mkdir -p workspace/[produto]/`.
 
-**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
 Salvar os seguintes artefatos:
 
-1. **`/workspace/[produto]/03-competitor-analysis.md`**
-2. **`/workspace/[produto]/03-competitor-analysis.html`**
-3. **`/workspace/[produto]/03-competitor-analysis.json`** — JSON companion estruturado (ver abaixo)
-4. **`/workspace/[produto]/03-creative-patterns.json`** — SE membro forneceu criativos pra análise profunda (Etapa 3C); senão, pular. Schema definido na própria Etapa 3C.
-5. **`/workspace/[produto]/03-creatives-inbox/transcripts/[creative-id].json`** — transcripts Whisper individuais (um por criativo).
+1. **`workspace/[produto]/03-competitor-analysis.md`**
+2. **`workspace/[produto]/03-competitor-analysis.html`**
+3. **`workspace/[produto]/03-competitor-analysis.json`** — JSON companion estruturado (ver abaixo)
+4. **`workspace/[produto]/03-creative-patterns.json`** — SE membro forneceu criativos pra análise profunda (Etapa 3C); senão, pular. Schema definido na própria Etapa 3C.
+5. **`workspace/[produto]/03-creatives-inbox/transcripts/[creative-id].json`** — transcripts Whisper individuais (um por criativo).
 
 ```json
 {
@@ -487,6 +523,7 @@ Salvar os seguintes artefatos:
   "swipe_adapt": [ { "item": "", "why": "", "how_to_adapt": "", "where_to_use": "" } ],
   "swipe_avoid": [ { "item": "", "why_avoid": "", "alternative": "" } ],
   "positioning_recommendation": { "angle": "", "mechanism": "", "avatar_segment": "", "page_type": "" },
+  "creative_deep_analysis": { "status": "completed|skipped|whisper_unavailable", "creatives_analyzed_count": 0, "patterns_file": "workspace/[produto]/03-creative-patterns.json" },
   "data_source_audit": { "collected_at": "", "meta_ad_library_ads_count": 0, "wayback_hits": 0, "archive_today_hits": 0 }
 }
 ```
