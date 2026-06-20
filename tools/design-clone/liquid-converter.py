@@ -185,6 +185,13 @@ SHOPIFY_DATA_ATTRS = re.compile(
 
 BUTTON_CLASS_PATTERN = re.compile(r"(btn|button|cta|add-to-cart|buy-now)", re.IGNORECASE)
 
+# GAP-C: CTA de pricing/offer → form nativo /cart/add. Detecta por classe OU por texto.
+CART_CTA_CLASS_PATTERN = re.compile(r"(add-to-cart|add_to_cart|buy-now|buy_now|checkout|cart-add)", re.IGNORECASE)
+CART_CTA_TEXT_PATTERN = re.compile(
+    r"\b(add to cart|buy now|get yours|order now|checkout|claim|get it now|shop now|buy it now|add to bag)\b",
+    re.IGNORECASE,
+)
+
 MIN_TEXT_LENGTH = 2
 INLINE_SVG_MAX_LENGTH = 500  # SVGs maiores viram placeholder
 
@@ -268,6 +275,114 @@ def replace_colors_with_vars(css, color_map):
         out.append("}")
         i = j
     return "".join(out)
+
+
+# ── GAP-D: tokens de design (shadow/radius/font-size/font-family) → var + setting ──
+# Cada token vira (regex de valor, prefixo de setting id, schema type, label, info opcional).
+# A migração varre o CSS, coleta valores hardcoded e os substitui por var(--<id>),
+# emitindo um setting editável por valor único (everything-editable).
+CSS_DECL_BOX_SHADOW_RE = re.compile(r"box-shadow\s*:\s*([^;{}]+?)\s*(?=;|})", re.IGNORECASE)
+CSS_DECL_RADIUS_RE = re.compile(r"border-radius\s*:\s*([^;{}]+?)\s*(?=;|})", re.IGNORECASE)
+CSS_DECL_FONT_SIZE_RE = re.compile(r"font-size\s*:\s*([^;{}]+?)\s*(?=;|})", re.IGNORECASE)
+CSS_DECL_FONT_FAMILY_RE = re.compile(r"font-family\s*:\s*([^;{}]+?)\s*(?=;|})", re.IGNORECASE)
+
+
+def _normalize_token_value(value: str) -> str:
+    return re.sub(r"\s+", " ", value.strip())
+
+
+def extract_tokens_from_css(css):
+    """Coleta valores únicos de box-shadow / border-radius / font-size / font-family hardcoded.
+
+    Retorna lista de dicts {id, type, label, default, info, var}. Já-existentes em var(--x)
+    são ignorados (não re-tokeniza). Ordem estável (ordem de aparição no CSS)."""
+    specs = [
+        (CSS_DECL_BOX_SHADOW_RE, "shadow", "text", "Shadow", "CSS box-shadow value"),
+        (CSS_DECL_RADIUS_RE, "radius", "text", "Corner radius", "CSS border-radius value"),
+        (CSS_DECL_FONT_SIZE_RE, "font_size", "text", "Font size", "CSS font-size value"),
+        (CSS_DECL_FONT_FAMILY_RE, "font_family", "text", "Font family", "CSS font-family stack"),
+    ]
+    tokens = []
+    seen = set()
+    for regex, prefix, s_type, label, info in specs:
+        idx = 0
+        for m in regex.finditer(css):
+            raw = _normalize_token_value(m.group(1))
+            # Já é uma var() pura? Não tokeniza de novo.
+            if not raw or raw.lower().startswith("var(") and raw.count("var(") == 1 and raw.endswith(")"):
+                continue
+            key = (prefix, raw.lower())
+            if key in seen:
+                continue
+            seen.add(key)
+            idx += 1
+            s_id = f"{prefix}_{idx}"
+            tokens.append({
+                "id": s_id,
+                "type": s_type,
+                "label": f"{label} {idx}",
+                "default": raw,
+                "info": info,
+                "var": f"--{s_id}",
+            })
+    return tokens
+
+
+def replace_tokens_with_vars(css, tokens):
+    """Substitui cada valor hardcoded de token por var(--<id>) em TODAS as ocorrências.
+
+    Migração everything-editable: usages hardcoded no CSS passam a ler a custom property,
+    que é injetada inline no root + exposta como setting."""
+    if not tokens:
+        return css
+    prop_by_prefix = {
+        "shadow": "box-shadow",
+        "radius": "border-radius",
+        "font_size": "font-size",
+        "font_family": "font-family",
+    }
+    out = css
+    for tok in tokens:
+        prefix = tok["id"].rsplit("_", 1)[0]
+        prop = prop_by_prefix.get(prefix)
+        if not prop:
+            continue
+        raw = tok["default"]
+        # Substitui `prop: <raw>` → `prop: var(--id)`, preservando o resto da declaração.
+        pattern = re.compile(
+            re.escape(prop) + r"(\s*:\s*)" + re.escape(raw) + r"(\s*(?=;|}))",
+            re.IGNORECASE,
+        )
+        out = pattern.sub(lambda m, _v=tok["var"]: f"{prop}{m.group(1)}var({_v}){m.group(2)}", out)
+    return out
+
+
+# GAP-A: aplica `| escape` em TODA interpolação dentro de qualquer atributo style="".
+# Sem isso, valores controlados por setting injetados inline não passam por escape e o
+# theme editor não aplica de forma confiável (e abre vetor de injection no atributo).
+_STYLE_ATTR_RE = re.compile(r'(style\s*=\s*")([^"]*)(")', re.IGNORECASE)
+_LIQUID_OUTPUT_RE = re.compile(r"\{\{\s*(.*?)\s*\}\}")
+
+
+def escape_style_interpolations(markup: str) -> str:
+    """Garante `| escape` em todo `{{ ... }}` que aparece dentro de um atributo style="".
+
+    Idempotente: não duplica `| escape` se já presente. Preserva expressões com outros
+    filtros (ex: `{{ x | downcase }}` → `{{ x | downcase | escape }}`)."""
+    def _fix_attr(attr_match: re.Match) -> str:
+        body = attr_match.group(2)
+
+        def _fix_output(out_match: re.Match) -> str:
+            expr = out_match.group(1).strip()
+            filters = [f.strip() for f in expr.split("|")]
+            if "escape" in filters:
+                return "{{ " + expr + " }}"
+            return "{{ " + expr + " | escape }}"
+
+        fixed_body = _LIQUID_OUTPUT_RE.sub(_fix_output, body)
+        return attr_match.group(1) + fixed_body + attr_match.group(3)
+
+    return _STYLE_ATTR_RE.sub(_fix_attr, markup)
 
 
 def looks_like_noise(text):
@@ -389,6 +504,7 @@ class LiquidBuilder:
         self.blocks_schemas = {}
         self.used_ids = set()
         self.counter = 0
+        self.built_schema = None  # preenchido por build_section_file (GAP-B POPULATE)
 
     def unique_id(self, base):
         candidate = base
@@ -537,6 +653,71 @@ class LiquidBuilder:
         new_a.append(BeautifulSoup("{{ section.settings." + label_id + " }}", "html.parser"))
         el.replace_with(new_a)
 
+    def is_cart_cta(self, el):
+        """GAP-C: True se o elemento é um CTA de compra (pricing/offer) que deve virar form /cart/add."""
+        classes = el.get("class", []) or []
+        if any(CART_CTA_CLASS_PATTERN.search(c or "") for c in classes):
+            return True
+        # Sinal mais forte: o próprio href aponta pro endpoint de cart add.
+        href = el.get("href") or ""
+        if "/cart/add" in href:
+            return True
+        text = el.get_text(strip=True)
+        return bool(text and CART_CTA_TEXT_PATTERN.search(text))
+
+    def convert_cart_cta(self, el):
+        """GAP-C: converte um CTA de compra em <form action="/cart/add" method="post"> nativo.
+
+        Settings: variant_id (line item id), quantity, after_add (cart/checkout/stay) e
+        cta_fallback_url (usado quando variant_id está vazio — degrada pra link)."""
+        text = el.get_text(strip=True) or "Add to cart"
+        self.counter += 1
+        n = self.counter
+        label_id = self.unique_id(f"cta_label_{n}")
+        variant_id = self.unique_id(f"variant_id_{n}")
+        qty_id = self.unique_id(f"cta_quantity_{n}")
+        after_id = self.unique_id(f"cta_after_add_{n}")
+        fallback_id = self.unique_id(f"cta_fallback_url_{n}")
+
+        self.add_setting(label_id, "text", "CTA label", default=text)
+        self.settings.append({
+            "type": "text", "id": variant_id, "label": "Variant ID",
+            "info": "Shopify line-item/variant ID added to cart. Leave empty to use fallback link.",
+        })
+        self.settings.append({
+            "type": "number", "id": qty_id, "label": "Quantity", "default": 1,
+        })
+        self.settings.append({
+            "type": "select", "id": after_id, "label": "After add to cart",
+            "options": [
+                {"value": "cart", "label": "Go to cart"},
+                {"value": "checkout", "label": "Go to checkout"},
+                {"value": "stay", "label": "Stay on page"},
+            ],
+            "default": "checkout",
+        })
+        self.add_setting(fallback_id, "url", "CTA fallback URL",
+                         info="Used when no Variant ID is set.")
+
+        btn_class = " ".join(el.get("class", []) or [])
+        s = "section.settings."
+        liquid = (
+            "{% if " + s + variant_id + " != blank %}"
+            '<form action="/cart/add" method="post" enctype="multipart/form-data" class="' + btn_class + '">'
+            '<input type="hidden" name="id" value="{{ ' + s + variant_id + ' | escape }}">'
+            '<input type="hidden" name="quantity" value="{{ ' + s + qty_id + ' | escape }}">'
+            "{% if " + s + after_id + " == 'checkout' %}"
+            '<input type="hidden" name="checkout" value="1">'
+            "{% endif %}"
+            '<button type="submit" class="' + btn_class + '">{{ ' + s + label_id + " }}</button>"
+            "</form>"
+            "{% else %}"
+            '<a href="{{ ' + s + fallback_id + " | default: '/cart' }}\" class=\"" + btn_class + "\">"
+            "{{ " + s + label_id + " }}</a>"
+            "{% endif %}"
+        )
+        el.replace_with(BeautifulSoup(liquid, "html.parser"))
+
     def process(self, section_dict):
         html = section_dict["html"]
         soup = BeautifulSoup(html, "html.parser")
@@ -621,6 +802,15 @@ class LiquidBuilder:
             if child.name == "img":
                 builder.convert_image(child)
                 continue
+            # GAP-C: CTA de compra (a/button) vira form /cart/add, antes da conversão normal de link.
+            if child.name in ("a", "button") and child.get_text(strip=True) and builder.is_cart_cta(child):
+                only_simple = all(
+                    isinstance(c, NavigableString) or (isinstance(c, Tag) and c.name in ("span", "strong", "em"))
+                    for c in child.children
+                )
+                if only_simple:
+                    builder.convert_cart_cta(child)
+                    continue
             if child.name == "a" and child.get_text(strip=True):
                 has_only_text = all(
                     isinstance(c, NavigableString) or c.name == "span"
@@ -668,31 +858,61 @@ class LiquidBuilder:
     def build_section_file(self, markup, section_name, section_tag_class, base_stylesheet="", asset_type="section"):
         scope = "block" if asset_type == "block" else "section"
 
-        # Extrai cores do CSS e transforma em settings + vars
+        # GAP-A + GAP-D: extrai cores E tokens (shadow/radius/font-size/font-family) do CSS,
+        # transforma cada um em setting + custom property, e injeta TODAS as vars INLINE no root
+        # da section (com | escape em cada interpolação). Sem inline-no-root, o theme editor não
+        # aplica os valores; sem | escape, abre injection no atributo style.
         color_map = extract_colors_from_css(base_stylesheet)
+        tokens = extract_tokens_from_css(base_stylesheet)
+        prepend_settings = []
+        inline_pairs = []  # (var_id_sem_hifen, setting_id) → vira "--id: {{ scope.settings.id | escape }}"
+
         if color_map:
             base_stylesheet = replace_colors_with_vars(base_stylesheet, color_map)
-            color_settings = [{"type": "header", "content": "Colors"}]
+            prepend_settings.append({"type": "header", "content": "Colors"})
             for hex_color, s_id in color_map.items():
-                color_settings.append({
+                prepend_settings.append({
                     "type": "color",
                     "id": s_id,
                     "label": f"Color {s_id.split('_')[1]}",
                     "default": hex_color,
                 })
-            self.settings = color_settings + self.settings
+                inline_pairs.append(s_id)
+
+        if tokens:
+            base_stylesheet = replace_tokens_with_vars(base_stylesheet, tokens)
+            prepend_settings.append({"type": "header", "content": "Design tokens"})
+            for tok in tokens:
+                entry = {"type": tok["type"], "id": tok["id"], "label": tok["label"], "default": tok["default"]}
+                if tok.get("info"):
+                    entry["info"] = tok["info"]
+                prepend_settings.append(entry)
+                inline_pairs.append(tok["id"])
+
+        if prepend_settings:
+            self.settings = prepend_settings + self.settings
+
+        if inline_pairs:
             inline_vars = "; ".join(
-                f"--{s_id}: {{{{ {scope}.settings.{s_id} }}}}"
-                for s_id in color_map.values()
+                f"--{s_id}: {{{{ {scope}.settings.{s_id} | escape }}}}"
+                for s_id in inline_pairs
             )
-            if "<section" in markup[:200]:
-                extra = f' {{{{ block.shopify_attributes }}}}' if asset_type == "block" else ""
-                markup = re.sub(
-                    r"(<section[^>]*?)(>)",
-                    lambda m: f'{m.group(1)} style="{inline_vars}"{extra}{m.group(2)}',
-                    markup,
-                    count=1,
-                )
+            extra = ' {{ block.shopify_attributes }}' if asset_type == "block" else ""
+            # Injeta no PRIMEIRO elemento de abertura do markup (root da section), não só <section>.
+            injected = re.subn(
+                r"(<(?:section|div|article|aside|main)\b[^>]*?)(>)",
+                lambda m: (
+                    f'{m.group(1)} style="{inline_vars}"{extra}{m.group(2)}'
+                    if "style=" not in m.group(1)
+                    else f'{re.sub(chr(34) + r"$", "; " + inline_vars + chr(34), m.group(1), count=1)}{extra}{m.group(2)}'
+                ),
+                markup,
+                count=1,
+            )
+            markup = injected[0]
+            if injected[1] == 0:
+                # Fallback: nenhum container encontrado → embrulha num wrapper com as vars.
+                markup = f'<div class="{self.namespace}__root" style="{inline_vars}">{markup}</div>'
 
         # Reescreve toda referência section.settings → block.settings se asset_type=block
         if asset_type == "block":
@@ -705,6 +925,10 @@ class LiquidBuilder:
                     markup,
                     count=1,
                 )
+
+        # GAP-A (safety net): garante | escape em TODA interpolação dentro de qualquer style=""
+        # do markup final (cobre styles vindos de convert_image, inline-vars e edge cases).
+        markup = escape_style_interpolations(markup)
 
         block_types = list(self.blocks_schemas.keys())
         if asset_type == "block":
@@ -732,6 +956,9 @@ class LiquidBuilder:
             raise ValueError(
                 "Schema inválido para section: " + "; ".join(schema_errors)
             )
+
+        # GAP-B: guarda o schema construído pra o POPULATE montar templates/page.json.
+        self.built_schema = schema
 
         image_helpers = (
             f".{self.namespace}__image_wrap {{ position: relative; width: 100%; overflow: hidden; }}\n"
@@ -763,21 +990,241 @@ class LiquidBuilder:
         )
 
 
+def _settings_defaults(settings_list) -> dict:
+    """Extrai {id: default} de uma lista de settings de schema (ignora header/paragraph)."""
+    out = {}
+    for s in settings_list or []:
+        if not isinstance(s, dict):
+            continue
+        if s.get("type") in SCHEMA_TYPES_WITHOUT_LABEL:
+            continue
+        sid = s.get("id")
+        if sid is not None and "default" in s:
+            out[sid] = s["default"]
+    return out
+
+
+def build_template_section_node(builder, section_id, block_instances=3):
+    """GAP-B: monta o node de UMA section pro templates/page.json a partir do schema construído.
+
+    - settings: defaults reais da copy injetada (section-level).
+    - blocks{} / block_order[]: uma instância por block type detectado, com defaults reais.
+      Instâncias inseridas em ORDEM REVERSA (rule reverse-order-insertion) pra que o
+      block_order final reflita a ordem visual correta no theme editor.
+    """
+    schema = builder.built_schema or {}
+    node = {
+        "type": section_id,
+        "settings": _settings_defaults(schema.get("settings", [])),
+    }
+
+    block_types = list(builder.blocks_schemas.keys())
+    if block_types:
+        blocks = {}
+        block_order = []
+        # Insere em ordem reversa: monta a lista na ordem visual, depois popula reverso.
+        instances = []
+        for t in block_types:
+            defaults = _settings_defaults(builder.blocks_schemas[t].get("settings", []))
+            for n in range(block_instances):
+                instances.append((f"{t}_{n + 1}", t, defaults))
+        for inst_id, t, defaults in reversed(instances):
+            blocks[inst_id] = {"type": t, "settings": dict(defaults)}
+        block_order = [inst_id for inst_id, _, _ in instances]
+        node["blocks"] = blocks
+        node["block_order"] = block_order
+    return node
+
+
+def emit_template_json(path: Path, page_handle: str, section_nodes: list[tuple[str, dict]]):
+    """GAP-B: escreve templates/page.[handle].json com sections{} + order[] populados.
+
+    section_nodes: lista de (section_id, node) na ordem de exibição da página."""
+    sections = {}
+    order = []
+    for section_id, node in section_nodes:
+        sections[section_id] = node
+        order.append(section_id)
+    template = {"sections": sections, "order": order}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(template, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return template
+
+
+def _convert_one_section(section, namespace, product_slug, output_path, blocks_dir, asset_type, semantic_type):
+    """Converte uma única section (dict) → escreve .liquid + blocks, retorna (builder, section_id)."""
+    builder = LiquidBuilder(namespace, product_slug)
+    converted_markup = builder.process(section)
+
+    section_name = f"Page {product_slug} — {semantic_type}"
+    section_tag_class = f"{namespace} {namespace}--{slugify(semantic_type)}"
+    file_content = builder.build_section_file(
+        converted_markup, section_name, section_tag_class,
+        base_stylesheet=section.get("_base_css", ""), asset_type=asset_type,
+    )
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(file_content, encoding="utf-8")
+    print(f"[liquid-converter v2] section salva em {output_path}")
+    print(f"[liquid-converter v2] stats: {len(builder.settings)} settings · {len(builder.blocks_schemas)} block type(s)")
+
+    if builder.blocks_schemas:
+        blocks_dir.mkdir(parents=True, exist_ok=True)
+        for block_type, block_data in builder.blocks_schemas.items():
+            block_content = builder.build_block_file(block_type, block_data)
+            block_file = blocks_dir / f"{namespace}-{block_type}.liquid"
+            block_file.write_text(block_content, encoding="utf-8")
+            print(f"[liquid-converter v2] block salvo em {block_file}")
+
+    # section_id = nome do arquivo .liquid sem extensão (= o que vai em sections{}/order[])
+    section_id = output_path.stem
+    return builder, section_id
+
+
+def detect_repeating_pattern(html_content):
+    """Modo C: detecta o maior grupo de irmãos repetidos (cards/tiers/items) numa section, pra
+    extrair como block. Sem isso, conteúdo repetível (benefit cards, pricing tiers, faq items,
+    reviews) viraria tudo settings e a página não ficaria "separada por blocos".
+
+    Retorna {detected, count, child_tag, child_classes} — o shape que _extract_block_from_repeating
+    consome. Heurística: dentro de cada container, agrupa filhos DIRETOS por (tag, conjunto de
+    classes); o maior grupo com >=2 irmãos que tenham texto é o padrão repetível dominante."""
+    try:
+        soup = BeautifulSoup(html_content, "html.parser")
+    except Exception:  # noqa: BLE001 — entrada malformada não deve derrubar o conversor
+        return {"detected": False, "count": 0}
+    best = {"detected": False, "count": 0}
+    SKIP = {None, "script", "style", "br", "hr", "source", "link", "meta"}
+    for container in soup.find_all(True):
+        groups = {}
+        for child in container.find_all(recursive=False):
+            if child.name in SKIP:
+                continue
+            key = (child.name, frozenset(child.get("class", []) or []))
+            groups.setdefault(key, []).append(child)
+        for (tag, classes), kids in groups.items():
+            if len(kids) >= 2 and len(kids) > best["count"] and any(k.get_text(strip=True) for k in kids):
+                best = {
+                    "detected": True,
+                    "count": len(kids),
+                    "child_tag": tag,
+                    "child_classes": list(classes),
+                }
+    return best
+
+
+def run_batch(args):
+    """GAP-E: converte a PÁGINA INTEIRA (loop por section) numa invocação e já chama o POPULATE.
+
+    Manifest JSON (--batch <path>):
+    {
+      "product_slug": "produto",
+      "page_handle": "produto",
+      "asset_type": "section",
+      "sections": [
+        {"html": "...|path", "css": "...|path", "type": "hero", "namespace": "page-produto-hero",
+         "output": "<staging>/sections/page-produto-hero.liquid", "blocks_dir": "<staging>/blocks"}
+      ]
+    }
+    html/css aceitam tanto conteúdo inline quanto path (resolve path se o arquivo existir).
+    """
+    manifest_path = Path(args.batch).expanduser().resolve()
+    if not manifest_path.exists():
+        print(f"ERRO: batch manifest {manifest_path} não encontrado", file=sys.stderr)
+        sys.exit(1)
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        print(f"ERRO: JSON inválido em {manifest_path}: {exc.msg}", file=sys.stderr)
+        sys.exit(1)
+
+    product_slug = manifest.get("product_slug") or args.product_slug
+    page_handle = manifest.get("page_handle") or args.page_handle or product_slug
+    asset_type = manifest.get("asset_type", "section")
+    section_specs = manifest.get("sections", [])
+    if not product_slug:
+        print("ERRO: batch manifest precisa de 'product_slug'", file=sys.stderr)
+        sys.exit(1)
+    if not section_specs:
+        print("ERRO: batch manifest sem 'sections'", file=sys.stderr)
+        sys.exit(1)
+
+    def _resolve(val):
+        """Aceita conteúdo inline OU path. Se for path existente, lê o arquivo."""
+        if not val:
+            return ""
+        p = Path(str(val)).expanduser()
+        if len(str(val)) < 4096 and p.exists() and p.is_file():
+            return p.read_text(encoding="utf-8")
+        return val
+
+    section_nodes = []
+    for spec in section_specs:
+        namespace = spec["namespace"]
+        semantic_type = spec.get("type", "section")
+        html_content = _resolve(spec.get("html"))
+        css_raw = _resolve(spec.get("css"))
+        base_css = rewrite_css_for_namespace(css_raw, namespace) if css_raw else ""
+        output_path = Path(spec["output"]).expanduser().resolve()
+        blocks_dir = Path(spec.get("blocks_dir", output_path.parent.parent / "blocks")).expanduser().resolve()
+        section = {
+            "html": html_content,
+            "semantic_type": semantic_type,
+            "repeating_pattern": spec.get("repeating_pattern") or detect_repeating_pattern(html_content),
+            "images": [],
+            "_base_css": base_css,
+        }
+        try:
+            builder, section_id = _convert_one_section(
+                section, namespace, product_slug, output_path, blocks_dir, asset_type, semantic_type,
+            )
+        except ValueError as exc:
+            print(f"ERRO ao converter section '{semantic_type}': {exc}", file=sys.stderr)
+            sys.exit(1)
+        node = build_template_section_node(builder, section_id)
+        section_nodes.append((section_id, node))
+
+    # POPULATE — emite o template JSON com todas as sections na ordem do manifest.
+    tpl_path = (
+        Path(args.emit_template_json).expanduser().resolve()
+        if args.emit_template_json
+        else manifest_path.parent / f"page.{page_handle}.json"
+    )
+    emit_template_json(tpl_path, page_handle, section_nodes)
+    print(f"[liquid-converter v2] POPULATE → template emitido em {tpl_path} ({len(section_nodes)} sections)")
+    print("[liquid-converter v2] ATENÇÃO: valide cada .liquid com a skill `shopify-plugin:shopify-liquid` antes de instalar.")
+
+
 def main():
     parser = argparse.ArgumentParser()
     # Dois modos de input: sections.json (legacy, do analyzer) ou HTML/CSS fresh (Modo C)
     parser.add_argument("--sections-json", help="(Modo B legacy) Path to sections.json from analyzer")
     parser.add_argument("--section-index", type=int, help="(Modo B legacy) 1-based index of section to convert")
     parser.add_argument("--html", help="(Modo C) Path to fresh HTML file from frontend-design")
-    parser.add_argument("--css", help="(Modo C) Path to fresh CSS file (injected into {% stylesheet %})")
+    parser.add_argument("--css", help="(Modo C) Path to fresh CSS file (injected into the stylesheet block)")
     parser.add_argument("--type", help="(Modo C) Semantic type of the section (hero/features/faq/etc)")
-    parser.add_argument("--output", required=True, help="Path to output .liquid file")
-    parser.add_argument("--blocks-dir", required=True, help="Directory where blocks/*.liquid files go")
-    parser.add_argument("--namespace", required=True, help="CSS namespace (e.g. page-[produto]-hero)")
-    parser.add_argument("--product-slug", required=True, help="Product slug (e.g. [produto])")
+    parser.add_argument("--output", help="Path to output .liquid file (single-section mode)")
+    parser.add_argument("--blocks-dir", help="Directory where blocks/*.liquid files go (single-section mode)")
+    parser.add_argument("--namespace", help="CSS namespace (e.g. page-[produto]-hero)")
+    parser.add_argument("--product-slug", help="Product slug (e.g. [produto])")
     parser.add_argument("--asset-type", choices=["section", "block"], default="section",
                         help="Output as Shopify section (default) or theme block (for Horizon-style composability)")
+    # GAP-B / GAP-E
+    parser.add_argument("--batch", help="(Modo E batch) Path to batch manifest JSON: converte a página inteira + POPULATE numa invocação")
+    parser.add_argument("--emit-template-json", help="(GAP-B POPULATE) Path do templates/page.[handle].json a emitir")
+    parser.add_argument("--page-handle", help="(GAP-B POPULATE) Handle da página Shopify (default: product-slug)")
     args = parser.parse_args()
+
+    # GAP-E: modo batch — converte todas as sections + emite o template JSON numa só invocação.
+    if args.batch:
+        run_batch(args)
+        return
+
+    # Single-section: os campos abaixo são obrigatórios fora do batch.
+    missing = [f for f in ("output", "blocks_dir", "namespace", "product_slug") if not getattr(args, f)]
+    if missing:
+        parser.error("argumentos obrigatórios faltando (fora do modo --batch): "
+                     + ", ".join("--" + m.replace("_", "-") for m in missing))
 
     output_path = Path(args.output).expanduser().resolve()
     blocks_dir = Path(args.blocks_dir).expanduser().resolve()
@@ -798,7 +1245,7 @@ def main():
         section = {
             "html": html_content,
             "semantic_type": args.type or "section",
-            "repeating_pattern": {"detected": False, "count": 0},
+            "repeating_pattern": detect_repeating_pattern(html_content),
             "images": [],
         }
         print(f"[liquid-converter v2] Modo C — convertendo HTML fresh ({args.type or 'section'})")
@@ -864,6 +1311,26 @@ def main():
             block_file = blocks_dir / f"{args.namespace}-{block_type}.liquid"
             block_file.write_text(block_content, encoding="utf-8")
             print(f"[liquid-converter v2] block salvo em {block_file}")
+
+    # GAP-B: POPULATE single-section — emite (ou cria) o template JSON com este section node.
+    # Útil pra converter section a section; pra página inteira prefira --batch.
+    if args.emit_template_json:
+        page_handle = args.page_handle or args.product_slug
+        section_id = output_path.stem
+        node = build_template_section_node(builder, section_id)
+        tpl_path = Path(args.emit_template_json).expanduser().resolve()
+        # Se o template já existe, faz merge aditivo (preserva sections já emitidas).
+        existing_nodes = []
+        if tpl_path.exists():
+            try:
+                existing = json.loads(tpl_path.read_text(encoding="utf-8"))
+                for sid in existing.get("order", []):
+                    if sid != section_id and sid in existing.get("sections", {}):
+                        existing_nodes.append((sid, existing["sections"][sid]))
+            except (json.JSONDecodeError, OSError):
+                pass
+        emit_template_json(tpl_path, page_handle, existing_nodes + [(section_id, node)])
+        print(f"[liquid-converter v2] POPULATE → template atualizado em {tpl_path}")
 
     print("[liquid-converter v2] ATENÇÃO: sempre valide o arquivo gerado com a skill `shopify-plugin:shopify-liquid` antes de instalar no tema. Edge cases podem precisar ajuste manual.")
 

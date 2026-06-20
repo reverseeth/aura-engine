@@ -339,6 +339,62 @@ async def _goto_with_fallback(page, url: str) -> Optional[object]:
             )
 
 
+async def _capture_screenshot_fallback(url: str, output_dir: Path) -> int:
+    """Fallback de último recurso: captura só o screenshot full-page da URL.
+
+    Usado quando o scraping de DOM falha (anti-bot/Cloudflare, timeout, 4xx em
+    challenge). Não tenta extrair markup/computed-styles — o screenshot serve à
+    rota screenshot→visão da 07a (o Claude lê a imagem com visão nativa). Gera um
+    `fallback.json` sinalizando que só o screenshot está disponível.
+
+    Retorna 0 se o screenshot foi salvo, 4 se nem o screenshot foi possível.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    print("[downloader] entrando em modo fallback (screenshot full-page only)...", file=sys.stderr)
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            context = await browser.new_context(
+                viewport=VIEWPORT, user_agent=USER_AGENT, java_script_enabled=True
+            )
+            page = await context.new_page()
+            page.set_default_timeout(PAGE_DEFAULT_TIMEOUT_MS)
+            page.set_default_navigation_timeout(NAVIGATION_TIMEOUT_MS)
+            try:
+                await page.goto(url, wait_until="domcontentloaded", timeout=NAVIGATION_TIMEOUT_MS)
+            except PlaywrightTimeoutError:
+                logger.warning("fallback: navegação ainda em timeout, capturando o que houver")
+            # Dá um respiro pra challenge/render parcial pintar algo na tela.
+            await page.wait_for_timeout(2500)
+            shot_path = output_dir / "fallback-screenshot.png"
+            await page.screenshot(path=str(shot_path), full_page=True)
+            await browser.close()
+    except Exception as exc:  # noqa: BLE001 — fallback de último recurso
+        logger.error("fallback de screenshot falhou: %s", exc)
+        return 4
+
+    (output_dir / "fallback.json").write_text(
+        json.dumps(
+            {
+                "mode": "screenshot_fallback",
+                "reason": "dom_scraping_failed",
+                "url": url,
+                "screenshot": "fallback-screenshot.png",
+                "note": (
+                    "DOM scraping falhou (anti-bot/Cloudflare/timeout). Só o screenshot "
+                    "full-page está disponível — use a rota screenshot→visão da 07a."
+                ),
+            },
+            indent=2,
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    print(f"[downloader] fallback OK — screenshot full-page salvo em {shot_path}", file=sys.stderr)
+    print("[downloader] (sem DOM/computed-styles; siga pela rota screenshot→visão)", file=sys.stderr)
+    return 0
+
+
 # --------------------------------- Main ------------------------------------- #
 
 
@@ -363,22 +419,22 @@ async def run(url: str, output_dir: Path) -> int:
             response = await _goto_with_fallback(page, url)
         except PlaywrightTimeoutError:
             print(
-                "[downloader] URL demorou demais ou é JS-heavy; tente outra.",
+                "[downloader] URL demorou demais ou é JS-heavy; tentando fallback de screenshot.",
                 file=sys.stderr,
             )
             await browser.close()
-            return 2
+            return await _capture_screenshot_fallback(url, output_dir)
 
         if response is not None:
             status = response.status
             # 3xx já foi seguido pelo Playwright; só aborta em 4xx/5xx
             if status >= 400:
                 print(
-                    f"[downloader] abortando: resposta HTTP {status} em {url}",
+                    f"[downloader] resposta HTTP {status} em {url} — tentando fallback de screenshot.",
                     file=sys.stderr,
                 )
                 await browser.close()
-                return 3
+                return await _capture_screenshot_fallback(url, output_dir)
 
         try:
             await page.wait_for_load_state("networkidle", timeout=NETWORK_IDLE_TIMEOUT_MS)
@@ -466,13 +522,16 @@ async def main() -> int:
         return await run(url, output_dir)
     except PlaywrightTimeoutError:
         print(
-            "[downloader] URL demorou demais ou é JS-heavy; tente outra.",
+            "[downloader] URL demorou demais ou é JS-heavy; tentando fallback de screenshot.",
             file=sys.stderr,
         )
-        return 2
+        return await _capture_screenshot_fallback(url, output_dir)
     except Exception as exc:  # noqa: BLE001 — CLI surface
-        logger.error("falha fatal: %s", exc)
-        return 1
+        logger.error("falha fatal: %s — tentando fallback de screenshot.", exc)
+        try:
+            return await _capture_screenshot_fallback(url, output_dir)
+        except Exception:  # noqa: BLE001
+            return 1
 
 
 if __name__ == "__main__":

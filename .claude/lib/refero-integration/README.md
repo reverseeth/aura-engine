@@ -1,12 +1,12 @@
 # Refero MCP Integration (opcional)
 
-Integração com o **Refero Design MCP** (`lorecraft-io/refero-design-mcp`). Catálogo curado de ~200 design systems de sites premium (Cursor, Linear, Vercel, Notion, Stripe, etc.) com cores role-tagged, typography, spacing, do/dont rules — pronto pra alimentar o design system da Aura sem inventar do zero nem fazer scraping.
+Integração com o **Refero Design MCP** (package canônico: `fidgetcoding-refero-mcp`, instalado via `npx -y fidgetcoding-refero-mcp`). Catálogo curado de ~200 design systems de sites premium (Cursor, Linear, Vercel, Notion, Stripe, etc.) com cores role-tagged, typography, spacing, do/dont rules — pronto pra alimentar os brand signals da Aura sem inventar do zero nem fazer scraping.
 
 ## Quando usar
 
-Membro tem o Refero MCP conectado E está rodando skill **07a (page planning)** ETAPA 2.1 Brand Discovery. Aura procura na biblioteca curada um estilo que case com a vibe pedida (do `profile.md` ou da descrição do membro) e usa o `designSystem` retornado pra alimentar os specialists `designer-color-system` + `designer-typography-scale` na ETAPA 3.
+Membro tem o Refero MCP conectado E está rodando a skill **07a-page-design ETAPA 2 (Brand Signals)**. Aura procura na biblioteca curada um estilo que case com a vibe pedida (do `profile.md` ou da descrição do membro) e usa o `designSystem` retornado pra alimentar o `frontend-design` via `design-signals.json` (heading/body font, palette role-tagged, radius, shadow, density).
 
-**Default = não-integrado.** Aura funciona 100% sem Refero (continua usando `tools/design-clone/` pra extração ad-hoc de URL de referência ou pedindo estilo pré-definido ao membro). Integração é puro upside.
+**Default = não-integrado.** Aura funciona 100% sem Refero (cai pro screenshot→visão, ou `tools/design-clone/` pra hex exato, ou estilo pré-definido). Integração é puro upside.
 
 ## Como o membro conecta
 
@@ -41,32 +41,34 @@ Reinicie o Claude Code. Tools com prefixo `mcp__refero__` aparecem.
 
 ## Mapping skill → tool
 
-Integração focada na **skill 07a ETAPA 2.1 Brand Discovery**. Cascade resiliente:
+Integração focada na **skill 07a-page-design ETAPA 2 (Brand Signals)**. Cascade resiliente (mesma ordem da regra 10c do CLAUDE.md):
 
 1. **Refero MCP** (preferencial) — catálogo curado, designSystems estruturados
-2. **`tools/design-clone/`** (fallback ad-hoc) — extração via Playwright quando o membro passa URL **fora** do catálogo Refero (ex: concorrente nichado como Qure, Seranova)
-3. **Manual** — membro descreve a referência em texto ou escolhe um estilo pré-definido
+2. **Screenshot → visão** (fallback primário) — membro tira print full-page da loja de referência e o Claude lê a imagem com visão nativa pra extrair paleta/tipografia/vibe. Imune a Cloudflare/JS/markup bagunçado
+3. **`tools/design-clone/`** (caminho 3, opcional) — extração via Playwright dos computed-styles quando o membro quer **hex exato** de um concorrente nichado fora do catálogo Refero (ex: PDPs de skincare/microneedling)
+4. **Manual / 8 presets** — membro descreve a referência em texto ou escolhe um estilo pré-definido
 
 | Skill | Tools usadas | O que melhora |
 |-------|--------------|---------------|
-| **07a page planning (ETAPA 2.1)** | `refero_search` + `refero_get` (+ opcional `refero_design_md`) | Sinais de cor/typography/spacing vêm de curadoria humana de design systems top, não scraping bruto. Eliminamos dependência forte de Playwright pra casos onde Refero cobre. |
+| **07a-page-design (ETAPA 2)** | `refero_search` + `refero_get` (+ opcional `refero_design_md`) | Sinais de cor/typography/spacing vêm de curadoria humana de design systems top, não scraping bruto. Convergem todos pro mesmo `design-signals.json` que alimenta o `frontend-design`. |
 
-**Quando NÃO usar Refero:** quando o membro passa URL de concorrente nichado fora do catálogo (Refero é generalista top-200, não tem PDPs nichadas de skincare/microneedling). Nesses casos, design-clone continua sendo a ferramenta certa.
+**Quando NÃO usar Refero:** quando o membro passa URL de concorrente nichado fora do catálogo (Refero é generalista top-200, não tem PDPs nichadas de skincare/microneedling). Nesses casos, o fallback é screenshot→visão (caminho 2) ou design-clone pra hex exato (caminho 3).
 
 ## Detecção em runtime (padrão)
 
-Na ETAPA 2.1 da skill 07a, antes de chamar design-clone, Aura testa:
+Na ETAPA 2 (Brand Signals) da 07a-page-design, Aura testa (prefixo conforme `.claude/lib/mcp-detect/README.md`):
 
 ```
-refero_available = qualquer tool começando com mcp__refero__refero_search existe
+refero_available = qualquer tool começando com mcp__refero__ existe
 
 if refero_available:
     # 1. tentar match por descrição/vibe do membro
     results = mcp__refero__refero_search(query="<descrição da Brand Discovery>", limit=5)
     apresentar 2-3 candidatos ao membro pra escolher
-    if membro escolhe: usar refero_get(<style>) → alimentar specialists
-elif membro passou URL: cair pro design-clone tradicional
-else: pedir descrição manual ou escolher pré-definido
+    if membro escolhe: usar refero_get(<style>) → design-signals.json (source: "refero")
+elif membro tem print da loja de referência: screenshot→visão (source: "screenshot_vision")
+elif membro passou URL e quer hex exato: cair pro design-clone (source: "design_clone")
+else: pedir descrição manual ou escolher pré-definido (source: "manual")
 ```
 
 Aura **nunca** consulta Refero sem membro confirmar a direção. Refero é fonte de inspiração + signals técnicos, não autoridade que decide design pelo membro.
@@ -79,7 +81,7 @@ Sem `OPENAI_API_KEY`, busca cai pra BM25 keyword scoring (zero custo, qualidade 
 
 ## Falhas e fallback
 
-Se chamada Refero falha (tool não responde, catálogo offline, query sem resultado relevante), Aura cai silenciosamente pro design-clone (se membro passou URL) ou pergunta direta ao membro. Membro vê output equivalente — só perde o ganho do catálogo curado.
+Se chamada Refero falha (tool não responde, catálogo offline, query sem resultado relevante), Aura cai silenciosamente pro próximo degrau da cascade: screenshot→visão (se o membro tem print), design-clone (se quer hex exato de uma URL), ou pergunta direta. Membro vê output equivalente — só perde o ganho do catálogo curado.
 
 ## Privacidade
 
@@ -87,21 +89,22 @@ Refero MCP é local (npm package). Não há tokens persistidos no Aura nem no wo
 
 Cache local em `~/.cache/refero-mcp/` (default) com TTL 24h.
 
-## Diferença vs Claude Design (skill 07a ETAPA 0.5)
+## Refero vs frontend-design (quem faz o quê)
 
-São coisas complementares, não concorrentes:
+O design da página é **HTML-first**: nasce in-session via a skill nativa `frontend-design`, que gera a página inteira como HTML+CSS self-contained com a copy real já inserida — essa é a fonte única de verdade visual que o membro aprova antes de qualquer Liquid existir. O Claude Design (app claude.ai) **saiu do caminho crítico**.
 
-| Aspecto | Refero MCP (ETAPA 2.1) | Claude Design (ETAPA 0.5) |
-|---------|------------------------|----------------------------|
-| O que entrega | designSystem estruturado (cores, typography, spacing tokens) | 4 variações visuais (A/B/C/D) renderizadas como artifact |
-| Quando roda | Brand Discovery, antes de gerar Liquid | Antes do membro escolher a direção visual, em formato comparável |
-| Output | DESIGN.md / tokens → alimenta specialists | HTML artifact com 4 takes side-by-side pra decisão visual |
-| Curadoria | Top ~200 sites premium | Geração do zero baseada em copy + brand snapshot |
+O Refero não compete com o `frontend-design`: ele só **alimenta os signals** que o `frontend-design` aplica.
 
-Aura usa **os dois em sequência**: Refero fornece signals técnicos da vibe escolhida → Claude Design gera 4 takes visuais aplicando esses signals → membro escolhe → 07b implementa em Liquid.
+| Aspecto | Refero MCP (07a ETAPA 2) | frontend-design (07a ETAPA 3) |
+|---------|--------------------------|-------------------------------|
+| O que entrega | `design-signals.json` (cores role-tagged, typography, spacing, radius, shadow, density) | A página inteira como HTML+CSS (2-3 variações navegáveis), copy real aplicada |
+| Quando roda | Brand Signals, antes do design | Geração do design HTML-first aprovado pelo membro |
+| Papel | Fonte de inspiração + signals técnicos | Fonte única de verdade visual |
+
+Sequência: Refero (ou screenshot→visão / design-clone) fornece os signals da vibe → `frontend-design` gera a página HTML aplicando esses signals → membro aprova → 07b-page-build compila em Liquid determinístico.
 
 ## Roadmap (não implementado, ideias futuras)
 
 - `refero_search` pra alimentar 08 (creative-engine) — buscar landing page styles que casam com hooks específicos
-- `refero_design_md` integration na ETAPA 3 do 07a (Design System Orchestration) pra gerar DESIGN.md cross-product e cachear em `creative-dna/registry`
+- `refero_design_md` cacheado cross-product em `creative-dna/registry` pra reuso de signals entre produtos da mesma marca
 - Cross-reference com TrendTrack: buscar Refero estilo similar a um concorrente trackado

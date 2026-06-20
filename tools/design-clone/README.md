@@ -1,6 +1,20 @@
 # Design Clone — Aura Engine (ferramenta auxiliar)
 
-**Status:** ferramenta auxiliar, não pipeline principal. A skill 06 (page-engine) gera páginas Shopify do zero a partir da copy — não clona design de concorrente. Estes scripts existem pra um único caso: **extrair sinais de paleta/tipografia de um site de referência** quando o membro passa um link na Etapa 2.1 (Brand Discovery) da skill 06. Os signals alimentam os specialists `designer-color-system` e `designer-typography-scale`. Nenhum código do concorrente vai pro tema.
+**Status:** ferramenta auxiliar usada pela 07a-page-design em **dois cenários distintos**:
+
+1. **Brand signals (caminho 3, opcional):** extrair sinais de paleta/tipografia de um site de referência quando o membro quer **hex exato** e passa um link na **07a-page-design ETAPA 2 (Brand Signals)**. Os signals alimentam o `frontend-design` via `design-signals.json`.
+2. **Clone-and-adapt (rota de design recomendada por velocidade):** quando o membro indica uma PDP/landing de concorrente que acha bonita, a 07a captura a **ESTRUTURA** dela (ordem + tipo + layout de cada section) e gera um **esqueleto HTML** vazio que o Claude preenche com a copy/brand/produto do **MEMBRO** (06-copy / 04-offer). Herda a hierarquia de conversão validada, não o conteúdo.
+
+**Em ambos os cenários, nenhum código/copy/imagem/marca do concorrente vai pro tema.** O cenário 1 só extrai signals agregados; o cenário 2 só extrai estrutura (placeholders vazios). Adaptar estrutura + trocar todo o conteúdo é defensável; copiar 1:1 não.
+
+## Posição na cascade de brand signals (07a ETAPA 2)
+
+A skill 07a-page-design ETAPA 2 monta o `design-signals.json` por cascade unificada:
+
+1. **Refero MCP** (`mcp__refero__`) — catálogo curado de ~200 sites premium, preferencial.
+2. **Screenshot → visão (fallback PRIMÁRIO)** — o membro tira um print full-page da loja de referência (ou a Aura captura 1 screenshot via Playwright só pro print, sem extrair DOM) e o Claude **lê a imagem com visão nativa** pra extrair paleta/tipografia/vibe. Imune a Cloudflare/JS/markup bagunçado — exatamente o que faz o scraping de computed-styles travar.
+3. **design-clone (estes scripts) — caminho 3, opcional** — extração via Playwright dos computed-styles, pra quem quer **hex exato** de um concorrente nichado fora do catálogo Refero (ex: PDPs de skincare/microneedling). Mais frágil (depende do site renderizar limpo), por isso fica abaixo do screenshot→visão.
+4. **Manual / 8 presets** — membro descreve a vibe ou escolhe um preset.
 
 ## Pré-requisitos
 
@@ -9,9 +23,9 @@ pip install -r requirements.txt
 playwright install chromium
 ```
 
-## Uso no fluxo da skill 06 (único cenário suportado)
+## Uso no fluxo da 07a-page-design (cenário de signals)
 
-Quando o membro passa um site de referência visual na Etapa 2.1:
+Quando o membro quer hex exato e passa um site de referência visual na ETAPA 2 (Brand Signals):
 
 ```bash
 # 1. Baixa a página renderizada
@@ -24,7 +38,7 @@ python3 analyzer.py /tmp/ref-<produto>
 python3 pattern-extractor.py /tmp/ref-<produto>
 ```
 
-A skill 06 lê apenas o bloco `design_system` de `/tmp/ref-<produto>/patterns.json`:
+A 07a-page-design lê apenas o bloco `design_system` de `/tmp/ref-<produto>/patterns.json` (que vira fonte de `design-signals.json`):
 
 ```json
 {
@@ -37,19 +51,19 @@ A skill 06 lê apenas o bloco `design_system` de `/tmp/ref-<produto>/patterns.js
 }
 ```
 
-Esse bloco vira input pros specialists de design na Etapa 3. O resto do `patterns.json` (sections detectadas) é ignorado — a estrutura da página vem sempre da copy do membro, não do concorrente.
+Esse bloco vira input pro `frontend-design` da 07a (signals de cor/tipografia/vibe). O resto do `patterns.json` (sections detectadas) é ignorado — a estrutura da página vem sempre da copy do membro, não do concorrente.
 
 ## Scripts
 
-| Script | Papel no fluxo atual |
+| Script | Papel |
 |---|---|
 | `downloader.py` | Renderiza página com Playwright, salva HTML/CSS/fontes/imagens + `computed-styles.json` |
-| `analyzer.py` | Detecta sections semanticamente — necessário pro pattern-extractor, output ignorado pela skill |
-| `pattern-extractor.py` | **Core.** Produz `design_system` abstrato (cores, fontes, radius, shadow, density) |
-| `liquid-converter.py` | Legacy. Converte HTML (scraped ou fresh) em Liquid section. NÃO é usado pela skill 06 — ela gera Liquid direto via `frontend-design` + schema mapping próprio |
-| `preview.py` | Legacy. Renderiza `.liquid` como HTML standalone pra debug |
+| `analyzer.py` | Detecta sections semanticamente — necessário pro pattern-extractor, output ignorado pela 07a |
+| `pattern-extractor.py` | **Core do caminho de signals.** Produz `design_system` abstrato (cores, fontes, radius, shadow, density) |
+| `liquid-converter.py` | Conversor canônico HTML→Liquid. **NÃO é usado pela 07a** (que só extrai signals); é o conversor obrigatório da **07b-page-build** (compile determinístico). Detalhes no fluxo da 07b. |
+| `preview.py` | Renderiza `.liquid` como HTML standalone pra debug |
 
-Os scripts legacy (`liquid-converter.py`, `preview.py`) continuam funcionais pra quem quiser cenários avançados de clone literal fora do fluxo padrão, mas **não são acionados pela skill 06**.
+`pattern-extractor.py` é o único script acionado pela 07a no caminho 3 de signals. O **modo `clone-and-adapt`** do `aura_clone.py` reusa `downloader.py` + `analyzer.py` e monta o esqueleto in-process (não há script separado). `liquid-converter.py` vive no fluxo da 07b, não aqui.
 
 ## CLI unificado (`aura_clone.py`)
 
@@ -87,6 +101,39 @@ Flags:
 
 Error recovery: se o `downloader` falha, o pipeline aborta. Se o `analyzer` falha, o wrapper emite warning mas tenta o `pattern-extractor` mesmo assim (existem casos em que `sections.json` parcial é suficiente).
 
+## Modo `clone-and-adapt` (esqueleto estrutural pra 07a)
+
+Captura a **ESTRUTURA** de uma URL de referência (ordem + tipo semântico + layout de cada section) e produz um **esqueleto HTML** com sections vazias/placeholder. Esse esqueleto é o ponto de partida da rota *Clone-and-adapt* da 07a-page-design (ETAPA 3): o Claude preenche cada placeholder com a copy/brand/imagens do **membro** (06-copy / 04-offer), gerando `design/page.html`. **Zero copy/imagem/marca do concorrente entra no esqueleto** — só a hierarquia/layout.
+
+```bash
+python3 aura_clone.py clone-and-adapt <url> --output=<dir> [--product=<slug>]
+```
+
+Exemplo:
+
+```bash
+python3 aura_clone.py clone-and-adapt https://competitor.com/products/x \
+    --output=/tmp/clone-mybrand \
+    --product=mybrand
+```
+
+Pipeline interno: `downloader` (renderiza DOM) → `analyzer` (detecta sections) → `skeleton-builder` (in-process, monta o esqueleto). Diferente do modo signals, **não** roda o `pattern-extractor`.
+
+Estrutura de output:
+
+```
+<dir>/
+    raw/            HTML/CSS/screenshot do concorrente (referência LOCAL, não vai pro tema)
+    analysis.json   Sections detectadas (ordem + tipo + layout)
+    skeleton.html   ESQUELETO estrutural: placeholders comentados, zero conteúdo do concorrente
+    skeleton.json   Mesma estrutura em dados (a 07a/Claude consome este pra preencher)
+    manifest.json   URL, timestamp, versão, status de cada passo, clone_mode
+```
+
+Cada section do esqueleto vira um `<section class="section-NN-<tipo>" data-semantic data-layout>` com `placeholder-heading`, `placeholder-body`, `placeholder-media` (N slots) e `placeholder-grid` (N cards repetíveis) conforme o layout detectado. O layout coarse é derivado só dos campos estruturais do analyzer (`repeating_pattern` → grid de N colunas; FAQ/steps viram lista vertical) — **nenhum hex, fonte ou texto do concorrente** entra no esqueleto.
+
+**Fallback de screenshot (anti-bot/Cloudflare).** Se o scraping de DOM falha (challenge anti-bot, timeout, 4xx num challenge), o `downloader` captura automaticamente um **screenshot full-page** (`raw/fallback-screenshot.png`) e grava `raw/fallback.json` sinalizando o modo degradado. O `clone-and-adapt` detecta esse caso, não gera esqueleto, e aponta o membro pra **rota screenshot→visão da 07a** (o Claude lê a imagem com visão nativa e reconstrói a estrutura). O manifest registra `"mode": "screenshot_fallback"` e `"skeleton": null`.
+
 ## Security
 
 Todos os scripts aplicam validação defensiva antes de qualquer I/O ou fetch de rede:
@@ -105,13 +152,14 @@ Todos os scripts aplicam validação defensiva antes de qualquer I/O ou fetch de
 | `URL demorou demais ou é JS-heavy; tente outra` | Timeout global (60s) esgotado | Verifique se o site carrega manualmente; considere aumentar `NAVIGATION_TIMEOUT_MS` em `downloader.py`. |
 | `ERRO: Host resolve para IP privado/loopback` | URL aponta pra host interno (SSRF prevention) | Use apenas URLs públicas. Para desenvolvimento local use mock server com domínio público falso. |
 | `ERRO: Path fora da allowlist` | Output path não resolve em `$TMPDIR`, `$HOME/aura-engine/workspace`, ou `cwd` | Escolha destino dentro da allowlist ou rode a partir do diretório desejado. |
-| Cloudflare challenge / 403 | Proteção anti-bot ativa | Tente User-Agent diferente; algumas páginas exigem intervenção manual. O script aborta em resposta `>= 400` (exceto redirects). |
+| Cloudflare challenge / 403 | Proteção anti-bot ativa | No modo `clone-and-adapt`, o downloader cai automaticamente no fallback de screenshot full-page (`raw/fallback-screenshot.png`) → siga pela rota screenshot→visão da 07a. No modo signals, tente User-Agent diferente ou intervenção manual. |
+| `clone-and-adapt` retorna `skeleton: null` no manifest | DOM scraping falhou; só o screenshot ficou disponível | Esperado em sites com anti-bot forte. Use `raw/fallback-screenshot.png` na rota screenshot→visão (Claude lê a imagem e reconstrói a estrutura). |
 | `playwright install chromium` falhou | Falta de deps no OS | Siga [docs oficiais do Playwright](https://playwright.dev/python/docs/browsers) para deps nativas. |
 | `patterns.json` sem accents | Site com fundo/texto quase-branco puro | Fix em `is_vivid()` filtra branco puro (`> 240,> 240`); se mesmo assim vazio, o site não tem cor acento proeminente. |
 | Liquid gerado quebra no theme editor | Schema inválido ou escape ausente | A validação `validate_shopify_schema()` deve pegar. Se passar e quebrar no editor, abra issue com schema em anexo. |
 
 ## Princípios
 
-- **Zero código do concorrente no output final.** A skill 06 só extrai signals agregados (paleta + fontes + tokens); o HTML/CSS da página Shopify é gerado fresh via `frontend-design`.
-- **Theme-agnostic.** Sections geradas pela skill 06 têm namespacing próprio (`page-<produto>-<tipo>`), zero dependência do tema pai.
+- **Zero código do concorrente no output final.** A 07a só extrai signals agregados (paleta + fontes + tokens); o HTML/CSS da página é gerado fresh via `frontend-design`.
+- **Theme-agnostic.** Sections geradas no fluxo storefront têm namespacing próprio (`page-<produto>-<tipo>`), zero dependência do tema pai.
 - **Validação obrigatória.** Toda section .liquid gerada passa pela skill `shopify-plugin:shopify-liquid` antes de instalar no tema.
