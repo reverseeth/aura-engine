@@ -11,8 +11,18 @@
 - `video_path` — caminho local do .mp4 final (opcional se já uploaded)
 - `status` — default `PAUSED` (sempre pausado, humano ativa)
 
+## Cascade (detecção de prefixo — ver `.claude/lib/mcp-detect/README.md`)
+
+**Caminho 1 — MCP oficial (`mcp__meta__ads_*`):** usado SÓ pra resolver o ad set ID e checar o account. O upload do binário em si NÃO é suportado pelo oficial (o connector remoto não recebe arquivo local — ver nota abaixo).
+
+**Caminho 2 — Pipeboard (`mcp__meta-ads__*`):** caminho de execução real. O upload do `.mp4` local precisa de um MCP com acesso ao filesystem do membro — o oficial é remoto (`mcp.facebook.com/ads`) e não tem como ler o arquivo. Logo **o upload do vídeo + criação do creative object força Pipeboard**, mesmo quando o oficial está conectado. Se o Pipeboard não estiver disponível, cair pro Playwright headless (cookies do login Meta) descrito no `setup-mcps.md` passo 6.
+
+**Caminho 3 — manual:** membro sobe o vídeo pelo Ads Manager e cola o resultado.
+
+> **Por que upload força Pipeboard:** o MCP oficial é remote-hosted e só recebe IDs/parâmetros, não bytes de arquivo. Upload de mídia (`.mp4`) exige um MCP local que leia `video_path` do disco. Por isso esta receita inteira roda no Pipeboard (ou Playwright), enquanto sync/pause preferem o oficial.
+
 ## Pre-flight
-- [ ] MCP `meta-ads` conectado
+- [ ] MCP Meta conectado (ver cascade acima — esta receita executa via `mcp__meta-ads__*` Pipeboard)
 - [ ] Video_path existe
 - [ ] Ad set existe no ad account
 - [ ] Primary text + headline + CTA já em `/workspace/[produto]/08-creatives/`
@@ -91,6 +101,7 @@ ad = meta_ads.ad.create(
 {
   "timestamp": "<ISO>",
   "action": "upload_creative",
+  "source": "meta_mcp_pipeboard",
   "creative_id": "<id do briefing>",
   "ad_id_meta": "<Meta ad ID>",
   "ad_set_id": "<Meta ad set ID>",

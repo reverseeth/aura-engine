@@ -14,7 +14,7 @@ Esta é a receita **preferencial** desde maio/2026. A receita legada (`sync-camp
 Antes de invocar esta receita, a Skill 11 verifica se o MCP oficial está conectado:
 
 ```
-oficial_tools = tools com prefixo `mcp__meta__ads_` OU `mcp__meta-official__ads_`
+oficial_tools = tools com prefixo `mcp__meta__ads_`
 if oficial_tools disponíveis e ad_account não está "disabled":
     invocar ESTA receita
 elif tools com prefixo `mcp__meta-ads__` (Pipeboard legacy) disponíveis:
@@ -323,7 +323,7 @@ Skill 11 recebe o path do JSON e lê direto. Os blocos `dataset_health` e `marke
 
 - **OAuth expirou no Business Suite**: prompt único pro membro re-autorizar; se ele recusar, fallback Pipeboard.
 - **Ad account marcado "disabled" no rollout gradual**: log `account_disabled_in_official_beta` em `mcp-errors.log`, fallback automático pro `sync-campaign-from-meta.md` (Pipeboard).
-- **Rate limit (não-documentado pela Meta no beta)**: exponential backoff (60s, 120s, 240s). Após 3 retries, fallback Pipeboard.
+- **Rate limit (~200 calls/hora/ad account, herdado da Marketing API)**: exponential backoff (60s, 120s, 240s). Após 3 retries, fallback Pipeboard. Atenção: cada sync completo gasta ~35-45 calls, então 4-5 syncs/hora no mesmo ad account encostam no teto — espaçar pulls automáticos.
 - **Campaign não existe**: erro explícito pro Skill 11, que aborta.
 - **Tool específico falha mas outros funcionam**: continuar pull parcial, marcar campos faltantes como `data_gap: true` no JSON.
 
@@ -331,7 +331,7 @@ Skill 11 recebe o path do JSON e lê direto. Os blocos `dataset_health` e `marke
 
 - ~20-40s pra campanha com 3 ad sets × 3 ads = 9 ads + dataset health + market context
 - ~35-45 chamadas MCP totais (10 a mais que o legacy por causa dos blocos novos)
-- Sem rate limit documentado no beta (Meta oficial não publicou tetos)
+- Rate limit ~200 calls/hora/ad account (herdado da Marketing API). Com ~35-45 calls por sync, mantenha-se em ≤4 syncs/hora por ad account pra não estourar.
 
 ## Custo
 
@@ -345,7 +345,7 @@ $0 durante a open beta. Long-term pricing não-anunciado pela Meta até maio/202
 | Auth | OAuth Business Suite | Long-lived token (60d) |
 | Setup | 3 cliques (cola URL + OAuth) | 6 passos (Developer App + token) |
 | Token management | Zero (Meta renova) | Manual a cada 60 dias |
-| Rate limit | Não documentado | 200/hora + 100k/48h |
+| Rate limit | ~200/hora/ad account (herda Marketing API) | 200/hora + 100k/48h |
 | Industry benchmarks | ✅ Nativo | ❌ Não tem |
 | Auction ranking | ✅ Nativo | ❌ Não tem |
 | Opportunity score | ✅ Nativo | ❌ Não tem |

@@ -20,7 +20,7 @@ Receita orquestradora que faz deploy completo de produto em Shopify + estrutura 
 - [ ] `07-page/staging/` deployed (template + sections)
 - [ ] `08-creatives/` com briefings prontos
 - [ ] `10-ad-strategy.json` com estrutura de campanha definida
-- [ ] MCP `meta-ads` conectado e testado
+- [ ] MCP Meta conectado e testado (oficial `mcp__meta__ads_*` preferencial OU Pipeboard `mcp__meta-ads__*` fallback — ver `.claude/lib/mcp-detect/README.md`)
 - [ ] MCP `shopify` conectado e testado
 - [ ] Ad Account ID válido
 - [ ] Shopify store confirmada no manifest
@@ -133,17 +133,26 @@ meta_ads.automated_rule.create(
 )
 ```
 
-### Stage 7 — Initial sync via sync-campaign-from-meta
+### Stage 7 — Initial sync (cascade Meta: oficial → Pipeboard)
 
-Invoca a receita pra snapshot do estado zero:
+Snapshot do estado zero via cascade (detecção de prefixo conforme `.claude/lib/mcp-detect/README.md`):
+
 ```
-invoke_recipe("sync-campaign-from-meta", {
-  campaign_name: strategy.campaign_name,
-  date_preset: "today"
-})
+if tools `mcp__meta__ads_*` disponíveis E ad account não está "disabled":
+    invoke_recipe("sync-campaign-from-meta-official", {
+      campaign_name: strategy.campaign_name,
+      date_preset: "today"
+    })
+elif tools `mcp__meta-ads__*` (Pipeboard) disponíveis:
+    invoke_recipe("sync-campaign-from-meta", {  # legacy/fallback
+      campaign_name: strategy.campaign_name,
+      date_preset: "today"
+    })
+else:
+    logar warning — sem MCP Meta, baseline será preenchido manualmente na primeira Skill 11
 ```
 
-Salva state inicial em `/workspace/[produto]/11-analysis/raw-pull-[timestamp].json` como baseline.
+Salva state inicial em `/workspace/[produto]/11-analysis/raw-pull-[timestamp].json` como baseline (com `source: "meta_mcp_official" | "meta_mcp_pipeboard"`).
 
 ### Stage 8 — Update manifest + log
 

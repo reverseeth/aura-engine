@@ -1,310 +1,218 @@
 ---
 name: ad-strategy
-description: Engine de configuração da estrutura completa de campanha no Meta Ads Manager — One Campaign Method (CBO + Advantage+ placements + Broad), ad sets por conceito (3-2-2 flexible ads), naming convention rigorosa, regras de decisão por dia (1/3/7/14), PGS automated rule (5% 3x/semana), e plano de próximos batches. Use quando o membro disser "ad strategy", "estratégia de ads", "montar campanha", "setup Meta Ads", "configurar campanha", ou após os briefings de criativos estarem prontos. A skill entrega instruções STEP-BY-STEP exatas pra executar no Ads Manager.
+description: Engine de configuração e CRIAÇÃO da estrutura de teste no Meta Ads Manager — estrutura enxuta 1 campanha → 1 ad set (Advantage+ / broad, Max Conversion) → 5-12 criativos, budget = 2× o CPA de breakeven/dia, 3 dias rodando sem mexer, 1 conta por produto, warmup de conta nova, cadência de teste quarta→domingo. Cria campanha/ad set/criativos em PAUSED via Meta Ads MCP (membro revisa e ativa), com gates pre-launch e leitura de credibilidade da loja antes do go-live. Use quando o membro disser "ad strategy", "estratégia de ads", "montar campanha", "setup Meta Ads", "configurar campanha", ou após os briefings de criativos estarem prontos.
 ---
 
 # Ad Strategy Engine
 
 ## Quando Usar
-Quando o membro tem criativos editados (da Skill 08) + página pronta na loja (da Skill 07) + oferta ativa (Skill 04), e precisa configurar a estrutura completa no Meta Ads Manager. Essa skill não é "estratégia conceitual" — é **executional playbook**, passo a passo.
+Quando o membro tem criativos prontos (da Skill 08) + página pronta na loja (cadeia 07a/07b) + tracking validado (07c) + oferta ativa (Skill 04), e precisa configurar **e criar** a estrutura de teste no Meta Ads Manager. Essa skill não é "estratégia conceitual" — é a **camada de execução**: monta a campanha exata e a cria em PAUSED via MCP pro membro revisar e ativar.
+
+A teoria de diagnóstico (PSM, 4Pi, ROAS targets) continua viva como **leitura** — a Skill 11 (ad-analysis) lê por ali. O que esta skill entrega é o "exatamente o que fazer no Ads Manager" pra validar criativo.
+
+> **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (`frameworks.json` + `README.md`, com o mapa skill→domínio). Sempre que esta skill mandar "consultar a base", puxe os **SISTEMAS NOMEADOS** abaixo — rode `search_knowledge` com a `best_query` exata de cada framework relevante pra ETAPA. **NUNCA use query genérica** ("ads strategy", "como configurar campanha"). Os domínios desta skill são `meta-ads-strategy` (estrutura/budget/escala) e `persuasion-psychology` (credibilidade/gestão de comentários).
 
 ## Antes de Começar
 
 ### Pré-flight (OBRIGATÓRIO)
-- [ ] `08-creatives.json` existe
-- [ ] `04-offer.json` existe (target_cpa, breakeven_roas)
-- [ ] Pixel + CAPI **validados tecnicamente** (screenshot Events Manager, Match Quality ≥ 80%)
-- [ ] Ads Manager acess: confirmar versao **Meta Marketing API ≥ v21.0 (Q1 2026)**
-- [ ] Attribution setting validado: 7d-click, 1d-view é padrão 2026 para BR/US; em EU pode ser 28d-default — confirmar com membro
-- [ ] **Analytics stack definido** — ver decision tree abaixo (sem isso o membro não vai conseguir ler dados corretamente depois)
+- [ ] `workspace/[produto]/08-creatives/08-creatives.json` existe (5-12 criativos prontos — eles vão TODOS pro mesmo ad set; o handoff é `concepts[].concept_id`/criativo)
+- [ ] `workspace/[produto]/04-offer.json` existe (`target_cpa` / `breakeven_cpa`, `breakeven_roas`, `weighted_margin_per_order` — base do budget de teste)
+- [ ] `workspace/[produto]/profile.md` existe (budget diário, stage, conta do Meta Ads ativa)
+- [ ] **`report_language`** lido (default `pt-BR`) — ver "Contexto a carregar"
+- [ ] Tracking validado via Skill 07c (Pixel + CAPI, Match Quality ≥ 80%). Se 07c não rodou, redirecionar pra `'tracking'` antes — sem evento de Purchase confiável, Max Conversion não otimiza.
 
-### Analytics stack — decision tree
-
-A Skill 11 (ad-analysis) depende de dados confiáveis de atribuição. Antes de lançar, escolher a stack correta. **Considerar APENAS 4 opções** — não sugerir Elevar, Stape, Littledata, Segment, ou qualquer outra:
-
-| Stack | Quando recomendar | Custo | Complexidade de setup |
-|-------|-------------------|-------|-----------------------|
-| **Meta App nativo na Shopify** (padrão) | Budget < $1k/dia, membro early-stage, pixel simples | Grátis | Baixa (1-click install) |
-| **Wetracked** | Membro quer tracking melhor que o padrão Shopify+Meta, sem pagar Triple Whale | $29-99/mês | Média |
-| **Triple Whale** | Budget $1k+/dia, múltiplos canais (Meta + TikTok + Google), precisa de visão consolidada de LTV/CAC/NCROAS | $129-499/mês | Média-Alta |
-| **Aimerce** | Budget > $3k/dia, membro com capital, quer AI-driven attribution com modelagem server-side avançada | $200+/mês | Alta |
-
-**Fluxo de decisão no Pré-flight:**
-
-1. Pergunte: "Você usa Meta App (padrão Shopify), Wetracked, Triple Whale ou Aimerce?"
-2. Se "nenhum" → recomendar **Meta App nativo** (Shopify Settings > Apps > Install Meta) + CAPI ON. Baseline sempre.
-3. Se membro já tem um dos quatro ativo → confirmar configuração:
-   - Meta App: verificar CAPI dupla-coluna no Events Manager, match quality ≥ 80%
-   - Wetracked: confirmar que pixel tá snippet enviando server-side events correlacionados
-   - Triple Whale: confirmar que Pixel da TW tá instalado + Sonar (server-side) ON + Meta Ads conectado
-   - Aimerce: confirmar Aimerce Pixel + server-side container ativo + identity resolution funcionando
-
-**NUNCA** sugerir:
-- Elevar / Stape / Littledata (complexidade desnecessária pro perfil do membro)
-- GTM server-side custom setup (suporte inexistente)
-- Segment ou CDPs (enterprise, fora do escopo do Aura Engine)
-
-**Budget mapping (regra simples):**
-- < $500/dia → Meta App bastam
-- $500-$1k/dia → Meta App OU Wetracked (se membro quer ficha técnica melhor)
-- $1k-$3k/dia → Triple Whale vira payback claro
-- $3k+/dia → Aimerce entra como opção premium
-
-Se o membro usa stack ≠ das 4 acima, PARAR e alinhar antes de rodar esta skill — dados ruins depois inviabilizam Skill 11.
-
-### Compatibilidade
-Esta skill foi testada em:
-- Meta Ads Manager **abril 2026**
-- Meta Marketing API **v21.0+**
-Se membro usa interface legada (Business Suite antigo), adaptar manualmente passos visuais.
+Se algum arquivo crítico sumiu/corrompeu, aplicar `.claude/rules/emergency-escape-paths.md` (ES1/ES2): oferecer **(A)** re-rodar a skill que gera o arquivo, ou **(B)** proceder com default e marcar `manifest.skipped_preflight`. Nunca abortar sem ≥ 2 caminhos.
 
 ### Contexto a carregar
 
-1. Leia `/workspace/profile.md` (budget diário — define tamanho da campanha; Meta Ads Manager conta ativa)
-2. Leia `/workspace/[produto]/04-offer.md` (CPA target vem daqui — Margem / 2 pra 2× ROAS, Margem / 2.5 pra 2.5× ROAS)
-3. Leia `/workspace/[produto]/06-copy.md` (URLs de destino — 1 ou múltiplas LPs)
-4. Leia `/workspace/[produto]/08-creatives/` (conceitos + briefings — cada conceito vira 1 ad set)
-5. Consulte a base Aura extensivamente sobre: One Campaign Method, Andromeda System (o que mudou no Meta e por que), Scientific Method for Meta Ads (control vs variable), 3-2-2 Flexible Ads format (estrutura e regras de teste), Performance Gate Scaling (PGS — regra automatizada de 5%), budget scaling methods (farmer/aggressive/operator), 4Pi Analysis signatures pra interpretação de dados depois, naming conventions, CAPI e Pixel Data setup (Advanced Matching + Event Quality), Ad Account e Pixel-Dataset Setup, Estrutura de Assets Anti-Ban, Automated Rules pra Lead Gen Campaigns, Minimum Daily Spend (por que ads ruins geram gasto), Scientific Method (control vs variable), Profitable Scaling Margin (PSM — Golden Ratio of Growth), Overview e Estratégia de Media Buying, ROAS Targets e Scaling (vertical vs horizontal). Aprofunde em cada sub-conceito. Operacional é detalhe — errar naming convention ou deixar "daily minimums" ativo mata campanhas.
+1. Leia `workspace/profile.md`. **Leia `report_language`** (default `pt-BR` se ausente; também em `manifest.report_language`): TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language`.
+2. Leia `workspace/[produto]/04-offer.md` + `04-offer.json` — daqui sai o **breakeven CPA**, o número que governa o budget de teste e os critérios de kill da Skill 11. **Fonte canônica (a MESMA que a Skill 11 e a 12 usam):** `breakeven_cpa = 04-offer.json.unit_economics.weighted_margin_per_order`. Use esse campo direto — não re-derive. Só se ele faltar, caia pro fallback `breakeven_cpa = AOV / breakeven_roas`.
+3. Leia `workspace/[produto]/06-copy.md` (URL de destino — a PDP/landing aprovada da cadeia 07).
+4. Leia `workspace/[produto]/08-creatives/08-creatives.json` (os 5-12 criativos que entram no único ad set de teste).
+5. Detecte o **stage** do membro (`.claude/rules/member-stage-awareness.md`): starter / validating / scaling. Define tom, agressividade e número de criativos recomendado.
+6. Puxe os **SISTEMAS NOMEADOS** da base como camada de LEITURA/diagnóstico (não de execução de estrutura) — rode `search_knowledge` com a `best_query` de cada um, nunca query genérica. O que sustenta esta skill como leitura:
+   - **Scientific Method for Meta Ads (Control vs Variable)** (rode `scientific method meta ads control variable environmental impact`) — por que 1 ad set único é a estrutura limpa de teste.
+   - **4Pi Analysis (Spend, Frequency, CPM, Cost per Result)** (rode `4Pi analysis spend frequency CPM cost per result funnel position`) — a leitura que a Skill 11 aplica nos dados.
+   - **Profitable Scaling Margin (PSM) — Golden Ratio of Growth** (rode `Profitable Scaling Margin PSM LTV CPA COGS replaces ROAS`) — o número de saúde que governa quando escalar (Skill 12).
+   - **True Broad vs Advantage+ Broad** (rode `True Broad vs Advantage Plus broad targeting training wheels`) — por que a audiência é broad e o criativo faz o targeting.
+
+   A EXECUÇÃO operacional (estrutura de campanha abaixo) é o playbook desta skill; os outros frameworks de `meta-ads-strategy` (escala, redistribuição de spend, lucky vs durable wins) estão no índice `.claude/lib/kb-index/` e entram via Skill 11/12.
+
+### Analytics stack — quem decide
+A escolha da stack de atribuição (Meta App / Wetracked / Triple Whale / Aimerce) é da **Skill 07c (tracking-setup)**, não desta. Aqui só **confirmamos** que existe stack validada antes de criar campanha. Se `manifest.tracking_stack` estiver vazio → redirecionar pra `'tracking'` (07c) e parar. Sem atribuição confiável, a Skill 11 lê dado ruim e mata criativo bom.
+
+### Compatibilidade
+Testada em Meta Ads Manager **2026 Q2** e Meta Marketing API **v21.0+**. Se o membro usa interface legada (Business Suite antigo) ou API anterior, adaptar passos visuais manualmente.
 
 ## Fluxo da Skill
 
-### ETAPA 1 — Verificação de Pré-Requisitos
+### ETAPA 1 — Gates de Pré-Launch (BLOQUEANTES)
 
-**Gate de consistência (Skill 09)** — antes da pergunta abaixo, ler `/workspace/[produto]/09-consistency-audit.json` se existir:
-- Se `launch_recommendation == "BLOCK"` → **ABORTAR**. Drift entre criativos/copy/oferta vai virar disapproval ou ad com mismatch ad↔landing. Mostrar findings críticos ao membro e pedir pra rodar `consistency audit` após corrigir. Override só com `compliance_override` no manifest.
-- Se `CAUTION` → mostrar warnings, pedir OK explícito antes de prosseguir.
-- Se `GO` ou arquivo não existe → seguir verificação normal (recomendar skill 09 antes de launch crítico, mas não bloquear).
+**Gate de consistência (Skill 09)** — ler `workspace/[produto]/09-consistency-audit.json` se existir:
+- `launch_recommendation == "BLOCK"` → **ABORTAR**. Drift entre criativos/copy/oferta vira disapproval ou mismatch ad↔landing. Mostrar findings críticos e pedir `consistency audit` após corrigir. Override só com `compliance_override` no manifest.
+- `CAUTION` → mostrar warnings, pedir OK explícito antes de prosseguir.
+- `GO` ou arquivo ausente → seguir (recomendar 09 antes de launch crítico, sem bloquear).
 
-Pergunte em UMA única mensagem:
+**Pre-launch gates (NON-NEGOTIABLE — `.claude/rules/pre-launch-gates.md`)** — ANTES de criar qualquer campanha/ad set/criativo (PAUSED ou não), rodar os dois gates:
 
-"Antes de montar a campanha, confirma: Pixel + CAPI funcionando? Produto ativo na loja? Criativos prontos? Me diz 'sim' ou o que ainda falta."
+- **GATE 1 — Ad-flag Compliance**: rodar `.claude/lib/compliance-preflight/run.py --input <copy do ad: primary text + headline + UTM + URL destino> --config .claude/lib/compliance-preflight/red_flags.json --schema .claude/lib/compliance-preflight/output-schema.json`. `critical`/`high` → **BLOCK**: aplicar `rewrite_suggestion` e re-rodar; se não passar, parar e pedir revisão. `medium` → WARN (logar em `workspace/[produto]/compliance-warnings.json`). `low` → PASS. Bypass só via `manifest.compliance_override` com risco reconhecido (`.claude/rules/emergency-escape-paths.md` ES3 — exige o membro digitar "EU ACEITO O RISCO").
+- **GATE 2 — Promise ↔ Config**: validar cada promessa da copy/ad (free shipping, money-back, discount code, "limited time", reviews) contra a config real da loja Shopify. Output em `workspace/[produto]/promise-check.json`. `fail` ≥ 1 → **BLOCK** com `fix` (ajustar copy OU ajustar config); `warn` → apresentar pra decisão; tudo `pass` → prosseguir. Zero bypass automático.
 
-**Se o membro disser "sim":** vai direto pra Etapa 2.
+### ETAPA 2 — Leitura de Credibilidade da Loja (lever de conversão, pré-launch)
 
-**Se disser o que falta:** aponte resolução por item:
+Antes de gastar em tráfego, a loja precisa **parecer confiável** — isso afeta conversão direto, e tráfego pago em loja sem prova social queima budget. Esta etapa é um **checklist de leitura**, não bloqueante por default (vira WARN), mas o membro precisa ver o gap antes de ativar.
 
-- **Pixel não funcionando** → Events Manager do Meta > Test Events. Deve mostrar PageView, ViewContent, AddToCart, InitiateCheckout, Purchase. Se algum falta, verificar instalação no tema Shopify (Settings > Customer events > Meta pixel).
-- **CAPI não configurada** → No Shopify (ou via Triple Whale se o membro tem), habilitar "Conversions API" no Pixel. Meta > Events Manager > Settings > Set up Conversions API. Deve mostrar dupla-coluna (Browser + Server) com ≥80% de match quality.
-- **Produto não ativo** → Shopify > Products — verificar status "Active" + inventário > 0 + imagem + descrição. Link do checkout funcional.
-- **Criativos não prontos** → redirecionar pra `'creatives'` (Skill 08).
+**Fundamente a leitura de credibilidade nos SISTEMAS NOMEADOS (rode a `best_query` de cada um — nunca query genérica):**
+- **Cialdini's Six Weapons of Influence** (rode `Cialdini six weapons of influence reciprocity commitment social proof authority liking scarcity`) — social proof e authority são as alavancas que a PDP/página de FB precisam exibir antes do tráfego chegar.
+- **Bandwagon Effect (3 Group Types)** (rode `bandwagon effect aspirational associative dissociative groups social pressure conformity`) — por que ~100 reviews em inglês move conversão (massa visível = "todo mundo compra").
+- **Inoculation Theory** (rode `inoculation theory McGuire weakened attack pre-emptive defense competitor argument resistance`) — base pra responder objeção nos comentários do ad antes que o ceticismo contamine o leitor seguinte.
+- **Length-Implies-Strength Heuristic** (rode `length implies strength heuristic volume of content persuasion cue numbered reasons testimonials`) — volume de review/UGC sinaliza força mesmo antes de ser lido.
 
-Não prossiga pra Etapa 2 enquanto os 3 itens não estiverem "sim".
+Verificar (e reportar o que falta):
 
-### ETAPA 2 — Estrutura da Campanha (One Campaign Method)
+- **Instagram + página do Facebook ativos**, com seguidores reais e posts recentes (a página do FB é o que aparece como anunciante no ad).
+- **Reviews na PDP** — alvo ~100 avaliações em inglês (do mercado US). Menos que isso, conversão sofre. (A cadeia 07 já injeta reviews; aqui só confirmamos volume.)
+- **Sinais de confiança visíveis**: brand story / About, destaques (TrustPilot se tiver), garantia clara, política de envio/retorno legível.
+- **Gestão de comentários — o ponto mais importante**: comentário ruim num post de ad fica **visível pra todo mundo** e derruba conversão. O membro precisa de uma rotina pra **deletar/ocultar spam e responder objeção** nos comentários dos ads. Recomendar verificar comentários nos primeiros dias e responder rápido.
 
-Aplique os princípios de One Campaign Method. A estrutura padrão:
+**Honestidade (não grey-hat):** NÃO recomendar comprar seguidor/comentário/review fake em volume. Além de risco pra conta e pra marca, prova social falsa não sustenta a venda — o foco é prova social **real** (reviews de clientes, UGC, depoimentos). Se a loja está fraca em prova social, isso é um sinal de que talvez seja cedo pra escalar budget — melhor começar menor e acumular review real.
 
-**Configuração da campanha:**
-- **Campaign Name**: `[Produto]_[YYYYMMDD]_Main` (ex: `CollagenSerum_20260415_Main`)
-- **Objective**: **Sales** (anteriormente "Conversions" / "Purchase")
-- **Budget**: **CBO** (Campaign Budget Optimization) — coloque o budget diário do membro no nível da campanha
-- **Special Ad Categories**: nenhum (a menos que saúde/finanças/emprego — aí marque)
-- **Advantage Campaign Budget**: ON
-- **Bid strategy**: Highest Volume (padrão) — não use Cost Cap nem Bid Cap no início
-- **Attribution setting**: 7-day click, 1-day view (default em 2024+)
+Stage: pra **starter** sem prova social ainda, deixar explícito que rodar com budget pequeno enquanto acumula review é o caminho. Pra **scaling**, isso já está resolvido — só confirmação rápida.
 
-**IMPORTANTE**: UMA ÚNICA campanha por produto. Não criar múltiplas campanhas. One Campaign Method = todos os ad sets dentro de 1 campanha CBO, Meta distribui budget.
+### ETAPA 3 — Estrutura de Teste (o playbook)
 
-### ETAPA 3 — Estrutura dos Ad Sets
+A estrutura de teste do Aura é **enxuta de propósito**. O aprendizado acontece no **ad set**, não na campanha: um único ad set otimiza muito mais rápido que vários competindo por budget. E o **criativo faz o targeting** — por isso a audiência é broad/Advantage+, sem detailed targeting.
 
-Calcule o número máximo de ad sets ativos:
+**Ancorar a estrutura nos SISTEMAS NOMEADOS (rode a `best_query` de cada um — nunca query genérica):**
+- **One Campaign Method (AndroMeta One Architecture)** (rode `One Campaign Method AndroMeta One CBO control variable ad set structure`) — a arquitetura 1 campanha → 1 ad set que esta etapa monta.
+- **Andromeda System (5 Core Principles)** + **Before vs After Andromeda Mental Model Shift** (rode `Andromeda 5 principles one campaign method scaling Meta Ads` e `Andromeda before after mental model creative defines targeting`) — o princípio "o criativo define o targeting", base da audiência broad.
+- **Why Bad Ads Get Spend (CBO vs ABO)** (rode `why bad ads get spend CBO vs ABO force spend organic algorithm cost caps`) — por que budget no ad set (não CBO) é a escolha certa pra teste.
+- **Minimum Daily Spend & Spend Redistribution** (rode `minimum daily spend spend redistribution do not turn off top spender`) — base do budget = 2× breakeven CPA (dar fôlego pro algoritmo distribuir).
 
-**Fórmula:** `Budget diário / Target CPA = max ad sets`
+```
+1 CAMPANHA  →  1 AD SET (Advantage+ / broad)  →  5-12 CRIATIVOS
+```
 
-Exemplo:
-- Budget $100/dia, CPA target $20 → max 5 ad sets
-- Budget $300/dia, CPA target $30 → max 10 ad sets
+**Campanha:**
+- **Campaign Name**: `[Produto]_[YYYYMMDD]_Test` (ex: `CollagenSerum_20260620_Test`)
+- **Objective / Goal**: **Sales** (o objetivo de Max Conversion / otimização por Purchase; em interfaces antigas aparecia como "Conversions")
+- **Special Ad Categories**: nenhum (a menos que saúde/finanças/emprego/habitação — aí marcar)
+- **Budget**: deixar no **nível do ad set** (Advantage+ Campaign Budget OFF nesta estrutura de teste — budget único de ad set é o que queremos)
+- **Campanha por produto**: **1 conta de anúncio por produto**. NÃO misturar 2 produtos na mesma conta — embaralha o aprendizado do algoritmo. Exceção: produtos muito similares (ex: variações do mesmo item) podem dividir conta.
 
-⚠️ **Warning — distribuição CBO não-uniforme**: CBO distribui para winners, não uniformemente. Com 10 ad sets e $200/dia, se 1 winner pegar 60% ($120), os outros 9 dividem $80 ($8.8 cada — insuficiente pra learning phase).
-Recomendação: começar com 3-5 ad sets, monitorar distribuição no Dia 2, podar underperformers antes de adicionar novos.
-
-Com esse limite, distribua os ad sets:
-
-**Tipos de ad set (dependendo do estágio do membro):**
-
-1. **Champions** (se houver — tem winning ads anteriores): ad sets com **Post IDs dos winning creatives** (use "Use existing post" pra reaproveitar social proof acumulado — likes, shares, comments)
-2. **Creative Batches**: UM ad set por conceito da Skill 08 (ex: 5 conceitos = 5 ad sets)
-3. **Page Test** (se houver múltiplas LPs pra testar): ad set adicional com 3-2-2-2 (detalhe na Etapa 5)
-
-Se o total exceder o max, priorize: Champions > Creative Batches > Page Test. Fique dentro do limite.
-
-**Configuração de cada ad set:**
-
-- **Ad Set Name**: `[Conceito]_[AdsetType]_[YYYYMMDD]` (ex: `RootCauseAngle_Batch_20260415`, `Champion_PostID-abc123_20260415`)
-- **Conversion Event**: **Purchase** (ou sub-evento como ViewContent se estágio de teste inicial sem dados)
-- **Budget**: deixar no nível da campanha (CBO distribui)
-- **Schedule**: "Run set continuously starting today"
+**Ad set (o único):**
+- **Ad Set Name**: `[Produto]_MainTest_[YYYYMMDD]` (ex: `CollagenSerum_MainTest_20260620`)
+- **Conversion event / Optimization**: **Purchase** (Max Conversion). Se a conta ainda não tem volume de Purchase pra otimizar, NÃO descer pra ViewContent às cegas — isso traz tráfego que não compra; preferir o warmup da ETAPA 4 pra a conta esquentar antes.
+- **Budget de teste = 2× o CPA de breakeven/dia.** Ex: breakeven CPA $80 → começar **$160/dia**. Esse é o número que dá ao Facebook fôlego pra distribuir entre os criativos e achar onde gasta com retorno. (Budget muito abaixo de 2× breakeven CPA = cada criativo recebe migalha, learning nunca fecha, decisão impossível.)
 - **Audience**:
-  - **Location**: mercado geográfico principal (do market research — US/UK/EU/global)
-  - **Age**: **18-65+** (broad — deixar Meta otimizar por idade)
-  - **Gender**: **All** (a menos que o produto seja genuinamente gênero-específico com dados claros)
-  - **Detailed targeting**: **Advantage+** (automatic) — **NÃO** adicionar interests manuais. Importante: advantage+ audience está batendo manual targeting em 90%+ dos casos.
-  - **Languages**: idioma do mercado
-  - **Excluded**: nenhum (a menos que você tenha uma razão forte — ex: clientes existentes pra ads de aquisição)
-- **Placements**: **Advantage+ Placements** (automatic) — Meta distribui entre Feed/Stories/Reels/Audience Network. Não usar manual placements.
-- **Optimization goal**: Conversions > Purchase
-- **Attribution**: 7-day click, 1-day view
+  - **Location**: mercado principal do market research (US/UK/EU/global).
+  - **Age**: **18-65+** (broad — deixar o Meta otimizar).
+  - **Gender**: **All** (a menos que o produto seja genuinamente gênero-específico com dado claro).
+  - **Detailed targeting**: **Advantage+ / broad** (automático). **NÃO** adicionar interests manuais — o criativo é o targeting. Advantage+ vem batendo manual targeting na grande maioria dos casos. (Pra entender o trade-off Advantage+ broad vs true broad sem training wheels, puxe **True Broad vs Advantage+ Broad** — rode `True Broad vs Advantage Plus broad targeting training wheels`.)
+  - **Languages**: idioma do mercado.
+  - **Excluded**: nenhum (a menos que retargeting de aquisição precise excluir clientes existentes).
+- **Placements**: **Advantage+ Placements** (automático) — Meta distribui entre Feed/Stories/Reels/etc. Não usar manual placements.
+- **Schedule**: "Run continuously starting today".
+- **Attribution**: 7-day click, 1-day view (padrão 2026 BR/US; em EU pode ser 28d-default — confirmar com o membro).
 
-### ETAPA 4 — Setup do 3-2-2 no Nível do Ad (Flexible Ad Format)
-
-Para CADA ad set (exceto Champions que usam Post IDs), configure o ad usando o formato **Flexible Ad** do Meta:
-
-- **Ad Name**: `[Conceito]_322_[YYYYMMDD]` (ex: `RootCauseAngle_322_20260415`)
-- **Format**: Single Image or Video > Flexible ad > toggle ON
-- **Identity**: sua Facebook Page + Instagram (mesmo handle ideal)
-
-**3-2-2 configuration (flexible ad):**
-- **3 Creatives**: upload dos 3 criativos do conceito (do briefing da Skill 08)
-- **2 Primary texts**: os 2 primary texts do briefing
-- **2 Headlines**: as 2 headlines do briefing
-- **Descriptions**: **deixar vazio** (— descriptions raramente melhoram performance em Flexible Ad)
-- **CTA Button**: "Shop Now" ou "Learn More" (Shop Now pra PDP direto, Learn More pra advertorial/LP)
-- **URL**: URL da LP do conceito (do briefing)
-- **URL parameters**: UTMs completos (schema obrigatório):
+**Criativos (5-12 no mesmo ad set):**
+- Carregar **todos os criativos da Skill 08 como ads separados dentro deste único ad set**. Sweet spot **~5-8**; teto **12**. Abaixo de 5, pouco material pro Facebook escolher; acima de 12, dilui demais o budget de teste.
+- O Facebook distribui o budget entre os criativos. **Onde ele começa a concentrar gasto é onde tem escala** — esse é o sinal que a Skill 11 vai ler.
+- **Ad Name** (cada um): `[concept_id]_[YYYYMMDD]` (ex: `RootCauseAngle_20260620`) — preserva o handoff 08→10→11.
+- **CTA Button**: "Shop Now" (PDP direta) ou "Learn More" (advertorial/landing).
+- **URL**: a URL aprovada da cadeia 07.
+- **UTM (schema obrigatório):**
   ```
   utm_source=facebook
   utm_medium=paid_social
-  utm_campaign=[product-slug]_[YYYYMMDD]_main
+  utm_campaign=[product-slug]_[YYYYMMDD]_test
   utm_content=[concept-id]
   utm_term=[ad-set-id]
-  utm_id=[meta-ad-id]   (dinâmico via {{ad.id}} macro)
+  utm_id={{ad.id}}        (dinâmico via macro do Meta)
   ```
 
-### Flexible Ads vs Champion Post ID
+> **Por que 1 ad set e não vários?** Cada ad set que você adiciona compete pelo aprendizado e fragmenta o sinal. Um ad set único, broad, com vários criativos, fecha o learning phase mais rápido e te diz em dias quais criativos têm tração. A diversificação de ad sets/campanhas é assunto de **escala** (Skill 12), não de teste.
 
-Flexible Ads não geram Post ID único — cada criativo tem Post ID separado. Para "champion" de Flexible:
-- Identificar o criativo com maior volume dentro do Flexible Ad
-- Recriar esse criativo como single ad (não flexible) em novo ad set
-- Rodar como "Champion" em campanha paralela
-Não tente extrair Post ID do Flexible Ad — não existe.
+Número de criativos recomendado por stage:
+- **starter** → 5-6 (orçamento limitado, não dilui).
+- **validating** → 6-8 (sweet spot).
+- **scaling** → 8-12 (mais material, fecha leitura mais rápido).
 
-### ETAPA 5 — 3-2-2-2 (Se Houver Teste de LPs)
+### ETAPA 4 — Warmup de Conta Nova (se aplicável)
 
-Se você tem 2+ LPs pra testar (ex: PDP vs advertorial, ou 2 hero headlines diferentes), configure o 3-2-2 COM 2 URLs:
+Conta de anúncio recém-criada precisa "esquentar" antes da campanha real — o Facebook precisa cobrar o cartão algumas vezes e ver atividade legítima antes de confiar gasto de conversão.
 
-- 3 creatives + 2 primary texts + 2 headlines + **2 URLs** = 3-2-2-2
-- Meta vai rotacionar as URLs automaticamente
-- Após 7-14 dias, olhe os dados no breakdown por URL pra identificar qual LP converte melhor
+- **3 dias** de uma campanha simples de **engajamento (~$50/dia)** ANTES da campanha de teste real.
+- Objetivo só esquentar a conta — não é teste de criativo.
+- **Day 4**: sobe a campanha de teste real (ETAPA 3).
 
-### ETAPA 6 — Naming Convention (Standard)
+**Quando pular:** se a conta já tem histórico de gasto e Purchases, não precisa de warmup — vai direto pra ETAPA 3. Detectar pelo histórico da conta (ou perguntar ao membro: "essa conta já rodou ads com venda antes?").
 
-Aplicar naming convention consistente em todos os níveis pra análise fácil depois:
+> **Nota ética (não grey-hat):** warmup aqui é **higiene legítima de conta nova** — qualquer anunciante sério faz. Esta skill **não** ensina account farming, compra de Business Manager, perfis-laranja, contingência pra driblar ban, nem produtos réplica. Essas táticas derrubam a conta da marca real e brigam com a tese de brand-building do Aura. Ter conta reserva é resiliência legítima; **farmar/driblar ban não é** — e a skill não encoda isso.
 
-| Nível | Format | Exemplo |
-|---|---|---|
-| **Campaign** | `[Product]_[Date]_Main` | `CollagenSerum_20260415_Main` |
-| **Ad Set** | `[Concept]_[Type]_[Date]` | `RootCauseAngle_Batch_20260415` |
-| **Ad** | `[Concept]_322_[Date]_v[N]` | `RootCauseAngle_322_20260415_v1` |
+### ETAPA 5 — Cadência de Teste e Janela de Decisão
 
-Types: `Batch` (new test), `Champion` (winning ad), `PageTest` (LP test), `Retargeting` (warm audience).
+**Não mexer por 3 dias.** Depois de ativar, **deixar 3 dias rodando sem otimizar** (leilão e demanda variam dia a dia; mexer cedo destrói o sinal). Nada de pausar criativo, mudar budget ou trocar audiência nesse período.
 
-### ETAPA 7 — Regras de Decisão (Timeline Dia 1/3/7/14)
+**Cadência de teste de PRODUTO:**
+- **Lançar quarta-feira**, deixar até **domingo**. Se até domingo não vendeu, **matar** (segunda/terça/quarta são dias mais fracos pra teste novo; quarta→domingo pega os dias fortes).
+- **7 dias é o teto** por teste de produto.
+- Quem testa volume: ~**3 produtos/semana**.
 
-Aplique as regras. **Cada timeline tem ação específica:**
+**Janela de decisão (handoff pra Skill 11):**
+- **Dia 1-3**: deixar rodar. Verificar só que os ads saíram do review e estão entregando (spend acontecendo). Ad set sem gasto nenhum em 24-48h → checar warnings (rejeição de audiência/criativo) no Ads Manager, não otimizar.
+- **A partir do Dia 3**: primeira leitura real. Rodar a Skill 11 (`'ad analysis'`) — é ela que aplica os critérios de kill/scale por criativo (CPA manda, não CTR), os benchmarks de funil, e a leitura de CPM como saúde da conta. **Esta skill não decide kill** — ela monta e cria; a 11 lê e decide. A leitura por criativo apoia-se nos SISTEMAS NOMEADOS **4Pi Analysis** (rode `4Pi analysis spend frequency CPM cost per result funnel position`) e **Lucky Wins vs Durable Wins** (rode `lucky wins vs durable wins spend concentration promote to control`) — onde o Facebook concentra gasto é o sinal de escala, mas distinguir win de sorte de win durável evita escalar ruído.
 
-**DIA 1 (0-24h):**
-- Deixar rodar. Não pausar. Não escalar.
-- Verificar apenas: ads ACTIVE (não em review há > 24h), delivery rodando, spend acontecendo
-- Se algum ad set não gastou nada em 24h → verificar ad set para warnings (Meta audience rejection, creative policy)
+> A escala (cost-cap + surf, bid cap, budget-doubling) é assunto da **Skill 12 (scale)**, acionada só depois de um criativo validar. Não escalar manualmente durante o teste. Os SISTEMAS NOMEADOS que governam essa decisão de escala — **Profitable Scaling Margin (PSM)** (rode `Profitable Scaling Margin PSM LTV CPA COGS replaces ROAS`), **ROAS Target = Break-Even ROAS + 1 / Scaling Protocol** (rode `ROAS target break-even plus one scaling protocol 48 72 hours 20 percent`) e **Performance Gate Scaling (PGS)** (rode `Performance Gate Scaling PGS automated rules total loss investment soft surfing`) — vivem na Skill 12 e no índice `.claude/lib/kb-index/`, não aqui.
 
-**DIA 3 (24-72h):**
-- Primeiro check real. Rodar 4Pi Analysis (Spend → Frequency → CPM → Cost per Result) — mas só pra indicadores diretivos, não ação agressiva.
-- **Ad set sem spend (< 10% do seu share)** em 72h → verificar se é review problema ou creative policy; se limpo, aguarde mais 48h.
-- **Ad set com CPA > 3× target** em 72h → pode ser considerado pra pausa se tiver outros ad sets rodando ok (mas não pause tudo impulsivamente).
+### ETAPA 6 — Criação em PAUSED via Meta Ads MCP
 
-**DIA 7 (7 dias):**
-- Primeira avaliação completa. Rodar Skill 11 (ad-analysis) com os dados.
-- **Critério de WINNER:** CPA ≤ target + CAMPAIGN overall improved (não olha só um ad set — olha a campanha inteira) + escalou spend nos últimos 3 dias consistentemente.
-- **Critério de LOSER:** sem spend em 7 dias OU CPA > 2× target após 7 dias. Pausar.
-- **Critério de FADIGA:** CPM subindo + CTR caindo + frequency subindo ao longo dos 7 dias. Monitorar; pode virar fadiga em 14 dias.
+Em vez de só entregar "cole isso no Ads Manager", esta skill **cria** a campanha + ad set + ads em **PAUSED** via MCP, pro membro revisar e ativar com 1 clique. Os gates da ETAPA 1 já passaram antes deste ponto.
 
-**DIA 14 (2 semanas):**
-- Avaliação aprofundada. Rodar Skill 11 completa.
-- Ad sets que pararam de performar → pausar ou iterar (trocar criativos, refresh do conceito)
-- Ad sets que escalaram bem → promover a Champion (post ID separado no próximo batch) e continuar
-- Planejar próximo batch de conceitos (Skill 08 de novo)
+**Cascade de MCP** (detecção de prefixo — ver `.claude/lib/mcp-detect/README.md` e regra 10 do CLAUDE.md):
 
-### ETAPA 8 — Performance Gate Scaling (PGS) — Regra Automatizada Exata
+1. **Caminho 1 — MCP oficial da Meta (`mcp__meta__ads_*`):** criar a campanha (objective Sales) e o ad set (audience broad/Advantage+, placements automáticos, budget = 2× breakeven CPA, optimization Purchase, attribution 7d/1d) em `status: PAUSED`. O oficial é remoto e lida bem com criação de estrutura por parâmetros.
+2. **Caminho 2 — Pipeboard (`mcp__meta-ads__*`):** fallback automático quando o oficial está indisponível/"disabled" no rollout. **O upload do binário dos criativos (.mp4) força Pipeboard ou Playwright** mesmo quando o oficial está conectado (o oficial é remote-hosted e não lê arquivo local) — ver receita `.claude/automations/recipes/upload-creative-to-meta.md`.
+3. **Caminho 3 — manual:** se nenhum MCP está conectado, entregar o passo-a-passo exato pra o membro montar no Ads Manager (a estrutura das ETAPAS 3-5, formatada pra colar campo a campo).
 
-Aplique os princípios de PGS.
+**Regras invioláveis da criação:**
+- **Tudo nasce em `status: PAUSED`.** O membro revisa e ativa. A skill NUNCA ativa campanha sozinha.
+- Os **gates da ETAPA 1** (compliance + promise↔config) rodam ANTES de criar — não há criação sem gate verde (ou override explícito do membro).
+- Reutilizar as receitas existentes onde aplicável: `upload-creative-to-meta.md` (subir os criativos + criar o creative object) e o setup de MCP em `.claude/automations/setup-mcps.md`.
+- Após criar, **guardar os IDs retornados** (campaign_id, ad_set_id, ad_ids) no JSON e no manifest — a Skill 11 lê esses IDs pra puxar insights.
 
-**Configure no Ads Manager:**
+**Mensagem ao membro após criar em PAUSED:**
+> "Criei a campanha `[nome]` em **PAUSED** na sua conta — 1 ad set broad/Advantage+, [N] criativos, budget $[2× breakeven CPA]/dia, otimizando pra Purchase. Revisa no Ads Manager (audiência, budget, criativos) e **ativa quando estiver OK**. Não ativei nada por você."
 
-Menu: **Automated Rules** > **Create New Rule** > Apply to: **All active ad sets in campaign `[Nome da Campanha]`**
+Se a criação via MCP falhar (rate limit, auth), aplicar `.claude/rules/emergency-escape-paths.md` ES6: backoff, depois oferecer **(A)** retomar em 1h, ou **(B)** cair pro Caminho 3 manual com a estrutura formatada.
 
-**Conditions (IF) — sintaxe exata do operador no Ads Manager:**
-1. CPA **is less than** `{target_cpa * 0.9}` nos últimos 3 dias
-2. AND Spend **is greater than** `{target_cpa * 2}` nos últimos 3 dias
-3. AND Frequency **is less than or equal to** `1.3` nos últimos 7 dias
+### ETAPA 7 — Erros Comuns a Evitar
 
-**Action (THEN):**
-- **Increase daily budget by** — `5%`
-- **Apply to**: `Ad set`
-
-**Schedule:**
-- **Run rule**: **3x/semana** — Monday / Wednesday / Friday (ou Tue/Thu/Sat)
-- **Time window**: Last 3 days
-- **Time**: 10:00 AM local
-
-**Notifications:** ON (receber email quando a regra dispara pra auditar)
-
-**Resultado prático**: ad sets que estão performando dentro do target recebem aumento de 5% no budget em cada trigger. 5% × 3× semana = ~15% por semana = dobra em ~30 dias. Escala vertical sistemática sem reativar fase de aprendizado.
-
-**IMPORTANTE** (): PGS é SEGURO porque só escala ad sets que JÁ estão dentro do target. Não escala impulsivamente. Não desestabiliza algoritmo.
-
-### ETAPA 9 — Próximos Batches
-
-Documente pro membro como operar o ciclo:
-
-**Quando adicionar conceito novo:**
-- Sempre que um conceito existente pausar (LOSER) ou entrar em fadiga
-- Sempre que quiser expandir pra novo ângulo (ex: champion já tá MOF, adicionar TOF novo)
-- Gerar novo batch via Skill 08 (gera briefings) e adicionar como novo ad set na mesma campanha
-
-**Quando promover Winner pra Champion:**
-- Ad set tem CPA consistentemente dentro do target por 14+ dias E escalou spend E PGS vem subindo budget
-- Ação: gerar Post ID do criativo vencedor (o "campeão" do 3-2-2), criar novo ad set "Champion" apontando pra esse Post ID, mesmo audience + placement, mesmo URL. Pausar o ad set Creative Batch original.
-- Por que: Post ID acumula social proof (likes, shares, comments) que melhora performance adiante.
-
-**Quando substituir Loser:**
-- CPA > 2× target por 7 dias → pausar imediatamente
-- Aumentar budget dos ad sets que estão performando bem (via PGS) OU adicionar conceito novo da próxima fase de criativos
-
-### ETAPA 10 — Erros Comuns a Evitar ()
-
-### Unit de decisão (importante)
-- **Ad level** (criativo individual): só pause se rejeitado por policy ou claramente broken (CTR < 0.3% em 48h com spend > 2× CPA target)
-- **Ad set level** (audience + placement + budget): unit primária de pause/scale. Tome decisões aqui baseado em CPA/ROAS.
-- **Campaign level**: raramente pause; só se campanha inteira tá off-brand ou conflito com outra campanha
-
-Regra de ouro: **pause ad set, não ad individual**, a menos que seja erro crítico no ad.
-
-1. **NÃO escalar budget sem razão** — se o ad set tá dentro do target, PGS cuida. Se você subir budget manualmente +50% em um dia, desestabiliza o aprendizado. PGS a 5% é o caminho.
-2. **NÃO usar daily minimums** ("atingir $X de spend") — essa regra força Meta a gastar em impressões ruins pra cumprir meta. Deixa a fluidez de CBO operar.
-3. **NÃO pausar no ad level, pause no ad SET** — desligar ads individuais dentro de um 3-2-2 faz Meta re-balancear estranhamente. Se quer matar criativo, pause o ad set inteiro e lance outro com os criativos melhores.
-4. **NÃO mudar audiência depois de 2-3 dias** — cada mudança reseta learning phase. Deixe rodar 7 dias antes de qualquer tweak de audience.
-5. **NÃO usar interests detailed targeting** (a não ser razão muito específica) — Advantage+ está batendo manual targeting em 90%+ dos casos. Adicionar interests só reduz o pool e limita algoritmo.
-6. **NÃO testar demais de uma vez** — respeitar o `budget / CPA target` limit. Mais ad sets do que isso = cada um recebe pouco spend, learning phase nunca completa, decisão impossível.
-
-### Screenshots do Ads Manager
-
-Nota: screenshots visuais do Ads Manager 2026 Q1 devem ser mantidos em `.claude/templates/ads-manager-screenshots/` — atualizar semestralmente. Se a interface mudar significativamente, adaptar passos da skill.
+1. **NÃO criar múltiplos ad sets pra "testar mais"** — fragmenta o aprendizado. 1 ad set, vários criativos. Diversificação é escala (Skill 12), não teste.
+2. **NÃO usar detailed targeting / interests** — o criativo faz o targeting. Adicionar interest só encolhe o pool e limita o algoritmo.
+3. **NÃO mexer antes de 3 dias** — cada mudança (budget, audiência, pausar criativo) reseta o sinal. Deixar rodar.
+4. **NÃO usar daily minimums** ("garantir $X de spend") — força o Meta a gastar em impressão ruim pra bater meta. Deixar a otimização fluir.
+5. **NÃO misturar 2 produtos numa conta** — embaralha o aprendizado. 1 conta por produto.
+6. **NÃO subir budget muito acima de 2× breakeven CPA "pra acelerar"** — não acelera o teste, só queima caixa. 2× breakeven CPA é o número.
+7. **NÃO escalar manualmente durante o teste** — escala é depois do winner (Skill 12).
+8. **NÃO ler CTR como verdade** — CPA é o que manda; isso a Skill 11 detalha. Aqui só não tome decisão de kill na base de CTR.
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Garantir diretório:** `mkdir -p workspace/[produto]/` antes de salvar.
 
-**Garantir diretório:** `mkdir -p /workspace/[produto]/` antes de salvar.
+`workspace/[produto]/10-ad-strategy.md` (no `report_language`) contendo:
+1. Estrutura de teste completa: 1 campanha → 1 ad set → N criativos (ETAPA 3)
+2. Budget de teste = 2× breakeven CPA, com o número calculado pra este produto
+3. Warmup de conta (se aplicável) e cadência quarta→domingo / 7 dias (ETAPAS 4-5)
+4. Naming convention aplicada (Campaign / Ad Set / Ad)
+5. UTM schema preenchido
+6. Janela de decisão e handoff pra Skill 11 (ETAPA 5)
+7. Checklist de credibilidade da loja com os gaps encontrados (ETAPA 2)
+8. Status da criação via MCP (criado em PAUSED / fallback manual) + IDs retornados
+9. Checklist de erros a evitar (ETAPA 7)
 
-`/workspace/[produto]/10-ad-strategy.md` contendo:
-1. Estrutura da campanha completa (Etapa 2)
-2. Lista detalhada de ad sets com config de audience, placement, budget (Etapa 3)
-3. Configuração 3-2-2 ou 3-2-2-2 por ad set (Etapas 4-5)
-4. Naming convention aplicada a todos os nomes
-5. Timeline de decisões dia 1/3/7/14 (Etapa 7)
-6. PGS automated rule — setup literal pra colar no Ads Manager (Etapa 8)
-7. Plano de próximos batches (Etapa 9)
-8. Checklist de erros a evitar (Etapa 10)
+**Dual output:** gerar `10-ad-strategy.html` companion (mesmo nome) usando `.claude/templates/aura-report-template.html` como base — CSS inline, self-contained, **logo SVG do Aura no topo copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` (NUNCA texto)**, componentes aura (callout, note, danger, winner, kpi-grid, table-wrap). O `.md` é fonte pra AI; o `.html` é visualização humana.
 
 ### JSON companion — `10-ad-strategy.json`
 
@@ -312,32 +220,50 @@ Nota: screenshots visuais do Ads Manager 2026 Q1 devem ser mantidos em `.claude/
 {
   "strategy_id": "uuid",
   "product_slug": "...",
-  "creative_batch_ref": "08-creatives batch_id",
+  "creative_batch_ref": "08-creatives.json batch_id (concepts[].concept_id é o handoff 08→10→11)",
+  "breakeven_cpa": 80,
+  "test_budget_daily": 160,
+  "structure": "1_campaign_1_adset_broad",
   "campaign": {
     "name": "...",
-    "objective": "conversions",
-    "budget_type": "cbo",
-    "daily_budget": 150,
+    "objective": "Sales",
+    "optimization": "purchase_max_conversion",
+    "budget_level": "ad_set",
+    "daily_budget": 160,
     "attribution": "7d_click_1d_view",
-    "placements": "advantage_plus"
+    "placements": "advantage_plus",
+    "targeting": "advantage_plus_broad",
+    "one_account_per_product": true
   },
-  "ad_sets": [],
-  "pgs_rules": [],
+  "ad_set": {
+    "name": "...",
+    "creative_count": 7,
+    "creative_concept_ids": []
+  },
+  "account_warmup": { "required": false, "days": 3, "engagement_budget_daily": 50 },
+  "cadence": { "launch_day": "wednesday", "kill_by": "sunday", "max_days": 7 },
+  "store_credibility": { "instagram": "ok", "reviews_count": 0, "comment_management": "flagged", "gaps": [] },
+  "mcp_creation": { "path": "official|pipeboard|manual", "status": "created_paused|fallback_manual", "campaign_id": "", "ad_set_id": "", "ad_ids": [] },
   "utm_schema": {}
 }
 ```
 
 ### Atualizar manifest
 
-Após salvar, atualizar `/workspace/[produto]/manifest.json`:
+Após salvar, atualizar `workspace/[produto]/manifest.json`:
 - Adicionar `10-ad-strategy` em `skills_completed`
-- Registrar `strategy_id`, `creative_batch_ref`, e `pgs_enabled: true/false`
-- **Gravar `10_campaign_name`** com o nome da campanha gerado na ETAPA 6 (naming convention). A Skill 11 (ad-analysis) lê esse campo via `read_manifest("10_campaign_name")` pra cruzar com dados do Meta. Sem ele, a 09 cai em fallback de adivinhação.
+- Registrar `strategy_id`, `creative_batch_ref`, `test_budget_daily`, `breakeven_cpa`
+- **Gravar `10_campaign_name`** com o nome da campanha gerado (naming convention). A Skill 11 lê via `read_manifest("10_campaign_name")` pra cruzar com dados do Meta.
+- Se criou via MCP, gravar `10_campaign_id` / `10_ad_set_id` (a Skill 11 puxa insights por ID, mais robusto que por nome).
 
 ## Mensagem Final
 
-"Estrutura de ads pronta. Campanha `[nome]` montada com [N] ad sets em 3-2-2. PGS ativo (5% × 3×/semana).
+Apresentar como **draft pronto pra revisão** (`.claude/rules/iteration-driven-refinement.md`), não como "pronto, pode escalar":
 
-Próximo passo: deixa rodar. Em **3-7 dias**, diga **'ad analysis'** e me manda os dados do Ads Manager pra rodar 4Pi completa + diagnóstico + decisões de iteração.
+"Estrutura de teste montada: campanha `[nome]`, **1 ad set broad/Advantage+** com **[N] criativos**, otimizando pra Purchase, budget **$[2× breakeven CPA]/dia** ([se MCP] já criada em **PAUSED** na sua conta — revisa e ativa).
 
-Enquanto isso: **não escale manualmente**. PGS cuida do que tá ganhando. Quando um conceito ganhar e tiver estável por 14 dias, a gente promove pra Champion."
+Plano de teste: [se conta nova: 3 dias de warmup de engajamento primeiro, depois] lançar **quarta**, deixar até **domingo**, **3 dias sem mexer**. Se até domingo não vendeu, a gente mata e roda o próximo.
+
+Quando ativar e passarem **3 dias**, diga **'ad analysis'** e me manda os dados (ou eu puxo via MCP) — aí a 11 lê CPA por criativo, CPM da conta e os benchmarks de funil pra decidir o que mantém, o que mata e o que está pronto pra escalar.
+
+Antes de ativar: confere a credibilidade da loja (reviews, comentários dos posts) — [resumo dos gaps da ETAPA 2, se houver]. Quer que eu ajuste algo na estrutura — budget, número de criativos, mercado?"

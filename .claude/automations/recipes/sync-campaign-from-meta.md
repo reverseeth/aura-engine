@@ -19,8 +19,15 @@ Puxa estado completo de uma campanha Meta Ads via **MCP 3rd party do Pipeboard**
 - `date_preset` — default `"last_7d"`. Opções: `last_3d`, `last_14d`, `last_30d`, `maximum`
 - `include_creative_hashes` — default `true` (útil pra Creative DNA)
 
-## Pre-flight
-- [ ] MCP `meta-ads` conectado (test via ping)
+## Pre-flight (posição no cascade — ver `.claude/lib/mcp-detect/README.md`)
+
+Esta receita é o **caminho 2** do cascade Meta. Só é invocada quando:
+- **Caminho 1 (oficial, `mcp__meta__ads_*`)** não disponível, retornou erro, OU o ad account está "disabled" no rollout gradual.
+- O caller (Skill 11 / full-deploy) detecta `mcp__meta-ads__*` (Pipeboard) presente e cai aqui.
+
+Checklist:
+- [ ] MCP `meta-ads` (Pipeboard) conectado (test via ping)
+- [ ] Caminho 1 oficial indisponível OU forçado pelo membro (gravar o motivo em `fallback_reason`)
 - [ ] Ad account ID configurado em env
 - [ ] `10-ad-strategy.json` existe (referência do que deveria estar rodando)
 

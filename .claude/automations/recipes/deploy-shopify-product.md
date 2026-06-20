@@ -11,8 +11,18 @@
 - `description_md` — caminho do `06-copy.md` (seção PDP ou description)
 - `images` — array de paths locais
 
+## Cascade (detecção de prefixo — ver `.claude/lib/mcp-detect/README.md`)
+
+**Caminho 1 — Shopify MCP (`mcp__shopify__*`, AI Toolkit):** caminho preferencial. Cria produto, variants, imagens e patcheia o template via tool calls. Opcionalmente o **Shopify Dev MCP** (`mcp__shopify_dev__*`) valida o GraphQL/Liquid antes de aplicar (reduz hallucination).
+
+**Caminho 2 — Playwright headless:** fallback pra operações que o MCP não cobre (ex: criar a Shopify Page que vincula o template — ver `setup-mcps.md` passo 6). Usa os cookies do login Shopify (`~/.config/shopify-cli`).
+
+**Caminho 3 — manual:** membro cria produto/page no Admin e cola os IDs.
+
+> **Nota:** o `body_html`/template push respeita `shopify-theme-safety.md` (pull antes de editar, `--nodelete`, marker verification). Por default usa tema unpublished; tema live exige `--allow-live`.
+
 ## Pre-flight
-- [ ] Shopify MCP conectado
+- [ ] Shopify MCP conectado (`mcp__shopify__*`) OU Playwright disponível como fallback (ver cascade acima)
 - [ ] `04-offer.json` existe com 3 tiers
 - [ ] `06-copy.md` existe
 - [ ] Imagens disponíveis (ou stock placeholders marcados)
@@ -86,6 +96,7 @@ shopify.theme.asset.update(
 ```json
 {
   "action": "deploy_shopify_product",
+  "source": "shopify_mcp",
   "product_id": "gid://shopify/Product/8123456",
   "variant_ids": {
     "Starter": "gid://shopify/ProductVariant/40123",

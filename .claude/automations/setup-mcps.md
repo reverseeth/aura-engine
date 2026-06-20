@@ -121,6 +121,29 @@ Claude, vibe search no refero pra "editorial premium magazine"
 
 Detalhes completos em `.claude/lib/refero-integration/README.md`.
 
+## 3.6. Conectar Klaviyo MCP (opcional, 3min — automação de retention flows)
+
+Se o membro usa Klaviyo e quer que a **Skill 13 (retention-engine)** crie os flows direto (welcome / abandoned-cart / post-purchase / win-back / replenishment) com contrato estável — em vez de só gerar HTML + setup-guide pra importar à mão — conecte o **Klaviyo MCP oficial** (25 tools, 2026).
+
+### Claude Desktop
+1. Settings → Connectors → "+ Add custom connector"
+2. Nome: `klaviyo`
+3. URL do MCP oficial Klaviyo + OAuth quando pedir
+4. Aprove permissões de flows + profiles + events
+
+### Claude Code (terminal)
+```bash
+claude mcp add --transport http klaviyo <url-do-mcp-oficial-klaviyo>
+```
+Reinicie. Na primeira chamada de tool, faz OAuth no browser.
+
+### Testar
+```
+Claude, lista meus flows no Klaviyo.
+```
+
+Se retornar lista → conectado (tools `mcp__klaviyo__*` disponíveis). Sem ele, a Skill 13 cai pro caminho de **assets + setup-guide** (HTML pronto + guia manual), que continua sendo o fallback confiável. Os flows criados via MCP ficam SEMPRE em draft — o membro revisa e ativa no Klaviyo UI (a skill nunca ativa sozinha, pra não arriscar spam).
+
 ## 4. Conectar Shopify (3min)
 
 Você provavelmente já tem Shopify CLI autenticado. Verificar:
@@ -145,6 +168,22 @@ Se não, `shopify auth login`. Depois adicionar ao `~/.claude/mcp.json`:
   }
 }
 ```
+
+## 4.5. (Opcionais) Shopify Dev MCP + Stripe MCP
+
+Dois MCPs opcionais que enriquecem skills específicas. Sem eles tudo funciona — são puro upside.
+
+**Shopify Dev MCP** (`mcp__shopify_dev__*`) — docs + validação de Liquid/GraphQL. Reduz hallucination na **07b-page-build** (compile HTML→Liquid) ao validar schema/sintaxe contra a fonte oficial antes do push.
+```bash
+claude mcp add --transport http shopify_dev <url-do-shopify-dev-mcp>
+```
+
+**Stripe MCP** (`mcp__stripe__*`) — leitura de revenue real (AOV histórico) pra calcular PSM/pricing de verdade em vez de teórico. Útil na **04-offer** (pricing) e **07d-checkout-aov** (thresholds de free-shipping / bundle).
+```bash
+claude mcp add --transport http stripe <url-do-stripe-mcp>
+```
+
+Detecção por prefixo conforme `.claude/lib/mcp-detect/README.md`. Se ausentes, as skills usam defaults (validação interna do `liquid-converter.py`; AOV informado manualmente pelo membro).
 
 ## 5. Verificar conexões (2min)
 
@@ -181,6 +220,8 @@ Receitas que usam Playwright vão usar os cookies do teu login Shopify (guardado
 - [ ] Shopify CLI autenticado
 - [ ] MCPs registrados em `~/.claude/mcp.json` (`meta`, `meta-ads`, `shopify`)
 - [ ] Claude Code lista campanhas via cascade
+- [ ] (Opcional) Klaviyo MCP conectado (`mcp__klaviyo__*`) — automação de retention flows na Skill 13
+- [ ] (Opcional) Shopify Dev MCP (`mcp__shopify_dev__*`) + Stripe MCP (`mcp__stripe__*`)
 
 Pronto. A partir daqui, membro invoca receitas por linguagem natural.
 
