@@ -191,10 +191,10 @@
   <p class="page-subtitle">Tudo que existe no ecossistema Aura: o que cada peça faz, como se conectam, e como uma sessão flui do início ao fim.</p>
 
   <div class="meta-bar">
-    <div><strong>Versão:</strong> maio 2026</div>
-    <div><strong>Skills:</strong> 15 (numeradas 00-14, com sub-cadeia 07a/07b/07c)</div>
+    <div><strong>Versão:</strong> junho 2026</div>
+    <div><strong>Skills:</strong> 16 (numeradas 00-14, com sub-cadeia storefront 07a/07b/07c/07d)</div>
     <div><strong>Plataforma:</strong> Claude Code (CLI da Anthropic)</div>
-    <div><strong>Raiz de output:</strong> <code>/workspace/[product-slug]/</code></div>
+    <div><strong>Raiz de output:</strong> <code>workspace/[product-slug]/</code></div>
   </div>
 
   <div class="toc">
@@ -203,7 +203,7 @@
       <li><a href="#s1">O que é a Aura</a></li>
       <li><a href="#s2">A Base de Conhecimento Aura (search_knowledge)</a></li>
       <li><a href="#s3">Arquitetura geral</a></li>
-      <li><a href="#s4">As 15 skills (em detalhe)</a></li>
+      <li><a href="#s4">As skills (em detalhe)</a></li>
       <li><a href="#s5">Sistema de libs</a></li>
       <li><a href="#s6">Sistema de rules</a></li>
       <li><a href="#s7">Sistema de hooks</a></li>
@@ -288,7 +288,7 @@
 ├── .claude/
 │   ├── CLAUDE.md          ← instruções fundamentais (idioma, copy rules, dual output, MCP)
 │   ├── OVERVIEW.md / .html ← companion interno deste documento
-│   ├── skills/            ← 17 arquivos .md (skills 00-14, com 07a/07b/07c)
+│   ├── skills/            ← skills 00-14, com sub-cadeia storefront 07a/07b/07c/07d
 │   ├── lib/               ← libs reutilizáveis chamadas pelas skills
 │   ├── rules/             ← diretrizes auto-carregadas por contexto
 │   ├── hooks/             ← scripts que rodam em eventos do Claude Code
@@ -306,8 +306,8 @@
   </div>
 
   <div class="section" id="s4">
-    <div class="section-label"><span class="num">04</span>As 15 skills (em detalhe)</div>
-    <p>Cada skill é um arquivo <code>.md</code> com frontmatter (nome + descrição) e corpo estruturado em ETAPAs numeradas. O Claude lê a skill, segue as etapas, e salva os artefatos prescritos. Skills estão listadas abaixo na ordem em que o membro roda em uma sessão normal.</p>
+    <div class="section-label"><span class="num">04</span>As skills (em detalhe)</div>
+    <p>Cada skill é um arquivo <code>.md</code> com frontmatter (nome + descrição) e corpo estruturado em ETAPAs numeradas. O Claude lê a skill, segue as etapas, e salva os artefatos prescritos. Skills estão listadas abaixo na ordem em que o membro roda em uma sessão normal. A fase de página virou a fase <strong>storefront</strong> (07a→07b→07c→07d), e a bonus delivery (05) roda pós-launch.</p>
 
     <div class="skill-card">
       <div class="skill-head">
@@ -376,9 +376,10 @@
         <span class="pill pill-skill">05</span>
         <span class="skill-name">Bonus Delivery</span>
         <span class="pill pill-trigger">"bonus delivery"</span>
+        <span class="pill pill-gate">pós-launch</span>
       </div>
-      <div class="skill-desc">Asset prep pros bonuses definidos na skill 04. Lê <code>04-offer.json.bonuses[]</code>. Pra cada bonus, gera pipeline de entrega conforme <code>delivery_trigger</code> (post-purchase, on-signup, day-7, on-first-reorder). Templates por tipo: digital guide → PDF, community access → Circle invite, video series → Wistia hosted, etc.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">05-bonus-delivery/[bonus-id]/</span> com assets + instruções de upload</div>
+      <div class="skill-desc">Geração do asset de bônus de ecom + delivery. A DEFINIÇÃO do bônus continua na skill 04; a 05 gera o ASSET (PDF/e-book/checklist) e rastreia access rate. Tipos primários de ecom: gift-with-purchase (GWP, threshold de cart subtotal vindo do AOV, take-rate como KPI), free e-book/guide toward dream outcome, free complementary SKU, free gift wrapping (Q4). A entrega do email integra com a skill 13 (via <code>delivery_trigger</code>); a config de GWP integra com a 07d-checkout-aov (é config de loja). Roda pós-launch, junto da 13.</div>
+      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">05-bonus-delivery/[bonus-id]/</span> <span class="pill pill-output">05-bonus-delivery-log.json</span></div>
     </div>
 
     <div class="skill-card">
@@ -394,46 +395,59 @@
     <div class="skill-card">
       <div class="skill-head">
         <span class="pill pill-skill">07</span>
-        <span class="skill-name">Page Engine — cadeia 07a → 07b → 07c</span>
+        <span class="skill-name">Storefront — cadeia 07a → 07b → 07c → 07d</span>
         <span class="pill pill-trigger">"page"</span>
+        <span class="pill pill-trigger">"tracking"</span>
+        <span class="pill pill-trigger">"checkout"</span>
       </div>
-      <div class="skill-desc"><strong>Por que está dividida em três:</strong> a versão monolítica tinha 1055 linhas. Quebrar melhora performance e permite o membro iterar em uma fase específica sem regenerar tudo.</div>
+      <div class="skill-desc">A fase storefront monta a loja inteira: página, deploy, tracking e AOV. Arquitetura <strong>HTML-first determinística</strong> — o design nasce in-session, vira a fonte única de verdade visual, e a conversão pra Liquid é por código, não por reasoning. Mata o drift entre o que o membro aprova e o que vai pro ar.</div>
 
       <div class="skill-section">
-        <strong>07a — Page Planning</strong>
+        <strong>07a — Page Design</strong>
         <ul>
-          <li>Pre-flight (skill 06 completa, manifest válido)</li>
-          <li>Detecta tipo de página (advertorial vs landing vs hybrid)</li>
-          <li>Brand discovery + referência visual opcional</li>
-          <li>Orquestração do design system: cor → typography → spacing → grid → tokens</li>
-          <li>Camada visual blueprint opcional via Google Stitch (opt-in)</li>
-          <li><strong>Output:</strong> <code>07-page/07-design-system.md</code> + <code>07-plan.md</code> + <code>07-plan.json</code></li>
+          <li>Pre-flight (skill 06 completa, manifest válido, <code>report_language</code>)</li>
+          <li>PLAN adaptativo de sections — page_type detectado primariamente pelo awareness_level de Schwartz (Problem-Aware→advertorial, Solution-Aware→landing, Product-Aware→PDP robusto, Most-Aware→PDP enxuto)</li>
+          <li>Brand signals (cascade): Refero → screenshot→visão → <code>tools/design-clone/</code> → manual</li>
+          <li>Design HTML-first via a skill nativa <code>frontend-design</code>: gera a página inteira como HTML+CSS self-contained com a copy real de 06 já inserida. <strong>Member aprova esse HTML ANTES de qualquer Liquid existir</strong></li>
+          <li><strong>Output:</strong> <code>07-plan.json</code> (bloco <code>strategy</code>) + <code>07-design-system.md/html</code> + <code>design/page.html</code> (aprovado) + <code>design-tokens.json</code> + <code>design-signals.json</code></li>
         </ul>
       </div>
 
       <div class="skill-section">
-        <strong>07b — Page Sections</strong>
+        <strong>07b — Page Build (compile + deploy)</strong>
         <ul>
-          <li>Gera 3 variantes de hero (membro escolhe A/B/C)</li>
-          <li>Converte pro padrão de inline-blocks no schema Shopify</li>
-          <li>Replica padrão pras demais sections do plano</li>
-          <li>UX writing pass + self-critique (heurísticas Nielsen + WCAG 2.1 AA)</li>
-          <li>Validação Liquid via <code>shopify-plugin:shopify-liquid</code> com retry logic</li>
-          <li><strong>Output:</strong> arquivos <code>.liquid</code> em <code>&lt;staging&gt;/sections/</code> + <code>07-sections-report.md</code></li>
-        </ul>
-      </div>
-
-      <div class="skill-section">
-        <strong>07c — Page Deploy</strong>
-        <ul>
-          <li><span class="pill pill-gate">GATE</span> Skill 09 (consistency audit) no pre-flight: aborta em <code>BLOCK</code></li>
-          <li>Cria <code>templates/page.[produto].json</code> com blocks pré-populados</li>
-          <li>Validação OBRIGATÓRIA de blocks (não-vazios, types válidos)</li>
-          <li>Deploy seguro: duplicate theme → pull → cp → push <code>--nodelete</code></li>
-          <li>Smoke test pós-push (curl no storefront, grep marker)</li>
+          <li>Pre-flight: exige <code>design/page.html</code> aprovado + <code>design-tokens.json</code> + <code>07-plan.json</code></li>
+          <li>SPLIT do HTML aprovado em fragmentos por section + CSS</li>
+          <li>COMPILE determinístico HTML→Liquid via <code>liquid-converter.py</code> (conversor canônico) — aplica os 6 padrões críticos por código (escape, color inline no root, shadow→var, form <code>/cart/add</code>, everything-editable, ícones)</li>
+          <li>VALIDATE via <code>shopify-plugin:shopify-liquid</code> (3 retries)</li>
+          <li>POPULATE <code>templates/page.[produto].json</code> com blocks/block_order/settings preenchidos com a copy real (inserção em ordem reversa)</li>
+          <li><span class="pill pill-gate">GATEs</span> compliance (ad-flag) + promise↔config antes do deploy</li>
+          <li>Deploy seguro: duplicate → pull <code>--nodelete</code> → cp → push <code>--allow-live --nodelete</code> + marker verification + smoke test</li>
           <li><strong>Output:</strong> preview URLs + <code>07-deploy-report.md/json</code></li>
         </ul>
       </div>
+
+      <div class="skill-section">
+        <strong>07c — Tracking Setup</strong>
+        <ul>
+          <li>Instala Meta Pixel + Conversions API (CAPI), valida Match Quality ≥80% no Events Manager</li>
+          <li>Árvore de decisão do analytics stack por stage: Meta App (starter) / Wetracked (validating) / Triple Whale / Aimerce (scaling)</li>
+          <li>Roda DEPOIS do build/deploy (07b) e ANTES de creatives (08). Destrava os pré-flights de tracking das skills 08 e 10</li>
+          <li><strong>Output:</strong> estado no manifest (<code>tracking_ready</code>, <code>analytics_stack</code>)</li>
+        </ul>
+      </div>
+
+      <div class="skill-section">
+        <strong>07d — Checkout AOV</strong>
+        <ul>
+          <li>Post-purchase upsell (one-click), cart bump, bundle/quantity-break, free-shipping threshold, checkout trust (badges/guarantee/reviews)</li>
+          <li>Consome os bumps/upsells já definidos no <code>04-offer.json</code></li>
+          <li>Caminho real Shopify: Functions (cart transform / discount), post-purchase extension (Checkout UI) ou apps equivalentes</li>
+          <li>Roda na fase storefront (após tracking, antes de creatives). Respeita <code>shopify-theme-safety</code></li>
+        </ul>
+      </div>
+
+      <div class="note"><strong>Como a customização por blocos funciona:</strong> cada section vira uma "pasta" no theme editor com blocks atômicos arrastáveis (eyebrow, heading, paragraph, button_row, benefit_card, pricing_tier, review_card, faq_item). Toda cor/tamanho/fonte/radius/shadow é setting, com a copy de 06 como default. Como o Liquid é gerado deterministicamente do HTML aprovado, o que o membro vê no editor é pixel-idêntico ao HTML que aprovou. Fim do drift visual.</div>
 
       <div class="note"><strong>Page registry:</strong> quando múltiplas páginas existem pra um mesmo produto (ex: v1 narrative + v2 editorial), o <code>07-page/page-registry.md</code> centraliza URL, frame, opening line, e detalhes de message-match ad→page. Briefings de criativo referenciam páginas por slug — atualizar uma página só requer editar o registry.</div>
     </div>
@@ -472,8 +486,8 @@
         <span class="pill pill-trigger">"consistency audit"</span>
         <span class="pill pill-trigger">"audit"</span>
       </div>
-      <div class="skill-desc">Cross-phase drift detection: confirma que mecanismo, awareness stage, VOC e oferta concordam entre todos os artefatos (skills 02 → 03 → 04 → 06 → 07 → 08). Verifica VOC traceability (frases na copy/ads vêm da pesquisa). Verifica promise↔config (promessas das páginas batem com config da loja Shopify).</div>
-      <div class="opportunity"><strong>Como vira gate:</strong> skills 07c, 10 e 13 leem o JSON dessa skill no pre-flight. Se <code>launch_recommendation == "BLOCK"</code>, abortam. Drift entre fases para de chegar em produção.</div>
+      <div class="skill-desc">Cross-phase drift detection: confirma que mecanismo, awareness stage, VOC e oferta concordam entre todos os artefatos (skills 02 → 03 → 04 → 06 → 07 → 08). Verifica VOC traceability (frases na copy/ads vêm da pesquisa). Verifica promise↔config (promessas das páginas batem com config da loja Shopify). Roda ANTES do launch, conferindo a página já no ar + criativos + oferta.</div>
+      <div class="opportunity"><strong>Como vira gate de launch:</strong> skills 10 e 13 leem o JSON dessa skill no pre-flight. Se <code>launch_recommendation == "BLOCK"</code>, abortam. A página existir (07b) não gasta dinheiro; os ads (10) sim — por isso o gate fica antes da 10, não do deploy da página. Drift entre fases para de chegar em produção.</div>
       <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">09-consistency-audit.md/html/json</span> com <code>launch_recommendation: "BLOCK" | "CAUTION" | "GO"</code></div>
     </div>
 
@@ -547,7 +561,7 @@
           <tr>
             <td><strong>compliance-preflight</strong></td>
             <td>Detecta palavras ad-flag (Botox, weight loss, cure, treat, anti-aging, before &amp; after, guaranteed) que disparam disapproval automático no Meta/TikTok. Output: JSON com <code>severity: critical | high | medium | low</code> + <code>rewrite_suggestion</code>.</td>
-            <td>06, 07b, 07c, 08, 14</td>
+            <td>06, 07b, 08, 14</td>
           </tr>
           <tr>
             <td><strong>content-recycler</strong></td>
@@ -576,8 +590,8 @@
           </tr>
           <tr>
             <td><strong>refero-integration</strong> <span class="pill pill-optional">opcional</span></td>
-            <td>Integração com Refero Design MCP (<code>lorecraft-io/refero-design-mcp</code>, pacote npm local). Catálogo curado de ~200 design systems de sites premium (Cursor, Linear, Vercel, Notion, Stripe). 6 tools: <code>refero_search</code>, <code>refero_get</code>, <code>refero_similar</code>, <code>refero_list</code>, <code>refero_design_md</code>, <code>refero_refresh</code>. Detecção runtime via prefixo <code>mcp__refero__</code>. Cascade na skill 07a ETAPA 2.1: Refero → <code>tools/design-clone/</code> → manual. Complementar ao Claude Design (ETAPA 0.5), não concorrente.</td>
-            <td>07a (ETAPA 2.1)</td>
+            <td>Integração com Refero Design MCP (<code>fidgetcoding-refero-mcp</code>, pacote npm local). Catálogo curado de ~200 design systems de sites premium (Cursor, Linear, Vercel, Notion, Stripe). 6 tools: <code>refero_search</code>, <code>refero_get</code>, <code>refero_similar</code>, <code>refero_list</code>, <code>refero_design_md</code>, <code>refero_refresh</code>. Detecção runtime via prefixo <code>mcp__refero__</code>. Fonte de brand signals (não decisão visual) que alimentam o <code>frontend-design</code>. Cascade na skill 07a ETAPA 2 (Brand Signals): Refero → screenshot→visão → <code>tools/design-clone/</code> → manual.</td>
+            <td>07a (ETAPA 2)</td>
           </tr>
           <tr>
             <td><strong>automations/ (Meta + Shopify)</strong></td>
@@ -600,7 +614,7 @@
       <table>
         <thead><tr><th>Rule</th><th>Quando aplica</th></tr></thead>
         <tbody>
-          <tr><td><code>pre-launch-gates</code></td><td><strong>NON-NEGOTIABLE.</strong> Define dois gates: ad-flag compliance (skills 06, 07b, 07c, 08, 10) e Promise↔Config (skills 07c, 10).</td></tr>
+          <tr><td><code>pre-launch-gates</code></td><td><strong>NON-NEGOTIABLE.</strong> Define dois gates: ad-flag compliance (skills 06, 07b, 08, 10) e Promise↔Config (skills 07b, 10).</td></tr>
           <tr><td><code>shopify-theme-safety</code></td><td>Toda operação Shopify CLI. Pull antes de edit, <code>--nodelete</code>, marker verification, smoke test pós-push.</td></tr>
           <tr><td><code>iteration-driven-refinement</code></td><td>Skills que produzem asset (copy, briefing, página). Primeira versão é draft, máximo 3 iterações antes de escalate.</td></tr>
           <tr><td><code>member-stage-awareness</code></td><td>Toda skill. Detecta starter / validating / scaling pelo manifest e adapta tom + recomendações.</td></tr>
@@ -670,13 +684,15 @@
 ├── 03-creative-patterns.json
 ├── 04-offer.md / .html / .json
 ├── 04-research-foundation.json
-├── 05-bonus-delivery/
-│   └── [bonus-id]/
+├── 05-bonus-delivery/                  ← gerado pós-launch
+│   ├── [bonus-id]/
+│   └── 05-bonus-delivery-log.json
 ├── 06-copy.md / .html / .json
 ├── 07-page/
-│   ├── 07-design-system.md
-│   ├── 07-plan.md / .json
-│   ├── 07-sections-report.md
+│   ├── 07-design-system.md / .html
+│   ├── 07-plan.md / .json              ← inclui bloco strategy
+│   ├── design/page.html               ← HTML aprovado (fonte única visual)
+│   ├── design-tokens.json / design-signals.json
 │   ├── 07-deploy-report.md / .json
 │   └── page-registry.md / .html       ← index de slugs multi-página + message-match ad↔page
 ├── 08-creatives.json
@@ -896,7 +912,7 @@
 
     <h3 style="font-size: 18px; font-weight: 600; margin-top: 16px; margin-bottom: 12px;">12.3 — Refero MCP (design system curado)</h3>
 
-    <p>Refero é um catálogo curado de ~200 design systems de sites premium (Cursor, Linear, Vercel, Notion, Stripe, etc.). O MCP é pacote npm local (<code>lorecraft-io/refero-design-mcp</code>) que a Aura consulta na skill 07a (page planning) ETAPA 2.1 Brand Discovery pra extrair signals coerentes de cor/typography/spacing sem inventar do zero nem fazer scraping.</p>
+    <p>Refero é um catálogo curado de ~200 design systems de sites premium (Cursor, Linear, Vercel, Notion, Stripe, etc.). O MCP é pacote npm local (<code>fidgetcoding-refero-mcp</code>) que a Aura consulta na skill 07a-page-design ETAPA 2 (Brand Signals) pra extrair signals coerentes de cor/typography/spacing sem inventar do zero nem fazer scraping. Esses signals alimentam o <code>frontend-design</code>, que gera o HTML da página (a fonte única de verdade visual). O Refero é fonte de signals, não decisão visual.</p>
 
     <div class="subsection">
       <div class="subsection-title">Como o membro conecta (opcional)</div>
@@ -929,15 +945,16 @@
     </div>
 
     <div class="subsection">
-      <div class="subsection-title">Cascade na skill 07a ETAPA 2.1</div>
+      <div class="subsection-title">Cascade de brand signals na skill 07a-page-design ETAPA 2</div>
       <ol>
         <li><strong>Refero MCP</strong> (preferencial) — catálogo curado, designSystems estruturados. Aura busca pela vibe descrita pelo membro ou pega style específico se o membro nomeou um site (ex: "vibe da Linear").</li>
-        <li><strong><code>tools/design-clone/</code></strong> (fallback ad-hoc) — extração via Playwright quando o membro passa URL <strong>fora</strong> do catálogo Refero (ex: PDP de concorrente nichado tipo Qure, Seranova).</li>
+        <li><strong>Screenshot→visão</strong> (fallback primário de inspiração) — o membro tira um print full-page da loja de referência e o Claude lê a imagem com visão nativa pra extrair paleta/tipografia/vibe. Imune a Cloudflare/JS/markup bagunçado, que é o que faz o scraping de computed-styles travar.</li>
+        <li><strong><code>tools/design-clone/</code></strong> (Playwright, caminho 3 opcional) — extração de computed-styles pra quem quer hex exato de um concorrente nichado fora do catálogo Refero (ex: PDP tipo Qure, Seranova).</li>
         <li><strong>Manual</strong> — membro descreve a vibe em texto ou escolhe um dos 8 estilos pré-definidos.</li>
       </ol>
     </div>
 
-    <div class="callout"><strong>Não é concorrente do Claude Design:</strong> os dois rodam em sequência. Refero (ETAPA 2.1) entrega <em>signals técnicos</em> da vibe escolhida (cores role-tagged, typography tokens, spacing); Claude Design (ETAPA 0.5) entrega <em>4 variações visuais</em> renderizadas no canvas pra membro escolher a direção. Refero é input pros specialists, Claude Design é decisão visual do membro.</div>
+    <div class="callout"><strong>O Claude Design SAIU do caminho crítico:</strong> o design é HTML-first via a skill nativa <code>frontend-design</code>, que gera a página inteira como HTML+CSS self-contained com a copy real já inserida (a fonte única de verdade visual que o membro aprova antes de qualquer Liquid). O Refero entra antes, só como input de <em>signals</em> de marca (cores role-tagged, typography tokens, spacing) pro <code>frontend-design</code>.</div>
 
     <div class="note"><strong>Privacidade:</strong> MCP local, sem tokens persistidos. Cache em <code>~/.cache/refero-mcp/</code> com TTL 24h. Catálogo livre — único custo opcional é uso de embeddings OpenAI quando <code>OPENAI_API_KEY</code> setado (~$0.0001 por busca, irrelevante).</div>
   </div>
@@ -952,16 +969,15 @@
       <li><strong>market research</strong> — VOC, awareness, drivers (artefato mais consultado)</li>
       <li><strong>competitor analysis</strong> — 5-10 concorrentes, padrões, gaps</li>
       <li><strong>offer</strong> — mecanismo, pricing, stack, garantia, unit economics</li>
-      <li><strong>bonus delivery</strong> — asset prep pros bonuses definidos acima (PDFs, emails, Circle invites)</li>
       <li><strong>copy</strong> — copy completa pra cada section da página</li>
-      <li><strong>page</strong> — 07a (planning) → 07b (sections) → 07c (deploy)</li>
+      <li><strong>storefront</strong> — 07a (page design HTML-first) → 07b (build + deploy) → 07c (tracking setup) → 07d (checkout AOV)</li>
       <li><strong>creatives</strong> — 6-15 conceitos com briefings completos</li>
-      <li><strong>consistency audit</strong> — cross-phase drift check (gate antes do launch)</li>
+      <li><strong>consistency audit</strong> — cross-phase drift check (gate de launch)</li>
       <li><strong>ad strategy</strong> — estrutura de campanha, naming, PGS</li>
       <li><strong>— LAUNCH —</strong></li>
       <li><strong>ad analysis</strong> (depois de 3-7 dias) — 4Pi, diagnóstico, decisões</li>
       <li><strong>scale</strong> (depois que winners emergem) — vertical + horizontal</li>
-      <li><strong>retention</strong> (≥50 compras) — fluxos Klaviyo</li>
+      <li><strong>retention</strong> (≥50 compras) — fluxos Klaviyo + <strong>bonus delivery</strong> (asset de bônus de ecom)</li>
       <li><strong>content recycler</strong> (depois de winner consolidado) — 9 derivadas do criativo top</li>
     </ol>
 
@@ -995,6 +1011,7 @@
           <tr><td>2026-05-03</td><td><strong>Renumeração completa das skills pra match com a ordem de execução:</strong> bonus-delivery 13→05, copy 05→06, page 06→07, creatives 07→08, consistency-audit 11→09, ad-strategy 08→10, ad-analysis 09→11, scale 10→12, retention 12→13. Content-recycler permanece 14. Números daqui pra frente refletem o workflow cronológico.</td></tr>
           <tr><td>2026-05-04</td><td>Skill 00 setup agora pergunta o idioma de relatório (<code>pt-BR</code> ou <code>en</code>) como primeira pergunta; salvo em <code>profile.md</code> como <code>report_language</code>. Toda skill lê antes de gerar relatórios internos.</td></tr>
           <tr><td>2026-05-04</td><td>Page registry pattern introduzido: <code>07-page/page-registry.md</code> centraliza URL, frame e dados de message-match ad↔page pra que múltiplos criativos referenciem páginas por slug. Atualizar uma página não exige mais editar cada briefing.</td></tr>
+          <tr><td>2026-06-20</td><td><strong>Redesign storefront (Onda 2).</strong> Fase de página vira a cadeia storefront <strong>07a-page-design → 07b-page-build → 07c-tracking-setup → 07d-checkout-aov</strong>. 07a/07b são HTML-first determinístico: design nasce in-session via <code>frontend-design</code> (fonte única visual aprovada antes do Liquid), conversão HTML→Liquid por código via <code>liquid-converter.py</code>. Claude Design sai do caminho crítico; Refero vira fonte de signals e screenshot→visão vira o fallback primário de inspiração. <strong>07c-tracking-setup</strong> (Pixel + CAPI ≥80% + analytics stack) e <strong>07d-checkout-aov</strong> (upsell/bump/bundle/checkout trust) são skills novas. <strong>Bonus delivery (05)</strong> redesenhada pra bônus de ecom (GWP, e-book, free SKU, gift wrapping) e movida pra pós-launch junto da 13. Gate de consistência (09) gateia o launch (skill 10), não o deploy da página. CLAUDE.md/AGENTS.md rule 10c atualizada.</td></tr>
         </tbody>
       </table>
     </div>

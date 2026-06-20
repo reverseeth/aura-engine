@@ -2,9 +2,7 @@
 name: reverse-order-insertion
 description: Quando AI precisa adicionar múltiplos elementos (sections, blocks, steps) a um arquivo existente via Edit tool, inserir em ordem REVERSA pra preservar line numbers dos edits subsequentes.
 paths:
-  - .claude/skills/07a-page-planning.md
-  - .claude/skills/07b-page-sections.md
-  - .claude/skills/07c-page-deploy.md
+  - .claude/skills/07b-page-build.md
   - .claude/skills/14-content-recycler.md
 ---
 

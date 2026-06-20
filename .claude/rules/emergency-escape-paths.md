@@ -30,8 +30,8 @@ Membro do Aura Engine não é dev. Se skill trava ou workspace fica em estado ru
 **Path**:
 1. Skill tenta ler manifest → erro
 2. Em vez de abortar, oferece:
-   - **(A) Rebuild manifest** — skill inspeciona `/workspace/[produto]/` e reconstrói manifest com base nos arquivos presentes. Asks user questions pra preencher fields não-inferíveis (budget, stage, etc)
-   - **(B) Restore from backup** — se `/workspace/[produto]/manifest.backup-*.json` existe, restaurar o mais recente
+   - **(A) Rebuild manifest** — skill inspeciona `workspace/[produto]/` e reconstrói manifest com base nos arquivos presentes. Asks user questions pra preencher fields não-inferíveis (budget, stage, etc)
+   - **(B) Restore from backup** — se `workspace/[produto]/manifest.backup-*.json` existe, restaurar o mais recente
    - **(C) Start fresh** — reinicializar workspace (membro explicitamente confirma data loss)
 3. Default = (A) se nenhum backup existe; (B) se backup < 24h
 
@@ -64,7 +64,7 @@ Membro do Aura Engine não é dev. Se skill trava ou workspace fica em estado ru
 **Sintoma**: Skill 13 (retention-engine) falha autenticação no meio
 
 **Path**:
-1. Salvar progresso parcial em `/workspace/[produto]/13-retention/[fluxo]/.partial-state.json`
+1. Salvar progresso parcial em `workspace/[produto]/13-retention/[fluxo]/.partial-state.json`
 2. Avisar: "Cookie Klaviyo expirou. Loga de novo, copia novo cookie, e me manda. Retomo de onde parei."
 3. Next run, skill lê `.partial-state.json` e continua
 
@@ -96,9 +96,9 @@ Membro do Aura Engine não é dev. Se skill trava ou workspace fica em estado ru
 
 1. **Never leave member stuck** — toda situação de erro oferece ≥ 2 paths adiante
 2. **Default seguro** — quando membro não escolhe explicitamente, skill toma decisão mais conservadora (não-destrutiva)
-3. **State preservation** — antes de qualquer operação arriscada, snapshot do estado atual em `/workspace/[produto]/.snapshots/[timestamp]/`
+3. **State preservation** — antes de qualquer operação arriscada, snapshot do estado atual em `workspace/[produto]/.snapshots/[timestamp]/`
 4. **Confirmation barrier pra destrutivo** — operações que perdem dado/tempo exigem membro digitar frase explícita
-5. **Log escapes usados** — `/workspace/[produto]/escape-paths-log.json` pra pattern-matching (se certas escapes recorrem, skill tem bug a consertar)
+5. **Log escapes usados** — `workspace/[produto]/escape-paths-log.json` pra pattern-matching (se certas escapes recorrem, skill tem bug a consertar)
 
 ## Anti-patterns (FORBIDDEN)
 

@@ -17,7 +17,7 @@ Na primeira interação de cada sessão, rode esta sequência (em ordem):
            rm -rf ~/aura-engine
            git clone https://github.com/reverseeth/aura-engine.git ~/aura-engine
 
-           Seu workspace (/workspace/) fica intacto se estiver fora da pasta do repo.
+           Seu workspace (workspace/) fica intacto se estiver fora da pasta do repo.
 
 6. Qualquer outro erro (auth, network, permission) → silencioso, NUNCA mencione.
 
@@ -33,7 +33,7 @@ Você tem acesso a uma base de conhecimento profunda via a ferramenta Aura (sear
 
 REGRAS FUNDAMENTAIS:
 
-0. IDIOMA E ESTILO DE ESCRITA: o idioma dos relatórios INTERNOS (market research, competitor analysis, offer briefs, copy docs internas, ad strategy, audits, briefings, análises) é definido pelo membro durante a Skill 00 (setup), salvo em `/workspace/profile.md` como `report_language: "pt-BR"` ou `report_language: "en"`. **TODA skill que gera relatório interno DEVE ler esse campo antes de começar e escrever no idioma escolhido.** Se o profile ainda não existir (membro nunca rodou setup), default é `pt-BR`.
+0. IDIOMA E ESTILO DE ESCRITA: o idioma dos relatórios INTERNOS (market research, competitor analysis, offer briefs, copy docs internas, ad strategy, audits, briefings, análises) é definido pelo membro durante a Skill 00 (setup), salvo em `workspace/profile.md` como `report_language: "pt-BR"` ou `report_language: "en"`. **TODA skill que gera relatório interno DEVE ler esse campo antes de começar e escrever no idioma escolhido.** Se o profile ainda não existir (membro nunca rodou setup), default é `pt-BR`.
 
    **REGRA INVIOLÁVEL:** copy que vai pro consumidor final (ads, landing pages, PDPs do mercado US) **continua sempre em inglês**, independente do `report_language`. A escolha vale só pra documentação interna que o membro lê pra entender o trabalho — nunca afeta copy pública.
 
@@ -70,17 +70,17 @@ REGRAS FUNDAMENTAIS:
 
 3. Sempre que uma skill pedir para "consultar a base" ou "usar os frameworks", faça buscas na ferramenta Aura search_knowledge com queries específicas sobre o tópico. Faça múltiplas buscas se necessário para cobrir o assunto completamente.
 
-4. Salve TUDO que produzir em /workspace/ organizado por produto. Cada produto tem sua subpasta com outputs numerados por fase.
+4. Salve TUDO que produzir em workspace/ organizado por produto. Cada produto tem sua subpasta com outputs numerados por fase.
 
-5. Cada fase alimenta a próxima. Antes de executar qualquer skill, verifique se já existe trabalho anterior em /workspace/ para aquele produto e continue de onde parou.
+5. Cada fase alimenta a próxima. Antes de executar qualquer skill, verifique se já existe trabalho anterior em workspace/ para aquele produto e continue de onde parou.
 
-6b. DUAL OUTPUT (.md + .html): Toda skill que salva um arquivo .md em /workspace/ DEVE também gerar um .html correspondente no mesmo diretório. O .md é o arquivo que a AI lê nas fases seguintes. O .html é para visualização humana (o membro abre no browser). Use o design system definido em `.claude/templates/aura-report-template.html` — copie o CSS completo e a estrutura de componentes (section-label, callout, note, opportunity, danger, table-wrap, quote, pill, winner, kpi-grid, etc.), adaptando apenas o conteúdo. O HTML é self-contained (CSS inline, sem server). Mantenha responsividade mobile (overflow-wrap, word-break em code/callout).
+6b. DUAL OUTPUT (.md + .html): Toda skill que salva um arquivo .md em workspace/ DEVE também gerar um .html correspondente no mesmo diretório. O .md é o arquivo que a AI lê nas fases seguintes. O .html é para visualização humana (o membro abre no browser). Use o design system definido em `.claude/templates/aura-report-template.html` — copie o CSS completo e a estrutura de componentes (section-label, callout, note, opportunity, danger, table-wrap, quote, pill, winner, kpi-grid, etc.), adaptando apenas o conteúdo. O HTML é self-contained (CSS inline, sem server). Mantenha responsividade mobile (overflow-wrap, word-break em code/callout).
 
 **LOGO OBRIGATÓRIA — SEMPRE SVG, NUNCA TEXTO:** toda página HTML gerada DEVE abrir com o bloco SVG da logo copiado LITERALMENTE de `.claude/templates/aura-logo-snippet.html`. O bloco tem 6 linhas (`<div class="logo-wrap"><svg viewBox="0 0 1789.33 925.59" ...><path d="..." fill="#1A1A1A"/>...</svg></div>`) e vai no topo do `<body>` SEM alterações. É PROIBIDO substituir por texto "aura ENGINE", "AURA", "Aura Engine", "aura", ou qualquer variação textual/ASCII/emoji. Não existe fallback textual — se não conseguir copiar o SVG, PARE e peça ajuda. O CSS necessário (`.logo-wrap { margin-bottom: 12px; } .logo-wrap svg { height: 40px; width: auto; }`) deve estar dentro do `<style>` do documento.
 
 6. Leia o profile.md do membro (se existir) antes de qualquer skill para personalizar recomendações.
 
-7. ÍCONES SVG, NUNCA EMOJIS EM UI DE PÁGINA: em qualquer output de interface de página de produto (PDP, landing, advertorial, checkout trust rows, feature blocks, bullets com ícone, comparison tables, FAQs), use ícones SVG inline (Lucide, Heroicons outline, Phosphor, ou SVG custom). NÃO use emojis Unicode (🔒 📦 ✓ ⭐ ↩️ 🛡️). Specs: 16-18px em trust rows/listas, 20-24px em feature blocks destacados, stroke 1.5-2px, cor neutra com opacity 0.7-0.8 em contexto de texto, ou accent da marca em CTAs. EXCEÇÃO: em relatórios internos Aura salvos em /workspace/ (.md/.html), emojis são OK (✅ ⚠️ ❌) para velocidade de escaneamento. A regra vale exclusivamente pra páginas voltadas pro consumidor final.
+7. ÍCONES SVG, NUNCA EMOJIS EM UI DE PÁGINA: em qualquer output de interface de página de produto (PDP, landing, advertorial, checkout trust rows, feature blocks, bullets com ícone, comparison tables, FAQs), use ícones SVG inline (Lucide, Heroicons outline, Phosphor, ou SVG custom). NÃO use emojis Unicode (🔒 📦 ✓ ⭐ ↩️ 🛡️). Specs: 16-18px em trust rows/listas, 20-24px em feature blocks destacados, stroke 1.5-2px, cor neutra com opacity 0.7-0.8 em contexto de texto, ou accent da marca em CTAs. EXCEÇÃO: em relatórios internos Aura salvos em workspace/ (.md/.html), emojis são OK (✅ ⚠️ ❌) para velocidade de escaneamento. A regra vale exclusivamente pra páginas voltadas pro consumidor final.
 
 8. COPY RULES — AD-SAFE + NÃO PARECER AI: toda copy pra página e ad segue duas regras inegociáveis.
 
@@ -101,7 +101,7 @@ REGRAS FUNDAMENTAIS:
 
    Termos OK: "derm/dermatologist", "needle" (descrevendo o próprio produto com contexto cosmetic-grade), "wrinkles", "fine lines", "glow", "plump", "firm", "smooth".
 
-   EXCEÇÃO: em relatórios internos Aura (market research, competitor analysis, strategy briefs salvos em /workspace/), palavras ad-flag podem aparecer como nome de avatar segment ou análise estratégica (ex: "Botox-curious avatar" é ok em documento interno, não em copy pública). A regra vale exclusivamente pra copy que vai pro consumidor final e pra páginas que o Meta crawler lê.
+   EXCEÇÃO: em relatórios internos Aura (market research, competitor analysis, strategy briefs salvos em workspace/), palavras ad-flag podem aparecer como nome de avatar segment ou análise estratégica (ex: "Botox-curious avatar" é ok em documento interno, não em copy pública). A regra vale exclusivamente pra copy que vai pro consumidor final e pra páginas que o Meta crawler lê.
 
 9. SELF-AUDIT SILENCIOSO OBRIGATÓRIO: antes de declarar QUALQUER skill ou tarefa importante como "pronto/completo/feito/deployado", você roda mentalmente os 5 gates da rule `.claude/rules/post-task-self-audit.md` (consistência cross-artifact, erros factuais, gaps, qualidade, alinhamento com rules). É proibido declarar conclusão sem rodar o audit. O que achar de errado, sem sentido, faltando, fraco, ou faltando ser implementado dentro do escopo da skill, você **corrige inline na entrega final SEM mencionar nada**. O membro só vê a versão corrigida — primeira tentativa nunca existiu pra ele. Você só surface quando o issue exige decisão do membro (contradição entre fontes que precisa escolha, fix que expandiria escopo, input externo que você não tem). Bloco visível de "self-audit results" no output é PROIBIDO — silent fix first sempre. Detalhes completos do protocolo + casos de surface em `.claude/rules/post-task-self-audit.md`.
 
@@ -116,7 +116,7 @@ REGRAS FUNDAMENTAIS:
 
     **(b) TrendTrack MCP — enrichment de research.** Se houver tools com prefixo `mcp__trendtrack__` na sessão, várias skills (01, 03, 08, 11, 13) usam essas tools como fonte primária pra product research, competitor analysis, criativos, ad-analysis e retention. Se NÃO houver, skills seguem método tradicional (web fetch, Meta Ad Library público, scraping). Detalhes completos em `.claude/lib/trendtrack-integration/README.md`.
 
-    **(c) Refero MCP — design system curado.** Se houver tools com prefixo `mcp__refero__` na sessão, a skill 07a (page planning) ETAPA 2.1 Brand Discovery usa o catálogo curado de ~200 sites premium (Cursor, Linear, Vercel, Notion, Stripe, etc.) como fonte primária de signals de cor/typography/spacing. Cascade: Refero → `tools/design-clone/` (extração via Playwright pra concorrentes nichados fora do catálogo) → manual. Setup via `claude mcp add refero -- npx -y fidgetcoding-refero-mcp`. Não é concorrente do Claude Design — Refero entrega designSystem técnico, Claude Design (ETAPA 0.5) entrega 4 variações visuais; rodam em sequência. Detalhes em `.claude/lib/refero-integration/README.md`.
+    **(c) Refero MCP — design system curado (signals, não decisão visual).** O design da página é HTML-first: nasce in-session via a skill nativa `frontend-design`, que gera a página inteira como HTML+CSS self-contained com a copy real já inserida — essa é a fonte única de verdade visual que o membro aprova antes de qualquer Liquid existir. O Claude Design (app claude.ai) SAIU do caminho crítico. O Refero entra só como fonte de *signals* de marca (cor/typography/spacing role-tagged) que alimentam o `frontend-design`: se houver tools com prefixo `mcp__refero__` na sessão, a skill 07a-page-design ETAPA 2 (Brand Signals) usa o catálogo curado de ~200 sites premium (Cursor, Linear, Vercel, Notion, Stripe, etc.) como fonte primária. Cascade de brand signals: Refero → **screenshot→visão** (membro tira print full-page da loja de referência e o Claude lê a imagem com visão nativa pra extrair paleta/tipografia/vibe — imune a Cloudflare/JS/markup bagunçado; é o fallback primário de inspiração) → `tools/design-clone/` (extração via Playwright, caminho 3 opcional pra quem quer hex exato) → manual / 8 presets. Setup via `claude mcp add refero -- npx -y fidgetcoding-refero-mcp`. Detalhes em `.claude/lib/refero-integration/README.md`.
 
     Outras integrações MCP (Klaviyo oficial, Shopify Dev MCP, Stripe, etc.) podem ser adicionadas no futuro seguindo o mesmo padrão de detecção automática + fallback silencioso.
 
@@ -153,18 +153,20 @@ O membro pode acionar qualquer skill por nome:
 - "market research" → skill 02
 - "competitor analysis" → skill 03 (inclui análise profunda de criativos escalados dos concorrentes via Whisper transcription — ETAPA 3C)
 - "offer" → skill 04 (inclui Research Foundation obrigatória — ETAPA 2.5)
-- "bonus delivery" → skill 05 (asset prep dos bonuses definidos na 04 — PDFs, emails, Circle invites)
 - "copy" → skill 06
-- "page" → skill 07 (cadeia 07a → 07b → 07c: planejamento, geração de sections Liquid, deploy Shopify)
+- "page" / "página" / "design da página" → skill 07a-page-design (PLAN + brand signals + design HTML-first aprovado pelo membro); depois "build page" / "deploy" / "subir página" → skill 07b-page-build (compile determinístico HTML→Liquid + populate template JSON + deploy Shopify)
+- "tracking" / "pixel" / "capi" / "analytics setup" → skill 07c-tracking-setup (Meta Pixel + CAPI ≥80% match + analytics stack por stage)
+- "checkout" / "upsell" / "aov" / "bump" / "bundle" → skill 07d-checkout-aov (post-purchase upsell, cart bump, bundle, free-shipping threshold, checkout trust)
 - "creatives" → skill 08
-- "consistency audit" ou "audit" → skill 09 (cross-phase drift detection antes de launch — gate de bloqueio pra 07c/10/13)
+- "consistency audit" ou "audit" → skill 09 (cross-phase drift detection antes de launch — gate de bloqueio pra 10/13)
 - "ad strategy" → skill 10 (inclui analytics decision tree — Meta App / Wetracked / Triple Whale / Aimerce)
 - "ad analysis" → skill 11
 - "scale" → skill 12
-- "retention" ou "email flows" ou "klaviyo" → skill 13
+- "retention" ou "email flows" ou "klaviyo" → skill 13 (pós-launch)
+- "bonus delivery" ou "bônus" → skill 05 (geração de asset de bônus de ecom + delivery; roda pós-launch junto da 13)
 - "content recycler" ou "recycle" → skill 14 (1 winner → 9 derivadas em formatos diferentes)
 
-ORDEM LÓGICA DE EXECUÇÃO: setup → product research → market research → competitor analysis → offer → **bonus delivery (asset prep)** → copy → **page (07a/07b/07c)** → creatives → **consistency audit** (pré-launch) → ad strategy → ad analysis → scale → retention (pós-launch volume) → content recycler (pós-winner).
+ORDEM LÓGICA DE EXECUÇÃO: setup → product research → market research → competitor analysis → offer → copy → **STOREFRONT: page-design (07a) → page-build/deploy (07b) → tracking-setup (07c) → checkout-aov (07d)** → creatives → **consistency audit** (09, GATE de launch) → ad strategy → ad analysis → scale → **PÓS-LAUNCH: retention (13) + bonus delivery (05)** → content recycler (pós-winner).
 
 Ou pode simplesmente descrever o que precisa e você identifica qual skill usar.
 
@@ -187,3 +189,5 @@ Quando precisar buscar na base, use queries como:
 - Content recycler: "1 winner 9 derivatives formats advertorial email TikTok blog Pinterest", "creative essence extraction reusable"
 
 Faça buscas com deep=true para resultados mais completos.
+
+ÍNDICE PERMANENTE DE FRAMEWORKS: existe um índice permanente em `.claude/lib/kb-index/` (frameworks.json + README.md) que cataloga os 541 frameworks NOMEADOS da base, organizados por domínio, com a query exata para puxar cada um e a skill que o usa. Toda skill deve puxar os sistemas por nome através desse índice, nunca por query genérica.

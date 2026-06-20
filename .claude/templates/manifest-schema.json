@@ -75,7 +75,7 @@
     },
     "psm_real": {
       "type": "number",
-      "description": "Calculated from live ads performance."
+      "description": "PSM real = LTV / (CPA + COGS). CANONICAL formula and CANONICAL source. Written ONLY by skill 11 (ad-analysis) from live performance; read by skill 12 (scale). Skill 12 must NOT recompute psm_real with a different formula."
     },
     "target_cpa": {
       "type": "number",
@@ -110,7 +110,64 @@
     },
     "market": {
       "type": "string",
-      "description": "Primary market (e.g. 'US', 'BR', 'EU')."
+      "description": "Primary market / geography (e.g. 'US', 'BR', 'EU'). Set during 00-setup. Required by skill 02 ([GEOGRAPHY] in the awareness/sophistication prompt)."
+    },
+    "report_language": {
+      "enum": ["pt-BR", "en"],
+      "description": "Language for INTERNAL reports and member-facing conversation. Mirrored from profile.md by 00-setup so every skill can read it structurally (CLAUDE.md rule 0). Public copy (ads/pages) is always English regardless."
+    },
+    "stage": {
+      "enum": ["starter", "validating", "scaling"],
+      "description": "CANONICAL behavioral stage (member-stage-awareness.md). Written by 00-setup (situation A/B->starter, C->validating, D->scaling) and updated by 11/12. This is the single source of truth for stage; budget_tier is a separate economic field, NOT a stage vocabulary. Do not introduce other stage enums (traction/initial_scale/etc are deprecated)."
+    },
+    "esp": {
+      "enum": ["klaviyo", "omnisend", "mailerlite", "shopify_email", "none"],
+      "description": "Email service provider. Captured in 00-setup ETAPA 3. Hard pre-flight input for skill 13 (retention). 'none' = member has no ESP yet."
+    },
+    "store_url": {
+      "type": "string",
+      "description": "Canonical .myshopify.com (or custom domain) store handle. Captured in 00-setup when a Shopify link is provided; otherwise written by the page-deploy step. Consumed by page deploy + skill 13."
+    },
+    "aov_baseline": {
+      "type": "number",
+      "description": "Average order value baseline in USD. Captured in 00-setup for situation C/D (already selling); otherwise computed in skill 04. Feeds breakeven_roas / PSM so 10/11/12 do not re-ask."
+    },
+    "cogs_estimate": {
+      "type": "number",
+      "description": "Approximate per-order COGS+shipping in USD. Captured in 00-setup for C/D; refined in skill 04 (cogs_breakdown). Used for PSM = LTV / (CPA + COGS)."
+    },
+    "batch_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of creative batches launched. Written by skill 08. Read by member-stage-awareness.md for stage inference."
+    },
+    "champions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Active winning Post IDs. Written by skill 11/08. Read by member-stage-awareness.md and skill 12."
+    },
+    "winners": {
+      "type": "array",
+      "items": { "type": "object" },
+      "description": "Winning creatives with metrics (creative_id, cpa, spend_total, days_active, outcome). Written by skill 11; consumed by skill 14 (content-recycler)."
+    },
+    "active_channels": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Channels currently running (meta, tiktok, google, etc). Written by skill 12 (horizontal scale)."
+    },
+    "margin_warning": {
+      "type": "boolean",
+      "description": "True if skill 04 flagged weighted margin < $20. Read by 10/12 as a scaling caution."
+    },
+    "compliance_override": {
+      "type": "object",
+      "description": "Set only when the member explicitly overrides a compliance BLOCK (emergency-escape-paths ES3). Records {reason, risk, gate, timestamp}."
+    },
+    "skipped_preflight": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Artifacts a skill proceeded without (emergency-escape-paths ES1). Lets downstream skills and the consistency audit know the chain ran on partial inputs."
     }
   },
   "additionalProperties": true
