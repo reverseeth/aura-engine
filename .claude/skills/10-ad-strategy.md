@@ -15,8 +15,8 @@ A teoria de diagnóstico (PSM, 4Pi, ROAS targets) continua viva como **leitura**
 ## Antes de Começar
 
 ### Pré-flight (OBRIGATÓRIO)
-- [ ] `workspace/[produto]/08-creatives/08-creatives.json` existe (5-12 criativos prontos — eles vão TODOS pro mesmo ad set; o handoff é `concepts[].concept_id`/criativo)
-- [ ] `workspace/[produto]/04-offer.json` existe (`target_cpa` / `breakeven_cpa`, `breakeven_roas`, `weighted_margin_per_order` — base do budget de teste)
+- [ ] `workspace/[produto]/08-creative-engine/dados.json` existe (5-12 criativos prontos — eles vão TODOS pro mesmo ad set; o handoff é `concepts[].concept_id`/criativo)
+- [ ] `workspace/[produto]/04-offer-builder/dados.json` existe (`target_cpa` / `breakeven_cpa`, `breakeven_roas`, `weighted_margin_per_order` — base do budget de teste)
 - [ ] `workspace/[produto]/profile.md` existe (budget diário, stage, conta do Meta Ads ativa)
 - [ ] **`report_language`** lido (default `pt-BR`) — ver "Contexto a carregar"
 - [ ] Tracking validado via Skill 07c (Pixel + CAPI, Match Quality ≥ 80%). Se 07c não rodou, redirecionar pra `'tracking'` antes — sem evento de Purchase confiável, Max Conversion não otimiza.
@@ -26,9 +26,9 @@ Se algum arquivo crítico sumiu/corrompeu, aplicar `.claude/rules/emergency-esca
 ### Contexto a carregar
 
 1. Leia `workspace/profile.md`. **Leia `report_language`** (default `pt-BR` se ausente; também em `manifest.report_language`): TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language`.
-2. Leia `workspace/[produto]/04-offer.md` + `04-offer.json` — daqui sai o **breakeven CPA**, o número que governa o budget de teste e os critérios de kill da Skill 11. **Fonte canônica (a MESMA que a Skill 11 e a 12 usam):** `breakeven_cpa = 04-offer.json.unit_economics.weighted_margin_per_order`. Use esse campo direto — não re-derive. Só se ele faltar, caia pro fallback `breakeven_cpa = AOV / breakeven_roas`.
-3. Leia `workspace/[produto]/06-copy.md` (URL de destino — a PDP/landing aprovada da cadeia 07).
-4. Leia `workspace/[produto]/08-creatives/08-creatives.json` (os 5-12 criativos que entram no único ad set de teste).
+2. Leia `workspace/[produto]/04-offer-builder/relatorio.md` + `04-offer-builder/dados.json` — daqui sai o **breakeven CPA**, o número que governa o budget de teste e os critérios de kill da Skill 11. **Fonte canônica (a MESMA que a Skill 11 e a 12 usam):** `breakeven_cpa = 04-offer-builder/dados.json.unit_economics.weighted_margin_per_order`. Use esse campo direto — não re-derive. Só se ele faltar, caia pro fallback `breakeven_cpa = AOV / breakeven_roas`.
+3. Leia `workspace/[produto]/06-copy-engine/relatorio.md` (URL de destino — a PDP/landing aprovada da cadeia 07).
+4. Leia `workspace/[produto]/08-creative-engine/dados.json` (os 5-12 criativos que entram no único ad set de teste).
 5. Detecte o **stage** do membro (`.claude/rules/member-stage-awareness.md`): starter / validating / scaling. Define tom, agressividade e número de criativos recomendado.
 6. Puxe os **SISTEMAS NOMEADOS** da base como camada de LEITURA/diagnóstico (não de execução de estrutura) — rode `search_knowledge` com a `best_query` de cada um, nunca query genérica. O que sustenta esta skill como leitura:
    - **Scientific Method for Meta Ads (Control vs Variable)** (rode `scientific method meta ads control variable environmental impact`) — por que 1 ad set único é a estrutura limpa de teste.
@@ -48,7 +48,7 @@ Testada em Meta Ads Manager **2026 Q2** e Meta Marketing API **v21.0+**. Se o me
 
 ### ETAPA 1 — Gates de Pré-Launch (BLOQUEANTES)
 
-**Gate de consistência (Skill 09)** — ler `workspace/[produto]/09-consistency-audit.json` se existir:
+**Gate de consistência (Skill 09)** — ler `workspace/[produto]/09-consistency-audit/dados.json` se existir:
 - `launch_recommendation == "BLOCK"` → **ABORTAR**. Drift entre criativos/copy/oferta vira disapproval ou mismatch ad↔landing. Mostrar findings críticos e pedir `consistency audit` após corrigir. Override só com `compliance_override` no manifest.
 - `CAUTION` → mostrar warnings, pedir OK explícito antes de prosseguir.
 - `GO` ou arquivo ausente → seguir (recomendar 09 antes de launch crítico, sem bloquear).
@@ -199,9 +199,9 @@ Se a criação via MCP falhar (rate limit, auth), aplicar `.claude/rules/emergen
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Garantir diretório:** `mkdir -p workspace/[produto]/` antes de salvar.
+**Garantir diretório:** `mkdir -p workspace/[produto]/10-ad-strategy/` antes de salvar.
 
-`workspace/[produto]/10-ad-strategy.md` (no `report_language`) contendo:
+`workspace/[produto]/10-ad-strategy/relatorio.md` (no `report_language`) contendo:
 1. Estrutura de teste completa: 1 campanha → 1 ad set → N criativos (ETAPA 3)
 2. Budget de teste = 2× breakeven CPA, com o número calculado pra este produto
 3. Warmup de conta (se aplicável) e cadência quarta→domingo / 7 dias (ETAPAS 4-5)
@@ -212,15 +212,15 @@ Se a criação via MCP falhar (rate limit, auth), aplicar `.claude/rules/emergen
 8. Status da criação via MCP (criado em PAUSED / fallback manual) + IDs retornados
 9. Checklist de erros a evitar (ETAPA 7)
 
-**Dual output:** gerar `10-ad-strategy.html` companion (mesmo nome) usando `.claude/templates/aura-report-template.html` como base — CSS inline, self-contained, **logo SVG do Aura no topo copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` (NUNCA texto)**, componentes aura (callout, note, danger, winner, kpi-grid, table-wrap). O `.md` é fonte pra AI; o `.html` é visualização humana.
+**Dual output:** gerar `10-ad-strategy/relatorio.html` companion (mesmo diretório) usando `.claude/templates/aura-report-template.html` como base — CSS inline, self-contained, **logo SVG do Aura no topo copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` (NUNCA texto)**, componentes aura (callout, note, danger, winner, kpi-grid, table-wrap). O `.md` é fonte pra AI; o `.html` é visualização humana.
 
-### JSON companion — `10-ad-strategy.json`
+### JSON companion — `10-ad-strategy/dados.json`
 
 ```json
 {
   "strategy_id": "uuid",
   "product_slug": "...",
-  "creative_batch_ref": "08-creatives.json batch_id (concepts[].concept_id é o handoff 08→10→11)",
+  "creative_batch_ref": "08-creative-engine/dados.json batch_id (concepts[].concept_id é o handoff 08→10→11)",
   "breakeven_cpa": 80,
   "test_budget_daily": 160,
   "structure": "1_campaign_1_adset_broad",
@@ -255,6 +255,7 @@ Após salvar, atualizar `workspace/[produto]/manifest.json`:
 - Registrar `strategy_id`, `creative_batch_ref`, `test_budget_daily`, `breakeven_cpa`
 - **Gravar `10_campaign_name`** com o nome da campanha gerado (naming convention). A Skill 11 lê via `read_manifest("10_campaign_name")` pra cruzar com dados do Meta.
 - Se criou via MCP, gravar `10_campaign_id` / `10_ad_set_id` (a Skill 11 puxa insights por ID, mais robusto que por nome).
+- Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug` — atualiza ABRIR-AQUI.html).
 
 ## Mensagem Final
 

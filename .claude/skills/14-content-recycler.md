@@ -20,7 +20,7 @@ Skill auxiliar invocável. Reutiliza criativos vencedores em 9 formatos diferent
 Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (README.md/.html, essence.json descritivo) e toda conversa com o membro usam esse idioma. **As 9 derivadas consumidor-final (advertorial, email, TikTok, blog, Pinterest, YouTube, SMS, package insert, podcast) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language.
 
 - [ ] `manifest.json` existe
-- [ ] Pelo menos 1 criativo em `workspace/[produto]/08-creatives/` OU membro forneceu fonte alternativa
+- [ ] Pelo menos 1 criativo em `workspace/[produto]/08-creative-engine/` OU membro forneceu fonte alternativa
 - [ ] `.claude/lib/content-recycler/recycler.md` existe (este lib é o engine)
 - [ ] `.claude/lib/content-recycler/formats.json` existe (specs dos 9 formatos)
 - [ ] `.claude/lib/compliance-preflight/` existe (pra rodar check em cada derivada)
@@ -28,18 +28,18 @@ Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; ta
 **Detecção de winner (quando input é `recycle winner`):**
 
 Se membro digitou `recycle winner` (sem ID específico):
-1. Ler `workspace/[produto]/11-analysis/latest.json` (produzido pela Skill 11)
+1. Ler `workspace/[produto]/11-ad-analysis/dados.json` (produzido pela Skill 11)
 2. Ler `latest.winners[]` — o array JÁ vem filtrado pela skill 11 (só criativos com `outcome == "winner"`). A 14 NÃO recomputa critério; apenas ordena por `spend_total` desc (tiebreak `days_active` desc). Se precisar de target pra exibir, leia explícito de `manifest.target_cpa`.
 3. Se `winners.length === 1` → usar `winners[0].creative_id`
 4. Se `winners.length >= 2` → apresentar lista ordenada (id + cpa + roas + spend) e perguntar qual reciclar
-5. Se `winners.length === 0` OU campo `winners` ausente (versão antiga do latest.json) → responder:
+5. Se `winners.length === 0` OU campo `winners` ausente (versão antiga do `dados.json`) → responder:
    > "Campanha ainda não tem winner identificado pela skill 11.
    >
    > Opções:
    > 1. Aguardar mais dados (normalmente 5-10 dias após launch)
    > 2. Rodar skill 11 de novo pra atualizar análise
    > 3. Forçar reciclagem de um criativo específico: `recycle [creative-id]`"
-6. Se `latest.json` não existir (skill 11 nunca rodou) → oferecer 2 caminhos (não abortar seco):
+6. Se `dados.json` não existir (skill 11 nunca rodou) → oferecer 2 caminhos (não abortar seco):
    > "Skill 11 não foi rodada ainda, então não tenho winner identificado automaticamente. Opções:
    > (A) Rodar `run analysis` agora pra identificar o winner, OU
    > (B) reciclar um criativo específico direto: `recycle [creative-id]`."
@@ -61,7 +61,7 @@ Siga exatamente o fluxo descrito em `.claude/lib/content-recycler/recycler.md`:
    - **Organic TikTok / YouTube pre-roll** → **Gap Theory of Curiosity** (rode `gap theory of curiosity hooks counterintuitive open loop slippery slope`) + **Slippery Slope Principle** (rode `slippery slope principle open loops pattern interrupt end with intrigue video script`) + **4-Section Video Ad Structure (Hook / Bridge / Hold / CTA)** (rode `video ad script 4 section structure hook bridge hold CTA timing 30-45 seconds`) + **Strategic Pacing** (rode `strategic pacing rapid cuts hook bridge solution CTA video editing rhythm`) — reembala o winner em estrutura de vídeo orgânico com ritmo de corte por seção.
    - **Pinterest carousel / package insert (estáticos)** → **Static/Image Archetypes by Funnel Position** (rode `static image archetypes funnel position plain reminder direct response complexity rule`) + **13+ Winning Static Ad Templates** (rode `13 winning static ad templates avatar callout nutella meme breakdown why it works`) — escolhe arquétipo estático certo pra cada slide.
    - **Email sequence / SMS / Podcast ad** → **The Big 4 Emotions** (rode `Big 4 Emotions NEW ONLY EASY ANYBODY SAFE PREDICTABLE BIG FAST`) + **Brunson's Five Curiosity Hooks** (rode `Brunson five curiosity hooks controversial bold prediction conspiracy reframe angles`) — reframes de curiosidade pra subject lines / aberturas de SMS / leitura de podcast quando o ângulo do winner já saturou no feed.
-   - **Transversal a TODAS as 9** → **Congruency — The Multiplier** (rode `congruency multiplier ad landing page offer visual message emotional continuity`) — cada derivada mantém continuidade de mensagem/promessa com o winner e com `04-offer.json` (sem deriva de mecanismo).
+   - **Transversal a TODAS as 9** → **Congruency — The Multiplier** (rode `congruency multiplier ad landing page offer visual message emotional continuity`) — cada derivada mantém continuidade de mensagem/promessa com o winner e com `04-offer-builder/dados.json` (sem deriva de mecanismo).
    - Demais frameworks do domínio (Hormozi Callout System, What-Who-When Matrix, SUCCESs, New Opportunity vs Improvement, etc.) ficam disponíveis em `.claude/lib/kb-index/` pra puxar sob demanda quando o formato pedir.
 
 4. **Gerar 9 derivadas** em paralelo (advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad)
@@ -79,7 +79,7 @@ Regras pra não colidir:
 
 ## Output
 
-Pasta `workspace/[produto]/14-recycled/[source-id]/` com:
+Pasta `workspace/[produto]/14-content-recycler/[source-id]/` com:
 - `README.md` — índice + instruções de distribuição
 - `README.html` — companion humano (rule 6b do CLAUDE.md)
 - `essence.json` — essência extraída (reusável)
@@ -87,9 +87,14 @@ Pasta `workspace/[produto]/14-recycled/[source-id]/` com:
 - 9 arquivos `.md`, um por formato (advertorial, email, TikTok, blog, Pinterest, YouTube preroll, SMS, package insert, podcast)
 - 9 arquivos `.html` correspondentes — um pra cada `.md` (rule 6b: dual output obrigatório)
 
+Além das pastas por source-id, escreva também no topo de `workspace/[produto]/14-content-recycler/` um índice `relatorio.md` + `relatorio.html` que lista todas as fontes recicladas (cada `[source-id]` com seus 9 formatos e link pra pasta). Esse índice é o relatório humano que o painel do produto exibe.
+
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-Toda derivada salva em `workspace/[produto]/14-recycled/[source-id]/` DEVE ter `.md` (fonte pra AI) + `.html` companion (visualização humana). Use `.claude/templates/aura-report-template.html` como base — copie o CSS inline e a logo SVG do `.claude/templates/aura-logo-snippet.html` LITERALMENTE no topo do `<body>`. NUNCA gere HTML sem a logo SVG nem com texto "AURA"/"Aura Engine" no lugar dela.
+Toda derivada salva em `workspace/[produto]/14-content-recycler/[source-id]/` DEVE ter `.md` (fonte pra AI) + `.html` companion (visualização humana). Use `.claude/templates/aura-report-template.html` como base — copie o CSS inline e a logo SVG do `.claude/templates/aura-logo-snippet.html` LITERALMENTE no topo do `<body>`. NUNCA gere HTML sem a logo SVG nem com texto "AURA"/"Aura Engine" no lugar dela.
+
+Depois de salvar todos os outputs e atualizar o `manifest.json`:
+- Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug` — atualiza ABRIR-AQUI.html).
 
 ## Sucesso
 
@@ -114,7 +119,7 @@ Próxima rodada da skill gera automaticamente também esse formato.
 
 ```
 ✓ Content Recycler rodou em [source-id]
-  9 formatos gerados em workspace/[produto]/14-recycled/[source-id]/
+  9 formatos gerados em workspace/[produto]/14-content-recycler/[source-id]/
 
   Compliance: [X críticos, Y high, Z medium, W low]
   Rewrites aplicados: [N]

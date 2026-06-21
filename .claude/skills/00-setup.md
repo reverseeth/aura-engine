@@ -19,6 +19,14 @@ Consulte a base Aura extensivamente sobre fundamentos operacionais, o estado atu
 
 ## Fluxo da Skill
 
+### ETAPA 0 — Boas-vindas (só na primeira vez)
+
+Se for a primeira vez do membro (não existe `workspace/profile.md`), abra com uma saudação curta de UMA linha, bilíngue (o idioma ainda não foi escolhido), só pra dar contexto antes dos checks técnicos:
+
+> Bem-vindo ao Aura Engine. Vou configurar tudo pra você — leva uns 2 minutos. / Welcome to Aura Engine. I'll set everything up for you — takes about 2 minutes.
+
+Se já existe profile (membro refazendo setup), pule a saudação e vá direto pro Pré-flight.
+
 ### Pré-flight
 
 Antes de prosseguir, valide:
@@ -122,6 +130,28 @@ Capture a resposta em `REPORT_LANGUAGE`:
 **A partir desse ponto, TODA conversa com o membro acontece no idioma escolhido.** Se ele escolheu inglês, faça as 4 perguntas da ETAPA 3 traduzidas, gere o `profile.md` em inglês, e a partir dali todas as skills futuras vão respeitar essa escolha lendo `profile.md.report_language`.
 
 **Importante:** copy pro consumidor final (ads, landing pages, PDPs do mercado US) **continua sempre em inglês** independente dessa escolha. Essa escolha vale só pra documentação INTERNA do membro (relatórios, análises, briefings que ele lê pra entender o trabalho). A regra 0 do CLAUDE.md detalha.
+
+### ETAPA 2.7 — Como a Aura funciona (só na primeira vez, no idioma escolhido)
+
+Logo depois da escolha de idioma e ANTES das 4 perguntas, dê ao membro um resumo curto de como o sistema funciona — só na primeira vez (sem `workspace/profile.md`). Use o `REPORT_LANGUAGE` escolhido. Mantenha leve e claro, sem jargão.
+
+**Se `pt-BR`:**
+
+> Antes das perguntas, 30 segundos sobre como isso funciona:
+>
+> O Aura Engine é o seu time de marca e marketing num lugar só. Ele constrói sua operação **em fases**, e cada fase usa o que a anterior descobriu — você nunca repete informação:
+>
+> 1. **Pesquisa** (produto → mercado → concorrência): o que vender, pra quem, e o que os concorrentes deixam na mesa.
+> 2. **Estratégia** (oferta → copy): a oferta irresistível e o texto que vende.
+> 3. **Loja** (página → tracking → checkout): tudo numa página que converte, com medição certa.
+> 4. **Tráfego** (criativos → auditoria → ads → análise → escala): os anúncios, a checagem de coerência, subir e escalar.
+> 5. **Pós-venda** (retenção → bônus → reciclagem): email/SMS, brindes, e 1 anúncio vencedor virando vários.
+>
+> Você dispara qualquer fase só falando o nome dela. Eu sempre te digo qual é o próximo passo. E cada produto ganha um painel — o **ABRIR-AQUI.html** — que mostra o que já está pronto e o que abrir.
+
+**Se `en`:** mesma estrutura, traduzida naturalmente (Research → Strategy → Store → Traffic → Post-purchase; "every product gets a dashboard — **ABRIR-AQUI.html** — showing what's done and what to open").
+
+Se NÃO for primeira vez (membro refazendo setup), pule esta etapa.
 
 ### ETAPA 3 — Onboarding do Membro (Perguntas por Texto)
 
@@ -340,7 +370,11 @@ Depois da mensagem específica, adicione SEMPRE:
 "Você pode dizer o nome de qualquer fase a qualquer momento:
 `product research` · `market research` · `competitor analysis` · `offer` · `bonus delivery` · `copy` · `page` · `creatives` · `consistency audit` (ou `audit`) · `ad strategy` · `ad analysis` · `scale` · `retention` (ou `email flows` / `klaviyo`) · `content recycler` (ou `recycle`)
 
-Cada fase lê o que as anteriores produziram em workspace/[produto]/ — você nunca precisa repetir informação."
+Cada fase lê o que as anteriores produziram em workspace/[produto]/ — você nunca precisa repetir informação.
+
+Seu ponto de partida é sempre o painel: abre **workspace/[produto]/ABRIR-AQUI.html** no navegador pra ver tudo que já foi feito, abrir qualquer relatório, e saber o próximo passo."
+
+(Se `REPORT_LANGUAGE = "en"`, traduza essa adição também — inclusive a frase do painel: "Your home base is the dashboard: open **workspace/[product]/ABRIR-AQUI.html** to see everything done, open any report, and know the next step.")
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
@@ -355,6 +389,14 @@ Salve em QUATRO arquivos:
 **Validação do template HTML**: antes de escrever `profile.html`, confirme que `.claude/templates/aura-report-template.html` existe (`test -f`). Se NÃO existir, gere um HTML mínimo inline com CSS básico, um cabeçalho textual "Aura Engine — Profile" e um aviso no topo: `<!-- WARNING: template .claude/templates/aura-report-template.html missing; fallback HTML in use -->`. Nunca aborte por template ausente.
 
 Se o membro já tinha um profile anterior e está refazendo, faça backup em `workspace/.profile-backup-[YYYYMMDD-HHMMSS].md` e do manifest em `workspace/[produto]/.manifest-backup-[YYYYMMDD-HHMMSS].json` antes de sobrescrever.
+
+**5. Gerar o painel do produto.** Depois de salvar o manifest, rode via Bash pra criar a porta de entrada do membro:
+
+```bash
+python3 .claude/lib/workspace-index/build_index.py [product_slug]
+```
+
+Isso gera `workspace/[produto]/ABRIR-AQUI.html` — o painel que lista cada fase, o que já foi feito e o próximo passo. Toda skill seguinte regenera esse painel ao terminar, então ele está sempre atualizado. Estrutura canônica das pastas do produto em `.claude/lib/workspace-index/workspace-layout.md`.
 
 ## Mensagem Final
 

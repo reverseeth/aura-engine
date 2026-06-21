@@ -15,26 +15,26 @@ ou
 
 ```
 recycle winner
-# (sistema lê latest.winners[] já marcado pela skill 11 e ordena por spend_total)
+# (sistema lê dados.winners[] já marcado pela skill 11 e ordena por spend_total)
 ```
 
 ## Fluxo da skill
 
 ### ETAPA 1 — Identificação do winner
 
-1. Se `[creative-id]` fornecido (formato `c-NN`, que mapeia pra `08-concept-NN.md`):
-   - PRIMEIRO abrir `workspace/[produto]/08-creatives/08-creatives.json` (fonte estruturada), achar `concepts[]` cujo `id == creative-id`, e extrair dali os campos estruturados (hook, mechanism, avatar, voc_source, proof, cta).
-   - Usar `workspace/[produto]/08-creatives/08-concept-NN.md` como brief complementar (texto longo, nuance de tom).
-2. Se `winner`: ler `workspace/[produto]/11-analysis/latest.json` e usar `latest.winners[]` — array JÁ filtrado pela skill 11 (`outcome == "winner"`). NÃO recomputar critério; ordenar por `spend_total` desc (tiebreak `days_active` desc) e pegar o topo. Se precisar de target pra exibir, ler explícito de `manifest.target_cpa`.
+1. Se `[creative-id]` fornecido (formato `c-NN`, que mapeia pra `concept-NN.md`):
+   - PRIMEIRO abrir `workspace/[produto]/08-creative-engine/dados.json` (fonte estruturada), achar `concepts[]` cujo `id == creative-id`, e extrair dali os campos estruturados (hook, mechanism, avatar, voc_source, proof, cta).
+   - Usar `workspace/[produto]/08-creative-engine/concept-NN.md` como brief complementar (texto longo, nuance de tom).
+2. Se `winner`: ler `workspace/[produto]/11-ad-analysis/dados.json` e usar `dados.winners[]` — array JÁ filtrado pela skill 11 (`outcome == "winner"`). NÃO recomputar critério; ordenar por `spend_total` desc (tiebreak `days_active` desc) e pegar o topo. Se precisar de target pra exibir, ler explícito de `manifest.target_cpa`.
 3. Se nenhum dos dois disponível: perguntar ao membro qual criativo reciclar
 
 ### ETAPA 2 — Extração de essência (rastreável, não inventada)
 
 Antes de destilar, abrir as fontes pra herdar dados reais (nunca reparafrasear o que já é canônico):
 
-- `workspace/[produto]/04-offer.md` (ou `04-offer.json`) → copiar o `mechanism_name` **LITERAL** pra `mechanism_name_canonical`. NÃO reparafraseie o nome do mecanismo.
-- `workspace/[produto]/08-creatives/08-creatives.json` → herdar `voc_source.ref_id` de cada hook do conceito fonte pra popular `voc_refs[]`.
-- `workspace/[produto]/02-market-research.md` (ou `02-market-research.json`) → VOC real (frases exatas do consumidor, em inglês US literal) referenciadas por `voc_refs[]`.
+- `workspace/[produto]/04-offer-builder/relatorio.md` (ou `04-offer-builder/dados.json`) → copiar o `mechanism_name` **LITERAL** pra `mechanism_name_canonical`. NÃO reparafraseie o nome do mecanismo.
+- `workspace/[produto]/08-creative-engine/dados.json` → herdar `voc_source.ref_id` de cada hook do conceito fonte pra popular `voc_refs[]`.
+- `workspace/[produto]/02-market-research/relatorio.md` (ou `02-market-research/dados.json`) → VOC real (frases exatas do consumidor, em inglês US literal) referenciadas por `voc_refs[]`.
 
 Destilar em shape estruturado (valores extraídos das fontes acima, não pré-definidos):
 
@@ -44,8 +44,8 @@ Destilar em shape estruturado (valores extraídos das fontes acima, não pré-de
   "big_idea": "<one-sentence thesis extraído do briefing>",
   "hook_essence": "<primeira frase/hook do criativo>",
   "mechanism": "<descrição do UMP/UMS em 5-12 palavras>",
-  "mechanism_name_canonical": "<nome LITERAL do mecanismo, copiado de 04-offer>",
-  "voc_refs": ["<ref_id de cada VOC herdada de 08-creatives.json / 02-market-research>"],
+  "mechanism_name_canonical": "<nome LITERAL do mecanismo, copiado de 04-offer-builder>",
+  "voc_refs": ["<ref_id de cada VOC herdada de 08-creative-engine/dados.json / 02-market-research>"],
   "key_numbers": ["<Hopkins specificity numbers usados no criativo>"],
   "avatar": "<descrição resumida do avatar target>",
   "brand_voice": "<tom dominante derivado do briefing>",
@@ -56,9 +56,9 @@ Destilar em shape estruturado (valores extraídos das fontes acima, não pré-de
 }
 ```
 
-**Sanity check (drift)**: se o `mechanism_name_canonical` extraído divergir do `mechanism_name` em `04-offer`, PARE e surface ao membro (não auto-resolva) — é drift entre fases que precisa decisão dele.
+**Sanity check (drift)**: se o `mechanism_name_canonical` extraído divergir do `mechanism_name` em `04-offer-builder`, PARE e surface ao membro (não auto-resolva) — é drift entre fases que precisa decisão dele.
 
-Salvar em `workspace/[produto]/14-recycled/[source-id]/essence.json` pra referência de todos os formatos. O `essence.json` descritivo segue o `report_language` do membro; `voc_refs`/VOC literal permanecem em inglês US.
+Salvar em `workspace/[produto]/14-content-recycler/[source-id]/essence.json` pra referência de todos os formatos. O `essence.json` descritivo segue o `report_language` do membro; `voc_refs`/VOC literal permanecem em inglês US.
 
 ### ETAPA 3 — Consultar base Aura sobre cada formato (SISTEMAS NOMEADOS, não query genérica)
 
@@ -93,11 +93,11 @@ Pra cada formato:
 3. Gerar derivada respeitando `length_words`, `structure`, `tone`
 4. Rodar Compliance Pre-flight (`.claude/lib/compliance-preflight/checker.md`)
 5. Se severity >= high: auto-rewrite e log
-6. Salvar em `workspace/[produto]/14-recycled/[source-id]/[output_file]`
+6. Salvar em `workspace/[produto]/14-content-recycler/[source-id]/[output_file]`
 
 ### ETAPA 5 — Gerar índice + relatório
 
-Criar `workspace/[produto]/14-recycled/[source-id]/README.md` (relatório interno → segue `report_language` do membro; as 9 derivadas em si permanecem em inglês US):
+Criar `workspace/[produto]/14-content-recycler/[source-id]/README.md` (relatório interno → segue `report_language` do membro; as 9 derivadas em si permanecem em inglês US):
 
 ```markdown
 # Content Recycler Output — [source-id]
@@ -153,7 +153,7 @@ Pra CADA `.md` salvo nesta pasta (README.md + as 9 derivadas) gerar o `.html` co
 
 ### ETAPA 6 — Compliance log consolidado
 
-Salvar log consolidado em `workspace/[produto]/14-recycled/[source-id]/compliance-log.json`:
+Salvar log consolidado em `workspace/[produto]/14-content-recycler/[source-id]/compliance-log.json`:
 
 ```json
 {
@@ -179,7 +179,7 @@ Salvar log consolidado em `workspace/[produto]/14-recycled/[source-id]/complianc
 ## Estrutura final de arquivos
 
 ```
-workspace/[produto]/14-recycled/
+workspace/[produto]/14-content-recycler/
 └── <creative-id>/
     ├── README.md                     ← índice + instruções
     ├── README.html                   ← companion humano (rule 6b)

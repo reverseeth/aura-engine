@@ -15,11 +15,11 @@ Receita orquestradora que faz deploy completo de produto em Shopify + estrutura 
 ## Pre-flight (OBRIGATÓRIO — falha se faltar)
 
 - [ ] `manifest.json` completo com `10-ad-strategy` em `skills_completed`
-- [ ] `04-offer.json` com 3 tiers
-- [ ] `06-copy.md` pronto
+- [ ] `04-offer-builder/dados.json` com 3 tiers
+- [ ] `06-copy-engine/relatorio.md` pronto
 - [ ] `07-page/staging/` deployed (template + sections)
-- [ ] `08-creatives/` com briefings prontos
-- [ ] `10-ad-strategy.json` com estrutura de campanha definida
+- [ ] `08-creative-engine/` com briefings prontos
+- [ ] `10-ad-strategy/dados.json` com estrutura de campanha definida
 - [ ] MCP Meta conectado e testado (oficial `mcp__meta__ads_*` preferencial OU Pipeboard `mcp__meta-ads__*` fallback — ver `.claude/lib/mcp-detect/README.md`)
 - [ ] MCP `shopify` conectado e testado
 - [ ] Ad Account ID válido
@@ -37,7 +37,7 @@ Invoca `deploy-shopify-product.md`:
 result_1 = invoke_recipe("deploy-shopify-product", {
   product_slug: manifest.product_slug,
   offer_tiers: offer.tiers,
-  description_md: "/workspace/[produto]/06-copy.md",
+  description_md: "/workspace/[produto]/06-copy-engine/relatorio.md",
   images: manifest.images_paths || []
 })
 ```
@@ -60,7 +60,7 @@ shopify.theme.asset.update(
 ```
 campaign = meta_ads.campaign.create(
   ad_account_id,
-  name=strategy.campaign_name,  // do 10-ad-strategy.json
+  name=strategy.campaign_name,  // do 10-ad-strategy/dados.json
   objective="OUTCOME_SALES",
   status="PAUSED",
   special_ad_categories=[],
@@ -97,14 +97,14 @@ ad_set = meta_ads.ad_set.create(
 ```
 
 ### Stage 5 — Upload criativos (se .mp4 existirem)
-Verifica `/workspace/[produto]/08-creatives/videos/` pra cada criativo briefing.
+Verifica `/workspace/[produto]/08-creative-engine/videos/` pra cada criativo briefing.
 
 Pra cada vídeo existente, invocar `upload-creative-to-meta.md`:
 ```
 invoke_recipe("upload-creative-to-meta", {
   creative_id: "<creative-id>",
   ad_set_name: "<ad_set_name>",
-  video_path: "/workspace/[produto]/08-creatives/videos/<creative-id>.mp4",
+  video_path: "/workspace/[produto]/08-creative-engine/videos/<creative-id>.mp4",
   status: "PAUSED"
 })
 ```
@@ -152,7 +152,7 @@ else:
     logar warning — sem MCP Meta, baseline será preenchido manualmente na primeira Skill 11
 ```
 
-Salva state inicial em `/workspace/[produto]/11-analysis/raw-pull-[timestamp].json` como baseline (com `source: "meta_mcp_official" | "meta_mcp_pipeboard"`).
+Salva state inicial em `/workspace/[produto]/11-ad-analysis/raw-pull-[timestamp].json` como baseline (com `source: "meta_mcp_official" | "meta_mcp_pipeboard"`).
 
 ### Stage 8 — Update manifest + log
 

@@ -95,7 +95,7 @@ Pra cada promise que aparece na copy/páginas/ads, validar contra config real da
 | "Limited time — ends [date]" | eyebrow, banner | Data futura válida + schema time-bound configurado | `page.json` promo block |
 | "Ships in 24h" / "Same-day shipping" | trust row | Fulfillment center consegue cumprir (pergunta explícita ao membro) | Confirmação manual documentada |
 | "Made in [country]" | trust row | Produto realmente feito lá (regulatório) | COGS breakdown + manifest |
-| "Clinically proven [outcome]" | hero/claim | `04-research-foundation.json` contém evidência rastreável | Research Foundation (Skill 04 Etapa 2.5) |
+| "Clinically proven [outcome]" | hero/claim | `04-offer-builder/research-foundation.json` contém evidência rastreável | Research Foundation (Skill 04 Etapa 2.5) |
 | "Rated 4.X stars by N customers" | social proof | Review app (Judge.me/Loox/Yotpo) tem esses números | Admin API da review app |
 | "As seen on [outlet]" | trust row | Prova de aparição real (link, screenshot, PR release) | Manual confirmation com artefato |
 | "FDA approved" / "FDA cleared" | authority claim | Produto realmente tem esse status | Regulatory doc obrigatório |
@@ -116,7 +116,7 @@ Pra cada promise que aparece na copy/páginas/ads, validar contra config real da
      "items": [
        {
          "promise": "Free shipping worldwide",
-         "source": "06-copy.md hero section",
+         "source": "06-copy-engine/relatorio.md hero section",
          "validation": "shipping_zones",
          "status": "fail",
          "reason": "Shipping zone 'Rest of world' tem $24.99 rate; apenas US é free",

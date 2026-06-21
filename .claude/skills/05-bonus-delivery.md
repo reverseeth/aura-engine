@@ -42,8 +42,8 @@ Congruência visual importa: na PDP, "free" deve **aparecer** (imagem do brinde,
 
 1. Ler `workspace/profile.md` → `report_language` (default `pt-BR` se ausente). Toda doc interna desta skill é escrita nesse idioma. O asset entregável ao consumidor (PDF do e-book, email) é **sempre em inglês** (mercado US) — rule 0 do CLAUDE.md.
 2. Ler `workspace/[produto]/manifest.json` → detectar `stage` (member-stage-awareness). Influencia recomendação de tipo: **starter** → priorizar e-book/guide (custo zero de produzir) e GWP de baixo COGS; **scaling** → pode sustentar complementary SKU físico e GWP mais robusto.
-3. `04-offer.json` existe com `bonuses[]` preenchido. Pra cada bonus, `type` claro (não default "pdf").
-4. **Escape path (ES1):** se `04-offer.json` está ausente/corrompido, oferecer (A) re-rodar Skill 04 ou (B) proceder com bônus genérico marcando `manifest.skipped_preflight`. Não abortar seco.
+3. `04-offer-builder/dados.json` existe com `bonuses[]` preenchido. Pra cada bonus, `type` claro (não default "pdf").
+4. **Escape path (ES1):** se `04-offer-builder/dados.json` está ausente/corrompido, oferecer (A) re-rodar Skill 04 ou (B) proceder com bônus genérico marcando `manifest.skipped_preflight`. Não abortar seco.
 
 Se `bonuses[]` está vazio mas o membro quer um bônus, **voltar pra 04** — é lá que se decide. A 05 não cria oferta.
 
@@ -51,7 +51,7 @@ Se `bonuses[]` está vazio mas o membro quer um bônus, **voltar pra 04** — é
 
 ### ETAPA 1 — Parse dos bonuses definidos na 04
 
-Ler `04-offer.json.bonuses[]`. Schema esperado (alinhado com a 04):
+Ler `04-offer-builder/dados.json.bonuses[]`. Schema esperado (alinhado com a 04):
 
 ```json
 {
@@ -78,7 +78,7 @@ A alavanca de AOV mais direta. Add um item de baixo COGS quando o cart subtotal 
 - **AOV Money Close + Offer Bump + Add-More-Packages** (rode `AOV money close offer bump add more packages biggest package most popular checkout`) — posiciona o threshold do GWP junto do tier "most popular".
 - **3x+ Markup Rule + $60 AOV Floor (Margin Validation for Paid-Traffic Brands)** (rode `3x markup rule 60 dollar AOV floor COGS shipping margin paid traffic CPM fixed`) — sanity check de margem: o brinde low-COGS não pode furar o piso.
 
-**1. Definir o threshold (cart subtotal):** ancorar no AOV. Ler `04-offer.json` (price, offer_stack) e o AOV histórico se existir (manifest ou Stripe). Regra prática: threshold ~10-20% **acima** do AOV atual, pra empurrar o cliente a adicionar 1 item a mais sem ser inalcançável. Se não houver AOV histórico, usar o preço do tier principal × 1.1 como proxy e marcar como teórico.
+**1. Definir o threshold (cart subtotal):** ancorar no AOV. Ler `04-offer-builder/dados.json` (price, offer_stack) e o AOV histórico se existir (manifest ou Stripe). Regra prática: threshold ~10-20% **acima** do AOV atual, pra empurrar o cliente a adicionar 1 item a mais sem ser inalcançável. Se não houver AOV histórico, usar o preço do tier principal × 1.1 como proxy e marcar como teórico.
 
 **2. Sourcing low-COGS:** o brinde precisa ter percepção de valor alta e custo real baixo (sample size do próprio catálogo, item complementar barato, kit emocional). O `value_anchored` na PDP ancora no **varejo real** do item, nunca num "sticker price" inventado (ver Compliance abaixo).
 
@@ -99,9 +99,9 @@ O e-book/guide que ajuda o cliente a **alcançar o resultado** que o produto pro
 - **Hormozi Value Equation (Dream Outcome × Perceived Likelihood / Time Delay × Effort & Sacrifice)** (rode `Hormozi grand slam offer value equation dream outcome perceived likelihood time delay effort`) — o e-book deve mover ≥1 das 4 variáveis (tipicamente reduzir Time Delay e Effort pra chegar no resultado).
 - **Razor-Blade vs Handle (Bonus Fit Principle)** (rode `razor blade vs handle bonus fit natural complement to product`) — o asset só vale se faz o cliente extrair mais do produto principal, não como "PDF qualquer".
 
-**1. Gerar o conteúdo** alinhado ao dream outcome (ler `02-market-research.json` pra VOC e desire, `04-offer.json` pro mecanismo). O e-book é REAL e específico do avatar, não "10 daily tips". Exemplo bom: skincare 45-65 → "The 14-Day Glow Protocol: exactly when to apply, what to pair, what to avoid".
+**1. Gerar o conteúdo** alinhado ao dream outcome (ler `02-market-research/dados.json` pra VOC e desire, `04-offer-builder/dados.json` pro mecanismo). O e-book é REAL e específico do avatar, não "10 daily tips". Exemplo bom: skincare 45-65 → "The 14-Day Glow Protocol: exactly when to apply, what to pair, what to avoid".
 
-**2. Produzir o PDF:** Markdown → HTML → PDF (weasyprint ou headless Chrome). Design da **marca do membro** (cores/fonte da brand, não do Aura). Conteúdo **em inglês** (consumidor US). Salvar em `workspace/[produto]/bonuses/[bonus-id]/[bonus-id].pdf`.
+**2. Produzir o PDF:** Markdown → HTML → PDF (weasyprint ou headless Chrome). Design da **marca do membro** (cores/fonte da brand, não do Aura). Conteúdo **em inglês** (consumidor US). Salvar em `workspace/[produto]/05-bonus-delivery/bonuses/[bonus-id]/[bonus-id].pdf`.
 
 **3. Entrega:** link no email post-purchase (ver ETAPA 3, executado pela 13) + opcionalmente thank-you page. Asset hospedado em Shopify Files API, S3 ou R2.
 
@@ -181,7 +181,7 @@ Compliance do email: subject < 50 chars, 1 CTA só, reply-to monitorado, unsubsc
 
 ### ETAPA 4 — Tracking (access rate / take-rate)
 
-Registrar cada delivery em `workspace/[produto]/05-bonus-delivery-log.json`. É um **array** de deliveries (running log), não um objeto único:
+Registrar cada delivery em `workspace/[produto]/05-bonus-delivery/dados.json`. É um **array** de deliveries (running log), não um objeto único:
 
 ```json
 [
@@ -230,7 +230,7 @@ KPIs por tipo:
 - **Compliance Sweep (will→helps-to, claims→mice-type, fake-urgency cut, unauthorized-endorsement cut)** (rode `FTC compliance sweep will helps to claims mice type fake urgency endorsement cut`) — varredura do nome/descrição do bônus na PDP (item 3).
 
 1. **FTC anchored-value:** o `value_anchored` do bônus deve ancorar no **preço de varejo real** do item, não num "sticker price" colado num item que nunca foi vendido por aquele preço. Ancorar valor falso em item não-vendido é frágil legalmente. Se o e-book "vale $49" mas nunca foi vendido, usar uma âncora defensável (preço de guides comparáveis no mercado) ou baixar a âncora.
-2. **Kennedy Level-2 (keep-the-premium-on-refund):** atar o bônus à garantia — "se pedir reembolso, **fica com o bônus de qualquer forma**". Sinaliza confiança suprema e reduz fricção de compra. Coordenar com a `guarantee` do `04-offer.json` (se a garantia já é Level-2, a copy da página deve refletir; ver Skill 06/07). Surface pro membro se quiser ativar isso e ainda não está na oferta.
+2. **Kennedy Level-2 (keep-the-premium-on-refund):** atar o bônus à garantia — "se pedir reembolso, **fica com o bônus de qualquer forma**". Sinaliza confiança suprema e reduz fricção de compra. Coordenar com a `guarantee` do `04-offer-builder/dados.json` (se a garantia já é Level-2, a copy da página deve refletir; ver Skill 06/07). Surface pro membro se quiser ativar isso e ainda não está na oferta.
 3. **Ad-flag words (rule 8b):** o nome/descrição do bônus que aparece na PDP segue ad-safe (Meta crawler lê a landing). Em doc interno, ok mencionar livre.
 
 ## Anti-patterns (FORBIDDEN)
@@ -243,7 +243,7 @@ KPIs por tipo:
 - In-box gift (complementary/gift-wrap) sem coordenar com fulfillment (não vai na caixa).
 - `value_anchored` inflado em item não-vendido (frágil no FTC).
 - GWP threshold abaixo do AOV (queima margem sem empurrar AOV pra cima).
-- Sobrescrever o `05-bonus-delivery-log.json` em vez de dar append (perde histórico).
+- Sobrescrever o `05-bonus-delivery/dados.json` em vez de dar append (perde histórico).
 
 ## Regras de rigor
 
@@ -254,14 +254,16 @@ KPIs por tipo:
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Garantir diretório:** `mkdir -p workspace/[produto]/bonuses/` antes de salvar.
+**Garantir diretório:** `mkdir -p workspace/[produto]/05-bonus-delivery/bonuses/` antes de salvar.
 
-1. **`workspace/[produto]/bonuses/[bonus-id]/`** — assets do bônus (PDF do e-book, screenshots da config GWP, instruções de fulfillment, etc — conforme type). Estes seguem o **design da marca do membro** (não do Aura) e o **consumidor-final é em inglês**.
-2. **`workspace/[produto]/05-bonus-delivery.md`** — doc operacional pra AI ler em skills futuras: cada bônus com type, canal de entrega, trigger, threshold (GWP), path do asset, KPI esperado. Escrito no `report_language`.
-3. **`workspace/[produto]/05-bonus-delivery.html`** — visualização humana usando `.claude/templates/aura-report-template.html` como base. **Logo SVG Aura no topo** (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por bônus, `.pill` pro type tag, `.kpi-grid` pra take-rate/access rate (quando disponível), `.callout` pro threshold de GWP.
-4. **`workspace/[produto]/05-bonus-delivery-log.json`** — array running de deliveries + access/take-rate tracking (ETAPA 4). Append, nunca sobrescrever.
+1. **`workspace/[produto]/05-bonus-delivery/bonuses/[bonus-id]/`** — assets do bônus (PDF do e-book, screenshots da config GWP, instruções de fulfillment, etc — conforme type). Estes seguem o **design da marca do membro** (não do Aura) e o **consumidor-final é em inglês**.
+2. **`workspace/[produto]/05-bonus-delivery/relatorio.md`** — doc operacional pra AI ler em skills futuras: cada bônus com type, canal de entrega, trigger, threshold (GWP), path do asset, KPI esperado. Escrito no `report_language`.
+3. **`workspace/[produto]/05-bonus-delivery/relatorio.html`** — visualização humana usando `.claude/templates/aura-report-template.html` como base. **Logo SVG Aura no topo** (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por bônus, `.pill` pro type tag, `.kpi-grid` pra take-rate/access rate (quando disponível), `.callout` pro threshold de GWP.
+4. **`workspace/[produto]/05-bonus-delivery/dados.json`** — array running de deliveries + access/take-rate tracking (ETAPA 4). Append, nunca sobrescrever.
 
 Atualizar `manifest.json.skills_completed` com `"05-bonus-delivery"`.
+
+- Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (atualiza ABRIR-AQUI.html).
 
 ## Mensagem Final (framing de draft — iteration-driven-refinement)
 
@@ -272,4 +274,4 @@ Atualizar `manifest.json.skills_completed` com `"05-bonus-delivery"`.
 >
 > O GWP tá configurado via [app/Function] com threshold de $[X] (ancorado no seu AOV). Os e-books/assets digitais tão em `bonuses/`. O email de entrega vai entrar no fluxo da Skill 13.
 >
-> Testa comprando 1 unidade pra validar que o brinde aparece no cart e os emails/links chegam. Me diz se o threshold tá certo ou se quer ajustar. Depois de ~30 dias com dados, eu leio o `05-bonus-delivery-log.json` e mostro take-rate/access rate por bônus pra gente iterar a oferta."
+> Testa comprando 1 unidade pra validar que o brinde aparece no cart e os emails/links chegam. Me diz se o threshold tá certo ou se quer ajustar. Depois de ~30 dias com dados, eu leio o `05-bonus-delivery/dados.json` e mostro take-rate/access rate por bônus pra gente iterar a oferta."

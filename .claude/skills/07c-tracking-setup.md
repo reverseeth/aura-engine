@@ -17,7 +17,7 @@ Quando a página já está deployada na loja (Skill 07b) e o membro precisa gara
 
 - [ ] `workspace/[produto]/manifest.json` existe e é parseável
 - [ ] `07b-page-build` está em `skills_completed` (página no ar) — sem página deployada, ViewContent/AddToCart/Purchase não têm onde disparar
-- [ ] `04-offer.json` existe (a skill lê `daily_budget`/`budget_tier` pra mapear o budget da decision tree do analytics stack)
+- [ ] `04-offer-builder/dados.json` existe (a skill lê `daily_budget`/`budget_tier` pra mapear o budget da decision tree do analytics stack)
 - [ ] Acesso ao Shopify admin da loja + uma conta Meta Business (Business Manager + ad account + um Pixel/Dataset)
 
 **Arquivo de pré-flight faltante (escape path, rule ES1):** se `manifest.json` não parseia, NÃO aborte seco — ofereça **(A)** rebuild do manifest (inspeciona `workspace/[produto]/` e reconstrói, perguntando budget/stage), OU **(B)** restore do backup mais recente (`.manifest-backup-*.json`). Ver `.claude/rules/emergency-escape-paths.md` ES2.
@@ -26,7 +26,7 @@ Se `07b-page-build` NÃO está em `skills_completed`, ofereça: **(A)** rodar `b
 
 ### Gate de consistência (Skill 09) — não-bloqueante aqui
 
-A 09 gateia o **launch** (Skill 10), não o tracking. Esta skill pode rodar antes ou depois da 09. Se `09-consistency-audit.json` existir com `launch_recommendation == "BLOCK"`, apenas registre no output final que o launch está bloqueado até a 09 passar — mas siga instalando o tracking normalmente (ter pixel pronto não gasta dinheiro).
+A 09 gateia o **launch** (Skill 10), não o tracking. Esta skill pode rodar antes ou depois da 09. Se `09-consistency-audit/dados.json` existir com `launch_recommendation == "BLOCK"`, apenas registre no output final que o launch está bloqueado até a 09 passar — mas siga instalando o tracking normalmente (ter pixel pronto não gasta dinheiro).
 
 ### Contexto a carregar
 
@@ -103,7 +103,7 @@ A Skill 11 (ad-analysis) depende de atribuição confiável. Antes do launch, fi
 
 **Mapeamento por stage (default; o budget refina):**
 - `starter` → **Meta App nativo** + CAPI ON. Baseline sempre. NÃO empurrar tool paga pra quem tem $500/mês.
-- `validating` → **Meta App** ou **Wetracked** (se o membro quer ficha técnica melhor de atribuição).
+- `validating` → **Meta App** ou **Wetracked** (se o membro quer atribuição mais precisa).
 - `scaling` → **Triple Whale** vira payback claro a partir de $1k/dia; **Aimerce** entra como premium acima de $3k/dia.
 
 **Budget mapping (refina o stage):**
@@ -138,9 +138,9 @@ Antes de declarar pronto, confirmar a checklist (responde 08/10):
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Garantir diretório:** `mkdir -p workspace/[produto]/07-page/` antes de salvar.
+**Garantir diretório:** `mkdir -p workspace/[produto]/07c-tracking-setup/` antes de salvar.
 
-`workspace/[produto]/07-page/07c-tracking-setup.md` contendo:
+`workspace/[produto]/07c-tracking-setup/relatorio.md` contendo:
 1. Status do pixel (Dataset ID, canal nativo, eventos confirmados)
 2. Status do CAPI (ON/OFF, Advanced Matching, dedup)
 3. Match Quality medido + caminho de verificação usado (MCP oficial / Pipeboard / manual)
@@ -148,9 +148,9 @@ Antes de declarar pronto, confirmar a checklist (responde 08/10):
 5. Checklist final da ETAPA 5
 6. Próximos passos (criativos)
 
-**Dual output `.html`** companion com o mesmo nome (`07c-tracking-setup.html`): usar `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained), abrindo o `<body>` com o bloco SVG da logo copiado LITERALMENTE de `.claude/templates/aura-logo-snippet.html` (NUNCA substituir por texto). Usar componentes aura (callout, note, danger, table-wrap, pill) — emojis ✅⚠️❌ são OK em relatório interno (rule 7 exceção).
+**Dual output `.html`** companion com o mesmo nome (`07c-tracking-setup/relatorio.html`): usar `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained), abrindo o `<body>` com o bloco SVG da logo copiado LITERALMENTE de `.claude/templates/aura-logo-snippet.html` (NUNCA substituir por texto). Usar componentes aura (callout, note, danger, table-wrap, pill) — emojis ✅⚠️❌ são OK em relatório interno (rule 7 exceção).
 
-### JSON companion — `07c-tracking.json`
+### JSON companion — `07c-tracking-setup/dados.json`
 
 ```json
 {
@@ -185,6 +185,7 @@ Após salvar, atualizar `workspace/[produto]/manifest.json`:
 - Gravar **`tracking_ready: true/false`** (true só se Match Quality PASS ou WARN; false se BLOCK não resolvido) — a Skill 08 e a Skill 10 leem este campo no pré-flight pra confirmar pixel/CAPI ≥ 80% sem pedir screenshot de novo
 - Gravar **`analytics_stack`** com a escolha da ETAPA 4 — a Skill 10 e a Skill 11 leem pra orientar leitura de dados
 - Registrar `tracking_id`
+- Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug`; atualiza ABRIR-AQUI.html)
 
 > Se `tracking_ready: false` foi gravado (membro escolheu prosseguir com Match Quality baixo via escape ES1), a 08 e a 10 vão herdar o aviso e devem alertar que os criativos/campanha rodam com sinal degradado.
 
@@ -202,4 +203,4 @@ Após salvar, atualizar `workspace/[produto]/manifest.json`:
 
 ---
 
-> **Self-audit silencioso (rule 9 + `.claude/rules/post-task-self-audit.md`):** antes de declarar pronto, confirmar inline e sem mostrar bloco: (1) `tracking_ready` no manifest reflete o status REAL do Match Quality (não gravar `true` com score < 60% sem o membro ter aceitado o risco); (2) `analytics_stack` é uma das 4 opções canônicas e bate com o stage; (3) `07c-tracking.json` + `.md` + `.html` salvos, `.html` com logo SVG; (4) Dataset ID do pixel é consistente com o ad account que a Skill 10 vai usar; (5) manifest atualizado (`skills_completed`, `tracking_ready`, `analytics_stack`, `updated_at`). Issue dentro do escopo → fix inline. Conflito que exige decisão do membro (ex: dois pixels ativos, qual manter) → surface curto.
+> **Self-audit silencioso (rule 9 + `.claude/rules/post-task-self-audit.md`):** antes de declarar pronto, confirmar inline e sem mostrar bloco: (1) `tracking_ready` no manifest reflete o status REAL do Match Quality (não gravar `true` com score < 60% sem o membro ter aceitado o risco); (2) `analytics_stack` é uma das 4 opções canônicas e bate com o stage; (3) `07c-tracking-setup/dados.json` + `relatorio.md` + `relatorio.html` salvos, `.html` com logo SVG; (4) Dataset ID do pixel é consistente com o ad account que a Skill 10 vai usar; (5) manifest atualizado (`skills_completed`, `tracking_ready`, `analytics_stack`, `updated_at`). Issue dentro do escopo → fix inline. Conflito que exige decisão do membro (ex: dois pixels ativos, qual manter) → surface curto.

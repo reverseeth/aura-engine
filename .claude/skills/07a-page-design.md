@@ -36,10 +36,10 @@ Depois desta skill, rode **07b-page-build** pra compilar o HTML aprovado em Liqu
 1. Leia `workspace/profile.md` — em especial `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno desta skill (`07-plan.json` reasoning, `07-design-system.md`/`.html`, conversa com o membro) usa esse idioma. **A copy consumidor-final (headlines, eyebrows, hero, bullets, CTAs) inserida no `design/page.html` permanece SEMPRE em inglês US**, independente do `report_language` — copy pública nunca traduz.
 2. Valide os inputs (todos sob `workspace/[produto]/`):
    - [ ] `manifest.json` existe e tem `06-copy-engine` em `skills_completed`
-   - [ ] `06-copy.json` + `06-copy.md` existem e parseiam
-   - [ ] `04-offer.json` + `04-offer.md` existem (preço, stack, garantia, mecanismo nomeado)
-   - [ ] `02-market-research.json`/`.md` existe (awareness, sophistication, ceticismo, VOC) — usado pra detectar `page_type`
-   - [ ] `03-competitor-analysis.md` existe (opcional, mas alimenta gaps/diferenciação)
+   - [ ] `06-copy-engine/dados.json` + `06-copy-engine/relatorio.md` existem e parseiam
+   - [ ] `04-offer-builder/dados.json` + `04-offer-builder/relatorio.md` existem (preço, stack, garantia, mecanismo nomeado)
+   - [ ] `02-market-research/dados.json`/`relatorio.md` existe (awareness, sophistication, ceticismo, VOC) — usado pra detectar `page_type`
+   - [ ] `03-competitor-analysis/relatorio.md` existe (opcional, mas alimenta gaps/diferenciação)
    - [ ] Dir de output: `workspace/[produto]/07-page/` (criar com `mkdir -p` se não existir)
 
 **Se algum input obrigatório faltar** (regra `emergency-escape-paths` ES1) — não aborte seco. Ofereça:
@@ -79,7 +79,7 @@ Aprofunde até ter domínio de conversão + estrutura de página. Schwartz aware
 
 ### 0.3 Ler inputs obrigatórios
 
-Leia, sob `workspace/[produto]/`: `06-copy.md` + `06-copy.json` (OBRIGATÓRIO), `04-offer.md`/`.json` (preço, stack, garantia, **mecanismo nomeado LITERAL**), `02-market-research.md`/`.json` (awareness, sophistication, ceticismo, VOC), `03-competitor-analysis.md` (gaps, claims saturados a evitar). Leia `workspace/profile.md` (estilo de marca, stage).
+Leia, sob `workspace/[produto]/`: `06-copy-engine/relatorio.md` + `06-copy-engine/dados.json` (OBRIGATÓRIO), `04-offer-builder/relatorio.md`/`dados.json` (preço, stack, garantia, **mecanismo nomeado LITERAL**), `02-market-research/relatorio.md`/`dados.json` (awareness, sophistication, ceticismo, VOC), `03-competitor-analysis/relatorio.md` (gaps, claims saturados a evitar). Leia `workspace/profile.md` (estilo de marca, stage).
 
 ---
 
@@ -89,7 +89,7 @@ A página NÃO tem estrutura fixa. Cada produto merece um plano que reflita sua 
 
 ### 1.1 Detectar `page_type` — PRIMARIAMENTE pelo awareness (Schwartz)
 
-O `page_type` é decidido pelo **awareness level** lido de `02-market-research.json` (campo de awareness) e confirmado em `06-copy.json` (lead type). Heurística sintática é só **tie-break**.
+O `page_type` é decidido pelo **awareness level** lido de `02-market-research/dados.json` (campo de awareness) e confirmado em `06-copy-engine/dados.json` (lead type). Heurística sintática é só **tie-break**.
 
 | Awareness (Schwartz) | page_type | Lógica | Estrutura típica |
 |---|---|---|---|
@@ -264,6 +264,7 @@ Antes de apresentar o menu, detecte o que está disponível NESTA sessão e só 
 | **2. Claude Design (handoff)** | Sempre ofertável — depende só do membro ter acesso ao canvas do `claude.ai/design` (Claude Pro/Max). Não há tool a detectar; é um handoff manual de arquivo. |
 | **3. AIDesigner MCP** | Há tools com prefixo `mcp__aidesigner__` na sessão. Se ausente, NÃO liste como rota ativa — mencione em 1 linha "rota paga opcional, conecte o MCP se quiser" e siga. |
 | **4. frontend-design (fallback)** | Sempre disponível (skill nativa). É a rota de menor qualidade — só quando o membro não tem referência nem quer desenhar. |
+| **5. AI site-builders (v0 / Lovable / Manus)** | Sempre ofertável como rota EXTERNA. O membro descreve a página num desses geradores, eles criam o HTML. Ressalva: trazem **runtime próprio** (stack/hospedagem deles), não Liquid nativo do Shopify — então serve como landing externa OU o membro exporta o HTML e a 07b reintegra ao tema. Só liste se o membro mencionar que usa algum deles. |
 
 > Refero (`mcp__refero__`), se presente, já foi usado na ETAPA 2 pra brand signals — NÃO é uma rota de design de página aqui, é fonte de signals que alimenta qualquer rota.
 
@@ -277,6 +278,7 @@ Mostre esta tabela (traduzida pro idioma do membro, listando só as rotas viáve
 | **2. Claude Design (handoff)** | Você desenha/itera a página no canvas visual do `claude.ai/design`, exporta como HTML standalone, e cola o arquivo aqui. A Aura consome esse HTML como `page.html`. | Alta — controle visual fino, aprovação no canvas | Incluso no Claude Pro/Max (consome mais token, mesmo limite) | Média (design semi-manual no canvas — isso é feature: você aprova visualmente antes do Liquid) | Você quer controle visual total e gosta de iterar num canvas |
 | **3. AIDesigner MCP** *(se conectado)* | Roda dentro do Claude Code injetando padrões de design premium; cospe HTML/CSS limpo direto como `page.html`. | Alta | ~$20/mês (MCP pago) | Alta | Você já tem o MCP e quer design premium automatizado sem sair do Claude Code |
 | **4. frontend-design** *(fallback)* | Gera a página via skill nativa, **com direção forte** (brand-signals da ETAPA 2 + referência concreta + estilo nomeado). | A mais baixa das 4 — gerada do zero | Zero | Total | Você NÃO tem página de referência nem quer desenhar no canvas. É o fallback. |
+| **5. AI site-builders (v0 / Lovable / Manus)** *(rota externa)* | Você descreve a página num desses geradores, ele cria o HTML, e você cola aqui como `page.html`. Eles trazem **runtime próprio** (não é Liquid nativo do Shopify) — então serve como landing externa OU a 07b exporta/reintegra ao tema. Consumida igual à rota 2 (você traz o HTML; a Aura injeta os markers `data-aura-section` e segue pra 3.7). | Alta — geradores modernos | Free tier / pago conforme uso | Média (gera no app deles; você traz o HTML) | Você já usa v0/Lovable/Manus e prefere desenhar lá fora, ciente de que o runtime é deles |
 
 Pergunte direto, sem decidir por ele:
 > "Qual rota você prefere pro design da página? A **1 (clone-and-adapt)** é a mais rápida e costuma sair melhor, porque parte de um layout de concorrente que já converte — você só me indica uma página que acha boa. Mas escolhe a que fizer sentido pra você."
@@ -285,13 +287,17 @@ Auto-sugira a rota 1 como **default** (não imposição) por velocidade e qualid
 
 Depois da escolha, vá pra sub-etapa correspondente. **Toda rota termina gerando `design/page.html` + indo pra 3.7 (regras de qualidade comuns) + checkpoint de aprovação.** Crie o dir com `mkdir -p workspace/[produto]/07-page/design`.
 
+> **Ajustes rápidos no admin (Sidekick) — pós-launch:** depois que a página estiver no ar (pós-07b), o membro pode usar o **Sidekick** (a IA dentro do admin do Shopify) pra microajustes pontuais — trocar uma imagem, ajustar um texto, mexer numa cor — sem voltar pro Claude Code. Não substitui a 07a/07b (que constroem a página inteira com a copy real e fazem o deploy versionado e seguro): é só pro retoque rápido depois. Mencione isso ao membro só se for útil no contexto, não como rota de design.
+
+> **Prontidão pra IA de busca (GEO):** independente da rota escolhida aqui, a 07b adiciona a camada GEO/Schema.org (`product-schema.json` + `agent-facts.html`) pra a página ser entendida e citada quando alguém pesquisa o produto no ChatGPT, Claude ou Perplexity (search/shopping). A rota desta etapa é só decisão **visual** — a prontidão pra IA de busca é garantida no build (07b), não depende da rota.
+
 ---
 
 ### 3.3 Rota 1 — Clone-and-adapt
 
 O membro indica 1 URL de concorrente. A Aura captura a **ESTRUTURA** dessa página (ordem de sections, hierarquia, layout) e a usa como **ponto de partida**, trocando TODO o conteúdo pelo do membro.
 
-> **REGRA LEGAL E ÉTICA (inegociável):** capturar estrutura/layout e trocar 100% do conteúdo (copy, imagens, marca, paleta) é defensável. Copiar 1:1 não é. **NÃO** reaproveite copy, imagens, logos, nome de marca ou claims do concorrente — só o esqueleto de layout como direção. A copy vem SEMPRE de `06-copy.json`, a oferta de `04-offer.json`, a paleta/tipografia dos `design-signals` da ETAPA 2.
+> **REGRA LEGAL E ÉTICA (inegociável):** capturar estrutura/layout e trocar 100% do conteúdo (copy, imagens, marca, paleta) é defensável. Copiar 1:1 não é. **NÃO** reaproveite copy, imagens, logos, nome de marca ou claims do concorrente — só o esqueleto de layout como direção. A copy vem SEMPRE de `06-copy-engine/dados.json`, a oferta de `04-offer-builder/dados.json`, a paleta/tipografia dos `design-signals` da ETAPA 2.
 
 1. Peça a URL: *"Me passa a URL da página de concorrente que você acha boa. Vou pegar só o esqueleto de layout dela (não a copy nem as imagens) e montar a SUA versão por cima."*
 2. Capture a estrutura via o subcomando `clone-and-adapt` do `aura_clone.py` (orquestra downloader → analyzer → skeleton-builder numa chamada):
@@ -358,7 +364,7 @@ Apresente como **draft navegável**, não como "pronto". Adapte a pergunta à ro
 
 **Este HTML é a FONTE ÚNICA DE VERDADE visual.** O membro aprova AQUI, antes de qualquer Liquid existir. Não avance pra 07b sem aprovação.
 
-- Cada iteração salva versão nova (`design/page-v2.html`, `-v3`), não sobrescreve. Log em `workspace/[produto]/iterations-log.json`.
+- Cada iteração salva versão nova (`design/page-v2.html`, `-v3`), não sobrescreve. Log em `workspace/[produto]/07-page/iterations-log.json`.
 - Max 3 iterações sem progresso → escalate. Na rota 4, peça referência descritiva em vez de draft-reativo; nas rotas 1/2/3, ofereça trocar de rota (ex: "clone-and-adapt não está saindo bom — quer desenhar no canvas (rota 2) ou me dar outra referência?").
 - Quando o membro aprova, consolide como `design/page.html` (versão canônica). Na rota 4, isso significa promover a variação escolhida (ou o mix) ao arquivo final; nas demais rotas, é o HTML aprovado da própria rota. Diga: "Salvando como `design/page.html` — fonte única de verdade. A 07b vai compilar exatamente isso em Liquid."
 
@@ -412,7 +418,7 @@ Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não 
     "skepticism": "baixo | médio | alto",
     "product_type": "commodity | nova categoria | disrupter | incremental",
     "has_unique_mechanism": true,
-    "mechanism_name": "[LITERAL do 04-offer.json — nome exato do mecanismo nomeado]",
+    "mechanism_name": "[LITERAL do 04-offer-builder/dados.json — nome exato do mecanismo nomeado]",
     "hero_type": "[1 dos 5 canônicos da base]",
     "decision_modalities_served": ["spontaneous", "competitive", "humanistic", "methodical"],
     "page_type": "advertorial | landing | pdp_robust | pdp_lean",
@@ -439,7 +445,7 @@ Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não 
 }
 ```
 
-> `mechanism_name` é o nome **LITERAL** de `04-offer.json` — não invente, não parafraseie. A skill 09 (consistency audit) compara esse campo cross-fase; drift aqui falha o gate.
+> `mechanism_name` é o nome **LITERAL** de `04-offer-builder/dados.json` — não invente, não parafraseie. A skill 09 (consistency audit) compara esse campo cross-fase; drift aqui falha o gate.
 > `page_type` aparece tanto no top-level quanto dentro de `strategy` (downstream lê de ambos) — mantenha idênticos.
 
 ### 4.2 Relatórios (dual output — rule 6b)
@@ -452,6 +458,8 @@ Salve `07-design-system.md` (paleta role-tagged, tipografia, spacing, radii, sha
 
 Atualize `workspace/[produto]/manifest.json` adicionando `07a-page-design` ao array `skills_completed`. Registre `page_type` e `signals_source` no manifest se útil pra downstream.
 
+- Regenera o painel: `python3 .claude/lib/workspace-index/build_index.py <slug>` (atualiza `workspace/[produto]/ABRIR-AQUI.html`).
+
 ---
 
 ## Mensagem final (framing de draft)
@@ -463,7 +471,7 @@ Atualize `workspace/[produto]/manifest.json` adicionando `07a-page-design` ao ar
 
 ## Self-audit silencioso (rule post-task-self-audit)
 
-Antes de declarar concluído, rode os 5 gates internos e corrija inline (sem mencionar): `mechanism_name` em `07-plan.json` bate LITERAL com `04-offer.json`; `page_type` é coerente com o awareness de `02`; eyebrows são criativos (não rótulos de framework); a copy inserida em `design/page.html` veio de `06` (não inventada); `design-tokens.json` e `design-signals.json` existem e parseiam; `section_order` e `sections_plan` consistentes entre si; `design_route` registrado no plan; markers `data-aura-section` presentes em todas as sections (qualquer rota, inclusive handoff do canvas e clone-and-adapt); regras de qualidade comuns da 3.7 passaram (SVG, ad-safe, contraste); logo SVG presente nos `.html` internos. **Se a rota foi clone-and-adapt: confirme que NENHUMA copy, imagem, logo, claim ou nome de marca do concorrente vazou pra `design/page.html` — só o esqueleto de layout.** Surface só o que exige decisão do membro (ex: conflito de nome de mecanismo entre 02 e 04, ou rota escolhida que ficou inviável a meio caminho).
+Antes de declarar concluído, rode os 5 gates internos e corrija inline (sem mencionar): `mechanism_name` em `07-plan.json` bate LITERAL com `04-offer-builder/dados.json`; `page_type` é coerente com o awareness de `02`; eyebrows são criativos (não rótulos de framework); a copy inserida em `design/page.html` veio de `06` (não inventada); `design-tokens.json` e `design-signals.json` existem e parseiam; `section_order` e `sections_plan` consistentes entre si; `design_route` registrado no plan; markers `data-aura-section` presentes em todas as sections (qualquer rota, inclusive handoff do canvas e clone-and-adapt); regras de qualidade comuns da 3.7 passaram (SVG, ad-safe, contraste); logo SVG presente nos `.html` internos. **Se a rota foi clone-and-adapt: confirme que NENHUMA copy, imagem, logo, claim ou nome de marca do concorrente vazou pra `design/page.html` — só o esqueleto de layout.** Surface só o que exige decisão do membro (ex: conflito de nome de mecanismo entre 02 e 04, ou rota escolhida que ficou inviável a meio caminho).
 
 ## Referências cruzadas
 

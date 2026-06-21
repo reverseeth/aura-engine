@@ -16,7 +16,7 @@ Princípio: **conversão determinística mata as traduções lossy e o drift.** 
 3. COMPILE — roda `liquid-converter.py` Modo C por section (CLI exato).
 4. VALIDATE — cada `.liquid` passa por `shopify-plugin:shopify-liquid` (3 retries).
 5. POPULATE — o conversor emite `templates/page.[produto].json` com blocks/block_order/settings populados com a copy real (ordem reversa).
-5.5. GEO / Schema (agent-readability) — gera o JSON-LD Schema.org (Product + Offer + AggregateRating + BreadcrumbList) de `04-offer.json` + `06-copy.json` + reviews, valida, e injeta no template como bloco `custom_liquid` + um bloco "agent-readable facts" (specs, envio/retorno, disponibilidade, garantia) em texto limpo separado da copy persuasiva.
+5.5. GEO / Schema (agent-readability) — gera o JSON-LD Schema.org (Product + Offer + AggregateRating + BreadcrumbList) de `04-offer-builder/dados.json` + `06-copy-engine/dados.json` + reviews, valida, e injeta no template como bloco `custom_liquid` + um bloco "agent-readable facts" (specs, envio/retorno, disponibilidade, garantia) em texto limpo separado da copy persuasiva.
 6. GATES (blocking) — GATE 1 compliance (ad-flag) + GATE 2 promise↔config, ANTES do deploy.
 7. DEPLOY — shopify-theme-safety integral (duplicate → pull --nodelete → push --allow-live --nodelete + marker verification + smoke test).
 8. Dual output (.md + .html, logo SVG) + iteration loop.
@@ -28,7 +28,7 @@ Princípio: **conversão determinística mata as traduções lossy e o drift.** 
 ## Pré-flight
 
 1. Leia `workspace/profile.md` → `report_language` (default `pt-BR`; também em `manifest.report_language`). Relatórios internos e conversa nesse idioma. Copy consumidor-final permanece em inglês US.
-2. **Gate de consistência (skill 09)** — leia `workspace/[produto]/09-consistency-audit.json` se existir:
+2. **Gate de consistência (skill 09)** — leia `workspace/[produto]/09-consistency-audit/dados.json` se existir:
    - `launch_recommendation == "BLOCK"` → o deploy da página NÃO está bloqueado por si só (a página existir não gasta dinheiro), mas avise o membro dos items críticos e recomende rodar `consistency audit` de novo. O gate 09 é pré-requisito do **LAUNCH** (gateia a skill 10), não do deploy da página.
    - `"CAUTION"` → mostre warnings, peça confirmação.
    - `"GO"` ou ausente → siga (recomende rodar a 09 antes do launch).
@@ -201,9 +201,9 @@ Esta etapa NÃO toca o design visual nem a copy persuasiva. Ela adiciona duas ca
 
 Leia as fontes (todas já existem na cadeia; não invente nenhum campo):
 
-- `workspace/[produto]/04-offer.json` → nome do produto, preço, `compare_at_price`, moeda, garantia (dias), unique mechanism, descrição da oferta.
-- `workspace/[produto]/06-copy.json` → headline/descrição do produto, specs/benefícios em texto, brand.
-- **Reviews** → `04-offer.json` (se traz `social_proof`/`rating`) OU a review app real (Judge.me/Loox/Yotpo via Admin API, se conectada) OU o número que o GATE 2 já valida em `promise-check.json`. **O rating do Schema TEM que bater com o rating exibido na página e com a review app real** (senão é structured-data fraudulento — Google penaliza e pode disparar manual action).
+- `workspace/[produto]/04-offer-builder/dados.json` → nome do produto, preço, `compare_at_price`, moeda, garantia (dias), unique mechanism, descrição da oferta.
+- `workspace/[produto]/06-copy-engine/dados.json` → headline/descrição do produto, specs/benefícios em texto, brand.
+- **Reviews** → `04-offer-builder/dados.json` (se traz `social_proof`/`rating`) OU a review app real (Judge.me/Loox/Yotpo via Admin API, se conectada) OU o número que o GATE 2 já valida em `promise-check.json`. **O rating do Schema TEM que bater com o rating exibido na página e com a review app real** (senão é structured-data fraudulento — Google penaliza e pode disparar manual action).
 
 **Regra dura — sem dado, sem nó.** Se um campo não tem fonte real (ex: rating sem review app conectada, ou `compare_at_price` ausente), **OMITA o nó/propriedade** em vez de inventar. `AggregateRating` só entra se há reviews reais e contáveis. Schema com número fabricado é pior que Schema ausente (vira manual action no Google Search Console).
 
@@ -215,7 +215,7 @@ Monte `staging/geo/product-schema.json` com este shape (preencha dos arquivos, s
   "@graph": [
     {
       "@type": "Product",
-      "name": "<04-offer product_name>",
+      "name": "<04-offer-builder product_name>",
       "description": "<06-copy descrição factual do produto, sem hype — o que é, o que faz>",
       "brand": { "@type": "Brand", "name": "<brand>" },
       "image": ["<URL absoluta da imagem principal do produto>"],
@@ -231,7 +231,7 @@ Monte `staging/geo/product-schema.json` com este shape (preencha dos arquivos, s
           "@type": "MerchantReturnPolicy",
           "applicableCountry": "US",
           "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
-          "merchantReturnDays": "<dias de garantia de 04-offer>",
+          "merchantReturnDays": "<dias de garantia de 04-offer-builder>",
           "returnMethod": "https://schema.org/ReturnByMail",
           "returnFees": "https://schema.org/FreeReturn"
         },
@@ -324,11 +324,11 @@ Gere `staging/geo/agent-facts.html` — uma section discreta no fim da PDP (`dat
 
 | Categoria | Fonte | Exemplo de fato (factual, sem hype) |
 |---|---|---|
-| **Specs do produto** | `06-copy.json` / `04-offer.json` | "30ml serum. 0.5% encapsulated retinal. Fragrance-free, vegan." |
+| **Specs do produto** | `06-copy-engine/dados.json` / `04-offer-builder/dados.json` | "30ml serum. 0.5% encapsulated retinal. Fragrance-free, vegan." |
 | **Envio** | config Shopify (mesma do Gate 2) | "Free US shipping. Ships in 1–2 business days from [state]." |
-| **Retorno / garantia** | `04-offer.json` (dias) + policy page | "90-day money-back guarantee. Free returns by mail." |
+| **Retorno / garantia** | `04-offer-builder/dados.json` (dias) + policy page | "90-day money-back guarantee. Free returns by mail." |
 | **Disponibilidade** | estoque real | "In stock. Ships immediately." |
-| **Garantia/durabilidade** | `04-offer.json` | "Each bottle lasts ~60 days at the recommended use." |
+| **Garantia/durabilidade** | `04-offer-builder/dados.json` | "Each bottle lasts ~60 days at the recommended use." |
 | **Quem é** | brand snapshot | "Made by [brand], a [categoria] company." |
 
 Regras do bloco:
@@ -473,6 +473,8 @@ Conteúdo do `.md`/`.html`: plano de sections + justificativa (de `07-plan.json`
 ```
 
 Atualize `manifest.json` adicionando `07b-page-build` a `skills_completed`.
+
+Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug` — atualiza o `ABRIR-AQUI.html`).
 
 ### Iteration loop (iteration-driven-refinement)
 
@@ -629,4 +631,4 @@ A validação Liquid é parte do plugin Shopify AI Toolkit (`/plugin marketplace
 - **Conversor canônico:** `tools/design-clone/liquid-converter.py` (Modo C — flags `--html --css --type --output --blocks-dir --namespace --product-slug --emit-template-json --page-handle`)
 - **Próxima no fluxo:** `07c-tracking-setup` (pixel + CAPI antes dos criativos) → `07d-checkout-aov` → `08-creative-engine`
 - **Gate de launch:** `09-consistency-audit` (pré-requisito da skill 10, não do deploy da página)
-- **Camada GEO (ETAPA 4.5):** JSON-LD Schema.org (Product + Offer + AggregateRating + BreadcrumbList) de `04-offer.json` + `06-copy.json` + reviews, validado antes de injetar, mais o bloco agent-facts — pra citação por ChatGPT/Perplexity/Google AI Mode. Validação externa opcional pós-deploy: Google Rich Results Test + validator.schema.org.
+- **Camada GEO (ETAPA 4.5):** JSON-LD Schema.org (Product + Offer + AggregateRating + BreadcrumbList) de `04-offer-builder/dados.json` + `06-copy-engine/dados.json` + reviews, validado antes de injetar, mais o bloco agent-facts — pra citação por ChatGPT/Perplexity/Google AI Mode. Validação externa opcional pós-deploy: Google Rich Results Test + validator.schema.org.

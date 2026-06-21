@@ -21,29 +21,29 @@ Orchestrates the full product-to-ads-to-retention workflow through 14 skills:
 | 10 | scale engine | scaling plan (vertical + horizontal) |
 | 11 | consistency audit | cross-phase drift detection + fix report |
 | 12 | retention engine | Klaviyo/ESP lifecycle flows setup |
-| 13 | bonus delivery | pipeline de entrega técnica de bônus da oferta |
-| 17 | content recycler | 9 derivadas de 1 winner creative |
+| 13 | bonus delivery | technical delivery pipeline for offer bonuses |
+| 17 | content recycler | 9 derivatives from 1 winning creative |
 
 Plus an intelligence layer (`.claude/lib/`) providing:
 - **Compliance pre-flight** — scores ad copy for Meta/FTC/FDA risk before submit (blocking gate)
 - **Creative DNA registry** — learns what works for this member's avatar over time
-- **Hook taxonomy** — 17 archetypes across Big 4 emotions, used por skills 03/07/09
-- **Section patterns** — 15 patterns reutilizáveis pra sections Liquid (hero, proof, offer, etc)
-- **Whisper transcribe** — pipeline `medium` / `turbo-large` pra transcription de criativos escalados
-- **Shocking stats vault** — stats autorizados com fonte rastreável pra hooks com credibilidade
-- **Design blueprint via Claude Design** — mandatory 4-variation (A/B/C/D) artifact preview antes de Liquid
-- **Automation recipes** — MCP-based deploy/sync via Meta Ads + Shopify MCPs
+- **Hook taxonomy** — 17 archetypes across Big 4 emotions, used by skills 03/07/09
+- **Section patterns** — 15 reusable patterns for Liquid sections (hero, proof, offer, etc)
+- **Whisper transcribe** — `medium` / `turbo-large` pipeline for transcribing scaled creatives
+- **Shocking stats vault** — authorized stats with a traceable source, for credible hooks
+- **Design blueprint via Claude Design** — mandatory 4-variation (A/B/C/D) artifact preview before Liquid
+- **Automation recipes** — MCP-based deploy/sync through the Meta Ads + Shopify MCPs
 
-And operational rules em `.claude/rules/` (auto-loaded quando relevantes):
+And operational rules in `.claude/rules/` (auto-loaded when relevant):
 
 - `shopify-theme-safety.md` — pull-before-edit, `--nodelete`, silent push rejection diagnosis
-- `pre-launch-gates.md` — Compliance gate + Promise↔Config gate (blocking, não-negociável)
-- `post-task-self-audit.md` — auto-auditoria obrigatória após toda skill/tarefa importante (6 gates)
-- `iteration-driven-refinement.md` — skills geram draft + convite pra iteração, não "pronto"
-- `troubleshooting-patterns.md` — árvore de diagnóstico pra issues recorrentes
-- `member-stage-awareness.md` — adapta tom/recomendação a starter/validating/scaling
-- `reverse-order-insertion.md` — inserir elementos em line-number descending pra preservar positions
-- `emergency-escape-paths.md` — 7 cenários de erro com ≥2 paths adiante cada
+- `pre-launch-gates.md` — Compliance gate + Promise↔Config gate (blocking, non-negotiable)
+- `post-task-self-audit.md` — mandatory self-audit after every skill or important task (6 gates)
+- `iteration-driven-refinement.md` — skills produce a draft plus an invitation to iterate, not a "done"
+- `troubleshooting-patterns.md` — diagnostic tree for recurring issues
+- `member-stage-awareness.md` — adapts tone/recommendation to starter/validating/scaling
+- `reverse-order-insertion.md` — insert elements in descending line-number order to preserve positions
+- `emergency-escape-paths.md` — 7 error scenarios, each with 2 or more paths forward
 
 ## Setup
 

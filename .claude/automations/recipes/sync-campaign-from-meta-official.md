@@ -32,7 +32,7 @@ else:
 ## Pre-flight
 - [ ] MCP oficial conectado (verificar tool `ads_get_ad_accounts` retorna lista não-vazia)
 - [ ] Ad account específico desta campanha não está marcado "disabled" no rollout gradual do beta
-- [ ] `10-ad-strategy.json` existe
+- [ ] `10-ad-strategy/dados.json` existe
 
 ## Steps
 
@@ -227,7 +227,7 @@ def classify_outcome(metrics, target_cpa, min_spend=100):
 
 ### 9. Salvar pull estruturado
 
-`/workspace/[produto]/11-analysis/raw-pull-[YYYYMMDDTHHMMSS].json` (mesmo shape do legacy + 2 blocos novos):
+`/workspace/[produto]/11-ad-analysis/raw-pull-[YYYYMMDDTHHMMSS].json` (mesmo shape do legacy + 2 blocos novos):
 
 ```json
 {
@@ -304,7 +304,7 @@ O `market_context_at_pull` é novo — permite cross-product learning ponderar "
   "outcomes": {"winner": "<N>", "neutral": "<N>", "loser": "<N>", "insufficient_data": "<N>"},
   "dna_registry_updated": "<N>",
   "market_context_pulled": true,
-  "output_file": "/workspace/[produto]/11-analysis/raw-pull-<timestamp>.json"
+  "output_file": "/workspace/[produto]/11-ad-analysis/raw-pull-<timestamp>.json"
 }
 ```
 

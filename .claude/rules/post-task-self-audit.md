@@ -46,7 +46,7 @@ Antes de declarar conclusão, rodar mentalmente (e corrigir inline o que encontr
 
 Re-ler os artefatos relevantes das fases ANTERIORES e confirmar que o output atual **não contradiz, não duplica errado, não ignora**:
 
-- Se gerou copy (Skill 06): mecanismo nomeado bate literal com `04-offer.json`? VOC phrases vêm de `02-market-research.json` (não inventadas)?
+- Se gerou copy (Skill 06): mecanismo nomeado bate literal com `04-offer-builder/dados.json`? VOC phrases vêm de `02-market-research/dados.json` (não inventadas)?
 - Se gerou ad (Skill 08): awareness level alinha com `02`? Gaps explorados vêm de `03`? Promise bate com `04-offer`?
 - Se rodou consistency audit (Skill 09): revisou TODOS os 9+ artefatos, não só os últimos 2?
 - Se modificou framework (rule, skill, lib): checou impacto em skills downstream que referenciam?
@@ -137,8 +137,8 @@ Exemplo: cálculo do PSM real depende de dado de Stripe que membro não passou. 
 Em Skills 04 (offer), 06 (copy), 07c (deploy), 08 (creatives), 09 (consistency-audit), 10 (ad-strategy), o silent audit é EXPANDIDO:
 
 - Re-ler as skills anteriores da cadeia (não só artefatos JSON)
-- Verificar se `04-research-foundation.json` sustenta todo claim forte
-- Cruzar com `03-creative-patterns.json` (se existe) pra validar padrões de mercado
+- Verificar se `04-offer-builder/research-foundation.json` sustenta todo claim forte
+- Cruzar com `03-competitor-analysis/creative-patterns.json` (se existe) pra validar padrões de mercado
 - Conferir que `pre-launch-gates` passaram sem override
 - Testar mentalmente edge cases (member em stage 1 com $50/dia? ESP = "none"? Whisper ausente?)
 

@@ -1,6 +1,6 @@
 ---
 name: scale-engine
-description: Engine de escala vertical de Meta Ads em cima de 3 escolas reais de operadores escalando ecom US/EU — (A) cost-cap duplication + surf de manhã, (B) bid cap "campanha monstro", (C) budget-doubling a cada 3 dias — recomendadas por member-stage. Mantém PSM (lê manifest.psm_real, não recomputa) como diagnóstico, projeções 30/60/90 com cash flow, e fecha ciclo de volta pra 08 quando precisa de criativo novo. Use quando o membro disser "scale", "escalar", "plano de escala", "crescer", "maximizar", ou quando os ads estão estáveis e quer aumentar spend de forma sistemática.
+description: Engine de escala vertical de Meta Ads em cima de 3 escolas reais de gestores de tráfego escalando ecom US/EU — (A) cost-cap duplication + surf de manhã, (B) bid cap "campanha monstro", (C) budget-doubling a cada 3 dias — recomendadas por member-stage. Mantém PSM (lê manifest.psm_real, não recomputa) como diagnóstico, projeções 30/60/90 com cash flow, e fecha ciclo de volta pra 08 quando precisa de criativo novo. Use quando o membro disser "scale", "escalar", "plano de escala", "crescer", "maximizar", ou quando os ads estão estáveis e quer aumentar spend de forma sistemática.
 ---
 
 # Scale Engine
@@ -17,20 +17,20 @@ Quando o membro tem winner(s) provados (criativo que vende com CPA dentro/abaixo
 Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language.
 
 ### Pré-flight
-- [ ] `10-ad-strategy.json` + `11-analysis/latest.json` existem (`workspace/[produto]/11-analysis/latest.json`)
+- [ ] `10-ad-strategy/dados.json` + `11-ad-analysis/dados.json` existem (`workspace/[produto]/11-ad-analysis/dados.json`)
 - [ ] Manifest tem `11-ad-analysis` em `skills_completed`
 - [ ] `manifest.psm_real` foi gravado por ≥ 1 análise recente (senão, rodar 11 — quem calcula `psm_real`)
-- [ ] Existe ≥ 1 winner identificado no `latest.json` (Post ID com CPA ≤ breakeven estável) — sem isso, escala é prematura
+- [ ] Existe ≥ 1 winner identificado no `11-ad-analysis/dados.json` (Post ID com CPA ≤ breakeven estável) — sem isso, escala é prematura
 
-Se algum arquivo de pré-flight faltar, não aborte seco (rule `emergency-escape-paths.md` ES1). Ofereça **(A)** rodar a skill faltante agora (11 pra `latest.json`/`psm_real`, 10 pra ad-strategy), **OU (B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["arquivo"]` e avisando no output final que recomenda re-executar.
+Se algum arquivo de pré-flight faltar, não aborte seco (rule `emergency-escape-paths.md` ES1). Ofereça **(A)** rodar a skill faltante agora (11 pra `11-ad-analysis/dados.json`/`psm_real`, 10 pra ad-strategy), **OU (B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["arquivo"]` e avisando no output final que recomenda re-executar.
 
 ### Contexto a carregar
 
 1. Leia `workspace/profile.md` (budget atual + stage — define ponto de partida e agressividade)
-2. Leia `workspace/[produto]/04-offer.md` + `04-offer.json` (breakeven CPA/ROAS, `cogs_breakdown`, PSM projetado — define o teto de cost cap / bid cap)
-3. Leia `workspace/[produto]/10-ad-strategy.md` (estrutura de campanha atual: estamos em 1-1-N de teste? cost cap já roda?)
-4. Leia TODAS as análises em `workspace/[produto]/11-analysis/` em ordem cronológica (trajetória real de performance, winners estáveis, CPM por conta) + `latest.json` (handoff da skill 11)
-5. Leia scale plans anteriores em `workspace/[produto]/12-scale/` (se existir — comparar premissas com realidade)
+2. Leia `workspace/[produto]/04-offer-builder/relatorio.md` + `04-offer-builder/dados.json` (breakeven CPA/ROAS, `cogs_breakdown`, PSM projetado — define o teto de cost cap / bid cap)
+3. Leia `workspace/[produto]/10-ad-strategy/relatorio.md` (estrutura de campanha atual: estamos em 1-1-N de teste? cost cap já roda?)
+4. Leia TODAS as análises em `workspace/[produto]/11-ad-analysis/` em ordem cronológica (trajetória real de performance, winners estáveis, CPM por conta) + `dados.json` (handoff da skill 11)
+5. Leia scale plans anteriores em `workspace/[produto]/12-scale-engine/` (se existir — comparar premissas com realidade)
 6. **Puxe os SISTEMAS NOMEADOS da base — NUNCA query genérica.** Rode `search_knowledge` (deep=true) com a `best_query` exata de cada framework relevante pra ETAPA que está rodando. O índice completo do domínio de escala desta skill está em `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — mapa skill→domínio). Os sistemas de maior impacto pra escala estão embutidos nas ETAPAS abaixo; o resto (28 frameworks de scaling) fica disponível no índice. Mínimo a carregar antes de montar qualquer plano:
    - **Performance Gate Scaling (PGS) + The Three PGS Principles** (rode `Performance Gate Scaling PGS 3 principles trailing CPA automated rules` e `The three PGS principles never scale past margin trailing multi-day KPI campaign-based`) — espinha dorsal de quando subir/segurar
    - **Profitable Scaling Margin (PSM)** (rode `Profitable Scaling Margin PSM golden ratio LTV CPA COGS formula`) + **PSM Scaling Thresholds** (rode `PSM thresholds 1.3 aggressive 1.1 healthy breakeven zone scaling decision`) — leitura de diagnóstico (a 11 calcula)
@@ -42,14 +42,14 @@ Se algum arquivo de pré-flight faltar, não aborte seco (rule `emergency-escape
 
 ### Breakeven é a âncora de tudo
 
-Toda a matemática de escala desta skill ancora no **CPA de breakeven** e no **CPA máximo** (target = breakeven menos a margem de lucro desejada). **Fonte canônica do breakeven CPA (a MESMA das Skills 10 e 11):** `04-offer.json.unit_economics.weighted_margin_per_order`. Use esse campo direto, não re-derive. A performance real vem do `11-analysis/latest.json`. Não invente — leia. Se faltar, pegue na ETAPA 1.
+Toda a matemática de escala desta skill ancora no **CPA de breakeven** e no **CPA máximo** (target = breakeven menos a margem de lucro desejada). **Fonte canônica do breakeven CPA (a MESMA das Skills 10 e 11):** `04-offer-builder/dados.json.unit_economics.weighted_margin_per_order`. Use esse campo direto, não re-derive. A performance real vem do `11-ad-analysis/dados.json`. Não invente — leia. Se faltar, pegue na ETAPA 1.
 
 ### PSM real (vs teórico) — LER, não recalcular
 
-`psm_theoretical` vem do `04-offer.json` (baseado em AOV esperado).
+`psm_theoretical` vem do `04-offer-builder/dados.json` (baseado em AOV esperado).
 `psm_real` é gravado SOMENTE pela skill 11 (ad-analysis) a partir de performance real. A skill 12 **LÊ `manifest.psm_real`** — fonte canônica — e **NUNCA recalcula** com outra fórmula.
 
-Fórmula canônica (referência, calculada pela 11): `PSM = LTV / (CPA + COGS)`, onde COGS é o somatório de `04-offer.json.cogs_breakdown` (não existe campo `cogs_total`).
+Fórmula canônica (referência, calculada pela 11): `PSM = LTV / (CPA + COGS)`, onde COGS é o somatório de `04-offer-builder/dados.json.cogs_breakdown` (não existe campo `cogs_total`).
 
 **Frameworks pra interpretar PSM (rode antes de decidir):**
 - **Profitable Scaling Margin (PSM) — golden ratio** (rode `Profitable Scaling Margin PSM golden ratio LTV CPA COGS formula`) — a fórmula canônica e por que ela manda
@@ -68,13 +68,13 @@ Se `manifest.psm_real` estiver ausente, rode a skill 11 primeiro (quem o grava) 
 
 ### ETAPA 1 — Receber Panorama Atual
 
-Primeiro, pré-popule dos artefatos: `11-analysis/latest.json` (spend diário, CPA médio, CPM por conta, ROAS médio, AOV real, winners estáveis com Post ID) + `04-offer.json` (breakeven CPA/ROAS) + `manifest.psm_real`. Só pergunte ao membro o que NÃO está nos artefatos.
+Primeiro, pré-popule dos artefatos: `11-ad-analysis/dados.json` (spend diário, CPA médio, CPM por conta, ROAS médio, AOV real, winners estáveis com Post ID) + `04-offer-builder/dados.json` (breakeven CPA/ROAS) + `manifest.psm_real`. Só pergunte ao membro o que NÃO está nos artefatos.
 
 Se algo faltar (ex: cash disponível pra surf, que não vive em nenhum JSON), peça em UMA única mensagem só os campos faltantes:
 
-"Confirmando o panorama: [valores lidos do latest.json + breakeven do 04]. Me falta só [campo(s) ausente(s)]."
+"Confirmando o panorama: [valores lidos do 11-ad-analysis/dados.json + breakeven do 04]. Me falta só [campo(s) ausente(s)]."
 
-Se `latest.json` não existir, aí sim peça tudo: "Me dá o panorama atual: quanto gasta por dia, CPA médio, CPM médio, ROAS, AOV, e quais ads são winners (gastam e vendem dentro do breakeven). E o breakeven CPA do produto." Não re-explique campos já preenchidos.
+Se `11-ad-analysis/dados.json` não existir, aí sim peça tudo: "Me dá o panorama atual: quanto gasta por dia, CPA médio, CPM médio, ROAS, AOV, e quais ads são winners (gastam e vendem dentro do breakeven). E o breakeven CPA do produto." Não re-explique campos já preenchidos.
 
 ### ETAPA 2 — Classificar Estágio de Escala
 
@@ -88,7 +88,7 @@ Stage canônico vem do `manifest.stage` (`starter` | `validating` | `scaling`) �
 | $1K-5K/dia | Escala Agressiva | Cost cap + surf, atenção diária. |
 | $5K+/dia | Otimização | Unit economics, múltiplas contas, omnichannel. |
 
-A sub-fase vive em `scale_phase` no `12-scale.json` — **NUNCA** em `manifest.stage`.
+A sub-fase vive em `scale_phase` no `12-scale-engine/dados.json` — **NUNCA** em `manifest.stage`.
 
 ### ETAPA 3 — Análise de Prontidão (Pré-Requisitos)
 
@@ -113,7 +113,7 @@ Pra cada pré-requisito que falha, documente o bloqueio e recomende ação espec
 
 ### ETAPA 4 — As 3 Escolas de Escala (apresentar, recomendar por stage)
 
-Existem três escolas de escala vertical, todas reais e usadas por operadores escalando ecom. Não há uma "certa" — há a certa pro **stage** e pro **apetite de risco** do membro. **Apresente as três ao membro** (tabela curta, no report_language), marque a recomendada pro stage dele, e deixe ele escolher.
+Existem três escolas de escala vertical, todas reais e usadas por gestores de tráfego escalando ecom. Não há uma "certa" — há a certa pro **stage** e pro **apetite de risco** do membro. **Apresente as três ao membro** (tabela curta, no report_language), marque a recomendada pro stage dele, e deixe ele escolher.
 
 > **Regra de ouro das três:** em escala, o bidding é cost cap ou bid cap — **Max Conversion (highest volume) é só pra TESTAR criativo** (estrutura 1-1-N da skill 10). Quando o criativo já provou, você passa pra uma das escolas abaixo pra forçar volume com teto de custo.
 
@@ -165,7 +165,7 @@ A mecânica:
 3. Quando quebra num nível (CPA estoura o target / ROI fica negativo), **volta pro último nível bom** e segura ali. Esse é o seu teto atual ("achei meu teto").
 4. Pra subir de novo depois: melhora o que está fora do Ads Manager (criativo novo da 08, oferta melhor da 04) e tenta dobrar de novo a partir do teto.
 
-> Os 3 dias importam: dão dado suficiente pro Facebook estabilizar antes de cada salto e evitam reagir a um pico de 1 dia. É a versão "sem keyboard" de escala — não exige surf nem gestão de N campanhas.
+> Os 3 dias importam: dão dado suficiente pro Facebook estabilizar antes de cada salto e evitam reagir a um pico de 1 dia. É a versão "sem ficar no teclado" de escala — não exige surf nem gestão de N campanhas.
 
 **Quando usar:** stage `starter` (e `validating` no começo). É a mais fácil de operar, a mais perdoável, e ensina o membro a achar o teto sem queimar conta.
 
@@ -179,7 +179,7 @@ A mecânica:
 
 Recomendação por stage (default, não trava): **starter → C** (ou bid cap se quiser controle); **validating → bid cap ou cost-cap**; **scaling → cost-cap + surf** (mais upside, mais atenção).
 
-Pergunte ao membro qual escola quer rodar. Se ele não tiver opinião, vá com o default do stage e explique por quê. Registre a escola escolhida no `12-scale.json` (`scaling_school`).
+Pergunte ao membro qual escola quer rodar. Se ele não tiver opinião, vá com o default do stage e explique por quê. Registre a escola escolhida no `12-scale-engine/dados.json` (`scaling_school`).
 
 ### ETAPA 4.5 — Quando o budget trava a entrega → abrir nova conta
 
@@ -233,13 +233,13 @@ Construa dois cenários usando breakeven, AOV e PSM reais.
 
 **Base (premissas: escola escolhida rodando, pipeline de criativo ativo, CPA estável):**
 
-| Mês | Spend/dia alvo | Revenue/dia (AOV × vendas) | Margem mensal estimada |
+| Mês | Spend/dia alvo | Receita/dia (AOV × vendas) | Margem mensal estimada |
 |---|---|---|---|
 | Mês 1 | $[atual × 1.5-2] | $[calculado] | $[margem × 30] |
 | Mês 2 | $[atual × 2-3] | $[calc] | $[margem] |
 | Mês 3 | $[atual × 3-4] | $[calc] | $[margem] |
 
-Use AOV real do `latest.json` e breakeven do `04-offer.json`. Não infle: na Escola A o crescimento é em saltos (surf), na C é dobra a cada 3 dias até o teto — modele o caminho realista da escola escolhida.
+Use AOV real do `11-ad-analysis/dados.json` e breakeven do `04-offer-builder/dados.json`. Não infle: na Escola A o crescimento é em saltos (surf), na C é dobra a cada 3 dias até o teto — modele o caminho realista da escola escolhida.
 
 **Pessimista (CPA sobe 20%):**
 
@@ -326,17 +326,17 @@ Se algum destes → invoque skill 08 pra novo batch:
 - Escala cruzou 2× budget (precisa creative diversity pra sustentar)
 - Conta nova aberta (ETAPA 4.5) precisa de criativo pra alimentar
 
-Skill 08 lerá `NEXT_BATCH_IDEAS.md` (de 11) + `12-scale-directives.md` (gerado abaixo).
+Skill 08 lerá `11-ad-analysis/NEXT_BATCH_IDEAS.md` (de 11) + `12-scale-engine/scale-directives.md` (gerado abaixo).
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
 **Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome. O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, **logo SVG do Aura no topo copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto**, componentes aura).
 
-**Garantir diretório:** `mkdir -p workspace/[produto]/12-scale/` antes de salvar.
+**Garantir diretório:** `mkdir -p workspace/[produto]/12-scale-engine/` antes de salvar.
 
-Outputs em `workspace/[produto]/12-scale/`:
+Outputs em `workspace/[produto]/12-scale-engine/`:
 
-- `12-scale-plan.md` contendo:
+- `relatorio.md` contendo:
   1. Classificação de estágio + sub-fase de escala (Etapa 2)
   2. Análise de prontidão com bloqueios identificados (Etapa 3)
   3. **Escola de escala escolhida** + setup operacional concreto (cost cap value / bid cap + budget / cadência de doubling) (Etapa 4)
@@ -348,14 +348,14 @@ Outputs em `workspace/[produto]/12-scale/`:
   9. Checklist operacional semanal (Etapa 9)
   10. Sinais de alerta (Etapa 10)
 
-- `12-scale-directives.md` (fecha ciclo 12→08):
+- `scale-directives.md` (fecha ciclo 12→08):
   - Budget atual + budget alvo (30d)
   - Escola de escala em uso + ritmo de criativo que ela exige
   - PSM real atual
   - Sinais que trigam volta pra 08 (creative refresh)
   - Bloqueios de cash flow (se houver)
 
-- `12-scale.json` (JSON companion):
+- `dados.json` (JSON companion):
 
 ```json
 {
@@ -401,8 +401,9 @@ Outputs em `workspace/[produto]/12-scale/`:
 Após salvar, atualizar `workspace/[produto]/manifest.json`:
 - Adicionar `12-scale-engine` em `skills_completed`
 - Registrar `plan_id`, `psm_real`, `scaling_school`
-- Gravar `manifest.stage` com o vocabulário canônico (`starter` | `validating` | `scaling`). Se a sub-fase de escala importar, ela vive em `scale_phase` no `12-scale.json` — **NUNCA** em `stage`.
+- Gravar `manifest.stage` com o vocabulário canônico (`starter` | `validating` | `scaling`). Se a sub-fase de escala importar, ela vive em `scale_phase` no `12-scale-engine/dados.json` — **NUNCA** em `stage`.
 - Se o membro graduou de stage durante esta análise (ex: `validating` → `scaling`), atualizar `manifest.stage` e avisar (ver `member-stage-awareness.md`).
+- Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (atualiza ABRIR-AQUI.html, onde `<slug>` é o product_slug).
 
 ## Mensagem Final
 

@@ -7,8 +7,8 @@
 
 ## Input
 - `product_slug` — do manifest
-- `offer_tiers` — do `04-offer.json` (Starter, Popular, BestValue com preços e SKUs)
-- `description_md` — caminho do `06-copy.md` (seção PDP ou description)
+- `offer_tiers` — do `04-offer-builder/dados.json` (Starter, Popular, BestValue com preços e SKUs)
+- `description_md` — caminho do `06-copy-engine/relatorio.md` (seção PDP ou description)
 - `images` — array de paths locais
 
 ## Cascade (detecção de prefixo — ver `.claude/lib/mcp-detect/README.md`)
@@ -23,8 +23,8 @@
 
 ## Pre-flight
 - [ ] Shopify MCP conectado (`mcp__shopify__*`) OU Playwright disponível como fallback (ver cascade acima)
-- [ ] `04-offer.json` existe com 3 tiers
-- [ ] `06-copy.md` existe
+- [ ] `04-offer-builder/dados.json` existe com 3 tiers
+- [ ] `06-copy-engine/relatorio.md` existe
 - [ ] Imagens disponíveis (ou stock placeholders marcados)
 
 ## Steps
@@ -43,7 +43,7 @@ product = shopify.product.create({
 
 ### 2. Criar 3 variants
 ```
-for tier in offer_tiers:     // lê do 04-offer.json
+for tier in offer_tiers:     // lê do 04-offer-builder/dados.json
     variant = shopify.variant.create(product.id, {
       title: tier.name,
       price: tier.price,

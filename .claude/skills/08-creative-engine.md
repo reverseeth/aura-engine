@@ -1,6 +1,6 @@
 ---
 name: creative-engine
-description: Engine de criação de briefings de criativos para Meta Ads. Começa perguntando a ROTA de produção (gerar com IA / modelar concorrente e montar clipes / mix), gera conceitos baseados nas 3 verticais de pesquisa (competitiva, consumidor, interna), produz briefings completos com scripts de vídeo segundo-a-segundo, hooks exatos, image ad specs, primary texts meaningfully different, headlines, LP congruency, e entregáveis ramificados (prompts de IA por clipe OU EDL/roteiro de montagem). Mira VOLUME de criativo por semana (a estrutura de teste 1-ad-set-multi-criativo da Skill 10 consome volume). Use quando o membro disser "creatives", "criativos", "briefings", "ads", "criar anúncios", ou quando a copy estiver pronta. A mensagem final orienta geração de IA, edição em ferramentas externas (CapCut, Submagic, Captions) e voiceover no ElevenLabs.
+description: Engine de criação de briefings de criativos para Meta Ads. Começa perguntando a ROTA de produção (gerar com IA / modelar concorrente e montar clipes / mix), gera conceitos baseados nas 3 verticais de pesquisa (competitiva, consumidor, interna), produz briefings completos com scripts de vídeo segundo-a-segundo, hooks exatos, image ad specs, primary texts meaningfully different, headlines, LP congruency, e entregáveis ramificados (prompts de IA por clipe OU EDL/roteiro de montagem). Mira VOLUME de criativo por semana (a estrutura de teste de 1 ad set com vários criativos da Skill 10 consome volume). Use quando o membro disser "creatives", "criativos", "briefings", "ads", "criar anúncios", ou quando a copy estiver pronta. A mensagem final orienta geração de IA, edição em ferramentas externas (CapCut, Submagic, Captions) e voiceover no ElevenLabs.
 ---
 
 # Creative Engine
@@ -14,17 +14,17 @@ Quando o membro tem copy pronta (Skill 06) e precisa dos briefings de criativos 
 
 ### Pré-flight (OBRIGATÓRIO)
 - [ ] `manifest.json` existe com 06-copy-engine em skills_completed
-- [ ] `04-offer.json` (target_cpa, mechanism) existe
-- [ ] `02-market-research.json` (awareness_distribution, voc_phrases) existe
+- [ ] `04-offer-builder/dados.json` (target_cpa, mechanism) existe
+- [ ] `02-market-research/dados.json` (awareness_distribution, voc_phrases) existe
 - [ ] **Pixel/CAPI validados**: pedir screenshot do Events Manager mostrando Match Quality ≥ 80% — se membro não pode fornecer, AVISAR que criativos serão desperdiçados e sugerir configurar pixel primeiro
-- [ ] Se existe `workspace/[produto]/03-creative-patterns.json` (output do `creative_deep_analysis` da Skill 03), LER pra extrair `hook_archetypes`, `recurring_claims` e `format_distribution` dos concorrentes — alimenta a ideação na ETAPA 3
-- [ ] Se existe `workspace/[produto]/11-analysis/NEXT_BATCH_IDEAS.md` (output do loop 11→08 fechado), LER e usar como input para priorizar ângulos no novo batch
+- [ ] Se existe `workspace/[produto]/03-competitor-analysis/creative-patterns.json` (output do `creative_deep_analysis` da Skill 03), LER pra extrair `hook_archetypes`, `recurring_claims` e `format_distribution` dos concorrentes — alimenta a ideação na ETAPA 3
+- [ ] Se existe `workspace/[produto]/11-ad-analysis/NEXT_BATCH_IDEAS.md` (output do loop 11→08 fechado), LER e usar como input para priorizar ângulos no novo batch
 
-**Arquivo de pré-flight faltante (escape path, rule ES1):** se `04-offer.json` ou `02-market-research.json` não existir, NÃO aborte seco. Ofereça: **(A)** rodar a skill faltante agora (04 ou 02), OU **(B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["arquivo"]` e avisando no output final que recomenda re-executar a Skill 08 quando o arquivo real existir. `03-creative-patterns.json` ausente é não-bloqueante (a ETAPA 3 segue só com VOC + competitor analysis + base).
+**Arquivo de pré-flight faltante (escape path, rule ES1):** se `04-offer-builder/dados.json` ou `02-market-research/dados.json` não existir, NÃO aborte seco. Ofereça: **(A)** rodar a skill faltante agora (04 ou 02), OU **(B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["arquivo"]` e avisando no output final que recomenda re-executar a Skill 08 quando o arquivo real existir. `03-competitor-analysis/creative-patterns.json` ausente é não-bloqueante (a ETAPA 3 segue só com VOC + competitor analysis + base).
 
 ### Quando rodar essa skill (decision tree)
 - **Primeira vez** (nunca rodou para este produto): sim, proceed
-- **Após skill 11 recomendar 'creatives'**: sim, proceed — LER NEXT_BATCH_IDEAS.md primeiro
+- **Após skill 11 recomendar 'creatives'**: sim, proceed — LER `11-ad-analysis/NEXT_BATCH_IDEAS.md` primeiro
 - **Refresh por fadiga**: só execute se `11-ad-analysis` reportou no último ciclo:
   - `frequency > 1.4` E `ctr_drop_pct > 20` em 7 dias, OU
   - CPM subiu > 30% em 7 dias com freq < 1.3 (saturation de audience), OU
@@ -34,16 +34,16 @@ Quando o membro tem copy pronta (Skill 06) e precisa dos briefings de criativos 
 ### Contexto a carregar
 
 1. Leia `workspace/profile.md` (budget → informa quantos conceitos testar; ferramentas → informa tipo de material viável). Leia também `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo: strategy, briefings, hooks bank, production summary) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (hooks, scripts, primary texts, headlines, voiceover, text overlays) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language.
-2. Leia `workspace/[produto]/02-market-research.md` (VOC literal, trigger events, objeções, dores/desejos hierarquizados, root cause — TUDO vai pra script)
-3. Leia `workspace/[produto]/03-competitor-analysis.md` (top criativos transcritos dos concorrentes, gaps de formato/ângulo, swipe file, claims saturados). Se existir `workspace/[produto]/03-creative-patterns.json` (flag `creative_deep_analysis` da Skill 03), leia também — `hook_archetypes`, `recurring_claims` e `format_distribution` entram na ideação da ETAPA 3
-4. Leia `workspace/[produto]/04-offer.md` (mecanismo único com 3 versões, stack, garantia)
-5. Leia `workspace/[produto]/06-copy.md` (big idea, headlines top 5, CTAs, linguagem usada na LP)
+2. Leia `workspace/[produto]/02-market-research/relatorio.md` (VOC literal, trigger events, objeções, dores/desejos hierarquizados, root cause — TUDO vai pra script)
+3. Leia `workspace/[produto]/03-competitor-analysis/relatorio.md` (top criativos transcritos dos concorrentes, gaps de formato/ângulo, swipe file, claims saturados). Se existir `workspace/[produto]/03-competitor-analysis/creative-patterns.json` (flag `creative_deep_analysis` da Skill 03), leia também — `hook_archetypes`, `recurring_claims` e `format_distribution` entram na ideação da ETAPA 3
+4. Leia `workspace/[produto]/04-offer-builder/relatorio.md` (mecanismo único com 3 versões, stack, garantia)
+5. Leia `workspace/[produto]/06-copy-engine/relatorio.md` (big idea, headlines top 5, CTAs, linguagem usada na LP)
 6. Consultas à base de conhecimento — **NUNCA use query genérica.** Puxe os SISTEMAS NOMEADOS da base: rode `search_knowledge` com a `best_query` exata de cada framework relevante à ETAPA em que está. O índice completo dos frameworks desta skill (creatives-hooks-formats + persuasion-psychology) está em `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — mapa skill→domínio no README). Os frameworks de maior impacto já estão embutidos nas ETAPAs 3, 5, 5.7 e 7 abaixo; o resto fica disponível no índice. Tópicos-chave com resumo inline + referência:
 
    **Hook-Bridge-Hold-CTA** (estrutura de vídeo ad):
    - Hook (0-3s) captura atenção com pattern interrupt + Big 4 emotion dominante
    - Bridge (3-8s) transiciona da promessa pro corpo estabelecendo credibilidade
-   - Hold (8-18s) desenvolve mecanismo/proof/benefit usando slippery slide (cada frase compelle a próxima)
+   - Hold (8-18s) desenvolve mecanismo/proof/benefit usando o slippery slide (escorregador de leitura: cada frase compele a próxima)
    - CTA (18-22s) call-to-value (não action) + guarantee badge visual
    - [REF: knowledge base query — `mcp__aura__search_knowledge("hook bridge hold CTA video ads")`]
 
@@ -102,7 +102,7 @@ Pergunte ao membro (no `report_language`):
 
 Minha recomendação pro seu caso: **Rota [X]** — [razão de 1 frase]. Quer seguir com ela ou prefere outra?"
 
-Salve a escolha em `manifest.json → production_route: "ai" | "edl" | "mix"` e no `08-creatives.json → production_route`. Para **Mix**, na ETAPA 4 (seleção de conceitos) marque por conceito qual rota cada um segue (`concept.production_route`).
+Salve a escolha em `manifest.json → production_route: "ai" | "edl" | "mix"` e no `08-creative-engine/dados.json → production_route`. Para **Mix**, na ETAPA 4 (seleção de conceitos) marque por conceito qual rota cada um segue (`concept.production_route`).
 
 **Se Rota A (ou conceito A no Mix) → Pergunta 1.5: qual modelo de geração?**
 
@@ -115,7 +115,7 @@ A escolha do modelo define **duração e estrutura de geração** (ETAPA 5.7, Ra
 - **Kling** (clipes longos contínuos)
 - Outro / não sei → assumo Higgsfield"
 
-Guarde em `08-creatives.json → ai_video_model`. O impacto:
+Guarde em `08-creative-engine/dados.json → ai_video_model`. O impacto:
 
 | Modelo | Limite por geração | Estrutura de geração | Regra "autocontido por clipe" |
 |---|---|---|---|
@@ -135,7 +135,7 @@ Não há modelo de IA a escolher. O entregável vira um **EDL/roteiro de montage
 Pergunte:
 
 "Que tipo de material você tem pra montar os ads?
-- Clips do TikTok/Reels de outros criadores (stolen-footage style)
+- Clips do TikTok/Reels de outros criadores (estilo de clipes de outros criadores)
 - Vídeos do fornecedor/fabricante
 - UGC gerado por AI (Higgsfield, Arcads, HeyGen, etc)
 - Fotos de produto
@@ -160,9 +160,9 @@ A maioria dos membros NÃO vai pagar creator humano ($150-500 por vídeo) e NÃO
 **Coerência com a rota de produção (ETAPA 1.0):** se o membro escolheu **Rota A (IA)**, o archetype default é `ai_ugc`/`motion_graphics` (gerável por prompt). Se escolheu **Rota B (montagem)**, o archetype tende a `demo`/`creator_human`/`stolen_footage` (footage real montado) — a pergunta de material acima já vira input do EDL. Na **Rota C (Mix)**, cada conceito carrega seu próprio archetype conforme a rota daquele conceito.
 
 Use o archetype pra influenciar FORMATO e SCRIPT dos conceitos:
-- **AI UGC** (Higgsfield/Arcads): avatar-driven, natural speech converter obrigatório pra não soar robotizado, duração 15-22s ideal
-- **Stolen-footage**: cortes rápidos, UGC-style hooks de pattern interrupt, nenhuma voz off
-- **Motion graphics**: claim-heavy, text-forward, ideal pra listicle hooks e mechanism explainers
+- **AI UGC** (Higgsfield/Arcads): avatar-driven, ajuste de fala natural obrigatório pra não soar robotizado, duração 15-22s ideal
+- **Estilo de clipes de outros criadores**: cortes rápidos, UGC-style hooks de pattern interrupt, nenhuma voz off
+- **Motion graphics**: carregado de claims, com muito texto na tela, ideal pra listicle hooks e mechanism explainers
 - **Founder-led**: talking head caseiro, tom pessoal, storytelling, duração 25-45s
 - **Demonstração**: close-up do produto em uso, b-roll intercalado, mínimo de talking, foco em proof visual
 - **Creator humano**: UGC tradicional com spokesperson, maior range de duração e complexidade de script
@@ -202,12 +202,12 @@ Mostre ao membro (sem pedir confirmação):
 
 Índice completo dos sistemas de ideação em `.claude/lib/kb-index/`.
 
-Se `03-creative-patterns.json` foi lido no pré-flight, use os sinais dos concorrentes pra calibrar a ideação: `hook_archetypes` (arquétipos de hook já testados no nicho — não reinventar, mas variar), `recurring_claims` (claims saturados — evitar repetir, atacar pelo gap), `format_distribution` (formatos dominantes — se todos usam vídeo demo, considerar um formato sub-explorado).
+Se `03-competitor-analysis/creative-patterns.json` foi lido no pré-flight, use os sinais dos concorrentes pra calibrar a ideação: `hook_archetypes` (arquétipos de hook já testados no nicho — não reinventar, mas variar), `recurring_claims` (claims saturados — evitar repetir, atacar pelo gap), `format_distribution` (formatos dominantes — se todos usam vídeo demo, considerar um formato sub-explorado).
 
 Gere ângulos em 3 verticais:
 
 **Vertical 1 — Competitiva:**
-O que os concorrentes NÃO estão dizendo que você pode dizer (gaps do competitor analysis + `recurring_claims`/`format_distribution` de `03-creative-patterns.json` se disponível).
+O que os concorrentes NÃO estão dizendo que você pode dizer (gaps do competitor analysis + `recurring_claims`/`format_distribution` de `03-competitor-analysis/creative-patterns.json` se disponível).
 - "Ninguém está endereçando a dor [X] — nosso ad atacará direto"
 - "Todo mundo usa angle de resultado — nós vamos de angle de causa raiz"
 - "Concorrentes fazem autoridade de doctor — nós vamos peer-to-peer UGC"
@@ -217,7 +217,7 @@ Gere 3-5 ângulos desta vertical.
 
 **Vertical 2 — Consumidor:**
 Dos dados do market research (VOC, trigger events, objeções):
-- "Hook baseado na frase exata [VOC phrase X] que aparece 8x no review mining"
+- "Hook baseado na frase exata do cliente que aparece 8x na coleta de reviews"
 - "Trigger event [Y] (ex: antes de casamento) como cenário do ad"
 - "Ângulo de objeção quebrada [Z] (ex: 'já tentei X, mas aqui está por que este é diferente')"
 
@@ -268,7 +268,7 @@ Um 3-2-2 = 3 criativos + 2 primary texts + 2 headlines = 1 post ID = **1 conceit
 
 **Variação que NÃO é permitida dentro de um 3-2-2:** formato diferente (#1 vídeo, #2 imagem), ângulo diferente (#1 causa-raiz, #2 resultado), awareness diferente (#1 TOF, #3 BOF). Qualquer uma dessas exige um 3-2-2 novo (= novo conceito, novo ad set). Se você quer testar formato/ângulo/awareness diferente, conte como conceito separado na ETAPA 2.
 
-**Awareness lock:** trave o awareness_level do conceito e aplique aos 3 criativos. Valide cada conceito contra `awareness_distribution` de `02-market-research.json` — se o nível escolhido tem peso <10% na distribuição do mercado, emita warning ("awareness X representa só Y% do mercado; confirma a aposta?") antes de prosseguir.
+**Awareness lock:** trave o awareness_level do conceito e aplique aos 3 criativos. Valide cada conceito contra `awareness_distribution` de `02-market-research/dados.json` — se o nível escolhido tem peso <10% na distribuição do mercado, emita warning ("awareness X representa só Y% do mercado; confirma a aposta?") antes de prosseguir.
 
 **A. Aspect ratio — sempre 9:16**
 
@@ -340,7 +340,7 @@ NÃO permitir hook sem emoção dominante atribuída. Se o hook não encaixa em 
 
 **F. VOC traceability — cada claim/hook linka a VOC phrase**
 
-Cada hook, cada primary text, cada headline precisa ser rastreável a uma fonte no `02-market-research.json` (VOC phrases, trigger events, objeções, dores hierarquizadas). Documentar no output JSON:
+Cada hook, cada primary text, cada headline precisa ser rastreável a uma fonte no `02-market-research/dados.json` (VOC phrases, trigger events, objeções, dores hierarquizadas). Documentar no output JSON:
 
 ```json
 {
@@ -356,7 +356,7 @@ Cada hook, cada primary text, cada headline precisa ser rastreável a uma fonte 
 }
 ```
 
-Claim sem VOC rastreável **OU** sem evidência no `04-research-foundation.json` da Skill 04 = marcar `"voc_source": null, "requires_manual_review": true` e listar no output final pra o membro validar. Proibido inventar frase de avatar sem lastro.
+Claim sem VOC rastreável **OU** sem evidência no `04-offer-builder/research-foundation.json` da Skill 04 = marcar `"voc_source": null, "requires_manual_review": true` e listar no output final pra o membro validar. Proibido inventar frase de avatar sem lastro.
 
 **G. Hook-swap — OPCIONAL, não sempre**
 
@@ -443,7 +443,7 @@ Estrutura: Hook → Bridge → Hold → CTA (framework)
   - **Visual**: [descrição do que aparece na tela]
   - **Text overlay** (se houver): "[texto]"
   - **Tipo de hook**: [problem / result / curiosity / controversy / social proof / authority]
-  - **Thumbstop score esperado**: (estimativa 1-10 baseada em força do hook)
+  - **Força do hook em parar o scroll (thumbstop) esperada**: (estimativa 1-10 baseada em força do hook)
 
 - **[00:03-00:08] BRIDGE** (transição do hook pro corpo)
   - **Texto/fala**: "[texto]"
@@ -543,7 +543,7 @@ Se o conceito é TOF (cold traffic, awareness low), a LP precisa de mais educaç
 Após gerar os briefings (Etapa 5), pra CADA conceito gere o entregável de produção. Não é etapa opcional — é parte do entregável final. **A forma do entregável depende da rota escolhida na ETAPA 1.0:**
 
 - **Rota A (IA)** → **Ramo A**: prompts production-ready por clipe (fluxo atual: marketing-studio-director / gpt-image-2-director).
-- **Rota B (montagem)** → **Ramo B**: EDL / roteiro de montagem (`08-concept-XX-edl.md`).
+- **Rota B (montagem)** → **Ramo B**: EDL / roteiro de montagem (`concept-XX-edl.md`).
 - **Rota C (Mix)** → **Ramo C**: para cada conceito, rodar o ramo correspondente ao `concept.production_route` (alguns A, outros B).
 
 Decida por conceito olhando `concept.production_route` (no Mix) ou a `production_route` global do batch.
@@ -556,7 +556,7 @@ Pra CADA conceito de rota A, gerar prompts prontos pra colar nas ferramentas de 
 
 **Duração e estrutura de geração — depende do modelo (ETAPA 1.0, Pergunta 1.5):**
 
-Antes de compor o prompt de vídeo, leia `08-creatives.json → ai_video_model` e aplique:
+Antes de compor o prompt de vídeo, leia `08-creative-engine/dados.json → ai_video_model` e aplique:
 
 - **Modelo de clipe curto (Higgsfield; Sora/outro quando o ad estoura o limite):** validar a duração falada por word count (ETAPA 4.5.C). Se o script passa do limite do modelo (~15s Higgsfield), **dividir em takes autocontidos** — hook num take, body (mecanismo/prova/CTA) começando no take seguinte (hook e body NUNCA no mesmo take), cada take 100% autocontido (sem referência a outro clipe). Lógica completa em `marketing-studio-director.md` (MULTI-SHOT SPLITTING). Entregável = 1 pasta por conceito, 1 arquivo por take.
 - **Modelo de geração contínua (Veo 3.1 ~60s; Sora 2 ~25s quando cabe; Kling longo):** gerar o ad inteiro numa **única geração contínua** — um roteiro só, coeso, sem split. A regra "autocontido sem memória cross-shot" **NÃO se aplica** aqui (é roteiro contínuo). Entregável = 1 arquivo único por conceito (`prompt-c01-video.txt`), com o roteiro contínuo (hook → bridge → hold → CTA encadeados) + link/instrução de generation do modelo. O `marketing-studio-director.md` é canônico só pra Higgsfield; pra modelo longo, adaptar a saída pra um roteiro contínuo (mesma copy do briefing, sem dividir em shots).
@@ -580,7 +580,7 @@ Antes de compor o prompt de vídeo, leia `08-creatives.json → ai_video_model` 
 4. Rodar o director conforme as regras do SKILL.md dele:
    - Marketing Studio: identifica preset (UGC/Tutorial/Unboxing/Hyper Motion/Product Review/TV Spot/Wild Card/UGC Virtual Try On/Pro Virtual Try On), aplica preset-specific rules, retorna 1 parágrafo + link Higgsfield
    - GPT Image 2.0: roteia entre Format A (JSON estruturado pra layout denso), Format B (prosa cinematográfica pra single image), ou Format C (meta-prompt pra theme-only) — retorna code block do prompt
-5. Salvar em `workspace/[produto]/08-creatives/prompts/`:
+5. Salvar em `workspace/[produto]/08-creative-engine/prompts/`:
    - **Geração contínua (Veo/Sora dentro do limite/Kling) OU vídeo curto que cabe num take só:** 1 arquivo `prompt-c01-video.txt` — roteiro único (contínuo pros modelos longos; take único pros curtos)
    - **Vídeo curto que estoura o limite do modelo (Higgsfield >15s, multi-shot):** 1 PASTA por conceito (`c01-[slug]/`) com 1 arquivo por take (`shot-1.txt`, `shot-2.txt`, …). Shot 1 = hook; body começa no shot 2 (hook e body NUNCA no mesmo take, cada take autocontido). Cada arquivo de take tem: cabeçalho (conceito, hook, nº do shot, duração estimada, preset), o parágrafo pra colar na ferramenta, o link de generation, e ABAIXO as notas pro membro (produto SIM/NÃO, consistência avatar/cenário, pronúncia) — notas nunca dentro do parágrafo colado.
    - **Imagem:** `prompt-c01-image.txt` (se conceito tem componente de imagem)
@@ -599,7 +599,7 @@ Os SKILL.md dos directors são canônicos. Não modificar conteúdo deles dentro
 
 **Output secundário — `prompts-index.json`:**
 
-Em `workspace/[produto]/08-creatives/prompts/prompts-index.json`:
+Em `workspace/[produto]/08-creative-engine/prompts/prompts-index.json`:
 
 ```json
 {
@@ -625,13 +625,13 @@ Em `workspace/[produto]/08-creatives/prompts/prompts-index.json`:
 
 ---
 
-#### Ramo B — EDL / roteiro de montagem (`08-concept-XX-edl.md`)
+#### Ramo B — EDL / roteiro de montagem (`concept-XX-edl.md`)
 
 Pra CADA conceito de rota B (montagem de clipes), gerar um **EDL (Edit Decision List)** — o roteiro que o editor segue pra montar o ad juntando footage real. NÃO é prompt de IA. É um plano de montagem timecode a timecode.
 
 **Insumo:** o briefing completo do conceito (Etapa 5) — hook, bridge, hold, CTA, durações, copy exata, text overlays. A copy NÃO muda; o EDL só decide com qual footage cada beat é coberto.
 
-**Estrutura do arquivo `workspace/[produto]/08-creatives/08-concept-XX-edl.md`:**
+**Estrutura do arquivo `workspace/[produto]/08-creative-engine/concept-XX-edl.md`:**
 
 ```
 # EDL — Conceito #[N]: [nome]
@@ -668,13 +668,13 @@ Todo footage usado na montagem precisa ser **licenciado pra uso comercial em ads
 Se o membro não tem footage licenciado pra um beat, o EDL marca esse beat como `[FALTA FOOTAGE — opções: contratar UGC Billo/Insense (~$X) | stock pago | filmar próprio]` em vez de sugerir reuso.
 ```
 
-**Salvar:** `08-concept-XX-edl.md` por conceito de rota B, em `workspace/[produto]/08-creatives/`. Não gera arquivo em `prompts/` (não há prompt de IA pra esse conceito). Registrar no `08-creatives.json` (`concept.edl_file`).
+**Salvar:** `concept-XX-edl.md` por conceito de rota B, em `workspace/[produto]/08-creative-engine/`. Não gera arquivo em `prompts/` (não há prompt de IA pra esse conceito). Registrar no `08-creative-engine/dados.json` (`concept.edl_file`).
 
 ---
 
 #### Ramo C — Mix (ambos)
 
-Para cada conceito, rodar o ramo do seu `concept.production_route`: conceitos `ai` seguem o Ramo A (prompts em `prompts/`), conceitos `edl` seguem o Ramo B (`08-concept-XX-edl.md`). Um mesmo batch pode ter os dois tipos de entregável lado a lado. O `08-creatives.json` registra a rota de cada conceito e o arquivo correspondente.
+Para cada conceito, rodar o ramo do seu `concept.production_route`: conceitos `ai` seguem o Ramo A (prompts em `prompts/`), conceitos `edl` seguem o Ramo B (`concept-XX-edl.md`). Um mesmo batch pode ter os dois tipos de entregável lado a lado. O `08-creative-engine/dados.json` registra a rota de cada conceito e o arquivo correspondente.
 
 ### ETAPA 6 — LP Congruency (Mapeamento Conceito → Landing Page)
 
@@ -706,7 +706,7 @@ Pra uso em iterações futuras, gere **10 hooks alternativos** categorizados. **
 
 Cada hook deve declarar:
 - Big 4 emotion dominante (curiosity/urgency/fear/delight)
-- VOC source (ref ao `02-market-research.json`, conforme Etapa 4.5.F)
+- VOC source (ref ao `02-market-research/dados.json`, conforme Etapa 4.5.F)
 - Word count (≤ 10 palavras ideal pro primeiro beat do vídeo)
 - Aspect ratio: 9:16 (sempre)
 
@@ -741,12 +741,12 @@ Antes de finalizar os briefings e hooks bank, rodar compliance check em TODA pe�
    - Hooks Bank (10 alternativos)
 3. Parse da resposta JSON:
    - `severity == critical`: PARAR, reportar ao membro, aplicar `rewrite_suggestion` ou pedir revisão manual
-   - `severity == high`: aplicar `rewrite_suggestion` automaticamente, logar em `workspace/[produto]/08-compliance-log.json`
+   - `severity == high`: aplicar `rewrite_suggestion` automaticamente, logar em `workspace/[produto]/08-creative-engine/compliance-log.json`
    - `severity == medium`: manter original, logar warning
    - `severity == low`: salvar silenciosamente
 4. Sanity pass final: zero termos ad-flag (Botox, filler, injection, cure, treat) em qualquer peça pública. Travessão (—) zero em headlines, ≤2 em copy longa.
 
-Output log em `workspace/[produto]/08-compliance-log.json`:
+Output log em `workspace/[produto]/08-creative-engine/compliance-log.json`:
 ```json
 {
   "checked_at": "ISO timestamp",
@@ -802,7 +802,7 @@ Crie um resumo operacional pro membro executar. As linhas variam conforme a rota
 
 | Item | Quantidade | Onde editar/gerar |
 |---|---|---|
-| Ads a montar (EDL) | [V] | Roteiro de montagem em `08-concept-0X-edl.md` — seguir a tabela timecode no CapCut/editor, usando SÓ footage licenciado (ver bloco de usage rights) |
+| Ads a montar (EDL) | [V] | Roteiro de montagem em `concept-0X-edl.md` — seguir a tabela timecode no CapCut/editor, usando SÓ footage licenciado (ver bloco de usage rights) |
 | Footage a licenciar (se faltando) | [U beats] | Billo/Insense (UGC), stock pago, ou material próprio — marcado `[FALTA FOOTAGE]` no EDL |
 
 **Tempo estimado de produção:** [Rota A IA: 1-2 dias / Rota B montagem com footage em mãos: 1 dia, com UGC a contratar: 3-7 dias / Mix: combinar]
@@ -816,22 +816,22 @@ Na estrutura da Skill 10 (1 campanha → 1 ad set Advantage+ → N criativos), c
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer-builder/relatorio.md` → `04-offer-builder/relatorio.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
-**Garantir diretório:** `mkdir -p workspace/[produto]/08-creatives/` antes de salvar.
+**Garantir diretório:** `mkdir -p workspace/[produto]/08-creative-engine/` antes de salvar.
 
-Outputs em `workspace/[produto]/08-creatives/` (nomenclatura normalizada):
+Outputs em `workspace/[produto]/08-creative-engine/` (nomenclatura normalizada):
 
-- `08-creative-strategy.md` (estratégia macro — rota de produção escolhida, quantos conceitos, ângulos escolhidos, racional agregado)
-- `08-concept-01.md`, `08-concept-02.md`, `08-concept-03.md` (briefs individuais — Etapa 5 completa, um arquivo por conceito)
-- `08-hooks-bank.md` (Etapa 7 — 10 hooks alternativos)
-- `08-production-summary.md` (Etapa 8 — resumo operacional)
-- `08-creatives.json` (manifest do batch — ver schema abaixo)
+- `relatorio.md` (estratégia macro — rota de produção escolhida, quantos conceitos, ângulos escolhidos, racional agregado)
+- `concept-01.md`, `concept-02.md`, `concept-03.md` (briefs individuais — Etapa 5 completa, um arquivo por conceito)
+- `hooks-bank.md` (Etapa 7 — 10 hooks alternativos)
+- `production-summary.md` (Etapa 8 — resumo operacional)
+- `dados.json` (manifest do batch — ver schema abaixo)
 - **Rota A / conceitos `ai`:** `prompts/prompt-c01-video.txt`, `prompts/prompt-c01-image.txt`, ... (Etapa 5.7 Ramo A — prompts production-ready, um arquivo por conceito × formato; pasta `c0X-slug/` com shots quando Higgsfield multi-shot) + `prompts/prompts-index.json` (index — director/modelo/preset/formato)
-- **Rota B / conceitos `edl`:** `08-concept-01-edl.md`, ... (Etapa 5.7 Ramo B — roteiro de montagem por conceito, com tabela timecode + bloco de usage rights)
+- **Rota B / conceitos `edl`:** `concept-01-edl.md`, ... (Etapa 5.7 Ramo B — roteiro de montagem por conceito, com tabela timecode + bloco de usage rights)
 - **Rota C (Mix):** os dois tipos acima, conforme a rota de cada conceito
 
-### JSON companion — `08-creatives.json`
+### JSON companion — `08-creative-engine/dados.json`
 
 > **Contrato com a Skill 09 (gate H4):** `emotion_dominant` (Big 4) e `archetype` ficam no NÍVEL do concept (não só dentro de `hooks[]`). Como os 3 criativos de um 3-2-2 compartilham conceito/awareness/intent, a emoção dominante do conceito = a emoção do hook principal. `awareness_level` é travado por conceito (Hard Rule A.0).
 
@@ -858,7 +858,7 @@ Outputs em `workspace/[produto]/08-creatives/` (nomenclatura normalizada):
       "hook_swap_viable": true,
       "format": "video_ugc|video_demo|static_image|carousel|motion_graphic",
       "duration_target_seconds": 22,
-      "edl_file": "08-concept-01-edl.md | null (só rota edl)",
+      "edl_file": "concept-01-edl.md | null (só rota edl)",
       "video_generation_mode": "split_takes|continuous|single_take|null",
       "word_count_spoken": 55,
       "word_count_within_limit": true,
@@ -909,8 +909,9 @@ Outputs em `workspace/[produto]/08-creatives/` (nomenclatura normalizada):
 
 Após salvar, atualizar `workspace/[produto]/manifest.json`:
 - Adicionar `08-creative-engine` em `skills_completed`
-- Registrar `last_batch_id`, `batch_count`, e `next_batch_ideas_applied` (refs lidas de `NEXT_BATCH_IDEAS.md`, se houver)
+- Registrar `last_batch_id`, `batch_count`, e `next_batch_ideas_applied` (refs lidas de `11-ad-analysis/NEXT_BATCH_IDEAS.md`, se houver)
 - Registrar `production_route` (`ai|edl|mix`) e, se rota envolve IA, `ai_video_model` (pra a próxima execução já assumir a rota/modelo do membro sem reperguntar — só confirmar)
+- Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (atualiza ABRIR-AQUI.html)
 
 ## Mensagem Final
 
@@ -920,7 +921,7 @@ A mensagem se adapta à rota escolhida (ETAPA 1.0). Apresente como **draft** con
 
 "Primeira versão dos briefings pronta. Como gerar:
 
-- **Vídeos**: abra `workspace/[produto]/08-creatives/prompts/prompt-c0X-video.txt` — cole no [modelo escolhido] (link/instrução de generation no fim do prompt). Modelo longo (Veo/Sora/Kling) = 1 roteiro contínuo por conceito; Higgsfield = pode ter pasta `c0X-slug/` com 1 take por arquivo (gere na ordem e junte sob 1 voiceover)
+- **Vídeos**: abra `workspace/[produto]/08-creative-engine/prompts/prompt-c0X-video.txt` — cole no [modelo escolhido] (link/instrução de generation no fim do prompt). Modelo longo (Veo/Sora/Kling) = 1 roteiro contínuo por conceito; Higgsfield = pode ter pasta `c0X-slug/` com 1 take por arquivo (gere na ordem e junte sob 1 voiceover)
 - **Imagens**: abra `prompts/prompt-c0X-image.txt` — cole no GPT Image 2.0 (formato já ajustado ao tipo)
 - **Voiceovers** (se conceito tem): gere no ElevenLabs com os scripts marcados nos briefings
 - **Edição**: junte vídeo + voiceover + text overlays no CapCut/Submagic/Captions
@@ -931,7 +932,7 @@ Revisa e me diz o que ajustar (tom, ângulo, hook) antes de você gerar tudo. Qu
 
 "Primeira versão dos roteiros de montagem pronta. Como montar:
 
-- **EDL por conceito**: abra `workspace/[produto]/08-creatives/08-concept-0X-edl.md` — a tabela timecode diz, beat a beat, que clipe entra, o text overlay e a legenda exata. Monte no CapCut/editor seguindo a tabela
+- **EDL por conceito**: abra `workspace/[produto]/08-creative-engine/concept-0X-edl.md` — a tabela timecode diz, beat a beat, que clipe entra, o text overlay e a legenda exata. Monte no CapCut/editor seguindo a tabela
 - **Footage**: use SÓ material licenciado (leia o bloco de usage rights em cada EDL). Onde falta footage, o EDL marca `[FALTA FOOTAGE]` com as opções (Billo/Insense, stock pago, próprio)
 - **Voiceovers** (se conceito tem): gere no ElevenLabs e coloque por cima da montagem
 

@@ -25,7 +25,7 @@
 - [ ] MCP Meta conectado (ver cascade acima — esta receita executa via `mcp__meta-ads__*` Pipeboard)
 - [ ] Video_path existe
 - [ ] Ad set existe no ad account
-- [ ] Primary text + headline + CTA já em `/workspace/[produto]/08-creatives/`
+- [ ] Primary text + headline + CTA já em `/workspace/[produto]/08-creative-engine/`
 - [ ] UTM convention definida no manifest (`utm_campaign` derivado do campaign_name da strategy)
 
 ## Steps
@@ -54,7 +54,7 @@ thumbnail_id = meta_ads.video.generate_thumbnail(video_id, frame_seconds=1)
 ```
 
 ### 4. Criar Ad Creative object
-Ler `/workspace/[produto]/08-creatives/08-concept-XX.md` pra pegar:
+Ler `/workspace/[produto]/08-creative-engine/concept-XX.md` pra pegar:
 - `primary_text_1` — primeiro Primary Text
 - `headline_1` — primeira headline
 - `cta_type` — default `LEARN_MORE` (ou mapear pelo briefing)

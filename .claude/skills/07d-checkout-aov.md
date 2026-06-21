@@ -1,6 +1,6 @@
 ---
 name: checkout-aov
-description: Engine de AOV — implementa post-purchase upsell (one-click), cart/order bump, bundle e quantity-break, free-shipping threshold, e checkout trust (badges/garantia/reviews no checkout). Consome os bumps/upsells/bonuses já definidos no 04-offer.json e os configura na loja Shopify pelo caminho real (Functions cart-transform/discount, post-purchase Checkout UI extension, ou apps equivalentes). Use quando o membro disser "checkout", "upsell", "aov", "bump", "bundle", "order bump", "free shipping", ou após o tracking estar instalado e antes de gerar criativos. Esta é a maior alavanca de lucro por visitante que existe fora dos ads.
+description: Engine de AOV — implementa post-purchase upsell (one-click), cart/order bump, bundle e quantity-break, free-shipping threshold, e checkout trust (badges/garantia/reviews no checkout). Consome os bumps/upsells/bonuses já definidos no 04-offer-builder/dados.json e os configura na loja Shopify pelo caminho real (Functions cart-transform/discount, post-purchase Checkout UI extension, ou apps equivalentes). Use quando o membro disser "checkout", "upsell", "aov", "bump", "bundle", "order bump", "free shipping", ou após o tracking estar instalado e antes de gerar criativos. Esta é a maior alavanca de lucro por visitante que existe fora dos ads.
 ---
 
 # Checkout & AOV Engine
@@ -12,14 +12,14 @@ A oferta (Skill 04) DEFINIU os bumps, upsells e bundles. Esta skill os IMPLEMENT
 Valide antes de prosseguir:
 
 - [ ] `workspace/[produto]/manifest.json` existe
-- [ ] **Idioma (report_language).** Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (`07d-checkout-aov.md`/`.html`, `07d-checkout-aov.json` descritivo, perguntas e mensagens ao membro) usa esse idioma. **A copy que aparece no checkout/cart pro consumidor (texto do bump, headline do upsell, trust badges, barra de free-shipping) permanece SEMPRE em inglês US**, independente do report_language — é consumidor-final do mercado US e o Meta scraper lê.
-- [ ] `04-offer.json` existe → extrair `bonuses[]`, `pricing` (`main_sku_price`, `aov_expected`), `unit_economics` (`weighted_margin_per_order`, `margin_per_unit`), `guarantee`, e a string `offer_stack`. O 04 já descreve **bundles** (Solo/3-pack/6-pack com savings), **checkout bump** (complemento $9-19) e **upsell pós-compra** (alto ticket $47-97+) na Etapa 3 — esta skill lê essas decisões, não as reinventa.
+- [ ] **Idioma (report_language).** Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (`07d-checkout-aov/relatorio.md`/`.html`, `07d-checkout-aov/dados.json` descritivo, perguntas e mensagens ao membro) usa esse idioma. **A copy que aparece no checkout/cart pro consumidor (texto do bump, headline do upsell, trust badges, barra de free-shipping) permanece SEMPRE em inglês US**, independente do report_language — é consumidor-final do mercado US e o Meta scraper lê.
+- [ ] `04-offer-builder/dados.json` existe → extrair `bonuses[]`, `pricing` (`main_sku_price`, `aov_expected`), `unit_economics` (`weighted_margin_per_order`, `margin_per_unit`), `guarantee`, e a string `offer_stack`. O 04 já descreve **bundles** (Solo/3-pack/6-pack com savings), **checkout bump** (complemento $9-19) e **upsell pós-compra** (alto ticket $47-97+) na Etapa 3 — esta skill lê essas decisões, não as reinventa.
 - [ ] `manifest.store_url` (handle .myshopify.com ou domínio custom). Se ausente, a página ainda não foi deployada — ver escape-path abaixo.
 - [ ] Detectar **member-stage** (`manifest.stage` ou inferir por `member-stage-awareness.md`) — define a profundidade da implementação (starter = 1-2 alavancas no-code; scaling = stack completo).
 
-Se faltar `04-offer.json` (a fonte dos bumps/upsells/bundles), em vez de abortar seco ofereça ≥2 caminhos (escape-path ES1):
+Se faltar `04-offer-builder/dados.json` (a fonte dos bumps/upsells/bundles), em vez de abortar seco ofereça ≥2 caminhos (escape-path ES1):
 - **(A)** Rodar a skill 04 (offer) agora pra definir bumps/upsells/bundles com base na unit economics real, OU
-- **(B)** Prosseguir com defaults conservadores (bump $15 complementar, upsell single de alto ticket, free-shipping threshold ≈ 1.4× AOV) marcando `manifest.skipped_preflight += ["04-offer.json"]` e avisando no output final que recomenda re-executar quando a oferta real existir.
+- **(B)** Prosseguir com defaults conservadores (bump $15 complementar, upsell single de alto ticket, free-shipping threshold ≈ 1.4× AOV) marcando `manifest.skipped_preflight += ["04-offer-builder/dados.json"]` e avisando no output final que recomenda re-executar quando a oferta real existir.
 
 Se `manifest.store_url` estiver ausente (página não deployada): a config de checkout precisa de uma loja viva pra apontar variantes e thresholds. Ofereça **(A)** rodar a 07b (page-build/deploy) primeiro, OU **(B)** gerar o blueprint completo (esta skill produz todos os specs) e deixar marcado como `pending_store: true` no output pra aplicar assim que a loja existir — sem inventar IDs de variante.
 
@@ -32,7 +32,7 @@ Na fase **storefront**, depois da página estar no ar (07b) e do tracking instal
 ## Antes de Começar
 
 1. Leia `workspace/profile.md` — `report_language`, budget, stage, e tools disponíveis (algumas alavancas dependem de app pago).
-2. Leia `workspace/[produto]/04-offer.md` + `04-offer.json` — bundles, bump, upsell, stack de valor, garantia, e unit economics. Os números de aceitação projetados (bump 20-35%, upsell 5-15%) e o AOV projetado da Etapa 6 do 04 são o baseline; aqui você os transforma em config real.
+2. Leia `workspace/[produto]/04-offer-builder/relatorio.md` + `04-offer-builder/dados.json` — bundles, bump, upsell, stack de valor, garantia, e unit economics. Os números de aceitação projetados (bump 20-35%, upsell 5-15%) e o AOV projetado da Etapa 6 do 04 são o baseline; aqui você os transforma em config real.
 3. Consulte a base Aura sobre pricing psychology e checkout optimization: **decoy effect** e **extremeness aversion** pra estruturar os tiers de bundle (3 opções, o do meio é o alvo, o premium ancora, o budget faz o meio parecer esperto), **charm pricing** (terminação em 9, left-digit effect — exceto se o posicionamento for premium/round), **zero price effect** (FREE é qualitativamente diferente de "quase grátis" — o threshold de free-shipping tem que entregar frete REALMENTE zero), **mental accounting** (segregar ganhos: listar bônus e savings separados; integrar perdas: um pagamento só), **order form bump** (Brunson — checkbox no checkout converte 20-50% porque o cliente já está em modo de compra), as 3 estruturas de OTO (Next Thing / Do It Faster / Need Help?), e checkout friction reduction (tirar o olho do campo de cupom, CTA em primeira pessoa, atenção gerenciada pro botão).
 
 Não consulte o membro sobre decisões estratégicas (qual tier ancora, qual % de savings) — isso já saiu da Skill 04 e da base. Pergunte só o que é input externo que você não tem (IDs de variante, app instalado, fulfillment de in-box gift).
@@ -102,7 +102,7 @@ A garantia exibida tem que bater com a `guarantee` do 04 E com a policy page da 
 
 ### ETAPA 1 — Carregar a oferta e mapear o que já existe
 
-Leia o `04-offer.json` e monte a tabela do que a oferta JÁ definiu vs. o que falta implementar:
+Leia o `04-offer-builder/dados.json` e monte a tabela do que a oferta JÁ definiu vs. o que falta implementar:
 
 | Alavanca | Definido no 04? | Valor/spec do 04 | Caminho Shopify escolhido | Status |
 |---|---|---|---|---|
@@ -143,7 +143,7 @@ Atualize o AOV projetado considerando as alavancas implementadas (bump take × p
 - Delta de margem por pedido: +$Z (puxa de `weighted_margin_per_order`)
 - **Novo target CPA viável**: como `weighted_margin_per_order` sobe, o CPA que você pode pagar pra 2×/3× ROAS também sobe — registrar pra a Skill 10 (ad-strategy) usar o número atualizado.
 
-> **Não sobrescreva** `weighted_margin_per_order` no `04-offer.json` (é a fonte da unit economics). Grave o AOV/margem PROJETADOS-PÓS-CHECKOUT em `07d-checkout-aov.json` e atualize `manifest.aov_baseline` se a config foi de fato aplicada na loja (não só planejada). A Skill 11 reconcilia com o AOV real medido depois.
+> **Não sobrescreva** `weighted_margin_per_order` no `04-offer-builder/dados.json` (é a fonte da unit economics). Grave o AOV/margem PROJETADOS-PÓS-CHECKOUT em `07d-checkout-aov/dados.json` e atualize `manifest.aov_baseline` se a config foi de fato aplicada na loja (não só planejada). A Skill 11 reconcilia com o AOV real medido depois.
 
 ### ETAPA 5 — Aplicar na loja (se store_url existe) ou entregar blueprint
 
@@ -171,16 +171,16 @@ Não recomende post-purchase extension custom pra starter com $500/mês; não de
 
 Salvar em `workspace/[produto]/`:
 
-**`07d-checkout-aov.md`** (humano) contendo:
+**`07d-checkout-aov/relatorio.md`** (humano) contendo:
 1. Mapa das 5 alavancas: definida no 04? caminho Shopify? status (aplicada/pending/not_in_offer)
 2. Spec de cada alavanca ativa (pricing com charm, copy real, caminho técnico, onde aplicar, aceitação projetada)
 3. AOV/margem antes vs. depois + novo target CPA viável pra a Skill 10
 4. Resultado dos gates (compliance + promise↔config)
 5. Passos de aplicação (tema / admin / app) e o que ficou pending
 
-**`07d-checkout-aov.html`** (companion humano) — usar `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained). **Logo SVG no topo do `<body>`, copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA texto.** Componentes aura (kpi-grid pro AOV antes/depois, table-wrap pro mapa de alavancas, callout/note/danger pros gates). Ícones SVG, nunca emoji, em qualquer preview de checkout/cart consumidor-final (regra 7).
+**`07d-checkout-aov/relatorio.html`** (companion humano) — usar `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained). **Logo SVG no topo do `<body>`, copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA texto.** Componentes aura (kpi-grid pro AOV antes/depois, table-wrap pro mapa de alavancas, callout/note/danger pros gates). Ícones SVG, nunca emoji, em qualquer preview de checkout/cart consumidor-final (regra 7).
 
-**`07d-checkout-aov.json`** (estruturado, pras skills 10/11):
+**`07d-checkout-aov/dados.json`** (estruturado, pras skills 10/11):
 
 ```json
 {
@@ -210,7 +210,9 @@ Salvar em `workspace/[produto]/`:
 }
 ```
 
-Atualizar `manifest.json`: adicionar `07d-checkout-aov` em `skills_completed`; se aplicado de fato na loja, atualizar `aov_baseline` com o `aov_after`. Não sobrescrever `04-offer.json`.
+Atualizar `manifest.json`: adicionar `07d-checkout-aov` em `skills_completed`; se aplicado de fato na loja, atualizar `aov_baseline` com o `aov_after`. Não sobrescrever `04-offer-builder/dados.json`.
+
+Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (atualiza ABRIR-AQUI.html), onde `<slug>` é o `product_slug`.
 
 ## Mensagem Final
 

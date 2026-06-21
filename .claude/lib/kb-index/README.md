@@ -1,10 +1,10 @@
 # Aura KB Index — mapa completo da base de conhecimento
 
-Catálogo de **541 frameworks/sistemas nomeados** da base Aura, por domínio, com a query exata pra puxar cada um e a skill que deve usar. Gerado 2026-06-20 a partir de varredura exaustiva da base (14 domínios).
+Catálogo de **541 frameworks/sistemas nomeados** da base Aura, por domínio, com a query exata pra puxar cada um e a skill que deve usar. Gerado 2026-06-20 a partir de análise completa da base (14 domínios).
 
 ## Como as skills usam este índice (REGRA)
 
-Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "offer"). Em cada ETAPA relevante, ela abre a seção deste índice correspondente ao seu domínio, e roda `search_knowledge` com a `best_query` dos 3-6 frameworks NOMEADOS relevantes pra aquela fase — puxando os **sistemas completos** (ex: as 35 fórmulas de Caples, não "fórmulas de headline"). O catálogo machine-readable completo está em `frameworks.json`.
+Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "offer"). Em cada ETAPA relevante, ela abre a seção deste índice correspondente ao seu domínio, e roda `search_knowledge` com a `best_query` dos 3-6 frameworks NOMEADOS relevantes pra aquela fase — trazendo os **sistemas completos** (ex: as 35 fórmulas de Caples, não "fórmulas de headline"). O catálogo completo, legível por máquina, está em `frameworks.json`.
 
 ## Mapa skill → domínios deste índice
 

@@ -23,7 +23,7 @@ Esta receita não chama o Meta diretamente: o único toque na plataforma é o **
 
 ### 1. Identificar winner + extrair DNA
 ```
-winner = read(/workspace/[produto]/08-creatives/08-concept-XX.md)
+winner = read(/workspace/[produto]/08-creative-engine/concept-XX.md)
 dna = read(/workspace/[produto]/creative-dna/dna-profile.json)  # se existe
 ```
 

@@ -209,7 +209,7 @@ Se `overall_verdict` == "REJECT" ou severity == "critical":
 
 Se `overall_verdict` == "REVISE" ou severity == "high":
   - Aplicar `rewrite_suggestion` automaticamente
-  - Logar em /workspace/[produto]/06-compliance-log.json
+  - Logar em /workspace/[produto]/06-copy-engine/compliance-log.json
 
 Se `overall_verdict` == "APPROVE_WITH_EDIT" ou severity == "medium":
   - Mostrar alerta: "Compliance check sugere ajustes — ver log"
@@ -230,7 +230,7 @@ Mesma lógica em cada:
 - Headlines
 - Text overlays
 
-Logs consolidados em `/workspace/[produto]/08-compliance-log.json`.
+Logs consolidados em `/workspace/[produto]/08-creative-engine/compliance-log.json`.
 
 ---
 

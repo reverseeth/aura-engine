@@ -11,7 +11,7 @@ Quando o membro tem produto definido e precisa entender profundamente o mercado,
 ## Antes de Começar
 
 1. Leia `workspace/profile.md` pra contexto do membro. Leia `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language.
-2. Se existir `workspace/[produto]/01-product-research.md`, leia — tem dados preliminares úteis (dores, linguagem, concorrentes identificados, awareness/sophistication preliminar)
+2. Se existir `workspace/[produto]/01-product-research/relatorio.md`, leia — tem dados preliminares úteis (dores, linguagem, concorrentes identificados, awareness/sophistication preliminar)
 3. **Puxe os SISTEMAS NOMEADOS da base — NUNCA use query genérica.** Para cada ETAPA abaixo, rode `search_knowledge` com a `best_query` exata de cada framework relevante listado naquela etapa (deep=true). Não busque por "market research" ou "pesquisa de mercado" solto — busque pelo NOME do sistema (ex: `Schwartz five stages of awareness unaware problem aware solution aware product aware most aware`). Aprofunde em cada método até entender o "por quê" de cada passo. Este documento é a FUNDAÇÃO de todo o sistema — se for raso, tudo que vier depois será raso.
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (`frameworks.json` + `README.md`, mapa skill→domínio no README). Esta skill cruza dois domínios: **market-research-voc** (43 sistemas) e **persuasion-psychology** (49 sistemas). Os frameworks de maior impacto estão embutidos nas ETAPAS abaixo com sua `best_query`; o restante do domínio fica disponível no índice. Quando uma etapa precisar de mais profundidade do que os frameworks listados, consulte o índice e puxe o sistema nomeado certo — nunca caia em query genérica.
@@ -22,7 +22,7 @@ Quando o membro tem produto definido e precisa entender profundamente o mercado,
 
 1. Leia `workspace/profile.md`. Se ausente → aborte, mas ofereça rodar o setup inline: `"Não achei seu profile. Rode \`setup\` agora (eu conduzo) e volto pra cá."`
 2. Leia `workspace/[produto]/manifest.json` (descubra `[produto]` a partir do manifest — único `manifest.json` com `setup_complete === true`). Se ausente → aborte, mas ofereça rodar o setup inline: `"Não achei o manifest. Rode \`setup\` agora (eu conduzo) e volto pra cá."`
-3. Valide que `"01-product-research"` está em `manifest.skills_completed` E que `workspace/[produto]/01-product-research.md` existe. Se faltar qualquer um → NÃO aborte seco; ofereça ≥2 caminhos: **(A)** rodar `product research` agora pra gerar o arquivo, OU **(B)** prosseguir com default genérico (sem dados preliminares de dores/linguagem/awareness) marcando `manifest.skipped_preflight += ["01-product-research"]` e avisando no output final que recomenda rodar `product research` e re-executar esta skill.
+3. Valide que `"01-product-research"` está em `manifest.skills_completed` E que `workspace/[produto]/01-product-research/relatorio.md` existe. Se faltar qualquer um → NÃO aborte seco; ofereça ≥2 caminhos: **(A)** rodar `product research` agora pra gerar o arquivo, OU **(B)** prosseguir com default genérico (sem dados preliminares de dores/linguagem/awareness) marcando `manifest.skipped_preflight += ["01-product-research"]` e avisando no output final que recomenda rodar `product research` e re-executar esta skill.
 4. **Rejeitar slug placeholder:** se `product_slug` começa com `dev-placeholder-` → NÃO aborte seco; ofereça ≥2 caminhos: **(A)** rodar `product research` agora pra definir o `product_slug` real, OU **(B)** prosseguir com o produto que o membro descrever inline (sem validação prévia) marcando `manifest.skipped_preflight += ["product-validation"]` e avisando no output final.
 5. Use `product_slug` do manifest como `[produto]` pra todos os paths daqui pra frente.
 
@@ -199,7 +199,7 @@ Das pesquisas da etapa 4, extraia e organize SEPARADAMENTE. **NUNCA PARAFRASEAR*
 - **Frases exatas descrevendo o PROBLEMA** — mínimo 15 frases
 - **Frases exatas descrevendo o DESEJO** — mínimo 10 frases
 - **Frases exatas descrevendo FRUSTRAÇÕES com produtos existentes** — mínimo 10 frases
-- **Palavras e expressões recorrentes** (aparecem 3+ vezes no corpus)
+- **Palavras e expressões recorrentes** (aparecem 3+ vezes na base de pesquisa)
 
 Essas frases são ouro. Hopkins escreveu em 1923: "a boa copy fala a linguagem do consumidor". Esse é o raw material.
 
@@ -210,10 +210,10 @@ Essas frases são ouro. Hopkins escreveu em 1923: "a boa copy fala a linguagem d
 3. **Classificar severidade do déficit pra alertar skills downstream:**
    - `voc_count >= 35` → OK, segue normal
    - `15 <= voc_count < 35` → `voc_adequacy: "medium"`, skill 06 emite warning mas procede
-   - `voc_count < 15` → `voc_adequacy: "insufficient"`. Skill 06 DEVE bloquear no pré-flight — copy sem VOC real não é copy, é invenção. Salvar em `02-market-research.json`: `"voc_adequacy": "insufficient", "skills_blocked": ["06-copy-engine"]`
+   - `voc_count < 15` → `voc_adequacy: "insufficient"`. Skill 06 DEVE bloquear no pré-flight — copy sem VOC real não é copy, é invenção. Salvar em `02-market-research/dados.json`: `"voc_adequacy": "insufficient", "skills_blocked": ["06-copy-engine"]`
 4. Siga com as etapas restantes (awareness, sophistication, root cause) — essas não dependem de VOC quantity.
 
-Esse déficit é rastreado em `voc_count` + `voc_adequacy` do manifest e do JSON companion.
+Esse déficit é rastreado em `voc_count` + `voc_adequacy` do manifest e do JSON companion (`02-market-research/dados.json`).
 
 ### ETAPA 6 — Root Cause Research (Metodologia Zakaria)
 
@@ -318,16 +318,16 @@ Inclua seção dedicada no `.md` e no `.json`:
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer-builder/relatorio.md` → `04-offer-builder/relatorio.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
 
-**Antes de qualquer write**, garanta: `mkdir -p workspace/[produto]/`.
+**Antes de qualquer write**, garanta: `mkdir -p workspace/[produto]/02-market-research/`.
 
 Salvar TRÊS artefatos:
 
-1. **`workspace/[produto]/02-market-research.md`** — fonte canônica para AI das próximas skills
-2. **`workspace/[produto]/02-market-research.html`** — visualização humana (template ou fallback inline)
-3. **`workspace/[produto]/02-market-research.json`** — JSON companion estruturado:
+1. **`workspace/[produto]/02-market-research/relatorio.md`** — fonte canônica para AI das próximas skills
+2. **`workspace/[produto]/02-market-research/relatorio.html`** — visualização humana (template ou fallback inline)
+3. **`workspace/[produto]/02-market-research/dados.json`** — JSON companion estruturado:
 
 ```json
 {
@@ -379,6 +379,8 @@ Este é o DOCUMENTO MAIS IMPORTANTE. Ele alimenta:
 - `sophistication_stage` ← inteiro 1-5
 - `skills_completed` ← adicione `"02-market-research"` (sem duplicar)
 - `updated_at` ← timestamp atual ISO-8601 UTC
+
+**Regenera o painel do produto:** `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug` do manifest — atualiza o `ABRIR-AQUI.html`).
 
 ## Mensagem Final
 

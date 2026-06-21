@@ -12,7 +12,7 @@ Quando a campanha está rodando e o membro precisa diagnosticar o que está acon
 
 A base Aura tem a TEORIA da leitura (4Pi, PSM). Este playbook é a camada de EXECUÇÃO operacional — exatamente o que decidir olhando o Ads Manager. Quando o playbook e a leitura teórica conflitam numa decisão de matar/manter criativo, **o playbook manda na decisão**; o 4Pi/PSM continuam como o RACIOCÍNIO que explica o porquê.
 
-> Os números de breakeven CPA vêm de `04-offer.json` (`unit_economics.weighted_margin_per_order`). Toda regra abaixo é relativa a ESSE breakeven, não a um valor fixo.
+> Os números de breakeven CPA vêm de `04-offer-builder/dados.json` (`unit_economics.weighted_margin_per_order`). Toda regra abaixo é relativa a ESSE breakeven, não a um valor fixo.
 
 **1. Regra de KILL de criativo (CPA manda, não CTR):**
 - Criativo que **gastou 1-2× o breakeven CPA SEM nenhuma venda → pausa.** Esse é o gatilho operacional padrão.
@@ -34,20 +34,20 @@ A base Aura tem a TEORIA da leitura (4Pi, PSM). Este playbook é a camada de EXE
 ## Antes de Começar
 
 ### Pré-flight
-- [ ] `10-ad-strategy.json` existe
-- [ ] Dir `workspace/[produto]/11-analysis/` existe (`mkdir -p`)
+- [ ] `10-ad-strategy/dados.json` existe
+- [ ] Dir `workspace/[produto]/11-ad-analysis/` existe (`mkdir -p`)
 - [ ] Se houver análises anteriores, ler AS 2 MAIS RECENTES (para delta/trend analysis)
 
 > **report_language:** leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language.
 
-> **Se `10-ad-strategy.json` faltar:** não aborte seco. Ofereça (A) rodar a skill 10 agora pra gerar a estratégia, OU (B) prosseguir com targets genéricos (CPA = `breakeven_cpa` do `04-offer.json` se existir, senão default conservador) marcando `manifest.skipped_preflight += ["10-ad-strategy.json"]` e avisando no output final que recomenda re-executar. Se profile/manifest estiverem TOTALMENTE ausentes, ofereça rodar o setup (skill 00) inline.
+> **Se `10-ad-strategy/dados.json` faltar:** não aborte seco. Ofereça (A) rodar a skill 10 agora pra gerar a estratégia, OU (B) prosseguir com targets genéricos (CPA = `breakeven_cpa` do `04-offer-builder/dados.json` se existir, senão default conservador) marcando `manifest.skipped_preflight += ["10-ad-strategy/dados.json"]` e avisando no output final que recomenda re-executar. Se profile/manifest estiverem TOTALMENTE ausentes, ofereça rodar o setup (skill 00) inline.
 
 ### Contexto a carregar
 
 1. Leia `workspace/profile.md` (budget — contexto pra decisões de scale)
-2. Leia `workspace/[produto]/04-offer.md` (target CPA, breakeven ROAS, margem — benchmarks pra avaliar performance)
-3. Leia `workspace/[produto]/10-ad-strategy.md` (estrutura da campanha, conceitos testados, regras de decisão)
-4. Leia `workspace/[produto]/11-analysis/` — **SE EXISTIR**, leia análises anteriores em ordem cronológica (pra ver evolução, identificar tendências, comparar com análises passadas)
+2. Leia `workspace/[produto]/04-offer-builder/relatorio.md` (target CPA, breakeven ROAS, margem — benchmarks pra avaliar performance)
+3. Leia `workspace/[produto]/10-ad-strategy/relatorio.md` (estrutura da campanha, conceitos testados, regras de decisão)
+4. Leia `workspace/[produto]/11-ad-analysis/` — **SE EXISTIR**, leia análises anteriores em ordem cronológica (pra ver evolução, identificar tendências, comparar com análises passadas)
 5. **Puxe os SISTEMAS NOMEADOS da base — NÃO use query genérica.** Rode `search_knowledge` com a `best_query` exata de cada framework relevante pra ETAPA que está executando (cada ETAPA abaixo já lista os seus). O índice completo do domínio desta skill (meta-ads-strategy, ~26 frameworks com suas queries) está em **`.claude/lib/kb-index/`** (`frameworks.json` + `README.md`, mapa skill→domínio no README). Os sistemas de maior impacto pra leitura de performance, com a query a rodar:
    - **4Pi Analysis (Spend, Frequency, CPM, Cost per Result)** (rode `4Pi analysis spend frequency CPM cost per result funnel position`) — o motor da ETAPA 2
    - **4Pi+2 Dashboard & Custom Metrics** (rode `4Pi+2 custom metrics dashboard GPT account centers Ads Manager`) — setup das colunas customizadas
@@ -95,7 +95,7 @@ Aura tenta 3 caminhos em ordem. Cada falha cai pro próximo silenciosamente — 
    - Conta marcada "disabled" no rollout gradual da beta → logar `account_disabled_in_official_beta` em `mcp-errors.log` e cair pro Caminho 2
    - OAuth expirado → tentar uma única re-autorização inline; se membro recusa, cair pro Caminho 2
 
-3. Receita oficial salva pull completo em `workspace/[produto]/11-analysis/raw-pull-[timestamp].json` com `source: "meta_mcp_official"` + blocos extras (`dataset_health`, `market_context` com industry benchmarks, auction ranking, opportunity score, anomalies). **ZERO interação com o membro.** Vá pra ETAPA 2.
+3. Receita oficial salva pull completo em `workspace/[produto]/11-ad-analysis/raw-pull-[timestamp].json` com `source: "meta_mcp_official"` + blocos extras (`dataset_health`, `market_context` com industry benchmarks, auction ranking, opportunity score, anomalies). **ZERO interação com o membro.** Vá pra ETAPA 2.
 
 #### Caminho 2 — Meta MCP via Pipeboard (3rd party, fallback)
 
@@ -111,7 +111,7 @@ Se sim, invocar receita legacy `sync-campaign-from-meta.md` com `fallback_reason
 
 Quando ambos MCPs falham (não configurados, ambos token/OAuth expirados, ambos rate-limited):
 
-1. Logar ambos os erros em `workspace/[produto]/11-analysis/mcp-errors.log`
+1. Logar ambos os erros em `workspace/[produto]/11-ad-analysis/mcp-errors.log`
 2. Pedir ao membro:
 
    > "MCP do Meta Ads não respondeu (motivo: oficial=[erro], pipeboard=[erro]). Cola os dados aqui — screenshot ou números. Preciso ver por ad set: Spend, Frequency, CPM, CPC, Cost per Purchase, ROAS, e (importante pro diagnóstico de funil) Adds to Cart e Checkouts Initiated além das Purchases. E quantos dias cada ad set está rodando."
@@ -150,7 +150,7 @@ Se `dataset_health.match_quality_score < 7` → marcar warning no relatório: "M
 
 Defina estes valores UMA vez no topo da análise. Todos os steps (Pi 4, ETAPA 3, ETAPA 9, ETAPA 11) usam ESTES, sem redefinir.
 
-**Unit economics (de `04-offer.json`):**
+**Unit economics (de `04-offer-builder/dados.json`):**
 - `breakeven_cpa = offer.unit_economics.weighted_margin_per_order` (denominador de margem canônico)
 - `target_cpa_2x = offer.unit_economics.target_cpa_primary_2x`
 - `target_cpa_3x = offer.unit_economics.target_cpa_primary_3x`
@@ -163,9 +163,9 @@ psm_real = LTV / (CPA + COGS)
 ```
 - `CPA` = `observed_cpa_avg_last_7d` (CPA médio real dos últimos 7 dias)
 - `COGS` = somatório de `offer.cogs_breakdown`
-- `LTV` = de `04-offer.json` (ou AOV se LTV ausente)
+- `LTV` = de `04-offer-builder/dados.json` (ou AOV se LTV ausente)
 - Thresholds PSM: >1.3 agressivo · 1.1–1.3 steady (+5%) · 1.0–1.1 breakeven · <1.0 unprofitable.
-- **A skill 11 é a ÚNICA fonte que grava `manifest.psm_real`** (a partir de performance real). Também grava em `latest.json`. Skill 12 LÊ `manifest.psm_real`; nunca recalcula.
+- **A skill 11 é a ÚNICA fonte que grava `manifest.psm_real`** (a partir de performance real). Também grava em `11-ad-analysis/dados.json`. Skill 12 LÊ `manifest.psm_real`; nunca recalcula.
 
 **Gatilho de KILL operacional (PLAYBOOK — a decisão de matar criativo):**
 - **KILL imediato:** criativo gastou **1-2× breakeven CPA SEM venda** → pausa. CPA manda, CTR não salva.
@@ -244,7 +244,7 @@ Se TODOS estão com freq diária ~1.05 e a campanha tá há 14+ dias, algo tá p
 
 #### Pi 4: COST PER RESULT (O Que Realmente Importa)
 
-Compare CPA de cada ad set contra o **target CPA da oferta** (do `04-offer.md`), usando as classificações do bloco **Decision Thresholds** definido no topo desta ETAPA:
+Compare CPA de cada ad set contra o **target CPA da oferta** (do `04-offer-builder/relatorio.md`), usando as classificações do bloco **Decision Thresholds** definido no topo desta ETAPA:
 
 - **CPA ≤ target** → WINNER (vai pro diagnóstico "scale")
 - **CPA entre target e 2× target após 7 dias** → NEEDS OPTIMIZATION (iteração, não pausar ainda)
@@ -266,9 +266,9 @@ psm_real = LTV / (CPA + COGS)
 ```
 - `CPA` = `observed_cpa_avg_last_7d`
 - `COGS` = somatório de `offer.cogs_breakdown` (NÃO existe campo `cogs_total`)
-- `LTV` = de `04-offer.json` (ou AOV se LTV ausente)
+- `LTV` = de `04-offer-builder/dados.json` (ou AOV se LTV ausente)
 
-Este `psm_real` é gravado em `latest.json` E em `manifest.psm_real` (ver ETAPA de update do manifest). Skill 12 lê de `manifest.psm_real`, nunca recalcula. Thresholds de ação PSM: >1.3 agressivo · 1.1–1.3 steady (+5%) · 1.0–1.1 breakeven · <1.0 unprofitable.
+Este `psm_real` é gravado em `11-ad-analysis/dados.json` E em `manifest.psm_real` (ver ETAPA de update do manifest). Skill 12 lê de `manifest.psm_real`, nunca recalcula. Thresholds de ação PSM: >1.3 agressivo · 1.1–1.3 steady (+5%) · 1.0–1.1 breakeven · <1.0 unprofitable.
 
 ### ETAPA 3 — Diagnóstico Por Ad Set
 
@@ -439,7 +439,7 @@ Isso é o "feedback loop motor de crescimento" — cada análise enriquece o pr�
 
 Pra cada criativo analisado nesta rodada:
 
-1. Classificar outcome (alinhado ao bloco Decision Thresholds — o `outcome` aqui é o mesmo gravado em `winners[]`/`losers[]` de `latest.json`):
+1. Classificar outcome (alinhado ao bloco Decision Thresholds — o `outcome` aqui é o mesmo gravado em `winners[]`/`losers[]` de `11-ad-analysis/dados.json`):
    - `winner`: CPA ≤ target E recebeu spend (≥ 10% do share) E campanha overall não piorou; sinal forte se spend > $300 E decile_rank 1-2
    - `loser`: disparou o gatilho de KILL (gastou 1-2× breakeven CPA sem venda, fora da exceção de 2+ checkouts) OU desligado após 7 dias com < 10% do spend total OU CPA acima do target após 7 dias
    - `neutral`: demais (inclui criativo em FUNIL QUEBRADO — não foi o criativo que falhou, não conta como loser dele)
@@ -482,14 +482,14 @@ Antes de persistir dados em `workspace/`:
 ### Output adicional — NEXT_BATCH_IDEAS.md (fecha loop 11→08)
 
 Além de `[YYYYMMDD]-analysis.md`, gerar OBRIGATORIAMENTE:
-`workspace/[produto]/11-analysis/NEXT_BATCH_IDEAS.md`
+`workspace/[produto]/11-ad-analysis/NEXT_BATCH_IDEAS.md`
 
 **Critério de parada pra evitar loop infinito 09↔07:**
 
 Antes de gerar ideias novas:
 1. Se `NEXT_BATCH_IDEAS.md` já existe:
-   - Ler versão anterior + ler `08-creatives.json` (criativos gerados desde última rodada)
-   - Comparar: quantas ideias propostas na versão anterior **foram testadas** (viraram criativos em 08-creatives.json com performance em 09)?
+   - Ler versão anterior + ler `08-creative-engine/dados.json` (criativos gerados desde última rodada)
+   - Comparar: quantas ideias propostas na versão anterior **foram testadas** (viraram criativos em 08-creative-engine/dados.json com performance em 09)?
    - Se `testadas < 50%` das ideias propostas na última rodada → **Não gerar novas ideias.** Retornar versão anterior intacta + adicionar seção "Validation pending: {ideia1}, {ideia2} ainda não foram testadas — priorize antes de gerar novos angles."
    - Se `testadas >= 50%` → proceder com novas ideias (baseadas em learnings das testadas)
 2. Se arquivo não existe: gerar do zero normalmente.
@@ -509,7 +509,7 @@ Conteúdo (quando gerar):
 Se ações próximas = 'scale', skill 12 lerá este JSON SEM precisar perguntar.
 Se membro invoca `recycle winner`, skill 14 lerá esse JSON pra achar winner ID.
 
-O arquivo de análise é `workspace/[produto]/11-analysis/latest.json` (cópia do último análise — nome literal `latest.json` dentro da pasta `11-analysis/`, NÃO `11-analysis-latest.json`):
+O arquivo de análise é `workspace/[produto]/11-ad-analysis/dados.json` (cópia do último análise — nome literal `dados.json` dentro da pasta `11-ad-analysis/`):
 
 ```json
 {
@@ -549,40 +549,42 @@ O arquivo de análise é `workspace/[produto]/11-analysis/latest.json` (cópia d
 
 ### Atualização do manifest (OBRIGATÓRIO — single source of truth)
 
-Após gerar `latest.json`, atualizar `manifest.json` com campos canônicos:
+Após gerar `dados.json`, atualizar `manifest.json` com campos canônicos:
 
 - `manifest.psm_real` ← `psm_real` calculado nesta análise pela fórmula canônica `LTV / (CPA + COGS)`. **A skill 11 é a ÚNICA fonte que grava `manifest.psm_real`** (skill 12 lê daqui, nunca recalcula).
-- `manifest.winners[]` ← lista de creative_ids vencedores desta análise (espelha `latest.json.winners[]`; skill 14 lê `manifest.winners[]` / `latest.json.winners[]`)
+- `manifest.winners[]` ← lista de creative_ids vencedores desta análise (espelha `dados.json.winners[]`; skill 14 lê `manifest.winners[]` / `dados.json.winners[]`)
 - `manifest.champions[]` ← acrescentar creative_ids promovidos a Post ID dedicado (não sobrescrever os já existentes; merge sem duplicar)
 - `manifest.last_analysis_date` ← timestamp desta análise
 - `manifest.analysis_count` ← incrementar +1
 - `manifest.last_cpa_avg` ← `current_cpa_avg`
 - `manifest.last_roas_avg` ← `current_roas_avg`
 - `manifest.last_recommended_action` ← `recommended_action` (inclui `fix_funnel` e `test_other_account` do playbook — sinaliza pra skill 12 que o bloqueio não é escala)
-- `manifest.account_cpm_suspect` / `manifest.funnel_broken` ← espelham `latest.json.health_signals` (sinalizam que matar produto/criativo seria erro — é conta ou página)
+- `manifest.account_cpm_suspect` / `manifest.funnel_broken` ← espelham `dados.json.health_signals` (sinalizam que matar produto/criativo seria erro — é conta ou página)
 - Se `manifest.skipped_preflight` foi marcado no pré-flight (estratégia faltante), manter a flag.
 
-Por que atualizar manifest: skills 12 e 14 leem `manifest.psm_real`, `manifest.winners[]` e `manifest.champions[]` como fonte canônica. Latest.json é histórico por análise; manifest é o estado atual consolidado.
+Por que atualizar manifest: skills 12 e 14 leem `manifest.psm_real`, `manifest.winners[]` e `manifest.champions[]` como fonte canônica. O `dados.json` é histórico por análise; manifest é o estado atual consolidado.
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer-builder/relatorio.md` → `04-offer-builder/relatorio.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
-**Garantir diretório:** `mkdir -p workspace/[produto]/11-analysis/` antes de salvar.
+**Garantir diretório:** `mkdir -p workspace/[produto]/11-ad-analysis/` antes de salvar.
 
-Outputs em `workspace/[produto]/11-analysis/`:
+Outputs em `workspace/[produto]/11-ad-analysis/`:
 - `[YYYYMMDD]-analysis.md` (contendo todas as etapas do diagnóstico, incluindo a regra de KILL do playbook e os benchmarks de funil — histórico cumulativo)
 - `[YYYYMMDD]-analysis.html` (companion visual)
+- `relatorio.md` + `relatorio.html` (cópia da última rodada como relatório humano principal — é o que o painel do produto abre; sempre reflete a análise mais recente)
 - `NEXT_BATCH_IDEAS.md` (input pra skill 08 no próximo batch — fecha loop)
-- `latest.json` (handoff pra skill 12 — schema acima)
+- `dados.json` (handoff pra skill 12 — schema acima)
 
-A pasta `11-analysis/` acumula histórico — análises anteriores servem de input pra comparar evolução nas análises seguintes.
+A pasta `11-ad-analysis/` acumula histórico — análises anteriores servem de input pra comparar evolução nas análises seguintes.
 
 ### Atualizar manifest
 
 Após salvar, atualizar `workspace/[produto]/manifest.json` (ver lista canônica completa de campos acima):
 - Adicionar `11-ad-analysis` em `skills_completed` (primeira vez) ou incrementar `analysis_count`
 - Registrar `last_analysis_date`, `psm_real` (calculado via `LTV / (CPA + COGS)`), `winners[]`, `champions[]` (merge), `recommended_action`
+- Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (atualiza ABRIR-AQUI.html)
 
 ## Mensagem Final
 

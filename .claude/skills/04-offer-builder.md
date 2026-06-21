@@ -10,8 +10,8 @@ description: Engine de construção de oferta com mecanismo único, stack de val
 ### Pré-flight (OBRIGATÓRIO)
 Valide antes de prosseguir:
 - [ ] `workspace/[produto]/manifest.json` existe
-- [ ] `02-market-research.json` existe (awareness_distribution, sophistication_stage) E `02-market-research.md` existe (narrativa: pain points, desires, objeções)
-- [ ] `03-competitor-analysis.md` E `03-competitor-analysis.json` existem
+- [ ] `02-market-research/dados.json` existe (awareness_distribution, sophistication_stage) E `02-market-research/relatorio.md` existe (narrativa: pain points, desires, objeções)
+- [ ] `03-competitor-analysis/relatorio.md` E `03-competitor-analysis/dados.json` existem
 - [ ] Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language. As 3 versões do mecanismo (version_short/medium/long) são copy pública — permanecem em inglês se o mercado for US.
 
 Se faltar qualquer arquivo de fase anterior (02/03), em vez de abortar seco, ofereça ao membro 2 caminhos (escape-path ES1):
@@ -26,9 +26,9 @@ Quando o membro tem produto definido, market research pronto, e precisa construi
 ## Antes de Começar
 
 1. Leia `workspace/profile.md` (ferramentas disponíveis, budget diário — informa viabilidade econômica; lê também `report_language` conforme o pré-flight)
-2. Leia `workspace/[produto]/01-product-research.md` (se existir — tem features, COGS preliminar, potencial de oferta)
-3. Leia `workspace/[produto]/02-market-research.md` (narrativa: pain points, desires, root cause, objeções) E `02-market-research.json` (campos estruturados: awareness_distribution, sophistication_stage, voc_phrases) — a oferta é a RESPOSTA direta ao market research
-4. Leia `workspace/[produto]/03-competitor-analysis.md` E `03-competitor-analysis.json` (claims saturados a evitar, mecanismos já usados, gaps de oferta identificados)
+2. Leia `workspace/[produto]/01-product-research/relatorio.md` (se existir — tem features, COGS preliminar, potencial de oferta)
+3. Leia `workspace/[produto]/02-market-research/relatorio.md` (narrativa: pain points, desires, root cause, objeções) E `02-market-research/dados.json` (campos estruturados: awareness_distribution, sophistication_stage, voc_phrases) — a oferta é a RESPOSTA direta ao market research
+4. Leia `workspace/[produto]/03-competitor-analysis/relatorio.md` E `03-competitor-analysis/dados.json` (claims saturados a evitar, mecanismos já usados, gaps de oferta identificados)
 5. **Puxe os SISTEMAS NOMEADOS da base — não query genérica.** Para cada ETAPA desta skill, rode `search_knowledge` (com `deep=true`) usando a `best_query` exata de cada framework relevante. A lista completa do domínio desta skill (122 frameworks em `offer-mechanism`, `offer-pricing-guarantee`, `brand-building-bonus-aov`) está em `.claude/lib/kb-index/` (`frameworks.json` / `README.md`). Os frameworks de maior impacto já estão NOMEADOS e embutidos dentro de cada ETAPA abaixo (mecanismo → ETAPA 2, pricing/garantia → ETAPAs 3-4, economics/PSM → ETAPAs 5-7). Aprofunde em cada um até ter domínio completo — pricing é decisão estratégica, não técnica. NUNCA fundamente uma decisão de oferta numa busca genérica do tipo "offer pricing" — sempre puxe o sistema nomeado.
 
 ## Fluxo da Skill
@@ -48,7 +48,7 @@ Não aceite "custo total" agregado. Pergunte separadamente:
 4. Gateway fee: % + taxa fixa (Stripe: 3.99% + R$0.39 típico)
 5. Taxas e impostos incidentes por pedido
 
-Documente cada um em `04-offer.json` → `cogs_breakdown`.
+Documente cada um em `04-offer-builder/dados.json` → `cogs_breakdown`.
 
 **2. Features/ingredientes (CONDICIONAL):**
 - SE não conseguiu extrair da página automaticamente: "Liste as features ou ingredientes principais do produto."
@@ -84,10 +84,10 @@ Se continuar, marca `"margin_warning": true` no manifest pra Skills 10/12 alerta
 
 ### ETAPA 2 — MECANISMO ÚNICO (A Parte Mais Importante)
 
-O mecanismo único é o que diferencia seu produto de TODO concorrente. Sem mecanismo forte, a copy vira commodity disputando no preço. Com mecanismo forte, você cria um "blue ocean" dentro de qualquer nicho.
+O mecanismo único é o que diferencia seu produto de TODO concorrente. Sem mecanismo forte, a copy vira commodity disputando no preço. Com mecanismo forte, você cria um espaço sem concorrência direta (blue ocean) dentro de qualquer nicho.
 
 **Puxe estes SISTEMAS NOMEADOS da base antes de ideação (rode a `best_query` de cada — NUNCA query genérica):**
-- **Unique Mechanism Theory (UMP/UMS)** (rode `unique mechanism UMP UMS theory two-part problem solution`) — o framework-mãe: mecanismo do problema + mecanismo da solução.
+- **Unique Mechanism Theory (UMP/UMS — UMP é o mecanismo do problema, UMS é o mecanismo da solução)** (rode `unique mechanism UMP UMS theory two-part problem solution`) — o framework-mãe: mecanismo do problema + mecanismo da solução.
 - **UMP/UMS Internal Structure** (rode `UMP UMS structure trigger surprising cause quiz specific delivery`) — anatomia interna do mecanismo (trigger → causa surpreendente → delivery específico).
 - **S.I.N. Filter (Simple, Intuitive, New)** (rode `mechanism SIN filter simple intuitive new`) — o filtro aplicado em 2A/2B abaixo.
 - **Proprietary Mechanism Naming (Gum Name)** (rode `proprietary mechanism gum name nickname ritual hack effect`) — como cunhar o nome proprietário (2-4 palavras).
@@ -205,7 +205,7 @@ Mecanismo sem lastro científico/empírico é claim vazio e vira copy fraca, ad 
 
 **Output dessa etapa:**
 
-Arquivo `workspace/[produto]/04-research-foundation.json` contendo:
+Arquivo `workspace/[produto]/04-offer-builder/research-foundation.json` contendo:
 ```json
 {
   "mechanism_name": "...",
@@ -216,7 +216,7 @@ Arquivo `workspace/[produto]/04-research-foundation.json` contendo:
 }
 ```
 
-Esse arquivo é lido pelas skills 06 (copy) e 08 (creatives) pra ancorar afirmações com fonte verificável. Copy sem `research-foundation.json` acessível roda com warning "claims unverified — escalate carefully".
+Esse arquivo é lido pelas skills 06 (copy) e 08 (creatives) pra ancorar afirmações com fonte verificável. Copy sem `04-offer-builder/research-foundation.json` acessível roda com warning "claims unverified — escalate carefully".
 
 ### ETAPA 3 — Estrutura de Oferta
 
@@ -252,11 +252,11 @@ Se as 3 ancoras divergirem > 40%, revisitar offer antes de prosseguir.
 | Popular | 3x | $Y | $Y/3 | ~$Z ou ~Z% |
 | Best Value | 6x | $W | $W/6 | ~$A ou ~A% |
 
-Regra de thumb (pode ajustar):
+Regra prática (pode ajustar):
 - 3-pack: ~25-35% savings vs 3× solo
 - 6-pack: ~40-50% savings vs 6× solo
 
-Marcar **Popular** no 3-pack (visualmente destacado — driver de AOV). Best Value no 6-pack (pra whales).
+Marcar **Popular** no 3-pack (visualmente destacado — driver de AOV). Best Value no 6-pack (pra clientes que compram em volume alto (whales)).
 
 **Checkout Bump:**
 - Produto complementar de baixo preço ($9-19 tipicamente) ou add-on (frete expresso, versão com mais, etc)
@@ -288,7 +288,7 @@ Liste tudo que vem no pacote com valor ancorado:
 
 Cada bonus é REAL (entregável), não inflado artificialmente. O stack cria percepção de valor desproporcional ao preço.
 
-**OBRIGATÓRIO — Registrar bonuses no campo top-level `bonuses[]` do `04-offer.json`.** Skill 05 (bonus-delivery) lê desse campo pra montar o pipeline de entrega. Pra cada bonus do stack, gerar entry:
+**OBRIGATÓRIO — Registrar bonuses no campo top-level `bonuses[]` do `04-offer-builder/dados.json`.** Skill 05 (bonus-delivery) lê desse campo pra montar o pipeline de entrega. Pra cada bonus do stack, gerar entry:
 
 ```json
 {
@@ -361,13 +361,13 @@ Custo por unidade vendida:
 Margem por unidade:
 - Margem $ = AOV − Custo Total
 
-> **Denominador canônico:** toda a unit economics usa `weighted_margin_per_order` (margem média ponderada por AOV, considerando bumps + upsells) como denominador. Quando a oferta não tem bump/upsell, ele iguala `margin_per_unit`. Os campos `breakeven_cpa`, `target_cpa_primary_2x/3x` e `breakeven_roas` do `04-offer.json` derivam SEMPRE de `weighted_margin_per_order` (ver "Nota sobre nomenclatura" no Output Schema). A Skill 11 lê assim.
+> **Denominador canônico:** toda a unit economics usa `weighted_margin_per_order` (margem média ponderada por AOV, considerando bumps + upsells) como denominador. Quando a oferta não tem bump/upsell, ele iguala `margin_per_unit`. Os campos `breakeven_cpa`, `target_cpa_primary_2x/3x` e `breakeven_roas` do `04-offer-builder/dados.json` derivam SEMPRE de `weighted_margin_per_order` (ver "Nota sobre nomenclatura" no Output Schema). A Skill 11 lê assim.
 
 **Breakeven CPA / Breakeven ROAS** (o ponto de empate, antes de lucro):
 - Breakeven CPA = weighted_margin_per_order
 - Breakeven ROAS = AOV / weighted_margin_per_order
 - Exemplo: AOV $118, weighted_margin_per_order $72 → Breakeven CPA = $72, Breakeven ROAS = 118/72 = 1.64
-- Significa: precisa gerar $1.64 de revenue para cada $1 em ads só para empatar
+- Significa: precisa gerar $1.64 de receita para cada $1 em ads só para empatar
 
 **Target CPA** (CPA máximo para N× ROAS desejado):
 - Target CPA para ROAS N = weighted_margin_per_order / N
@@ -433,7 +433,7 @@ Cruze unit economics com budget diário do membro (do profile):
 
 - Com target CPA de $X, quantas vendas/dia o budget do membro viabiliza?
 - Ex: budget $100/dia, CPA target $30 → ~3 vendas/dia
-- AOV projetado × 3 vendas/dia = ~$Y/dia em revenue
+- AOV projetado × 3 vendas/dia = ~$Y/dia em receita
 - Margem total projetada = $Z/dia
 
 É viável? Pra qual revenue tier (da Skill 12) essa oferta leva o membro em 30/60/90 dias?
@@ -452,13 +452,13 @@ Antes de salvar, responda HONESTAMENTE:
 8. **Margem $ ≥ $20 em pelo menos uma variação?** (senão CPA viável inviabiliza ads)
 9. **Bundle structure aumenta AOV sem canibalizar margem?**
 10. **breakeven_roas < 3.0?** (se >3, a oferta depende de CAC muito baixo — validar com @analyst)
-11. **`04-research-foundation.json` existe e cobre todos os claims centrais do mecanismo com fonte rastreável?** (sem fundação de evidência, copy da Skill 06 sai sem lastro — bloqueante)
+11. **`04-offer-builder/research-foundation.json` existe e cobre todos os claims centrais do mecanismo com fonte rastreável?** (sem fundação de evidência, copy da Skill 06 sai sem lastro — bloqueante)
 
-Registre o resultado em `04-offer.json` → `sanity_checks` como `{ "total": 11, "passed": N, "failed": [<números dos checks que falharam>] }` (NÃO um inteiro hard-coded). Se alguma resposta for "não", **itere antes de salvar**. Uma oferta fraca que passa adiante vira ad ruim, copy genérica, e membro frustrado em 30 dias.
+Registre o resultado em `04-offer-builder/dados.json` → `sanity_checks` como `{ "total": 11, "passed": N, "failed": [<números dos checks que falharam>] }` (NÃO um inteiro hard-coded). Se alguma resposta for "não", **itere antes de salvar**. Uma oferta fraca que passa adiante vira ad ruim, copy genérica, e membro frustrado em 30 dias.
 
-**Bloqueio de save (checks críticos):** se QUALQUER um dos checks críticos falhar — check 3 (economics/PSM viável), check 8 (margem $ ≥ $20 em ao menos uma variação), ou check 11 (`04-research-foundation.json` cobre os claims centrais) — NÃO salve o `04-offer.json` final. Itere até passar, ou aplique o escape-path correspondente (ES1 pra foundation faltante; ETAPA 7 pra economics; ETAPA 1 sanity de margem). Os demais checks que falharem entram em `failed[]` como aviso, mas não bloqueiam.
+**Bloqueio de save (checks críticos):** se QUALQUER um dos checks críticos falhar — check 3 (economics/PSM viável), check 8 (margem $ ≥ $20 em ao menos uma variação), ou check 11 (`04-offer-builder/research-foundation.json` cobre os claims centrais) — NÃO salve o `04-offer-builder/dados.json` final. Itere até passar, ou aplique o escape-path correspondente (ES1 pra foundation faltante; ETAPA 7 pra economics; ETAPA 1 sanity de margem). Os demais checks que falharem entram em `failed[]` como aviso, mas não bloqueiam.
 
-### Output Schema — `04-offer.md` + `04-offer.json`
+### Output Schema — `04-offer-builder/relatorio.md` + `04-offer-builder/dados.json`
 
 O markdown é humano; o JSON é para as skills 06/07/10/11/12. Estrutura obrigatória:
 
@@ -510,6 +510,8 @@ O markdown é humano; o JSON é para as skills 06/07/10/11/12. Estrutura obrigat
 
 Atualizar `manifest.json`: adicionar `target_cpa`, `breakeven_roas`, `psm_theoretical`, adicionar skill em `skills_completed`.
 
+Depois de atualizar o manifest, regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug` — atualiza o `ABRIR-AQUI.html`).
+
 **Nota sobre nomenclatura dos unit_economics** — `weighted_margin_per_order` é o denominador de margem CANÔNICO de toda a unit economics. TODOS os derivados saem dele, NÃO de `margin_per_unit`:
 - `breakeven_cpa` = `weighted_margin_per_order`
 - `target_cpa_primary_2x` = `weighted_margin_per_order / 2`
@@ -519,14 +521,14 @@ Atualizar `manifest.json`: adicionar `target_cpa`, `breakeven_roas`, `psm_theore
 
 No exemplo acima: weighted_margin_per_order 72 → breakeven_cpa 72, target_2x 36 (72/2), target_3x 24 (72/3), breakeven_roas 1.64 (118/72). A Skill 11 (ad-analysis) lê por esses nomes "primary"/"weighted" e assume esse denominador único. Os campos legacy (`margin_per_unit`, `target_cpa_for_2x/3x`) são emitidos em paralelo só por compat. `weighted_margin_per_order` = margem média ponderada por AOV (considera bumps + upsells); `margin_per_unit` é a margem unitária do SKU principal. Se a oferta não tem bump/upsell, os dois valores são iguais — mas os derivados de CPA sempre referenciam `weighted_margin_per_order`. `offer_stack` é a string pré-montada que a Skill 06 consome literal.
 
-**Se `04-offer.json` falhar validação, NÃO salvar `.md`.**
+**Se `04-offer-builder/dados.json` falhar validação, NÃO salvar `.md`.**
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer-builder/relatorio.md` → `04-offer-builder/relatorio.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
 
-`workspace/[produto]/04-offer.md` contendo:
+`workspace/[produto]/04-offer-builder/relatorio.md` contendo:
 1. Mecanismo único recomendado (com scoring das 5-7 opções geradas) + 3 versões (1 frase / 1 parágrafo / 2-3 parágrafos)
 2. **Research Foundation** (Etapa 2.5) — evidências que sustentam o mecanismo, com fontes rastreáveis
 3. Estrutura de oferta completa (produto principal, bundles, bump, upsell, stack de valor)
@@ -537,7 +539,7 @@ No exemplo acima: weighted_margin_per_order 72 → breakeven_cpa 72, target_2x 3
 8. Viabilidade com budget (Etapa 8)
 9. Respostas aos sanity checks (Etapa 9)
 
-Também salvar companion `04-research-foundation.json` conforme schema da Etapa 2.5.
+Também salvar companion `04-offer-builder/research-foundation.json` conforme schema da Etapa 2.5.
 
 ## Mensagem Final
 

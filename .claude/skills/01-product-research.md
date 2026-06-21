@@ -111,7 +111,7 @@ Diga ao membro:
 
 > NOTA: unit price > $15 no Kalodata NÃO é o mesmo que AOV ≥ $60. Um produto de $25/unidade que vende em 3-pack atinge AOV $75 e PASSA na ETAPA 2. São dois filtros diferentes — não confundir o preço unitário da vitrine com o AOV viável depois de bundle/bump.
 
-Tudo que você colar daqui eu marco como **fonte manual (colada por você)** no relatório, pra ficar claro de onde veio cada número. Se você também tiver dados do SimilarWeb sobre os concorrentes, cole também (revenue do SimilarWeb eu nunca consigo puxar sozinho — é sempre colado). Se não tiver, eu faço o que puder com fontes públicas."
+Tudo que você colar daqui eu marco como **fonte manual (colada por você)** no relatório, pra ficar claro de onde veio cada número. Se você também tiver dados do SimilarWeb sobre os concorrentes, cole também (a receita do SimilarWeb eu nunca consigo puxar sozinho — é sempre colada). Se não tiver, eu faço o que puder com fontes públicas."
 
 **SE NÃO tem SpyBox/Kalodata (fallback):**
 
@@ -188,7 +188,7 @@ Também busque no Google por `"nome do produto" site:bbb.org` e `"nome do produt
 
 - **Ads ativos / criativos escalados** → AUTO: Meta Ad Library público (web search / fetch). Se TrendTrack estiver conectado, as tools `mcp__trendtrack__*` de busca de loja/concorrente (descobertas em runtime, ver ETAPA 0.5) dão isso refinado em 1-2 chamadas.
 - **Revenue / sizing estimado do concorrente** → **AUTO se TrendTrack** (revenue agregado via tool); **MANUAL se não** — a AI **NÃO acessa o SimilarWeb** (pago, sem API que ela leia). Quando precisar do tamanho/tráfego de uma loja sem TrendTrack, ela pede o dado colado, com instrução exata:
-  > *"Pra dimensionar o concorrente [loja X], abre o SimilarWeb (direto ou pelo painel do SpyBox) e me cola: visitas/mês (visits) + revenue estimado da loja. Eu não consigo puxar esse número sozinho — revenue via SimilarWeb é sempre colado por você."*
+  > *"Pra dimensionar o concorrente [loja X], abre o SimilarWeb (direto ou pelo painel do SpyBox) e me cola: visitas/mês (visits) + receita estimada da loja. Eu não consigo puxar esse número sozinho — a receita via SimilarWeb é sempre colada por você."*
   Trate o número como input manual e marque a fonte no relatório. NUNCA estime revenue do SimilarWeb sem o dado colado (não invente "deve faturar ~$200k").
 
 Acesse o Meta Ad Library (web search / fetch quando possível) pra cada produto.
@@ -300,7 +300,7 @@ Analise os claims que os concorrentes já usam (da Etapa 5):
 
 Liste os claims saturados que devem ser EVITADOS. Defina a resposta estratégica certa pro estágio (mecanismo novo? informação nova? identificação?).
 
-**4. Possibilidade de Mecanismo Único** (UMP/UMS):
+**4. Possibilidade de Mecanismo Único** (mecanismo único do problema/da solução — UMP/UMS):
 
 > Sistema-base deste sub-passo: **Two Forms of Differentiation — Mechanism Innovation** (já puxado no topo da ETAPA 8, rode `two forms of differentiation mechanism innovation avatar innovation overlooked avatar` se ainda não puxou). O mecanismo é a primeira das duas formas de diferenciar.
 
@@ -412,12 +412,12 @@ Pro produto com maior score, entregue um plano inicial (detalhado depois nas ski
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Antes de qualquer write**, garanta: `mkdir -p workspace/[produto]/`.
+**Antes de qualquer write**, garanta: `mkdir -p workspace/[produto]/01-product-research/`.
 
 Salve em DOIS arquivos dentro de `workspace/[produto]/` (onde `[produto]` = slug do PRODUTO VENCEDOR, não do produto original da pesquisa — assim as fases seguintes salvam no mesmo lugar):
 
-1. **`01-product-research.md`** (a AI lê nas fases seguintes)
-2. **`01-product-research.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto))
+1. **`01-product-research/relatorio.md`** (a AI lê nas fases seguintes)
+2. **`01-product-research/relatorio.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto))
 
 Conteúdo de ambos:
 - Lista completa de todos os produtos analisados (mesmo os descartados, com razão)
@@ -441,6 +441,7 @@ Conteúdo de ambos:
    - `awareness_distribution` — distribuição estimada por nível de Schwartz da ETAPA 8.2 (objeto `{unaware, problem, solution, product, most}`)
    - `sophistication_stage` — estágio de sophistication da ETAPA 8.3 (1-5)
 5. Preserve todos os campos preenchidos no setup (`budget_tier`, `product_url`, etc.)
+6. Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` = `product_slug` do vencedor — atualiza o `ABRIR-AQUI.html`).
 
 Se o slug mudou, informe ao membro: `"Produto vencedor: [nome]. Movi os artefatos para workspace/[novo-slug]/."`
 
@@ -450,7 +451,7 @@ Se houver produto TESTAR no ranking:
 
 "Product research completo. [Nome do produto] venceu com score X.X/10.
 
-Plano preliminar salvo em `workspace/[produto]/01-product-research.md`. Alinhamento com budget: [starter/standard/escala-inicial] — viável.
+Plano preliminar salvo em `workspace/[produto]/01-product-research/relatorio.md`. Alinhamento com budget: [starter/standard/escala-inicial] — viável.
 
 Próximo passo: diga **'market research'** pra aprofundar a pesquisa e montar o Unified Research Brief."
 

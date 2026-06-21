@@ -11,8 +11,8 @@ Quando o membro tem produto definido e market research feito, e precisa mapear o
 ## Antes de Começar
 
 1. Leia `workspace/profile.md`. Leia o campo `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language`. Ressalva específica desta skill: copy literal de concorrentes (headlines, hooks, claims, transcrições de ads) permanece no idioma original do ad — é evidência, não tradução.
-2. Leia `workspace/[produto]/01-product-research.md` (se existir — tem concorrentes já identificados)
-3. Leia `workspace/[produto]/02-market-research.md` (overview competitivo básico + gaps já identificados)
+2. Leia `workspace/[produto]/01-product-research/relatorio.md` (se existir — tem concorrentes já identificados)
+3. Leia `workspace/[produto]/02-market-research/relatorio.md` (overview competitivo básico + gaps já identificados)
 4. **Puxe os SISTEMAS NOMEADOS da base** — NUNCA use query genérica tipo "competitor analysis". Pra cada ETAPA, rode `search_knowledge` (com `deep=true`) usando a `best_query` exata de cada framework relevante listado nas próprias ETAPAs abaixo. O índice completo do domínio desta skill (domínio `competitor-positioning`, 31 frameworks) está em **`.claude/lib/kb-index/`** (`frameworks.json` + `README.md` com o mapa skill→domínio). Esta skill opera em detalhe EXECUTIVO, não conceitual — puxe o sistema completo de cada framework, não o resumo de superfície.
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (domínio `competitor-positioning`; o README mapeia skill→domínio). Os blocos `**Nome do framework** (rode \`best_query\`)` embutidos nas ETAPAs abaixo são os de MAIOR IMPACTO — não a lista inteira. Quando uma ETAPA precisar de mais profundidade, consulte o índice.
@@ -24,9 +24,9 @@ Quando o membro tem produto definido e market research feito, e precisa mapear o
 1. Leia `workspace/profile.md`. Se TOTALMENTE ausente → sem profile não há o que inferir; ofereça rodar o setup inline: `"Não achei seu profile. Rode \`setup\` agora (eu conduzo aqui mesmo) e a gente segue."`
 2. Leia `workspace/[produto]/manifest.json` (identifique `[produto]` via manifest com `setup_complete === true`). Se TOTALMENTE ausente → ofereça rodar o setup inline (mesma mensagem do item 1).
 3. Valide a existência de TODOS os arquivos obrigatórios:
-   - `workspace/[produto]/01-product-research.md`
-   - `workspace/[produto]/02-market-research.md`
-   - `workspace/[produto]/02-market-research.json`
+   - `workspace/[produto]/01-product-research/relatorio.md`
+   - `workspace/[produto]/02-market-research/relatorio.md`
+   - `workspace/[produto]/02-market-research/dados.json`
 4. Valide que `skills_completed` do manifest contém `"01-product-research"` E `"02-market-research"`.
 5. Se faltar qualquer arquivo obrigatório dos itens 3-4 (mas profile + manifest existem), NÃO aborte seco. Ofereça ≥2 caminhos: **(A)** Rodar a skill faltante agora (`product research` ou `market research`), OU **(B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["<arquivo>"]` e avisando no output final que recomenda re-executar com o arquivo real. Default conservador = (A).
 
@@ -34,7 +34,7 @@ Quando o membro tem produto definido e market research feito, e precisa mapear o
 
 Verifique se há tools com prefixo `mcp__trendtrack__` disponíveis. Se SIM, use TrendTrack como fonte primária pra ETAPAs 1-3 e fallback de Cloudflare/cloaker fica desnecessário:
 
-- **`mcp__trendtrack__search_shops`** com niche/keyword → substitui Etapa 1 manual de identificação de concorrentes (browse 1M+ Shopify stores indexados, com revenue/growth signals).
+- **`mcp__trendtrack__search_shops`** com niche/keyword → substitui Etapa 1 manual de identificação de concorrentes (browse 1M+ Shopify stores indexados, com sinais de receita/crescimento).
 - **`mcp__trendtrack__find_similar_shops`** após identificar 1 concorrente forte → encontra adjacentes ranqueados por similaridade.
 - **`mcp__trendtrack__brief_competitor`** com domínio → substitui ETAPA 2 (PDP analysis) + ETAPA 3 (ads no Meta Ad Library) numa chamada só, retornando deep-dive com ads, email patterns, opportunities. Fim das corridas com cloaker/archive.today.
 - **`mcp__trendtrack__scan_ad`** com URL/ID de ad → substitui análise manual de hook/ângulo na ETAPA 3, e dá assessment de scaling (volume + reach).
@@ -204,7 +204,7 @@ Se todos os top criativos estão numa posição só, o concorrente tem **funil d
 Se o membro tiver acesso a plataformas de inteligência de criativos (Adsparo, SpyBox, Kalodata, Pipiads, Foreplay, Minea, Atria) ou listas curadas de criativos que ESCALARAM (não apenas "ativos"), peça pra enviar:
 
 1. **URLs públicas** de vídeo ad (Meta Ad Library direct links, TikTok urls, ou assets hospedados)
-2. **Uploads de vídeo/imagem** diretamente pro workspace (salvar em `workspace/[produto]/03-creatives-inbox/`)
+2. **Uploads de vídeo/imagem** diretamente pro workspace (salvar em `workspace/[produto]/03-competitor-analysis/creatives-inbox/`)
 3. **CSV/planilha** com lista de criativos + métricas se disponível (spend, days live, impressions estimadas)
 
 Critério de curadoria do membro: só criativos que ESCALARAM (proxy: 90+ dias ativos com variação semanal, OU métricas diretas de plataforma de inteligência mostrando alto spend/impressões). Ads recém-lançados NÃO servem pra essa análise — a ideia é extrair padrões do que o mercado já VALIDOU.
@@ -250,7 +250,7 @@ PARE a Etapa 3C até membro confirmar. Se nenhum Whisper estiver disponível e o
 - Se o membro tem OpenAI API: `whisper-1` endpoint (baseline, equivalente a `large-v2`)
 - CLI local: `whisper <arquivo> --model medium --language en` (ou `--model turbo` se disponível)
 - Output obrigatório: transcript com timestamps por palavra (`word_timestamps=true`) pra mapear hook/bridge/hold/CTA
-- Salvar em `workspace/[produto]/03-creatives-inbox/transcripts/[creative-id].json`
+- Salvar em `workspace/[produto]/03-competitor-analysis/creatives-inbox/transcripts/[creative-id].json`
 
 **2. Extração de padrões (por criativo):**
 - Hook primeiros 3s: texto literal + Big 4 emotion dominante (curiosity/urgency/fear/delight)
@@ -274,7 +274,7 @@ Depois de transcrever N criativos, identifique:
 - **Music/SFX patterns**: música, sem música, só ambience
 - **Opening visual**: talking head close, product shot, b-roll lifestyle, text card
 
-Output obrigatório: `workspace/[produto]/03-creative-patterns.json`:
+Output obrigatório: `workspace/[produto]/03-competitor-analysis/creative-patterns.json`:
 
 ```json
 {
@@ -297,7 +297,7 @@ Output obrigatório: `workspace/[produto]/03-creative-patterns.json`:
 
 Esse arquivo vira input crítico pra Skill 08 (Creative Engine) — criativos novos nascem ancorados em padrões validados + 20-30% de novelty intencional pra testar rupturas.
 
-Quando esta etapa rodar até o fim, grave no JSON companion `creative_deep_analysis.status: "completed"`, `creative_deep_analysis.creatives_analyzed_count` (N transcritos) e `creative_deep_analysis.patterns_file` (path do `03-creative-patterns.json`). Assim as skills 08/09 leem o status direto, sem adivinhar a existência do arquivo.
+Quando esta etapa rodar até o fim, grave no JSON companion `creative_deep_analysis.status: "completed"`, `creative_deep_analysis.creatives_analyzed_count` (N transcritos) e `creative_deep_analysis.patterns_file` (path do `03-competitor-analysis/creative-patterns.json`). Assim as skills 08/09 leem o status direto, sem adivinhar a existência do arquivo.
 
 **Se membro NÃO enviar criativos**: pular essa etapa e prosseguir, gravando `creative_deep_analysis.status: "skipped"`. A skill 08 roda em modo "cold" (sem patterns de referência) — funciona, mas com menos sinal de mercado.
 
@@ -495,17 +495,17 @@ Seção obrigatória no output (md + json):
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Antes de qualquer write**, garanta: `mkdir -p workspace/[produto]/`.
+**Antes de qualquer write**, garanta: `mkdir -p workspace/[produto]/03-competitor-analysis/`.
 
-**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer.md` → `04-offer.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer-builder/relatorio.md` → `04-offer-builder/relatorio.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
 Salvar os seguintes artefatos:
 
-1. **`workspace/[produto]/03-competitor-analysis.md`**
-2. **`workspace/[produto]/03-competitor-analysis.html`**
-3. **`workspace/[produto]/03-competitor-analysis.json`** — JSON companion estruturado (ver abaixo)
-4. **`workspace/[produto]/03-creative-patterns.json`** — SE membro forneceu criativos pra análise profunda (Etapa 3C); senão, pular. Schema definido na própria Etapa 3C.
-5. **`workspace/[produto]/03-creatives-inbox/transcripts/[creative-id].json`** — transcripts Whisper individuais (um por criativo).
+1. **`workspace/[produto]/03-competitor-analysis/relatorio.md`**
+2. **`workspace/[produto]/03-competitor-analysis/relatorio.html`**
+3. **`workspace/[produto]/03-competitor-analysis/dados.json`** — JSON companion estruturado (ver abaixo)
+4. **`workspace/[produto]/03-competitor-analysis/creative-patterns.json`** — SE membro forneceu criativos pra análise profunda (Etapa 3C); senão, pular. Schema definido na própria Etapa 3C.
+5. **`workspace/[produto]/03-competitor-analysis/creatives-inbox/transcripts/[creative-id].json`** — transcripts Whisper individuais (um por criativo).
 
 ```json
 {
@@ -523,7 +523,7 @@ Salvar os seguintes artefatos:
   "swipe_adapt": [ { "item": "", "why": "", "how_to_adapt": "", "where_to_use": "" } ],
   "swipe_avoid": [ { "item": "", "why_avoid": "", "alternative": "" } ],
   "positioning_recommendation": { "angle": "", "mechanism": "", "avatar_segment": "", "page_type": "" },
-  "creative_deep_analysis": { "status": "completed|skipped|whisper_unavailable", "creatives_analyzed_count": 0, "patterns_file": "workspace/[produto]/03-creative-patterns.json" },
+  "creative_deep_analysis": { "status": "completed|skipped|whisper_unavailable", "creatives_analyzed_count": 0, "patterns_file": "workspace/[produto]/03-competitor-analysis/creative-patterns.json" },
   "data_source_audit": { "collected_at": "", "meta_ad_library_ads_count": 0, "wayback_hits": 0, "archive_today_hits": 0 }
 }
 ```
@@ -543,6 +543,7 @@ Estrutura do `.md`:
 
 - `skills_completed` ← adicione `"03-competitor-analysis"` (sem duplicar)
 - `updated_at` ← timestamp atual ISO-8601 UTC
+- Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug`; atualiza ABRIR-AQUI.html).
 
 ## Mensagem Final
 

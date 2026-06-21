@@ -29,7 +29,7 @@ Checklist:
 - [ ] MCP `meta-ads` (Pipeboard) conectado (test via ping)
 - [ ] Caminho 1 oficial indisponível OU forçado pelo membro (gravar o motivo em `fallback_reason`)
 - [ ] Ad account ID configurado em env
-- [ ] `10-ad-strategy.json` existe (referência do que deveria estar rodando)
+- [ ] `10-ad-strategy/dados.json` existe (referência do que deveria estar rodando)
 
 ## Steps
 
@@ -165,7 +165,7 @@ def classify_outcome(metrics, target_cpa, min_spend=100):
 
 ### 7. Salvar pull estruturado
 
-`/workspace/[produto]/11-analysis/raw-pull-[YYYYMMDDTHHMMSS].json` (shape do output — valores são preenchidos pela Meta API):
+`/workspace/[produto]/11-ad-analysis/raw-pull-[YYYYMMDDTHHMMSS].json` (shape do output — valores são preenchidos pela Meta API):
 
 ```json
 {
@@ -241,7 +241,7 @@ shell(f"python3 .claude/lib/creative-dna/registry.py update /workspace/[produto]
   "ads_synced": "<N>",
   "outcomes": {"winner": "<N>", "neutral": "<N>", "loser": "<N>", "insufficient_data": "<N>"},
   "dna_registry_updated": "<N>",
-  "output_file": "/workspace/[produto]/11-analysis/raw-pull-<timestamp>.json"
+  "output_file": "/workspace/[produto]/11-ad-analysis/raw-pull-<timestamp>.json"
 }
 ```
 

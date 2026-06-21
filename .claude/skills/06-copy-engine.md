@@ -8,7 +8,7 @@ description: Engine de escrita de copy completo baseado em market research, comp
 ### Pré-flight (OBRIGATÓRIO)
 - [ ] `workspace/[produto]/manifest.json` existe
 - [ ] `product_slug` do manifest NÃO começa com `dev-placeholder-` (senão, pare: "rode product research primeiro")
-- [ ] `02-market-research.json` existe → extrair `awareness_distribution`, `sophistication_stage`, `voc_phrases`, `voc_count`, `voc_adequacy`
+- [ ] `02-market-research/dados.json` existe → extrair `awareness_distribution`, `sophistication_stage`, `voc_phrases`, `voc_count`, `voc_adequacy`
   - `voc_phrases` é o objeto `{problem:[], desire:[], frustration:[]}` da Skill 02 — **achate os 3 pools** num único array antes de usar (não assuma array plano). `voc_count` = total de frases únicas somando os 3 pools.
 - [ ] **VOC adequacy check:** se `voc_adequacy == "insufficient"` OU `voc_count < 15` → PARE com mensagem:
   > ⚠️  VOC atual: {N} frases únicas. Mínimo pra copy direta: 15.
@@ -19,9 +19,9 @@ description: Engine de escrita de copy completo baseado em market research, comp
   >     3. Prossiga mesmo assim reconhecendo limitação (copy ficará abstrata)
 
   Se membro escolher 3, marca `"voc_forced_continue": true` no output pra Skill 11 diagnosticar depois.
-- [ ] `03-competitor-analysis.md` existe
-- [ ] `04-offer.json` existe → extrair `mechanism` (objeto `{name, ...}` — usar `mechanism.name`, NÃO tratar como string), `pricing`, `guarantee`
-- [ ] `04-research-foundation.json` existe → extrair `evidence_items[]`, `confidence_score`, `gaps_and_risks`
+- [ ] `03-competitor-analysis/relatorio.md` existe
+- [ ] `04-offer-builder/dados.json` existe → extrair `mechanism` (objeto `{name, ...}` — usar `mechanism.name`, NÃO tratar como string), `pricing`, `guarantee`
+- [ ] `04-offer-builder/research-foundation.json` existe → extrair `evidence_items[]`, `confidence_score`, `gaps_and_risks`
   - Se ausente: WARN "Research foundation não rodou (Skill 04 Etapa 2.5). Claims na copy vão sair sem lastro verificável. Opções: (1) voltar pra skill 04 e rodar Etapa 2.5; (2) prosseguir marcando `claims_unverified: true` no output — skill 09 (consistency-audit) vai bloquear launch depois."
   - Se existe mas `confidence_score == "low"`: WARN "Evidence weak — claims fortes (clinically proven, X% melhoria) vão ser suavizados automaticamente pra 'helps with', 'designed to support'. Skill 09 vai re-validar antes de launch."
 - [ ] Extrair `product_vertical` do manifest (default "other" se ausente) — usado pelo Compliance Pre-flight (Sweep 8)
@@ -35,9 +35,9 @@ Quando o membro tem market research, competitor analysis e oferta prontos, e pre
 ## Antes de Começar
 
 1. Leia `workspace/profile.md` — em especial `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno desta skill (strategy brief, sweeps documentados, `.md`/`.html` descritivos) e toda conversa com o membro usam esse idioma. **A copy consumidor-final (headlines, leads, hero, bullets, CTAs, advertorial, email hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language` — copy pública nunca traduz.
-2. Leia `workspace/[produto]/02-market-research.md` (psychographics, awareness/sophistication, VOC literal, objeções, root cause)
-3. Leia `workspace/[produto]/03-competitor-analysis.md` (claims saturados a evitar, gaps, posicionamento recomendado, swipe file)
-4. Leia `workspace/[produto]/04-offer.md` (mecanismo único com 3 versões, bundles, garantia, unit economics)
+2. Leia `workspace/[produto]/02-market-research/relatorio.md` (psychographics, awareness/sophistication, VOC literal, objeções, root cause)
+3. Leia `workspace/[produto]/03-competitor-analysis/relatorio.md` (claims saturados a evitar, gaps, posicionamento recomendado, swipe file)
+4. Leia `workspace/[produto]/04-offer-builder/relatorio.md` (mecanismo único com 3 versões, bundles, garantia, unit economics)
 5. **Puxe os SISTEMAS NOMEADOS da base — não query genérica.** Esta skill é o coração do sistema. Para cada ETAPA, rode `search_knowledge` com a `best_query` exata de cada framework relevante (as queries estão embutidas nas ETAPAs 2-6 abaixo, no ponto onde cada framework é usado). NUNCA dispare uma busca tipo "copy framework" ou "headlines" — sempre o nome do sistema + sua query curada. **Índice completo dos frameworks desta skill (3 domínios: copy-headlines-leads, copy-proof-persuasion-structure, persuasion-psychology): `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — mapa skill→domínio no README).** Faça múltiplas buscas por ETAPA pra cobrir o assunto a fundo; se um framework adjacente aparecer numa busca e for útil pra fase, puxe também.
 
 ## Fluxo da Skill
@@ -47,8 +47,8 @@ Antes de gerar copy, carregue:
 1. `dominant_awareness` = stage com maior % em `awareness_distribution` do market research JSON
 2. `sophistication` = `sophistication_stage` (1-5)
 3. `voc_checklist` = array das 20 VOC phrases mais repetidas (achate os 3 pools de `voc_phrases` — `{problem, desire, frustration}` — num único array antes do substring matching). VOC permanece SEMPRE no inglês original do consumidor.
-4. `mechanism` = objeto do `04-offer.json` (use `mechanism.name` pro nome; não tratar como string)
-5. `guarantee` + `offer_stack` = do `04-offer.json`
+4. `mechanism` = objeto do `04-offer-builder/dados.json` (use `mechanism.name` pro nome; não tratar como string)
+5. `guarantee` + `offer_stack` = do `04-offer-builder/dados.json`
 Use ESTAS variáveis ao gerar — sem placeholders hardcoded.
 
 ### ETAPA 1 — Perguntas ao Membro (APENAS 2)
@@ -123,11 +123,11 @@ Decisão aplica: awareness + tipo de produto + presença de visual transformatio
 
 **Tom de Voz** (do market research):
 Definido pelo perfil psicográfico:
-- Sofisticado/educado (público com renda alta, educação, sophistication interna)
+- Sofisticado/educado (público com renda alta, escolaridade, sofisticação do mercado)
 - Casual/conversacional (público mainstream, Gen Z/millennial)
 - Técnico/autoridade (público que valoriza credenciais — saúde, finanças)
-- Emocional/empático (público vulnerable — chronic pain, grief, self-image)
-- Urgente/direto (público transactional, maduro em ads)
+- Emocional/empático (público vulnerável — dor crônica, luto, autoimagem)
+- Urgente/direto (público que decide na hora, já acostumado a ads)
 
 **Framework de Organização:**
 - **PDP** → estrutura: Hero → Trust Bar → Benefícios → Mecanismo → Prova Social → Oferta/Stack → Garantia → FAQ → CTA final
@@ -245,7 +245,7 @@ Use a **versão 1 parágrafo** do mecanismo da oferta (ou a 2-3 parágrafos se f
 - Product Aware → foca na especificidade do mecanismo (ingredientes, dosagem, processo)
 
 Inclua:
-- Nome do mecanismo (do 04-offer.md)
+- Nome do mecanismo (do 04-offer-builder/relatorio.md)
 - Como funciona (biology/mechanism of action se aplicável)
 - Por que é diferente
 - Referência a evidência (estudo, ingredient research, patents se aplicável)
@@ -275,7 +275,7 @@ Organize em formato visual navegável (tiles, carrossel, grid).
 
 #### Oferta / Stack Com Ancoragem
 
-Do `04-offer.md`:
+Do `04-offer-builder/relatorio.md`:
 - Produto com nome
 - Bundles (Solo / Popular 3-pack / Best Value 6-pack) com savings visíveis
 - Bump (produto complementar baixo ticket)
@@ -290,7 +290,7 @@ Aplique **pricing psychology** — puxe os sistemas por nome (rode cada `best_qu
 
 #### Garantia
 
-Do `04-offer.md`, a copy de garantia (2-3 frases, tom confiante, detalhes claros).
+Do `04-offer-builder/relatorio.md`, a copy de garantia (2-3 frases, tom confiante, detalhes claros).
 
 Posicione com destaque visual (box, shield icon, destaque colorido).
 
@@ -346,7 +346,7 @@ Se o tipo de página definido é Advertorial, siga a **estrutura de 7 seções**
 2. **Lead** que pulls readers in (primeiras 100-200 palavras — responde as 4 perguntas mentais do leitor: por que ler agora? por que isso importa? por que isso é diferente? por que vai funcionar pra mim?)
 3. **Background Story** (storytelling pessoal ou de terceiro — builds empathy + credibility — aplica a Discovery Story)
 4. **Root Cause Explanation** — use a causa raiz do market research (Etapa 6 da Skill 02). Explique o problema de forma clara, externaliza a culpa (genética, hormônios, indústria — NÃO o leitor)
-5. **Unique Mechanism Reveal** — apresente o mecanismo único como a descoberta, a revelação (use a versão de 2-3 parágrafos do 04-offer.md)
+5. **Unique Mechanism Reveal** — apresente o mecanismo único como a descoberta, a revelação (use a versão de 2-3 parágrafos do 04-offer-builder/relatorio.md)
 6. **Product Build-Up** — traz o produto no contexto do mecanismo. Primeiros parágrafos são sobre o MÉTODO/PRODUTO antes da oferta
 7. **Product Reveal + Close** — oferta, stack, garantia, urgência, CTA. Manipulation close (scarcity real, bonus que expiram, urgency com razão)
 
@@ -406,11 +406,11 @@ Pra calibrar o que cada sweep procura, puxe os sistemas de edição (rode cada `
 
    Ação conforme severity:
    - `critical` → PARAR, reportar triggers ao membro, aplicar `rewrite_suggestion` ou pedir revisão manual
-   - `high` → aplicar `rewrite_suggestion` automaticamente + logar em `workspace/[produto]/06-compliance-log.json`
+   - `high` → aplicar `rewrite_suggestion` automaticamente + logar em `workspace/[produto]/06-copy-engine/compliance-log.json`
    - `medium` → manter copy original, logar warning
    - `low` → salvar silenciosamente (sem output)
 
-   Log consolidado em `workspace/[produto]/06-compliance-log.json`. Se diretório não existir, `mkdir -p` antes de escrever.
+   Log consolidado em `workspace/[produto]/06-copy-engine/compliance-log.json`. Se diretório não existir, `mkdir -p` antes de escrever.
 
 Para cada sweep, documente o que mudou (as edits são o output do sweep).
 
@@ -423,7 +423,7 @@ Gere:
 
 Documente a hipótese por trás de cada variação.
 
-## Output Schema — Seções Canônicas (`06-copy.md`)
+## Output Schema — Seções Canônicas (`06-copy-engine/relatorio.md`)
 
 O markdown DEVE ter as seções NOMEADAS ASSIM (case-sensitive, H2). Cada seção contém texto pronto pra colar, SEM comentários de instrução no output final.
 
@@ -444,14 +444,14 @@ O markdown DEVE ter as seções NOMEADAS ASSIM (case-sensitive, H2). Cada seçã
 ## Email Follow-up Hooks
 ```
 
-## JSON Companion Obrigatório — `06-copy.json`
+## JSON Companion Obrigatório — `06-copy-engine/dados.json`
 
 Schema:
 ```json
 {
   "copy_id": "uuid-v4",
   "product_slug": "...",
-  "offer_id": "ref ao 04-offer.json",
+  "offer_id": "ref ao 04-offer-builder/dados.json",
   "hero": {
     "headlines": [
       {"id": "h-01", "text": "...", "type": "benefit|curiosity|authority|contrarian|big_idea", "score": 9.2, "reasoning": "..."}
@@ -479,20 +479,20 @@ Schema:
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Antes de salvar, garanta o diretório:** `mkdir -p workspace/[produto]/`.
+**Antes de salvar, garanta o diretório:** `mkdir -p workspace/[produto]/06-copy-engine/`.
 
-**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `06-copy.md` → `06-copy.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `06-copy-engine/relatorio.md` → `06-copy-engine/relatorio.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
-Atualizar `manifest.json`: adicionar `06-copy-engine` em `skills_completed`, atualizar `updated_at`.
+Atualizar `manifest.json`: adicionar `06-copy-engine` em `skills_completed`, atualizar `updated_at`. Em seguida, regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug`; atualiza ABRIR-AQUI.html).
 
-`workspace/[produto]/06-copy.md` contendo (seções canônicas acima):
+`workspace/[produto]/06-copy-engine/relatorio.md` contendo (seções canônicas acima):
 1. Strategy brief (Etapa 2 — tipo de página, lead, hero, ângulo, tom, framework, modalities mapping)
 2. 20-30 headlines geradas + top 5 + 3 pra teste A/B
 3. Página completa seção por seção (Etapa 4 ou 5)
 4. Revisão após 7 sweeps (mudanças documentadas, incluindo VOC compliance %)
 5. Variações pra teste (Etapa 7)
 
-Também salvar `workspace/[produto]/06-copy.json` no schema acima.
+Também salvar `workspace/[produto]/06-copy-engine/dados.json` no schema acima.
 
 ## Mensagem Final
 
