@@ -9,16 +9,21 @@
 - `winner_creative_id` — ad que tá performando (top decile CPA)
 - `n_variations` — default 3
 
+## Cascade (Meta — ver `.claude/lib/mcp-detect/README.md`)
+
+Esta receita não chama o Meta diretamente: o único toque na plataforma é o **upload das variações**, delegado a `upload-creative-to-meta.md`, que carrega o próprio cascade (caminho 1 oficial `mcp__meta__ads_*` pra resolver ad set / caminho 2 Pipeboard `mcp__meta-ads__*` pro upload do binário — o upload força Pipeboard porque o oficial é remoto e não lê arquivo local). Logo a posição no cascade é herdada da receita de upload; aqui nada muda.
+
 ## Pre-flight
 - [ ] Winner tem CPA < target × 0.8 E spend > $300 E age > 5 days
 - [ ] Skill 08 disponível pra gerar variations
 - [ ] Content Recycler disponível (#17)
+- [ ] MCP de upload disponível (Pipeboard `mcp__meta-ads__*` ou Playwright — herda de `upload-creative-to-meta.md`)
 
 ## Steps
 
 ### 1. Identificar winner + extrair DNA
 ```
-winner = read(/workspace/[produto]/08-creatives/08-concept-XX.md)
+winner = read(/workspace/[produto]/08-creative-engine/concept-XX.md)
 dna = read(/workspace/[produto]/creative-dna/dna-profile.json)  # se existe
 ```
 
@@ -52,6 +57,7 @@ for variation in new_variations:
 ```json
 {
   "action": "rotate_winner",
+  "source": "meta_mcp_pipeboard",
   "parent_creative": "<creative-id>",
   "variations_generated": ["<creative-id>-v2", "<creative-id>-v3", "<creative-id>-v4"],
   "all_paused": true,

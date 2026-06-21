@@ -22,7 +22,7 @@ Quando a Skill 08 chega na ETAPA 5.7 (Prompt Generation), ela:
 2. Decide qual director invocar (vídeo? imagem? ambos?)
 3. Carrega o SKILL.md do director
 4. Roda o prompt do director sobre o conceito
-5. Salva o output (prompt production-ready) em `/workspace/[produto]/08-creatives/prompts/`
+5. Salva o output (prompt production-ready) em `/workspace/[produto]/08-creative-engine/prompts/`
 
 ## Output esperado
 

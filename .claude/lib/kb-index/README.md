@@ -1,0 +1,1152 @@
+# Aura KB Index — mapa completo da base de conhecimento
+
+Catálogo de **541 frameworks/sistemas nomeados** da base Aura, por domínio, com a query exata pra puxar cada um e a skill que deve usar. Gerado 2026-06-20 a partir de análise completa da base (14 domínios).
+
+## Como as skills usam este índice (REGRA)
+
+Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "offer"). Em cada ETAPA relevante, ela abre a seção deste índice correspondente ao seu domínio, e roda `search_knowledge` com a `best_query` dos 3-6 frameworks NOMEADOS relevantes pra aquela fase — trazendo os **sistemas completos** (ex: as 35 fórmulas de Caples, não "fórmulas de headline"). O catálogo completo, legível por máquina, está em `frameworks.json`.
+
+## Mapa skill → domínios deste índice
+
+| Skill | Domínios a consultar |
+|---|---|
+| 01 | product-research |
+| 02 | market-research-voc, persuasion-psychology |
+| 03 | competitor-positioning |
+| 04 | offer-mechanism, offer-pricing-guarantee, brand-building-bonus-aov |
+| 05 | brand-building-bonus-aov |
+| 06 | copy-headlines-leads, copy-proof-persuasion-structure, persuasion-psychology |
+| 07a/07b | page-landing-cro |
+| 07d | brand-building-bonus-aov, offer-pricing-guarantee |
+| 08 | creatives-hooks-formats, persuasion-psychology |
+| 09 | copy-proof-persuasion-structure, page-landing-cro |
+| 10 | meta-ads-strategy, persuasion-psychology |
+| 11 | meta-ads-strategy |
+| 12 | scaling |
+| 13 | retention-email, persuasion-psychology |
+| 14 | creatives-hooks-formats, page-landing-cro |
+
+
+## Product Research  ·  skill 01  ·  (29 frameworks)
+
+- **Schwartz 5 Stages of Market Sophistication** _— Eugene Schwartz, Breakthrough Advertising (Ch. 3)_ · `Schwartz market sophistication 5 stages mechanism claims`
+  - Five-stage scale of how many similar products/claims a market has already seen: (1) First-in-market plain claim, (2) Enlarge/outbid the claim, (3) New Mechanism in headline, (4) Elaborate the mechanism, (5) Exhausted market equals identification. Markets retrace; sub-niches restart at Stage 1.
+- **Schwartz 5 Levels of Product-Market Awareness** _— Eugene Schwartz, Breakthrough Advertising (Ch. 2)_ · `Schwartz five stages of awareness Unaware Problem Solution Product Most aware`
+  - Scale of prospect knowledge: Unaware to Problem-Aware to Solution-Aware to Product-Aware to Most-Aware; each dictates a different headline; Product/Most-Aware refer to the CATEGORY not your brand.
+- **AI Deep-Research Market Awareness Prompt (TAM + distribution)** _— Operational method applying Schwartz awareness_ · `deep research prompt market awareness TAM percentage distribution final selection`
+  - Prompt run in Gemini/GPT/Perplexity/Kimi returning TAM estimate, percent of TAM in each awareness stage, and a final dominant-stage selection to drive the funnel decision.
+- **Schwartz Mass Desire Theory + 3-Stage Channeling** _— Eugene Schwartz, Breakthrough Advertising (Ch. 1)_ · `Schwartz mass desire theory channeling urgency staying power scope`
+  - Advertising channels existing desire, never creates it. Choose the most powerful desire by Urgency x Staying Power x Scope, acknowledge it in one headline, show product performances satisfying it.
+- **Permanent Forces vs Forces of Change** _— Eugene Schwartz, Breakthrough Advertising_ · `permanent forces forces of change mass instincts technological problems style trends`
+  - Two roots of desire: Permanent Forces (mass instincts + mass technological problems) and Forces of Change (style/trends + mass education shifting HOW desires get satisfied). Channel the permanent, time the change.
+- **Six Mass Instincts (operational eComm taxonomy)** _— Operational taxonomy derived from Schwartz mass desire_ · `six mass instincts health sex status belonging control comfort technological problems`
+  - 6-bucket eComm version: Health, Sex, Status, Belonging, Control, Comfort, paired with 6 Mass Technological Problems (Complexity, Overwhelm, Fragility, Maintenance, Incompatibility, Obsolescence).
+- **Cashvertising Life-Force 8 (LF8)** _— Drew Eric Whitman, Cashvertising_ · `Cashvertising Life-Force 8 LF8 Whitman biological desires`
+  - Eight biologically hardwired desires: survival/life-extension, food/drink, freedom from fear/pain/danger, sexual companionship, comfortable living, superiority/winning, care of loved ones, social approval. Lead with LF8.
+- **Cashvertising 9 Learned (Secondary) Wants** _— Drew Eric Whitman, Cashvertising_ · `Cashvertising nine secondary learned wants convenience curiosity efficiency`
+  - Nine learned wants weaker than LF8: to be informed, curiosity, cleanliness, efficiency, convenience, dependability/quality, beauty/style, economy/profit, bargains. Layer in after LF8.
+- **Cashvertising Desire Formula (Tension to Desire to Action)** _— Drew Eric Whitman, Cashvertising_ · `Cashvertising desire formula tension desire action`
+  - Mechanical conversion of desire to sale: create tension via the unfulfilled need, stoke desire via the path to fulfillment, drive action by making purchase easy and urgent.
+- **Hormozi Starving Crowd / Market Selection (4 Indicators)** _— Alex Hormozi, $100M Offers_ · `Hormozi starving crowd market selection four indicators massive pain purchasing power`
+  - Select the market before the offer via four indicators: Massive Pain, Purchasing Power, Easy to Target, Growing Market. Missing one and even a Grand Slam Offer underperforms.
+- **Halbert Starving Crowd Principle (original source)** _— Gary Halbert, The Boron Letters_ · `Halbert starving crowd hamburger stand principle market first`
+  - Hamburger-stand parable: the greatest advantage is a hungry market. A starving crowd buys mediocre products with mediocre copy; no copy genius overcomes a market that does not want what you sell.
+- **Halbert Market-First Thinking / Product-Market Inversion** _— Gary Halbert_ · `Halbert market-first thinking product-market inversion starving crowd`
+  - Identify a hot proven market (buyers who spent money recently and repeatedly) BEFORE selecting a product, via Audience Insights/Trends/Amazon Best Sellers/subreddits/ad libraries; evaluate with RFU; only then brainstorm products.
+- **Halbert RFU Framework (Recency, Frequency, Unit of Sale)** _— Gary Halbert, The Boron Letters_ · `Halbert RFU recency frequency unit of sale buyer evaluation`
+  - Grade a buyer market by Recency (recent buyers more responsive), Frequency (how often), Unit of Sale (spend). High on all three equals a hot monetizable market.
+- **Bird Relative Importance of Variables (List over Creative)** _— Drayton Bird, Commonsense Direct and Digital Marketing_ · `Bird relative importance of variables list selection 6x more than creative`
+  - Audience/list selection has about 6x more impact on results than creative, the single most important insight in direct marketing. Market choice dominates creative quality.
+- **Hopkins Category Economics (Pork-and-Beans Insight)** _— Claude Hopkins_ · `Hopkins category economics pork and beans replacing behavior competitive landscape`
+  - Understanding what behavior/category you are replacing matters more than studying direct competitors. Frames a product against the real alternative the prospect currently uses.
+- **Bencivenga Fuzzy Dice Principle (Sell Vertically)** _— Gary Bencivenga_ · `Bencivenga fuzzy dice principle sell vertically intercept prospects`
+  - Intercept prospects where they are already looking: find where ideal buyers congregate and meet them there with a targeted message, rather than broadcasting horizontally.
+- **Bencivenga Pre-Existing Motivation + Motivated 5% Rule** _— Gary Bencivenga_ · `Bencivenga pre-existing motivation motivated 5 percent rule long copy`
+  - You cannot create motivation; find what people already want and show your product gets it. The motivated 5 percent need full detail; writing to the unmotivated 95 percent wastes spend.
+- **Brunson Market Depth Model (Core Market / Submarket / Niche)** _— Russell Brunson, Expert Secrets_ · `Brunson Expert Secrets market depth core market submarket niche three levels`
+  - Three layers: Core Market (Health/Wealth/Relationships, too broad), Submarket (e.g. weight loss, crowded), Niche (your unique mechanism times a specific sub-avatar desire). You CREATE a niche.
+- **Brunson Traffic Temperature (Hot/Warm/Cold)** _— Russell Brunson, DotCom Secrets_ · `Brunson DotCom Secrets traffic temperature hot warm cold awareness mapping`
+  - Translates Schwartz awareness into traffic: Hot (knows you equals Most/Product-Aware), Warm (Solution-Aware), Cold (Problem/Unaware). Never send cold traffic straight to a sales page.
+- **Ries and Trout Positioning: Ladder, Rule of Seven, Law of Leadership** _— Al Ries & Jack Trout, Positioning: The Battle for Your Mind_ · `Ries Trout positioning mental ladder rule of seven law of leadership be first`
+  - Positioning is what you do to the prospect mind. Brands rank on category ladders (room for 3-7); first brand gets about 2x No.2 and 4x No.3. If you cannot be first, create a category you can be first in.
+- **Ries and Trout: Cherchez le Creneau (8 Holes in the Mind)** _— Al Ries & Jack Trout, Positioning_ · `Ries Trout cherchez le creneau eight holes in the mind size price age`
+  - Eight unoccupied mental positions: size, high-price, low-price, sex, age, time-of-day, distribution, heavy-user. Warns of the Factory Creneau and Technology traps.
+- **Ries and Trout: Positioning Strategies (First/Against/Reposition/Attribute/User)** _— Al Ries & Jack Trout, Positioning_ · `positioning strategies being first against the leader repositioning by attribute by user`
+  - Five ways to position: be first, against the leader (Avis), reposition the competition (Tylenol vs aspirin), own a different attribute, or position by user (Marlboro). Be different, not better.
+- **Technical Viability Criteria (economic gate)** _— Operational product-research method_ · `technical viability criteria AOV markup 3x Google Trends lightweight product filter`
+  - Hard pre-filters: AOV after bundles above $60, minimum 3x markup on COGS+shipping (5x ideal), Google Trends flat or growing over 5 years, lightweight/low-logistics. Broken economics: discard immediately.
+- **Three Factors That Determine Product Difficulty** _— Operational method synthesizing Schwartz_ · `three factors determine difficulty desire magnitude market awareness sophistication`
+  - Difficulty equals Desire Magnitude (stronger equals easier sale, higher ticket), Market Awareness stage (higher equals harder), and Market Sophistication (more saturated equals need new angle). Saturation alone is not bad, it means a big audience.
+- **Two Forms of Differentiation (Mechanism vs Avatar Innovation)** _— Operational product-research method_ · `two forms of differentiation mechanism innovation avatar innovation overlooked avatar`
+  - If you cannot differentiate, avoid the product. (a) Mechanism Innovation, a new way to solve the problem (Shilajit gummies; True Classic renaming the fit); or (b) Avatar Innovation, a segment competitors ignore (40+ women).
+- **AI Final-Validation Ranking (4-AI Deep Search)** _— Operational product-research method_ · `final validation Gemini GPT Perplexity Kimi rank products scale potential unique mechanism`
+  - Screenshot 10 shortlisted product pages, send to Gemini/GPT/Perplexity/Kimi via Deep Search, rank by scale potential, low strong-brand competition, unique-mechanism ability, offer/upsell room, positive feedback, niche trend, economic viability.
+- **Schwab Win / Be / Save-Avoid + 11 Appeals** _— Victor Schwab, How to Write a Good Advertisement_ · `Schwab win be save avoid eleven appeals interior monologue`
+  - Three universal drivers (Win, Be, Save/Avoid) plus 11 appeal categories (Health, Comfort, Money, Leisure, Popularity, Pride, Appearance, Business/Career, Security, Status, Compliments) mapped to interior monologue.
+- **Collier Six Prime Motives of Human Action** _— Robert Collier, The Robert Collier Letter Book_ · `Collier six prime motives love gain duty pride self-indulgence self-preservation`
+  - Six purchase motives: Love, Gain, Duty, Pride, Self-indulgence, Self-preservation. One rarely compels alone; Gain easiest to use, Love most powerful but hardest.
+- **Market Cyclicality (2-3 year cycles, markets retrace)** _— Operational principle extending Schwartz markets retrace_ · `market cyclical 2-3 years markets retrace swipe file recycle past`
+  - Markets are cyclical (about 2-3 years); what works today can be recycled from the past, and sub-niches restart at sophistication Stage 1 while the parent sits at Stage 4-5. Swipe-file year-by-year analysis surfaces these cycles.
+
+## Market Research / VOC  ·  skill 02  ·  (43 frameworks)
+
+- **Voice of Customer Research (Review Mining / Surveys / Interviews)** _— Joanna Wiebe (Copyhackers) + classic review-mining tradition_ · `Voice of Customer review mining process extracting verbatim phrases from reviews`
+  - Systematic process of collecting the real language of customers from reviews, surveys and interviews — the copywriter listens (does not interpret/summarize) and copies sticky phrases verbatim to mirror the prospect on the page.
+- **4-Star Review Mining (avoid 1s and 5s)** _— review-mining practitioners (Copyhackers tradition)_ · `four star reviews mining avoid 5 star 1 star fake reviews honest language`
+  - Focus on 4-star reviews because 5s and 1s are often fake or pure enthusiasm/rage; the middle holds the most honest, usable language about what drove purchase and what fell short.
+- **Google Review-Mining Shortcuts (site:amazon.com inurl product-reviews)** _— Copyhackers / Joanna Wiebe_ · `Amazon review mining google shortcut tired of wasn't until tried site operator`
+  - Search operators ('tired of', 'wasn't until', 'tried') combined with site:amazon.com inurl:product-reviews + ~keyword to surface VOC snippets mapped to specific awareness stages.
+- **Eugene Schwartz — 5 Stages of Awareness** _— Eugene Schwartz, Breakthrough Advertising (Ch. 2)_ · `Schwartz five stages of awareness unaware problem aware solution aware product aware most aware`
+  - Unaware → Problem Aware → Solution Aware → Product Aware → Most Aware; measures how much the prospect knows about how your product satisfies his desire, and dictates headline, copy length and education depth.
+- **Awareness Stage Headline Strategy (5 stages + 7 superiority tasks)** _— Eugene Schwartz, Breakthrough Advertising (Ch. 2)_ · `Schwartz awareness stage headline strategy seven tasks superiority approaches`
+  - Each awareness stage has a distinct headline approach (Most Aware = product+price; Stage 2 'knows product not yet wanting' = 7 superiority tasks; down to identification for unaware); a headline that works at one stage fails at another.
+- **Awareness TAM Distribution (1/13.5/60/99% pyramid)** _— Schwartz framework as applied in DR market research_ · `awareness levels percentage TAM distribution problem aware unaware easiest convert`
+  - Most Aware ~1%, Product Aware ~10-15%, Solution Aware ~15-20%, Problem Aware 30-40%, Unaware 30-40% of TAM; 70-80% of most markets sit in problem-aware/unaware, the largest growth pool but costliest to convert.
+- **Eugene Schwartz — 5 Stages of Market Sophistication** _— Eugene Schwartz, Breakthrough Advertising (Ch. 3)_ · `market sophistication five stages Schwartz mechanism claim escalation jaded market`
+  - First-to-market → enlarge the claim → New Mechanism → mechanism elaboration → exhausted/identification; measures how many competing claims the market has heard and how skeptical it is (distinct from awareness).
+- **Market Sophistication Headline Templates (by stage)** _— Eugene Schwartz, Breakthrough Advertising (Ch. 3)_ · `market sophistication headline templates by stage markets retrace insight cigarette cycle`
+  - Stage-specific headline structures: direct claim → enlarged/extreme → mechanism-in-headline+compressed-claim → improved mechanism → pure identification; plus the 'markets retrace' insight (sub-niches restart at stage 1).
+- **Three Strategic Responses for Sophisticated Markets (New Mechanism / New Information / New Identity)** _— Schwartz sophistication theory, modern eCom application_ · `New Mechanism New Information New Identity three strategic responses sophisticated markets`
+  - In stage 3-5 markets, break resistance via New Mechanism (new HOW/tech/process), New Information (educate on hidden why), or New Identity (tribal/lifestyle belonging) — each gives new hope the product will work.
+- **Avatar-Market Sophistication Gap** _— modern eCom application of Schwartz_ · `avatar market sophistication gap ads dont work not testable`
+  - Even with a perfectly defined avatar, crystal-clear desires and a product that delivers, ads fail if the message does not break through the market's sophistication level — sophistication is not something you test, it just exists.
+- **Eugene Schwartz — Mass Desire Theory (3-Stage Channeling)** _— Eugene Schwartz, Breakthrough Advertising (Ch. 1)_ · `mass desire Schwartz channeling process amplification effect cannot create desire`
+  - Advertising cannot create desire, only channel pre-existing mass desire; choose the strongest applicable desire, acknowledge/reinforce it in the headline, then show how the product satisfies it (the ~$50 Amplification Effect vs $1 for fighting desire).
+- **Desire Power Ranking — Scope / Urgency / Staying Power** _— Eugene Schwartz, Breakthrough Advertising (Ch. 1)_ · `mass desire scope urgency staying power power ranking choose strongest`
+  - Rate every desire your product can tap on three dimensions — Scope (how many share it), Urgency (how intensely they want relief), Staying Power (how repeatedly it renews) — and pick the strongest; scope matters most.
+- **Permanent Forces vs Forces of Change** _— Eugene Schwartz, Breakthrough Advertising (Ch. 1)_ · `permanent forces forces of change mass instinct technological problems style trends education`
+  - Desires arise from Permanent Forces (mass instincts + mass technological problems — never change) and are shifted by Forces of Change (style/trends + mass education); marketers channel the permanent and time the changing.
+- **Cashvertising — Life-Force 8 (LF8)** _— Drew Eric Whitman, Cashvertising_ · `Cashvertising Life-Force 8 LF8 biologically hardwired desires Whitman`
+  - Eight biologically hardwired desires (survival/health, food/drink, freedom from fear/pain, sexual companionship, comfortable living conditions, superiority/winning, care of loved ones, social approval) responsible for more sales than all other wants combined.
+- **Cashvertising — Transtheoretical Model (TTM) for ads** _— Drew Eric Whitman (adapting Prochaska), Cashvertising_ · `Cashvertising transtheoretical model TTM precontemplation maintenance behavior change ads`
+  - Behavior-change lens (Precontemplation → Contemplation → Preparation → Action → Maintenance) that complements Schwartz's awareness — where the prospect IS in the change journey, not just what they know.
+- **Schwab — Win / Be / Save-Avoid + 11 Appeals** _— Victor Schwab, How to Write a Good Advertisement_ · `Schwab Win Be Save Avoid eleven appeals interior monologue taxonomy`
+  - Three universal drivers (Win=acquire, Be=become, Save/Avoid=prevent) plus 11 appeal categories (Health, Money, Pride, Appearance, Security, Status, etc.), with mapped interior monologue of the average citizen for each.
+- **Collier — Six Prime Motives** _— Robert Collier, The Robert Collier Letter Book_ · `Collier six prime motives love gain duty pride self-indulgence self-preservation`
+  - Six fundamental motives of human action: Love, Gain, Duty, Pride, Self-indulgence, Self-preservation; one motive rarely compels alone — reinforce the primary with touches of others.
+- **Bencivenga — Pre-Existing Motivation Principle** _— Gary Bencivenga_ · `Bencivenga pre-existing motivation principle already motivated minority`
+  - You cannot create motivation; find what people already want and show your product helps them get it — write only to the already-motivated minority and let them sell themselves.
+- **Psychographic Research — Decision Drivers (RMBC R-stage questions)** _— Stefan Georgi (RMBC method) — the Research phase_ · `psychographic research decision drivers struggles pain points beliefs RMBC research questions`
+  - Structured questions exploring pain points, hopes/dreams, beliefs, prejudices and perceived barriers to systematically build a psychological profile of the market; pioneered as the R in RMBC.
+- **Prejudices & Core Beliefs (Institutional / Age / Product biases)** _— psychographic research methodology (DR tradition)_ · `market prejudices core beliefs institutional bias age bias product bias worldview`
+  - Map the market's biases (big-pharma distrust, age-related, natural-vs-synthetic) and core beliefs about life/success/family to position the product within their worldview and earn trust.
+- **Existing Solutions Analysis (failed solutions mapping)** _— psychographic research / JTBD tradition_ · `existing solutions analysis failed solutions why they didnt work solution landscape mapping`
+  - Catalog every solution category the market has already tried and exactly why each failed or disappointed (e.g., GLP-1: cost, self-injection, dependency fears) to expose the gap your product fills.
+- **Curiosity Angle — Rediscovered/Suppressed Solution** _— psychographic angle methodology (DR tradition)_ · `curiosity angle rediscovered suppressed solution historical forgotten wisdom narrative`
+  - Three-beat narrative — Historical Solution → Suppression/Forgetting → Rediscovery — that positions the product as recovering lost wisdom (e.g., WWII undecylenic acid, dust-bowl skincare).
+- **Corruption Angle — Paradise Lost** _— psychographic angle methodology (DR tradition)_ · `corruption angle paradise lost outside forces worsened pain point nostalgia indignation`
+  - Narrative that the pain point used to not exist (or was milder) until outside corrupting forces made it worse — taps nostalgia and righteous indignation to externalize blame.
+- **Brunson — Five Curiosity Hooks** _— Russell Brunson, Expert Secrets_ · `Brunson five curiosity hooks little-known well-known controversial bold prediction Expert Secrets`
+  - Five angle frameworks for curiosity-driven hooks: Little-Known, Well-Known (subvert), Old Discovery Revisited, Highly Controversial (conspiracy), Bold Prediction (prophecy/urgency).
+- **Brunson — Traffic Temperature (Hot/Warm/Cold)** _— Russell Brunson, DotCom Secrets_ · `Brunson traffic temperature hot warm cold pre-frame bridge dotcom secrets`
+  - Hot (knows you) / Warm (knows someone who knows you) / Cold (stranger) maps to Schwartz awareness; never send cold traffic straight to a sales page — it needs a pre-frame bridge first.
+- **Schwartz↔TTM↔Brunson Awareness Mapping Table** _— synthesis of Schwartz / Whitman TTM / Brunson_ · `Schwartz TTM Brunson awareness mapping table copy approach by stage`
+  - Cross-walk table aligning each Schwartz awareness stage with its TTM behavior stage, Brunson traffic temperature, and the correct copy approach for that combination.
+- **Carry-Forward Through All Awareness Stages** _— awareness application to eCom (Schwartz-derived rule)_ · `carry forward through all stages of awareness build complete bridge before the sale`
+  - Wherever you enter the conversation (e.g., Problem Aware), you MUST carry the prospect forward through every subsequent stage before asking for the sale — build the full bridge, don't just identify the stage.
+- **Jobs To Be Done — The Switch & Four Forces** _— Bob Moesta & Clayton Christensen (JTBD); applied by Joanna Wiebe_ · `Jobs to be Done switch push pull anxiety habit four forces Moesta Christensen`
+  - Customers 'hire' a product for a functional/emotional/social job; The Switch is driven by four forces — Push (problem) + Pull (attraction) vs Anxiety (of the new) + Habit (of the now) — and conquering switching friction alone can multiply conversions.
+- **JTBD Switch Interview (timeline method)** _— Bob Moesta, Rewired Group; Joanna Wiebe_ · `JTBD switch interview timeline first thought event buying first use environmental questions`
+  - 45-60 min interview that walks the customer back through a timeline (first thought → Event 1 → Event 2 → buying → first use) using environmental/scene-setting questions to surface the forces of change; ~7 interviews ≈ 500 survey responses of insight.
+- **Push & Pull Questions + The Switch (Conversion Copywriting)** _— Joanna Wiebe, Copyhackers (Conversion Copywriting)_ · `push pull questions the switch switching costs status quo conversion copywriting research`
+  - Research framework: Push (what problems drive them to seek a solution) + Pull (what desires draw them to it) + the often-skipped Switch (what prevents them leaving their status quo); research best done with prospects about-to-switch and recent switchers.
+- **Core Avatars & Sub-Avatars — The Core Five Categories** _— avatar-building methodology (Eugene Schwartz-influenced)_ · `core avatar sub avatar core five categories desire experience emotion behavior demographic`
+  - Build avatars from five categories in priority order — Desire > Experience ≈ Emotion ≈ Behavior > Demographics; start the core avatar with a single (surface-level) desire and stack categories to create money-making sub-avatars; 'out-avatar them, don't out-market them.'
+- **Desire-First Avatar (over Demographics)** _— avatar-building methodology_ · `desire first avatar over demographics avoid combining desires single desire core avatar`
+  - Demographics alienate and are weak starting points (a 22yo and 45yo share the same desire); start from a shared desire because desires drive purchase behavior and create the group label — avoid combining more than one desire per avatar.
+- **Surface Desire vs Core Desire** _— avatar-building methodology (Schwartz desire theory)_ · `surface level desire vs core desire why behind the desire avatar building`
+  - Build avatars on surface-level desires ('I want better sleep') for specificity, but dig in research for the underlying core desire (the why) to guide messaging and sub-avatar creation.
+- **Unified Research Document (Processo Completo)** _— Stefan Georgi RMBC lineage; DR research-consolidation practice_ · `unified research document process demographics psychographics promises objections language`
+  - Consolidates product/market awareness + competitor research + psychographic research into one brief (demographics, psychographics, language to use/avoid, promises, objections, existing solutions) to feed LLMs consistent context for all copy.
+- **RMBC Method (Research, Mechanism, Brief, Copy)** _— Stefan Georgi_ · `RMBC method research mechanism brief copy Stefan Georgi pipeline`
+  - Four-stage copy production pipeline — Research the market, identify the Mechanism, write the Brief, then the Copy; the R-stage psychographic questions and the brief structure underpin DR offer and copy creation.
+- **Quad Prompt Methodology (multi-AI research synthesis)** _— AI-assisted DR research practice_ · `quad prompt methodology multi AI deep research synthesis Claude unified profile`
+  - Run separate deep-research sessions across multiple AIs (Gemini, ChatGPT, Perplexity), save each output, then use a generic 'quad prompt' in Claude to synthesize them into one unified psychographic profile.
+- **Deep Research AI Prompt (Awareness assessment)** _— AI-assisted market-awareness research (Schwartz-based prompt)_ · `deep research AI prompt market awareness TAM distribution Schwartz levels geography`
+  - Structured prompt fed to deep-research AIs to estimate TAM, the % distribution of TAM across the 5 Schwartz awareness levels, and a final pick of the dominant stage — using social chatter, search trends, articles and sales data.
+- **Reconnaissance Engine (competitive research via social)** _— Disrupter Academy market-research process_ · `reconnaissance engine competitive research social algorithm training competitor transcription`
+  - Build an always-on competitive intelligence feed: follow/transcribe competitor content, join their email lists, train your social algorithm to serve market content, and stockpile screenshots/videos.
+- **Consumer Insights Database (where + what + how to mine)** _— Disrupter Academy market-research process_ · `consumer insights database mine reviews reddit tiktok ad comments fears desires motivations`
+  - Mine reviews, Amazon, Reddit (10+ comment threads), TikTok, ad comments and Q&A for patterns in Language, Fears, Desires, Motivations; organize into tabbed sheets by source to feed copy/ad tools.
+- **Says-vs-Does (Trust Behavior, Not Surveys)** _— Drayton Bird / Claude Hopkins DR tradition (cited as principle)_ · `says vs does trust purchasing behavior not surveys beer survey national enquirer right answer bias`
+  - Base decisions on what people actually BUY, not what they SAY in surveys/focus groups (beer survey, National Enquirer); stated preferences carry a 'right answer' bias that misleads.
+- **Plutchik Emotion Wheel + Secondary-Emotion Frequency Tiers** _— Robert Plutchik (wheel) + DR emotional-frequency research compilation_ · `Plutchik emotion wheel secondary emotions frequency tiers marketing utility`
+  - Maps primary emotions and ranks secondary/complex emotions (stress/overwhelm, anxiety, frustration, hope, trust, etc.) by real-world frequency and marketing utility, so copy targets the emotions the market actually feels daily.
+- **Brand Voice Measurement — Vocabulary / Tone / Cadence** _— Copyhackers (voice analysis; 9 voice types)_ · `brand voice measurement vocabulary tone cadence nine voice types grade level`
+  - Voice is measurable along three dials — Vocabulary (word choice/grade level), Tone (outlook/accessibility/authority), Cadence (sentence/word length patterns) — plotted on a 9-voice-type grid to match or evolve a brand.
+- **Rule of One (One Reader / One Offer / One Value Prop)** _— Joanna Wiebe, Copyhackers_ · `Rule of One one reader one offer one value proposition Venn overlap`
+  - Write to One Reader (the overlap of your segments' shared qualities/desires/anxieties), with One Offer tailored to them and One Value Proposition for that offer — the research target that focuses all messaging.
+
+## Competitor & Positioning  ·  skill 03  ·  (31 frameworks)
+
+- **Reeves' Unique Selling Proposition (USP) — 3-Part Test** _— Rosser Reeves, Reality in Advertising (1961)_ · `USP unique selling proposition Reeves three requirements proposition uniqueness selling power`
+  - Every USP must simultaneously pass three tests: a specific Proposition (buy this, get this benefit), Uniqueness (competition cannot or does not offer it), and Selling Power (strong enough to move the mass millions).
+- **Three Roads to a USP (Three Roads to Rome)** _— Rosser Reeves, Reality in Advertising_ · `three roads to a USP find real difference improve product preemptive claim`
+  - Three ways to build a USP: Road 1 find a real product difference; Road 2 improve the product to create one; Road 3 claim something true but previously unmentioned (the preemptive claim).
+- **The Preemptive Claim (Schlitz / Live Steam)** _— Claude Hopkins, Scientific Advertising (original); Reeves Road 3_ · `preemptive claim Hopkins Schlitz live steam own common claim first to say`
+  - In categories where products are functionally identical, the first brand to articulate a common process or ingredient owns it in the prospect's mind — Schlitz claimed 'every bottle washed with live steam' first and owned 'purity'.
+- **USP Pre-emption & The Deceptive Differential Test** _— Rosser Reeves, Reality in Advertising_ · `USP preemption penetration moat deceptive differential test observable difference`
+  - Once a USP is established via penetration, a competitor copying it only advertises the leader; the moat is penetration not truth. The Deceptive Differential Test checks whether the claimed difference is actually perceivable after purchase.
+- **The Advertising Burning Glass / Rule of One** _— Rosser Reeves, Reality in Advertising (Ch. 9); Hopkins; Sugarman_ · `advertising burning glass rule of one dominant concept one reader one promise`
+  - An ad must focus all selling power into one dominant concept like a burning glass focuses sunlight; the consumer remembers one thing. One reader, one big idea, one promise, one offer.
+- **Vampire Claims / Vampire Video & Mosaic Structure of Claims** _— Rosser Reeves, Reality in Advertising_ · `vampire claims vampire video mosaic structure architectural support single USP`
+  - You can have many claims in one ad only if each is a structural pillar of the single USP ('columns supporting a dome'); vampire claims/video are secondary elements that attract attention to themselves and silently destroy selling power.
+- **Penetration / Usage Pull Framework** _— Rosser Reeves, Reality in Advertising_ · `penetration usage pull framework Reeves measurement advertising effect`
+  - Penetration = % who remember your claim; Usage Pull = % of aware people who become customers beyond baseline. The gap is advertising's measurable sales effect; penetration is volatile (half forget in 6 months).
+- **The Multi-Million Dollar Error (don't change a winning campaign)** _— Rosser Reeves, Reality in Advertising_ · `multi-million dollar error changing effective campaign restart penetration law of calculated risk`
+  - Changing an effective campaign restarts penetration from zero — the costliest mistake. Law of Calculated Risk: a strong-USP campaign has ~90% chance of success vs ~30% for image/mood advertising.
+- **Principle of Dispersion (Reach Before Frequency)** _— Rosser Reeves, Reality in Advertising_ · `Reeves principle of dispersion reach before frequency diminishing returns exposure`
+  - Reaching more people once beats reaching fewer many times — first exposure has highest marginal impact, subsequent exposures diminish rapidly; prioritize new reach over saturating existing audiences.
+- **Ries & Trout Positioning — The Mental/Product Ladder** _— Al Ries & Jack Trout, Positioning: The Battle for Your Mind (1981)_ · `positioning Ries Trout mental ladder product ladder battle for the mind perception`
+  - The mind organizes brands on a ladder (one per category), rejects info that contradicts what's there, holds room for ~3 brands; positioning is what you do to the prospect's mind, not the product. Perception is reality.
+- **Law of Leadership (Be First) & Amelia Earhart Strategy** _— Al Ries & Jack Trout, Positioning_ · `law of leadership be first category creation Amelia Earhart strategy first in mind`
+  - The first brand into a position gets ~2x the share of No.2 and 4x No.3; if you can't be first in an existing category, create a new one you can be first in (Amelia Earhart, first WOMAN to fly the Atlantic).
+- **Cherchez le Creneau — 8 Types of Holes in the Mind** _— Al Ries & Jack Trout, Positioning_ · `cherchez le creneau eight types holes in the mind size price age gender distribution`
+  - When leadership is taken, find an unoccupied mental space: size, high-price, low-price, sex/gender, age, time-of-day, distribution, heavy-user. Beware the Factory Creneau Trap and Technology Trap (a hole with no mental creneau).
+- **The Against Position / Uncola & Repositioning the Competition** _— Al Ries & Jack Trout, Positioning_ · `against position uncola repositioning the competition Avis Tylenol aspirin inconvenient truth`
+  - Position explicitly against the leader (Avis 'We try harder'; 7-Up 'the Uncola') or change the prospect's perception of the competitor to open a hole (Tylenol repositioned aspirin as stomach-irritating).
+- **Positioning by Attribute / by User** _— Al Ries & Jack Trout, Positioning (applied to ecom)_ · `positioning by attribute positioning by user different attribute new ladder ecom`
+  - Leader owns the obvious attribute (anti-aging); you choose a different defensible attribute (hydration) or position by who uses it (Marlboro cowboys, protein for women over 40) to create a new ladder where you're No.1.
+- **F.W.M.T.S. (Forgot What Made Them Successful) / Line Extension Trap** _— Al Ries & Jack Trout, Positioning_ · `FWMTS forgot what made them successful line extension trap positioning cumulative consistency`
+  - Brands lose great positions by abandoning what worked, advertising aspirations instead of reinforcing (Avis dropping 'We try harder'); positioning is cumulative — keep the strategic position, refresh only the creative.
+- **Schwartz Market Sophistication — 5 Stages** _— Eugene Schwartz, Breakthrough Advertising (Ch. 3)_ · `market sophistication five stages Schwartz enlarge claim new mechanism identity skepticism`
+  - Markets pass through 5 stages by exposure to claims: (1) name the claim, (2) enlarge it, (3) new mechanism, (4) better/elaborated mechanism, (5) identity/connection. Each stage demands a different headline strategy.
+- **Schwartz Mechanization Stages — Name / Describe / Feature** _— Eugene Schwartz, Breakthrough Advertising (Ch. 11)_ · `Schwartz mechanization stages name describe feature mechanism promise reason why headline`
+  - Three stages of mechanism proof tied to sophistication: Stage 1 name the mechanism, Stage 2 describe it (Promise-Reason Why, emotion not scientific discourse), Stage 3 feature it in the headline as a NEW WAY to get the old result.
+- **New Mechanism / New Information / New Identity (The Big 3)** _— Eugene Schwartz, Breakthrough Advertising (course application)_ · `new mechanism new information new identity Big 3 sophisticated market break resistance`
+  - In sophisticated markets (stages 3-5) simple claims fail; break resistance with a New Mechanism (new HOW/hope), New Information (reframe the problem / why past solutions failed), or New Identity (what using the product says about you).
+- **Competitor Research Process (Extracting Claims)** _— Direct response course methodology (Hopkins/Reeves applied)_ · `competitor research process extracting claims messaging hooks customer feedback differentiation`
+  - Define research parameters (product, geography, competitor type), identify key competitors, analyze messaging/hooks/big ideas, evaluate customer feedback to find differentiation opportunities, compiled into a research doc for copy.
+- **Reconnaissance Engine (Competitive Research via Social)** _— Disrupter Academy (5-step research process)_ · `reconnaissance engine competitive research via social Instagram transcribe competitor videos algorithm`
+  - Always-on competitive intel: become competitors' ideal customer (follow 3+ on IG/TikTok/YouTube, engage, join email lists) so the algorithm serves market content; screenshot, download and transcribe competitor videos (SnapInsta + Descript).
+- **Consumer Insights Database (3-source lift)** _— Disrupter Academy (research process step 2)_ · `consumer insights database review mining Reddit Amazon ad comments three source lift customer language`
+  - Mine customer language/fears/desires from competitor reviews, Amazon, Reddit (10+ comment threads), TikTok honest-reviews, ad comments, Q&A; 3+ sources per category produces far more accurate customer profiles for copy.
+- **Cloaker Breaking / Competitive Espionage** _— Direct response course methodology (advanced competitive intel)_ · `cloaker breaking competitive espionage hidden funnels what is scaling access competitor offer`
+  - Techniques to access competitor funnels hidden by cloakers; the goal is not to clone offers but to understand what is actually scaling behind the curtain to make better briefing decisions.
+- **Test-Then-Scale Method (applied to competitor claims)** _— Claude Hopkins, Scientific Advertising / My Life in Advertising_ · `Hopkins test then scale keyed coupon small city test before national competitor claim`
+  - When you discover a competitor claim or angle, run a small keyed test in a limited market and only scale if the numbers prove it works for your product (Liquozone, Palmolive, Pepsodent city-tests).
+- **Category Economics / 'Pork and Beans' Insight** _— Claude Hopkins, Scientific Advertising_ · `Hopkins pork and beans category economics what behavior replacing true competition status quo`
+  - Understanding the true competitive landscape — what behavior or habit you are actually replacing — matters more than understanding direct competitors (you compete against the status quo, not just rival brands).
+- **Swipe File Method & Handcopy Practice** _— Dan Kennedy, The Ultimate Sales Letter; Gary Halbert, The Boron Letters; Sugarman; Bly_ · `swipe file method handcopy practice Kennedy collect organize winning ads patterning technique`
+  - Build a curated, categorized collection of proven ads (validated by longevity or shares) and internalize via handcopying winners and reading aloud; organize by headline/lead/guarantee/CTA/proof/offer/format and pattern from structure, not words.
+- **Winning Ad Extraction / Processing Learnings** _— Direct response course methodology (AdSpy-validated study)_ · `winning ads extracting strategies process learnings AdSpy shares validated hook why it works`
+  - Validate winners via shares/engagement (AdSpy beats 'active' status), study the hook (why it stops scroll) and the whole (how it closes), asking 'why does this matter?' repeatedly to extract transferable STRATEGIES (not templates) even cross-niche.
+- **Kennedy USP Construction Formula** _— Dan Kennedy, Magnetic Marketing / No BS Direct Marketing_ · `Kennedy USP construction formula narrow positioning meaningful specifics guarantee Domino's`
+  - USP = Narrow Positioning + Meaningful Specifics + Guarantee. Choose one dimension to own (Domino's: speed + temperature, ignoring taste) — 'when you try to be everything to everyone you are nothing to everyone.'
+- **Ogilvy 'Positively Good' Strategy for Parity Products** _— David Ogilvy, Confessions of an Advertising Man_ · `Ogilvy positively good parity product strategy describe with conviction sensory detail`
+  - When your product performs identically to competitors, don't claim superiority — describe it as 'positively good' with such conviction and sensory specificity that readers assume it must be superior, because competitors rarely describe their own product that way.
+- **Ogilvy Brand Image Theory + Bird's Positioning Synthesis** _— David Ogilvy, Confessions; Drayton Bird, Commonsense Direct & Digital Marketing_ · `Ogilvy brand image theory Drayton Bird positioning brand image plus USP total personality`
+  - Every ad is a long-term investment in the brand's total personality; Bird synthesizes positioning as Brand Image + USP — what the brand promises (USP) AND what it means (image) in the prospect's mind.
+- **Inoculation Theory (pre-empt competitor attacks)** _— William McGuire (social psychology), applied in persuasion frameworks_ · `inoculation theory McGuire weakened competitor argument build resistance pre-empt loyalty`
+  - Strengthen loyalty by presenting a WEAKENED version of a competitor's future argument and encouraging the prospect to mount their own defense — like a vaccine, a weak attack builds lasting resistance.
+- **Storytelling as Hardest-to-Replicate Angle (Founder Story / Villain)** _— Fraser (Fraggle), Creative Strategy 102_ · `storytelling hardest to replicate founder story villain narrative defensible angle status quo`
+  - Competitors can copy product, price and ad format but not your story; founder stories and villain-based narratives (positioning against the status quo / 'Big Shave' / subscriptions) are the most defensible differentiation.
+
+## Offer — Mechanism  ·  skill 04  ·  (41 frameworks)
+
+- **Unique Mechanism Theory (UMP/UMS)** _— Direct response / D2C copy tradition (rooted in Schwartz)_ · `unique mechanism UMP UMS theory two-part problem solution`
+  - Two-part logic: mechanism behind the Problem (why past solutions failed) plus behind the Solution (why yours works); prospect was 99 percent there, missing 1 percent.
+- **S.I.N. Filter (Simple, Intuitive, New)** _— Direct response mechanism craft_ · `mechanism SIN filter simple intuitive new`
+  - Every mechanism must be Simple, Intuitive (visual metaphor like Joint Drought), New.
+- **UMP/UMS Internal Structure** _— Direct response mechanism craft_ · `UMP UMS structure trigger surprising cause quiz specific delivery`
+  - UMP = Trigger, Explanation, Surprising Cause, Quiz; UMS = Trigger, Explanation, Tip, Specific Delivery.
+- **UM Ideation (10-15 Options)** _— AI-assisted DR workflow_ · `ideation unique mechanisms AI 10-15 options market research awareness`
+  - Generate 10-15 distinct UMP/UMS options from research before choosing; specify awareness level.
+- **UM Evaluation and Ranking** _— AI-assisted DR workflow_ · `evaluation ranking unique mechanisms convert most likely`
+  - Rank mechanisms most-to-least likely to convert; top vs bottom can be 3x-5x conversion.
+- **UM Expansion in Copy** _— AI-assisted DR workflow_ · `expanding unique mechanisms copy advertorial listicle landing PDP`
+  - Turn chosen UMP/UMS summary into 3-5 persuasive paragraphs for advertorial, listicle, landing, PDP.
+- **Big Domino (Brunson)** _— Russell Brunson, Expert Secrets_ · `Big Domino Brunson one belief makes objections irrelevant`
+  - The ONE belief that makes objections irrelevant: new opportunity is the key to their desire and only attainable through your vehicle.
+- **Three False Beliefs (Vehicle/Internal/External)** _— Russell Brunson, Expert Secrets_ · `three false beliefs vehicle internal external Brunson`
+  - Break Vehicle (this won't work), Internal (I can't), External (the world won't let me) via Epiphany Bridge.
+- **Epiphany Bridge (8-Section Script)** _— Russell Brunson, Expert Secrets_ · `Epiphany Bridge script backstory wall epiphany transformation`
+  - Story of discovering the truth: backstory, desires, wall, epiphany, plan, conflict, achievement, transformation.
+- **New Opportunity vs Improvement Offer** _— Russell Brunson, Expert Secrets_ · `new opportunity vs improvement offer opportunity switch stack`
+  - A new way beats a better way. Opportunity Switch (replace vehicle) vs Stack (add to it).
+- **Opportunity Switch Headline** _— Russell Brunson, Expert Secrets_ · `opportunity switch headline how to result without fear`
+  - How to [result they desire most] Without [thing they fear most]; thesis in one line.
+- **Who/What Statement** _— Russell Brunson, Expert Secrets_ · `who what statement Brunson teach submarket new opportunity`
+  - I am going to teach [submarket] how to [new opportunity]; the internal compass.
+- **Five Curiosity Hooks (Brunson)** _— Russell Brunson, Expert Secrets_ · `Brunson five curiosity hooks crystal ball revisiting fundamentals`
+  - Little-Known Big Differences, Well-Known Little-Understood, This Changes Everything, Crystal Ball, Revisiting Fundamentals.
+- **Perfect Webinar 3 Secrets Structure** _— Russell Brunson, Expert Secrets_ · `perfect webinar three secrets break false beliefs stack close`
+  - 66-slide belief-change engine: Intro plus Big Domino, 3 Secrets breaking Vehicle/Internal/External, then Stack and Close.
+- **The Big 3: New Mechanism / New Information / New Identity** _— Eugene Schwartz sophistication tradition (applied)_ · `new mechanism new information new identity big 3 sophisticated market`
+  - Stage 3-5 responses: New Mechanism (new tech equals new hope), New Information (reframe the why), New Identity (what product says about buyer).
+- **Market Sophistication (5 Stages)** _— Eugene Schwartz, Breakthrough Advertising Ch.3_ · `market sophistication 5 stages Schwartz new mechanism identification`
+  - 1 first-to-market, 2 enlarge claim, 3 new mechanism, 4 elaborate mechanism, 5 identification. Markets retrace.
+- **Schwartz Mechanization (Name/Describe/Feature)** _— Eugene Schwartz, Breakthrough Advertising Ch.11_ · `Schwartz mechanization name describe feature mechanism headline`
+  - Name it, Describe it (Promise-Reason Why), Feature it (mechanism in headline). Extends Reeves USP.
+- **Mechanism Headline Templates by Stage** _— Eugene Schwartz, Breakthrough Advertising_ · `headline templates by stage mechanism dominates headline claim shorthand`
+  - S1 direct claim, S2 enlarged, S3 mechanism plus claim shorthand, S4 elaborated mechanism, S5 pure identification.
+- **Proprietary Mechanism Naming (Gum Name)** _— Schwartz naming tradition; applied DR craft_ · `proprietary mechanism gum name nickname ritual hack effect`
+  - Ownable name: Alpine Ice Hack, Dyglomera Effect, 5-Second Water Method; tease early in lead.
+- **Reeves USP (3 Requirements + 3 Roads)** _— Rosser Reeves, Reality in Advertising_ · `Reeves USP three requirements three roads preemptive claim`
+  - USP equals Benefit plus Uniqueness plus Selling Power. Three Roads: real difference, improve product, preemptive claim.
+- **Preemptive Claim (Hopkins Schlitz)** _— Claude Hopkins, Scientific Advertising_ · `preemptive claim Hopkins Schlitz live steam owns purity`
+  - First to articulate a common process owns it (washed with live steam equals Schlitz owns purity).
+- **USP Burning Glass / Vampire Claims** _— Rosser Reeves, Reality in Advertising_ · `burning glass vampire claims one dominant USP focus`
+  - One dominant concept; unrelated vampire claims drain the single USP power.
+- **Kennedy USP Construction Formula** _— Dan Kennedy, Magnetic Marketing_ · `Kennedy USP narrow positioning meaningful specifics guarantee`
+  - USP equals Narrow Positioning plus Meaningful Specifics plus Guarantee.
+- **Big Idea (Paradoxical Question / Gum Name / Conspiracy Story)** _— DR Big Idea tradition; Sugarman, Bencivenga_ · `Big Idea paradoxical question gum name conspiracy story`
+  - Emotional and intellectual wrapper around the USP; paradoxical question, gum name, or conspiracy story.
+- **Bencivenga What Are We Really Selling** _— Gary Bencivenga, Bencivenga Bullets_ · `Bencivenga what are we really selling reframing`
+  - Real product is an emotional outcome, identity transformation, or relief from pain, never the physical thing.
+- **Sugarman Concept Selling** _— Joseph Sugarman, Adweek Copywriting Handbook_ · `Sugarman concept selling sell the concept not product`
+  - Never sell the product, sell the concept, the unique angle making a similar product feel different.
+- **Hormozi Value Equation** _— Alex Hormozi, $100M Offers_ · `Hormozi value equation dream outcome perceived likelihood time delay effort`
+  - Value equals Dream Outcome times Perceived Likelihood divided by Time Delay times Effort and Sacrifice.
+- **Hormozi Grand Slam Offer (Problems and Solutions)** _— Alex Hormozi, $100M Offers_ · `Hormozi grand slam offer problems solutions list trim stack`
+  - List every obstacle, convert each into a deliverable, trim and stack into an irresistible offer.
+- **Hormozi MAGIC Naming Formula** _— Alex Hormozi, $100M Offers_ · `Hormozi MAGIC naming avatar goal interval container variation hierarchy`
+  - Magnetic reason-why, Announce avatar, Give a goal, Indicate interval, Container word.
+- **Hormozi Starving Crowd (4 Indicators)** _— Alex Hormozi, $100M Offers_ · `Hormozi starving crowd four indicators market selection`
+  - Massive Pain, Purchasing Power, Easy to Target, Growing Market.
+- **Hormozi Logical vs Psychological Solutions** _— Alex Hormozi, $100M Offers_ · `Hormozi logical vs psychological solution pay for ease`
+  - People pay for the ease of the solution, not the solution itself.
+- **Hormozi Virtuous Cycle of Price** _— Alex Hormozi, $100M Offers_ · `Hormozi virtuous cycle of price higher prices better clients`
+  - Higher prices lead to better clients, better results, better proof, then higher prices.
+- **Stack Slide (Cumulative Value)** _— Russell Brunson, Expert Secrets_ · `stack slide cumulative value dwarf price`
+  - Build the offer cumulatively so the stacked total dwarfs the revealed price.
+- **Offer 3.0 (6 Components)** _— Applied offer framework_ · `Offer 3.0 powerful promise unique mechanism features cubed benefit ascension`
+  - Powerful Promise, Irrefutable Proof, Captivating Story, Unique Mechanism, Features Cubed, Benefit Ascension.
+- **Revelation + 4 Beliefs + Belief Packets** _— Applied funnel/offer messaging framework_ · `revelation four beliefs belief packets belief proof benefit funnel`
+  - One counterintuitive revelation, then 4 beliefs, each a belief packet (Belief, Proof, Benefit) across the funnel.
+- **Schwartz Gradualization / 6 Belief-Building Devices** _— Eugene Schwartz, Breakthrough Advertising Ch.9_ · `Schwartz gradualization six belief building devices believability bridge`
+  - Verification, Reinforcement, Interweaving, Sensitivity, Momentum, Mood; build yes-momentum.
+- **Schwartz Three Mechanisms of Copy (Intensification/Identification/Redefinition)** _— Eugene Schwartz, Breakthrough Advertising Ch.7-10_ · `Schwartz intensification identification redefinition three mechanisms angles`
+  - Intensification (13 desire techniques), Identification (character/achievement roles), Redefinition (Simplification, Escalation, Price Reduction).
+- **Hormozi Callout System (Verbal/Nonverbal + What-Who-When)** _— Alex Hormozi, $100M Leads_ · `Hormozi callout system verbal nonverbal what who when angle matrix`
+  - 4 verbal (Labels, Yes-Questions, If-Then, Ridiculous Results) plus 3 nonverbal (Contrast, Likeness, Scene); What times Who times When matrix.
+- **Categorization Check / Own-a-New-Category Rule** _— Applied DR creative rule_ · `categorization check own new category first and only unique mechanism`
+  - Never say what the product is like; position as first or only to [unique mechanism].
+- **Hopkins Reason-Why Rule** _— Claude Hopkins, Scientific Advertising_ · `Hopkins reason why rule every claim needs a reason`
+  - Every claim needs a reason; explain WHY it works, not just WHAT it does.
+- **Brief 2.0 / Mechanism Brief** _— Applied AI brief generator_ · `brief unique mechanism nickname new claim root cause ingredients`
+  - Brief capturing new claim and root cause, mechanism nickname, ingredient studies, bold claims; LLM-ready.
+
+## Offer — Pricing & Guarantee  ·  skill 04  ·  (54 frameworks)
+
+- **Hormozi Value Equation** _— Alex Hormozi, $100M Offers_ · `Hormozi value equation dream outcome perceived likelihood time delay effort sacrifice`
+  - Value = (Dream Outcome x Perceived Likelihood) / (Time Delay x Effort & Sacrifice) — four levers to maximize perceived value.
+- **Grand Slam Offer System** _— Alex Hormozi, $100M Offers_ · `Hormozi grand slam offer creation problems solutions list trim and stack value`
+  - End-to-end offer build: pick market, list problems/solutions, trim & stack value until the offer feels like stealing.
+- **Hormozi Starving Crowd / 4 Market Indicators** _— Alex Hormozi, $100M Offers (orig. Gary Halbert)_ · `Hormozi starving crowd four indicators massive pain purchasing power easy target growing`
+  - Pick the market first: massive pain, purchasing power, easy to target, growing.
+- **Hormozi Virtuous Cycle of Price** _— Alex Hormozi, $100M Offers_ · `Hormozi virtuous cycle of price premium pricing better clients`
+  - Higher prices attract better clients, better results, better proof, higher margins; discounting triggers a death spiral.
+- **Hormozi Four Guarantee Types** _— Alex Hormozi, $100M Offers_ · `Hormozi four guarantee types unconditional conditional anti-guarantee implied`
+  - Unconditional, Conditional, Anti-guarantee, Implied (performance-based) — the complete guarantee taxonomy.
+- **Guarantee Stacking** _— Alex Hormozi, $100M Offers_ · `Hormozi guarantee stacking short-term unconditional long-term conditional`
+  - Combine guarantees: short-term unconditional + long-term conditional; sequential outcome; implied + explicit.
+- **Guarantee Naming** _— Alex Hormozi, $100M Offers_ · `Hormozi naming your guarantee vivid memorable Club a Baby Seal Shark Infested Waters`
+  - Replace generic money-back wording with vivid branded names so the guarantee itself sells.
+- **The Guarantee Math** _— Alex Hormozi, $100M Offers (Fladlien case)_ · `guarantee math net sales conversion lift refund rate Fladlien buyback`
+  - Conversion lift from a strong guarantee almost always beats the rise in refunds; net-sales formula proves it.
+- **Kennedy Five-Level Guarantee Hierarchy** _— Dan Kennedy, The Ultimate Sales Letter_ · `Kennedy five-level guarantee hierarchy refund keep premium free trial guarantee the letter`
+  - Escalation: basic money-back, refund+keep premium, deliberate redundancy, free-trial framing, guarantee as primary focus.
+- **Kennedy Five Price Minimizers** _— Dan Kennedy, The Ultimate Sales Letter_ · `Kennedy five price minimizers apples to oranges sell bulk parts worth more than whole conceal`
+  - Apples-to-oranges, sell bulk, development cost, parts worth more than whole, conceal price as installments.
+- **Kennedy Damaging Admission** _— Dan Kennedy, The Ultimate Sales Letter_ · `Kennedy damaging admission reasons not to respond build trust`
+  - List every reason NOT to buy and address each openly to kill the too-good-to-be-true objection.
+- **Anchoring & Adjustment** _— Tversky & Kahneman; Poundstone Priceless; Ariely Predictably Irrational_ · `pricing anchoring adjustment set high anchor was price SSN auction Ariely`
+  - Buyers adjust insufficiently from a starting number; set a high anchor first.
+- **Coherent Arbitrariness** _— Ariely, Loewenstein & Prelec; Priceless_ · `coherent arbitrariness first price imprint Starbucks broke coffee anchor`
+  - First price encounter imprints the absolute level; break old category anchors to charge premium (Starbucks).
+- **Decoy Effect (Asymmetric Dominance)** _— Huber & Puto; Tversky & Simonson; Ariely_ · `decoy effect asymmetric dominance Economist subscription Williams-Sonoma bread machine`
+  - Add an inferior option nobody buys to shift preference toward your target (The Economist).
+- **Extremeness Aversion** _— Simonson & Tversky; Priceless_ · `extremeness aversion three tiers middle option beer experiment`
+  - Buyers avoid cheapest and dearest; offer three tiers so the middle target wins.
+- **Zero Price Effect (FREE)** _— Shampanier, Mazar & Ariely, Predictably Irrational_ · `zero price effect FREE Lindt Hershey Amazon France free shipping`
+  - Actually-zero triggers a different response; never use almost-free (Lindt vs Hershey's, Amazon France).
+- **Charm Pricing (Endings in 9)** _— Anderson & Simester; Priceless; Whitman Cashvertising_ · `charm pricing nine ending left-digit effect 24 percent catalog`
+  - 9-endings lift sales ~24% via left-digit effect; round numbers for luxury.
+- **Prospect Theory (Loss Aversion)** _— Kahneman & Tversky 1979; Priceless_ · `prospect theory loss aversion reference point fourfold pattern 2x losses`
+  - Outcomes judged vs a reference point; losses hurt ~2x gains; frame purchase as gain, non-purchase as loss.
+- **Mental Accounting (Thaler 4 Rules)** _— Richard Thaler 1985; Priceless_ · `mental accounting Thaler segregate gains integrate losses bonuses separately`
+  - Segregate gains (list bonuses separately), integrate losses (one payment) — the math behind offer stacking.
+- **Transaction Utility** _— Richard Thaler 1985; Priceless_ · `transaction utility joy of a deal reference price beer resort hotel`
+  - Joy of a deal is separate from item value; raise reference price via brand/packaging and show the was-price.
+- **Endowment Effect** _— Thaler; Kahneman, Knetsch & Thaler; Ariely_ · `endowment effect free trials liberal returns virtual ownership Duke tickets`
+  - Ownership doubles perceived value; free trials, liberal returns, imagine-yourself copy create ownership pre-purchase.
+- **Flat-Rate Bias** _— Simon-Kucher; Priceless_ · `flat-rate bias subscription unlimited predictable payment free consumption`
+  - People prefer predictable flat fees; subscriptions exploit free consumption and no bill shock.
+- **Price-Expectation Effect (Price as Placebo)** _— Ariely, Predictably Irrational (SoBe, Veladone-Rx)_ · `price placebo effect higher price quality SoBe Veladone Ariely`
+  - Higher price raises perceived AND actual experienced quality; strongest argument against discounting.
+- **Certainty Effect** _— Kahneman & Tversky; Priceless_ · `certainty effect 100 vs 99 percent guaranteed results risk-free`
+  - 100% certainty valued disproportionately vs 99%; guarantees and risk-free framing exploit the gap.
+- **Menu Psychology (Four-Category System)** _— Gregg Rapp; Priceless_ · `menu psychology stars puzzles plow horses dogs remove dollar signs`
+  - Classify items Stars/Puzzles/Plow Horses/Dogs; use layout, anchors, no dollar signs to steer to profit.
+- **Hormozi MAGIC Naming Formula** _— Alex Hormozi, $100M Offers_ · `Hormozi MAGIC naming magnetic avatar goal interval container word`
+  - Magnetic reason why + Avatar + Goal + time Interval + Container word names an offer.
+- **Offer Variation Hierarchy** _— Alex Hormozi, $100M Offers_ · `Hormozi offer variation hierarchy change name creative bonuses pricing core offer`
+  - When an offer fatigues, change lightest to heaviest: name, wrapper, bonuses, pricing, core offer.
+- **Hopkins Naming Strategy Hierarchy** _— Claude Hopkins, Scientific Advertising / My Life in Advertising_ · `Hopkins naming hierarchy coined personal names substitution warning frivolous`
+  - Benefit/story > personal > coined > risky ingredient names; frivolous names are fatal for serious products.
+- **Ries & Trout Naming as Positioning** _— Al Ries & Jack Trout, Positioning_ · `Ries Trout name is the position own a word mind works by ear line extension`
+  - The name is the strongest positioning tool: own one word, work by ear, avoid line-extension dilution.
+- **Hopkins Irresistible Proposition (Take All Risk)** _— Claude Hopkins, Scientific Advertising_ · `Hopkins irresistible proposition take all risk free trial sewing machine motor`
+  - Take all risk on the seller's side (free trial, full samples); 9 of 10 trials closed.
+- **Collier Risk-Reversal / Free-Trial Framework** _— Robert Collier, The Robert Collier Letter Book_ · `Collier risk reversal free trial first step easy primary offer`
+  - Make the guarantee the primary offer; make the first step so easy there is no excuse not to try.
+- **Sugarman Satisfaction Conviction** _— Joseph Sugarman, The Adweek Copywriting Handbook_ · `Sugarman satisfaction conviction highest leverage test element direct response`
+  - Satisfaction conviction is the single highest-leverage test element in direct response.
+- **Longer Guarantee = Fewer Refunds Paradox** _— Gary Bencivenga (Bullets); Whitman, Cashvertising_ · `longer guarantee fewer refunds one year vs 30 day eye off calendar Cashvertising`
+  - A 1-year guarantee produces fewer refunds than 30-day; long terms take the eye off the calendar.
+- **Guarantee Power Statement Template** _— Alex Hormozi, $100M Offers_ · `guarantee power statement template if you do not get X result in Y time we will Z`
+  - If you don't get X result in Y time, we will Z; every word load-bearing, never weak without an or-what.
+- **Hormozi LTGP:CAC Ratio** _— Alex Hormozi, $100M Leads_ · `Hormozi LTGP CAC ratio 3 to 1 lifetime gross profit acquisition cost`
+  - Lifetime Gross Profit / CAC; keep at least 3:1, below 3 growth eats profit, above 5 huge room to scale.
+- **Client Financed Acquisition (CFA)** _— Alex Hormozi, $100M Leads_ · `Hormozi client financed acquisition front end covers CAC backend pure profit`
+  - Front-end revenue covers acquisition cost so backend is pure profit; business grows for free.
+- **Drayton Bird Magic Number (Allowable CAC)** _— Drayton Bird, Commonsense Direct and Digital Marketing_ · `Drayton Bird magic number allowable cost per customer lifetime value`
+  - Max allowable acquisition cost from LTV and target margin; the number that liberates ad spend.
+- **Profitable Scaling Margin (PSM)** _— Disrupter Academy (taught framework)_ · `Profitable Scaling Margin PSM LTV CPA COGS replaces ROAS golden ratio growth`
+  - PSM = LTV / (CPA + COGS); replaces ROAS/MER because it includes COGS, LTV and repeat-purchase cash flow.
+- **Unit Economics Hierarchy (CPA vs CAC, GPT)** _— Disrupter Academy (taught)_ · `unit economics CPA vs CAC blended CPA GPT net profit hero offer`
+  - Profit stack distinguishing CPA (per transaction) from CAC (per new customer), plus blended CPA, GPT, net profit.
+- **Offer Economics Go-Negative / Maximize-What Model** _— Taught framework (peptide/GLP-1 CMO case)_ · `offer economics going negative acquire customers LTV rebills maximize net profit goal`
+  - Choose goal (max net profit/revenue/new customers/lifestyle) then decide whether to go negative on day-0 GM for LTV.
+- **Four Profit Optimization Categories** _— Taught framework (IntelliGems data)_ · `profit optimization base pricing promotions AOV builders personalization IntelliGems 93 percent`
+  - Base pricing, promotions (seasonal+flow), AOV builders, persona personalization; 93% find a better price by testing.
+- **Pricing Leverage Math (5% Price = 50% Profit)** _— Taught framework (thin-margin model)_ · `pricing leverage 5 percent price increase 50 percent profit thin margin`
+  - On thin margins a 5% price increase can be a 50% profit increase; small price moves dominate volume.
+- **Brunson Value Ladder** _— Russell Brunson, DotCom Secrets_ · `Brunson value ladder four rungs free lead magnet low ticket high ticket ascension`
+  - Ascend customers through 4 rungs free/low-cost to high-ticket; every business needs all levels.
+- **Frontend vs Backend Funnels** _— Russell Brunson, DotCom Secrets_ · `Brunson frontend backend funnels acquire customer whoever spends most wins`
+  - Frontend acquires (may break even/lose); backend profits; whoever can spend most to acquire wins.
+- **Free-Plus-Shipping & Order Form Bump** _— Russell Brunson, DotCom Secrets_ · `Brunson free plus shipping buyer 10x order form bump 20 to 50 percent`
+  - Free+shipping converts a lead to a buyer (10-15x more valuable); order-form bump converts 20-50%.
+- **Three OTO Structures** _— Russell Brunson, DotCom Secrets_ · `Brunson three OTO structures next thing do it faster need help upsell`
+  - Post-purchase one-time offers: The Next Thing, Do It Faster, Need Help.
+- **Eight Offer Types (Hard/Soft/Installment/Exclusive/Limited/Qualified/Combination)** _— Taught Offers 3.0 framework (Joanna Wiebe-style)_ · `eight offer types hard soft installment exclusive limited qualified combination`
+  - Pick one frame: hard vs soft, installment, exclusive, limited quantity/time, qualified, or combination.
+- **Offer Levers (Clarity/Discounts/Guarantees/Bonuses)** _— Taught framework (Copyhackers-style)_ · `offer levers clarity discounts incentives refunds guarantees bonuses`
+  - Four levers to strengthen any offer: clarity, discounts & incentives, refunds & guarantees, bonuses.
+- **Scarcity & Urgency Framework (6 Triggers)** _— Dan Kennedy + Cialdini; taught synthesis_ · `scarcity urgency limited quantity deadline price increase bonus removal consequence of delay real reason`
+  - Limited quantity, deadline, price increase, bonus removal, seasonal relevance, consequence-of-delay; never fake.
+- **Bonus Stacking (Value Stack / Stack Slide)** _— Russell Brunson (Stack Slide) + Hormozi_ · `value stack stack slide bonus stacking standalone value exceeds price`
+  - List each bonus with standalone value so summed value vastly exceeds price (gain segregation).
+- **Big 4 Offer Emotions (New/Only, Easy, Safe, Big/Fast)** _— Taught creative/offer framework_ · `Big 4 offer emotions new only easy anybody safe predictable big fast`
+  - Every strong offer hits 2-3 of: New/Only, Easy/Anybody, Safe/Predictable, Big/Fast.
+- **Bencivenga Monkey's Fist (Sale Before the Sale)** _— Gary Bencivenga, Bencivenga Bullets_ · `Bencivenga monkey's fist sale before the sale micro commitment small yes`
+  - Throw a small easy yes first to pull across the big commitment; micro-commitment leading to the offer.
+- **Collier One-Product-at-a-Time Rule** _— Robert Collier, The Robert Collier Letter Book_ · `Collier one product at a time choice kills sales single recommendation`
+  - Choice kills sales; sell one product per communication or make one the clear recommendation.
+- **Damaged-Set / Close-Out Offer** _— Robert Collier, The Robert Collier Letter Book_ · `Collier damaged set close out limited quantity imperfection discount reason`
+  - Discount surplus by attributing low price to a specific imperfection/closeout with exact-quantity scarcity.
+
+## Copy — Headlines & Leads  ·  skill 06  ·  (55 frameworks)
+
+- **Caples' 35 Proven Headline Formulas + Three Classes** _— John Caples, Tested Advertising Methods_ · `Caples headline formulas three classes self-interest news curiosity techniques`
+  - 35 fill-in headline formulas organized under 3 ranked classes — Self-interest (strongest), News, Curiosity (weakest alone) — plus 5 rules for writing headlines.
+- **Caples' Six First-Paragraph Formulas** _— John Caples, Tested Advertising Methods_ · `Caples six first-paragraph formulas interrupting idea shocker news preview quotation story`
+  - Six opening-paragraph openers (Interrupting Idea, Shocker, News, Preview, Quotation, Story) derived from Reader's Digest analysis; over half of read articles open with a story.
+- **Schwartz's 38 Verbalization Techniques** _— Eugene Schwartz, Breakthrough Advertising (Ch. 4)_ · `Schwartz 38 verbalization techniques Breakthrough Advertising strengthening claim`
+  - 38 named techniques for transforming a bare claim into a compelling headline (measure size, paradox, before-and-after, challenge reader, etc.) grouped into 3 functions: strengthen claim, make it fresh, pull into body.
+- **Schwartz's Five Stages of Awareness** _— Eugene Schwartz, Breakthrough Advertising (Ch. 2)_ · `Schwartz five stages of awareness headline approach per stage Breakthrough Advertising`
+  - Five-stage scale (Most Aware, Product Aware, Solution Aware, Problem Aware, Unaware) that dictates what the headline/lead should say; includes per-stage headline templates and the 7 tasks for Stage-2 headlines.
+- **Schwartz's Three Lead Dimensions (Desire, Identification, Belief)** _— Eugene Schwartz, Breakthrough Advertising_ · `Schwartz lead desire identification belief dimension awareness lead selection`
+  - The three dimensions a lead can open on — Desire (Most Aware), Identification (Problem Aware), Belief disruption (Unaware) — matched to the prospect's awareness level.
+- **Bencivenga's I = B + C Formula** _— Gary Bencivenga, Bencivenga Bullets_ · `Bencivenga I=B+C formula interest benefit curiosity headline evaluation`
+  - A headline's pulling power = Benefit promise x Curiosity; both must be present (benefit without curiosity is flat, curiosity without benefit is empty).
+- **Bencivenga's Borden Formula (Ho-Hum / Why Bring That Up / For Instance / So What)** _— Gary Bencivenga (attributes Borden)_ · `Borden formula Ho Hum Why Bring That Up For Instance So What headline opening`
+  - 4-step headline/opening structure that moves the reader from indifference (Ho Hum) through relevance, proof, and payoff.
+- **Bencivenga's Shake-Me-Awake-at-3AM Test** _— Gary Bencivenga, Bencivenga Bullets_ · `Bencivenga shake me awake at 3am test headline strength`
+  - A headline must be compelling enough to grab a groggy, irritated person shaken awake at 3 AM — a pass/fail strength test.
+- **Bencivenga's Pre-Existing Motivation Principle** _— Gary Bencivenga, Bencivenga Bullets_ · `Bencivenga pre-existing motivation principle already motivated prospect`
+  - You cannot create motivation; find what people already want and show how your product gets it. Write only to the already-motivated minority.
+- **Hormozi's Seven Headline Components** _— Alex Hormozi, $100M Leads_ · `Hormozi seven headline components callout value timeframe proof mechanism obstacle urgency $100M Leads`
+  - Seven combinable ad-headline elements: callout (who), value prop (what), timeframe (when), proof (why believe), mechanism (how), obstacle addressed (even if), urgency (why now).
+- **Hormozi's Hook headline 7 components (Recency/Relevancy/Celebrity/Proximity/Conflict/Unusual/Ongoing)** _— Alex Hormozi, $100M Leads_ · `Hormozi content unit hook seven components recency relevancy celebrity proximity conflict unusual ongoing`
+  - Content/ad hook headline built with 2+ of seven components plus five topic categories (Far Past, Recent Past, Present, Trending, Manufactured).
+- **Schwab's Headline Craft System (9 Patterns + Specificity Triggers)** _— Victor Schwab, How to Write a Good Advertisement_ · `Schwab nine headline patterns specificity odd numbers How to Write a Good Advertisement`
+  - Nine tested headline patterns plus the principle that specific/odd numbers are believed as facts while round numbers read as estimates.
+- **Schwab's Win / Be / Save-Avoid Taxonomy + 11 Appeal Categories** _— Victor Schwab, How to Write a Good Advertisement_ · `Schwab Win Be Save Avoid taxonomy 11 appeal categories interior monologue`
+  - Three universal drivers (Win, Be, Save/Avoid) plus 11 appeal categories (Health, Money, Pride, Appearance, Status...) with mapped interior monologue per appeal.
+- **Schwab's Emotion-Reason Dual Engine** _— Victor Schwab, How to Write a Good Advertisement_ · `Schwab emotion reason dual engine desire excuse belief`
+  - Emotion creates desire; reason provides the excuse to justify the purchase. Belief originates in emotion, then logic is recruited to support it.
+- **Schwab's Subheadlines as Refueling Stations (8 Guidelines)** _— Victor Schwab, How to Write a Good Advertisement_ · `Schwab subheadlines refueling stations 8 guidelines scanner`
+  - Subheads get 3-10x body readership; 8 rules to make each subhead independently compelling and re-engage scanners so the subhead sequence tells the whole story.
+- **Bly's 8 Basic Headline Types + 38 Model Headlines** _— Robert Bly, The Copywriter's Handbook_ · `Bly 8 basic headline types direct indirect news how-to question command reason-why testimonial`
+  - Eight headline types (direct, indirect, news, how-to, question, command, reason-why, testimonial) each backed by model headlines.
+- **Bly's Five Frameworks (AIDA, ACCA, 4 P's, Motivating Sequence, plus)** _— Robert Bly, The Copywriter's Handbook_ · `Bly five frameworks ACCA 4 Ps Picture Promise Prove Push Motivating Sequence`
+  - Five organizing frameworks: AIDA; ACCA (Awareness, Comprehension, Conviction, Action); 4 P's (Picture, Promise, Prove, Push); the 5-step Motivating Sequence.
+- **Bly's 15 Ways to Start a Sales Letter** _— Robert Bly, The Copywriter's Handbook_ · `Bly 15 ways to start a sales letter openings`
+  - Fifteen proven sales-letter openings (state offer, announcement, story, flattery, provocative quote, identify problem, biggest benefit, etc.).
+- **Bly's 9-Step Idea-Production Process** _— Robert Bly, The Copywriter's Handbook_ · `Bly 9-step idea production process incubate draft cool off revise`
+  - Systematic idea-to-final-draft process: gather raw materials, consume everything, select angles, incubate, draft fast, cool off, revise, get feedback, polish.
+- **Cashvertising's 22 Psychologically Potent Headline Starters** _— Drew Eric Whitman, Cashvertising_ · `Cashvertising 22 psychologically potent headline starters Whitman`
+  - 22 fill-in-the-blank headline starter templates that trigger specific psychological responses — deployment-ready for rapid generation.
+- **Cashvertising's 12 Ways to Lure Readers Into Copy** _— Drew Eric Whitman, Cashvertising_ · `Cashvertising 12 ways to lure readers into copy body opener`
+  - Twelve body-copy openers (continue the headline, ask a question, quote authority, free taste, skepticism story, very short first sentence, etc.).
+- **Kennedy's 12 Fill-in-the-Blank Headline Templates** _— Dan Kennedy, The Ultimate Sales Letter_ · `Kennedy 12 fill in the blank headline templates Ultimate Sales Letter`
+  - Twelve proven fill-in-the-blank headline structures designed for direct-response sales letters.
+- **Kennedy's PAS (Problem-Agitation-Solution) + Fortune Telling + Winners & Losers** _— Dan Kennedy, The Ultimate Sales Letter_ · `Kennedy PAS problem agitation solution fortune telling winners losers formula`
+  - PAS as the fundamental DR framework, plus the Fortune Telling formula (future with/without product) and Winners & Losers formula (two diverging people).
+- **Kennedy's 28-Step Sales Letter System** _— Dan Kennedy, The Ultimate Sales Letter_ · `Kennedy 28-step sales letter system three phases`
+  - Full three-phase ($15-25k/letter) long-form letter system covering planning, writing (incl. creative P.S.), and production/testing (graphic devices, read-aloud, cool-off).
+- **Kennedy's Internal Repetition (7-Times Method) + Double Readership Path** _— Dan Kennedy, The Ultimate Sales Letter_ · `Kennedy 7 times method internal repetition double readership path skimmer`
+  - Convey the core message 7 times in 6 varied formats; design the letter so skimmers (headlines/subheads/P.S./bold) and analytical readers both get the full argument.
+- **Kennedy's Damaging Admission + Guarantee Hierarchy (5 Levels)** _— Dan Kennedy, The Ultimate Sales Letter_ · `Kennedy damaging admission guarantee hierarchy five levels risk free`
+  - List every reason NOT to buy then rebut it (builds trust); guarantee escalation from basic money-back to 'better-than-risk-free'.
+- **Halbert's AIDA Formula** _— Gary Halbert, The Boron Letters_ · `Halbert AIDA attention interest desire action Boron Letters`
+  - Classic Attention-Interest-Desire-Action persuasion sequence codified for direct mail/sales copy.
+- **Halbert's Rave Review Framework + Editorial Look (5x Readership)** _— Gary Halbert, The Boron Letters_ · `Halbert rave review framework editorial look 5x readership advertorial`
+  - Write copy as a journalist enthusiastically recommending the product; ads formatted as editorial get ~5x the readership of ads that look like ads.
+- **Halbert's Reading Aloud Technique** _— Gary Halbert, The Boron Letters_ · `Halbert reading aloud technique rewrite point Boron Letters`
+  - Read every word aloud after drafting; any stumble or broken rhythm marks a rewrite point — catches what silent reading misses.
+- **Hopkins: Headlines as Audience Selectors + Preemptive Claim + Specificity** _— Claude Hopkins, Scientific Advertising_ · `Hopkins headlines audience selectors preemptive claim specificity Scientific Advertising`
+  - Headlines select the audience (flag the right prospects); be FIRST to make common claims specific (Schlitz beer); specific numbers (52.7%) beat generalities.
+- **Ogilvy's Ten Headline Rules + 14 Readability Devices** _— David Ogilvy, Confessions of an Advertising Man_ · `Ogilvy ten headline rules 14 readability devices Confessions`
+  - Ten headline rules (specific numbers, promise a benefit, headline read 5x more than body) plus 14 readability/typography devices for body copy.
+- **Collier's Six Essentials of a Sales Letter** _— Robert Collier, The Robert Collier Letter Book_ · `Collier six essentials opening description motive proof snapper close`
+  - Every winning letter has: Opening, Description, Motive/Reason-Why, Proof/Guarantee, Snapper/Penalty, Close.
+- **Collier's The Mental Conversation + Six Prime Motives** _— Robert Collier, The Robert Collier Letter Book_ · `Collier mental conversation six prime motives love gain duty pride`
+  - Enter the conversation already in the reader's mind; six prime motives — Love, Gain, Duty, Pride, Self-indulgence, Self-preservation.
+- **Sugarman's Seeds of Curiosity / Slippery Slide** _— Joseph Sugarman, The Adweek Copywriting Handbook_ · `Sugarman seeds of curiosity slippery slide open loop paragraph end`
+  - Short open-loop phrases ('But there's more', 'So read on') planted at paragraph ends as 'grease' to keep the reader sliding down the page; first job of every line is to get the next line read.
+- **VSL Lead Structure (Hook, Video Promise, Disqualify, Qualifiers, Fascinations)** _— Knowledge base synthesis mapped to Caples/Schwartz/Bly/Sugarman_ · `VSL lead Hook Video Promise Disqualify Qualifiers Fascinations block structure trailer`
+  - Five-block VSL/sales lead written last as a 'trailer'; each block maps to a classic framework (Hook=Caples Shocker, Promise=Caples Preview, Disqualify=Schwartz Belief, Qualifiers=identity, Fascinations=Sugarman seeds).
+- **VSL Structure (8 Blocks, 3 Sales, Order of Writing)** _— Knowledge base synthesis (descends from Brunson sales scripts)_ · `VSL structure 8 blocks 3 sales marketing thesis order of writing`
+  - Eight-block VSL orbiting a Marketing Thesis, executing three sales (content/big idea, mechanism, offer); lead block written last.
+- **Brunson's Star, Story, Solution Script (44 Steps)** _— Russell Brunson, DotCom Secrets_ · `Brunson Star Story Solution Script 44 steps DotCom Secrets`
+  - Foundational VSL framework for SLO products: STAR (pattern interrupt, core-desire questions, big promise), STORY (high drama to epiphany), SOLUTION.
+- **Brunson's Epiphany Bridge Script (8 Sections)** _— Russell Brunson, Expert Secrets_ · `Brunson epiphany bridge script 8 sections backstory wall epiphany transformation`
+  - Story of the moment you discovered the truth — backstory, desires, the wall, epiphany, plan, conflict, achievement, transformation — to take the prospect on the same emotional journey.
+- **Brunson's False Belief Pattern System (Vehicle/Internal/External)** _— Russell Brunson, Expert Secrets_ · `Brunson false belief pattern vehicle internal external epiphany bridge`
+  - Change beliefs via Experience>Story>Belief; three false-belief categories — Vehicle ('won't work'), Internal ('I can't'), External ('world won't let me') — each broken by an Epiphany Bridge.
+- **Brunson's Attractive Character Framework (4 elements + 4 identities + 6 storylines)** _— Russell Brunson, DotCom Secrets_ · `Brunson attractive character backstory parable flaw polarity four identities six storylines`
+  - Persona bonding via Backstory/Parables/Flaws/Polarity; four identities (Leader, Adventurer, Reporter, Reluctant Hero); six ongoing storylines.
+- **Miller's SB7 (StoryBrand 7-Part) + Three Levels of Problems** _— Donald Miller, Building a StoryBrand_ · `Miller SB7 StoryBrand seven part external internal philosophical problem guide hero`
+  - Seven-part story framework (Character, Problem, Guide, Plan, Call to Action, Success, avoid Failure); problems exist on External/Internal/Philosophical levels — customers buy solutions to the internal problem.
+- **Made to Stick SUCCESs + Gap Theory of Curiosity** _— Chip & Dan Heath, Made to Stick_ · `Made to Stick SUCCESs gap theory curiosity flight simulator Sinatra test Heath`
+  - Six stickiness principles (Simple, Unexpected, Concrete, Credible, Emotional, Stories); curiosity gap = highlight what they don't know then withhold the answer; stories as flight simulators.
+- **PCPO (Problem, Cure, Proof, Offer)** _— Knowledge base / Copyhackers conversion copywriting_ · `PCPO problem cure proof offer body copy framework`
+  - Body-copy framework for sections: Problem, Cure, Proof, Offer — the natural expansion of the 'solution' stage of PAS; proof must be tied to the claim it proves.
+- **PASO + Desire-Obstacle-Solution + Expanded PAS** _— Knowledge base (Copyhackers / Launch Bible)_ · `PASO desire obstacle solution expanded PAS introducing why try buy framework`
+  - PASO (Problem-Agitation-Solution-Outcome) and the Desire-Obstacle-Solution alternative when PAS doesn't fit; expanded PAS = Problem-Agitation-Solution-Introducing-Why-Try-Buy for sales pages.
+- **AIDA in Funnels** _— Knowledge base (DTC overview, classic DR)_ · `AIDA framework in funnels attention interest desire action layered`
+  - Attention-Interest-Desire-Action mapped across the funnel; layered over the points your letter-writing exercise told you to make.
+- **RMBC System (Research, Mechanism, Brief, Copy)** _— Knowledge base (Stefan Georgi RMBC, named in KB)_ · `RMBC research mechanism brief copy system process Georgi`
+  - Central 2025 copy-creation system: Research (unified doc) > Mechanism (UMP/UMS evaluation) > Brief (Claude-assisted) > Copy; brief quality determines output quality, works for VSL/long/medium/short/PDP/advertorial.
+- **Unique Mechanism Theory (UMP + UMS)** _— Knowledge base (RMBC), Reeves USP lineage_ · `unique mechanism UMP UMS problem solution knowledge gap direct response`
+  - Two-part logical connection: Unique Mechanism behind the Problem (why past solutions failed) + behind the Solution (the missing crucial piece); core of sophisticated-market copy.
+- **Four U's (Unique, Useful, Urgent, Ultra-specific)** _— Attributed in KB to Caples' priority order (hook/headline application)_ · `Four U's unique useful urgent ultra-specific hook headline hierarchy`
+  - Headline/hook evaluation hierarchy ranking Unique (most important, must be present) > Useful > Urgent > Ultra-specific.
+- **100-Headline Exercise (Process)** _— Knowledge base (Master of Headlines / Copyhackers)_ · `100 headlines exercise process first 20 suck VOC immersion prereqs`
+  - Write 100+ headlines (first 20 always weak, even Schwartz/Ogilvy) taking increasing risks to surface 1 winner; 3 prereqs: know the product, immerse in VOC, only edit when no new ideas come.
+- **Headline Sweep (8-Part Laddering Edit)** _— Knowledge base (Copyhackers Seven Sweeps / Master of Headlines)_ · `headline sweep eight parts captures attention avoids confusion matches message button SEO`
+  - Eight-criterion laddering pass over a headline: captures attention, avoids confusion, matches message, keeps me reading, frictionless, fat-free, works with nearest button, works for SEO.
+- **Hero Sections (5 Types + 3 Questions)** _— Knowledge base / Donald Miller diagnostic_ · `hero sections five types selection three questions five seconds awareness`
+  - Five hero formats (video, image, text-only, slider, interactive) chosen by awareness level; hero must answer 3 questions in 5 seconds.
+- **Belief Stacking / Selling = Belief Transfer** _— Knowledge base (conversion copywriting)_ · `belief stacking conviction selling is transferring a belief copy`
+  - Selling is transferring a belief — identify which belief must be transferred (problem exists / solution works / yours is best) before writing any copy; stack beliefs to build conviction.
+- **Rule of One (One Reader, One Idea, One Offer)** _— Knowledge base (Copyhackers)_ · `Rule of One one reader one idea one offer one promise copy`
+  - Each piece of copy targets one reader, one big idea, one promise, one offer — the foundation under conversion copywriting and lead selection.
+- **Big Idea (Paradoxical Question, Gum Name, Conspiracy Story)** _— Knowledge base (VSL/marketing thesis lineage)_ · `Big Idea paradoxical question gum name conspiracy story marketing thesis`
+  - The single fresh angle that drives the content sale — built via paradoxical questions, named mechanisms ('gum names'), or conspiracy framing; connects to the Discovery Story.
+- **Storytelling in Copy (Background / Emotional / Discovery Stories + Story Spine)** _— Knowledge base (descends from Ken Adams Story Spine / hero's journey)_ · `storytelling copy background emotional discovery story spine once upon a time hero journey`
+  - Three copy story types (Background, Emotional, Discovery) matched to Guru vs Transformed-Avatar spokesperson; Story Spine ('Once upon a time... but one day... because of that... until finally') as the underlying structure.
+
+## Copy — Proof & Structure  ·  skill 06  ·  (56 frameworks)
+
+- **Hopkins' Specificity Principle (Reason-Why)** _— Claude Hopkins — Scientific Advertising_ · `Hopkins specificity principle reason-why platitudes generalities specific claims transformation`
+  - Specific numerical claims carry full weight; generalities carry zero ('more light' vs 'three and one-third times the light'). Every claim needs a reason-why.
+- **Hopkins' Preemptive Claim (Schlitz Beer)** _— Claude Hopkins — Scientific Advertising_ · `Hopkins preemptive claim Schlitz beer first to make common claims specific Road 3`
+  - In parity categories you don't need a unique claim, only be FIRST to make a common claim specific. Schlitz owned 'purity' by describing standard processes none had voiced.
+- **Hopkins' Salesman Test / Salesmanship in Print** _— Claude Hopkins — Scientific Advertising_ · `Hopkins salesman test salesmanship in print would a salesman say this face to face`
+  - 'Advertising is salesmanship.' Test every element: would a good salesman say this face-to-face? If removing it doesn't hurt selling power, cut it.
+- **Hopkins' Personality Injection** _— Claude Hopkins — Scientific Advertising_ · `Hopkins personality injection named individual spokesperson exclusive asset`
+  - Attach a real named person to a product; people prefer named individuals over faceless corporations. The name becomes an exclusive asset.
+- **Hopkins' Economy-of-Space Principle** _— Claude Hopkins — My Life in Advertising_ · `Hopkins economy of space mail-order ruthless elimination cut every word`
+  - Every element not directly selling is waste; cut every word not worth its cost, never repeat. Same ad in 2x space doubled cost-per-reply.
+- **Caples' Precision-Signals-Truth Insight (52.7%)** _— John Caples — Tested Advertising Methods_ · `Caples 52.7 percent specific odd numbers believed round numbers estimate precision`
+  - Specific odd numbers believed as measured fact; round numbers dismissed as estimates. '52.7%' believed, 'over 50%' guessed. $497 > $500.
+- **Caples' Three Classes of Headlines + Six First-Paragraph Formulas** _— John Caples — Tested Advertising Methods_ · `Caples three classes headlines self-interest news curiosity six first-paragraph formulas shocker preview`
+  - Self-interest > News > Curiosity (curiosity alone weakest). Six openings: interrupting idea, shocker, news lead, preview, quotation, story.
+- **Schwab's Ten Categories of Proof + Five Presentation Principles** _— Victor Schwab — How to Write a Good Advertisement_ · `Schwab ten categories of proof taxonomy five principles presenting proof testimonials`
+  - 10 proof types (reputation, founders, production, quality, delivery, results, demos, customer testimonials, expert testimonials, awards) + 5 presentation rules.
+- **Schwab's Subheadlines as Refueling Stations (8 Guidelines)** _— Victor Schwab — How to Write a Good Advertisement_ · `Schwab subheadlines refueling stations 8 guidelines mini-headlines scanners`
+  - Subheads get 3-10x body-copy readership; each must be independently compelling and advance the argument; the subhead sequence alone tells the story.
+- **Schwab's Five Fundamentals + Emotion-Reason Dual Engine** _— Victor Schwab — How to Write a Good Advertisement_ · `Schwab five fundamentals good advertising emotion reason dual engine flesh and bone`
+  - Five fundamentals: attention, advantage, prove it, convince, CTA. Emotion creates desire (flesh); reason supplies the excuse (bones); belief originates in emotion.
+- **Made to Stick — Three Wellsprings of Credibility** _— Chip & Dan Heath — Made to Stick_ · `Made to Stick three wellsprings credibility external internal audience-testable Heath`
+  - External (experts, anti-authorities), Internal (vivid details, human-scale stats), Audience-testable. Foundation of proof credibility.
+- **The Sinatra Test** _— Chip & Dan Heath — Made to Stick_ · `Sinatra Test one example so impressive establishes credibility case study`
+  - One example so impressive it makes everything else credible. One case study in the right context beats a hundred statistics.
+- **Human-Scale Principle (Statistics as Relationships)** _— Chip & Dan Heath — Made to Stick_ · `Made to Stick human-scale principle statistics as relationships Disneyland 99.9 percent`
+  - Never present raw statistics; contextualize at human scale. 'If Disneyland dropped to 99.9% quality, 38,000 visitors/year would have something go wrong.'
+- **Made to Stick — SUCCESs + Curse of Knowledge + Velcro Theory** _— Chip & Dan Heath — Made to Stick_ · `Made to Stick SUCCESs concrete credible curse of knowledge velcro memory`
+  - Sticky ideas are Simple, Unexpected, Concrete, Credible, Emotional, Stories. Enemy = Curse of Knowledge. Velcro Theory: more hooks = more memory adhesion.
+- **Bencivenga's 'Yeah, Sure' Principle** _— Gary Bencivenga — Bencivenga Bullets_ · `Bencivenga yeah sure principle proof must match claims promise outweighs proof doctors headache`
+  - Default response is 'Yeah, sure.' Make proof at least as strong as the claim; when proof exceeds claim, prospect defaults to 'Tell me more.'
+- **Bencivenga's Doctors Formula** _— Gary Bencivenga — Bencivenga Bullets_ · `Bencivenga doctors formula authority figure specific endorsement product benefit`
+  - [Authority Figure] + [Specific Endorsement] + [Product Benefit] = credibility that bypasses the 'Yeah, Sure' reflex.
+- **The 'Because' Trigger (Langer Xerox Experiment)** _— Gary Bencivenga / Ellen Langer_ · `Bencivenga because trigger Langer Xerox experiment automatic compliance reasons why`
+  - Any reason after 'because' lifts compliance 60% to 93-94%, even meaningless ones. Fill copy with 'becauses' followed by reasons.
+- **Bencivenga's Three Reason-Why Questions + Borden Formula** _— Gary Bencivenga — Bencivenga Bullets_ · `Bencivenga three reason-why questions Borden formula ho hum for instance so what`
+  - Answer: Why superior? Why believe you? Why act now? Borden 4-step opening: Ho Hum, Why Bring That Up?, For Instance, So What?
+- **Bencivenga's IF...THEN + I=B+C + Shake-Me-Awake Test** _— Gary Bencivenga — Bencivenga Bullets_ · `Bencivenga IF THEN construction I equals B plus C interest benefit curiosity shake me awake test`
+  - IF...THEN frames believable conditional proof. Interest = Benefit + Curiosity. Shake-Me-Awake-at-3AM: would a groggy person still find this headline compelling?
+- **Inoculation Theory (McGuire)** _— William McGuire (persuasion psychology)_ · `Inoculation theory McGuire weakened attack vaccination strengthen attitudes competitor argument`
+  - Pre-empt competitor attacks by presenting their argument in WEAKENED form, prompting the prospect's own defense, like a vaccine. The attack must be weak.
+- **Elaboration Likelihood Model (Central vs Peripheral)** _— Petty & Cacioppo (persuasion psychology)_ · `Elaboration Likelihood Model central peripheral route durable attitude change high involvement`
+  - Central route (facts, high-involvement) produces durable attitude change the prospect owns; peripheral route (images, humor) is fast but fragile.
+- **Length-Implies-Strength Heuristic** _— Gary Bencivenga (persuasion psychology)_ · `length implies strength heuristic volume persuasion cue 101 testimonials 22 reasons`
+  - Sheer volume of content is itself a persuasion cue. 101-testimonial brochures and '22 Reasons to Buy' trigger 'look how much is here, it must be true.'
+- **Sugarman's Slippery Slide** _— Joseph Sugarman — The Adweek Copywriting Handbook_ · `Sugarman slippery slide every element read the next sentence frictionless`
+  - Every element has ONE job: get the reader to read the next element. The whole ad is a frictionless slide from headline to order form.
+- **Sugarman's Seeds of Curiosity** _— Joseph Sugarman — The Adweek Copywriting Handbook_ · `Sugarman seeds of curiosity end of paragraph open loops but there's more grease slippery slide`
+  - Short paragraph-ending phrases creating micro open-loops: 'But there's more.' 'So read on.' The grease on the slippery slide.
+- **Sugarman's 15 Axioms of Copywriting** _— Joseph Sugarman — The Adweek Copywriting Handbook_ · `Sugarman 15 axioms copywriting first sentence buying environment sell the concept incubation`
+  - 15 rules incl: first sentence's only job is to get the second read; create the buying environment; get 'yes'; sell the concept not the product; incubation.
+- **Sugarman's Copy Sequence Flowchart** _— Joseph Sugarman — The Adweek Copywriting Handbook_ · `Sugarman copy sequence flowchart headline expansion reasons proof credibility value urgency`
+  - Ordered progression: headline interest, expand headline, reasons for action, proof, credibility, value, urgency, call to action.
+- **Sugarman's Satisfaction Conviction** _— Joseph Sugarman — The Adweek Copywriting Handbook_ · `Sugarman satisfaction conviction objection raising resolution before order form doubt friction`
+  - Reader must feel satisfied claims are TRUE before the order form. Raise and resolve objections proactively; every unresolved doubt is friction.
+- **Sugarman's Patterning Technique** _— Joseph Sugarman — The Adweek Copywriting Handbook_ · `Sugarman patterning technique model structure psychological flow swipe ethical boundary`
+  - Model (not copy) winning ads by internalizing structure and psychological progression, then recreate the effect with your own content.
+- **Kennedy's 28-Step Sales Letter System** _— Dan Kennedy — The Ultimate Sales Letter_ · `Kennedy 28-step sales letter system three phases preparation writing production damaging admission`
+  - 3-phase system (Prep 1-8, Writing 9-17, Production 18-28): get into customer/offer, damaging admission, beat price, draft 2-3x length, rewrite, answer objections, creative P.S.
+- **Kennedy's Double Readership Path** _— Dan Kennedy — The Ultimate Sales Letter_ · `Kennedy double readership path skimmers analytical readers fast path subheads P.S. bold`
+  - Long letters work for skimmers (headline, subheads, bold, bullets, captions, P.S.) AND analytical readers. A skimmer on the fast path must get the complete argument.
+- **Kennedy's Internal Repetition — 7-Times Method** _— Dan Kennedy — The Ultimate Sales Letter_ · `Kennedy internal repetition 7 times method six formats statement example story testimonial quote summary`
+  - Convey the core message 7 times in 6 formats: statement, example, story, testimonial, quote, numbered summary. Repetition + shock are the only ways humans accept new ideas.
+- **Kennedy's Damaging Admission** _— Dan Kennedy — The Ultimate Sales Letter_ · `Kennedy damaging admission list every reason not to respond admit flaws too good to be true`
+  - List every reason NOT to respond, then address each openly. Admitting flaws first builds trust and removes 'too good to be true.'
+- **Kennedy's 12 Graphic Devices + Pest-to-Guest** _— Dan Kennedy — The Ultimate Sales Letter_ · `Kennedy 12 graphic devices pest to guest transformation envelope subheads P.S.`
+  - 12 visual tools (margin notes, highlights, boxes, certificates, P.S., subheads, captions). Pest-to-Guest: envelope/opening turns intruder into welcome visitor.
+- **Schwartz's Gradualization / Architecture of Belief (6 Devices + Yes-Momentum)** _— Eugene Schwartz — Breakthrough Advertising_ · `Schwartz gradualization architecture of belief six devices believability bridge yes-momentum habit of agreement`
+  - Build belief step-by-step across the belief gap with no leaps. Six devices: Verification, Reinforcement, Interweaving, Sensitivity, Momentum, Mood. Yes-momentum is belief-stacking's origin.
+- **Schwartz's 38 Verbalization Techniques** _— Eugene Schwartz — Breakthrough Advertising_ · `Schwartz 38 verbalization techniques strengthen headline measure compare metaphorize paradox three functions`
+  - 38 techniques to turn a bare claim into a headline (measure, compare, metaphorize, sensitize, paradox, question form, before-after...). Three functions: strengthen, freshen, pull into body.
+- **Schwartz's Deadly Sincerity / Damaging Admission** _— Eugene Schwartz — Breakthrough Advertising_ · `Schwartz deadly sincerity point out product flaws believability frankness contrast`
+  - Point out product flaws to increase believability of positive claims. Startling frankness intensifies the positive by contrast.
+- **Schwartz's 'The Turn'** _— Eugene Schwartz — Breakthrough Advertising_ · `Schwartz the turn product introduction inevitable transition after lead story`
+  - The transition where the product is finally introduced after lead/story/belief-building. It must feel inevitable.
+- **Schwartz's Promise-Belief Variation (Ratcheting)** _— Eugene Schwartz — Breakthrough Advertising_ · `Schwartz promise belief variation alternate ratcheting effect conviction deepens`
+  - Alternate promise and belief-building so each promise is immediately followed by proof; conviction deepens each cycle.
+- **Bly's 15 Ways to Start + 8 Headline Types + Copy Length Grid** _— Robert Bly — The Copywriter's Handbook_ · `Bly 15 ways start sales letter 8 headline types copy length grid emotion involvement`
+  - 15 sales-letter openings, 8 headline types, and the Emotion x Involvement length grid deciding long vs short copy.
+- **Bly's Secondary Promise + False Logic + AIDCA** _— Robert Bly / Drayton Bird_ · `Bly secondary promise false logic AIDCA Bird conviction attention interest desire action`
+  - Secondary Promise catches readers who dismiss the big one. False Logic arranges truthful facts so readers draw favorable conclusions. AIDCA adds Conviction.
+- **Collier's Six Essentials + Mental Conversation** _— Robert Collier — The Robert Collier Letter Book_ · `Collier six essentials sales letter mental conversation enter conversation in customer's mind word pictures`
+  - Six elements: Opening, Description, Motive, Proof/Guarantee, Snapper, Close. Core law: 'enter the conversation already in the customer's mind.' Word-picture visualization.
+- **Seven Sweeps (Editing Ladder)** _— Copyhackers / Joanna Wiebe_ · `Seven Sweeps editing ladder clarity voice tone so what prove it specificity heightened emotion zero risk`
+  - Ladder through 7 sweeps, always returning to clarity: Clarity, Voice & Tone, So What, Prove It, Specificity, Heightened Emotion, Zero Risk. Clarity is always last.
+- **Crossheads (Teaser Structure)** _— Copyhackers / Joanna Wiebe_ · `crossheads teaser not summarize placeholder F-pattern frontload scanning H2 subheads`
+  - Crossheads must be as engaging as a headline, tease not summarize, never be placeholders ('FAQs'), be H2/centered/bold. Frontload for F-pattern scanning.
+- **Fascinations / Bullets as Teasers (Mega List)** _— Copyhackers / Joanna Wiebe + classic DR_ · `fascinations bullets teasers not tell-alls mega list curiosity loop checkmarks six versus nine`
+  - Bullets must be teasers not tell-alls, opening a curiosity loop. Checkmarks not dots, best bullet on top, 6 outperform 9 in hero; mega lists signal 'plenty more.'
+- **Headline Sweep** _— Copyhackers / Joanna Wiebe_ · `Copyhackers headline sweep captures attention avoids confusion matches message frictionless fat-free button SEO`
+  - Laddered checklist: captures attention, avoids confusion, matches message, keeps me reading, frictionless, fat-free, works with nearest button, works for SEO.
+- **Ogilvy's 14 Readability Devices + Facts Doctrine** _— David Ogilvy — Confessions of an Advertising Man_ · `Ogilvy 14 readability devices drop caps captions facts doctrine consumer is not a moron`
+  - 14 readability rules (short words, drop caps +13%, bold first paragraph, captions read 2x, subheads, serif body). Facts Doctrine: 'the consumer is not a moron'; factual superiority + preemption wins.
+- **Ogilvy's 'Positively Good' Strategy for Parity Products** _— David Ogilvy — Confessions of an Advertising Man_ · `Ogilvy positively good strategy parity products conviction sensory never claim superiority`
+  - For parity products don't claim superiority; describe the product as 'positively good' with such conviction and sensory detail the reader assumes superiority you never claimed.
+- **Cashvertising — Extreme Specificity + PVAs + VAKOG Mental Movies** _— Drew Eric Whitman — Cashvertising_ · `Cashvertising extreme specificity PVAs powerful visual adjectives VAKOG mental movies five senses`
+  - Extreme specificity anchors belief ('Saves $1,237 a year'); PVAs replace vague with sensory ('sizzling, fork-tender steak'); VAKOG triggers all 5 senses for a mental movie.
+- **Cashvertising — 12 Ways to Lure Readers Into Copy** _— Drew Eric Whitman — Cashvertising_ · `Cashvertising 12 ways lure readers into copy question authority skepticism story bandwagon short first sentence`
+  - 12 body-copy openers: continue thought, question, quote authority, free taste, challenge to prove, skepticism story, bandwagon, play reporter, get personal, dramatic story, super specs, very short first sentence.
+- **Halbert's Editorial Look / Invisible Selling (5x Readership)** _— Gary Halbert — The Boron Letters_ · `Halbert editorial look invisible selling 5x readership does not appear to sell advertorial`
+  - An ad that looks like editorial gets ~5x the readership. 'You can do a better selling job when at first it does not appear you are attempting to do a sales job.'
+- **Brunson's Big Domino + Three False Beliefs + Epiphany Bridge** _— Russell Brunson — Expert Secrets_ · `Brunson big domino three false beliefs vehicle internal external epiphany bridge story expert secrets`
+  - If the prospect accepts ONE belief (Big Domino) all objections become irrelevant. Break 3 false-belief categories (Vehicle, Internal, External) via Epiphany Bridge stories.
+- **Marketing Thesis (Inevitable Conclusion)** _— Aura methodology (built on Schwartz/Brunson)_ · `marketing thesis inevitable conclusion frustration cause function solution hope belief stacking`
+  - Logical ladder (Frustration, Cause, Function, Solution, Hope, Purchase) making the buy the only rational conclusion; each point is a stacked belief.
+- **Neck-Brace / Head-Nod Agreement Moments** _— Aura methodology (offer/sales-page)_ · `neck brace head nod agreement moments confirm struggle skepticism before the ask validate`
+  - Seed agreement throughout: confirm the prospect's struggle, why solving matters, and especially their rightful skepticism, 'you really get me' head-nods before the ask.
+- **Pain-to-Hope CTA Transition + CTA Style Matrix** _— Aura methodology (ecom masterclass)_ · `pain to hope CTA transition style matrix emotional trigger solution-aware avoidance call to value`
+  - At the CTA transition from pain to possibility; solution-aware audiences avoid pain-based CTAs. Match CTA tone to the emotional trigger the copy built.
+- **Kennedy's 'No' Button as Conversion Tool** _— Dan Kennedy — No BS Direct Marketing_ · `Kennedy no button conscious rejection restate forfeited benefit no thanks I don't want`
+  - A 'No' option restating the forfeited benefit ('No thanks, I don't want to save $500') forces conscious rejection, often reversing the decision.
+- **Reeves' USP + Burning Glass + Vampire Claims** _— Rosser Reeves — Reality in Advertising_ · `Reeves USP burning glass vampire claims mosaic structure single proposition unrelated claims`
+  - One dominant proposition; multiple claims allowed only if each supports the single USP (belief-stacking origin). Vampire claims/video are beautiful-but-unrelated elements that drain selling power.
+
+## Page / Landing / CRO  ·  skill 07a/07b  ·  (33 frameworks)
+
+- **Empathy-Trust-Offer (3 Pillars of Landing Pages)** _— Aura KB (synthesized direct-response method)_ · `landing pages that convert empathy trust offer three pillars`
+  - Every high-converting landing page rests on 3 pillars: Empathy (deep customer understanding), Trust (testimonials/guarantees/endorsements), Offer; diagnose the weakest pillar and conversion rises.
+- **NESP Framework (New, Easy, Safe, Big Promise)** _— Aura KB (offer-framing method)_ · `NESP framework new easy safe big promise offer landing page`
+  - Structure the offer presentation around 4 qualities: New (novelty/intrigue), Easy (effortless path), Safe (risk minimized), Big promise (significant outcome made achievable).
+- **4 Decision Making Modalities (Spontaneous, Competitive, Humanistic, Methodical)** _— Aura KB / Copyhackers method (Joanna Wiebe, derived from Eisenberg Persuasion Architecture)_ · `4 decision making modalities spontaneous competitive humanistic methodical web copy`
+  - Visitors process copy in 4 ways: Spontaneous (fast+emotional, ~25%), Competitive (fast+logical), Humanistic (slow+emotional, stories/faces), Methodical (slow+logical, details/data); short copy only serves Spontaneous, ignoring 75%.
+- **StoryBrand SB7 (7-Part Framework)** _— Building a StoryBrand — Donald Miller_ · `StoryBrand SB7 framework character problem guide plan action failure success Miller`
+  - 7-element narrative: (1) Character/customer as hero, (2) has a Problem, (3) meets a Guide, (4) who gives a Plan, (5) Calls to Action, (6) helps Avoid failure, (7) ends in Success; completed before any web copy.
+- **Grunt Test (5-Second Clarity Diagnostic)** _— Building a StoryBrand — Donald Miller_ · `StoryBrand grunt test 5 second clarity hero section three questions`
+  - A stranger glancing at your hero for 5 seconds must answer 3 questions: What do you offer? How will it make my life better? What do I do to buy it? Run before any persuasion/design refinement.
+- **StoryBrand BrandScript + One-Liner** _— Building a StoryBrand — Donald Miller_ · `StoryBrand BrandScript one-liner formula character problem plan success`
+  - BrandScript is a single-page brand narrative (the 7 SB7 elements) feeding all copy; the One-Liner [Character+Problem+Plan+Success] is the elevator pitch feeding the hero headline, about page, bios.
+- **StoryBrand 5 Website Essentials (Above-the-Fold)** _— Building a StoryBrand — Donald Miller_ · `StoryBrand five website essentials above the fold offer CTA images of success`
+  - Hero/above-fold must have: (1) an offer above the fold, (2) obvious direct + transitional CTAs, (3) images of success, (4) a revenue/transformation breakdown, (5) very few words.
+- **Long-Form Sales Page (15-Point Themeplate / Sales Page in a Day)** _— Aura KB (10x Sales Pages method)_ · `long-form sales page 15-point themeplate establish explore invite escape gap`
+  - 15-section themeplate (not template) across 4 workshops: establish the gap, explore the gap (install beliefs), invite out of the gap (product reveal), escape the gap (closes/urgency); fed by 3D Avatar, coach-mining, Launch Bible.
+- **Congruence Principle (Ad-to-Page Message Match / Scent)** _— Aura KB (RMBC funnel method) + Kennedy Consistency Rule_ · `congruence principle message match ad to landing page scent Kennedy consistency rule`
+  - Maintain a consistent feeling from ad click to landing page: article-style ad → advertorial (not hard-sell checkout); video ad → video page; breaking congruence breaks the spell. Ad headline should match page headline.
+- **Ad-Based CRO (Per-Winner Landing Pages)** _— Aura KB_ · `ad-based CRO congruent landing pages per winning ad angle mirror`
+  - Instead of one generic LP, build a specific LP per winning ad that mirrors that ad's angle, headline and imagery; ad-to-LP disconnect is one of the biggest conversion killers.
+- **10x Page Plan** _— Aura KB (Copyhackers / Joanna Wiebe, 10x Web Copy)_ · `10x page plan framework web pages sections hero proof bar switch close`
+  - Section-by-section page-mapping framework: organize VOC data into a fixed argument (hero → proof bar → agitation/how → switch → proof → close/offer) before writing; reused on every page because visitors rarely see >5 pages.
+- **PCPO (Problem, Cure, Proof, Offer) — Body Copy Framework** _— Aura KB (Copyhackers) — distinct from PCPO 'Prospect-Context-Problem-Outcome'_ · `PCPO problem cure proof offer body copy framework web page`
+  - Body-copy framework for each on-page section: state the Problem, give the Cure, attach Proof (testimonial tied to the exact claim), present the Offer; lives inside PAS (cure+proof+offer = the 'solution').
+- **Hero Sections (5 Types + Selection)** _— Aura KB (Copyhackers / Joanna Wiebe)_ · `hero sections 5 types value prop dreamstate problem segment campaign selection`
+  - 5 reusable hero types: Value Proposition, Problem/Before-State, Dreamstate, Segment-Specific, Campaign-Level; choose by data on what the prospect needs when they land (not a grab bag).
+- **CTAs / Calls to Value (Friction, Anxiety, Lizard-Brain)** _— Aura KB (Copyhackers / Joanna Wiebe)_ · `CTAs buttons friction anxiety calls to value lizard brain first person mirror headline`
+  - Buttons are the site of conversion; reduce friction (kill 'learn/start/submit'), neutralize post-click anxiety with click triggers, convert calls-to-action into calls-to-value up-funnel vs action at checkout. Mirror headline in button copy.
+- **Direct vs Transitional CTA** _— Building a StoryBrand — Donald Miller_ · `direct vs transitional CTA Miller buy now download guide stepping stone`
+  - Every page needs both a Direct CTA (asks for the sale: Buy Now) and a Transitional CTA (smaller commitment: Download/Watch/Take Quiz); direct catches ready buyers, transitional captures everyone else.
+- **Schwab 6 Urgency Tools + 4-Part Closing Formula** _— How to Write a Good Advertisement — Victor Schwab_ · `Schwab six urgency tools closing formula limited time quantity price increase`
+  - Six urgency drivers at the CTA: limited time, limited quantity, price increase, bonus removal, seasonal relevance, consequence of delay.
+- **Profit Optimization (Profit Per Visitor + 5 Levers)** _— Aura KB (IntelliGems-style CRO method)_ · `profit optimization profit per visitor pricing levers AOV revenue vanity profit sanity`
+  - Profit Per Visitor = Profit Per Order x Conversion Rate; optimize beyond CRO via 5 levers: base pricing, seasonal promos, flow-based promos, AOV builders, persona personalization. 'Revenue is vanity, profit is sanity'; 93% of brands found a better price on testing.
+- **AOV Builders (Bundles, GWP, Thresholds, Order Bump, Upsell)** _— Aura KB (funnel economics method)_ · `checkout optimization AOV order bump upsell gift with purchase bundle threshold money close`
+  - Raise average order value: bundle builders, free-shipping thresholds, volume discounts, gift-with-purchase, pack sizes, checkout order bump, AOV money close, better upsells; shipping/fulfillment semi-fixed so higher AOV captures more margin.
+- **Checkout / Cart Friction Reduction** _— Aura KB (Copyhackers checkout tests)_ · `checkout cart optimization coupon field abandonment first person button glowing box`
+  - Drive the eye to the primary CTA (glowing box), de-emphasize coupon/shipping fields (coupon fields raise abandonment), use first-person committed button copy ('I'm Ready to Check Out'), slightly larger button; ~20% paid lift.
+- **Wireframing & Validation of Web Copy** _— Aura KB (Copyhackers 10x Web Copy)_ · `wireframing validation web copy 5 second test trust test hero clarity`
+  - Turn the page plan into a wireframe (templated headline/crosshead/body widths, global nav + footer), then validate hero with a 5-second clarity test + trust test before design/build; don't validate undesigned lower sections.
+- **Advertorial / Editorial-Look Principle** _— Aura KB + Halbert (Boron Letters), Kennedy (3 permitted formats), Caples (Tested Advertising Methods)_ · `advertorial editorial look principle 5x readership Halbert Kennedy native ad`
+  - An ad designed to look like editorial content gets ~5x the readership of one that looks like an ad; advertorial activates information-processing mode instead of ad-resistance; pairs with native-ad congruence.
+- **Listicle Advertorials (2 Types)** _— Aura KB_ · `listicle advertorial product-focused education-focused types awareness bridge`
+  - Listicle is an advertorial variant ('7 things every woman with X should know') as an awareness bridge; Product-focused (benefits/objections disguised as editorial) vs Education-focused (root-cause teaching, product as logical conclusion); best for solution/product-aware (L3-L4).
+- **Funnel Structure Variations (Congruent Paths)** _— Aura KB (RMBC funnel method)_ · `funnel structure variations ad advertorial VSL product page checkout congruence`
+  - No single right funnel; common paths Ad→VSL→Checkout, Ad→Advertorial→VSL→Checkout, Ad→Advertorial→PDP→Checkout, Ad→PDP→Checkout (most common 8-fig eCom); short ads need longer pages, long video ads can go straight to PDP; cheap products = shorter funnels.
+- **Kennedy Funnel Architecture + 5 Holes in the Bucket** _— No B.S. Direct Marketing / Magnetic Marketing — Dan Kennedy_ · `Kennedy funnel architecture five holes in the bucket squeeze sales letter upsell`
+  - Headline(squeeze)→Full page(sales letter)→Upsell→Thank-you, each page one job/one CTA, no nav/escape routes; 5 revenue leaks: no follow-up, no ascension, no referral, no reactivation, no retention.
+- **Kennedy 8 Must-Haves for Direct Response Websites** _— No B.S. Direct Marketing — Dan Kennedy_ · `Kennedy 8 must-haves direct response website headline offer guarantee tracking follow-up`
+  - Benefit headline, compelling copy, strong offer with deadline, testimonials/social proof, guarantee, multiple response mechanisms, tracking on every element, follow-up for non-converters.
+- **M3 Protocol (Message, Math, Mechanics)** _— Aura KB (10x Funnels — Wiebe Marketing)_ · `M3 protocol message math mechanics funnel mechanics decided last`
+  - Funnel-build protocol: decide Message first (revelation/beliefs + message map), then Math (targets, KPIs, metrics), then Mechanics LAST (format: email/VSL/webinar/articles); format is the last decision, never the first.
+- **15 Factors of Funnel Structure** _— Aura KB (funnel diagnostic method)_ · `15 factors of funnel structure diagnostic social proof time for results`
+  - Detailed funnel-structure diagnostic (complements M3): factors like credibility need vs social-proof richness, time-to-visible-results/progress milestones, traffic temperature, offer simplicity — used to decide how much copy/proof a page needs.
+- **Six Integration Devices (Schwartz)** _— Breakthrough Advertising ch.14 — Eugene Schwartz_ · `Schwartz six integration devices verification reinforcement breakthrough advertising`
+  - Final touches that fuse copy into a cohesive whole, incl. Verification (stage proof at the moment reader demands it) and Reinforcement (combine two claims so 1+1=10); applied across sales pages.
+- **Double Readership Path (Skimmers + Analytical)** _— The Ultimate Sales Letter — Dan Kennedy_ · `Kennedy double readership path skimmers analytical readers subheads PS`
+  - Every page has skimmers (read headlines/subheads/bold/captions/PS) and analytical readers (every word); skimmers must get the full offer from headlines+subheads+bold alone — maps to the 4 modalities on web pages.
+- **Ogilvy 14 Readability Devices** _— Confessions of an Advertising Man — David Ogilvy_ · `Ogilvy 14 readability devices drop caps captions subheads reverse type`
+  - 14 layout rules to boost readership (drop caps +13%, bold opening paragraph, serif body, subheads every few paragraphs, captions = 2x readership, never reverse type, etc.).
+- **Specificity → Landing Page Conversion (Hopkins/Caples/Cashvertising/VAKOG)** _— Scientific Advertising (Hopkins), Tested Advertising Methods (Caples), Cashvertising (Whitman)_ · `specificity landing page conversion Hopkins Caples PVA VAKOG mental movies`
+  - Replace every page generality with a measurable claim (Hopkins), use precise odd numbers e.g. 52.7% (Caples), Powerful Visual Adjectives + VAKOG mental movies (Cashvertising), and ad↔page headline match (Kennedy).
+- **Iyengar Choice Overload (Narrow the Options)** _— Aura KB citing Sheena Iyengar (jam/chocolate studies)_ · `Iyengar choice overload narrow options jam study landing page categories`
+  - Narrowing visitor options helps the lizard brain decide; reducing category/CTA choices (e.g. TG Store men/women + cycling/running) drove ~96-104% more click-throughs to category pages.
+- **Rule of One (One Reader, One Offer, One Value Prop)** _— Aura KB; Sugarman (I-to-You) + Hopkins complete-story doctrine_ · `rule of one one reader one offer one value prop Sugarman I to you`
+  - Each page targets one reader, one big idea, one offer, one value prop; copy speaks I-to-you (personal), and for eCom ads = 1 avatar, 1 desire, 1 message.
+
+## Creatives / Hooks / Formats  ·  skill 08  ·  (43 frameworks)
+
+- **Hook Writing Framework — 3 Functions of a Hook** _— Aura KB (ad creative system)_ · `hook framework 3 functions ad video stop scroll create curiosity`
+  - Every effective hook must fulfill at least one of three jobs: stop the scroll (pattern interrupt), create curiosity (open a gap), or call out the avatar (self-identification) — the foundational lens for evaluating any hook.
+- **Gap Theory of Curiosity (curiosity gap for hooks)** _— Aura KB; rooted in Loewenstein / Made to Stick (Heath)_ · `gap theory of curiosity hooks counterintuitive open loop slippery slope`
+  - Open a gap between what the viewer knows and wants to know (Most people think X, but...), promise the answer, withhold it — the unresolved gap creates forward momentum down the script.
+- **The Big 4 Emotions (NEW/ONLY, EASY/ANYBODY, SAFE/PREDICTABLE, BIG/FAST)** _— Aura KB (video ad script system)_ · `Big 4 Emotions NEW ONLY EASY ANYBODY SAFE PREDICTABLE BIG FAST`
+  - Four emotional levers a scroll-stopping ad must communicate through subtext; hit 2-3 powerfully per section rather than forcing all four (which reads like a feature list).
+- **Two Hook Frameworks: 'This is X' (Biggest Thing Happening Now) vs 'This is Quirky' (Counter-Intuitive)** _— Aura KB (hook construction system)_ · `two hook frameworks this is X biggest thing happening quirky counter-intuitive 5 words`
+  - Choose ONE of two approaches per hook — lead with the biggest current thing OR a counter-intuitive/quirky twist; keep it ~5 words (3-7), max 2 mobile lines, scannable in under 1 second.
+- **Hook Patterns (This-is-X / Timeline+Outcome / Percentage+Promise / Identity Match)** _— Aura KB (Ad Angles note)_ · `hook patterns this is X timeline percentage identity match POV`
+  - Four proven direct-hook templates that communicate an angle: juxtaposition ('This is bread. This is breakfast'), timeline+result ('14+ Hours. No Swelling'), number+promise ('Boosts GLP-1 by 68%'), identity callout ('POV: You work night shift').
+- **Hopkins' Specificity Rule / 1-2 Second Rule** _— Claude Hopkins (Scientific Advertising / My Life in Advertising)_ · `Hopkins specificity rule 1-2 second rule vague vs specific claims`
+  - Vague claims are ignored, specific claims are believed ('Reduces cost 16%' > 'very effective'); the hook has 1-2 seconds to stop the scroll, and different hooks vary response 5-10X.
+- **Caples' Four U's Hierarchy (Unique, Useful, Urgent, Ultra-Specific)** _— John Caples (Tested Advertising Methods)_ · `Caples four U's hierarchy unique useful urgent ultra-specific headlines`
+  - Headline/hook priority order: UNIQUE must almost always be present (the scroll-stopper), then Useful, Urgent, Ultra-Specific; different U combinations produce 5-10X response differences.
+- **Caples' 32 Proven Response Methods** _— John Caples (Tested Advertising Methods)_ · `Caples 32 methods response checklist split-run keyed response`
+  - A diagnostic checklist of 32 split-tested response-boosting techniques; used to audit competitor ads (which are they using vs missing) to find response gaps.
+- **SUCCESs Principles applied to video ads (Made to Stick)** _— Chip & Dan Heath (Made to Stick)_ · `SUCCESs principles made to stick video ad simple unexpected concrete credible emotional stories`
+  - Simple, Unexpected, Concrete, Credible, Emotional, Stories — mapped to ad construction (one USP, hook violates expectations in 3s, specific numbers, proof in-ad, identity targeting, story templates).
+- **Slippery Slope Principle (open loops, pattern interrupts, end-with-intrigue)** _— Aura KB (video script system); Sugarman lineage_ · `slippery slope principle open loops pattern interrupt end with intrigue video script`
+  - Every sentence creates a curiosity gap that pulls to the next line so the viewer can't stop — built via end-with-intrigue, open loops, and pattern interrupts.
+- **4-Section Video Ad Structure (Hook / Bridge / Hold / CTA)** _— Aura KB (optimized video ad script system)_ · `video ad script 4 section structure hook bridge hold CTA timing 30-45 seconds`
+  - 30-45s script split into Hook (0-3s), Pain Intensification/Bridge (3-8s), Solution+Mechanism/Hold (8-35s, one Objection→Claim→Proof→Benefit cycle), Offer/CTA (35-45s).
+- **Hook+Bridge Isolation Testing (3 hooks, universal hold + CTA)** _— Aura KB (script testing system)_ · `testing hooks bridges universal hold CTA three scripts isolate variable`
+  - Test 3 distinct hook+bridge pairs that all funnel into ONE identical universal Hold and CTA, so performance differences isolate to the emotional entry point, not the mechanism/offer.
+- **Objection → Claim → Proof → Benefit cycle (the Hold)** _— Aura KB (hold-section system)_ · `objection claim proof benefit cycle hold section one cycle`
+  - The hold runs this 4-beat cycle exactly once cleanly (15-27s): surface the objection, make the claim, prove it, land the benefit — never multiple muddy cycles.
+- **Categorization = Death (Own a New Category / New Hope)** _— Aura KB (positioning-in-creative rule); Schwartz/Brunson lineage_ · `categorization death own a new category new hope never compare Ozempic Theragun`
+  - Never say what the product is 'like' or compare to an existing brand ('like Ozempic but natural', 'Theragun alternative') — categorization caps you at the incumbent's ceiling; create new hope via a new mechanism instead.
+- **Hormozi Callout System — 4 Verbal Callouts** _— Alex Hormozi ($100M Leads)_ · `Hormozi four verbal callout types labels yes-questions if-then ridiculous results`
+  - Four verbal attention-grabbers: Labels (local area + type of person), Yes-Questions, If-Then statements, Ridiculous Results — the four proven formats for direct hooks.
+- **Hormozi Callout System — 3 Nonverbal Callouts** _— Alex Hormozi ($100M Leads)_ · `Hormozi three nonverbal callout types contrast likeness scene visual`
+  - Three visual attention-grabbers: Contrast (color/movement/attractive people), Likeness (match spokesperson to avatar — 'quack like a duck'), The Scene (visually show the problem/context).
+- **Hormozi What-Who-When Angle Multiplication Matrix** _— Alex Hormozi ($100M Leads)_ · `Hormozi what who when angle multiplication matrix 8 value elements status perspectives timeline`
+  - Generate hundreds of angles: 8 Value Elements (Dream Outcome, Nightmare, Likelihood, Risk, Speed, Time Delay, Ease, Effort) × Who (status perspectives: spouse/kids/rivals/boss...) × When (past/present/future).
+- **Ad Definitions — Concept / Angle / Variation / Format** _— Aura KB (creative vocabulary base)_ · `ad definitions concept angle variation format 3-2-2 testing structure`
+  - The shared vocabulary: Concept = the big idea being tested (= a full 3-2-2); Angle = how you choose to sell (must always be defined); Variation = individual executions of the angle; Format = how the ad is delivered.
+- **Ad Angles Framework (extract actionable angles from sub-avatars)** _— Aura KB (Ad Angles note)_ · `Ad Angles how to create actionable angles from sub avatars desire behavior gap 3 hooks`
+  - Angles exist on a broad-to-specific spectrum; derive them from sub-avatars via desire → current behavior → identify the gap, then keep them ACTIONABLE; for each angle generate 3 hooks/headlines.
+- **3-2-2 Flexible Ad — Format + 5 Hard Rules** _— Aura KB (Disrupter Academy / Andromeda-era system)_ · `3-2-2 flexible ad hard rules same format awareness intent one question 12 combinations`
+  - 3 creatives + 2 primary texts + 2 headlines = 12 combos Meta treats as one post ID; hard rules: same format, same awareness level, same intent, meaningfully different headlines, primary texts attack the same problem — one question per 3-2-2.
+- **3 Testing Methods — Marksman / Sniper / Shotgun** _— Aura KB (creative testing system)_ · `Metodos de Teste 3 methods Marksman Sniper Shotgun direction depth image video`
+  - Marksman = multiple angles, one variation each, find DIRECTION fast (best for image ads); Sniper = one angle, many executions, go DEEP (best for video); Shotgun = unstructured volume (only for UGC seeding, kills hit rate otherwise in 2025).
+- **Marksman→Sniper→Marksman Cycle + 'Direction' as formal concept** _— Aura KB (testing-sequencing system)_ · `marksman sniper marksman cycle direction plateau next direction`
+  - Marksman finds direction (which angle gets spend/traction) → Sniper deepens the winning angle with new executions → back to Marksman when the angle plateaus to find the next direction.
+- **Hook-Specificity-for-Video Rule (specific hooks, generic universal hold)** _— Aura KB (video testing system)_ · `hook specificity rule video specific sub-avatar hooks generic universal hold POV`
+  - When testing video with Marksman, make hooks call out specific sub-avatars ('POV: night shift / light sleeper / insomnia') while the universal Hold demonstrates the core avatar's shared desire — lets one hold support multiple angle hooks.
+- **Creative Benchmarks — Hook Rate / Hold Rate / CTR** _— Aura KB (creative performance system)_ · `creative benchmarks hook rate 25 hold rate CTR 1 percent video hold through plays`
+  - Soft targets: Hook rate ~25% (3s video plays/impressions), Hold rate ~30% of hook rate / video hold = throughplays(15s)/impressions, CTR min ~1% — guides, not gospel (ROAS/CPA are truth).
+- **Funnel Creative Playbook — Olympic Rings Model** _— Aura KB (Disrupter Academy / Fraggle)_ · `Funnel Creative Playbook Olympic Rings model prospecting closing rings`
+  - Account = 5 overlapping rings (3 prospecting/top + 2 closing/bottom), not a linear staircase; most ads fail because they do the wrong job — top earns attention (doesn't sell), mid clarifies value, bottom converts trust.
+- **Video Archetypes by Funnel Position** _— Aura KB (4Pi creative diversity system)_ · `video archetypes by funnel position UGC talking head product demo VSL educational`
+  - UGC/Talking Head = top (problem-first, reach); Product Demo = mid (clarify how it works); Educational/VSL = bottom (high-intent conversion). Rule: more entertaining/problem-focused serves higher, more product/educational serves lower.
+- **Static/Image Archetypes by Funnel Position** _— Aura KB (4Pi creative diversity system)_ · `static image archetypes funnel position plain reminder direct response complexity rule`
+  - Plain product image = top; Reminder image (feature lists, before/after, '3 reasons why') = mid; Direct-response image (price tags, urgency banners, offers) = bottom. Universal rule: the more complex the image, the lower it serves.
+- **4Pi Creative Diversity Signature (Spend/Frequency/CPM/CPR per archetype)** _— Aura KB (Disrupter Academy)_ · `4Pi creative diversity signature spend frequency CPM cost per result funnel position`
+  - Each creative type produces a predictable 4Pi signature (e.g. TOF = high spend, freq ~1.0-1.1, low CPM, poor CPR) telling you where in the funnel it actually serves — diagnose role before building the next asset.
+- **Sprinters vs Marathoners (creative portfolio balance)** _— Aura KB (Funnel Creative Playbook)_ · `sprinters marathoners creative portfolio balance top mid bottom budget allocation`
+  - Bottom-funnel ads are sprinters (fast cash, narrow reach); top/mid are marathoners (feed tomorrow's buyers) — killing marathoners for low direct ROAS starves future sales; most budget goes to top.
+- **Congruency — The Multiplier (ad→page→offer continuity)** _— Aura KB (Funnel Creative Playbook)_ · `congruency multiplier ad landing page offer visual message emotional continuity`
+  - Match visual, message, emotional and system continuity from ad to landing page to offer; when congruency breaks, performance collapses — the hook's promise must echo on the page.
+- **Complete Ad Format Taxonomy (6 video + image formats)** _— Aura KB (Ad Formats e Roadmap Criativo)_ · `ad formats taxonomy voiceover b-roll subtitles slideshow UGC studio animation`
+  - Named video formats: Voiceover+B-roll (most scalable), Subtitles+B-roll (internal voice), Slideshow w/text, Authentic UGC/talking head, Professional studio (rarely converts), Animation — plus image formats; lets you brief editors on FORMAT not just 'video/image'.
+- **9-Part Creative Brief Template** _— Aura KB (ad production system)_ · `creative brief template 9 parts concept angle testing method format sizes safe zones`
+  - Concept/Swing, Angle(s), Testing Method, Format, The Brief (most important), Sizes (1080x1920 always + safe zones), Example Ads, Asset Folder, FB Copy + Headlines — the complete brief any ad needs.
+- **13+ Winning Static Ad Templates (named breakdowns)** _— Aura KB (Image Ads / Origins static breakdowns)_ · `13 winning static ad templates avatar callout nutella meme breakdown why it works`
+  - ~13 validated static templates each with a 'why this works' breakdown (e.g. Avatar Callout ad, 'This is bread. This is breakfast' Nutella template, meme static, whiteboard) — strategy/messaging matters more than the template.
+- **Whiteboard Ad Prompt (transcript → educational static)** _— Aura KB (community hack)_ · `whiteboard ad prompt transcript professor whiteboard diagrams educational static`
+  - Transform a winning video ad transcript into a 1:1 professor's-whiteboard image (diagrams, arrows, boxes, captions + CTA) — reads as educational content, not advertising, and ports a video concept into static format.
+- **Production Quantity Guidelines (18 creatives per cycle)** _— Aura KB (Building Creative with AI)_ · `production quantity guidelines 18 creatives 3 verticals 2 sets generate 10 select 6`
+  - Full 3-2-2 cycle math: 3 research verticals × 2 sets × 3 creatives = 18; generate ~10 images per concept, select best 6, use 3 per 3-2-2.
+- **Show Don't Tell / 'When you're telling, you aren't selling'** _— Aura KB (video script rule); Reeves/Hopkins lineage_ · `show don't tell behavioral change when telling aren't selling spoken language video`
+  - Demonstrate transformation through behavioral change on screen, not benefit lists; written-style claims ('facilitates metabolic function') lose to spoken behavioral language ('blocks the enzyme killing your appetite hormone').
+- **Reeves' Three Basics of Video Construction (USP-Demonstrate-USP)** _— Rosser Reeves (Reality in Advertising)_ · `Reeves three basics video construction USP demonstrate repeat reality in advertising`
+  - Open with the USP, demonstrate it visually, close by repeating the USP — one ad, one message, one proposition; the ancestor of hook-body-CTA.
+- **Brunson's Five Curiosity Hooks (reframe when angles saturate)** _— Russell Brunson (Expert Secrets)_ · `Brunson five curiosity hooks controversial bold prediction conspiracy reframe angles`
+  - Five reframing lenses (e.g. highly controversial 'the industry doesn't want you to know', bold prediction) for generating new curiosity-driven angles when existing angles burn out.
+- **New Opportunity vs Improvement Offer (in creative)** _— Russell Brunson (Expert Secrets)_ · `new opportunity vs improvement offer opportunity switch stack new way better way`
+  - A NEW opportunity outperforms an IMPROVEMENT ('a new way to X' > 'a better way to X'); Opportunity Switch (replace the vehicle) vs Opportunity Stack (add to it) shapes how the angle is framed.
+- **Storytelling as the Hardest-to-Replicate Angle (founder story)** _— Aura KB (Fraggle / Creative Strategy 102)_ · `storytelling hardest to replicate angle founder story defensible creative`
+  - Competitors can copy product, price, and format but not your story; founder stories are the most defensible creative angle.
+- **19-Point Ad Failure Diagnostic + Loser Review Template** _— Aura KB (Revisao de Ads Perdedores)_ · `19-point ad failure diagnostic loser review template metrics action plan`
+  - Structured metrics template (Spend, ROAS, CVR, AOV, Frequency, CTR, Hook, Hold, Avg Play Time, % of spend) + 19-point checklist to audit WHERE a losing ad failed and define an action plan.
+- **Social Proof Scaling System (volume tiers)** _— Aura KB (script social-proof system)_ · `social proof scaling system volume tiers white label percentage testimonial`
+  - Modular social proof by customer count: 10k+ use raw numbers, 1k-10k use 'thousands', 100-1k pivot to percentage ('94% would recommend'), 10-100 lead with testimonial content not numbers — never fabricate brand stats on white-label.
+- **Strategic Pacing (cut rhythm by section)** _— Aura KB (video editing/script system)_ · `strategic pacing rapid cuts hook bridge solution CTA video editing rhythm`
+  - Rapid cuts in Hook (0-3s), 2-3 problem cuts in Bridge (3-8s), slow during Solution (product/mechanism shots), direct urgency in CTA with clean product shot + guarantee badge.
+
+## Meta Ads Strategy  ·  skill 10  ·  (26 frameworks)
+
+- **Andromeda System (5 Core Principles)** _— Disrupter Academy methodology (internal; do not surface)_ · `Andromeda 5 principles one campaign method scaling Meta Ads`
+  - Post-Andromeda 'creative understanding engine' treats the whole account as ONE unified learning system; 5 principles: FB is a user-retention machine, broad+advanced matching beats interests/lookalikes, creative is the #1 lever, farmer mentality, simplification wins.
+- **Before vs After Andromeda Mental Model Shift** _— Disrupter Academy methodology (internal)_ · `Andromeda before after mental model creative defines targeting`
+  - Old vs new: isolated learning->unified; structure/segmentation->creative quality; volume/testing->clarity/coherence; audiences define targeting->creative defines targeting; more ads=chances->more ads=chaos; individual metrics->environmental impact.
+- **One Campaign Method (AndroMeta One Architecture)** _— Disrupter Academy methodology (internal)_ · `One Campaign Method AndroMeta One CBO control variable ad set structure`
+  - Consolidate the account into ONE CBO with Control (5-8 best post IDs) + Variable ad set(s); core question 'Can we spend more tomorrow?'; Foundation -> Evolution 1 (1 control + 1 variable) -> Evolution 2 (1 control + 2 variables); Accordion Principle.
+- **Scientific Method for Meta Ads (Control vs Variable)** _— Disrupter Academy methodology (internal)_ · `scientific method meta ads control variable environmental impact`
+  - Testing = a Control (proven post IDs, stability) + ONE Variable (single new 3-2-2, challenge); measured by ENVIRONMENTAL IMPACT on the whole campaign not isolated CPA; if you can't isolate the variable you're gambling; test in the scaling environment ('practice like you play').
+- **3-2-2 Flexible Ads (Format and Test Rules)** _— Disrupter Academy methodology (internal; replaced DCT)_ · `3-2-2 flexible ads format rules testing`
+  - 3 creatives + 2 primary texts + 2 headlines = 12 combinations Meta treats as ONE ad object/post ID; 5 hard rules (same format, same awareness, same intent, headlines meaningfully different, primary texts attack same problem); answers ONE question.
+- **3-2-2-2 Method (Landing Page Testing extension)** _— Disrupter Academy methodology (internal)_ · `3-2-2-2 landing page testing link clicks vs landing page views clickbait`
+  - Adds 2 landing pages -> 3x2x2x2 = 24 combinations; Meta finds best ad+LP congruence; Link Clicks vs Landing Page Views ratio is a clickbait detector (LP views should be 70%+ of link clicks).
+- **4Pi Analysis (Spend, Frequency, CPM, Cost per Result)** _— Disrupter Academy methodology (internal)_ · `4Pi analysis spend frequency CPM cost per result funnel position`
+  - Decoder reading 4 signals in order: Spend (machine's belief), daily Frequency (funnel stage: ~1.05 prospecting, ~1.5-1.9 retargeting), CPM (quality-of-experience score), Cost per Result (efficiency at assigned job).
+- **4Pi+2 Dashboard & Custom Metrics** _— Disrupter Academy methodology (internal)_ · `4Pi+2 custom metrics dashboard GPT account centers Ads Manager`
+  - Ads Manager preset: 4 core + custom metrics — Cost per 1,000 Account Centers (=CPM x Frequency, incrementality), GPT (=AOV-CPA), Lead Conversion Rate (Leads/Purchases), Profit Volume (Revenue-Spend); plus hook rate and video hold.
+- **Why New Ads Steal From Old Ads / Creative Hamster Wheel** _— Disrupter Academy methodology (internal)_ · `why new ads steal from old ads creative hamster wheel deprioritized`
+  - New ads always launch at the bottom of the funnel (warmest audience, fastest signal) so they steal BOF attention from existing winners -> old winners look 'fatigued' but were deprioritized -> advertiser launches more new ads -> endless destabilizing hamster wheel.
+- **Forest Analogy / Weakest Link Principle** _— Disrupter Academy methodology (internal)_ · `weakest link forest analogy pruning shears 5-8 winners`
+  - Account is an ecosystem (forest), not heroes/villains — grow a healthy forest not one perfect ad; also a chain that snaps at its weakest link, so replace the WEAKEST ad with pruning shears not a chainsaw (pause 1-2 worst every few days down to 5-8 strong ads).
+- **Lucky Wins vs Durable Wins** _— Disrupter Academy methodology (internal)_ · `lucky wins vs durable wins spend concentration promote to control`
+  - Lucky wins spike from temporary conditions (cheap traffic/novelty), low early CPA then rapid decay, only work at discovery scale; Durable wins HOLD — steady/rising spend concentration, campaign improves because of the ad, holds as budget scales -> only durable wins promote to control.
+- **Harvesting Post IDs from Flex Ads** _— Disrupter Academy methodology (internal; Jered Sodt)_ · `harvesting post IDs Business Manager inbox flexible ads timestamp Chrome`
+  - Don't pull post IDs early (interrupting learning is the #1 mistake); when winner is clear go to Business Manager INBOX, find dominant combination, click the timestamp to extract the post ID, promote to control; Meta shows only ONE iteration, use Chrome, leave the original 3-2-2 running after promotion.
+- **True Broad vs Advantage+ Broad** _— Disrupter Academy methodology (internal; Charlie)_ · `True Broad vs Advantage Plus broad targeting training wheels`
+  - True Broad = age+location only, highest upside (algorithm unconstrained); Advantage+ Broad = Meta's training wheels (faster results, lower ceiling); start ADV+ on new accounts then switch to True Broad as the pixel matures (esp. if ADV+ loses power while prospecting frequency stays <1.10).
+- **Profitable Scaling Margin (PSM) — Golden Ratio of Growth** _— Disrupter Academy methodology (internal)_ · `Profitable Scaling Margin PSM LTV CPA COGS replaces ROAS`
+  - PSM = LTV / (CPA + COGS); replaces ROAS/MER (vanity: ignores COGS/LTV, AOV uncontrollable, attribution untrustworthy); >1.0 profitable; thresholds 1.3+ aggressive, 1.1-1.3 steady 5%, 1.0-1.1 fix economics, <1.0 unprofitable; catalog filter 1.3+/40%+ repeat/<65 days to 2nd purchase.
+- **ROAS Target = Break-Even ROAS + 1 / Scaling Protocol** _— EasyA Media methodology (internal)_ · `ROAS target break-even plus one scaling protocol 48 72 hours 20 percent`
+  - Target ROAS = break-even ROAS + 1 (BE 1.6 -> target 2.6); Scaling Protocol = after 48-72h consistently above target KPI, bump every 24h: +20% standard, +50-100% when 50%+ above KPI; smaller budgets scale more aggressively; scale down ~20% when below break-even.
+- **Three Budget Scaling Methods (Farmer 5% / Aggressive 50% / Business-Led)** _— Disrupter Academy methodology (internal)_ · `budget scaling methods 5% farmer aggressive 50% business-led MRR`
+  - Farmer (5% Mon/Wed/Fri rule = ~2x/month compounding); Aggressive (50% jumps via Total Loss Investment concept, confidence traded for speed); Business-Led (budget = fixed % of MRR, not CPA-driven, for mature brands).
+- **Performance Gate Scaling (PGS)** _— Disrupter Academy methodology (internal)_ · `Performance Gate Scaling PGS automated rules total loss investment soft surfing`
+  - Automated-rule system replacing manual day-trading: 3 principles (trailing 7-day KPI, never scale past margin, campaign-based); +5% Mon/Wed/Fri when 7-day CPA<threshold; Never-Scale-Past-Margin + Total Loss Investment; advanced Sliding Scale + Soft Surfing (extra daily 5% when far below target).
+- **Minimum Daily Spend & Spend Redistribution Framework** _— How To Run Ads / EAM methodology (internal)_ · `minimum daily spend spend redistribution do not turn off top spender`
+  - Min daily spend = amount comfortable spending regardless of performance ($50-100/day for learning); before killing a top spender ask 'if spend redistributes, would other ads hold a better ROAS at higher spend?' — usually NO, so don't kill the top spender (only at e.g. 0.78x); raising budget drops an ad's ROAS 5-25%.
+- **Why Bad Ads Get Spend (CBO vs ABO / organic-algorithm analogy)** _— How To Run Ads / EAM methodology (internal)_ · `why bad ads get spend CBO vs ABO force spend organic algorithm cost caps`
+  - Meta optimizes for max conversion volume at lowest cost, so it spends on ads it predicts will win (like the organic algorithm pushing viral videos); if it won't spend on your new ad the ad is just bad; remove ego, don't force spend via ABO; CBO+minimum budgets = ABO control with CBO benefit; cost/bid caps waste time vs better ads.
+- **Creative Diversity by Funnel Position (4Pi Signatures)** _— Disrupter Academy methodology (internal)_ · `creative diversity funnel position 4Pi signature UGC VSL sprinters marathoners`
+  - Each creative type has a 4Pi signature mapping it to a funnel stage: UGC/talking-head=TOF (low freq/CPM, high spend, poor CPA), product demo=mid, VSL/educational=BOF (high freq/CPM, low spend, best CPA); 'the more complex the image / the more educational the video, the lower it serves'; sprinters (BOF) vs marathoners (TOF/mid).
+- **Creative Diversity as a Scaling Mechanism** _— Disrupter Academy methodology (internal)_ · `creative diversity scaling mechanism funnel imbalance add video add images`
+  - When budget increases break performance, 4Pi usually shows all ads in the SAME funnel stage; fix by restoring balance — add video to an image-heavy account, add images to a video-heavy account — NOT by spamming formats; diversity = variety of messages, not volume of ads.
+- **Three Reasons Scaling Breaks** _— Disrupter Academy methodology (internal)_ · `three reasons scaling breaks unit economics funnel imbalance cash constraints`
+  - When 'can I spend more tomorrow?' is no, one of 3 blockers: (1) bad unit economics/GPT too low (CPA too high or AOV too low), (2) funnel imbalance (4Pi shows all ads same position), (3) cash constraints (make each dollar work harder, raise 2nd-purchase rate).
+- **Hormozi Core Four / Three Phases / More-Better-New** _— Alex Hormozi — $100M Leads (citable)_ · `Hormozi Core Four three phases More Better New paid ads`
+  - Core Four lead sources (warm outreach, free content, cold outreach, paid ads — run all simultaneously); Three Phases of paid ads (Track Money -> Lose Money/buy data -> Print Money); More-Better-New sequential scaling (exhaust More and Better before New).
+- **CAPI & Pixel Data / Event Match Quality** _— Disrupter Academy methodology (internal; Meta-doc-based)_ · `CAPI pixel advanced matching event match quality email click ID below 5`
+  - Ads = a data feedback loop (garbage in, garbage out); highest-priority match params are Email and Click ID (1:1 identifiers); Event Match Quality below 5 is unusable by Meta; toggle ALL advanced matching params on; collecting more on-site emails is the highest-leverage technical optimization (recovers 40%+ tracked conversions).
+- **Hero Offer / First Scale vs Second Scale** _— Disrupter Academy methodology (internal)_ · `hero offer first scale vs second scale best customer journey LTV`
+  - Hero offer = product attracting best customers (repeat, full-price, refer); First Scale chases cheapest CPA (discount hunters), Second Scale optimizes for best customer journey (high LTV) — build creative testing around hero products (PSM 1.3+, 40%+ repeat, <65 days to 2nd purchase), not whatever has cheapest CPA.
+- **Lead Gen Universal Machine (Traffic->Lead->Qualification->Purchase)** _— Disrupter Academy methodology (internal; Hormozi-aligned)_ · `lead gen universal machine traffic lead qualification purchase weighted CPL capacity`
+  - Every funnel is Traffic->Lead->Qualification->Purchase (only labels change by model); lead gen fails from optimizing wrong metrics (cheapest CPL/volume) not the system; qualification is the real lever; conversion is the product; weighted CPL + capacity decide optimizing for volume vs value.
+
+## Scaling  ·  skill 12  ·  (28 frameworks)
+
+- **Performance Gate Scaling (PGS)** _— Disrupter Academy media-buying system (no book author named)_ · `Performance Gate Scaling PGS 3 principles trailing CPA automated rules`
+  - Automated rule system that scales Meta budgets based on trailing multi-day CPA vs a predefined target, replacing manual day-trading. Three principles: trailing multi-day KPI average, never scale past margin, campaign-based results.
+- **The Three PGS Principles** _— Disrupter Academy media-buying system_ · `The three PGS principles never scale past margin trailing multi-day KPI campaign-based`
+  - (1) Use a trailing multi-day KPI average (7d), never react to one day; (2) Never scale past margin (target $50, trailing $45, a 5% bump at zero added sales only moves blended CPA to ~$47.25); (3) Results are campaign-based, not ad-by-ad.
+- **Profitable Scaling Margin (PSM)** _— Disrupter Academy growth-marketing methodology (no book author)_ · `Profitable Scaling Margin PSM golden ratio LTV CPA COGS formula`
+  - PSM = LTV / (CPA + COGS). Replaces ROAS/MER as primary scaling compass because it accounts for COGS, repeat purchases, future cash flow and LTV. As long as LTV > CPA + COGS, growth is profitable (PSM > 1.0).
+- **PSM Scaling Thresholds** _— Disrupter Academy methodology_ · `PSM thresholds 1.3 aggressive 1.1 healthy breakeven zone scaling decision`
+  - PSM >1.3 = strong margin, aggressive scaling; 1.1-1.3 = healthy, steady 5% compounding; 1.0-1.1 = breakeven zone, fix LTV/COGS first; <1.0 = unprofitable, fix unit economics first.
+- **PSM Catalog Filter** _— Disrupter Academy methodology_ · `PSM catalog filter 1.3 40% repeat rate 65 days second purchase prioritize advertising`
+  - Filter a multi-product catalog to prioritize ad spend on: PSM 1.3+, 40%+ repeat rate, under 65 days to second purchase. Build creative testing around these, not cheapest-CPA products.
+- **Three Budget Scaling Methods** _— Disrupter Academy methodology_ · `Three budget scaling methods farmer 5% aggressive 50% business-led MRR`
+  - Farmer (5% Mon/Wed/Fri, doubles spend ~every 30 days); Aggressive (50% jumps when CPA far below target, gated by Total Loss Investment); Business-Led (budget set as fixed % of MRR, not CPA-driven, for mature brands).
+- **Total Loss Investment Concept** _— Disrupter Academy methodology_ · `total loss investment concept aggression ceiling zero additional revenue acceptable loss`
+  - Treat every budget increase as a controlled low-risk investment. Ask: how much more could I spend per day, even at zero additional revenue, and still be okay? That defines your aggression ceiling. More increase = less confidence.
+- **Sliding Scale Rules (PGS Advanced)** _— Disrupter Academy methodology_ · `sliding scale rules PGS different CPA targets spend levels 60 55 52 50`
+  - Different CPA targets at different spend levels: $0-400/day $60, $400-600 $55, $600-1000 $52, $1000+ $50, all increase 5%. Aggressive when spend is low, tight efficiency when high.
+- **Soft Surfing (PGS Advanced)** _— Disrupter Academy methodology_ · `soft surfing additional daily 5% increase CPA far below target accelerate growth`
+  - When CPA is far below target, add a daily 5% increase on top of the standard 5% Mon/Wed/Fri (target $50, standard fires at <$45, soft surfing adds daily 5% when CPA <$38). Still respects Total Loss Investment.
+- **Scale-Down Rules (PGS reverse)** _— Disrupter Academy methodology_ · `scale-down rules decrease budget 20% 7-day CPA exceeds target safety net`
+  - PGS in reverse: if 7-day CPA exceeds target, decrease budget by a defined % (typically 20%). Safety net. Meta can push/pull budget ~75% on any day regardless.
+- **Three Reasons Scale Breaks** _— Disrupter Academy / Andromeda methodology_ · `three reasons scale breaks unit economics funnel imbalance cash constraints can we spend more tomorrow`
+  - Scaling answers one question: can we spend more tomorrow? If no, only 3 reasons: bad unit economics (GPT = AOV-CPA too low), funnel imbalance (4Pi shows all ads same position), cash constraints (make each dollar work harder, lift second-purchase rate).
+- **Scaling Mindset Farmer vs Hunter (Andromeda)** _— Disrupter Academy / Andromeda methodology_ · `scaling mindset farmer vs hunter Andromeda think bigger clarity not volume`
+  - ROAS creates hunters (only as good as today's kill, 3-5 bad days = out of business); PSM creates farmers (compounding predictable revenue, weather volatility on rolling revenue). Post-Andromeda needs clarity/coherence, not volume/chaos.
+- **Fractional Banking** _— Disrupter Academy methodology_ · `fractional banking borrow against future revenue rolling repeat purchase cash flow scale negative CPA`
+  - Once rolling repeat-purchase revenue arrives, borrow against future revenue to invest more aggressively in acquisition today. PSM (not ROAS) enables this via future-cash-flow accounting. Model with a fractional CFO before going negative on CPA.
+- **More Better New Scaling Framework** _— Alex Hormozi_ · `More Better New scaling framework Hormozi sequence maximize before new method`
+  - Before adding a new acquisition method: More (do more of what works), Better (improve scripts/targeting/follow-up), New (only after maximizing More and Better). Most jump to New prematurely, abandoning winners.
+- **Reeves' Principle of Dispersion** _— Rosser Reeves (Reality in Advertising)_ · `Reeves principle of dispersion reach over frequency Reality in Advertising new audiences`
+  - Reach beats frequency, better to show one ad to 10 people than to 1 person 10 times. Diminishing returns set in fast; each new person has full response potential. When scaling, prioritize new audiences over saturating existing ones.
+- **Drayton Bird's Square Root Principle** _— Drayton Bird (Commonsense Direct and Digital Marketing)_ · `Drayton Bird square root principle smaller ads cost per response Commonsense Direct Marketing`
+  - A quarter-page ad pulls ~half the response of a full-page ad, so it's ~2x more cost-effective per response. Smaller media spaces can win on cost-per-acquisition. Direct-response media is judged by cost per response, not cost per thousand.
+- **Creative Diversity as a Scaling Mechanism** _— Disrupter Academy / Andromeda methodology_ · `creative diversity as a scaling mechanism funnel balance video image 4Pi same position`
+  - When budget increases break performance, 4Pi usually shows all ads in the same funnel position. Restore balance: add video (top-funnel) to image-heavy accounts where scale fails; add images (bottom-funnel) to video-heavy accounts where CPA climbs. Diversity = variety of messages, not volume of ads.
+- **ROAS Targets Vertical vs Horizontal (Add-One Rule)** _— Easy A Media (EAM) scaling SOP (no book author)_ · `ROAS target add one to break-even rule vertical horizontal scaling gross profit margin`
+  - Target ROAS = break-even ROAS + 1 (BE 1.6 -> target 2.6). Break-even ROAS derives from gross-profit margin. Can scale slightly below target if added spend nets more profit. PSM ultimately replaces ROAS because it incorporates LTV and COGS.
+- **EAM Scaling Protocol & Decision Tree** _— Easy A Media (EAM) scaling SOP_ · `scaling protocol 48-72 hours above target KPI scale every 24 hours decision tree new reason promo`
+  - Hitting target KPI? If yes -> in scaling protocol (48-72h above target = scale every 24h)? Or new reason (new winning ad/offer/LP)? Or limited-time promo (skip the wait)? Confirm 60%+ click-based, then bump 20% flat (50-100% when 50%+ above KPI). If no -> below break-even 24-48h? Scale down 20%.
+- **Levels of Scaling (Zero-to-50K to 100K/day)** _— Easy A Media (EAM) scaling SOP_ · `levels of scaling zero to 50k 100k per day one campaign CBO raw content ASC whitelisting segmented`
+  - Structure you must earn: L1 ($0-50K/day) one campaign (Meta consolidates everything); L2 ($3-10K/day) CBO + raw content; L3 ($10-50K+/day) CBO + raw content + ASC + whitelisting; L4 ($50-100K/day) segmented CBOs by collection/avatar. Promo structure alone can hit six figures/day.
+- **Scaling Click-Based Data Gate** _— Easy A Media (EAM) scaling SOP_ · `scaling click-based data gate 60% purchases view-through attribution 7-day click 1-day view`
+  - Before any scale-up verify 60%+ of purchases are click-based (7-day-click/1-day-view). If >60% view-through, performance may be phantom attribution, consider 7-day-click-only before scaling. Scaling on view-through-heavy data tanks the account.
+- **Spend Redistribution Framework (Don't Kill the Top Spender)** _— Disrupter Academy / Andromeda methodology_ · `spend redistribution framework do not turn off top spender ROAS drops higher budget`
+  - Before turning off a high-spend ad, ask: if spend redistributes to other ads, would they hold a better ROAS at higher spend? Bumping budget drops ROAS 5-25%, so the top spender (lower ROAS, most purchases) is usually your best scaling asset. Only kill it when ROAS is so low (~0.78x) redistribution clearly wins.
+- **Frequency as Prospecting-vs-Retargeting Proxy** _— Disrupter Academy / 4Pi methodology_ · `frequency prospecting vs retargeting proxy low 1.0 high 2.5 broad CBO scaling signal`
+  - In broad CBO campaigns frequency reveals prospecting vs disguised retargeting: low (1.0-1.5) = prospecting (reliable scaling signal); high (2.5+) = retargeting. High-ROAS + high-frequency = ROAS inflated by retargeting, don't scale on it. Killing a top prospecting ad starves retargeting and collapses performance within a week.
+- **Would It Hold at 3X Budget? (Mental Model)** _— Disrupter Academy / EAM methodology_ · `would it hold at 3X budget mental model low spend high ROAS statistically insignificant`
+  - When a low-spend ad shows very high ROAS, ask: if I put 3x budget on it, would it hold? Almost always no, a $50-spend 10X-ROAS ad is statistically insignificant, not a winner. Don't scale based on it.
+- **Hero Offer First Scale vs Second Scale** _— Disrupter Academy methodology_ · `hero offer first scale vs second scale cheapest CPA vs best customer journey repeat LTV`
+  - First Scale = cheapest CPA, attracts discount hunters/one-time buyers (builds nothing). Second Scale = best customer journey, high-LTV repeat buyers and advocates (builds the business). Identify via Customer Journey Insights + PSM filter (1.3+, 40%+ repeat, <65 days), then build all creative testing around it.
+- **Minimum Daily Spend & Creative Hamster Wheel** _— Disrupter Academy / Andromeda methodology_ · `minimum daily spend creative hamster wheel new ads steal bottom of funnel never turn off main campaign`
+  - Minimum daily spend = amount you'll spend regardless of performance ($50-100/day for algorithm data; budget 1-2+ months). The creative hamster wheel: post-Andromeda, every new ad launches bottom-funnel and steals warm-audience attention from winners, destabilizing the account. Never turn off main campaigns (kills accumulated learning).
+- **Margin vs Volume Two Paths** _— Disrupter Academy / EAM methodology_ · `margin vs volume two paths high-margin slow high-volume fast choose your game`
+  - High-margin makes more per sale but grows slowly; high-volume makes less per sale but grows fast. Neither is right, they build different machines. Choose your scaling game consciously because target ROAS, aggression and acceptable CPA all flow from it.
+- **Going Negative on CPA (LTV-Funded Acquisition)** _— Funnel-economics methodology (Agora cited as example; no book author)_ · `going negative on CPA LTV rebills Agora upfront capital dominate market acquire more customers`
+  - With strong rebills/LTV, willingly run negative gross profit on first purchase to acquire more customers and dominate (Agora went negative for months). Needs large upfront capital or predictable rebills, plus CFO-level modeling. Still optimize CPA down; CPA rises with scale and broader channels.
+
+## Retention / Email  ·  skill 13  ·  (26 frameworks)
+
+- **Kennedy's 4-Step Follow-Up Campaign (Re-state / Second Notice / Final Notice / Change Offer)** _— Dan Kennedy, No B.S. Direct Marketing_ · `Kennedy 4-step follow-up campaign re-state second notice final notice change offer No BS Direct Marketing`
+  - Four-step follow-up sequence modeled on collection agencies: 1) re-state the original offer, 2) Second Notice (remind of deadline), 3) Final Notice (last chance + urgency), 4) Change the Offer entirely if first three failed.
+- **Kennedy's Giorgio Letters Template (4-step magnetic sequence)** _— Dan Kennedy, Magnetic Marketing_ · `Giorgio Letters template Kennedy Magnetic Marketing 4-step sequence escalating urgency`
+  - 4-letter sequence: initial letter w/ strong offer, second referencing the first ('I wrote last week...'), third increasing urgency, fourth with changed offer/deadline — spaced 10-14 days.
+- **Kennedy's Collection Agency Model** _— Dan Kennedy, The Ultimate Sales Letter_ · `Kennedy collection agency model multi-step mailing format change urgency intervals`
+  - Multi-step mailing sequence where each piece increases urgency, format changes between steps (letter/postcard/priority mail), 10-14 day intervals — collection agencies get highest direct-mail response.
+- **Kennedy's Post-Purchase Reassurance Letter (post-purchase as profit center)** _— Dan Kennedy, The Ultimate Sales Letter_ · `Kennedy post-purchase reassurance letter buyer remorse profit center order confirmation`
+  - 5-part post-sale letter (congratulate smart decision, reinforce benefits, social proof, set expectations, open door to next offer) that counters buyer's remorse; treats post-purchase as a profit center, not a cost.
+- **Collier's Re-Sell After Shipment (Acknowledgment Letter)** _— Robert Collier, The Robert Collier Letter Book_ · `Collier re-sell after shipment acknowledgment letter reduce returns build anticipation testimonial`
+  - Order-confirmation/acknowledgment letter re-sells the product (thank, re-sell the why, build delivery anticipation, add a testimonial, offer complementary product) to cut returns and cancellations.
+- **Collier's Ruffle-Smooth-Ruffle (Alternating Collection Series)** _— Robert Collier, The Robert Collier Letter Book_ · `Collier ruffle smooth ruffle alternating emotional tone collection series habituation`
+  - Most effective multi-step sequences alternate emotional tone — ruffle (urgency/alarm), smooth (reassurance), ruffle, smooth — so urgency stays fresh and never habituates.
+- **Expert Secrets' Email Epiphany Funnels (3 false-belief breaks)** _— Russell Brunson, Expert Secrets_ · `Expert Secrets email epiphany funnels vehicle internal external false belief epiphany bridge`
+  - Pre-cart sequence sending Epiphany Bridge stories that each break one false belief: Vehicle (why the approach works), Internal (why THEY can succeed), External (why circumstances won't stop them).
+- **DotCom Secrets' Soap Opera Sequence (5-email bonding)** _— Russell Brunson, DotCom Secrets_ · `DotCom Secrets soap opera sequence 5 email set the stage high drama epiphany hidden benefits urgency`
+  - 5-email autoresponder bonding new subscribers via open loops: Set the Stage, High Drama/Backstory, Epiphany/Turn, Hidden Benefits, Urgency/CTA — every email ends on a loop pulling to the next.
+- **DotCom Secrets' Seinfeld Email Strategy (+6 Attractive Character storylines)** _— Russell Brunson, DotCom Secrets_ · `DotCom Secrets Seinfeld email strategy daily broadcast attractive character 6 storylines`
+  - After the soap opera sequence, daily broadcast emails 90% entertainment/10% content always tied to an offer; uses 6 AC storylines: Loss & Redemption, Us vs Them, Before & After, Amazing Discovery, Secret Telling, Third-Person Testimonial.
+- **StoryBrand Email Formulas (Nurturing + Sales) & 3:1 Cadence** _— Donald Miller, Building a StoryBrand_ · `StoryBrand nurturing email formula sales email formula 3 to 1 cadence Miller`
+  - Nurturing email (problem → plan → after-state → P.S. CTA) vs Sales email (problem → product as solution → result → direct CTA), sent at a 3:1 value-to-sales ratio.
+- **Hormozi's 9-Word Email** _— Alex Hormozi, $100M Leads_ · `Hormozi 9-word email are you still interested reactivation dormant leads $100M Leads`
+  - Reactivation email of exactly 9 words: 'Are you still interested in [getting desired result]?' — personal-looking, demands a reply, creates a micro-commitment; best for dormant leads/cart abandoners.
+- **Drayton Bird's Email = Direct Mail Principle** _— Drayton Bird, Commonsense Direct and Digital Marketing_ · `Drayton Bird email direct mail principle long copy real person subject line headline`
+  - Email obeys the same rules as direct mail: long copy can beat short, emails should come from a real person (not a brand), subject lines are headlines — medium changed, psychology didn't.
+- **The Rule of 1 (one goal / one job per element / one reader)** _— Joanna Wiebe (Copyhackers)_ · `Rule of 1 email one goal one job per element one reader write CTA first`
+  - Every email has exactly 1 goal, every element has 1 job, and it's written to 1 person; start by writing the CTA that connects to the single goal.
+- **3-to-1 Value-to-Sales Rule** _— Joanna Wiebe (Copyhackers)_ · `3 to 1 rule value emails sales email balance newsletter cadence`
+  - For every 3 value-creating emails you send, allow yourself 1 sales email — balances free/paid content and tips the scale toward goodwill.
+- **Fibonacci Drip-Cadence Sequence** _— Joanna Wiebe (Copyhackers)_ · `Fibonacci sequence drip campaign email cadence day 0 1 2 3 5 8 spacing Copyhackers`
+  - Space drip emails on the Fibonacci sequence (Day 0,1,1,2,3,5,8,13...) — frequent early to train opens, then tapering so you keep ties without overwhelming.
+- **Day Zero Triggered-Email Method (behavior-triggered mini-funnels)** _— Joanna Wiebe / Copyhackers (Copy School method)_ · `Day Zero behavior-triggered email mini-funnel outperforms time-based drip cap day 4 Copy School`
+  - Replace long time-based drips with many behavior-triggered 'Day Zero' standalone emails (Day 0 outperforms because it's tied to a just-taken action), each spun into a mini-funnel with a few time-triggered follow-ups capped ~Day 4.
+- **5-Step Welcome Sequence Process (welcome = lead-nurturing, not 'welcome')** _— Joanna Wiebe / Copyhackers (welcome-sequence framework)_ · `welcome sequence lead nurturing 5 step process VOC research plan automate not a template`
+  - Welcome sequences are lead-nurturing sequences that support sales (direct or indirect); built via a 5-step framework: VOC research → analyze → plan strategic sequence → write → automate/test — a framework, not a template.
+- **From-Name as Inbox Filter** _— Joanna Wiebe (Copyhackers)_ · `From name inbox filter mobile Gmail gatekeeper real person test from line deliverability`
+  - On mobile Gmail the From name is the largest, top element — it's the real gatekeeper; use a recognizable real person, no symbols, not too formal, and test combos (e.g. 'Joanna, HubSpot'); different email types need different From names.
+- **Engagement Suppression / Sunset & Double-Opt-In Re-engagement** _— Joanna Wiebe / Copyhackers (list-hygiene automation pattern)_ · `engagement suppression sunset re-engagement double opt-in unsubscribe non-engaged deliverability 30 day`
+  - Auto-suppress/unsubscribe non-engagers (e.g. wait 7 days for confirmation click, else remove) and run a separate re-engagement sequence before culling — protects deliverability and respects 30-day-engagement laws.
+- **30-60-90 Day LTV Email+SMS Flow Hacks (3-layer system)** _— Aura methodology (retention/email-SMS-flows)_ · `30-60-90 day LTV email SMS flow hacks second purchase window zero-party data force multiplier`
+  - Three layers — LTV as the goal, email+SMS as the weapons (email = conversation, SMS = nudge), zero-party data as the irreplaceable fuel — architected around the second-purchase window across day buckets 1-7 / 7-14 / 14-30 / 30-60 / 60-90.
+- **Zero-Party Data Moat** _— Aura methodology (retention)_ · `zero-party data moat post-purchase survey onboarding quiz preference center unreplicable personalization`
+  - Voluntarily-shared customer data (post-purchase surveys, onboarding quizzes, preference centers, checkout questions) personalizes flows competitors literally cannot replicate — the moat is the data, not the tech.
+- **Email/SMS Coordination Rule (echo, don't collide)** _— Aura methodology (retention/SMS)_ · `email SMS coordination echo not collide send email first SMS follow up non-openers staggered cadence`
+  - Never send email and SMS simultaneously about the same thing — send email first with the full story, follow 4-24h later with SMS to non-openers; SMS for time-sensitive actions, email for education/story.
+- **Abandoned-Cart Decay Curve + Two Sequence Styles (Discount vs Emotion)** _— Aura methodology (built on Baymard Institute data + classic frameworks)_ · `abandoned cart decay curve Baymard 69.8% discount-focused emotion-focused sequence escalating discount day 0 6 hours`
+  - Recovery is time-critical (steep decay, ~69.8% Baymard abandon rate); two playbooks — Discount-focused (escalating 20-30%+ discount Day0→final) vs Emotion-focused (delay discount to Day 3); hit hard early (Day 0 + 6h), taper, escalate near the cliff.
+- **5 Reasons People Abandon (objection map)** _— Aura methodology (abandon-cart psychology)_ · `five reasons people abandon cart price urgency negative experience incomplete information skepticism objection map`
+  - Abandonment (and non-purchase generally) traces to 5 causes — price/cost, lack of urgency (air-conditioner effect), negative past experiences, incomplete information, lack of trust/skepticism — each maps to an email in the sequence (e.g. Day 2 FAQ resolves incomplete info).
+- **Restock / Testimonial / Anniversary Coupon Welcome-Series Beats** _— Aura methodology (ecommerce welcome/retention)_ · `ecommerce welcome series restock coupon testimonial week 5 anniversary coupon weekly post-purchase beats`
+  - Post-purchase ecommerce welcome series moves to weekly after heavy early sends, layering recurring beats: restock coupon, testimonial request (~week 5), 'missed promo' apology coupon, anniversary/keep-using reminder coupon (~week 8).
+- **Seasonal Abandoned-Cart SMS Update Checklist** _— Aura methodology (SMS/seasonal)_ · `seasonal abandoned cart SMS update checklist offer details campaign close time urgency scarcity no rain check`
+  - To convert an evergreen abandoned-cart SMS for a seasonal sale: 1) swap in optimized seasonal offer details, 2) add campaign details (sale name + exact close time), 3) layer urgency (loss aversion, 'no rain check'), 4) layer real scarcity only if it exists.
+
+## Persuasion / Psychology  ·  skill 06·08·10·13  ·  (49 frameworks)
+
+- **Cialdini's Six Weapons of Influence** _— Robert Cialdini — Influence: The Psychology of Persuasion_ · `Cialdini six weapons of influence reciprocity commitment social proof authority liking scarcity`
+  - Six automatic 'click-whirr' compliance triggers: Reciprocation, Commitment/Consistency, Social Proof, Liking (5 factors), Authority (titles/clothes/trappings), Scarcity (loss aversion + reactance).
+- **Cialdini's 13 Compliance Techniques** _— Robert Cialdini — Influence_ · `Cialdini 13 compliance techniques rejection-then-retreat foot-in-the-door lowball deadline tactic`
+  - 13 named tactics: rejection-then-retreat, foot-in-the-door, lowball, limited-number, deadline, benefactor-before-beggar, BUG device, good cop/bad cop, talking the top of the line, argue against own interest, etc.
+- **The Unity Principle (7th Weapon)** _— Robert Cialdini — Pre-Suasion / Influence (expanded edition)_ · `Cialdini Unity principle seventh weapon being together acting together asking advice merger mindset`
+  - Shared identity ('one of us' not merely 'like us') via Being Together (kinship/family language, 97% compliance) and Acting Together (synchrony, asking advice not opinion).
+- **Pre-Suasion Model (Attractors & Magnetizers)** _— Robert Cialdini — Pre-Suasion_ · `Pre-Suasion privileged moments attractors magnetizers Zeigarnik unfinished self-referential focus causality`
+  - Channel what is focal BEFORE the message: Attractors seize attention (sexual, threatening, novel); Magnetizers hold it (self-referential 'you', the Unfinished/Zeigarnik, the Mysterious). Focus = importance = causality.
+- **If/When-Then Plans** _— Robert Cialdini — Pre-Suasion_ · `If-When-Then plans implementation intentions Pre-Suasion Cialdini commitment activation`
+  - Implementation intentions that pre-load a behavioral trigger ('When X happens, then I will do Y'), dramatically lifting follow-through (e.g. appointment no-show reduction).
+- **Fluency Effect** _— Robert Cialdini — Pre-Suasion (also Whitman/Cashvertising)_ · `fluency effect cognitive ease rhyme as reason easy to process trust persuasion`
+  - Easy-to-process messages are automatically trusted, liked and valued more — easier names, readable fonts, rhymes all raise compliance. Clarity is a persuasion tool, not just readability.
+- **Reciprocity Optimization Triad** _— Robert Cialdini — Pre-Suasion_ · `reciprocity optimization triad significant unexpected personalized gift waiter mints Pre-Suasion`
+  - Reciprocity maximizes when the gift is Significant + Unexpected + Personalized (waiter-mints study, +23% tips). All three required.
+- **Contrast Principle** _— Robert Cialdini — Influence_ · `contrast principle Cialdini sequential presentation exaggerated difference price anchoring`
+  - Two items presented in sequence exaggerate their difference (show rundown house first, expensive suit before accessories) — amplifies every other weapon, esp. price anchoring.
+- **CLARCCS Framework** _— Drew Eric Whitman — Cashvertising_ · `Cashvertising CLARCCS comparison liking authority reciprocation commitment scarcity Whitman`
+  - Ad-specific adaptation of Cialdini for the peripheral route, low-involvement buys: Comparison, Liking, Authority, Reciprocation, Commitment, Scarcity.
+- **Cashvertising Life-Force 8 (LF8)** _— Drew Eric Whitman — Cashvertising_ · `Cashvertising Life-Force 8 LF8 eight biological desires survival social approval superiority Whitman`
+  - Eight biologically hardwired desires driving more sales than all others combined (survival, food/drink, freedom from fear/pain, sex, comfort, superiority/winning, protection of loved ones, social approval).
+- **Cashvertising 9 Learned Wants + Desire Formula** _— Drew Eric Whitman — Cashvertising_ · `Cashvertising nine learned secondary wants desire formula tension desire action means-end chain Whitman`
+  - Nine secondary (learned) wants layered atop LF8 (info, curiosity, cleanliness, efficiency, convenience, quality, beauty, economy, bargains) + Tension→Desire→Action mechanism; Means-End Chain ('benefit of the benefit').
+- **Four-Step Fear Appeal** _— Pratkanis & Aronson — Age of Propaganda_ · `four-step fear appeal Pratkanis Aronson scare recommend prove effectiveness accessibility Listerine`
+  - Fear appeals only work with all four: Scare (vivid threat) + Recommend (specific action) + Prove effectiveness + Prove accessibility (ordinary people can do it). Listerine/halitosis case.
+- **Inoculation Theory** _— William McGuire (cited via Pratkanis & Aronson / Age of Propaganda)_ · `inoculation theory McGuire weakened attack pre-emptive defense competitor argument resistance`
+  - Pre-emptive defense: warn of competitor attack, present competitor argument in WEAKENED form, prompt prospect's own rebuttal — builds lasting resistance like a vaccine. Attack must be weak.
+- **Elaboration Likelihood Model (Central vs Peripheral)** _— Petty & Cacioppo (cited via Pratkanis & Aronson)_ · `Elaboration Likelihood Model central peripheral route Petty Cacioppo high low involvement durable attitude`
+  - Two routes to persuasion: Central (facts/evidence, durable attitude as 'brainchild', high-involvement) vs Peripheral (images/humor/celebrity, fast but fragile, low-involvement).
+- **Length-Implies-Strength Heuristic** _— Pratkanis & Aronson — Age of Propaganda_ · `length implies strength heuristic volume of content persuasion cue numbered reasons testimonials`
+  - Sheer volume of content is itself a persuasion cue ('22 reasons to buy', 101-testimonial brochures) — more material reads as more true.
+- **Bandwagon Effect (3 Group Types)** _— Drew Eric Whitman / Pratkanis & Aronson_ · `bandwagon effect aspirational associative dissociative groups social pressure conformity`
+  - Conformity pressure via aspirational groups (want to join), associative groups (already belong), dissociative groups (want to avoid).
+- **Ego Morphing / Vanity Appeal** _— Pratkanis & Aronson — Age of Propaganda_ · `ego morphing vanity appeal identification consumers products reflect identity who they want to be`
+  - Consumers attracted to products reflecting who they are/want to be; identification (men drawn to images of men, women of women) not attraction.
+- **Decoy Effect (Asymmetric Dominance)** _— Dan Ariely — Predictably Irrational (Huber & Puto; Simonson & Tversky)_ · `decoy effect asymmetric dominance Economist Ariely pricing tiers print-only combo`
+  - An inferior third option shifts choice toward the option that dominates it (Economist: print-only decoy drove combo from 32% to 84%). The option nobody buys can be most profitable.
+- **Social Norms vs Market Norms** _— Dan Ariely — Predictably Irrational (Clark & Mills)_ · `social norms vs market norms Ariely incompatible Israeli daycare fine AARP lawyers gift pricing`
+  - Social (warm/reciprocal) and market (transactional) norms are incompatible; introducing money into a social exchange destroys it near-irreversibly (Israeli daycare fine, AARP lawyers).
+- **Hot-Cold Empathy Gap** _— Ariely & Loewenstein — Predictably Irrational_ · `hot-cold empathy gap Ariely Loewenstein emotional states 72 420 percent underestimation sell in hot state`
+  - People underestimate by 72-420% how differently they act in emotional 'hot' vs rational 'cold' states; sell during hot states (post-pain, live events, scarcity-triggered).
+- **Endowment Effect / Virtual Ownership** _— Thaler; Kahneman/Knetsch/Thaler — via Ariely (Duke basketball ticket study)_ · `endowment effect virtual ownership Duke basketball tickets free trial future pacing imagine yourself`
+  - People value what they own ~2x more; create endowment pre-purchase via free trials, future-pacing, 'imagine yourself' copy, liberal returns.
+- **Door-Closing Aversion** _— Shin & Ariely (2004) — Predictably Irrational_ · `door-closing aversion loss of options Shin Ariely expires midnight only 3 spots disappearing bonus`
+  - People irrationally resist losing options even when worthless; 'offer expires midnight', 'only 3 spots', disappearing bonuses all exploit fear of a door closing.
+- **Zero Price Effect (FREE)** _— Shampanier, Mazar & Ariely — Predictably Irrational_ · `zero price effect FREE Ariely Lindt Hershey free shipping Amazon France one franc qualitative`
+  - Dropping price to zero produces a qualitative jump in perceived value (Lindt vs Hershey's at 1c→FREE; Amazon France 1-franc vs free shipping). 'Free' ≠ 'almost free'.
+- **Precommitment Mechanisms** _— Ariely (Predictably Irrational); Thaler & Sunstein_ · `precommitment mechanisms Ariely Thaler Sunstein opt-in deposit annual subscription reduce churn`
+  - Binding to a course before temptation improves follow-through; early opt-ins/deposits/calendared calls and prepaid annual plans reduce churn and raise purchase likelihood.
+- **Anchoring & Adjustment** _— Tversky & Kahneman (1974) — via Priceless (Poundstone) & Ariely_ · `anchoring adjustment Tversky Kahneman SSN auction real estate listing reference price Poundstone`
+  - Estimates cling to an available number, even irrelevant ones (SSN auction, real-estate listing study); set a high anchor first and own the reference price.
+- **Coherent Arbitrariness** _— Ariely, Loewenstein & Prelec (2003) — Predictably Irrational / Priceless_ · `coherent arbitrariness Ariely Starbucks first imprint absolute price arbitrary relative stable`
+  - Relative price ratios are stable but absolute levels are arbitrary, set by the first anchor (Starbucks broke the coffee anchor to charge 4x).
+- **Prospect Theory (Reference Dependence + Loss Aversion)** _— Kahneman & Tversky (1979) — via Priceless (Poundstone)_ · `prospect theory reference dependence loss aversion fourfold pattern Kahneman Tversky framing gain loss`
+  - Outcomes judged as gains/losses vs a reference point; losses hurt ~2x; fourfold risk pattern. Frame acceptance as gain, rejection as loss.
+- **Price-Expectation Effect (Price as Placebo)** _— Dan Ariely — Predictably Irrational (SoBe / Veladone-Rx studies)_ · `price expectation effect price placebo Ariely SoBe energy drink Veladone pill premium pricing`
+  - Higher price raises expected AND actual experienced quality (placebo pill, SoBe anagram study) — discounting can reduce real product effectiveness.
+- **Extremeness Aversion + Three-Tier Pricing** _— Simonson & Tversky (1992) — via Priceless (Poundstone)_ · `extremeness aversion three tier pricing middle option beer experiment Simonson Tversky`
+  - Buyers avoid cheapest and dearest, gravitate to the middle (beer experiment); always offer three tiers with the middle as target.
+- **Schwartz Gradualization / Believability Bridge** _— Eugene Schwartz — Breakthrough Advertising (Ch. 9)_ · `Schwartz gradualization believability bridge belief gap intermediate beliefs Breakthrough Advertising`
+  - Build belief step-by-step from what the prospect already accepts; the wider the belief gap the longer the bridge; never ask for a leap of faith.
+- **Schwartz Six Belief-Building Devices** _— Eugene Schwartz — Breakthrough Advertising (Ch. 9)_ · `Schwartz six belief devices verification reinforcement interweaving sensitivity momentum mood yes momentum`
+  - Verification, Reinforcement, Interweaving, Sensitivity, Momentum, Mood — the six tools to construct conviction and a 'habit of agreement' (yes-momentum).
+- **Schwartz Five Stages of Awareness** _— Eugene Schwartz — Breakthrough Advertising (Ch. 2)_ · `Schwartz five stages of awareness unaware problem solution product most aware headline approach`
+  - Unaware → Problem-Aware → Solution-Aware → Product-Aware → Most-Aware; awareness dictates headline/lead approach (incl. Stage 2's seven superiority tasks).
+- **Schwartz Five Stages of Market Sophistication** _— Eugene Schwartz — Breakthrough Advertising_ · `Schwartz market sophistication five stages new mechanism virgin market skepticism Breakthrough Advertising`
+  - Market skepticism level (1 virgin → 5 fully sophisticated); responses: bigger promise, new mechanism, better mechanism, identity/emotion. Distinct from awareness.
+- **Schwartz Mechanization Stages (Mechanism Proof)** _— Eugene Schwartz — Breakthrough Advertising (Ch. 11)_ · `Schwartz mechanization stages name describe feature mechanism promise reason why headline`
+  - Three stages of presenting the unique mechanism: Name it, Describe it (promise-reason-why), Feature it in the headline — tied to sophistication.
+- **Schwartz Redefinition / Identification (Roles)** _— Eugene Schwartz — Breakthrough Advertising (Ch. 8 & 10)_ · `Schwartz redefinition simplification escalation identification character achievement roles Breakthrough Advertising`
+  - Redefinition: simplification, escalation, price-reduction reframes; Identification: character roles & achievement roles — sell WHO they want to be.
+- **Schwartz Mass Desire (Channeling)** _— Eugene Schwartz — Breakthrough Advertising_ · `Schwartz mass desire channel not create urgency staying power scope permanent forces amplification`
+  - You cannot create desire, only channel existing mass desire; measured by Urgency x Staying Power x Scope; Permanent Forces vs Forces of Change; Amplification Effect.
+- **Schwartz Deadly Sincerity & The Turn** _— Eugene Schwartz — Breakthrough Advertising_ · `Schwartz deadly sincerity damaging admission product flaw the turn transition believability`
+  - Admit a flaw to boost believability of positive claims (damaging admission as contrast); 'The Turn' = the inevitable-feeling moment the product is introduced.
+- **Blair Warren's One-Sentence Persuasion** _— Blair Warren — The One Sentence Persuasion Course_ · `Blair Warren one sentence persuasion encourage dreams justify failures allay fears confirm suspicions throw rocks enemies`
+  - People do anything for those who: encourage their dreams, justify their failures, allay their fears, confirm their suspicions, and help them throw rocks at their enemies.
+- **The 'Because' Trigger (Automatic Compliance)** _— Ellen Langer (Xerox study) — via Bencivenga Bullets_ · `because trigger Langer Xerox copier experiment compliance 94 percent reason why Bencivenga`
+  - Adding any reason ('because...') jumps compliance from 60% to ~93%, even a meaningless reason; fill copy with 'becauses'.
+- **The 'Yeah, Sure' Principle (Proof Matches Claim)** _— Gary Bencivenga — Bencivenga Bullets_ · `Bencivenga yeah sure principle proof match claim three reasons why IF THEN construction doctors headache`
+  - Default response to any promise is 'yeah, sure'; proof must be at least as strong as the claim. Three reasons-why: product superior, claim true, act now. Plus IF...THEN construction.
+- **Made to Stick — SUCCESs Framework** _— Chip & Dan Heath — Made to Stick_ · `Made to Stick SUCCESs simple unexpected concrete credible emotional stories Heath curiosity gap Loewenstein`
+  - Six stickiness principles: Simple, Unexpected (Loewenstein curiosity gap), Concrete, Credible, Emotional, Stories.
+- **Made to Stick — Credibility Framework (Sinatra Test)** _— Chip & Dan Heath — Made to Stick_ · `Made to Stick credibility external internal Sinatra test anti-authority human scale Heath`
+  - Three credibility sources: External (authority/anti-authority), Internal (vivid concrete detail, stats as relationships), Audience-testable (Sinatra Test — one undeniable case).
+- **Gap Theory of Curiosity** _— George Loewenstein — via Made to Stick (Heath)_ · `Loewenstein gap theory of curiosity knowledge gap open loop highlight what they don't know`
+  - Curiosity ignites when a gap is felt between what we know and want to know; highlight the unknown first to open a loop.
+- **Brunson Big Domino & Three False Beliefs** _— Russell Brunson — Expert Secrets_ · `Brunson big domino three false beliefs vehicle internal external epiphany bridge Expert Secrets`
+  - One core belief (Big Domino) that, if accepted, makes the sale inevitable; break three false-belief layers (Vehicle, Internal, External) via Epiphany Bridge stories not argument.
+- **Brunson Five Curiosity Hooks** _— Russell Brunson — Expert Secrets_ · `Brunson five curiosity hooks little known well known old discovery controversial bold prediction`
+  - Little-Known, Well-Known (subvert), Old Discovery Revisited, Highly Controversial, Bold Prediction — angle frames for curiosity-driven hooks.
+- **Sugarman Satisfaction Conviction + Seeds of Curiosity (Slippery Slide)** _— Joseph Sugarman — The Adweek Copywriting Handbook_ · `Sugarman satisfaction conviction seeds of curiosity slippery slide objection raising resolution`
+  - Reader must be satisfied claims are true before the order form (proactive objection resolution); 'seeds of curiosity' phrases keep them sliding down the copy.
+- **Future Pacing (Commitment-Consistency Copy Technique)** _— Copywriting craft grounded in Cialdini commitment/consistency_ · `future pacing copywriting commitment consistency imagine your life with the product better self`
+  - Get prospects to imagine life WITH the product so they mentally commit; rejecting the purchase then feels like rejecting a better self.
+- **Closing: Propellants vs Repellants + Temporal Discounting** _— Copywriting close framework (carrot-and-caveman analogy)_ · `propellants repellants temporal discounting close carrot caveman cost of inaction immediate`
+  - Conversion happens only when propellants (benefits/outcomes) outweigh repellants (objections/fears); temporal discounting means show fast results and make inaction's cost immediate.
+- **Charm Pricing (9-Endings) & Transaction Utility** _— Anderson & Simester; Thaler — via Priceless (Poundstone)_ · `charm pricing nine endings left digit transaction utility was price deal Poundstone Thaler`
+  - Prices ending in 9 lift sales ~24% (left-digit effect); transaction utility = the joy of a perceived deal, raised by context and a prominent 'was' price.
+
+## Brand / Bonus / AOV  ·  skill 04·05·07d  ·  (27 frameworks)
+
+- **Brand Building vs. Dropshipping (4 Pillars: Clear Positioning, Controlled Experience, Real Margins, Defensibility)** _— Aura methodology (DTC brand-building), reinforced by Ries & Trout positioning theory_ · `brand building vs dropshipping positioning controlled experience defensibility real margins`
+  - Contrasts the zero-sum dropshipping game (copy product/page/offer, die on CPM spikes) against building a real brand asset with four defensible pillars; a competitor can copy your product, not your brand.
+- **Ries & Trout Positioning Framework (Mental Ladder, Rule of Seven, Law of Leadership, 8 Creneaus, F.W.M.T.S.)** _— Al Ries & Jack Trout, Positioning: The Battle for Your Mind_ · `Positioning Ries Trout mental ladder rule of seven law of leadership cherchez le creneau FWMTS`
+  - Positioning is about the mind not the product; ladders hold ~3-7 brands, first brand gets 2x No.2's share, find an unoccupied creneau, never Forget What Made Them Successful.
+- **ECommerce Bootstrapping (101-Test Log, 9-in-10-Fail Sine Wave, The Crash, $10K/Hour Framework)** _— Aura methodology (multi-7-figure bootstrapping case study)_ · `ecommerce bootstrapping zero to multi 7 figures 101 testing log crash 10000 hour framework`
+  - Zero-to-multi-7-figure journey: 100+ failed product tests logged, the crash after scaling without foundation, delegate all but $10K/hour tasks, understand WHY over what.
+- **Hormozi Value Equation (Dream Outcome x Perceived Likelihood / Time Delay x Effort & Sacrifice)** _— Alex Hormozi, $100M Offers_ · `Hormozi grand slam offer value equation dream outcome perceived likelihood time delay effort`
+  - Master equation for perceived value: raise dream outcome and likelihood, lower time delay and effort; the core lever behind every strong offer.
+- **Hormozi Grand Slam Offer System (Starving Crowd 4 Indicators, Problems-Solutions, Logical vs Psychological, Virtuous Cycle of Price)** _— Alex Hormozi, $100M Offers_ · `Hormozi starving crowd four indicators logical psychological solution virtuous cycle of price`
+  - Select a starving crowd (massive pain, purchasing power, easy to target, growing), solve every problem, sell ease not the solution, let premium price drive a virtuous quality cycle.
+- **Hormozi Four Guarantee Types (Unconditional, Conditional, Anti-Guarantee, Implied) + Stacking + Naming + Guarantee Math** _— Alex Hormozi, $100M Offers_ · `Hormozi four guarantee types unconditional conditional anti-guarantee stacking naming guarantee math`
+  - Guarantee taxonomy with stacking (short unconditional + long conditional), vivid naming, and math proving stronger guarantees lift net sales ~23% despite higher refund rates.
+- **Kennedy Five-Level Guarantee Hierarchy (incl. Refund + Keep the Premium, Deliberate Redundancy, Guarantee the Letter)** _— Dan Kennedy, The Ultimate Sales Letter_ · `Kennedy five level guarantee hierarchy refund keep the premium guarantee the letter itself`
+  - Escalation from basic money-back up to leading the whole piece with the guarantee; Level 2 refund-and-keep-the-premium signals supreme confidence; can even guarantee the letter itself.
+- **Longer-Guarantee-Fewer-Refunds Paradox (Risk Reversal Psychology)** _— Gary Bencivenga, Drew Eric Whitman (Cashvertising), Claude Hopkins (Scientific Advertising)_ · `longer guarantee fewer refunds Bencivenga Hopkins irresistible proposition risk reversal`
+  - 1-year guarantee yields fewer refunds than 30-day and 5-year fewer still; urgency to act on dissatisfaction fades; Hopkins' irresistible proposition takes all risk on the seller.
+- **Razor-Blade vs Handle (Bonus Fit Principle)** _— Joanna Wiebe / Copyhackers (offer optimization)_ · `razor blade vs handle bonus fit natural complement to product`
+  - Give away the blade and sell the handle (or vice versa); the bonus must be a natural fit that makes the customer better, happier, and more likely to stick and refer.
+- **Second Fun/Emotional Bonus (Care-Package Principle)** _— Joanna Wiebe / Copyhackers (offer optimization)_ · `second bonus fun emotional delightful care package t-shirt hoodie offer optimization`
+  - After the primary high-value bonus, add a delightful personal/emotional second bonus (t-shirt, mug, care package) people actually get excited about.
+- **Bonus Types Taxonomy (presuppose-success graduation gift, enables-success access, partner cross-promo, course-as-bonus)** _— Aura methodology + Dan Kennedy + Copyhackers_ · `bonus types presuppose success enables success graduation gift access partner complementary`
+  - Bonus archetypes: presupposes success (graduation gift), enables success (group/coaching/access), partner bonuses, and selling a course before bonusing it.
+- **FTC Anchored-Value / Fictitious-Pricing Legality (sell-the-bonus rule)** _— FTC guidance via Aura compliance frameworks (Copyhackers)_ · `FTC anchored value fictitious pricing bonus must be actually sold legality`
+  - Putting a sticker price on a bonus not sold anywhere violates FTC rules; you must genuinely sell the item (even a footer link) before assigning a stack value.
+- **Compliance Sweep (will to helps-to, claims to mice-type, fake-urgency cut, unauthorized-endorsement cut)** _— Joanna Wiebe / Copyhackers; FTC/FDA reference_ · `FTC compliance sweep will helps to claims mice type fake urgency endorsement cut`
+  - Pre-launch legal pass: replace 'will' with 'helps to', back every claim with mice-type within one click, cut fake limited-time and unendorsed-endorsement claims.
+- **Profit Optimization 4 Categories + AOV Builders (Bundles, Free-Shipping Threshold, Volume Discounts, GWP, Pack Sizes)** _— Aura methodology + IntelliGems data_ · `profit optimization four categories AOV builders bundles free shipping threshold volume discount GWP profit per visitor`
+  - Four levers (base pricing, promotions, AOV builders, persona personalization); GWP on full-size lifted take-rate 30 to 52 percent, AOV +12%, profit/visitor +20%. Judge by profit-per-visitor.
+- **Offer Type Menu (% Off, $ Off, BOGO/Buy-X-Get-%, Free Gift, Free E-Book, Free Shipping variants)** _— Aura methodology (offer creation document)_ · `offer types percent off dollar off buy one get one free gift free ebook free shipping threshold margin`
+  - Deployable offer structures with margin guidance (BOGO flagged for bad margins, free e-book toward dream outcome, free-shipping threshold framing).
+- **AOV Money Close + Offer Bump + Add-More-Packages** _— Aura methodology (funnel economics walkthroughs)_ · `AOV money close offer bump add more packages biggest package most popular checkout`
+  - Tactical AOV raisers: tell customers to buy the biggest package (most popular = most savings), add a 6-bottle tier, and a low-cost checkout order bump ($20 add costing $3).
+- **Hero Offer + First Scale vs Second Scale (Best Customer)** _— Aura methodology (Disrupter Academy unit-economics) - cite as DTC framework only_ · `hero offer first scale second scale best customer PSM repeat rate days to second purchase`
+  - First scale = cheapest CPA (discount hunters); second scale = best customer journey (high LTV, repeat, advocates). Identify hero offer via PSM 1.3+, 40%+ repeat, <65 days to 2nd purchase.
+- **Profitable Scaling Margin (PSM = LTV / (CPA + COGS))** _— Aura methodology (Disrupter Academy / Andromeda) - cite as DTC metric only_ · `Profitable Scaling Margin PSM LTV CPA COGS replaces ROAS golden ratio`
+  - Replaces ROAS as the scaling north-star: projected LTV vs total cost to acquire and serve; PSM > 1 means a profitable customer journey, enabling farmer-not-hunter forward decisions.
+- **Funnel Economics Profit Map (CRO + COGS + AOV + LTV levers)** _— Aura methodology (funnel economics / supplement & GLP-1 case studies)_ · `funnel economics increase AOV lower COGS increase LTV CRO profit map supplement peptide example`
+  - 4-quadrant profit map: increase conversions (CRO), lower COGS, increase AOV (bump/upsell/packages/pricing splits), increase LTV (subscription/stick-rate/list monetization).
+- **Hormozi Unit Economics: LTGP:CAC Ratio + Client-Financed Acquisition (CFA)** _— Alex Hormozi, $100M Leads / $100M Offers_ · `Hormozi LTGP CAC ratio 3 to 1 client financed acquisition CFA backend profit`
+  - Maintain LTGP:CAC at 3:1 minimum (5:1+ = scale room); CFA = frontend offer covers acquisition cost so backend revenue is pure profit and the business grows for free.
+- **Drayton Bird: Magic Number (Allowable Cost Per Customer) + CLV Doctrine** _— Drayton Bird, Commonsense Direct and Digital Marketing_ · `Drayton Bird magic number allowable cost per customer customer lifetime value doctrine`
+  - Compute the maximum allowable acquisition cost from LTV and target margin (the 'magic number') to liberate ad spend; competitors who never compute it spend timidly.
+- **Pricing Psychology Suite (Anchoring, Coherent Arbitrariness, Decoy/Extremeness 3-tier, Zero Price Effect, Charm Pricing, Mental Accounting, Endowment, Transaction Utility)** _— Poundstone (Priceless), Ariely (Predictably Irrational), Kahneman & Tversky, Thaler, Whitman (Cashvertising)_ · `pricing psychology anchoring decoy extremeness aversion zero price effect charm pricing mental accounting endowment`
+  - Behavioral-pricing toolkit: set high anchors, offer 3 tiers (middle is target), make FREE actually free, 9-endings lift ~24%, segregate gains/integrate losses, endowment via trials.
+- **NESP Offer Framework (New, Easy, Safe, Big/Fast)** _— Aura methodology (offer/landing pillar framework)_ · `NESP framework new easy safe big offer pillar guarantee pattern interrupt`
+  - Structure offers around four emotional qualities: New (intrigue), Easy (effortless path), Safe (guarantees/proof), and a Big promise made achievable by a Fast timeline.
+- **Irresistible Offer 3.0 (8 Offer Types + Powerful Promise, Proof, Story, Unique Mechanism, Features-Cubed, Benefit Ascension)** _— Aura methodology (offer construction) - cite as offer framework only_ · `8 offer types irresistible offer 3.0 powerful promise unique mechanism features cubed benefit ascension`
+  - Pick one of 8 offer types (hard/soft, installment, exclusive, limited quantity/time, etc.) and assemble the stack: promise, proof, story, unique mechanism, features-cubed, benefit ascension.
+- **Halbert Starving Crowd Principle (Market Before Offer)** _— Gary Halbert (original starving-crowd logic, echoed by Hormozi)_ · `Halbert starving crowd principle market selection precedes offer hamburger stand`
+  - Choose 'a starving crowd' over any product/location edge - market demand selection precedes everything else in offer building.
+- **3x+ Markup Rule + $60 AOV Floor (Margin Validation for Paid-Traffic Brands)** _— Aura methodology (product research criteria)_ · `3x markup rule 60 dollar AOV floor COGS shipping margin paid traffic CPM fixed`
+  - For US paid traffic: target AOV (after bundles) above ~$60 and minimum 3x (ideally 5x) markup on COGS+shipping, because CPMs are semi-fixed and thin margins break at scale.
+- **Kennedy Price Minimizers (5 Strategies) + Damaging Admission** _— Dan Kennedy, The Ultimate Sales Letter_ · `Kennedy price minimizers five strategies compare apples oranges damaging admission`
+  - Five copy strategies to shrink the felt weight of price (compare apples-to-oranges, etc.) plus the Damaging Admission - list every reason NOT to buy and address each to defuse skepticism.

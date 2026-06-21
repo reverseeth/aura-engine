@@ -1,10 +1,10 @@
 ---
 name: shopify-theme-safety
-description: Regras inegociáveis pra qualquer operação em theme Shopify (pull, push, deploy, edit). Aplica na cadeia 07a/07b/07c (page) e qualquer automação que toque tema LIVE.
+description: Regras inegociáveis pra qualquer operação em theme Shopify (pull, push, deploy, edit). Aplica na skill 07b-page-build (deploy da página), 07c-tracking-setup e 07d-checkout-aov (config de loja/checkout) e qualquer automação que toque tema LIVE.
 paths:
-  - .claude/skills/07a-page-planning.md
-  - .claude/skills/07b-page-sections.md
-  - .claude/skills/07c-page-deploy.md
+  - .claude/skills/07b-page-build.md
+  - .claude/skills/07c-tracking-setup.md
+  - .claude/skills/07d-checkout-aov.md
   - .claude/skills/14-content-recycler.md
 ---
 

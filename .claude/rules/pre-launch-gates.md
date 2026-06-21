@@ -3,8 +3,8 @@ name: pre-launch-gates
 description: Gates automáticos inegociáveis antes de qualquer launch (página deploy ou ads go-live). Dois gates principais — Compliance (ad-flag words) e Promise↔Config (copy promete X, loja precisa entregar X).
 paths:
   - .claude/skills/06-copy-engine.md
-  - .claude/skills/07b-page-sections.md
-  - .claude/skills/07c-page-deploy.md
+  - .claude/skills/07b-page-build.md
+  - .claude/skills/07d-checkout-aov.md
   - .claude/skills/08-creative-engine.md
   - .claude/skills/10-ad-strategy.md
 ---
@@ -41,7 +41,7 @@ Parse do JSON output:
 |----------|------|
 | `critical` | **BLOCK** — não salva, não publica, não faz deploy. Apresenta ao membro com `rewrite_suggestion` e pede revisão manual |
 | `high` | **BLOCK por default**. Aplicar `rewrite_suggestion` automática e **re-rodar compliance check** no texto rewriteado. Se o rewrite passar (low/medium), prosseguir. Se falhar, BLOCK até revisão manual. |
-| `medium` | **WARN** — salva, mas loga em `/workspace/[produto]/compliance-warnings.json` e notifica membro no output final ("2 warnings — revise se quiser") |
+| `medium` | **WARN** — salva, mas loga em `workspace/[produto]/compliance-warnings.json` e notifica membro no output final ("2 warnings — revise se quiser") |
 | `low` | **PASS** — salva silenciosamente |
 
 ### Palavras ad-flag cobertas (baseline mínimo, ver `red_flags.json` pra completo)
@@ -77,7 +77,8 @@ A copy promete "Free shipping", "90-day money-back guarantee", "Use code AURA20 
 
 ### Onde aplica
 
-- **Skill 07c** (page-deploy) — ANTES de push final
+- **Skill 07b** (page-build) — ANTES do push do template/deploy da página
+- **Skill 07d** (checkout-aov) — ANTES de aplicar config de checkout/upsell que promete algo
 - **Skill 10** (ad-strategy) — ANTES de liberar campanha pra publicação
 
 ### Promises rastreadas e validação
@@ -94,7 +95,7 @@ Pra cada promise que aparece na copy/páginas/ads, validar contra config real da
 | "Limited time — ends [date]" | eyebrow, banner | Data futura válida + schema time-bound configurado | `page.json` promo block |
 | "Ships in 24h" / "Same-day shipping" | trust row | Fulfillment center consegue cumprir (pergunta explícita ao membro) | Confirmação manual documentada |
 | "Made in [country]" | trust row | Produto realmente feito lá (regulatório) | COGS breakdown + manifest |
-| "Clinically proven [outcome]" | hero/claim | `04-research-foundation.json` contém evidência rastreável | Research Foundation (Skill 04 Etapa 2.5) |
+| "Clinically proven [outcome]" | hero/claim | `04-offer-builder/research-foundation.json` contém evidência rastreável | Research Foundation (Skill 04 Etapa 2.5) |
 | "Rated 4.X stars by N customers" | social proof | Review app (Judge.me/Loox/Yotpo) tem esses números | Admin API da review app |
 | "As seen on [outlet]" | trust row | Prova de aparição real (link, screenshot, PR release) | Manual confirmation com artefato |
 | "FDA approved" / "FDA cleared" | authority claim | Produto realmente tem esse status | Regulatory doc obrigatório |
@@ -104,7 +105,7 @@ Pra cada promise que aparece na copy/páginas/ads, validar contra config real da
 
 1. **Extração**: parse do markdown da copy + HTML das sections + JSON do ad-strategy procurando promise-patterns (regex + LLM classification)
 2. **Cross-check**: pra cada promise, consultar a fonte da verdade
-3. **Output `/workspace/[produto]/promise-check.json`**:
+3. **Output `workspace/[produto]/promise-check.json`**:
    ```json
    {
      "checked_at": "ISO",
@@ -115,7 +116,7 @@ Pra cada promise que aparece na copy/páginas/ads, validar contra config real da
      "items": [
        {
          "promise": "Free shipping worldwide",
-         "source": "06-copy.md hero section",
+         "source": "06-copy-engine/relatorio.md hero section",
          "validation": "shipping_zones",
          "status": "fail",
          "reason": "Shipping zone 'Rest of world' tem $24.99 rate; apenas US é free",

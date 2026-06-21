@@ -1,25 +1,25 @@
-# Content Recycler (#17)
+# Content Recycler (Skill 14)
 
 Pega 1 criativo winner e gera 9 derivadas adaptadas a canais diferentes.
-Multiplica ROI do criativo por 5-10x sem produção nova.
+Reaproveita o winner em 9 canais sem produção nova.
 
 ## Quando usar
 
-**Automaticamente** (quando Shadow Brain tiver rodando): quando um ad atinge
-critérios de winner — CPA < target × 0.7 E spend > $300 E idade > 5 dias.
+**Automaticamente** (quando Shadow Brain tiver rodando): quando a skill 11 já
+marcou um criativo como winner em `dados.json.winners[]`.
 
 **Manual**: membro invoca com `recycle [creative-id]`.
 
 ## Input
 
 Um criativo de referência — qualquer um destes:
-- Briefing completo de `/workspace/[produto]/08-creatives/08-concept-XX.md`
+- Briefing completo de `workspace/[produto]/08-creative-engine/concept-XX.md`
 - Ad script + primary text + headlines
 - Copy de advertorial ou PDP
 
 ## Output — 9 formatos derivados
 
-Salvos em `/workspace/[produto]/14-recycled/[source-id]/`:
+Salvos em `workspace/[produto]/14-content-recycler/[source-id]/`:
 
 1. **advertorial-1500w.md** — advertorial editorial longa pra LP ou blog
 2. **email-sequence.md** — 5 emails (welcome → mechanism → social proof → objection → CTA)
@@ -30,6 +30,12 @@ Salvos em `/workspace/[produto]/14-recycled/[source-id]/`:
 7. **sms-welcome.md** — mensagem pós-opt-in 160 chars
 8. **package-insert.md** — card físico pra caixa (onboarding + secondary benefit)
 9. **podcast-ad-30s.md** — áudio-only host-read style
+
+## Idioma
+
+README, essence.json descritivo e mensagens ao membro seguem o `report_language`
+de `workspace/profile.md` (default `pt-BR`). As 9 derivadas consumidor-final
+(advertorial, email, TikTok, blog, etc.) permanecem SEMPRE em inglês US.
 
 ## Compliance integrado
 
@@ -50,4 +56,4 @@ recycle <creative-id>
 
 O sistema lê o concept, consulta base Aura sobre formato de cada derivada,
 gera 9 versões, passa compliance em cada, salva tudo em pasta dedicada.
-Entrega: "9 derivadas prontas em /workspace/[produto]/14-recycled/[creative-id]/"
+Entrega: "9 derivadas prontas em workspace/[produto]/14-content-recycler/[creative-id]/"

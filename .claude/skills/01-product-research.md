@@ -10,8 +10,12 @@ Quando o membro ainda não tem produto ou quer validar/encontrar um novo produto
 
 ## Antes de Começar
 
-1. Leia `/workspace/profile.md` pra entender o contexto do membro (budget, ferramentas disponíveis, se tem SpyBox)
-2. Consulte a base Aura extensivamente sobre product research, critérios de validação, market desires (magnitude, durabilidade, urgência), market sophistication (5 estágios), market awareness (5 níveis de Schwartz), unique mechanisms (UMP/UMS, S.I.N. filter), avatar core/sub, offer potential, e potencial criativo. Aprofunde em cada framework que encontrar até ter domínio completo — cada sub-conceito que aparecer nos resultados de busca, explore. Frameworks específicos com thresholds, critérios, e exemplos devem ser aplicados literalmente nas etapas seguintes.
+0. **Idioma do relatório (rule 0 — INVIOLÁVEL)**: leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language`.
+1. Leia `workspace/profile.md` pra entender o contexto do membro (budget, ferramentas disponíveis, se tem SpyBox)
+
+> **Índice completo dos frameworks desta skill: `.claude/lib/kb-index/` (mapa skill→domínio no README; catálogo machine-readable em `frameworks.json`).** Skill 01 puxa do domínio `product-research` (29 sistemas nomeados). Nas ETAPAS abaixo, onde a skill pede "puxe os SISTEMAS NOMEADOS", rode `search_knowledge` com a `best_query` EXATA de cada framework relevante — nunca query genérica tipo "product research" ou "market sophistication".
+
+2. **Puxe os SISTEMAS NOMEADOS da base — não query genérica.** Antes da análise, rode `search_knowledge` com a `best_query` de cada framework que esta skill aplica abaixo (estão embutidos por NOME nas ETAPAS 2, 8 e 10). A lista completa do domínio `product-research` está em `.claude/lib/kb-index/` (`frameworks.json` / README). Puxe os SISTEMAS COMPLETOS (ex: os 5 estágios de sophistication de Schwartz com claims e respostas estratégicas, não "sophistication"), aprofunde em cada sub-conceito que aparecer, e aplique os thresholds/critérios LITERALMENTE nas etapas seguintes.
 3. Internalize os frameworks ANTES de começar a análise. Não é pra "mencionar" — é pra APLICAR na escolha de cada produto.
 
 ## Fluxo da Skill
@@ -20,45 +24,94 @@ Quando o membro ainda não tem produto ou quer validar/encontrar um novo produto
 
 Antes de qualquer outra coisa:
 
-1. Leia `/workspace/profile.md`. Se **não existir**, aborte com: `"Rode \`setup\` primeiro — profile.md ausente."`
+1. Leia `workspace/profile.md`. Se **não existir**, aborte com: `"Rode \`setup\` primeiro — profile.md ausente."` (profile/manifest totalmente ausentes mantêm abort: sem eles não há o que inferir; ofereça rodar o setup inline).
 2. Localize `manifest.json`:
-   - Procure um `manifest.json` em `/workspace/*/manifest.json` cujo `setup_complete === true`.
+   - Procure um `manifest.json` em `workspace/*/manifest.json` cujo `setup_complete === true`.
    - Se existir, leia `product_slug` — este é o path canônico para qualquer salvamento (ver Etapa SALVAR).
-   - Se **não existir**, aborte com: `"Rode \`setup\` primeiro — manifest.json ausente."`
+   - Se **não existir**, aborte com: `"Rode \`setup\` primeiro — manifest.json ausente."` (ofereça rodar o setup inline).
 3. Confirme que `00-setup` está em `skills_completed` do manifest. Caso contrário, re-rode o setup.
 4. Use `product_slug` do manifest como `[produto]` padrão para todos os paths nesta skill até que o produto vencedor seja escolhido (ver Etapa SALVAR para substituição).
 
-### ETAPA 0.5 — TrendTrack MCP (opcional, se conectado)
+### ETAPA 0.5 — Motor de descoberta: o que é AUTOMÁTICO vs o que o MEMBRO COLA
 
-Verifique se há tools com prefixo `mcp__trendtrack__` disponíveis na sessão. Se SIM, use como fonte PRIMÁRIA antes de cair em scraping/Meta Ad Library público:
+Antes de qualquer coisa, fica CRISTALINO o que esta skill faz sozinha e o que depende de dado colado pelo membro. **Regra dura de honestidade: a AI NUNCA finge acessar ferramenta paga.** SpyBox, Kalodata e SimilarWeb são pagos e sem API que a AI consiga ler — sempre que precisar de um número dessas ferramentas, a AI diz EXATAMENTE o que olhar e onde, e trata o que voltar como input colado pelo membro (marcado como fonte manual no relatório).
 
-- **`mcp__trendtrack__find_winning_products`** com `niche` ou keyword → retorna top winners reais com revenue/growth metrics. Use pra validar/sugerir ideias antes da ETAPA 1.
-- **`mcp__trendtrack__search_shops`** → busca lojas vendendo produto similar; serve como fonte alternativa pra ETAPA 5 (Meta Ad Library) com dados de revenue agregados.
-- **`mcp__trendtrack__creative_inspiration_pack`** com vertical → captura hooks/ângulos validados que servem como sinal extra na ETAPA 8 (análise estratégica).
+Há **dois caminhos de descoberta**, e o que estiver disponível define o caminho:
 
-Custa créditos TrendTrack. Use 2-4 chamadas no máximo aqui — não saia explorando. Se uma chamada falhar (auth expirou, rate limit), siga fluxo tradicional sem avisar o membro (silent fallback).
+**Caminho AUTO — TrendTrack MCP (runtime-discovery, sem nomes hard-coded):**
 
-Se TrendTrack NÃO estiver disponível, pule esta etapa e siga normalmente.
+Verifique se há tools com prefixo `mcp__trendtrack__` disponíveis na sessão. Se SIM, este é o motor de descoberta automático (única fonte que dá revenue estimado de forma legítima e programática). **NÃO assuma nomes de tool fixos** (`find_winning_products`, `search_shops`, etc — a lista muda entre versões do MCP). Em vez disso:
 
-### ETAPA 1 — Receber Dados (Kalodata / SpyBox OU Fallback)
+1. **Descubra em runtime** quais tools `mcp__trendtrack__*` existem nesta sessão (inspecione os nomes disponíveis).
+2. **Case por intenção, não por nome literal:**
+   - Descoberta de winners (intenção "discover/find products/winning") → use pra puxar a leva inicial de candidatos.
+   - Busca de lojas/concorrentes (intenção "search/find shops/similar") → fonte alternativa pra ETAPA 5 (sizing de concorrente) com revenue agregado.
+   - Inspiração criativa (intenção "creative/inspiration/hooks/angles") → sinal extra pra ETAPA 8.
+3. **Passe a intenção de filtro via params que a tool expõe** (não invente params): nicho do `profile.md`, país US, crescimento de tráfego alto, evitar marca grande já estabelecida (plano Shopify alto, se a tool filtrar isso), já rodando alguns dias, limite ~15 candidatos brutos. Se a tool não suportar um filtro, aplique-o depois nas ETAPAS 2-4 (são eliminatórios de qualquer jeito).
+4. Se nenhuma tool de descoberta de produto existir entre as `mcp__trendtrack__*` (só tools de brief/monitor, por ex.), trate como **TrendTrack ausente pra esta etapa** e caia no caminho manual abaixo.
 
-Verifique em `/workspace/profile.md` se o membro tem SpyBox disponível.
+Custa créditos TrendTrack. Use 2-4 chamadas no máximo aqui — não saia explorando. Se uma chamada falhar (auth expirou, rate limit), caia pro caminho manual sem avisar o membro (silent fallback).
+
+**Caminho MANUAL — membro cola do Kalodata/SpyBox (ETAPA 1):**
+
+Se NÃO há `mcp__trendtrack__*` (ou nenhuma faz descoberta de produto), a leva inicial vem do membro colando dados do Kalodata/SpyBox — ver ETAPA 1. A AI não abre essas ferramentas; ela pede o dado e o recebe colado.
+
+**Pós-descoberta (vale pros DOIS caminhos):** os ~15 candidatos (vindos do TrendTrack-auto OU colados pelo membro) ENTRAM na ETAPA 2. Os filtros eliminatórios da Aura são aplicados nas ETAPAS 2/3/4 já existentes:
+
+- **AOV ≥ $60** → ELIMINATÓRIO (ETAPA 2) — precisa do supplier price do membro pra checar o 3× markup
+- **3× markup** → ELIMINATÓRIO (ETAPA 2)
+- **Peso/logística** → FLAG (não elimina) (ETAPA 2)
+- **Google Trends 5 anos** → ELIMINATÓRIO se QUEDA consistente (ETAPA 3)
+- **USPTO / trademark de marca grande** → ELIMINATÓRIO (ETAPA 4)
+
+Antes da análise profunda (ETAPAS 5+), corte dos ~15 pros **top 8-10** por um `triage_score`:
+
+```
+triage_score = growth*0.35 + ad_traction*0.30 + price_fit_AOV60*0.20 + store_smallness*0.15
+  (cada componente normalizado 0-1; ad_traction = densidade de ads ativos do nicho)
+```
+
+**Regra:** o motor de descoberta (TrendTrack-auto OU Kalodata-colado) só ACELERA achar candidatos. Nunca pula os filtros eliminatórios — todo candidato passa pelas ETAPAS 2/3/4.
+
+> **MAPA AUTO vs MANUAL (pipeline de 7 estágios desta skill) — leia antes de seguir:**
+>
+> | # | Estágio | Fonte | Como roda | Eliminatório? |
+> |---|---------|-------|-----------|---------------|
+> | 1 | **Descoberta** | TrendTrack `mcp__trendtrack__*` **OU** Kalodata/SpyBox | **AUTO** (TrendTrack, runtime-discovery) **OU** membro cola (Kalodata/SpyBox) | não (gera a leva) |
+> | 2 | **AOV ≥ $60 + 3× markup** | dado do produto + **supplier price do membro** | semi-auto: AOV do dado; markup precisa o membro informar o supplier price (Alibaba/1688) | **SIM** |
+> | 3 | **Peso / logística** | descrição do produto | AUTO leve (FLAG, não elimina) | não (flag) |
+> | 4 | **Google Trends 5 anos** | Google Trends público | **AUTO** via WebFetch (fallback: membro cola screenshot) | **SIM** se queda |
+> | 5 | **Revenue / sizing do concorrente** | TrendTrack **OU** SimilarWeb/Kalodata | **AUTO** (TrendTrack) **OU** membro **COLA** (SimilarWeb é pago, sem API — revenue via SimilarWeb é SEMPRE colado) | não (calibra) |
+> | 6 | **USPTO trademark** | uspto.gov público | **AUTO** via WebFetch | **SIM** se marca grande |
+> | 7 | **Mecanismo único + avatar underserved** | frameworks da base Aura | **AUTO** (raciocínio sobre frameworks) | não (scoring) |
+>
+> Os estágios 2-7 mapeiam nas ETAPAS 2-8 abaixo. Onde diz "membro cola", a AI **pede o dado exato e espera** — nunca inventa o número nem finge ter aberto a ferramenta.
+
+Se TrendTrack NÃO estiver disponível, pule a parte AUTO desta etapa e siga pra ETAPA 1 (caminho manual).
+
+### ETAPA 1 — Receber Dados (Kalodata / SpyBox OU Fallback) — CAMINHO MANUAL
+
+Esta etapa só roda quando a descoberta automática (TrendTrack) NÃO está disponível, OU pra complementar a leva auto com dados que só a ferramenta paga mostra. **A AI não abre o Kalodata/SpyBox — esses são pagos e sem API que a AI consiga ler.** Ela diz exatamente o que olhar e recebe o dado colado pelo membro, tratando-o como input manual.
+
+Verifique em `workspace/profile.md` se o membro tem SpyBox disponível.
 
 **SE tem SpyBox / Kalodata:**
 
 Diga ao membro:
 
-"Preciso que você abra o Kalodata (ou SpyBox) e faça o seguinte:
+"Eu não consigo abrir o Kalodata/SpyBox por você (são pagos, sem acesso direto), então preciso que você abra e cole o resultado:
 1. Aplique os filtros:
    - Period: Last 30 Days
-   - Revenue: $100k - $500k
+   - Revenue: $30k - $400k
    - Revenue Growth Rate: >0%
-   - Avg. Unit Price: >$60
+   - Avg. Unit Price: >$15
    - Category: sem filtro (não marque nenhuma categoria)
 2. Selecione entre 5 e 15 produtos que parecem promissores
 3. Me mande: screenshots dos produtos OU copie e cole os dados (nome, preço, faturamento estimado, categoria, link)
 
-Se você também tiver dados do Similar Web sobre os concorrentes, cole também. Se não tiver, eu faço o que puder com outras fontes."
+> NOTA: unit price > $15 no Kalodata NÃO é o mesmo que AOV ≥ $60. Um produto de $25/unidade que vende em 3-pack atinge AOV $75 e PASSA na ETAPA 2. São dois filtros diferentes — não confundir o preço unitário da vitrine com o AOV viável depois de bundle/bump.
+
+Tudo que você colar daqui eu marco como **fonte manual (colada por você)** no relatório, pra ficar claro de onde veio cada número. Se você também tiver dados do SimilarWeb sobre os concorrentes, cole também (a receita do SimilarWeb eu nunca consigo puxar sozinho — é sempre colada). Se não tiver, eu faço o que puder com fontes públicas."
 
 **SE NÃO tem SpyBox/Kalodata (fallback):**
 
@@ -76,6 +129,12 @@ ESPERE o membro responder antes de prosseguir. Se veio com fallback, faça as bu
 ### ETAPA 2 — Filtragem Técnica (Thresholds Exatos)
 
 Pra CADA produto enviado ou identificado, aplique os filtros técnicos nesta ordem. Cada FILTRO é eliminatório — descarta o produto se falha. Os critérios vêm dos frameworks sobre viabilidade e unit economics.
+
+**Sistemas a puxar nesta etapa (rode a `best_query` exata, não query genérica):**
+- **Technical Viability Criteria — economic gate** (rode `technical viability criteria AOV markup 3x Google Trends lightweight product filter`) — fonte literal dos thresholds AOV ≥ $60, markup 3×, peso/logística. Aplique os números exatos que vierem.
+- **Halbert RFU Framework (Recency, Frequency, Unit of Sale)** (rode `Halbert RFU recency frequency unit of sale buyer evaluation`) — calibra se o unit-of-sale do produto sustenta AOV/repeat.
+
+> **Markup 3× depende de dado do membro (supplier price).** O preço de venda você vê no dado de descoberta, mas o COGS real (custo do fornecedor + frete) a AI não tem como adivinhar. Antes de avaliar o filtro de markup, peça ao membro: *"Pra checar o markup 3×, me passa o preço de fornecedor (Alibaba/1688/AliExpress) de cada produto-candidato — ou um custo estimado se ainda não cotou. Sem isso eu uso uma estimativa de COGS conservadora (~30-40% do preço de venda) e marco o markup como ESTIMADO, não confirmado."* Se o membro não passar, rode com a estimativa conservadora e deixe a coluna Markup marcada como estimada (não dispare DESCARTA só com base em estimativa — vira FLAG até o membro confirmar o supplier price).
 
 | Filtro | Critério | Ação se falha |
 |---|---|---|
@@ -95,11 +154,13 @@ Produtos descartados saem da análise. Produtos com flags continuam mas com o ri
 
 ### ETAPA 3 — Google Trends (Janela 5 Anos)
 
-Pra cada produto que passou na Etapa 2, pesquise no Google Trends (use web search):
+**Estágio AUTO.** Pra cada produto que passou na Etapa 2, consulte o Google Trends via WebFetch (dado público, a AI puxa sozinha):
 
 - Termos principais do produto (nome genérico + categoria + problema que resolve)
 - Janela: últimos 5 anos
 - Comparar com termos relacionados e concorrentes quando relevante
+
+> **Fallback** se o WebFetch do Trends falhar (bloqueio/anti-bot): peça ao membro pra abrir `trends.google.com`, setar a janela de 5 anos pro termo, e colar um screenshot da curva. Aí você lê a tendência pela imagem (visão nativa). Marque como fonte manual.
 
 Classifique:
 - **QUEDA CONSISTENTE** (tendência negativa há 12+ meses) → DESCARTA
@@ -111,7 +172,7 @@ Mostre tendência por produto com o classificador aplicado.
 
 ### ETAPA 4 — USPTO Trademark + Brand Check
 
-Pra cada produto ainda na lista, pesquise (web search):
+**Estágio AUTO.** Pra cada produto ainda na lista, consulte o USPTO via WebFetch (`tmsearch.uspto.gov`, base pública) + web search:
 
 - Existe trademark ativo pro nome do produto, da marca mais conhecida vendendo ele, ou do mecanismo/fórmula?
 - Classifique o owner:
@@ -121,7 +182,14 @@ Pra cada produto ainda na lista, pesquise (web search):
 
 Também busque no Google por `"nome do produto" site:bbb.org` e `"nome do produto" lawsuit OR complaint` — identifique se há histórico de problemas legais no nicho.
 
-### ETAPA 5 — Meta Ad Library (CRÍTICO: Agrupamento Por Aparições)
+### ETAPA 5 — Meta Ad Library + Sizing do Concorrente (Agrupamento Por Aparições)
+
+**Fontes desta etapa (auto vs manual):**
+
+- **Ads ativos / criativos escalados** → AUTO: Meta Ad Library público (web search / fetch). Se TrendTrack estiver conectado, as tools `mcp__trendtrack__*` de busca de loja/concorrente (descobertas em runtime, ver ETAPA 0.5) dão isso refinado em 1-2 chamadas.
+- **Revenue / sizing estimado do concorrente** → **AUTO se TrendTrack** (revenue agregado via tool); **MANUAL se não** — a AI **NÃO acessa o SimilarWeb** (pago, sem API que ela leia). Quando precisar do tamanho/tráfego de uma loja sem TrendTrack, ela pede o dado colado, com instrução exata:
+  > *"Pra dimensionar o concorrente [loja X], abre o SimilarWeb (direto ou pelo painel do SpyBox) e me cola: visitas/mês (visits) + receita estimada da loja. Eu não consigo puxar esse número sozinho — a receita via SimilarWeb é sempre colada por você."*
+  Trate o número como input manual e marque a fonte no relatório. NUNCA estime revenue do SimilarWeb sem o dado colado (não invente "deve faturar ~$200k").
 
 Acesse o Meta Ad Library (web search / fetch quando possível) pra cada produto.
 
@@ -185,7 +253,17 @@ Não venda placebo, não venda fraude. Mesmo que tenha demanda, o long-term é i
 
 ### ETAPA 8 — Análise Estratégica Completa
 
-Esta é a etapa onde os frameworks geram o insight final. Aplique TODOS em sequência pra cada produto remanescente:
+**Estágio AUTO (frameworks da base Aura).** Esta é a etapa onde os frameworks geram o insight final — mecanismo único possível e avatar underserved saem do raciocínio sobre os frameworks, sem depender de dado colado. Aplique TODOS em sequência pra cada produto remanescente.
+
+**Puxe os SISTEMAS NOMEADOS desta etapa ANTES de raciocinar (rode a `best_query` de cada um, nunca query genérica — índice completo em `.claude/lib/kb-index/`):**
+- **Schwartz Mass Desire Theory + 3-Stage Channeling** (rode `Schwartz mass desire theory channeling urgency staying power scope`) → sub-passo 1 (Magnitude).
+- **Three Factors That Determine Product Difficulty** (rode `three factors determine difficulty desire magnitude market awareness sophistication`) → enquadra os sub-passos 1-3 (são os 3 fatores).
+- **Cashvertising Life-Force 8 (LF8)** (rode `Cashvertising Life-Force 8 LF8 Whitman biological desires`) + **Six Mass Instincts** (rode `six mass instincts health sex status belonging control comfort technological problems`) → qual instinto biológico o desejo ataca (calibra Magnitude pra FORTE vs MÉDIO).
+- **Hormozi Starving Crowd / Market Selection (4 Indicators)** (rode `Hormozi starving crowd market selection four indicators massive pain purchasing power`) → valida que o mercado tem dor massiva + poder de compra antes de pontuar.
+- **Schwartz 5 Levels of Product-Market Awareness** (rode `Schwartz five stages of awareness Unaware Problem Solution Product Most aware`) + **AI Deep-Research Market Awareness Prompt** (rode `deep research prompt market awareness TAM percentage distribution final selection`) → sub-passo 2 (distribuição de awareness por % do TAM).
+- **Schwartz 5 Stages of Market Sophistication** (rode `Schwartz market sophistication 5 stages mechanism claims`) → sub-passo 3 (estágio + resposta estratégica certa).
+- **Two Forms of Differentiation (Mechanism vs Avatar Innovation)** (rode `two forms of differentiation mechanism innovation avatar innovation overlooked avatar`) → sub-passos 4 e 5 (UMP e avatar underserved são as duas formas).
+- **Ries & Trout: Cherchez le Creneau (8 Holes in the Mind)** (rode `Ries Trout cherchez le creneau eight holes in the mind size price age`) → sub-passo 5 (achar a brecha de posicionamento/avatar livre).
 
 **1. Magnitude do Desejo** (Schwartz / Breakthrough Advertising):
 - **FRACO**: desejos superficiais (organizar mesa, gerenciar cabos) → preço baixo, volume alto, persuasão muito pesada pra justificar ads pagos. Geralmente inviável.
@@ -222,7 +300,9 @@ Analise os claims que os concorrentes já usam (da Etapa 5):
 
 Liste os claims saturados que devem ser EVITADOS. Defina a resposta estratégica certa pro estágio (mecanismo novo? informação nova? identificação?).
 
-**4. Possibilidade de Mecanismo Único** (UMP/UMS):
+**4. Possibilidade de Mecanismo Único** (mecanismo único do problema/da solução — UMP/UMS):
+
+> Sistema-base deste sub-passo: **Two Forms of Differentiation — Mechanism Innovation** (já puxado no topo da ETAPA 8, rode `two forms of differentiation mechanism innovation avatar innovation overlooked avatar` se ainda não puxou). O mecanismo é a primeira das duas formas de diferenciar.
 
 Aplique o filtro S.I.N.:
 - **Specific** — pode ser nomeado especificamente?
@@ -260,6 +340,17 @@ Formula:
   — Min aceitável pra TESTAR: ≥ 7.5. Min aceitável pra TALVEZ: 6.0-7.4. Abaixo de 6.0 → DESCARTA.
 ```
 
+**Definição explícita de cada sub-score (use literalmente — elimina drift entre rodadas):**
+
+- **Magnitude** (do desejo, ETAPA 8.1): FRACO = 2-3 · MÉDIO = 5-7 · FORTE = 8-10.
+- **Sophistication** = FACILIDADE de diferenciação dado o estágio (sentido INVERTIDO do stage: quanto mais cedo o mercado, mais fácil diferenciar, maior o score). Stage 1-2 = 9-10 · Stage 3 = 6-7 · Stage 4 = 4-5 · Stage 5 = 2-3.
+- **AwarenessFit** = quão bem o funil/copy viável bate com a distribuição de awareness dominante (ETAPA 8.2) e o budget do membro: distribuição majoritária em Most/Product Aware (PDP direta, conversão barata) = 8-10 · Solution Aware (landing com mecanismo) = 6-7 · Problem Aware (advertorial/listicle, conversão mais cara mas TAM maior) = 4-6 · majoritariamente Unaware = 2-3.
+- **UMPotential** = score do filtro S.I.N. da ETAPA 8.4 (média de simplicity/intuitiveness/novelty do mecanismo possível, 1-10).
+- **AvatarFit** = força do avatar underserved da ETAPA 8.5 (segmento ignorado claro e alcançável = alto; todos os concorrentes já falam com o mesmo público sem brecha = baixo).
+- **OfferPotential** = potencial de stack/bundle/bump e AOV projetado da ETAPA 8.6.
+- **CreativePotential** = ângulos não-usados + demonstrabilidade visual + viabilidade de UGC da ETAPA 8.7.
+- **TrendFit** (bucket da ETAPA 3 → número): QUEDA = 2 · FLAT = 6 · SUBINDO = 9 · SPIKE = 5.
+
 Crie um ranking dos produtos sobreviventes com score de 1-10 em cada dimensão:
 
 | Produto | Magnitude | Awareness Fit | Sophistication | UM Potential | Avatar | Offer | Creative | Trend | **Total** |
@@ -267,10 +358,12 @@ Crie um ranking dos produtos sobreviventes com score de 1-10 em cada dimensão:
 
 Score final = média ponderada documentada acima. Apresente o cálculo numericamente pra pelo menos o Top 3.
 
+> **Cross-check do ranking com o sistema de validação final** (rode `final validation Gemini GPT Perplexity Kimi rank products scale potential unique mechanism`): a base traz o protocolo **AI Final-Validation Ranking** que cruza scale potential × mecanismo único — use os critérios dele pra sanity-check do Top 3 antes de cravar o veredicto, garantindo que o produto #1 tem escala E diferenciação, não só um ou outro.
+
 **Validação de mínimo (bloqueadora)**: se NENHUM produto atingiu score ≥ 6.0, **NÃO** declare "research completo". Em vez disso:
 
 1. Liste por que cada candidato falhou (o filtro ou score dominante).
-2. Sugira **3 novos candidatos** alinhados ao perfil do membro (budget, tools, interesse declarado) via web search em Meta Ad Library + TikTok Shop + Amazon Best Sellers.
+2. Sugira **3 novos candidatos** alinhados ao perfil do membro (budget, tools, interesse declarado) via web search em Meta Ad Library + TikTok Shop + Amazon Best Sellers. Pra escolher a nova leva, aplique **Hormozi Starving Crowd / Market Selection (4 Indicators)** (rode `Hormozi starving crowd market selection four indicators massive pain purchasing power`) e **Halbert Market-First Thinking** (rode `Halbert market-first thinking product-market inversion starving crowd`) — comece pelo mercado faminto, não pelo produto.
 3. Retorne à Etapa 2 com essa nova leva. Repita até haver pelo menos 1 produto TESTAR ou o membro optar explicitamente por parar.
 
 Pra CADA produto mostre:
@@ -319,12 +412,12 @@ Pro produto com maior score, entregue um plano inicial (detalhado depois nas ski
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Antes de qualquer write**, garanta: `mkdir -p /workspace/[produto]/`.
+**Antes de qualquer write**, garanta: `mkdir -p workspace/[produto]/01-product-research/`.
 
-Salve em DOIS arquivos dentro de `/workspace/[produto]/` (onde `[produto]` = slug do PRODUTO VENCEDOR, não do produto original da pesquisa — assim as fases seguintes salvam no mesmo lugar):
+Salve em DOIS arquivos dentro de `workspace/[produto]/` (onde `[produto]` = slug do PRODUTO VENCEDOR, não do produto original da pesquisa — assim as fases seguintes salvam no mesmo lugar):
 
-1. **`01-product-research.md`** (a AI lê nas fases seguintes)
-2. **`01-product-research.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto))
+1. **`01-product-research/relatorio.md`** (a AI lê nas fases seguintes)
+2. **`01-product-research/relatorio.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto))
 
 Conteúdo de ambos:
 - Lista completa de todos os produtos analisados (mesmo os descartados, com razão)
@@ -338,14 +431,19 @@ Conteúdo de ambos:
 **Atualize o `manifest.json`** (fonte única de verdade):
 
 1. Se o `product_slug` do vencedor for diferente do slug temporário criado no setup:
-   - `mkdir -p /workspace/[novo-slug]/`
+   - `mkdir -p workspace/[novo-slug]/`
    - Mova (ou copie + remove) o manifest existente para o novo diretório
    - Atualize `product_slug` e `product_name` com os valores do vencedor
 2. Adicione `"01-product-research"` ao array `skills_completed` (evite duplicatas)
 3. Atualize `updated_at` com o timestamp atual (ISO-8601 UTC)
-4. Preserve todos os campos preenchidos no setup (`budget_tier`, `product_url`, etc.)
+4. Grave (marcados como PRELIMINARES — a Skill 02 refina depois):
+   - `product_vertical` — vertical/nicho do vencedor
+   - `awareness_distribution` — distribuição estimada por nível de Schwartz da ETAPA 8.2 (objeto `{unaware, problem, solution, product, most}`)
+   - `sophistication_stage` — estágio de sophistication da ETAPA 8.3 (1-5)
+5. Preserve todos os campos preenchidos no setup (`budget_tier`, `product_url`, etc.)
+6. Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` = `product_slug` do vencedor — atualiza o `ABRIR-AQUI.html`).
 
-Se o slug mudou, informe ao membro: `"Produto vencedor: [nome]. Movi os artefatos para /workspace/[novo-slug]/."`
+Se o slug mudou, informe ao membro: `"Produto vencedor: [nome]. Movi os artefatos para workspace/[novo-slug]/."`
 
 ## Mensagem Final
 
@@ -353,7 +451,7 @@ Se houver produto TESTAR no ranking:
 
 "Product research completo. [Nome do produto] venceu com score X.X/10.
 
-Plano preliminar salvo em `/workspace/[produto]/01-product-research.md`. Alinhamento com budget: [starter/standard/escala-inicial] — viável.
+Plano preliminar salvo em `workspace/[produto]/01-product-research/relatorio.md`. Alinhamento com budget: [starter/standard/escala-inicial] — viável.
 
 Próximo passo: diga **'market research'** pra aprofundar a pesquisa e montar o Unified Research Brief."
 

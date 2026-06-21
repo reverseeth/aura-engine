@@ -1,14 +1,15 @@
 ---
 name: copy-engine
-description: Engine de escrita de copy completo baseado em market research, competitor analysis, e oferta. Escreve PDPs, landing pages, advertoriais, ou long-form sales pages aplicando headlines (processo de 100 linhas, fórmulas), leads tipados por awareness, hero sections (5 tipos), 10x page plan, frameworks de persuasão (Cialdini, Sugarman, Hopkins), proof stacking, CTAs (call to value), 7 sweeps de revisão, e linguagem EXATA do customer. Use quando o membro disser "copy", "escrever copy", "copy da página", "copy do ad", "PDP copy", "landing page copy", ou após a skill de oferta. O sistema DECIDE a estratégia de copy automaticamente — não consulta o membro sobre decisões estratégicas.
+description: Engine de escrita de copy completo baseado em market research, competitor analysis, e oferta. Escreve PDPs, landing pages, advertoriais, ou long-form sales pages aplicando headlines (processo de 100 linhas, fórmulas), leads tipados por awareness, hero patterns de ecom, 10x page plan, frameworks de persuasão (Cialdini, Sugarman, Hopkins), proof stacking, CTAs (call to value), 7 sweeps de revisão, e linguagem EXATA do customer. Use quando o membro disser "copy", "escrever copy", "copy da página", "copy do ad", "PDP copy", "landing page copy", ou após a skill de oferta. O sistema DECIDE a estratégia de copy automaticamente — não consulta o membro sobre decisões estratégicas.
 ---
 
 # Copy Engine
 
 ### Pré-flight (OBRIGATÓRIO)
-- [ ] `/workspace/[produto]/manifest.json` existe
+- [ ] `workspace/[produto]/manifest.json` existe
 - [ ] `product_slug` do manifest NÃO começa com `dev-placeholder-` (senão, pare: "rode product research primeiro")
-- [ ] `02-market-research.json` existe → extrair `awareness_distribution`, `sophistication_stage`, `voc_phrases`, `voc_count`, `voc_adequacy`
+- [ ] `02-market-research/dados.json` existe → extrair `awareness_distribution`, `sophistication_stage`, `voc_phrases`, `voc_count`, `voc_adequacy`
+  - `voc_phrases` é o objeto `{problem:[], desire:[], frustration:[]}` da Skill 02 — **achate os 3 pools** num único array antes de usar (não assuma array plano). `voc_count` = total de frases únicas somando os 3 pools.
 - [ ] **VOC adequacy check:** se `voc_adequacy == "insufficient"` OU `voc_count < 15` → PARE com mensagem:
   > ⚠️  VOC atual: {N} frases únicas. Mínimo pra copy direta: 15.
   >     Copy sem VOC real é invenção — vai soar genérica e não converter.
@@ -18,24 +19,26 @@ description: Engine de escrita de copy completo baseado em market research, comp
   >     3. Prossiga mesmo assim reconhecendo limitação (copy ficará abstrata)
 
   Se membro escolher 3, marca `"voc_forced_continue": true` no output pra Skill 11 diagnosticar depois.
-- [ ] `03-competitor-analysis.md` existe
-- [ ] `04-offer.json` existe → extrair `mechanism`, `pricing`, `guarantee`
-- [ ] `04-research-foundation.json` existe → extrair `evidence_items[]`, `confidence_score`, `gaps_and_risks`
+- [ ] `03-competitor-analysis/relatorio.md` existe
+- [ ] `04-offer-builder/dados.json` existe → extrair `mechanism` (objeto `{name, ...}` — usar `mechanism.name`, NÃO tratar como string), `pricing`, `guarantee`
+- [ ] `04-offer-builder/research-foundation.json` existe → extrair `evidence_items[]`, `confidence_score`, `gaps_and_risks`
   - Se ausente: WARN "Research foundation não rodou (Skill 04 Etapa 2.5). Claims na copy vão sair sem lastro verificável. Opções: (1) voltar pra skill 04 e rodar Etapa 2.5; (2) prosseguir marcando `claims_unverified: true` no output — skill 09 (consistency-audit) vai bloquear launch depois."
   - Se existe mas `confidence_score == "low"`: WARN "Evidence weak — claims fortes (clinically proven, X% melhoria) vão ser suavizados automaticamente pra 'helps with', 'designed to support'. Skill 09 vai re-validar antes de launch."
 - [ ] Extrair `product_vertical` do manifest (default "other" se ausente) — usado pelo Compliance Pre-flight (Sweep 8)
-Se faltar qualquer um (exceto VOC com opção 3 e research-foundation com acknowledgment), PARE.
+
+Se faltar qualquer arquivo de fase anterior (02/03/04), em vez de abortar seco ofereça ≥2 caminhos:
+> **(A)** Rodar a skill faltante agora (02/03/04), OU **(B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["arquivo"]` e avisando no output final que recomenda re-executar com o arquivo real. VOC com opção 3 e research-foundation com acknowledgment já seguem esse padrão acima. Exceção: se `manifest.json` ou `profile.md` estiverem TOTALMENTE ausentes, não há o que inferir — ofereça rodar o setup (skill 00) inline.
 
 ## Quando Usar
 Quando o membro tem market research, competitor analysis e oferta prontos, e precisa escrever a copy da página que vai converter o tráfego pago. Copy aqui é escrita com base em decisões ESTRATÉGICAS derivadas dos documentos anteriores, não em opiniões ou intuições.
 
 ## Antes de Começar
 
-1. Leia `/workspace/profile.md`
-2. Leia `/workspace/[produto]/02-market-research.md` (psychographics, awareness/sophistication, VOC literal, objeções, root cause)
-3. Leia `/workspace/[produto]/03-competitor-analysis.md` (claims saturados a evitar, gaps, posicionamento recomendado, swipe file)
-4. Leia `/workspace/[produto]/04-offer.md` (mecanismo único com 3 versões, bundles, garantia, unit economics)
-5. Consulte a base Aura extensivamente sobre copywriting: headlines (processo de 100 linhas, fórmulas clássicas de Caples/Hopkins/Schwartz/Sugarman), leads (5 tipos por awareness de Schwartz — Story Lead, Secret Lead, Proclamation Lead, Problem-Solution Lead, Offer/Direct Lead), hero sections (5 tipos e quando usar cada), 10x page plan, landing page frameworks, long-form sales page structure (15-point themeplate), VSL structure (8 blocos), advertorial blueprint (7 seções Zakaria), listicles como advertorial, techniques de persuasão (even-if, loss aversion, future pacing, belief stacking), Cialdini's 6 principles + pre-suasion, Sugarman's triggers (slippery slide, sentence rhythm, curiosity), StoryBrand SB7, Kennedy sales letter structure, proof e credibilidade (testimonials, authority, specificity de Hopkins), CTAs como call to value (não call to action), crossheads e estrutura visual, 4 decision making modalities (Spontaneous/Competitive/Humanistic/Methodical), rule of one, 7 sweeps de revisão, behavioral psychology (System 1 vs System 2), wireframing e validação, frameworks como PAS/AIDA/PASO/PCPO, brand voice e tom, e qualquer framework adjacente que apareça. **Esta skill é o coração do sistema — explore cada framework de copy a fundo.**
+1. Leia `workspace/profile.md` — em especial `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno desta skill (strategy brief, sweeps documentados, `.md`/`.html` descritivos) e toda conversa com o membro usam esse idioma. **A copy consumidor-final (headlines, leads, hero, bullets, CTAs, advertorial, email hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language` — copy pública nunca traduz.
+2. Leia `workspace/[produto]/02-market-research/relatorio.md` (psychographics, awareness/sophistication, VOC literal, objeções, root cause)
+3. Leia `workspace/[produto]/03-competitor-analysis/relatorio.md` (claims saturados a evitar, gaps, posicionamento recomendado, swipe file)
+4. Leia `workspace/[produto]/04-offer-builder/relatorio.md` (mecanismo único com 3 versões, bundles, garantia, unit economics)
+5. **Puxe os SISTEMAS NOMEADOS da base — não query genérica.** Esta skill é o coração do sistema. Para cada ETAPA, rode `search_knowledge` com a `best_query` exata de cada framework relevante (as queries estão embutidas nas ETAPAs 2-6 abaixo, no ponto onde cada framework é usado). NUNCA dispare uma busca tipo "copy framework" ou "headlines" — sempre o nome do sistema + sua query curada. **Índice completo dos frameworks desta skill (3 domínios: copy-headlines-leads, copy-proof-persuasion-structure, persuasion-psychology): `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — mapa skill→domínio no README).** Faça múltiplas buscas por ETAPA pra cobrir o assunto a fundo; se um framework adjacente aparecer numa busca e for útil pra fase, puxe também.
 
 ## Fluxo da Skill
 
@@ -43,9 +46,9 @@ Quando o membro tem market research, competitor analysis e oferta prontos, e pre
 Antes de gerar copy, carregue:
 1. `dominant_awareness` = stage com maior % em `awareness_distribution` do market research JSON
 2. `sophistication` = `sophistication_stage` (1-5)
-3. `voc_checklist` = array das 20 VOC phrases mais repetidas (substring matching em `voc_phrases`)
-4. `mechanism` = do `04-offer.json`
-5. `guarantee` + `offer_stack` = do `04-offer.json`
+3. `voc_checklist` = array das 20 VOC phrases mais repetidas (achate os 3 pools de `voc_phrases` — `{problem, desire, frustration}` — num único array antes do substring matching). VOC permanece SEMPRE no inglês original do consumidor.
+4. `mechanism` = objeto do `04-offer-builder/dados.json` (use `mechanism.name` pro nome; não tratar como string)
+5. `guarantee` + `offer_stack` = do `04-offer-builder/dados.json`
 Use ESTAS variáveis ao gerar — sem placeholders hardcoded.
 
 ### ETAPA 1 — Perguntas ao Membro (APENAS 2)
@@ -74,26 +77,45 @@ Se o membro disser "não sei", use o awareness level dominante do market researc
 
 ### ETAPA 2 — Estratégia de Copy (SISTEMA DECIDE)
 
+Antes de decidir, puxe os SISTEMAS de seleção de estratégia (rode cada `best_query`):
+- **Schwartz's Five Stages of Awareness** (rode `Schwartz five stages of awareness headline approach per stage Breakthrough Advertising`) — define a abordagem por awareness dominante
+- **Schwartz's Three Lead Dimensions (Desire, Identification, Belief)** (rode `Schwartz lead desire identification belief dimension awareness lead selection`) — define QUAL lead casa com o avatar
+- **Schwartz's Five Stages of Market Sophistication** (rode `Schwartz market sophistication five stages new mechanism virgin market skepticism Breakthrough Advertising`) — define se lidera com promessa, mecanismo, ou identificação conforme o estágio de saturação da Skill 03
+- **Big Idea (Paradoxical Question, Gum Name, Conspiracy Story)** (rode `Big Idea paradoxical question gum name conspiracy story marketing thesis`) — transforma o gap mais forte da Skill 03 no ângulo dominante
+- **Hero Sections (5 Types + 3 Questions)** (rode `hero sections five types selection three questions five seconds awareness`) — value-prop / problem / dreamstate / segment / campaign-level
+- **Rule of One (One Reader, One Idea, One Offer)** (rode `Rule of One one reader one idea one offer one promise copy`) — força foco da página inteira
+
 O sistema apresenta as decisões como FATO (não pedido de aprovação) e segue pra escrita. Todas vêm do market research + competitor analysis + oferta:
 
-**Tipo de Lead** (5 tipos de Schwartz):
+**Tipo de Lead por Awareness:**
 
 | Awareness dominante | Lead recomendado |
 |---|---|
-| Unaware | Story Lead ou Big Idea Lead |
-| Problem Aware | Problem-Solution Lead ou Story Lead |
-| Solution Aware | Secret Lead ou Proclamation Lead |
+| Unaware | Story Lead ou Big Idea Lead (identificação antes do pitch) |
+| Problem Aware | Problem-Agitation Lead ou Story Lead |
+| Solution Aware | Mechanism Lead / Secret Lead ou Proclamation Lead |
 | Product Aware | Offer Lead ou Direct Lead |
 | Most Aware | Direct Lead (apela pra oferta/urgência direto) |
 
-**Tipo de Hero Section** (5 tipos):
+Pra CONSTRUIR o lead escolhido, puxe o sistema certo (rode a `best_query`):
+- **Story Lead / Background-Emotional-Discovery Stories** (rode `storytelling copy background emotional discovery story spine once upon a time hero journey`) — Unaware / Problem Aware
+- **Kennedy's PAS (Problem-Agitation-Solution) + Fortune Telling** (rode `Kennedy PAS problem agitation solution fortune telling winners losers formula`) — Problem Aware
+- **Unique Mechanism Theory (UMP + UMS)** (rode `unique mechanism UMP UMS problem solution knowledge gap direct response`) — Solution Aware (Mechanism/Secret Lead)
+- **Sugarman's Seeds of Curiosity / Slippery Slide** (rode `Sugarman seeds of curiosity slippery slide open loop paragraph end`) — pra qualquer lead que precisa puxar pra próxima frase
+- **Schwartz's 'The Turn'** (rode `Schwartz the turn product introduction inevitable transition after lead story`) — a transição do lead pro pitch
+
+Nota de proveniência (não é Schwartz): os 5 tipos de lead acima cruzam três tradições. As fórmulas de primeiro parágrafo vêm de **Caples** (as 6 fórmulas clássicas). A escolha de QUAL lead usar vem da dimensão **Schwartz** de awareness + desire/identification/belief. **Secret Lead** e **Proclamation Lead** são da tradição **Masterson**, não de Schwartz. Mapeamento canônico: Unaware → story/identification · Problem Aware → problem-agitation · Solution Aware → mechanism/secret · Product/Most Aware → direct/offer.
+
+**Hero Patterns (ecom)** — estes são padrões práticos de execução, não os "5 tipos" canônicos da base:
 - **Authority hero** (expert, doctor, scientist apresentando): indicado pra Solution Aware + high-trust products
 - **UGC/Testimonial hero**: indicado pra Problem Aware + baixa confiança inicial
 - **Product-hero** (produto em destaque): Product Aware + Most Aware
 - **Problem-agitate hero**: Problem Aware com dor forte e frequente
 - **Demo/before-after hero**: quando transformação visual é forte e rápida
 
-Decisão aplica: awareness + tipo de produto + presença de visual transformation + tipo de cetiscismo do avatar.
+(Cruzando com os 5 tipos canônicos de hero da base — value-prop / problem / dreamstate / segment / campaign-level: Authority e Product-hero servem o value-prop hero; Problem-agitate é o problem hero; Demo/before-after empurra pro dreamstate; UGC/Testimonial costuma ancorar segment ou campaign-level.)
+
+Decisão aplica: awareness + tipo de produto + presença de visual transformation + tipo de ceticismo do avatar.
 
 **Ângulo Principal** (do competitor analysis):
 - Escolha o gap mais forte identificado na Skill 03 (angle que NENHUM concorrente está usando)
@@ -101,19 +123,24 @@ Decisão aplica: awareness + tipo de produto + presença de visual transformatio
 
 **Tom de Voz** (do market research):
 Definido pelo perfil psicográfico:
-- Sofisticado/educado (público com renda alta, educação, sophistication interna)
+- Sofisticado/educado (público com renda alta, escolaridade, sofisticação do mercado)
 - Casual/conversacional (público mainstream, Gen Z/millennial)
 - Técnico/autoridade (público que valoriza credenciais — saúde, finanças)
-- Emocional/empático (público vulnerable — chronic pain, grief, self-image)
-- Urgente/direto (público transactional, maduro em ads)
+- Emocional/empático (público vulnerável — dor crônica, luto, autoimagem)
+- Urgente/direto (público que decide na hora, já acostumado a ads)
 
 **Framework de Organização:**
 - **PDP** → estrutura: Hero → Trust Bar → Benefícios → Mecanismo → Prova Social → Oferta/Stack → Garantia → FAQ → CTA final
 - **Landing Page** → 10x Page Plan ou PAS on Steroids
-- **Advertorial** → 7-section blueprint (Zakaria): Headline → Lead → Background Story → Root Cause → Unique Mechanism → Product Build-Up → Product Reveal → Close
+- **Advertorial** → 7-section blueprint (estilo Zakaria): Headline → Lead → Background Story → Root Cause → Unique Mechanism → Product Build-Up → Product Reveal + Close (7 seções; Reveal e Close são UMA seção combinada — ver ETAPA 5)
 - **Long-form Sales Page** → 15-point themeplate ou 8-block VSL structure
 
 **Como servir as 4 Decision Making Modalities**:
+
+Puxe os princípios de influência que sustentam as 4 modalidades (rode cada `best_query`):
+- **Cialdini's Six Weapons of Influence** (rode `Cialdini six weapons of influence reciprocity commitment social proof authority liking scarcity`) — reciprocity/social proof/authority/scarcity distribuídos pelas 4 modalidades
+- **The Unity Principle (7th Weapon)** (rode `Cialdini Unity principle seventh weapon being together acting together asking advice merger mindset`) — pro Humanistic (comunidade/identidade)
+- **Schwartz Gradualization / Believability Bridge** (rode `Schwartz gradualization believability bridge belief gap intermediate beliefs Breakthrough Advertising`) — pro Methodical (yes-momentum, prova encadeada)
 
 Toda página precisa SIMULTANEAMENTE servir os 4 tipos de decisor (senão perde conversão de 25-75% dos visitantes):
 
@@ -132,7 +159,18 @@ Não peça aprovação — segue direto pra escrita. O membro pode ajustar depoi
 
 ### ETAPA 3 — Headlines (Processo de 100 Linhas)
 
-Aplique os princípios de o processo de 100 linhas (Caples, expandido) e as fórmulas clássicas.
+Puxe os SISTEMAS de headline da base antes de gerar (rode cada `best_query` — não query genérica tipo "headlines"):
+- **100-Headline Exercise (Process)** (rode `100 headlines exercise process first 20 suck VOC immersion prereqs`) — o processo que governa esta ETAPA inteira
+- **Caples' 35 Proven Headline Formulas + Three Classes** (rode `Caples headline formulas three classes self-interest news curiosity techniques`)
+- **Caples' Six First-Paragraph Formulas** (rode `Caples six first-paragraph formulas interrupting idea shocker news preview quotation story`)
+- **Schwartz's 38 Verbalization Techniques** (rode `Schwartz 38 verbalization techniques Breakthrough Advertising strengthening claim`) — pra fortalecer cada claim na headline
+- **Bencivenga's I = B + C Formula** + **Shake-Me-Awake-at-3AM Test** (rode `Bencivenga I=B+C formula interest benefit curiosity headline evaluation` e `Bencivenga shake me awake at 3am test headline strength`) — pra avaliar força de cada variação
+- **Four U's (Unique, Useful, Urgent, Ultra-specific)** (rode `Four U's unique useful urgent ultra-specific hook headline hierarchy`) — grade rápido das top variações
+- **Hormozi's Seven Headline Components** (rode `Hormozi seven headline components callout value timeframe proof mechanism obstacle urgency $100M Leads`) — pra ofertas/Product-Most Aware
+- **Hopkins: Headlines as Audience Selectors + Specificity** (rode `Hopkins headlines audience selectors preemptive claim specificity Scientific Advertising`) — specificity converte 2-3x sobre generalidade
+- **Headline Sweep (8-Part Laddering Edit)** (rode `headline sweep eight parts captures attention avoids confusion matches message button SEO`) — pra refinar as top 5 na sub-etapa 3B
+
+Aplique os princípios do processo de 100 linhas (Caples, expandido) e as fórmulas clássicas acima.
 
 **3A — Geração (20-30 variações):**
 
@@ -182,6 +220,11 @@ Se o produto tem credenciais (mídia coverage, certificações, reviews count), 
 
 #### Benefits / Problem Block
 
+Frameworks pra esta seção (rode cada `best_query`):
+- **Fascinations / Bullets as Teasers (Mega List)** (rode `fascinations bullets teasers not tell-alls mega list curiosity loop checkmarks six versus nine`) — cada bullet abre loop, não entrega tudo
+- **Cashvertising Life-Force 8 (LF8)** (rode `Cashvertising Life-Force 8 LF8 eight biological desires survival social approval superiority Whitman`) — ancora o emocional ("por trás do por trás") no desejo biológico certo
+- **Blair Warren's One-Sentence Persuasion** (rode `Blair Warren one sentence persuasion encourage dreams justify failures allay fears confirm suspicions throw rocks enemies`) — pra externalizar culpa no problem block
+
 Use a linguagem EXATA do VOC. Não parafraseie. Cada bullet:
 - Começa com a frase/palavra do consumidor (do market research)
 - Expande com o benefício funcional
@@ -191,20 +234,30 @@ Use a linguagem EXATA do VOC. Não parafraseie. Cada bullet:
 
 #### Unique Mechanism Expandido
 
+Frameworks pra esta seção (rode cada `best_query`):
+- **Unique Mechanism Theory (UMP + UMS)** (rode `unique mechanism UMP UMS problem solution knowledge gap direct response`) — separa o mecanismo do PROBLEMA (por que falhou) do mecanismo da SOLUÇÃO (por que o seu funciona)
+- **Schwartz Mechanization Stages (Mechanism Proof)** (rode `Schwartz mechanization stages name describe feature mechanism promise reason why headline`) — quanto explicar o mecanismo conforme sophistication
+- **Made to Stick — Three Wellsprings of Credibility + Sinatra Test** (rode `Made to Stick three wellsprings credibility external internal audience-testable Heath`) — torna o mecanismo crível sem só afirmar
+
 Use a **versão 1 parágrafo** do mecanismo da oferta (ou a 2-3 parágrafos se for LP dedicada ou advertorial). Adaptado ao awareness level:
 - Problem Aware → explica a root cause ANTES do mecanismo (educação)
 - Solution Aware → compara com soluções genéricas e posiciona o mecanismo como a evolução
 - Product Aware → foca na especificidade do mecanismo (ingredientes, dosagem, processo)
 
 Inclua:
-- Nome do mecanismo (do 04-offer.md)
+- Nome do mecanismo (do 04-offer-builder/relatorio.md)
 - Como funciona (biology/mechanism of action se aplicável)
 - Por que é diferente
 - Referência a evidência (estudo, ingredient research, patents se aplicável)
 
 #### Prova Social (Proof Stacking)
 
-Aplicar os frameworks de proof (Hopkins specificity, Sugarman satisfaction conviction, Made to Stick credibility):
+Aplicar os frameworks de proof — puxe cada um por nome (rode a `best_query`):
+- **Hopkins' Specificity Principle (Reason-Why)** (rode `Hopkins specificity principle reason-why platitudes generalities specific claims transformation`)
+- **Schwab's Ten Categories of Proof + Five Presentation Principles** (rode `Schwab ten categories of proof taxonomy five principles presenting proof testimonials`) — o menu completo de tipos de prova
+- **Sugarman's Satisfaction Conviction** (rode `Sugarman satisfaction conviction objection raising resolution before order form doubt friction`) — levanta e resolve dúvida antes do botão
+- **The Sinatra Test + Human-Scale Principle** (rode `Sinatra Test one example so impressive establishes credibility case study` e `Made to Stick human-scale principle statistics as relationships Disneyland 99.9 percent`) — 1 prova devastadora + estatística traduzida pra relação humana
+- **Length-Implies-Strength Heuristic** (rode `length implies strength heuristic volume persuasion cue 101 testimonials 22 reasons`) — volume de prova vira sinal de força
 
 - **Social proof volume**: número de clientes, reviews, anos no mercado
 - **Specific testimonials**: 3-5 testimonials com NOMES COMPLETOS, FOTOS, e RESULTADOS ESPECÍFICOS (com datas e números quando possível)
@@ -222,22 +275,31 @@ Organize em formato visual navegável (tiles, carrossel, grid).
 
 #### Oferta / Stack Com Ancoragem
 
-Do `04-offer.md`:
+Do `04-offer-builder/relatorio.md`:
 - Produto com nome
 - Bundles (Solo / Popular 3-pack / Best Value 6-pack) com savings visíveis
 - Bump (produto complementar baixo ticket)
 - Stack de valor: "Você recebe [X + Y + Z] no valor de $[total ancorado]. Hoje: $[preço]"
 - Savings visíveis ("Você economiza $[diff] hoje")
 
-Aplique **pricing psychology**: ancoragem de preço, decoy effect (3-pack Popular faz 1-pack parecer caro e 6-pack parecer econômico), framing (foco em "savings" não em "preço").
+Aplique **pricing psychology** — puxe os sistemas por nome (rode cada `best_query`):
+- **Anchoring & Adjustment + Contrast Principle** (rode `anchoring adjustment Tversky Kahneman SSN auction real estate listing reference price Poundstone`) — o valor ancorado do stack
+- **Decoy Effect (Asymmetric Dominance)** (rode `decoy effect asymmetric dominance Economist Ariely pricing tiers print-only combo`) — o 3-pack Popular como decoy
+- **Extremeness Aversion + Three-Tier Pricing** (rode `extremeness aversion three tier pricing middle option beer experiment Simonson Tversky`) — por que a opção do meio ganha
+- **Charm Pricing (9-Endings) & Transaction Utility** (rode `charm pricing nine endings left digit transaction utility was price deal Poundstone Thaler`) — framing de "savings" e was-price
 
 #### Garantia
 
-Do `04-offer.md`, a copy de garantia (2-3 frases, tom confiante, detalhes claros).
+Do `04-offer-builder/relatorio.md`, a copy de garantia (2-3 frases, tom confiante, detalhes claros).
 
 Posicione com destaque visual (box, shield icon, destaque colorido).
 
 #### FAQ
+
+Frameworks pra quebrar objeção (rode cada `best_query`):
+- **Inoculation Theory (McGuire)** (rode `Inoculation theory McGuire weakened attack vaccination strengthen attitudes competitor argument`) — antecipa e neutraliza a objeção antes que ela cresça
+- **Kennedy's Damaging Admission** (rode `Kennedy damaging admission list every reason not to respond admit flaws too good to be true`) — admitir a falha desarma o ceticismo
+- **The 'Yeah, Sure' Principle (Proof Matches Claim)** (rode `Bencivenga yeah sure principle proof match claim three reasons why IF THEN construction doctors headache`) — cada resposta de FAQ precisa de prova proporcional ao claim
 
 Cada FAQ quebra uma objeção REAL do market research. Pegue as **Top 5 objeções priorizadas** da Skill 02 e escreva a resposta que quebra cada uma. Nada de FAQ genérica ("qual o prazo de envio" — isso vai em lugar específico, não é FAQ estratégica).
 
@@ -249,6 +311,11 @@ FAQ estratégica típica:
 - "Quando começo a ver resultado?" (quebra time delay)
 
 #### CTA Final
+
+Frameworks pro close (rode cada `best_query`):
+- **Pain-to-Hope CTA Transition + CTA Style Matrix** (rode `pain to hope CTA transition style matrix emotional trigger solution-aware avoidance call to value`) — call to VALUE casado com o awareness
+- **Closing: Propellants vs Repellants + Temporal Discounting** (rode `propellants repellants temporal discounting close carrot caveman cost of inaction immediate`) — remove repellants, ativa custo da inação
+- **Future Pacing** (rode `future pacing copywriting commitment consistency imagine your life with the product better self`) — projeta o membro no resultado antes do clique
 
 Call to VALUE, não call to action. Reforça o outcome + remove fricção:
 - "Claim My [Outcome]" (não "Buy Now")
@@ -266,21 +333,34 @@ Repita CTA em 3-5 pontos da página (após hero, após mecanismo, após social p
 
 ### ETAPA 5 — Se for ADVERTORIAL (Alternativa à Etapa 4)
 
+Frameworks pra advertorial (rode cada `best_query`):
+- **Halbert's Editorial Look / Invisible Selling (5x Readership)** (rode `Halbert editorial look invisible selling 5x readership does not appear to sell advertorial`) — o tom editorial não-vendedor que governa a peça inteira
+- **Storytelling in Copy (Background / Emotional / Discovery Stories + Story Spine)** (rode `storytelling copy background emotional discovery story spine once upon a time hero journey`) — pra a Background Story (seção 3)
+- **Sugarman's Slippery Slide + Seeds of Curiosity** (rode `Sugarman slippery slide every element read the next sentence frictionless`) — mantém o leitor descendo parágrafo a parágrafo
+- **Schwartz's 'The Turn'** (rode `Schwartz the turn product introduction inevitable transition after lead story`) — a transição do Root Cause pro Mechanism Reveal (seção 4→5)
+- **Cashvertising — 12 Ways to Lure Readers Into Copy** (rode `Cashvertising 12 ways lure readers into copy question authority skepticism story bandwagon short first sentence`) — pro Lead (seção 2)
+
 Se o tipo de página definido é Advertorial, siga a **estrutura de 7 seções** (Zakaria blueprint):
 
 1. **Irresistible Headline** (estilo editorial, não-vendedor: "The Weird 30-Second Ritual That's Changing How Women Over 40 Handle [Problem]")
 2. **Lead** que pulls readers in (primeiras 100-200 palavras — responde as 4 perguntas mentais do leitor: por que ler agora? por que isso importa? por que isso é diferente? por que vai funcionar pra mim?)
 3. **Background Story** (storytelling pessoal ou de terceiro — builds empathy + credibility — aplica a Discovery Story)
 4. **Root Cause Explanation** — use a causa raiz do market research (Etapa 6 da Skill 02). Explique o problema de forma clara, externaliza a culpa (genética, hormônios, indústria — NÃO o leitor)
-5. **Unique Mechanism Reveal** — apresente o mecanismo único como a descoberta, a revelação (use a versão de 2-3 parágrafos do 04-offer.md)
+5. **Unique Mechanism Reveal** — apresente o mecanismo único como a descoberta, a revelação (use a versão de 2-3 parágrafos do 04-offer-builder/relatorio.md)
 6. **Product Build-Up** — traz o produto no contexto do mecanismo. Primeiros parágrafos são sobre o MÉTODO/PRODUTO antes da oferta
 7. **Product Reveal + Close** — oferta, stack, garantia, urgência, CTA. Manipulation close (scarcity real, bonus que expiram, urgency com razão)
 
 Tom editorial (não vendedor). Use parágrafos curtos (2-4 linhas). Inclua imagens/quotes entre parágrafos.
 
-### ETAPA 6 — Auto-Revisão (7 Sweeps)
+### ETAPA 6 — Auto-Revisão (7 sweeps Aura + gate de compliance)
 
-Antes de entregar, faça **7 sweeps de revisão** :
+Antes de entregar, faça os **7 sweeps Aura** abaixo (1–7) — são os sweeps de revisão DESTA skill, não os "7 sweeps" clássicos de copywriting. O **Compliance Pre-flight (sweep 8)** roda em seguida como gate de bloqueio separado, fora da contagem dos 7.
+
+Pra calibrar o que cada sweep procura, puxe os sistemas de edição (rode cada `best_query`):
+- **Seven Sweeps (Editing Ladder)** (rode `Seven Sweeps editing ladder clarity voice tone so what prove it specificity heightened emotion zero risk`) — o ladder canônico que inspira estes sweeps
+- **Hopkins' Specificity Principle** (rode `Hopkins specificity principle reason-why platitudes generalities specific claims transformation`) — pro Specificity sweep (#3)
+- **Sugarman's Slippery Slide** (rode `Sugarman slippery slide every element read the next sentence frictionless`) — pro Flow sweep (#4)
+- **Reeves' USP + Vampire Claims** (rode `Reeves USP burning glass vampire claims mosaic structure single proposition unrelated claims`) — pro Originality sweep (#7), pra não cair em claim saturado/genérico:
 
 1. **Clarity sweep**: cada frase é clara em primeira leitura? Jargão sem explicação?
 2. **Customer voice sweep (VOC compliance)**: checklist dinâmico — passe o `voc_checklist` como lista. Para cada frase VOC:
@@ -291,6 +371,7 @@ Antes de entregar, faça **7 sweeps de revisão** :
    Taxa mínima: >= 60% das top-20 VOC phrases presentes literais ou parafraseadas. Se < 60%, regerar seções fracas.
 3. **Specificity sweep**: Hopkins — cada claim genérico foi substituído por específico? ("many customers" → "12,847 customers"; "fast results" → "visible improvement in 14 days")
 4. **Flow sweep**: slippery slide de Sugarman — cada frase compele a próxima? Onde há quebra de fluxo?
+   - **Em-dash check (rule 8a, ACIONÁVEL):** conte os travessões (—) por peça. Se `em_dash_count > 0` em QUALQUER headline OU `> 2` em copy longa → **REESCREVER** os trechos afetados substituindo o travessão por ponto, vírgula, parênteses, duas frases curtas, ou dois-pontos, e **re-checar** a contagem depois. Não basta medir: o sweep só passa quando headlines têm zero travessão e a copy longa tem ≤2.
 5. **Objection sweep**: cada objeção do market research foi quebrada em algum lugar? Onde está omitida?
 6. **CTA sweep**: CTAs são call to VALUE? Aparecem em frequência certa (não muito, não pouco)?
 7. **Originality sweep**: comparar com os claims saturados do competitor analysis — onde estou usando um claim saturado? substitua por ângulo original.
@@ -310,26 +391,26 @@ Antes de entregar, faça **7 sweeps de revisão** :
    Copy a analisar:
    \"{copy_text}\"
 
-   Retorne JSON conforme `.claude/lib/compliance-preflight/output-schema.json`:
+   Retorne JSON conforme o shape definido em `.claude/lib/compliance-preflight/output-schema.json` (essa é a fonte da verdade do formato — siga os campos e enums dela). `rewrite_suggestion` deve ser preenchido SOMENTE quando `severity >= high`; caso contrário, `null`.
    {
-     "risk_score": 0-100,
+     "risk_score": 0,
      "severity": "low|medium|high|critical",
      "overall_verdict": "APPROVE|APPROVE_WITH_EDIT|REVISE|REJECT",
      "triggers": [{"phrase": "...", "severity": "...", "reason": "...", "eixo": "...", "suggested_replacement": "..."}],
-     "rewrite_suggestion": "..." // só se severity >= high
-     "em_dash_count": N,
-     "ai_style_score": 0-10,
+     "rewrite_suggestion": null,
+     "em_dash_count": 0,
+     "ai_style_score": 0,
      "recommendation": "..."
    }
    ```
 
    Ação conforme severity:
    - `critical` → PARAR, reportar triggers ao membro, aplicar `rewrite_suggestion` ou pedir revisão manual
-   - `high` → aplicar `rewrite_suggestion` automaticamente + logar em `/workspace/[produto]/06-compliance-log.json`
+   - `high` → aplicar `rewrite_suggestion` automaticamente + logar em `workspace/[produto]/06-copy-engine/compliance-log.json`
    - `medium` → manter copy original, logar warning
    - `low` → salvar silenciosamente (sem output)
 
-   Log consolidado em `/workspace/[produto]/06-compliance-log.json`. Se diretório não existir, `mkdir -p` antes de escrever.
+   Log consolidado em `workspace/[produto]/06-copy-engine/compliance-log.json`. Se diretório não existir, `mkdir -p` antes de escrever.
 
 Para cada sweep, documente o que mudou (as edits são o output do sweep).
 
@@ -342,7 +423,7 @@ Gere:
 
 Documente a hipótese por trás de cada variação.
 
-## Output Schema — Seções Canônicas (`06-copy.md`)
+## Output Schema — Seções Canônicas (`06-copy-engine/relatorio.md`)
 
 O markdown DEVE ter as seções NOMEADAS ASSIM (case-sensitive, H2). Cada seção contém texto pronto pra colar, SEM comentários de instrução no output final.
 
@@ -363,14 +444,14 @@ O markdown DEVE ter as seções NOMEADAS ASSIM (case-sensitive, H2). Cada seçã
 ## Email Follow-up Hooks
 ```
 
-## JSON Companion Obrigatório — `06-copy.json`
+## JSON Companion Obrigatório — `06-copy-engine/dados.json`
 
 Schema:
 ```json
 {
   "copy_id": "uuid-v4",
   "product_slug": "...",
-  "offer_id": "ref ao 04-offer.json",
+  "offer_id": "ref ao 04-offer-builder/dados.json",
   "hero": {
     "headlines": [
       {"id": "h-01", "text": "...", "type": "benefit|curiosity|authority|contrarian|big_idea", "score": 9.2, "reasoning": "..."}
@@ -398,20 +479,20 @@ Schema:
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Antes de salvar, garanta o diretório:** `mkdir -p /workspace/[produto]/`.
+**Antes de salvar, garanta o diretório:** `mkdir -p workspace/[produto]/06-copy-engine/`.
 
-**Toda skill que salva `.md` em `/workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `06-copy.md` → `06-copy.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `06-copy-engine/relatorio.md` → `06-copy-engine/relatorio.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
-Atualizar `manifest.json`: adicionar `06-copy-engine` em `skills_completed`, atualizar `updated_at`.
+Atualizar `manifest.json`: adicionar `06-copy-engine` em `skills_completed`, atualizar `updated_at`. Em seguida, regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug`; atualiza ABRIR-AQUI.html).
 
-`/workspace/[produto]/06-copy.md` contendo (seções canônicas acima):
+`workspace/[produto]/06-copy-engine/relatorio.md` contendo (seções canônicas acima):
 1. Strategy brief (Etapa 2 — tipo de página, lead, hero, ângulo, tom, framework, modalities mapping)
 2. 20-30 headlines geradas + top 5 + 3 pra teste A/B
 3. Página completa seção por seção (Etapa 4 ou 5)
 4. Revisão após 7 sweeps (mudanças documentadas, incluindo VOC compliance %)
 5. Variações pra teste (Etapa 7)
 
-Também salvar `/workspace/[produto]/06-copy.json` no schema acima.
+Também salvar `workspace/[produto]/06-copy-engine/dados.json` no schema acima.
 
 ## Mensagem Final
 

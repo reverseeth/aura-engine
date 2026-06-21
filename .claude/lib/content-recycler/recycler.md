@@ -15,20 +15,28 @@ ou
 
 ```
 recycle winner
-# (sistema identifica automaticamente o top CPA dos últimos 7 dias)
+# (sistema lê dados.winners[] já marcado pela skill 11 e ordena por spend_total)
 ```
 
 ## Fluxo da skill
 
 ### ETAPA 1 — Identificação do winner
 
-1. Se `[creative-id]` fornecido: ler `/workspace/[produto]/08-creatives/08-concept-XX.md` correspondente
-2. Se `winner`: consultar `/workspace/[produto]/11-analysis/latest.json` (se existir) e pegar o criativo com menor CPA e spend > $300
+1. Se `[creative-id]` fornecido (formato `c-NN`, que mapeia pra `concept-NN.md`):
+   - PRIMEIRO abrir `workspace/[produto]/08-creative-engine/dados.json` (fonte estruturada), achar `concepts[]` cujo `id == creative-id`, e extrair dali os campos estruturados (hook, mechanism, avatar, voc_source, proof, cta).
+   - Usar `workspace/[produto]/08-creative-engine/concept-NN.md` como brief complementar (texto longo, nuance de tom).
+2. Se `winner`: ler `workspace/[produto]/11-ad-analysis/dados.json` e usar `dados.winners[]` — array JÁ filtrado pela skill 11 (`outcome == "winner"`). NÃO recomputar critério; ordenar por `spend_total` desc (tiebreak `days_active` desc) e pegar o topo. Se precisar de target pra exibir, ler explícito de `manifest.target_cpa`.
 3. Se nenhum dos dois disponível: perguntar ao membro qual criativo reciclar
 
-### ETAPA 2 — Extração de essência
+### ETAPA 2 — Extração de essência (rastreável, não inventada)
 
-Ler o criativo fonte e destilar em shape estruturado (valores são extraídos do briefing do membro, não pré-definidos):
+Antes de destilar, abrir as fontes pra herdar dados reais (nunca reparafrasear o que já é canônico):
+
+- `workspace/[produto]/04-offer-builder/relatorio.md` (ou `04-offer-builder/dados.json`) → copiar o `mechanism_name` **LITERAL** pra `mechanism_name_canonical`. NÃO reparafraseie o nome do mecanismo.
+- `workspace/[produto]/08-creative-engine/dados.json` → herdar `voc_source.ref_id` de cada hook do conceito fonte pra popular `voc_refs[]`.
+- `workspace/[produto]/02-market-research/relatorio.md` (ou `02-market-research/dados.json`) → VOC real (frases exatas do consumidor, em inglês US literal) referenciadas por `voc_refs[]`.
+
+Destilar em shape estruturado (valores extraídos das fontes acima, não pré-definidos):
 
 ```json
 {
@@ -36,6 +44,8 @@ Ler o criativo fonte e destilar em shape estruturado (valores são extraídos do
   "big_idea": "<one-sentence thesis extraído do briefing>",
   "hook_essence": "<primeira frase/hook do criativo>",
   "mechanism": "<descrição do UMP/UMS em 5-12 palavras>",
+  "mechanism_name_canonical": "<nome LITERAL do mecanismo, copiado de 04-offer-builder>",
+  "voc_refs": ["<ref_id de cada VOC herdada de 08-creative-engine/dados.json / 02-market-research>"],
   "key_numbers": ["<Hopkins specificity numbers usados no criativo>"],
   "avatar": "<descrição resumida do avatar target>",
   "brand_voice": "<tom dominante derivado do briefing>",
@@ -46,20 +56,32 @@ Ler o criativo fonte e destilar em shape estruturado (valores são extraídos do
 }
 ```
 
-Salvar em `/workspace/[produto]/14-recycled/[source-id]/essence.json` pra referência de todos os formatos.
+**Sanity check (drift)**: se o `mechanism_name_canonical` extraído divergir do `mechanism_name` em `04-offer-builder`, PARE e surface ao membro (não auto-resolva) — é drift entre fases que precisa decisão dele.
 
-### ETAPA 3 — Consultar base Aura sobre cada formato
+Salvar em `workspace/[produto]/14-content-recycler/[source-id]/essence.json` pra referência de todos os formatos. O `essence.json` descritivo segue o `report_language` do membro; `voc_refs`/VOC literal permanecem em inglês US.
 
-Antes de gerar cada derivada, consultar Aura knowledge base:
-- `mcp__aura__search_knowledge("advertorial blueprint Zakaria 7 sections")`
-- `mcp__aura__search_knowledge("email sequence welcome flow ecommerce")`
-- `mcp__aura__search_knowledge("TikTok organic content creator voice")`
-- `mcp__aura__search_knowledge("blog SEO E-E-A-T featured snippet")`
-- `mcp__aura__search_knowledge("Pinterest carousel ecommerce conversion")`
-- `mcp__aura__search_knowledge("YouTube pre-roll non-skippable 15s")`
-- `mcp__aura__search_knowledge("SMS welcome message ecommerce copy")`
-- `mcp__aura__search_knowledge("package insert onboarding DTC brand")`
-- `mcp__aura__search_knowledge("podcast host-read ad copy")`
+### ETAPA 3 — Consultar base Aura sobre cada formato (SISTEMAS NOMEADOS, não query genérica)
+
+Antes de gerar cada derivada, puxar os SISTEMAS NOMEADOS do domínio **creatives-hooks-formats** rodando `search_knowledge` com a `best_query` de cada framework (`deep=true`). NUNCA use query genérica de canal. Índice completo do domínio em `.claude/lib/kb-index/` (`frameworks.json` + `README.md`). Curadoria de maior impacto por formato:
+
+- **Advertorial / Blog SEO** →
+  - `search_knowledge("Caples four U's hierarchy unique useful urgent ultra-specific headlines", deep=true)`
+  - `search_knowledge("Hopkins specificity rule 1-2 second rule vague vs specific claims", deep=true)`
+  - `search_knowledge("objection claim proof benefit cycle hold section one cycle", deep=true)`
+- **Organic TikTok / YouTube pre-roll** →
+  - `search_knowledge("gap theory of curiosity hooks counterintuitive open loop slippery slope", deep=true)`
+  - `search_knowledge("video ad script 4 section structure hook bridge hold CTA timing 30-45 seconds", deep=true)`
+  - `search_knowledge("strategic pacing rapid cuts hook bridge solution CTA video editing rhythm", deep=true)`
+- **Pinterest carousel / package insert (estáticos)** →
+  - `search_knowledge("static image archetypes funnel position plain reminder direct response complexity rule", deep=true)`
+  - `search_knowledge("13 winning static ad templates avatar callout nutella meme breakdown why it works", deep=true)`
+- **Email sequence / SMS / Podcast ad** →
+  - `search_knowledge("Big 4 Emotions NEW ONLY EASY ANYBODY SAFE PREDICTABLE BIG FAST", deep=true)`
+  - `search_knowledge("Brunson five curiosity hooks controversial bold prediction conspiracy reframe angles", deep=true)`
+- **Transversal a TODAS as 9 (continuidade de mensagem)** →
+  - `search_knowledge("congruency multiplier ad landing page offer visual message emotional continuity", deep=true)`
+
+Demais sistemas do domínio (Hormozi Callout System, What-Who-When Matrix, SUCCESs, New Opportunity vs Improvement, Reeves USP-Demonstrate-USP, etc.) ficam disponíveis em `.claude/lib/kb-index/` pra puxar sob demanda quando o formato pedir.
 
 ### ETAPA 4 — Gerar cada derivada
 
@@ -71,11 +93,11 @@ Pra cada formato:
 3. Gerar derivada respeitando `length_words`, `structure`, `tone`
 4. Rodar Compliance Pre-flight (`.claude/lib/compliance-preflight/checker.md`)
 5. Se severity >= high: auto-rewrite e log
-6. Salvar em `/workspace/[produto]/14-recycled/[source-id]/[output_file]`
+6. Salvar em `workspace/[produto]/14-content-recycler/[source-id]/[output_file]`
 
 ### ETAPA 5 — Gerar índice + relatório
 
-Criar `/workspace/[produto]/14-recycled/[source-id]/README.md`:
+Criar `workspace/[produto]/14-content-recycler/[source-id]/README.md` (relatório interno → segue `report_language` do membro; as 9 derivadas em si permanecem em inglês US):
 
 ```markdown
 # Content Recycler Output — [source-id]
@@ -121,9 +143,17 @@ Cada formato foi derivado da mesma essência do winner [source-id]. Os prompts f
 Caso queira adicionar formato novo (ex: LinkedIn, Substack, Twitter thread), edit `.claude/lib/content-recycler/formats.json` adicionando novo entry com especificação.
 ```
 
+### ETAPA 5.5 — Companions .html (dual output — rule 6b)
+
+Pra CADA `.md` salvo nesta pasta (README.md + as 9 derivadas) gerar o `.html` companion correspondente no mesmo diretório (`README.html`, `advertorial-1500w.html`, ... `podcast-ad-30s.html`). São 9 `.html` de derivada + `README.html`.
+
+- Copiar o CSS completo de `.claude/templates/aura-report-template.html` (inline, self-contained, sem server; manter responsividade mobile).
+- Abrir o `<body>` com o bloco SVG da logo copiado **LITERALMENTE** de `.claude/templates/aura-logo-snippet.html` (6 linhas, sem alterações). PROIBIDO substituir por texto "AURA"/"Aura Engine". Sem fallback textual.
+- O HTML do README segue o `report_language` do membro; o HTML das 9 derivadas reflete o conteúdo consumidor-final em inglês US.
+
 ### ETAPA 6 — Compliance log consolidado
 
-Salvar log consolidado em `/workspace/[produto]/14-recycled/[source-id]/compliance-log.json`:
+Salvar log consolidado em `workspace/[produto]/14-content-recycler/[source-id]/compliance-log.json`:
 
 ```json
 {
@@ -149,20 +179,21 @@ Salvar log consolidado em `/workspace/[produto]/14-recycled/[source-id]/complian
 ## Estrutura final de arquivos
 
 ```
-/workspace/[produto]/14-recycled/
+workspace/[produto]/14-content-recycler/
 └── <creative-id>/
     ├── README.md                     ← índice + instruções
+    ├── README.html                   ← companion humano (rule 6b)
     ├── essence.json                  ← essência extraída (pra reuso)
     ├── compliance-log.json           ← log consolidado
-    ├── advertorial-1500w.md
-    ├── email-sequence.md
-    ├── organic-tiktok-20s.md
-    ├── blog-seo-post.md
-    ├── pinterest-carousel-8.md
-    ├── youtube-preroll-15s.md
-    ├── sms-welcome.md
-    ├── package-insert.md
-    └── podcast-ad-30s.md
+    ├── advertorial-1500w.md          (+ .html)
+    ├── email-sequence.md             (+ .html)
+    ├── organic-tiktok-20s.md         (+ .html)
+    ├── blog-seo-post.md              (+ .html)
+    ├── pinterest-carousel-8.md       (+ .html)
+    ├── youtube-preroll-15s.md        (+ .html)
+    ├── sms-welcome.md                (+ .html)
+    ├── package-insert.md             (+ .html)
+    └── podcast-ad-30s.md             (+ .html)
 ```
 
 ## Custo estimado

@@ -3,207 +3,256 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.cdnfonts.com; font-src 'self' https://fonts.cdnfonts.com data:;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com; font-src 'self' https://fonts.gstatic.com https://cdn.fontshare.com data:; script-src 'self' 'unsafe-inline';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Visão Geral Completa — Aura Engine</title>
-<link href="https://fonts.cdnfonts.com/css/neue-montreal" rel="stylesheet">
-<style>@font-face { font-family: 'Neue Montreal Fallback'; src: local('Inter'), local('Helvetica Neue'), local('Arial'); }</style>
+<title>Aura Engine — Visão Geral Completa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { overflow-x: hidden; max-width: 100%; }
+  /* ═══════════ AURA DESIGN SYSTEM v5 · Premium / Liquid Glass ═══════════ */
+  :root{
+    --bg:#EFF1F5; --surface:#FFFFFF; --ink:#14161D; --ink-2:#3A3E4A; --muted:#565B68; --faint:#9499A5;
+    --line:#E5E7EE; --line-2:#EEF0F4; --accent:#2D5BFF; --accent-2:#7C5CFF; --accent-soft:#EEF2FF;
+    --green:#0E9F6E; --green-soft:#E9F8F1; --red:#E5484D; --red-soft:#FDF0F0;
+    --amber:#B7791F; --amber-soft:#FBF4E6; --deep:#0E1016;
+    --glass:rgba(255,255,255,.62); --glass-line:rgba(255,255,255,.75);
+    --r:22px; --r-sm:16px;
+    --shadow:0 1px 2px rgba(20,22,29,.04), 0 14px 40px rgba(20,22,29,.07);
+    --shadow-sm:0 1px 2px rgba(20,22,29,.04), 0 6px 18px rgba(20,22,29,.05);
+    --shadow-lift:0 4px 8px rgba(20,22,29,.05), 0 24px 60px rgba(20,22,29,.12);
+    --display:'Satoshi','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;
+    --mono:'SF Mono','JetBrains Mono','Fira Code','Consolas',monospace;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { overflow-x:hidden; max-width:100%; }
   body {
-    font-family: 'Neue Montreal', 'Neue Montreal Fallback', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
-    background: #FAFAFA; color: #1A1A1A;
-    min-height: 100vh; display: flex; justify-content: center;
-    padding: 80px 24px 120px; -webkit-font-smoothing: antialiased;
+    font-family:var(--sans); background:var(--bg); color:var(--ink);
+    font-size:16px; line-height:1.62; letter-spacing:-0.011em;
+    min-height:100vh; display:flex; justify-content:center;
+    padding:64px 24px 140px; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    position:relative;
   }
-  .container { max-width: 820px; width: 100%; }
+  /* GLOW AMBIENTE (fundo, sutil — dá profundidade e faz o glass refratar) */
+  body::before { content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+    background:
+      radial-gradient(48% 38% at 82% -4%, rgba(45,91,255,.13), transparent 72%),
+      radial-gradient(42% 40% at 8% 102%, rgba(124,92,255,.11), transparent 72%),
+      radial-gradient(38% 34% at 60% 48%, rgba(16,200,170,.05), transparent 70%); }
+  .container { max-width:840px; width:100%; position:relative; z-index:1; }
 
-  .logo-wrap { margin-bottom: 12px; }
-  .logo-wrap svg { height: 40px; width: auto; }
+  /* superfície de vidro reutilizada conceitualmente nas classes abaixo */
+  .logo-wrap { margin-bottom:30px; }
+  .logo-wrap svg { height:28px; width:auto; }
 
-  .page-title {
-    font-size: 28px; font-weight: 600; color: #1A1A1A;
-    margin-top: 28px; margin-bottom: 8px;
-    letter-spacing: -0.3px; line-height: 1.25;
+  /* === HEADER === */
+  .page-title { font-family:var(--display); font-size:clamp(40px,6vw,62px); font-weight:600; line-height:1.0; letter-spacing:-0.045em; color:var(--ink); margin:8px 0 22px; }
+  .page-subtitle { font-size:19px; color:var(--muted); font-weight:400; line-height:1.5; margin-bottom:44px; max-width:60ch; letter-spacing:-0.012em; }
+
+  /* === META BAR (grid glass — corrige valor longo) === */
+  .meta-bar { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1px; margin-bottom:72px;
+    background:linear-gradient(var(--line),var(--line)); border:1px solid var(--glass-line); border-radius:var(--r-sm); overflow:hidden;
+    box-shadow:var(--shadow-sm); }
+  .meta-bar > div { background:var(--glass); -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%); padding:18px 22px; line-height:1.45; font-size:15px; color:var(--ink); }
+  .meta-bar strong { display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px; color:var(--faint); font-weight:600; }
+
+  /* === TOC (lista limpa) === */
+  .toc { margin-bottom:88px; }
+  .toc-title { font-size:11px; font-weight:600; color:var(--faint); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:18px; }
+  .toc ol { list-style:none; margin:0; padding:0; counter-reset:toc-counter; border-top:1px solid var(--line); }
+  .toc li { counter-increment:toc-counter; font-size:17px; line-height:1.4; display:flex; gap:18px; align-items:center; padding:16px 4px; border-bottom:1px solid var(--line); transition:padding-left .25s ease,background .25s ease; border-radius:10px; }
+  .toc li:hover { padding-left:14px; background:rgba(45,91,255,.04); }
+  .toc li::before { content:counter(toc-counter,decimal-leading-zero); color:var(--accent); font-variant-numeric:tabular-nums; font-size:13px; font-weight:600; min-width:22px; }
+  .toc a { color:var(--ink); text-decoration:none; flex:1; }
+  .toc li:hover a { color:var(--accent); }
+
+  /* === SECTIONS === */
+  .section { margin-bottom:96px; }
+  .section-label { font-family:var(--sans); font-size:12px; font-weight:600; color:var(--ink); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:34px; border:0; display:flex; align-items:center; gap:14px; }
+  .section-label::after { content:""; flex:1; height:1px; background:linear-gradient(90deg,var(--line),transparent); }
+  .section-label .num { color:var(--accent); font-variant-numeric:tabular-nums; font-weight:600; }
+
+  .subsection { margin-bottom:40px; }
+  .subsection-title { font-family:var(--display); font-size:27px; font-weight:600; color:var(--ink); margin-bottom:16px; letter-spacing:-0.03em; line-height:1.12; }
+
+  /* === TYPOGRAPHY === */
+  p { font-size:17px; color:var(--ink-2); line-height:1.68; margin-bottom:17px; letter-spacing:-0.011em; }
+  p strong { color:var(--ink); font-weight:600; }
+  ul, ol { margin:10px 0 22px 22px; color:var(--ink-2); font-size:17px; line-height:1.7; }
+  li { margin-bottom:10px; padding-left:6px; } li::marker { color:var(--faint); } li strong { color:var(--ink); font-weight:600; }
+  code { font-family:var(--mono); font-size:13.5px; background:var(--line-2); padding:2px 7px; border-radius:7px; color:var(--ink); word-break:break-all; overflow-wrap:anywhere; }
+
+  /* === TABLES === */
+  .table-wrap { overflow-x:auto; margin:20px 0 26px; }
+  table { width:100%; border-collapse:collapse; font-size:15px; }
+  th { text-align:left; font-weight:600; color:var(--faint); padding:0 20px 14px 0; border-bottom:1px solid var(--ink); font-size:11px; text-transform:uppercase; letter-spacing:0.07em; }
+  td { padding:18px 20px 18px 0; color:var(--ink-2); border-bottom:1px solid var(--line); vertical-align:top; line-height:1.5; }
+  tr:last-child td { border-bottom:none; } td strong { color:var(--ink); font-weight:600; } td code { font-size:13px; }
+
+  /* === GLASS CARDS (compartilham o tratamento frosted + hover-lift) === */
+  .quote, .script-block, .brand-card, .concept-card, .tier-card, .timeline-day,
+  .primary-text-box, .faq, .hook-row, .headline-card, .ascii-map,
+  .note, .callout, .opportunity, .danger {
+    background:var(--glass); -webkit-backdrop-filter:blur(20px) saturate(155%); backdrop-filter:blur(20px) saturate(155%);
+    border:1px solid var(--glass-line); box-shadow:var(--shadow-sm);
   }
-  .page-subtitle {
-    font-size: 15px; color: #999; font-weight: 400;
-    margin-bottom: 24px; letter-spacing: 0.2px;
-  }
+  .brand-card, .concept-card, .tier-card, .timeline-day, .primary-text-box, .faq, .hook-row, .headline-card {
+    transition:transform .3s cubic-bezier(.2,.7,.3,1), box-shadow .3s ease; }
+  .brand-card:hover, .concept-card:hover, .tier-card:hover, .timeline-day:hover, .faq:hover, .hook-row:hover, .headline-card:hover {
+    transform:translateY(-3px); box-shadow:var(--shadow-lift); }
 
-  .meta-bar {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px 24px; padding: 18px 20px;
-    background: #F5F5F5; border-radius: 10px;
-    margin-bottom: 48px;
-    font-size: 13.5px; color: #555; line-height: 1.6;
-  }
-  .meta-bar strong { color: #1A1A1A; font-weight: 600; }
+  /* === QUOTE / VOC === */
+  .quote { margin:14px 0; padding:22px 26px; border-radius:var(--r-sm); font-size:16px; color:var(--ink); line-height:1.55; font-family:var(--mono); }
+  .quote-source { display:block; margin-top:14px; font-size:11px; color:var(--faint); font-family:var(--sans); letter-spacing:0.08em; text-transform:uppercase; font-weight:600; }
+  .script-block { border-radius:var(--r-sm); padding:22px 26px; margin:16px 0; font-family:var(--mono); font-size:13.5px; color:var(--ink-2); line-height:1.62; white-space:pre-wrap; word-break:break-word; }
 
-  .toc { background: #F5F5F5; border-radius: 10px; padding: 20px 24px; margin-bottom: 64px; }
-  .toc-title { font-size: 11px; font-weight: 600; color: #1A1A1A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; }
-  .toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc-counter; }
-  .toc li { counter-increment: toc-counter; margin-bottom: 6px; font-size: 14px; color: #555; line-height: 1.5; }
-  .toc li::before { content: counter(toc-counter, decimal-leading-zero) ". "; color: #BBB; font-weight: 500; margin-right: 6px; }
-  .toc a { color: #1A1A1A; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.15s; }
-  .toc a:hover { border-bottom-color: #1A1A1A; }
+  /* === NOTE / CALLOUT / OPPORTUNITY / DANGER (cards glass + overline-label + glow leve) === */
+  .note, .callout, .opportunity, .danger { font-size:16.5px; line-height:1.6; padding:24px 28px; border-radius:var(--r); margin:24px 0; position:relative; }
+  .note strong, .callout strong, .opportunity strong, .danger strong { display:block; font-family:var(--sans); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px; }
+  .note { color:var(--muted); } .note strong { color:var(--faint); }
+  .callout { color:var(--ink); background:linear-gradient(180deg,rgba(238,242,255,.85),rgba(238,242,255,.6)); border-color:#DDE4FF; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 10px 30px rgba(45,91,255,.10); }
+  .callout strong { color:var(--accent); }
+  .opportunity { color:#0C2A20; background:linear-gradient(180deg,rgba(233,248,241,.85),rgba(233,248,241,.6)); border-color:#CFEEE1; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 10px 30px rgba(14,159,110,.10); }
+  .opportunity strong { color:#0B7A53; }
+  .danger { color:#3A1416; background:linear-gradient(180deg,rgba(253,240,240,.85),rgba(253,240,240,.6)); border-color:#F7D8D9; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 10px 30px rgba(229,72,77,.10); }
+  .danger strong { color:#C9343A; }
 
-  .section { margin-bottom: 64px; }
-  .section-label {
-    font-size: 11px; font-weight: 600; color: #1A1A1A;
-    text-transform: uppercase; letter-spacing: 2px;
-    margin-bottom: 28px; padding-bottom: 12px;
-    border-bottom: 1px solid #E8E8E8;
-  }
-  .section-label .num { display: inline-block; margin-right: 10px; color: #AAA; }
+  /* === PILLS / BADGES (liquid glass) === */
+  .pill { display:inline-block; font-size:11px; font-weight:600; padding:5px 12px; border-radius:9px; letter-spacing:0.01em; text-transform:uppercase; margin-right:5px;
+    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.5); }
+  .pill-saturated, .pill-bof, .pill-pending { background:rgba(229,72,77,.12); color:#C9343A; border-color:rgba(229,72,77,.2); }
+  .pill-common, .pill-mof { background:rgba(183,121,31,.13); color:#92600F; border-color:rgba(183,121,31,.22); }
+  .pill-rare, .pill-win, .pill-ok { background:rgba(14,159,110,.13); color:#0B7A53; border-color:rgba(14,159,110,.22); }
+  .pill-absent, .pill-tof { background:rgba(45,91,255,.11); color:#2849C9; border-color:rgba(45,91,255,.2); }
 
-  .subsection { margin-bottom: 32px; }
-  .subsection-title { font-size: 16px; font-weight: 600; color: #1A1A1A; margin-bottom: 12px; letter-spacing: -0.1px; }
+  .voc-words { margin:16px 0 4px; line-height:2.4; }
+  .voc-words span { display:inline-block; background:var(--glass); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border:1px solid var(--glass-line); color:var(--muted); padding:7px 14px; border-radius:11px; margin:3px 7px 3px 0; font-size:13px; font-family:var(--mono); }
 
-  p { font-size: 15px; color: #444; line-height: 1.7; margin-bottom: 14px; }
-  p strong { color: #1A1A1A; font-weight: 600; }
-  ul, ol { margin: 8px 0 18px 22px; color: #444; font-size: 15px; line-height: 1.75; }
-  li { margin-bottom: 6px; }
-  li strong { color: #1A1A1A; font-weight: 600; }
-  code {
-    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 13px; background: #F0F0F0; padding: 1px 6px; border-radius: 4px; color: #1A1A1A;
-    word-break: break-all; overflow-wrap: anywhere;
-  }
+  .score { display:inline-block; background:var(--ink); color:#FFF; font-size:11px; font-weight:600; padding:3px 10px; border-radius:8px; }
+  .score-high { background:var(--green); } .score-mid { background:var(--amber); } .score-low { background:var(--red); }
 
-  .table-wrap { overflow-x: auto; margin: 14px 0 20px; border: 1px solid #E8E8E8; border-radius: 10px; }
-  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  th {
-    text-align: left; font-weight: 600; color: #1A1A1A;
-    background: #F5F5F5; padding: 12px 14px;
-    border-bottom: 1px solid #E8E8E8;
-    font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px;
-  }
-  td { padding: 12px 14px; color: #444; border-bottom: 1px solid #EFEFEF; vertical-align: top; line-height: 1.55; }
-  tr:last-child td { border-bottom: none; }
-  td strong { color: #1A1A1A; font-weight: 600; }
-  td code { font-size: 12.5px; }
+  /* === WINNER (dark glass + glow halo) === */
+  .winner { position:relative; background:linear-gradient(160deg,rgba(22,24,34,.96),rgba(14,16,22,.96)); color:#D7D9E3; border-radius:26px; padding:46px 48px; margin:36px 0; border:1px solid rgba(255,255,255,.08); box-shadow:0 30px 80px rgba(14,16,22,.28); overflow:hidden; }
+  .winner::after { content:""; position:absolute; top:-40%; right:-10%; width:60%; height:120%; z-index:0; background:radial-gradient(circle,rgba(124,92,255,.45),transparent 62%); filter:blur(40px); pointer-events:none; }
+  .winner > * { position:relative; z-index:1; }
+  .winner strong { color:#FFF; font-weight:600; }
+  .winner p { color:#9EA3B2; font-size:17px; line-height:1.62; margin-bottom:8px; }
+  .winner .winner-label { font-size:11px; text-transform:uppercase; letter-spacing:0.13em; color:#9E92FF; margin-bottom:18px; font-weight:600; }
+  .winner .winner-name { font-family:var(--display); font-size:34px; font-weight:700; color:#FFF; margin-bottom:18px; letter-spacing:-0.035em; line-height:1.04; text-shadow:0 2px 30px rgba(124,92,255,.35); }
 
-  .note {
-    font-size: 14px; color: #555; line-height: 1.65;
-    padding: 14px 16px; background: #F5F5F5;
-    border-radius: 8px; margin: 14px 0;
-    word-break: break-word; overflow-wrap: anywhere;
-  }
-  .note strong { color: #1A1A1A; font-weight: 600; }
+  /* === KPI — STATS GIGANTES num painel glass com divisores + glow === */
+  .kpi-grid { display:flex; flex-wrap:wrap; gap:0; margin:32px 0; padding:34px 36px; border-radius:var(--r);
+    background:var(--glass); -webkit-backdrop-filter:blur(22px) saturate(155%); backdrop-filter:blur(22px) saturate(155%);
+    border:1px solid var(--glass-line); box-shadow:var(--shadow); }
+  .kpi-card { flex:1 1 0; min-width:140px; padding:0 32px; display:flex; flex-direction:column; }
+  .kpi-card:first-child { padding-left:0; } .kpi-card:last-child { padding-right:0; }
+  .kpi-card + .kpi-card { border-left:1px solid var(--line); }
+  .big-num { order:1; font-family:var(--display); font-size:clamp(44px,6vw,62px); font-weight:700; letter-spacing:-0.05em; line-height:0.96; color:var(--ink); font-variant-numeric:tabular-nums; margin-bottom:12px; text-shadow:0 2px 24px rgba(45,91,255,.14); }
+  .big-num-label { order:2; font-size:13px; color:var(--muted); letter-spacing:-0.005em; font-weight:500; line-height:1.35; }
 
-  .callout {
-    font-size: 14.5px; color: #1A1A1A; line-height: 1.65;
-    padding: 16px 18px; background: #FFF8E1;
-    border-left: 3px solid #E8B93A;
-    border-radius: 0 8px 8px 0; margin: 16px 0;
-    word-break: break-word; overflow-wrap: anywhere;
-  }
-  .callout strong { font-weight: 600; }
+  /* === outras cards (radius/padding) === */
+  .brand-card, .concept-card { border-radius:var(--r); padding:30px 32px; margin-bottom:24px; }
+  .tier-card { border-radius:var(--r); padding:26px 28px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+  .tier-card.popular { border:1.5px solid var(--accent); position:relative; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 14px 40px rgba(45,91,255,.16); }
+  .tier-card.popular::before { content:"POPULAR"; position:absolute; top:-10px; left:24px; background:var(--accent); color:#FFF; font-size:10px; font-weight:600; letter-spacing:0.07em; padding:4px 12px; border-radius:8px; box-shadow:0 4px 14px rgba(45,91,255,.4); }
+  .timeline-day { border-radius:var(--r); padding:26px 28px; margin-bottom:16px; }
+  .timeline-day-label { display:inline-block; font-size:10.5px; color:#FFF; background:var(--ink); padding:4px 13px; border-radius:8px; text-transform:uppercase; letter-spacing:0.08em; font-weight:600; margin-bottom:16px; }
+  .timeline { margin:18px 0; }
+  .timeline-row { display:flex; gap:20px; padding:15px 0; border-bottom:1px solid var(--line-2); }
+  .timeline-time { flex-shrink:0; width:94px; font-family:var(--mono); font-size:11.5px; color:var(--faint); padding-top:3px; }
+  .timeline-label { font-size:10.5px; text-transform:uppercase; letter-spacing:0.1em; font-weight:600; color:var(--ink); }
+  .timeline-content { flex:1; } .timeline-content p { margin-bottom:6px; font-size:15px; }
 
-  .opportunity {
-    font-size: 14.5px; color: #1A1A1A; line-height: 1.65;
-    padding: 16px 18px; background: #ECF8E5;
-    border-left: 3px solid #4A9A2E;
-    border-radius: 0 8px 8px 0; margin: 16px 0;
-    word-break: break-word; overflow-wrap: anywhere;
-  }
-  .opportunity strong { font-weight: 600; }
+  .primary-text-box { border-radius:var(--r); padding:24px 28px; margin:14px 0; }
+  .pt-label { font-size:10.5px; color:var(--faint); text-transform:uppercase; letter-spacing:0.1em; font-weight:600; margin-bottom:12px; }
+  .primary-text-box p { font-size:15px; color:var(--ink-2); line-height:1.64; }
+  .faq { margin:14px 0; padding:26px 30px; border-radius:var(--r); }
+  .faq-q { font-family:var(--display); font-size:19px; font-weight:600; margin-bottom:10px; letter-spacing:-0.025em; }
+  .faq-a { font-size:15.5px; color:var(--muted); line-height:1.62; }
+  .hook-row { border-radius:var(--r); padding:22px 26px; margin-bottom:12px; }
+  .hook-label { font-size:10.5px; color:var(--accent); text-transform:uppercase; letter-spacing:0.1em; font-weight:600; margin-bottom:10px; }
+  .hook-text { font-size:18px; color:var(--ink); line-height:1.45; font-weight:600; margin-bottom:8px; letter-spacing:-0.02em; }
+  .hook-use { font-size:13px; color:var(--muted); line-height:1.5; }
+  .headline-card { border-radius:var(--r); padding:24px 28px; margin-bottom:14px; font-family:var(--display); font-size:21px; font-weight:600; line-height:1.32; letter-spacing:-0.03em; }
+  .headline-card.top { border:1.5px solid var(--accent); box-shadow:0 1px 2px rgba(20,22,29,.04), 0 14px 40px rgba(45,91,255,.14); }
+  .headline-card .hl-num { font-family:var(--sans); font-size:10.5px; color:var(--faint); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px; font-weight:600; }
+  .headline-card .hl-justify { font-family:var(--sans); font-size:14px; color:var(--muted); margin-top:12px; line-height:1.55; font-weight:400; letter-spacing:-0.008em; }
+  .ascii-map { border-radius:var(--r); padding:26px; font-family:var(--mono); font-size:12.5px; line-height:1.55; color:var(--ink-2); white-space:pre; overflow-x:auto; }
 
-  .danger {
-    font-size: 14.5px; color: #1A1A1A; line-height: 1.65;
-    padding: 16px 18px; background: #FDECEC;
-    border-left: 3px solid #B03A3A;
-    border-radius: 0 8px 8px 0; margin: 16px 0;
-    word-break: break-word; overflow-wrap: anywhere;
-  }
-  .danger strong { font-weight: 600; }
+  .check-row { display:flex; align-items:flex-start; gap:14px; margin-bottom:14px; }
+  .check-icon { flex-shrink:0; width:24px; height:24px; border-radius:8px; background:var(--green); color:#FFF; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; margin-top:1px; box-shadow:0 4px 14px rgba(14,159,110,.3); }
 
-  .pill { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 100px; letter-spacing: 0.3px; margin-right: 4px; }
-  .pill-skill { background: #1A1A1A; color: #FFF; font-weight: 600; }
-  .pill-trigger { background: #DFF0FF; color: #2563A8; font-family: 'SF Mono', 'Fira Code', monospace; }
-  .pill-output { background: #ECF8E5; color: #4A7A1E; }
-  .pill-gate { background: #FFF4DC; color: #8A6300; }
-  .pill-optional { background: #EEEAF7; color: #5A4A8A; }
-  .pill-deprecated { background: #FDECEC; color: #B03A3A; }
+  /* === ADVERTORIAL === */
+  .advertorial { background:var(--glass); -webkit-backdrop-filter:blur(20px) saturate(155%); backdrop-filter:blur(20px) saturate(155%); border:1px solid var(--glass-line); border-radius:26px; padding:clamp(32px,5vw,56px); margin:28px 0; box-shadow:var(--shadow); }
+  .adv-kicker { font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:0.1em; font-weight:600; margin-bottom:22px; }
+  .adv-headline { font-family:var(--display); font-size:clamp(30px,3.8vw,44px); font-weight:700; line-height:1.04; letter-spacing:-0.04em; margin-bottom:18px; }
+  .adv-deck { font-size:20px; color:var(--muted); line-height:1.46; margin-bottom:16px; font-weight:400; letter-spacing:-0.015em; }
+  .adv-byline { font-size:11px; color:var(--faint); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:38px; font-weight:600; }
+  .adv-section-label { font-size:11px; color:var(--faint); text-transform:uppercase; letter-spacing:0.08em; font-weight:600; margin-top:42px; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+  .advertorial p { font-size:17.5px; color:var(--ink-2); line-height:1.72; margin-bottom:18px; } .advertorial p strong { color:var(--ink); font-weight:600; }
+  .advertorial hr { margin:32px 0; border:none; border-top:1px solid var(--line); }
+  .adv-cta { display:inline-block; background:var(--ink); color:#FFF; padding:16px 32px; border-radius:12px; font-size:15px; font-weight:600; letter-spacing:-0.01em; text-decoration:none; margin:14px 0; box-shadow:0 10px 30px rgba(20,22,29,.25); }
 
-  .skill-card {
-    background: #FFF; border: 1px solid #E8E8E8;
-    border-radius: 12px; padding: 22px 24px; margin-bottom: 16px;
-  }
-  .skill-card .skill-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-  .skill-card .skill-name { font-size: 17px; font-weight: 600; color: #1A1A1A; letter-spacing: -0.1px; }
-  .skill-card .skill-desc { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 10px; }
-  .skill-card .skill-section { font-size: 13.5px; color: #444; line-height: 1.65; margin-top: 10px; }
-  .skill-card .skill-section strong { color: #1A1A1A; }
-  .skill-card .skill-section ul { margin: 4px 0 4px 18px; font-size: 13.5px; }
+  hr { border:none; border-top:1px solid var(--line); margin:72px 0; }
+  .footer { font-size:13px; color:var(--faint); text-align:center; margin-top:96px; padding-top:40px; border-top:1px solid var(--line); letter-spacing:0.02em; }
 
-  .ascii-tree {
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 12px; line-height: 1.55; color: #333;
-    background: #F5F5F5; border-radius: 10px;
-    padding: 20px; white-space: pre; overflow-x: auto;
-    margin: 12px 0 20px;
-  }
+  /* === ANIMAÇÃO (progressive enhancement: visível sem JS) === */
+  .js .reveal { opacity:0; transform:translateY(20px); transition:opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1); }
+  .js .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion:reduce){ .js .reveal{opacity:1;transform:none;transition:none} *{scroll-behavior:auto} .brand-card,.faq,.hook-row,.headline-card,.tier-card,.timeline-day,.concept-card{transition:none} }
 
-  .flow-list { counter-reset: flow; list-style: none; margin: 16px 0; padding: 0; }
-  .flow-list li {
-    counter-increment: flow;
-    background: #FFF; border: 1px solid #E8E8E8;
-    border-radius: 10px; padding: 14px 18px 14px 56px;
-    margin-bottom: 10px; position: relative;
-    font-size: 14px; color: #333; line-height: 1.55;
-  }
-  .flow-list li::before {
-    content: counter(flow, decimal-leading-zero);
-    position: absolute; left: 16px; top: 14px;
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 12px; color: #999; font-weight: 600;
-    background: #F0F0F0; padding: 3px 8px; border-radius: 6px;
-  }
-  .flow-list li strong { color: #1A1A1A; font-weight: 600; }
-
-  hr { border: none; border-top: 1px solid #E8E8E8; margin: 56px 0; }
-  .footer { font-size: 13px; color: #BBB; line-height: 1.6; text-align: center; margin-top: 64px; }
-
-  @media (max-width: 640px) {
-    body { padding: 40px 16px 80px; }
-    .page-title { font-size: 22px; }
-    .meta-bar { grid-template-columns: 1fr; font-size: 13px; }
-    th, td { padding: 10px 10px; font-size: 12.5px; }
-    .section { margin-bottom: 48px; }
-    .skill-card { padding: 18px 16px; }
+  @media (max-width:640px) {
+    body { padding:32px 18px 90px; }
+    .page-subtitle { font-size:17px; }
+    th, td { padding:12px 12px 12px 0; font-size:13.5px; }
+    .section { margin-bottom:64px; }
+    .kpi-grid { flex-direction:column; gap:28px; padding:28px 24px; }
+    .kpi-card { padding:0; min-width:0; } .kpi-card + .kpi-card { border-left:none; border-top:1px solid var(--line); padding-top:28px; }
+    .brand-card, .concept-card { padding:22px 20px; }
+    .winner { padding:34px 26px; } .winner .winner-name { font-size:28px; }
+    .advertorial { padding:28px 22px; }
+    .timeline-row { flex-direction:column; gap:4px; } .timeline-time { width:auto; }
+    .tier-card { flex-direction:column; align-items:flex-start; }
   }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <div class="logo-wrap" role="img" aria-label="Aura Engine">
+  <!-- ═══════════════ LOGO (mesma SVG em todos os reports — NUNCA texto) ═══════════════ -->
+  <div class="logo-wrap reveal" role="img" aria-label="Aura Engine">
     <svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <title>Aura Engine</title>
-      <path d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z" fill="#1A1A1A"/>
+      <path d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z" fill="#14161D"/>
     </svg>
   </div>
 
-  <h1 class="page-title">Visão Geral Completa</h1>
-  <p class="page-subtitle">Tudo que existe no ecossistema Aura: o que cada peça faz, como se conectam, e como uma sessão flui do início ao fim.</p>
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <h1 class="page-title reveal">Aura Engine — Visão Geral Completa</h1>
+  <p class="page-subtitle reveal">Tudo que existe no ecossistema Aura: o que cada peça faz, como se conectam, e como uma sessão flui do início ao fim.</p>
 
-  <div class="meta-bar">
-    <div><strong>Versão:</strong> maio 2026</div>
-    <div><strong>Skills:</strong> 15 (numeradas 00-14, com sub-cadeia 07a/07b/07c)</div>
-    <div><strong>Plataforma:</strong> Claude Code (CLI da Anthropic)</div>
-    <div><strong>Raiz de output:</strong> <code>/workspace/[product-slug]/</code></div>
+  <div class="meta-bar reveal">
+    <div><strong>Documento</strong> Visão Geral</div>
+    <div><strong>Versão</strong> junho 2026</div>
+    <div><strong>Data</strong> 2026-06-21</div>
+    <div><strong>Público</strong> Interno (framework)</div>
   </div>
 
-  <div class="toc">
-    <div class="toc-title">Conteúdo</div>
+  <div class="kpi-grid reveal">
+    <div class="kpi-card"><div class="big-num" data-count="16">16</div><div class="big-num-label">skills numeradas 00-14</div></div>
+    <div class="kpi-card"><div class="big-num" data-count="541">541</div><div class="big-num-label">frameworks nomeados na base</div></div>
+    <div class="kpi-card"><div class="big-num" data-count="14">14</div><div class="big-num-label">seções neste documento</div></div>
+  </div>
+
+  <div class="toc reveal">
+    <div class="toc-title">Sumário</div>
     <ol>
       <li><a href="#s1">O que é a Aura</a></li>
       <li><a href="#s2">A Base de Conhecimento Aura (search_knowledge)</a></li>
       <li><a href="#s3">Arquitetura geral</a></li>
-      <li><a href="#s4">As 15 skills (em detalhe)</a></li>
+      <li><a href="#s4">As skills (em detalhe)</a></li>
       <li><a href="#s5">Sistema de libs</a></li>
       <li><a href="#s6">Sistema de rules</a></li>
       <li><a href="#s7">Sistema de hooks</a></li>
@@ -217,78 +266,87 @@
     </ol>
   </div>
 
+  <!-- ═══════════════ SECTION 1 ═══════════════ -->
   <div class="section" id="s1">
-    <div class="section-label"><span class="num">01</span>O que é a Aura</div>
+    <div class="section-label reveal"><span class="num">01</span>O que é a Aura</div>
 
-    <p>A Aura é um sistema de duas partes pra construir e escalar marcas de ecommerce dentro do <strong>Claude Code</strong>, a CLI da Anthropic:</p>
+    <div class="subsection reveal">
+      <p>A Aura é um sistema de duas partes pra construir e escalar marcas de ecommerce dentro do <strong>Claude Code</strong>, a CLI da Anthropic:</p>
+      <ul>
+        <li><strong>Base de Conhecimento Aura</strong> — um servidor MCP remoto (ferramenta <code>search_knowledge</code>) que guarda os frameworks especialistas em que o raciocínio da Aura é construído (Schwartz, Hopkins, Hormozi, Cialdini, Sugarman, Ogilvy, Caples, mais metodologia original sobre construção de oferta, Meta Ads científico e produção de criativos). Conectada uma vez via Settings do Claude; consultada silenciosamente dentro de toda skill que precisa fundamentar uma decisão.</li>
+        <li><strong>Aura Engine</strong> — um projeto (clonado em <code>~/aura-engine</code>) contendo 15 skills, libs de suporte, rules, hooks e templates. Skills se ativam por contexto: o membro descreve o que precisa, a Aura identifica em qual fase está, e a skill apropriada roda.</li>
+      </ul>
+    </div>
 
-    <ul>
-      <li><strong>Base de Conhecimento Aura</strong> — um servidor MCP remoto (ferramenta <code>search_knowledge</code>) que guarda os frameworks especialistas em que o raciocínio da Aura é construído (Schwartz, Hopkins, Hormozi, Cialdini, Sugarman, Ogilvy, Caples, mais metodologia original sobre construção de oferta, Meta Ads científico e produção de criativos). Conectada uma vez via Settings do Claude; consultada silenciosamente dentro de toda skill que precisa fundamentar uma decisão.</li>
-      <li><strong>Aura Engine</strong> — um projeto (clonado em <code>~/aura-engine</code>) contendo 15 skills, libs de suporte, rules, hooks e templates. Skills se ativam por contexto: o membro descreve o que precisa, a Aura identifica em qual fase está, e a skill apropriada roda.</li>
-    </ul>
+    <div class="callout reveal"><strong>Princípio central</strong> cada fase produz artefatos versionados em <code>/workspace/[product-slug]/</code> que alimentam a próxima. Nada é jogado fora — a copy se apoia na pesquisa, os criativos se apoiam na copy, os ads se apoiam nos criativos, a retenção se apoia na venda.</div>
 
-    <div class="callout"><strong>Princípio central:</strong> cada fase produz artefatos versionados em <code>/workspace/[product-slug]/</code> que alimentam a próxima. Nada é jogado fora — copy bebe da pesquisa, criativos bebem da copy, ads bebem dos criativos, retenção bebe da venda.</div>
-
-    <div class="note"><strong>Filosofia de output:</strong> todo arquivo <code>.md</code> que a Aura escreve tem um <code>.html</code> companion no mesmo diretório. O <code>.md</code> é a fonte que a AI lê na fase seguinte; o <code>.html</code> é a versão que o membro abre no browser pra ler com calma.</div>
+    <div class="note reveal"><strong>Filosofia de output</strong> todo arquivo <code>.md</code> que a Aura escreve tem um <code>.html</code> companion no mesmo diretório. O <code>.md</code> é a fonte que a AI lê na fase seguinte; o <code>.html</code> é a versão que o membro abre no browser pra ler com calma.</div>
   </div>
 
+  <!-- ═══════════════ SECTION 2 ═══════════════ -->
   <div class="section" id="s2">
-    <div class="section-label"><span class="num">02</span>A Base de Conhecimento Aura (search_knowledge)</div>
+    <div class="section-label reveal"><span class="num">02</span>A Base de Conhecimento Aura (search_knowledge)</div>
 
-    <p>A Base de Conhecimento é a camada de expertise profunda que sustenta o raciocínio da Aura. Vive como um servidor MCP remoto, indexado e consultável por uma única chamada de tool.</p>
+    <div class="subsection reveal">
+      <p>A Base de Conhecimento é a camada de expertise profunda que sustenta o raciocínio da Aura. Vive como um servidor MCP remoto, indexado e consultável por uma única chamada de tool.</p>
+    </div>
 
-    <div class="subsection">
+    <div class="subsection reveal">
       <div class="subsection-title">Como o membro conecta</div>
       <p>Conexão acontece uma vez por dispositivo, e fica permanente até o membro remover.</p>
       <ul>
         <li><strong>Claude Desktop:</strong> Settings → Integrations → Add Custom Integration → Nome <em>Aura</em> → URL <code>https://aura-mcp-production.up.railway.app/mcp</code> → Add</li>
         <li><strong>Claude Code (terminal):</strong> <code>claude mcp add --transport http aura https://aura-mcp-production.up.railway.app/mcp</code></li>
       </ul>
-      <p>Instruções completas com screenshots ficam em <code>Aura.html</code> (português) e <code>Aura-en.html</code> (inglês) — os tutoriais de instalação que acompanham o sistema.</p>
+      <p>Instruções completas com screenshots ficam em <code>Aura.html</code> (português) e <code>Aura-en.html</code> (inglês).</p>
     </div>
 
-    <div class="subsection">
+    <div class="subsection reveal">
       <div class="subsection-title">O que tem dentro</div>
       <p>A base agrega a literatura fundacional de direct-response e ecommerce mais metodologia original. Quando uma skill precisa fundamentar uma decisão, consulta com frases de intent específica. Exemplos por domínio:</p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Domínio</th><th>Queries representativas</th></tr></thead>
-          <tbody>
-            <tr><td>Pesquisa de produto</td><td><code>product research criteria validation</code>, <code>market desires mass desire</code>, <code>market sophistication stages</code></td></tr>
-            <tr><td>Pesquisa de mercado</td><td><code>unified research document process</code>, <code>psychographic research drivers</code>, <code>voice of customer review mining</code>, <code>product market awareness Schwartz levels</code></td></tr>
-            <tr><td>Análise de concorrente</td><td><code>competitor research extracting claims</code>, <code>market sophistication saturation</code></td></tr>
-            <tr><td>Construção de oferta</td><td><code>unique mechanism UMP UMS theory</code>, <code>offer stack pricing guarantee</code>, <code>Hormozi grand slam offer value equation</code></td></tr>
-            <tr><td>Copywriting</td><td><code>headlines formulas process 100 lines</code>, <code>leads types Schwartz awareness</code>, <code>hero sections types selection</code>, <code>PDP product page copy</code>, <code>CTA psychology call to action</code></td></tr>
-            <tr><td>Produção de criativo</td><td><code>ad angles concepts variations</code>, <code>3-2-2 flexible ads format</code>, <code>hooks video ads</code>, <code>funnel creative playbook</code></td></tr>
-            <tr><td>Meta Ads</td><td><code>scientific method meta ads control variable</code>, <code>one campaign method AndroMeta</code>, <code>4Pi analysis spend frequency CPM</code>, <code>budget scaling methods 5% rule</code>, <code>performance gate scaling PGS</code></td></tr>
-            <tr><td>Escala</td><td><code>scaling strategy vertical horizontal</code>, <code>creative diversity scaling mechanism</code></td></tr>
-            <tr><td>Retenção</td><td><code>email lifecycle welcome abandoned cart post-purchase winback</code>, <code>Klaviyo flow trigger replenishment</code></td></tr>
-            <tr><td>Reciclagem de conteúdo</td><td><code>1 winner 9 derivatives formats advertorial email TikTok blog Pinterest</code></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p>Toda busca roda com <code>deep=true</code> pra resultados completos. Múltiplas buscas por tópico são normais — queries únicas raramente cobrem uma área inteira.</p>
     </div>
 
-    <div class="subsection">
+    <div class="table-wrap reveal">
+      <table>
+        <thead><tr><th>Domínio</th><th>Queries representativas</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Pesquisa de produto</strong></td><td><code>product research criteria validation</code>, <code>market desires mass desire</code>, <code>market sophistication stages</code></td></tr>
+          <tr><td><strong>Pesquisa de mercado</strong></td><td><code>unified research document process</code>, <code>psychographic research drivers</code>, <code>voice of customer review mining</code>, <code>product market awareness Schwartz levels</code></td></tr>
+          <tr><td><strong>Análise de concorrente</strong></td><td><code>competitor research extracting claims</code>, <code>market sophistication saturation</code></td></tr>
+          <tr><td><strong>Construção de oferta</strong></td><td><code>unique mechanism UMP UMS theory</code>, <code>offer stack pricing guarantee</code>, <code>Hormozi grand slam offer value equation</code></td></tr>
+          <tr><td><strong>Copywriting</strong></td><td><code>headlines formulas process 100 lines</code>, <code>leads types Schwartz awareness</code>, <code>hero sections types selection</code>, <code>PDP product page copy</code>, <code>CTA psychology call to action</code></td></tr>
+          <tr><td><strong>Produção de criativo</strong></td><td><code>ad angles concepts variations</code>, <code>3-2-2 flexible ads format</code>, <code>hooks video ads</code>, <code>funnel creative playbook</code></td></tr>
+          <tr><td><strong>Meta Ads</strong></td><td><code>scientific method meta ads control variable</code>, <code>one campaign method AndroMeta</code>, <code>4Pi analysis spend frequency CPM</code>, <code>budget scaling methods 5% rule</code>, <code>performance gate scaling PGS</code></td></tr>
+          <tr><td><strong>Escala</strong></td><td><code>scaling strategy vertical horizontal</code>, <code>creative diversity scaling mechanism</code></td></tr>
+          <tr><td><strong>Retenção</strong></td><td><code>email lifecycle welcome abandoned cart post-purchase winback</code>, <code>Klaviyo flow trigger replenishment</code></td></tr>
+          <tr><td><strong>Reciclagem de conteúdo</strong></td><td><code>1 winner 9 derivatives formats advertorial email TikTok blog Pinterest</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Toda busca roda com <code>deep=true</code> pra resultados completos. Múltiplas buscas por tópico são normais.</p>
+
+    <div class="subsection reveal">
       <div class="subsection-title">Como se comporta dentro das skills</div>
       <ul>
-        <li><strong>Sempre consultada, nunca nomeada.</strong> Skills consultam a base sempre que precisam fundamentar uma recomendação, mas nunca avisam ao membro que estão buscando, nunca citam a fonte e nunca namedropam o material de curso por trás.</li>
+        <li><strong>Sempre consultada, nunca nomeada.</strong> Skills consultam a base sempre que precisam fundamentar uma recomendação, mas nunca avisam ao membro que estão buscando, nunca citam a fonte e nunca citam o material de curso por trás.</li>
         <li><strong>Autores e livros são citáveis.</strong> Schwartz, Cialdini, Hopkins, Hormozi, Sugarman, Ogilvy, Caples etc. podem ser referenciados diretamente quando relevante — são conhecimento público.</li>
         <li><strong>Fontes internas não.</strong> Nomes específicos de cursos, vaults, programas internos nunca aparecem pro membro.</li>
       </ul>
     </div>
 
-    <div class="callout"><strong>Por que importa:</strong> a Base de Conhecimento é o que faz o output da Aura ser específico em vez de genérico. Sem ela, o sistema cairia no mesmo conselho superficial de marketing que um LLM sozinho produz. Com ela, toda recomendação é ancorada em metodologia comprovada de direct-response.</div>
+    <div class="callout reveal"><strong>Por que importa</strong> a Base de Conhecimento é o que faz o output da Aura ser específico em vez de genérico. Sem ela, o sistema cairia no mesmo conselho superficial de marketing que um LLM sozinho produz.</div>
   </div>
 
+  <!-- ═══════════════ SECTION 3 ═══════════════ -->
   <div class="section" id="s3">
-    <div class="section-label"><span class="num">03</span>Arquitetura geral</div>
-    <div class="ascii-tree">~/aura-engine/             ← clonado de github.com/reverseeth/aura-engine
+    <div class="section-label reveal"><span class="num">03</span>Arquitetura geral</div>
+
+    <div class="ascii-map reveal">~/aura-engine/             ← clonado de github.com/reverseeth/aura-engine
 ├── .claude/
 │   ├── CLAUDE.md          ← instruções fundamentais (idioma, copy rules, dual output, MCP)
 │   ├── OVERVIEW.md / .html ← companion interno deste documento
-│   ├── skills/            ← 17 arquivos .md (skills 00-14, com 07a/07b/07c)
+│   ├── skills/            ← skills 00-14, com sub-cadeia storefront 07a/07b/07c/07d
 │   ├── lib/               ← libs reutilizáveis chamadas pelas skills
 │   ├── rules/             ← diretrizes auto-carregadas por contexto
 │   ├── hooks/             ← scripts que rodam em eventos do Claude Code
@@ -302,329 +360,214 @@
         ├── manifest.json  ← single source of truth do estado do produto
         └── 01..14         ← artefatos versionados produzidos por cada skill</div>
 
-    <div class="note">A Base de Conhecimento Aura <strong>não</strong> está nesta árvore — é um servidor MCP remoto conectado separadamente pelo membro. Engine e Base de Conhecimento são independentes: cada uma funciona sem a outra, mas juntas formam o sistema completo.</div>
+    <div class="note reveal"><strong>Independência</strong> A Base de Conhecimento Aura <strong>não</strong> está nesta árvore — é um servidor MCP remoto conectado separadamente. Engine e Base de Conhecimento são independentes.</div>
   </div>
 
+  <!-- ═══════════════ SECTION 4 ═══════════════ -->
   <div class="section" id="s4">
-    <div class="section-label"><span class="num">04</span>As 15 skills (em detalhe)</div>
-    <p>Cada skill é um arquivo <code>.md</code> com frontmatter (nome + descrição) e corpo estruturado em ETAPAs numeradas. O Claude lê a skill, segue as etapas, e salva os artefatos prescritos. Skills estão listadas abaixo na ordem em que o membro roda em uma sessão normal.</p>
+    <div class="section-label reveal"><span class="num">04</span>As skills (em detalhe)</div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">00</span>
-        <span class="skill-name">Setup</span>
-        <span class="pill pill-trigger">"setup"</span>
-      </div>
-      <div class="skill-desc">Configuração da primeira vez. Pergunta o idioma preferido pra relatórios internos (<code>pt-BR</code> ou <code>en</code>), cria <code>/workspace/</code> com o slug do produto, coleta contexto do membro (budget, ESP, tools, mercado) em <code>profile.md</code>, inicializa <code>manifest.json</code>, e detecta se o membro já está no meio de outro produto.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">manifest.json</span> <span class="pill pill-output">profile.md</span></div>
+    <div class="subsection reveal">
+      <p>Cada skill é um arquivo <code>.md</code> com frontmatter (nome + descrição) e corpo estruturado em ETAPAs numeradas. Skills estão listadas abaixo na ordem em que o membro roda em uma sessão normal. A fase de página virou a fase <strong>storefront</strong> (07a→07b→07c→07d), e a bonus delivery (05) roda pós-launch.</p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">01</span>
-        <span class="skill-name">Product Research</span>
-        <span class="pill pill-trigger">"product research"</span>
-      </div>
-      <div class="skill-desc">Valida produtos contra critérios (mass desire, mass urgency, mass uniqueness), aplica o framework de sophistication de Schwartz (stages 1-5), recomenda go/no-go. Se o membro ainda não tem produto, sugere opções viáveis no nicho dele.</div>
-      <div class="note"><strong>Enrichment opcional:</strong> quando o MCP TrendTrack está conectado, a ETAPA 0.5 usa <code>find_winning_products</code> + <code>search_shops</code> + <code>creative_inspiration_pack</code> pra validar contra winners reais com revenue tracked, em vez de depender só dos frameworks.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">01-product-research.md/html</span></div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 00 — Setup</div>
+      <p><strong>Trigger:</strong> <code>"setup"</code><br>
+      Configuração da primeira vez. Pergunta o idioma preferido pra relatórios internos (<code>pt-BR</code> ou <code>en</code>), cria <code>/workspace/</code> com o slug do produto, coleta contexto do membro (budget, ESP, tools, mercado) em <code>profile.md</code>, inicializa <code>manifest.json</code>.<br>
+      <strong>Output:</strong> <code>manifest.json</code> + <code>profile.md</code></p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">02</span>
-        <span class="skill-name">Market Research</span>
-        <span class="pill pill-trigger">"market research"</span>
-      </div>
-      <div class="skill-desc">Voice of Customer (VOC) mining em Reddit, fóruns, reviews, TikTok comments. Identifica frases exatas (verbatim), mapeia distribuição de awareness (% unaware / problem / solution / product / most aware), drivers psicográficos, objeções ranqueadas por intensidade.</div>
-      <div class="callout"><strong>Por que importa:</strong> o documento mais consultado do sistema. Skills 04 (oferta), 06 (copy), 08 (criativos) leem dele pra fundamentar cada claim.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">02-market-research.md/html/json</span></div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 01 — Product Research</div>
+      <p><strong>Trigger:</strong> <code>"product research"</code><br>
+      Valida produtos contra critérios (mass desire, mass urgency, mass uniqueness), aplica framework de sophistication de Schwartz (stages 1-5), recomenda go/no-go.<br>
+      <strong>Enrichment opcional:</strong> quando MCP TrendTrack conectado, ETAPA 0.5 usa <code>find_winning_products</code> + <code>search_shops</code> + <code>creative_inspiration_pack</code>.<br>
+      <strong>Output:</strong> <code>01-product-research/relatorio.md</code> + <code>relatorio.html</code></p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">03</span>
-        <span class="skill-name">Competitor Analysis</span>
-        <span class="pill pill-trigger">"competitor analysis"</span>
-      </div>
-      <div class="skill-desc">Identifica 5-10 concorrentes ativos via Meta Ad Library + Similarweb. Analisa PDPs (estrutura, headlines, mecanismos, garantias, social proof). ETAPA 3C: análise profunda de criativos escalados via transcription Whisper.</div>
-      <div class="note"><strong>Fallback chain pra páginas bloqueadas:</strong> Wayback Machine → archive.today (Google Cache foi descontinuado em set/2024 e removido da skill).</div>
-      <div class="note"><strong>Enrichment opcional:</strong> quando o MCP TrendTrack está conectado, a ETAPA 0.5 colapsa boa parte das ETAPAs 1-3 em chamadas <code>brief_competitor</code> + <code>search_shops</code> + <code>find_similar_shops</code> + <code>scan_ad</code> — elimina necessidade de cloaker fallbacks.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">03-competitor-analysis.md/html</span> <span class="pill pill-output">03-creative-patterns.json</span></div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 02 — Market Research</div>
+      <p><strong>Trigger:</strong> <code>"market research"</code><br>
+      Coleta de Voice of Customer em Reddit, fóruns, reviews, comentários do TikTok. Identifica frases exatas dos clientes, mapeia awareness distribution, drivers psicográficos, objeções ranqueadas.<br>
+      <strong>Por que importa:</strong> o documento mais consultado do sistema.<br>
+      <strong>Output:</strong> <code>02-market-research/relatorio.md</code> + <code>relatorio.html</code> + <code>dados.json</code></p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">04</span>
-        <span class="skill-name">Offer Builder</span>
-        <span class="pill pill-trigger">"offer"</span>
-      </div>
-      <div class="skill-desc">Constrói o mecanismo único (UMP/UMS theory). ETAPA 2.5 obrigatória — Research Foundation: cada claim do mecanismo precisa de evidência rastreável. Pricing triangulado (3 âncoras: COGS, valor entregue, dor evitada), bonus stack, garantia que ataca a objeção #1, unit economics completa, 11 sanity checks antes de salvar.</div>
-      <div class="skill-section">
-        <strong>Outputs críticos pras skills downstream:</strong>
-        <ul>
-          <li><code>bonuses[]</code> array → lido pela skill 05 (bonus delivery)</li>
-          <li><code>offer_stack</code> string → lido pela skill 06 (copy)</li>
-          <li><code>unit_economics.weighted_margin_per_order</code> + <code>target_cpa_primary_2x/3x</code> → lidos pela skill 11 (ad analysis) pra detecção dinâmica de LOSER</li>
-        </ul>
-      </div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">04-offer.md/html/json</span> <span class="pill pill-output">04-research-foundation.json</span></div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 03 — Competitor Analysis</div>
+      <p><strong>Trigger:</strong> <code>"competitor analysis"</code><br>
+      Identifica 5-10 concorrentes ativos via Meta Ad Library + Similarweb. Analisa PDPs. ETAPA 3C: análise profunda de criativos escalados via Whisper transcription.<br>
+      <strong>Fallback chain pra páginas bloqueadas:</strong> Wayback Machine → archive.today.<br>
+      <strong>Enrichment opcional:</strong> quando MCP TrendTrack conectado, ETAPA 0.5 condensa ETAPAs 1-3 em <code>brief_competitor</code> + <code>search_shops</code> + <code>find_similar_shops</code> + <code>scan_ad</code>.<br>
+      <strong>Output:</strong> <code>03-competitor-analysis/relatorio.md</code> + <code>relatorio.html</code> + <code>dados.json</code> + <code>creative-patterns.json</code></p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">05</span>
-        <span class="skill-name">Bonus Delivery</span>
-        <span class="pill pill-trigger">"bonus delivery"</span>
-      </div>
-      <div class="skill-desc">Asset prep pros bonuses definidos na skill 04. Lê <code>04-offer.json.bonuses[]</code>. Pra cada bonus, gera pipeline de entrega conforme <code>delivery_trigger</code> (post-purchase, on-signup, day-7, on-first-reorder). Templates por tipo: digital guide → PDF, community access → Circle invite, video series → Wistia hosted, etc.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">05-bonus-delivery/[bonus-id]/</span> com assets + instruções de upload</div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 04 — Offer Builder</div>
+      <p><strong>Trigger:</strong> <code>"offer"</code><br>
+      Constrói mecanismo único (UMP/UMS — a razão pela qual o produto resolve o problema, e por que a alternativa do mercado falha). ETAPA 2.5 obrigatória — Research Foundation. Pricing triangulado, bonus stack, garantia, unit economics, 11 sanity checks.</p>
+      <p><strong>Outputs críticos pras skills downstream:</strong></p>
+      <ul>
+        <li><code>bonuses[]</code> array → lido pela skill 05</li>
+        <li><code>offer_stack</code> string → lido pela skill 06</li>
+        <li><code>unit_economics.weighted_margin_per_order</code> + <code>target_cpa_primary_2x/3x</code> → lidos pela skill 11</li>
+      </ul>
+      <p><strong>Output:</strong> <code>04-offer-builder/relatorio.md</code> + <code>relatorio.html</code> + <code>dados.json</code> + <code>research-foundation.json</code></p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">06</span>
-        <span class="skill-name">Copy Engine</span>
-        <span class="pill pill-trigger">"copy"</span>
-      </div>
-      <div class="skill-desc">Headlines (o processo adapta o "Process of 100" de Caples ao volume necessário). Lead types selecionados por awareness stage (Story, Problem-Solution, Secret, Offer, Proclamation, Direct). Hero sections apropriadas ao tipo de página, bullets, social proof, FAQ, urgency, email hooks (que a skill 13 reutiliza). 8 sweeps de revisão: clarity, VOC, specificity, flow, objection, CTA, originality, compliance.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">06-copy.md/html/json</span> (lido pela cadeia 07 page)</div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 05 — Bonus Delivery (roda PÓS-LAUNCH)</div>
+      <p><strong>Trigger:</strong> <code>"bonus delivery"</code> / <code>"bônus"</code><br>
+      Geração do asset de bônus de ecom + delivery. A DEFINIÇÃO do bônus continua na skill 04; a 05 gera o ASSET (PDF/e-book/checklist) e rastreia access rate. Tipos primários de ecom: gift-with-purchase (GWP, threshold de cart subtotal vindo do AOV, take-rate como KPI), free e-book/guide toward dream outcome, free complementary SKU, free gift wrapping (Q4). A entrega do email integra com a skill 13 (via <code>delivery_trigger</code>); a config de GWP integra com a 07d-checkout-aov (é config de loja). Roda pós-launch, junto da 13.<br>
+      <strong>Output:</strong> <code>05-bonus-delivery/relatorio.md</code> + <code>relatorio.html</code> + <code>dados.json</code> (log de entrega) + <code>bonuses/[bonus-id]/</code></p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">07</span>
-        <span class="skill-name">Page Engine — cadeia 07a → 07b → 07c</span>
-        <span class="pill pill-trigger">"page"</span>
-      </div>
-      <div class="skill-desc"><strong>Por que está dividida em três:</strong> a versão monolítica tinha 1055 linhas. Quebrar melhora performance e permite o membro iterar em uma fase específica sem regenerar tudo.</div>
-
-      <div class="skill-section">
-        <strong>07a — Page Planning</strong>
-        <ul>
-          <li>Pre-flight (skill 06 completa, manifest válido)</li>
-          <li>Detecta tipo de página (advertorial vs landing vs hybrid)</li>
-          <li>Brand discovery + referência visual opcional</li>
-          <li>Orquestração do design system: cor → typography → spacing → grid → tokens</li>
-          <li>Camada visual blueprint opcional via Google Stitch (opt-in)</li>
-          <li><strong>Output:</strong> <code>07-page/07-design-system.md</code> + <code>07-plan.md</code> + <code>07-plan.json</code></li>
-        </ul>
-      </div>
-
-      <div class="skill-section">
-        <strong>07b — Page Sections</strong>
-        <ul>
-          <li>Gera 3 variantes de hero (membro escolhe A/B/C)</li>
-          <li>Converte pro padrão de inline-blocks no schema Shopify</li>
-          <li>Replica padrão pras demais sections do plano</li>
-          <li>UX writing pass + self-critique (heurísticas Nielsen + WCAG 2.1 AA)</li>
-          <li>Validação Liquid via <code>shopify-plugin:shopify-liquid</code> com retry logic</li>
-          <li><strong>Output:</strong> arquivos <code>.liquid</code> em <code>&lt;staging&gt;/sections/</code> + <code>07-sections-report.md</code></li>
-        </ul>
-      </div>
-
-      <div class="skill-section">
-        <strong>07c — Page Deploy</strong>
-        <ul>
-          <li><span class="pill pill-gate">GATE</span> Skill 09 (consistency audit) no pre-flight: aborta em <code>BLOCK</code></li>
-          <li>Cria <code>templates/page.[produto].json</code> com blocks pré-populados</li>
-          <li>Validação OBRIGATÓRIA de blocks (não-vazios, types válidos)</li>
-          <li>Deploy seguro: duplicate theme → pull → cp → push <code>--nodelete</code></li>
-          <li>Smoke test pós-push (curl no storefront, grep marker)</li>
-          <li><strong>Output:</strong> preview URLs + <code>07-deploy-report.md/json</code></li>
-        </ul>
-      </div>
-
-      <div class="note"><strong>Page registry:</strong> quando múltiplas páginas existem pra um mesmo produto (ex: v1 narrative + v2 editorial), o <code>07-page/page-registry.md</code> centraliza URL, frame, opening line, e detalhes de message-match ad→page. Briefings de criativo referenciam páginas por slug — atualizar uma página só requer editar o registry.</div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 06 — Copy Engine</div>
+      <p><strong>Trigger:</strong> <code>"copy"</code><br>
+      Headlines ("Process of 100" de Caples). Lead types por awareness stage. Hero sections, bullets, social proof, FAQ, urgency, email hooks. 8 sweeps de revisão.<br>
+      <strong>Output:</strong> <code>06-copy-engine/relatorio.md</code> + <code>relatorio.html</code> + <code>dados.json</code></p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">08</span>
-        <span class="skill-name">Creative Engine</span>
-        <span class="pill pill-trigger">"creatives"</span>
-      </div>
-      <div class="skill-desc">Pipeline completo de geração de criativos. Por conceito: 3 format variants (Real Cuts / Hyper Motion / AI UGC) compartilhando um body BRIDGE → HOLD → CTA, com hook único por variante.</div>
-      <div class="skill-section">
-        <ul>
-          <li><strong>ETAPA 1:</strong> detecta material disponível + creator archetype</li>
-          <li><strong>ETAPA 2:</strong> calcula quantidade de conceitos por stage do membro (3-4 starter, 6-8 validating, 10-15 scaling)</li>
-          <li><strong>ETAPA 3:</strong> gera ângulos nas 3 verticais (problema, resultado, identidade)</li>
-          <li><strong>ETAPA 4.5:</strong> regras estruturais globais (VOC traceability, hook rotation, swap viability)</li>
-          <li><strong>ETAPA 5:</strong> briefings completos por conceito</li>
-          <li><strong>ETAPA 5.7:</strong> prompts production-ready (Higgsfield + GPT Image 2.0)</li>
-          <li><strong>ETAPA 6:</strong> LP congruency mapping (pra qual página cada conceito direciona)</li>
-          <li><strong>ETAPA 7:</strong> hooks bank (10 alternativas pra iterações futuras)</li>
-          <li><strong>ETAPA 7.4:</strong> carrega DNA aprendido do registry (cross-product learning)</li>
-          <li><strong>ETAPA 7.5:</strong> compliance pre-flight (rule 8b)</li>
-          <li><strong>ETAPA 7.6:</strong> extração de DNA pro registry (silent — alimenta <code>lib/creative-dna/registry.py</code>)</li>
-          <li><strong>ETAPA 8:</strong> resumo de produção</li>
-        </ul>
-      </div>
-      <div class="note"><strong>Enrichment opcional:</strong> quando o MCP TrendTrack está conectado, o Hooks Bank é alimentado com archetypes vencedores reais via <code>creative_inspiration_pack</code> + <code>scan_ad</code>.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">08-creatives.json</span> + 1 briefing <code>.md</code> por conceito (com <code>.html</code> companion)</div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 07 — Storefront (cadeia 07a → 07b → 07c → 07d)</div>
+      <p><strong>Trigger:</strong> <code>"page"</code> / <code>"tracking"</code> / <code>"checkout"</code><br>
+      A fase storefront monta a loja inteira: página, deploy, tracking e AOV. Arquitetura <strong>HTML-first determinística</strong> — o design nasce in-session, vira a fonte única de verdade visual, e a conversão pra Liquid é por código, não por reasoning. Mata o drift entre o que o membro aprova e o que vai pro ar.</p>
+      <ul>
+        <li><strong>07a — Page Design:</strong> PLAN adaptativo de sections (page_type detectado primariamente pelo awareness_level de Schwartz) + brand signals + design HTML-first via a skill nativa <code>frontend-design</code> (gera a página inteira como HTML+CSS self-contained com a copy real já inserida). O membro aprova esse HTML ANTES de qualquer Liquid existir. <strong>Output:</strong> <code>07-plan.json</code> (com bloco <code>strategy</code>), <code>07-design-system.md/html</code>, <code>design/page.html</code> (aprovado), <code>design-tokens.json</code>, <code>design-signals.json</code></li>
+        <li><strong>07b — Page Build:</strong> compile determinístico HTML→Liquid via <code>liquid-converter.py</code> (conversor canônico), populate <code>templates/page.[produto].json</code> com blocks/block_order/settings preenchidos com a copy real, GATEs de compliance + promise↔config, deploy seguro (duplicate → pull --nodelete → cp → push --allow-live --nodelete) + marker verification + smoke test</li>
+        <li><strong>07c — Tracking Setup:</strong> Meta Pixel + Conversions API (CAPI), valida Match Quality ≥80% no Events Manager, escolhe o analytics stack por stage (Meta App / Wetracked / Triple Whale / Aimerce). Destrava os pré-flights de tracking das skills 08 e 10. <strong>Output:</strong> estado no manifest (<code>tracking_ready</code>, <code>analytics_stack</code>)</li>
+        <li><strong>07d — Checkout AOV:</strong> post-purchase upsell (one-click), cart bump, bundle/quantity-break, free-shipping threshold, checkout trust. Consome os bumps/upsells já definidos no <code>04-offer-builder/dados.json</code>. Caminho real Shopify: Functions (cart transform / discount), post-purchase extension (Checkout UI) ou apps equivalentes</li>
+      </ul>
+      <div class="note reveal"><strong>Page registry</strong> quando múltiplas páginas existem pra um produto, <code>07-page/page-registry.md</code> centraliza URL, ângulo da página, opening line, message-match ad→page.</div>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">09</span>
-        <span class="skill-name">Consistency Audit</span>
-        <span class="pill pill-trigger">"consistency audit"</span>
-        <span class="pill pill-trigger">"audit"</span>
-      </div>
-      <div class="skill-desc">Cross-phase drift detection: confirma que mecanismo, awareness stage, VOC e oferta concordam entre todos os artefatos (skills 02 → 03 → 04 → 06 → 07 → 08). Verifica VOC traceability (frases na copy/ads vêm da pesquisa). Verifica promise↔config (promessas das páginas batem com config da loja Shopify).</div>
-      <div class="opportunity"><strong>Como vira gate:</strong> skills 07c, 10 e 13 leem o JSON dessa skill no pre-flight. Se <code>launch_recommendation == "BLOCK"</code>, abortam. Drift entre fases para de chegar em produção.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">09-consistency-audit.md/html/json</span> com <code>launch_recommendation: "BLOCK" | "CAUTION" | "GO"</code></div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 08 — Creative Engine</div>
+      <p><strong>Trigger:</strong> <code>"creatives"</code><br>
+      Pipeline completo. Por conceito: 3 format variants (Real Cuts / Hyper Motion / AI UGC). ETAPAs: detecção de material, quantidade por stage, ângulos das 3 verticais, regras estruturais, briefings, prompts production-ready (Higgsfield), LP congruency mapping, hooks bank, DNA registry load/extract, compliance pre-flight.<br>
+      <strong>Enrichment opcional:</strong> quando MCP TrendTrack conectado, Hooks Bank ganha archetypes vencedores reais.<br>
+      <strong>Output:</strong> <code>08-creative-engine/relatorio.md</code> + <code>relatorio.html</code> + <code>dados.json</code> + 1 briefing por conceito (<code>concept-NN.md/html</code>)</p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">10</span>
-        <span class="skill-name">Ad Strategy</span>
-        <span class="pill pill-trigger">"ad strategy"</span>
-      </div>
-      <div class="skill-desc">Pre-flight pra pré-requisitos (Pixel, CAPI, produto live, criativos prontos). Estrutura de campanha (One Campaign Method). Ad sets em 3-2-2 (3 conceitos × 2 hooks × 2 thumbnails). Naming convention padrão (<code>campaign_name</code> salvo no manifest pra skill 11 cruzar). Árvore de decisão por timeline (dia 1/3/7/14). Performance Gate Scaling (PGS) automático. Inclui árvore de decisão de analytics (Meta App / Wetracked / Triple Whale / Aimerce) ajustada ao stage do membro.</div>
-      <div class="callout"><strong><span class="pill pill-gate">GATE</span> Skill 09</strong> roda no pre-flight. Aborta em <code>BLOCK</code>. Drift entre criativos / copy / oferta vira disapproval ou ad↔landing mismatch.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">10-ad-strategy.md/html/json</span> + manifest <code>10_campaign_name</code></div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 09 — Consistency Audit</div>
+      <p><strong>Trigger:</strong> <code>"consistency audit"</code> / <code>"audit"</code><br>
+      Cross-phase drift detection: mecanismo, awareness stage, VOC, oferta concordam entre todos os artefatos (skills 02 → 03 → 04 → 06 → 07 → 08). VOC traceability + promise↔config. Roda ANTES do launch, conferindo a página já no ar + criativos + oferta.<br>
+      <strong>Vira gate de launch:</strong> skills 10 e 13 abortam em <code>BLOCK</code>. A página existir (07b) não gasta dinheiro; os ads (10) sim — por isso o gate fica antes da 10, não do deploy da página.<br>
+      <strong>Output:</strong> <code>09-consistency-audit/relatorio.md</code> + <code>relatorio.html</code> + <code>dados.json</code> com <code>launch_recommendation</code></p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">11</span>
-        <span class="skill-name">Ad Analysis</span>
-        <span class="pill pill-trigger">"ad analysis"</span>
-      </div>
-      <div class="skill-desc">Análise 4Pi (Spend, Frequency, CPM, Cost per Result). Detecção dinâmica de LOSER (lê <code>04-offer.json.unit_economics.weighted_margin_per_order</code> + <code>target_cpa_primary_2x/3x</code>). 19-Point Loser Diagnostic em 4 camadas (targeting, hook, copy, oferta). Identifica WINNERs (CPA &lt; target × 0.7, spend &gt; $300, idade &gt; 5 dias). Recomenda iterar vs escalar.</div>
-      <div class="note"><strong>Enrichment opcional:</strong> quando o MCP TrendTrack está conectado, <code>scan_ad</code> faz benchmark dos winners contra o mercado e <code>daily_radar</code> monitora movimentos dos concorrentes.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">11-analysis/[timestamp].json</span> + <span class="pill pill-output">11-analysis/latest.json</span> (handoff pras skills 12 e 14)</div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 10 — Ad Strategy</div>
+      <p><strong>Trigger:</strong> <code>"ad strategy"</code><br>
+      Pre-flight pra Pixel/CAPI/produto live/criativos prontos. One Campaign Method, 3-2-2 ad sets, naming convention, decisão por timeline, PGS automático. Inclui árvore de analytics (Meta App / Wetracked / Triple Whale / Aimerce).<br>
+      <strong>GATE skill 09</strong> roda no pre-flight.<br>
+      <strong>Output:</strong> <code>10-ad-strategy/relatorio.md</code> + <code>relatorio.html</code> + <code>dados.json</code> + manifest <code>10_campaign_name</code></p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">12</span>
-        <span class="skill-name">Scale Engine</span>
-        <span class="pill pill-trigger">"scale"</span>
-      </div>
-      <div class="skill-desc">Pre-flight (skills 10 + 11 completas). Vertical scaling (PGS 5% rule). Horizontal scaling (novos ad sets, novos placements, novos angles). Champion promotion (Post ID dedicado). Diversification por stage (Tier 1/2/3+).</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">12-scale/[timestamp].md</span> + plano de execução</div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 11 — Ad Analysis</div>
+      <p><strong>Trigger:</strong> <code>"ad analysis"</code><br>
+      4Pi (Spend, Frequency, CPM, Cost per Result). LOSER detection dinâmico (lê unit_economics da skill 04). 19-Point Loser Diagnostic. Identifica WINNERs.<br>
+      <strong>Enrichment opcional:</strong> quando MCP TrendTrack conectado, <code>scan_ad</code> faz benchmark dos winners e <code>daily_radar</code> monitora concorrentes.<br>
+      <strong>Output:</strong> <code>11-ad-analysis/relatorio.md</code> + <code>relatorio.html</code> + <code>dados.json</code> (última análise) + <code>[YYYYMMDD]-analysis.md/html</code> (histórico)</p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">13</span>
-        <span class="skill-name">Retention Engine</span>
-        <span class="pill pill-trigger">"retention"</span>
-        <span class="pill pill-trigger">"email flows"</span>
-        <span class="pill pill-trigger">"klaviyo"</span>
-      </div>
-      <div class="skill-desc">Pre-flight: ESP identificado (Klaviyo / Omnisend / MailerLite), ≥50 compras no histórico. Fluxos base: welcome series, abandoned cart, post-purchase, win-back, replenishment. Cada fluxo adapta ao produto (lê <code>04-offer.md</code> pra reorder rate, período de garantia, bonuses entregáveis).</div>
-      <div class="callout"><strong><span class="pill pill-gate">GATE</span> Skill 09</strong> no pre-flight: aborta em <code>BLOCK</code>. Fluxos de email herdariam qualquer drift detectado (mecanismo divergente, VOC não rastreada, oferta diferente) e propagariam inconsistência pra base de subscribers.</div>
-      <div class="note"><strong>Enrichment opcional:</strong> quando o MCP TrendTrack está conectado, <code>analyze_shop_emails</code> calibra o timing dos fluxos contra padrões reais de cadência/subject das marcas concorrentes.</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">13-retention/[fluxo]/email-N.html</span> + flow metadata + relatório operacional</div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 12 — Scale Engine</div>
+      <p><strong>Trigger:</strong> <code>"scale"</code><br>
+      Vertical scaling (PGS 5% rule). Horizontal scaling. Champion promotion. Diversification por stage.<br>
+      <strong>Output:</strong> <code>12-scale-engine/relatorio.md</code> + <code>relatorio.html</code> + <code>dados.json</code> + <code>scale-directives.md</code></p>
     </div>
 
-    <div class="skill-card">
-      <div class="skill-head">
-        <span class="pill pill-skill">14</span>
-        <span class="skill-name">Content Recycler</span>
-        <span class="pill pill-trigger">"content recycler"</span>
-        <span class="pill pill-trigger">"recycle [id]"</span>
-        <span class="pill pill-trigger">"recycle winner"</span>
-      </div>
-      <div class="skill-desc">Lê um criativo winner (input direto OU auto-detectado via <code>11-analysis/latest.json.winners[]</code>). Extrai essência (big idea, hook, mechanism, avatar, voice) em <code>essence.json</code>. Gera 9 derivadas em formatos diferentes: advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad. Compliance pre-flight em cada derivada (severity ≥ high dispara auto-rewrite).</div>
-      <div class="skill-section"><strong>Output:</strong> <span class="pill pill-output">14-recycled/[source-id]/</span> com 9 <code>.md</code> + 9 <code>.html</code> + <code>README.md/html</code> + <code>essence.json</code> + <code>compliance-log.json</code></div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 13 — Retention Engine</div>
+      <p><strong>Trigger:</strong> <code>"retention"</code> / <code>"email flows"</code> / <code>"klaviyo"</code><br>
+      ESP identificado, ≥50 compras. Fluxos base: welcome series, abandoned cart, post-purchase, win-back, replenishment.<br>
+      <strong>GATE skill 09</strong> no pre-flight.<br>
+      <strong>Enrichment opcional:</strong> <code>analyze_shop_emails</code> calibra timing dos fluxos.<br>
+      <strong>Output:</strong> <code>13-retention-engine/relatorio.md</code> + <code>relatorio.html</code> + <code>dados.json</code> + <code>[fluxo]/</code></p>
+    </div>
+
+    <div class="subsection reveal">
+      <div class="subsection-title">Skill 14 — Content Recycler</div>
+      <p><strong>Trigger:</strong> <code>"content recycler"</code> / <code>"recycle [id]"</code> / <code>"recycle winner"</code><br>
+      Lê 1 criativo winner (auto-detect via <code>11-ad-analysis/dados.json.winners[]</code>). Extrai essência. Gera 9 derivadas: advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad.<br>
+      <strong>Output:</strong> <code>14-content-recycler/relatorio.md</code> + <code>relatorio.html</code> (índice) + <code>[source-id]/</code> com 9 <code>.md</code> + 9 <code>.html</code></p>
     </div>
   </div>
 
+  <!-- ═══════════════ SECTION 5 ═══════════════ -->
   <div class="section" id="s5">
-    <div class="section-label"><span class="num">05</span>Sistema de libs</div>
-    <p>Libs reutilizáveis chamadas pelas skills. Ficam em <code>.claude/lib/</code>.</p>
+    <div class="section-label reveal"><span class="num">05</span>Sistema de libs</div>
 
-    <div class="table-wrap">
+    <div class="subsection reveal">
+      <p>Libs reutilizáveis em <code>.claude/lib/</code>.</p>
+    </div>
+
+    <div class="table-wrap reveal">
       <table>
         <thead><tr><th>Lib</th><th>Função</th><th>Usada por</th></tr></thead>
         <tbody>
-          <tr>
-            <td><strong>compliance-preflight</strong></td>
-            <td>Detecta palavras ad-flag (Botox, weight loss, cure, treat, anti-aging, before &amp; after, guaranteed) que disparam disapproval automático no Meta/TikTok. Output: JSON com <code>severity: critical | high | medium | low</code> + <code>rewrite_suggestion</code>.</td>
-            <td>06, 07b, 07c, 08, 14</td>
-          </tr>
-          <tr>
-            <td><strong>content-recycler</strong></td>
-            <td>Engine prompt-driven pra skill 14. Arquivos: <code>recycler.md</code> (prompt principal) + <code>formats.json</code> (specs dos 9 formatos). Customizável: adicionar formato = editar <code>formats.json</code>; próxima execução pega automaticamente.</td>
-            <td>14</td>
-          </tr>
-          <tr>
-            <td><strong>creative-dna</strong></td>
-            <td>Cross-product DNA registry. Skill 08 salva padrões abstratos (winning hook archetypes, voice signatures, structural patterns); próxima execução em outro produto carrega e adapta. Membros que rodam múltiplos produtos ganham learning cumulativo.</td>
-            <td>08</td>
-          </tr>
-          <tr>
-            <td><strong>hook-taxonomy</strong></td>
-            <td>Taxonomia de hooks usada pela skill 08 (Problema / Resultado / Curiosidade / Prova Social). Catálogo em <code>archetypes.json</code>.</td>
-            <td>08</td>
-          </tr>
-          <tr>
-            <td><strong>prompt-directors</strong></td>
-            <td>Directors de prompt pra ferramentas externas de imagem/vídeo. Atualmente ship <code>marketing-studio-director.md</code> (Higgsfield Marketing Studio: UGC, Tutorial, Unboxing, Hyper Motion, Product Review, TV Spot, Wild Card, Virtual Try On).</td>
-            <td>08 (ETAPA 5.7)</td>
-          </tr>
-          <tr>
-            <td><strong>trendtrack-integration</strong> <span class="pill pill-optional">opcional</span></td>
-            <td>Integração read-only com MCP TrendTrack (<code>https://api.trendtrack.io/v1/mcp</code>). 11 tools cobrindo product discovery, competitor briefing, ad scanning, email pattern analysis, monitoring. Detecção runtime: quando tools com prefixo <code>mcp__trendtrack__</code> existem na sessão, usadas como fonte primária; senão fallback silencioso pro método tradicional. Aura funciona 100% sem ela.</td>
-            <td>01, 03, 08, 11, 13</td>
-          </tr>
-          <tr>
-            <td><strong>refero-integration</strong> <span class="pill pill-optional">opcional</span></td>
-            <td>Integração com Refero Design MCP (<code>lorecraft-io/refero-design-mcp</code>, pacote npm local). Catálogo curado de ~200 design systems de sites premium (Cursor, Linear, Vercel, Notion, Stripe). 6 tools: <code>refero_search</code>, <code>refero_get</code>, <code>refero_similar</code>, <code>refero_list</code>, <code>refero_design_md</code>, <code>refero_refresh</code>. Detecção runtime via prefixo <code>mcp__refero__</code>. Cascade na skill 07a ETAPA 2.1: Refero → <code>tools/design-clone/</code> → manual. Complementar ao Claude Design (ETAPA 0.5), não concorrente.</td>
-            <td>07a (ETAPA 2.1)</td>
-          </tr>
-          <tr>
-            <td><strong>automations/ (Meta + Shopify)</strong></td>
-            <td>Não é uma lib em <code>.claude/lib/</code> — vive em <code>.claude/automations/</code> (setup + 6 receitas). Cascade resiliente pra Meta Ads: <strong>(1)</strong> MCP oficial da Meta <code>mcp.facebook.com/ads</code> (open beta desde 2026-04-29, tools <code>mcp__meta__ads_*</code>, 29 tools incluindo industry benchmarks + dataset quality + auction ranking + anomaly signal); <strong>(2)</strong> MCP Pipeboard 3rd-party (tools <code>mcp__meta-ads__*</code>) como fallback automático quando o oficial está disabled no rollout gradual; <strong>(3)</strong> paste manual quando ambos falham. Receitas: <code>sync-campaign-from-meta-official.md</code> (preferencial), <code>sync-campaign-from-meta.md</code> (fallback), <code>pause-ad-set.md</code>, <code>upload-creative-to-meta.md</code>, deploy/rotate. Setup em <code>setup-mcps.md</code>.</td>
-            <td>10, 11</td>
-          </tr>
+          <tr><td><strong>compliance-preflight</strong></td><td>Detecta palavras ad-flag que disparam disapproval no Meta/TikTok. Output: JSON com <code>severity</code> + <code>rewrite_suggestion</code>.</td><td>06, 07b, 08, 14</td></tr>
+          <tr><td><strong>content-recycler</strong></td><td>Engine prompt-driven pra skill 14. Arquivos: <code>recycler.md</code> + <code>formats.json</code>.</td><td>14</td></tr>
+          <tr><td><strong>creative-dna</strong></td><td>Cross-product DNA registry. Skill 08 salva padrões abstratos; próxima execução em outro produto carrega e adapta.</td><td>08</td></tr>
+          <tr><td><strong>hook-taxonomy</strong></td><td>Taxonomia de hooks (Problema / Resultado / Curiosidade / Prova Social).</td><td>08</td></tr>
+          <tr><td><strong>prompt-directors</strong></td><td>Directors de prompt pra ferramentas externas (Higgsfield Marketing Studio).</td><td>08 (ETAPA 5.7)</td></tr>
+          <tr><td><strong>trendtrack-integration</strong> (opcional)</td><td>Integração read-only com MCP TrendTrack. 11 tools. Detecção runtime: tools com prefixo <code>mcp__trendtrack__</code>. Aura funciona 100% sem ela.</td><td>01, 03, 08, 11, 13</td></tr>
+          <tr><td><strong>refero-integration</strong> (opcional)</td><td>Integração com Refero Design MCP (<code>fidgetcoding-refero-mcp</code>). Catálogo curado de ~200 design systems premium (Cursor, Linear, Vercel, Notion, Stripe). 6 tools (<code>refero_search</code>, <code>refero_get</code>, <code>refero_similar</code>, <code>refero_list</code>, <code>refero_design_md</code>, <code>refero_refresh</code>). Fonte de brand signals (não decisão visual) que alimentam o <code>frontend-design</code>. Cascade na 07a ETAPA 2 (Brand Signals): Refero → screenshot→visão → <code>tools/design-clone/</code> → manual.</td><td>07a (ETAPA 2)</td></tr>
+          <tr><td><strong>automations/ (Meta + Shopify)</strong></td><td>Vive em <code>.claude/automations/</code>. Cascade resiliente pra Meta Ads: <strong>(1)</strong> MCP oficial da Meta <code>mcp.facebook.com/ads</code> (open beta desde 2026-04-29, tools <code>mcp__meta__ads_*</code>, 29 tools); <strong>(2)</strong> MCP Pipeboard 3rd-party (tools <code>mcp__meta-ads__*</code>) como fallback automático; <strong>(3)</strong> paste manual. Receitas: <code>sync-campaign-from-meta-official.md</code>, <code>sync-campaign-from-meta.md</code>, <code>pause-ad-set.md</code>, <code>upload-creative-to-meta.md</code>, etc.</td><td>10, 11</td></tr>
         </tbody>
       </table>
     </div>
 
-    <div class="opportunity"><strong>Cross-product learning:</strong> creative-dna é o que dá vantagem cumulativa pro membro que roda múltiplos produtos. A skill 08 fica mais inteligente a cada produto rodado.</div>
-    <div class="callout"><strong>Por que cascade no Meta:</strong> o MCP oficial está em rollout gradual — algumas ad accounts aparecem "disabled" mesmo depois do setup correto. Manter Pipeboard como fallback elimina dependência da Meta liberar acesso. Aura nunca trava por falha de MCP.</div>
+    <div class="callout reveal"><strong>Por que cascade no Meta</strong> o MCP oficial está em rollout gradual — algumas ad accounts aparecem "disabled" mesmo depois do setup correto. Manter Pipeboard como fallback elimina dependência da Meta liberar acesso.</div>
   </div>
 
+  <!-- ═══════════════ SECTION 6 ═══════════════ -->
   <div class="section" id="s6">
-    <div class="section-label"><span class="num">06</span>Sistema de rules</div>
-    <p>Diretrizes em <code>.claude/rules/</code> auto-carregadas pelo Claude Code conforme contexto. Cada rule tem escopo específico.</p>
+    <div class="section-label reveal"><span class="num">06</span>Sistema de rules</div>
 
-    <div class="table-wrap">
+    <div class="subsection reveal">
+      <p>Diretrizes em <code>.claude/rules/</code> auto-carregadas pelo Claude Code conforme contexto.</p>
+    </div>
+
+    <div class="table-wrap reveal">
       <table>
         <thead><tr><th>Rule</th><th>Quando aplica</th></tr></thead>
         <tbody>
-          <tr><td><code>pre-launch-gates</code></td><td><strong>NON-NEGOTIABLE.</strong> Define dois gates: ad-flag compliance (skills 06, 07b, 07c, 08, 10) e Promise↔Config (skills 07c, 10).</td></tr>
-          <tr><td><code>shopify-theme-safety</code></td><td>Toda operação Shopify CLI. Pull antes de edit, <code>--nodelete</code>, marker verification, smoke test pós-push.</td></tr>
-          <tr><td><code>iteration-driven-refinement</code></td><td>Skills que produzem asset (copy, briefing, página). Primeira versão é draft, máximo 3 iterações antes de escalate.</td></tr>
-          <tr><td><code>member-stage-awareness</code></td><td>Toda skill. Detecta starter / validating / scaling pelo manifest e adapta tom + recomendações.</td></tr>
-          <tr><td><code>emergency-escape-paths</code></td><td>Toda skill. ES1-ES7 cobrem pre-flights travados, workspace corrompido, compliance bloqueando, push Shopify rejeitado, cookie Klaviyo expirado, rate limit, conflito de edição.</td></tr>
-          <tr><td><code>troubleshooting-patterns</code></td><td>Quando skill não entrega. Árvore de diagnóstico estruturada antes de "desistir".</td></tr>
-          <tr><td><code>post-task-self-audit</code></td><td>Toda skill peso médio/alto. 5 gates silenciosos antes de declarar "completo" — cross-artifact consistency, erros factuais, gaps, qualidade, alinhamento com rules. Fixes são inline e silenciosos; só surface quando precisa input do membro.</td></tr>
-          <tr><td><code>reverse-order-insertion</code></td><td>Quando a AI insere múltiplos elementos em um arquivo (sections do page.json, blocks Liquid). Inserir em ordem reversa pra line numbers não shiftarem.</td></tr>
+          <tr><td><code>pre-launch-gates</code></td><td><strong>NON-NEGOTIABLE.</strong> Dois gates: ad-flag compliance e Promise↔Config.</td></tr>
+          <tr><td><code>shopify-theme-safety</code></td><td>Toda operação Shopify CLI. Pull antes de edit, <code>--nodelete</code>, marker verification.</td></tr>
+          <tr><td><code>iteration-driven-refinement</code></td><td>Skills que geram asset. Primeira versão é draft, máximo 3 iterações.</td></tr>
+          <tr><td><code>member-stage-awareness</code></td><td>Toda skill. Detecta starter / validating / scaling e adapta tom.</td></tr>
+          <tr><td><code>emergency-escape-paths</code></td><td>ES1-ES7 cobrem pre-flights travados, workspace corrompido, etc.</td></tr>
+          <tr><td><code>troubleshooting-patterns</code></td><td>Quando skill não entrega. Árvore de diagnóstico estruturada.</td></tr>
+          <tr><td><code>post-task-self-audit</code></td><td>Toda skill peso médio/alto. 5 gates silenciosos antes de declarar "completo". Fixes inline silenciosos.</td></tr>
+          <tr><td><code>reverse-order-insertion</code></td><td>Inserir múltiplos elementos em arquivo em ordem reversa pra line numbers não mudarem de lugar.</td></tr>
         </tbody>
       </table>
     </div>
 
-    <div class="note"><strong>Rules são diretrizes, não código enforced.</strong> O Claude lê e aplica. A camada real de enforcement são os hooks.</div>
+    <div class="note reveal"><strong>Rules são diretrizes, não código enforced</strong> O Claude lê e aplica. A camada real de enforcement são os hooks.</div>
   </div>
 
+  <!-- ═══════════════ SECTION 7 ═══════════════ -->
   <div class="section" id="s7">
-    <div class="section-label"><span class="num">07</span>Sistema de hooks</div>
-    <p>Scripts em <code>.claude/hooks/</code> registrados em <code>.claude/settings.json</code>. Rodam em eventos específicos do Claude Code.</p>
+    <div class="section-label reveal"><span class="num">07</span>Sistema de hooks</div>
 
-    <div class="subsection">
-      <div class="subsection-title">post-start.sh</div>
-      <p><strong>Quando:</strong> abertura de sessão Claude Code (1× por dia, com lock).<br><strong>O que faz:</strong> adiciona o alias <code>aura</code> no shell rc do membro pra ele poder digitar <code>aura</code> em qualquer terminal e cair no diretório certo.</p>
+    <div class="subsection reveal">
+      <p>Scripts em <code>.claude/hooks/</code> registrados em <code>.claude/settings.json</code>.</p>
     </div>
 
-    <div class="subsection">
+    <div class="subsection reveal">
+      <div class="subsection-title">post-start.sh</div>
+      <p><strong>Quando:</strong> abertura de sessão Claude Code (1× por dia).<br>
+      <strong>O que faz:</strong> adiciona o alias <code>aura</code> no shell rc do membro.</p>
+    </div>
+
+    <div class="subsection reveal">
       <div class="subsection-title">Hooks globais (vindos de ~/.claude/settings.json)</div>
       <ul>
         <li><code>enforce-git-push-authority.sh</code> — só @devops pode push</li>
@@ -632,369 +575,351 @@
         <li><code>enforce-delegation.cjs</code> — orchestrators não podem executar</li>
         <li><code>enforce-architecture-first.cjs</code> — docs antes de código protegido</li>
         <li><code>enforce-story-gate.cjs</code> — story obrigatória antes de código</li>
-        <li><code>synapse-wrapper.cjs</code> — context injection no prompt do usuário</li>
+        <li><code>synapse-wrapper.cjs</code> — context injection no prompt</li>
       </ul>
-      <div class="note">Esses hooks vêm do framework SINAPSE global (<code>~/.claude/</code>). Aura herda eles, mas não depende deles.</div>
     </div>
+
+    <div class="note reveal"><strong>Origem</strong> Esses hooks vêm do framework SINAPSE global. Aura herda eles, mas não depende.</div>
   </div>
 
+  <!-- ═══════════════ SECTION 8 ═══════════════ -->
   <div class="section" id="s8">
-    <div class="section-label"><span class="num">08</span>Sistema de templates</div>
-    <p>Em <code>.claude/templates/</code>.</p>
+    <div class="section-label reveal"><span class="num">08</span>Sistema de templates</div>
 
-    <div class="subsection">
+    <div class="subsection reveal">
+      <p>Em <code>.claude/templates/</code>.</p>
+    </div>
+
+    <div class="subsection reveal">
       <div class="subsection-title">aura-report-template.html</div>
-      <p>Template HTML self-contained (CSS inline, sem server) usado por toda skill que gera companion <code>.html</code>. Componentes: <code>section-label</code>, <code>callout</code>, <code>note</code>, <code>opportunity</code>, <code>danger</code>, <code>table-wrap</code>, <code>quote</code>, <code>pill</code>, <code>winner</code>, <code>kpi-grid</code>. Mobile-responsive.</p>
+      <p>Template HTML self-contained (CSS inline) usado por toda skill que gera companion <code>.html</code>. Componentes: <code>section-label</code>, <code>callout</code>, <code>note</code>, <code>opportunity</code>, <code>danger</code>, <code>table-wrap</code>, <code>quote</code>, <code>pill</code>, <code>winner</code>, <code>kpi-grid</code>.</p>
     </div>
 
-    <div class="subsection">
+    <div class="subsection reveal">
       <div class="subsection-title">aura-logo-snippet.html</div>
-      <p>Bloco SVG do logo Aura (6 linhas). <strong>Obrigatório no topo de TODO <code>.html</code> gerado</strong>, copiado literalmente. Proibido substituir por texto. Existe pra garantir brand consistency em todos os artefatos que o membro vê.</p>
+      <p>Bloco SVG do logo Aura (6 linhas). <strong>Obrigatório no topo de TODO <code>.html</code> gerado</strong>, copiado literalmente. Proibido substituir por texto.</p>
     </div>
 
-    <div class="subsection">
+    <div class="subsection reveal">
       <div class="subsection-title">manifest-schema.json</div>
-      <p>JSON Schema (draft-07) pro <code>manifest.json</code> de cada produto. Tem <code>additionalProperties: true</code> — skills podem gravar campos extras sem violar o schema. Campos obrigatórios: <code>product_slug</code>, <code>product_name</code>, <code>created_at</code>, <code>updated_at</code>, <code>skills_completed</code>.</p>
+      <p>JSON Schema (draft-07) pro <code>manifest.json</code>. <code>additionalProperties: true</code> — skills podem gravar campos extras. Obrigatórios: <code>product_slug</code>, <code>product_name</code>, <code>created_at</code>, <code>updated_at</code>, <code>skills_completed</code>.</p>
     </div>
   </div>
 
+  <!-- ═══════════════ SECTION 9 ═══════════════ -->
   <div class="section" id="s9">
-    <div class="section-label"><span class="num">09</span>Estrutura do workspace</div>
-    <p>Cada produto vive em <code>/workspace/[slug]/</code>. Estrutura típica depois da cadeia completa rodar:</p>
+    <div class="section-label reveal"><span class="num">09</span>Estrutura do workspace</div>
 
-    <div class="ascii-tree">/workspace/produto-x/
-├── manifest.json                      ← estado central, lido & atualizado por toda skill
-├── 01-product-research.md / .html
-├── 02-market-research.md / .html / .json
-├── 03-competitor-analysis.md / .html
-├── 03-creative-patterns.json
-├── 04-offer.md / .html / .json
-├── 04-research-foundation.json
-├── 05-bonus-delivery/
-│   └── [bonus-id]/
-├── 06-copy.md / .html / .json
-├── 07-page/
-│   ├── 07-design-system.md
-│   ├── 07-plan.md / .json
-│   ├── 07-sections-report.md
-│   ├── 07-deploy-report.md / .json
-│   └── page-registry.md / .html       ← index de slugs multi-página + message-match ad↔page
-├── 08-creatives.json
-├── 08-creatives/
-│   ├── briefing-c01.md / .html
-│   ├── prompt-c01-image.txt
-│   └── ... (1 set por conceito)
-├── 09-consistency-audit.md / .html / .json
-├── 10-ad-strategy.md / .html / .json
-├── 11-analysis/
-│   ├── 2026-04-15.json
-│   ├── 2026-04-22.json
-│   └── latest.json
-├── 12-scale/
-├── 13-retention/
-│   ├── welcome-series/
-│   ├── abandoned-cart/
-│   └── ... (1 dir por fluxo)
-└── 14-recycled/
-    └── [source-id]/
-        ├── README.md / .html
-        ├── essence.json
-        ├── compliance-log.json
-        ├── advertorial.md / .html
-        ├── email-sequence.md / .html
-        └── ... (9 formatos)</div>
+    <div class="subsection reveal">
+      <p>Cada produto vive em <code>/workspace/[slug]/</code>.</p>
+    </div>
 
-    <div class="note"><code>/workspace/profile.md</code> (no nível do workspace, fora de qualquer produto) guarda dados do membro: budget, ESP, tools, mercado, idioma de relatório. Escrito pela skill 00, lido por todas as outras.</div>
+    <p>Cada fase mora numa subpasta própria <code>0X-&lt;stem&gt;/</code>. Dentro: <code>relatorio.html</code> (o que o membro abre), <code>relatorio.md</code> (o que a AI lê na fase seguinte), <code>dados.json</code> (dados estruturados). Arquivos secundários mantêm nome descritivo dentro da pasta. Estrutura canônica completa em <code>.claude/lib/workspace-index/workspace-layout.md</code>.</p>
+
+    <div class="ascii-map reveal">/workspace/produto-x/
+├── ABRIR-AQUI.html                    ← PAINEL: porta de entrada do membro (gerado por build_index.py)
+├── manifest.json                      ← estado central
+├── brand.md  ·  brand/logo.svg        ← identidade (infra)
+├── promise-check.json · compliance-warnings.json   ← infra compartilhada
+├── creative-dna/                      ← infra compartilhada (08 + 11)
+├── 01-product-research/   → relatorio.md / .html
+├── 02-market-research/    → relatorio.md / .html + dados.json
+├── 03-competitor-analysis/ → relatorio.md / .html + dados.json + creative-patterns.json + creatives-inbox/
+├── 04-offer-builder/      → relatorio.md / .html + dados.json + research-foundation.json
+├── 05-bonus-delivery/     → relatorio.md / .html + dados.json + bonuses/[bonus-id]/   (pós-launch)
+├── 06-copy-engine/        → relatorio.md / .html + dados.json + compliance-log.json
+├── 07-page/               ← storefront (07a design + 07b build)
+│   ├── 07-design-system.md / .html · 07-plan.json (bloco strategy)
+│   ├── design/page.html               ← HTML aprovado (fonte única visual)
+│   ├── design-tokens.json · design-signals.json · iterations-log.json
+│   ├── 07-page.html                   ← página final (relatório humano da fase)
+│   └── 07-deploy-report.json · page-registry.md / .html · staging/
+├── 07c-tracking-setup/    → relatorio.md / .html + dados.json
+├── 07d-checkout-aov/      → relatorio.md / .html + dados.json
+├── 08-creative-engine/    → relatorio.md / .html + dados.json + concept-NN.md/html + hooks-bank + prompts/
+├── 09-consistency-audit/  → relatorio.md / .html + dados.json
+├── 10-ad-strategy/        → relatorio.md / .html + dados.json
+├── 11-ad-analysis/        → relatorio.md / .html + dados.json + [YYYYMMDD]-analysis.md/html
+├── 12-scale-engine/       → relatorio.md / .html + dados.json + scale-directives.md
+├── 13-retention-engine/   → relatorio.md / .html + dados.json + [fluxo]/   (pós-launch)
+└── 14-content-recycler/   → relatorio.md / .html (índice) + [source-id]/   (pós-winner)</div>
+
+    <div class="note reveal"><strong>profile.md</strong> <code>/workspace/profile.md</code> (fora de qualquer produto) guarda dados do membro: budget, ESP, tools, mercado, idioma. Escrito pela skill 00, lido por todas. O <strong><code>ABRIR-AQUI.html</code></strong> de cada produto é a porta de entrada: lista cada fase, o que já foi feito e o próximo passo — toda skill o regenera ao terminar.</div>
   </div>
 
+  <!-- ═══════════════ SECTION 10 ═══════════════ -->
   <div class="section" id="s10">
-    <div class="section-label"><span class="num">10</span>Convenções operacionais</div>
+    <div class="section-label reveal"><span class="num">10</span>Convenções operacionais</div>
 
-    <div class="subsection">
+    <div class="subsection reveal">
       <div class="subsection-title">Idioma e estilo (CLAUDE.md rule 0)</div>
       <ul>
-        <li><strong>Relatórios internos:</strong> no idioma escolhido durante setup (<code>pt-BR</code> ou <code>en</code>) — claro, direto, sem jargão acadêmico. Termos de marketing ficam em inglês quando naturais (VOC, hook, CTA, ROAS).</li>
-        <li><strong>Copy pro consumidor final:</strong> sempre em inglês (mercado US padrão), independente do idioma de relatório interno. A escolha de idioma do membro nunca afeta copy pública de ad ou página.</li>
+        <li><strong>Relatórios internos:</strong> no idioma escolhido durante setup (<code>pt-BR</code> ou <code>en</code>).</li>
+        <li><strong>Copy pro consumidor final:</strong> sempre em inglês (mercado US padrão), independente do idioma de relatório interno.</li>
       </ul>
     </div>
 
-    <div class="subsection">
+    <div class="subsection reveal">
       <div class="subsection-title">Uso da Base de Conhecimento (CLAUDE.md rules 1-3)</div>
       <ul>
-        <li>Skills consultam <code>search_knowledge</code> silenciosamente. Nunca avisam ao membro que têm uma base de conhecimento, MCP ou fonte externa.</li>
-        <li>Nomes de cursos e títulos de programas internos nunca são citados. Livros e autores (Schwartz, Cialdini, Hopkins, Hormozi, Sugarman, Ogilvy, Caples) podem ser referenciados diretamente quando relevante.</li>
-        <li>Múltiplas buscas por tópico são normais — queries únicas raramente cobrem uma área completamente.</li>
+        <li>Skills consultam <code>search_knowledge</code> silenciosamente.</li>
+        <li>Nomes de cursos/programas internos nunca citados. Livros e autores (Schwartz, Cialdini, Hopkins, Hormozi, etc.) podem ser referenciados diretamente.</li>
       </ul>
     </div>
 
-    <div class="subsection">
+    <div class="subsection reveal">
       <div class="subsection-title">Dual output (.md + .html) — CLAUDE.md rule 6b</div>
       <ul>
         <li><code>.md</code> é a fonte que a AI lê na fase seguinte</li>
         <li><code>.html</code> é a versão humana (browser)</li>
-        <li>HTML usa o design system do <code>aura-report-template.html</code> + logo SVG Aura no topo</li>
+        <li>HTML usa <code>aura-report-template.html</code> + logo SVG no topo</li>
       </ul>
     </div>
 
-    <div class="subsection">
+    <div class="subsection reveal">
       <div class="subsection-title">Logo SVG obrigatório</div>
       <ul>
         <li>Bloco SVG copiado literalmente de <code>aura-logo-snippet.html</code></li>
-        <li>Proibido substituir por texto "AURA" / "Aura Engine" / qualquer variação textual</li>
-        <li>Sem fallback: se não conseguir copiar, parar e perguntar</li>
+        <li>Proibido substituir por texto. Sem fallback.</li>
       </ul>
     </div>
 
-    <div class="subsection">
-      <div class="subsection-title">Ícones SVG, nunca emojis em UI consumidor — CLAUDE.md rule 7</div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Ícones SVG, nunca emojis em UI consumidor — rule 7</div>
       <ul>
         <li>PDPs, landings, checkouts: SVGs inline (Lucide, Heroicons, Phosphor, custom)</li>
-        <li>Specs: 16-18px em listas, 20-24px em feature blocks, stroke 1.5-2px</li>
-        <li><strong>EXCEÇÃO:</strong> relatórios internos da Aura em <code>/workspace/</code> podem usar emojis pra velocidade de escaneamento</li>
+        <li>Exceção: relatórios internos em <code>/workspace/</code> podem usar emojis pra velocidade de escaneamento</li>
       </ul>
     </div>
 
-    <div class="subsection">
-      <div class="subsection-title">Copy rules — CLAUDE.md rule 8</div>
+    <div class="subsection reveal">
+      <div class="subsection-title">Copy rules — rule 8</div>
       <ul>
-        <li><strong>8a</strong> — minimizar em-dashes (—). Zero em headlines. ≤2 em copy longa.</li>
-        <li><strong>8b</strong> — substituições automáticas de palavras ad-flag pra política Meta/TikTok (Botox → "the appointment", Filler → "injectables", "Weight loss" → "transformation", etc.)</li>
+        <li><strong>8a</strong> — minimizar em-dashes (—). Zero em headlines, ≤2 em copy longa.</li>
+        <li><strong>8b</strong> — substituições automáticas de palavras ad-flag pra política Meta/TikTok.</li>
       </ul>
     </div>
 
-    <div class="subsection">
-      <div class="subsection-title">Self-audit silencioso obrigatório — CLAUDE.md rule 9</div>
-      <p>Antes de declarar qualquer skill ou tarefa importante "completa", 5 gates mentais rodam silenciosamente: cross-artifact consistency, erros factuais, gaps, qualidade, alinhamento com rules. Tudo que for achado errado, faltando ou fraco dentro do escopo da skill é corrigido inline sem mencionar. O membro só vê a versão corrigida. Surface só quando o issue exige decisão do membro (fontes conflitantes, fix que expandiria escopo, input externo faltando). Blocos visíveis de "self-audit results" são proibidos.</p>
+    <div class="subsection reveal">
+      <div class="subsection-title">Self-audit silencioso obrigatório — rule 9</div>
+      <p>Antes de declarar qualquer skill "completa", 5 gates mentais rodam silenciosamente. Fixes inline sem mencionar. Surface só quando precisa decisão do membro.</p>
     </div>
 
-    <div class="subsection">
-      <div class="subsection-title">Integrações MCP opcionais — CLAUDE.md rule 10</div>
-      <p>A Aura detecta MCPs externos conectados pelo membro (Claude Desktop ou Code) e enriquece skills automaticamente quando disponíveis. <strong>Meta MCP</strong> (cascade oficial → Pipeboard → manual) e <strong>TrendTrack MCP</strong> são os casos principais (ver seção 12). Outros MCPs futuros (Klaviyo oficial, Shopify Dev MCP, Stripe) seguem o mesmo padrão: detecção automática + fallback silencioso quando ausente.</p>
+    <div class="subsection reveal">
+      <div class="subsection-title">Integrações MCP opcionais — rule 10</div>
+      <p>A Aura detecta MCPs externos e enriquece skills automaticamente. <strong>Meta MCP</strong> (cascade oficial → Pipeboard → manual) e <strong>TrendTrack MCP</strong> são os casos principais.</p>
     </div>
   </div>
 
+  <!-- ═══════════════ SECTION 11 ═══════════════ -->
   <div class="section" id="s11">
-    <div class="section-label"><span class="num">11</span>Memória persistente — registry creative-dna</div>
-    <p>Cross-product learning. A skill 08 (creatives) salva DNA toda vez que executa: hook archetypes que funcionaram, voice signatures, padrões estruturais. A próxima execução em outro produto lê esse registry e adapta sem reinventar.</p>
-    <div class="note"><strong>Read/write:</strong> via <code>lib/creative-dna/registry.py</code>. Skill 08 chama em silent steps (ETAPA 7.4 carrega, ETAPA 7.6 escreve).</div>
-    <div class="opportunity"><strong>O que NÃO entra no registry:</strong> dados específicos do produto (nomes, claims, preços). Só padrões abstratos. O registry não tem PII nem info proprietária de produto.</div>
+    <div class="section-label reveal"><span class="num">11</span>Memória persistente — registry creative-dna</div>
+
+    <div class="subsection reveal">
+      <p>Cross-product learning. A skill 08 (creatives) salva DNA toda vez que executa: hook archetypes que funcionaram, voice signatures, padrões estruturais. Próxima execução em outro produto carrega esse registry e adapta sem reinventar.</p>
+    </div>
+
+    <div class="note reveal"><strong>Read/write</strong> via <code>lib/creative-dna/registry.py</code>. Skill 08 chama em silent steps (ETAPA 7.4 carrega, ETAPA 7.6 escreve).</div>
+
+    <div class="danger reveal"><strong>O que NÃO entra no registry</strong> dados específicos do produto (nomes, claims, preços). Só padrões abstratos.</div>
   </div>
 
+  <!-- ═══════════════ SECTION 12 ═══════════════ -->
   <div class="section" id="s12">
-    <div class="section-label"><span class="num">12</span>Integrações MCP opcionais — Meta + TrendTrack + Refero</div>
-    <p>A Aura é desenhada em volta de um padrão cascade resiliente pra MCPs externos. Cada skill enriquecida detecta tools MCP disponíveis em runtime e usa como fonte primária; ausência de tools dispara fallback silencioso pro método tradicional. O membro nunca vê estado quebrado.</p>
+    <div class="section-label reveal"><span class="num">12</span>Integrações MCP opcionais — Meta + TrendTrack + Refero</div>
 
-    <h3 style="font-size: 18px; font-weight: 600; margin-top: 32px; margin-bottom: 12px;">12.1 — Meta Ads MCP (cascade: oficial → Pipeboard → manual)</h3>
+    <div class="subsection reveal">
+      <p>A Aura é desenhada em volta de um padrão cascade resiliente pra MCPs externos. Cada skill enriquecida detecta tools MCP disponíveis em runtime e usa como fonte primária; ausência dispara fallback silencioso. O membro nunca vê estado quebrado.</p>
+    </div>
 
-    <p>A Meta lançou o <strong>MCP oficial de Ads</strong> em 2026-04-29 em <code>mcp.facebook.com/ads</code> com 29 tools. A Aura usa como caminho preferencial com fallback automático pro MCP 3rd-party do Pipeboard quando necessário (o oficial está em rollout gradual — algumas contas aparecem "disabled" mesmo após setup correto).</p>
-
-    <div class="subsection">
-      <div class="subsection-title">Como o membro conecta</div>
-      <p><strong>Passo 1 — Meta MCP oficial (preferencial):</strong></p>
+    <div class="subsection reveal">
+      <div class="subsection-title">12.1 — Meta Ads MCP (cascade: oficial → Pipeboard → manual)</div>
+      <p>A Meta lançou o <strong>MCP oficial de Ads</strong> em 2026-04-29 em <code>mcp.facebook.com/ads</code> com 29 tools. A Aura usa como caminho preferencial com fallback automático pro Pipeboard 3rd-party (o oficial está em rollout gradual — algumas contas aparecem "disabled").</p>
+      <p><strong>Como o membro conecta:</strong></p>
+      <p>Passo 1 — Meta MCP oficial (preferencial):</p>
       <ul>
-        <li><strong>Claude Desktop:</strong> Settings → Connectors → Add custom connector → Nome <code>meta</code> → URL <code>https://mcp.facebook.com/ads</code> → OAuth via Business Suite → aprovar permissões granulares por ad account / Page</li>
+        <li><strong>Claude Desktop:</strong> Settings → Connectors → Add custom connector → Nome <code>meta</code> → URL <code>https://mcp.facebook.com/ads</code> → OAuth via Business Suite</li>
         <li><strong>Claude Code:</strong> <code>claude mcp add --transport http meta https://mcp.facebook.com/ads</code></li>
       </ul>
-      <p><strong>Passo 2 — Pipeboard fallback (recomendado em paralelo):</strong> token long-lived do Marketing API (60d) + registrar MCP como <code>meta-ads</code> em <code>~/.claude/mcp.json</code>. Setup completo em <code>.claude/automations/setup-mcps.md</code>.</p>
+      <p>Passo 2 — Pipeboard fallback (recomendado em paralelo): token long-lived do Marketing API (60d) + registrar como <code>meta-ads</code>. Setup completo em <code>.claude/automations/setup-mcps.md</code>.</p>
     </div>
 
-    <div class="subsection">
-      <div class="subsection-title">As 29 tools oficiais (5 categorias)</div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Categoria</th><th>Tools</th><th>Propósito</th></tr></thead>
-          <tbody>
-            <tr><td>Campaign Create/Manage (5)</td><td><code>ads_create_campaign</code>, <code>ads_create_ad_set</code>, <code>ads_create_ad</code>, <code>ads_update_entity</code>, <code>ads_activate_entity</code></td><td>Lifecycle completo de campaigns, ad sets, ads via linguagem natural</td></tr>
-            <tr><td>Product Catalog (10)</td><td><code>ads_catalog_create</code>, <code>ads_catalog_get_*</code> (catalogs, details, diagnostics, feed rules, products, product sets)</td><td>Integração de catálogo Shopify, monitoramento de feed, diagnostics</td></tr>
-            <tr><td>Accounts / Pages / Assets (3)</td><td><code>ads_get_ad_accounts</code>, <code>ads_get_ad_entities</code>, <code>ads_get_pages_for_business</code></td><td>Descoberta de hierarquia e inspeção de entidades</td></tr>
-            <tr><td>Dataset / Pixel / CAPI Quality (4)</td><td><code>ads_get_dataset_details</code>, <code>ads_get_dataset_quality</code>, <code>ads_get_dataset_stats</code>, <code>ads_get_errors</code></td><td>Match quality do Pixel, deduplication CAPI, logs de erros recentes — exclusivo do MCP oficial</td></tr>
-            <tr><td>Insights / Benchmarks (7)</td><td><code>ads_insights_advertiser_context</code>, <code>ads_insights_anomaly_signal</code>, <code>ads_insights_auction_ranking_benchmarks</code>, <code>ads_insights_industry_benchmark</code>, <code>ads_insights_performance_trend</code>, <code>ads_get_opportunity_score</code>, <code>ads_get_help_article</code></td><td>Benchmarks por vertical, auction rankings, opportunity scores, anomaly detection — nada disso existe no Pipeboard</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <p><strong>As 29 tools oficiais (5 categorias):</strong></p>
+
+    <div class="table-wrap reveal">
+      <table>
+        <thead><tr><th>Categoria</th><th>Tools</th><th>Propósito</th></tr></thead>
+        <tbody>
+          <tr><td>Campaign Create/Manage (5)</td><td><code>ads_create_campaign</code>, <code>ads_create_ad_set</code>, <code>ads_create_ad</code>, <code>ads_update_entity</code>, <code>ads_activate_entity</code></td><td>Lifecycle completo via linguagem natural</td></tr>
+          <tr><td>Product Catalog (10)</td><td><code>ads_catalog_create</code>, <code>ads_catalog_get_*</code></td><td>Integração de catálogo Shopify, monitoramento de feed</td></tr>
+          <tr><td>Accounts / Pages / Assets (3)</td><td><code>ads_get_ad_accounts</code>, <code>ads_get_ad_entities</code>, <code>ads_get_pages_for_business</code></td><td>Descoberta de hierarquia</td></tr>
+          <tr><td>Dataset / Pixel / CAPI Quality (4)</td><td><code>ads_get_dataset_details</code>, <code>ads_get_dataset_quality</code>, <code>ads_get_dataset_stats</code>, <code>ads_get_errors</code></td><td><strong>Exclusivo do oficial</strong> — match quality, deduplication, errors</td></tr>
+          <tr><td>Insights / Benchmarks (7)</td><td><code>ads_insights_advertiser_context</code>, <code>ads_insights_anomaly_signal</code>, <code>ads_insights_auction_ranking_benchmarks</code>, <code>ads_insights_industry_benchmark</code>, <code>ads_insights_performance_trend</code>, <code>ads_get_opportunity_score</code>, <code>ads_get_help_article</code></td><td><strong>Exclusivo do oficial</strong> — benchmarks por vertical, auction ranking, anomalias</td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="subsection">
-      <div class="subsection-title">Onde a Aura usa o Meta MCP</div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Skill / Receita</th><th>Tools usadas</th><th>O que melhora</th></tr></thead>
-          <tbody>
-            <tr><td>11 ad analysis (ETAPA 1)</td><td>Cascade via <code>sync-campaign-from-meta-official.md</code> → fallback <code>sync-campaign-from-meta.md</code></td><td>Auto-pull do estado completo da campanha + market context (industry benchmark, auction ranking, opportunity score, anomalies). Compara membro vs vertical p50 no 4Pi analysis em vez de thresholds absolutos.</td></tr>
-            <tr><td>10 ad strategy (ETAPA 0 / pre-flight)</td><td><code>ads_get_dataset_quality</code>, <code>ads_get_dataset_stats</code></td><td>Verifica saúde de Pixel + CAPI antes do launch — gate de Match Quality ≥80%</td></tr>
-            <tr><td>Receita <code>pause-ad-set.md</code></td><td><code>ads_update_entity</code> (cascade)</td><td>PGS guard pausa ad sets em threshold de CPA/freq sem interação manual no Ads Manager</td></tr>
-            <tr><td>Receita <code>upload-creative-to-meta.md</code></td><td>Continua via Pipeboard ou Playwright (MCP oficial não aceita arquivos locais — limitação conhecida)</td><td>Upload de criativo fica fora do oficial até a Meta resolver o file handling</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <p><strong>Onde a Aura usa:</strong></p>
+
+    <div class="table-wrap reveal">
+      <table>
+        <thead><tr><th>Skill / Receita</th><th>Tools</th><th>O que melhora</th></tr></thead>
+        <tbody>
+          <tr><td>11 ad analysis (ETAPA 1)</td><td>Cascade via <code>sync-campaign-from-meta-official.md</code></td><td>Auto-pull + market context (industry benchmark, auction ranking, opportunity score, anomalies). Compara membro vs vertical p50.</td></tr>
+          <tr><td>10 ad strategy (pre-flight)</td><td><code>ads_get_dataset_quality</code></td><td>Gate de Match Quality ≥80% antes do launch</td></tr>
+          <tr><td><code>pause-ad-set.md</code></td><td><code>ads_update_entity</code> (cascade)</td><td>PGS guard sem interação manual</td></tr>
+          <tr><td><code>upload-creative-to-meta.md</code></td><td>Continua via Pipeboard/Playwright</td><td>MCP oficial não aceita arquivos locais</td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="callout"><strong>Por que o cascade importa:</strong> o MCP oficial está em rollout gradual. Várias ad accounts mostram <code>account_disabled_in_official_beta</code> mesmo após setup correto. Pipeboard como fallback automático significa que a Skill 11 nunca trava. Quando a conta do membro for liberada no rollout oficial, a Aura troca silenciosamente sem ação necessária.</div>
+    <div class="callout reveal"><strong>Por que o cascade importa</strong> o MCP oficial está em rollout gradual. Pipeboard como fallback automático significa que a Skill 11 nunca trava.</div>
 
-    <div class="note"><strong>Custo / rate limits:</strong> MCP oficial é grátis durante a open beta; pricing futuro não anunciado. Sem rate limits documentados no beta. Pipeboard usa o Meta Marketing API diretamente (200 calls/hora + 100k/48h em dev). Ambos são $0 hoje.</div>
+    <div class="note reveal"><strong>Custo / rate limits</strong> MCP oficial é grátis durante a open beta; pricing futuro não anunciado. Sem rate limits documentados. Pipeboard usa Marketing API direto (200/hora + 100k/48h). Ambos $0 hoje.</div>
 
-    <hr style="margin: 48px 0 32px;">
-
-    <h3 style="font-size: 18px; font-weight: 600; margin-top: 16px; margin-bottom: 12px;">12.2 — TrendTrack MCP (enrichment de research)</h3>
-
-    <p>TrendTrack é uma ferramenta paga 3rd-party que indexa 1M+ shops Shopify com revenue tracking, ad library, email pattern analysis e competitor monitoring. O servidor MCP dela expõe 11 tools read-only que a Aura chama quando o membro tem ela conectada.</p>
-
-    <div class="subsection">
-      <div class="subsection-title">Como o membro conecta (opcional)</div>
+    <div class="subsection reveal">
+      <div class="subsection-title">12.2 — TrendTrack MCP (enrichment de research)</div>
+      <p>TrendTrack é uma ferramenta paga 3rd-party que indexa 1M+ shops Shopify. O servidor MCP expõe 11 tools read-only.</p>
+      <p><strong>Como o membro conecta (opcional):</strong></p>
       <ul>
-        <li><strong>Claude Desktop:</strong> Settings → Connectors → Add custom connector → URL <code>https://api.trendtrack.io/v1/mcp</code> → OAuth login → aprovar 4 escopos read-only</li>
+        <li><strong>Claude Desktop:</strong> Settings → Connectors → Add custom connector → URL <code>https://api.trendtrack.io/v1/mcp</code> → OAuth login</li>
         <li><strong>Claude Code:</strong> <code>claude mcp add --transport http trendtrack https://api.trendtrack.io/v1/mcp</code></li>
       </ul>
-      <p>Instruções completas em <code>Aura.html</code> e <code>Aura-en.html</code>. A Aura funciona 100% sem ela — a integração é puro upside.</p>
     </div>
 
-    <div class="subsection">
-      <div class="subsection-title">As 11 tools</div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Tool</th><th>Categoria</th><th>Propósito</th></tr></thead>
-          <tbody>
-            <tr><td><code>find_winning_products</code></td><td>Discover</td><td>Top-performing products num nicho, com métricas de growth real</td></tr>
-            <tr><td><code>search_shops</code></td><td>Discover</td><td>Busca free-text no universo indexado de shops Shopify</td></tr>
-            <tr><td><code>find_similar_shops</code></td><td>Discover</td><td>Shops comparáveis ranqueados por similaridade</td></tr>
-            <tr><td><code>creative_inspiration_pack</code></td><td>Discover</td><td>Hooks, landing pages, ângulos, media benchmarks por vertical</td></tr>
-            <tr><td><code>brief_competitor</code></td><td>Brief</td><td>Análise competitiva completa (ads + email patterns + opportunities)</td></tr>
-            <tr><td><code>scan_ad</code></td><td>Brief</td><td>Decompõe um Meta ad: hook, ângulo, reach, scaling assessment</td></tr>
-            <tr><td><code>analyze_tracked_brand</code></td><td>Brief</td><td>Deep dive em marca trackada (ads, hooks, LPs, format splits)</td></tr>
-            <tr><td><code>analyze_shop_emails</code></td><td>Brief</td><td>Padrões de cadência + subject lines + categorias de conteúdo</td></tr>
-            <tr><td><code>daily_radar</code></td><td>Monitor</td><td>Mudanças nas marcas trackadas (novos ads, launches, parcerias)</td></tr>
-            <tr><td><code>list_tracked_brands</code></td><td>Monitor</td><td>Lista das marcas monitoradas</td></tr>
-            <tr><td><code>check_credits</code></td><td>Account</td><td>Saldo, uso, limites (usado antes de sequências multi-call caras)</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <p><strong>As 11 tools:</strong></p>
+
+    <div class="table-wrap reveal">
+      <table>
+        <thead><tr><th>Tool</th><th>Categoria</th><th>Propósito</th></tr></thead>
+        <tbody>
+          <tr><td><code>find_winning_products</code></td><td>Discover</td><td>Top products num nicho com receita rastreada</td></tr>
+          <tr><td><code>search_shops</code></td><td>Discover</td><td>Busca free-text no universo Shopify indexado</td></tr>
+          <tr><td><code>find_similar_shops</code></td><td>Discover</td><td>Shops comparáveis por similaridade</td></tr>
+          <tr><td><code>creative_inspiration_pack</code></td><td>Discover</td><td>Hooks, landing pages, ângulos, media benchmarks</td></tr>
+          <tr><td><code>brief_competitor</code></td><td>Brief</td><td>Análise competitiva completa</td></tr>
+          <tr><td><code>scan_ad</code></td><td>Brief</td><td>Decompõe 1 Meta ad</td></tr>
+          <tr><td><code>analyze_tracked_brand</code></td><td>Brief</td><td>Deep dive em marca trackada</td></tr>
+          <tr><td><code>analyze_shop_emails</code></td><td>Brief</td><td>Padrões de email</td></tr>
+          <tr><td><code>daily_radar</code></td><td>Monitor</td><td>Movimentos das marcas trackadas</td></tr>
+          <tr><td><code>list_tracked_brands</code></td><td>Monitor</td><td>Lista de marcas</td></tr>
+          <tr><td><code>check_credits</code></td><td>Account</td><td>Saldo, uso, limites</td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="subsection">
-      <div class="subsection-title">Mapping skill ↔ tool</div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Skill</th><th>Tools usadas</th><th>O que melhora</th></tr></thead>
-          <tbody>
-            <tr><td>01 product research</td><td><code>find_winning_products</code>, <code>search_shops</code></td><td>Valida ideia contra winners reais com revenue tracked em vez de só frameworks</td></tr>
-            <tr><td>03 competitor analysis</td><td><code>brief_competitor</code>, <code>scan_ad</code>, <code>search_shops</code>, <code>find_similar_shops</code></td><td>ETAPAs 1-3 (identificar competitors + PDPs + ads) colapsam em 1-2 tool calls; elimina cloaker fallbacks</td></tr>
-            <tr><td>08 creatives</td><td><code>creative_inspiration_pack</code>, <code>scan_ad</code></td><td>Hooks Bank alimentado com archetypes vencedores reais do nicho</td></tr>
-            <tr><td>11 ad analysis</td><td><code>scan_ad</code>, <code>daily_radar</code></td><td>Decompõe winners do membro contra benchmark de mercado; <code>daily_radar</code> viabiliza loop de monitoramento contínuo</td></tr>
-            <tr><td>13 retention</td><td><code>analyze_shop_emails</code></td><td>Timing dos email flows calibrado contra padrões reais de cadência/subject dos concorrentes</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <p><strong>Mapping skill ↔ tool:</strong></p>
+
+    <div class="table-wrap reveal">
+      <table>
+        <thead><tr><th>Skill</th><th>Tools</th><th>O que melhora</th></tr></thead>
+        <tbody>
+          <tr><td>01 product research</td><td><code>find_winning_products</code>, <code>search_shops</code></td><td>Valida contra winners reais</td></tr>
+          <tr><td>03 competitor analysis</td><td><code>brief_competitor</code>, <code>scan_ad</code>, <code>search_shops</code>, <code>find_similar_shops</code></td><td>ETAPAs 1-3 se juntam em 1-2 tool calls</td></tr>
+          <tr><td>08 creatives</td><td><code>creative_inspiration_pack</code>, <code>scan_ad</code></td><td>Hooks Bank com archetypes reais</td></tr>
+          <tr><td>11 ad analysis</td><td><code>scan_ad</code>, <code>daily_radar</code></td><td>Benchmark de winners + loop de monitoramento</td></tr>
+          <tr><td>13 retention</td><td><code>analyze_shop_emails</code></td><td>Timing dos fluxos calibrado contra concorrência</td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="callout"><strong>Padrão de detecção:</strong> cada skill enriquecida checa em runtime se há tools com prefixo <code>mcp__trendtrack__</code>. Presente → usa como fonte primária. Ausente → fallback silencioso pro método tradicional (web fetch + Meta Ad Library + scraping). Membro vê UX idêntica nos dois casos.</div>
+    <div class="note reveal"><strong>Padrão de detecção</strong> tools com prefixo <code>mcp__trendtrack__</code> → fonte primária. Ausente → fallback silencioso.</div>
+    <div class="note reveal"><strong>Custos</strong> sistema de créditos. Quando skill planeja &gt;5 chamadas, roda <code>check_credits</code> primeiro.</div>
+    <div class="note reveal"><strong>Privacidade</strong> OAuth read-only. Aura não armazena tokens.</div>
 
-    <div class="note"><strong>Custos &amp; créditos:</strong> TrendTrack usa sistema de créditos. Quando uma skill planeja &gt;5 chamadas, roda <code>check_credits</code> primeiro e mostra projeção de uso pro membro. Chamadas que falham (auth expirada, rate limit, server down) são logadas silenciosamente e a skill cai pro fallback sem interromper.</div>
-
-    <div class="note"><strong>Privacidade:</strong> OAuth read-only. A Aura não armazena tokens — eles ficam no Claude Desktop/Code do membro via o framework MCP. Aura só consome via tool calls em runtime.</div>
-
-    <hr style="margin: 48px 0 32px;">
-
-    <h3 style="font-size: 18px; font-weight: 600; margin-top: 16px; margin-bottom: 12px;">12.3 — Refero MCP (design system curado)</h3>
-
-    <p>Refero é um catálogo curado de ~200 design systems de sites premium (Cursor, Linear, Vercel, Notion, Stripe, etc.). O MCP é pacote npm local (<code>lorecraft-io/refero-design-mcp</code>) que a Aura consulta na skill 07a (page planning) ETAPA 2.1 Brand Discovery pra extrair signals coerentes de cor/typography/spacing sem inventar do zero nem fazer scraping.</p>
-
-    <div class="subsection">
-      <div class="subsection-title">Como o membro conecta (opcional)</div>
+    <div class="subsection reveal">
+      <div class="subsection-title">12.3 — Refero MCP (design system curado)</div>
+      <p>Refero é um catálogo curado de ~200 design systems de sites premium (Cursor, Linear, Vercel, Notion, Stripe, etc.). O MCP é pacote npm local (<code>fidgetcoding-refero-mcp</code>). A Aura usa na skill 07a-page-design ETAPA 2 (Brand Signals) pra extrair signals coerentes de cor/typography/spacing — esses signals alimentam o <code>frontend-design</code>, que gera o HTML da página (a fonte única de verdade visual). O Refero é fonte de signals, não decisão visual.</p>
+      <p><strong>Como o membro conecta (opcional):</strong></p>
       <ul>
         <li><strong>Claude Code:</strong> <code>claude mcp add refero -- npx -y fidgetcoding-refero-mcp</code></li>
       </ul>
-      <p>Sem auth obrigatória. Não confundir com o <code>mcp_token</code> que aparece na URL do <code>styles.refero.design</code> — esse é só do front-end web e não é usado pelo MCP.</p>
-      <p>Opcionais (qualidade de busca):</p>
-      <ul>
-        <li><code>OPENAI_API_KEY</code> — habilita semantic search via embeddings (default cai pra BM25 keyword)</li>
-        <li><code>REFERO_MCP_VAULT_DIR</code> — permite Refero escrever <code>DESIGN.md</code> direto no workspace</li>
-      </ul>
+      <p>Sem auth obrigatória. Não confundir com o <code>mcp_token</code> da URL do <code>styles.refero.design</code> (esse é do front-end web).</p>
+      <p>Opcionais: <code>OPENAI_API_KEY</code> (semantic search) e <code>REFERO_MCP_VAULT_DIR</code> (escrever <code>DESIGN.md</code> no workspace).</p>
     </div>
 
-    <div class="subsection">
-      <div class="subsection-title">As 6 tools</div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Tool</th><th>Categoria</th><th>Propósito</th></tr></thead>
-          <tbody>
-            <tr><td><code>refero_search</code></td><td>Discover</td><td>Vibe search natural ("editorial premium", "techy clean SaaS") retorna sites do catálogo</td></tr>
-            <tr><td><code>refero_get</code></td><td>Inspect</td><td>Pega designSystem completo de 1 site (UUID, hostname, ou nome)</td></tr>
-            <tr><td><code>refero_similar</code></td><td>Inspect</td><td>Similar styles ranking nativo do Refero</td></tr>
-            <tr><td><code>refero_list</code></td><td>Browse</td><td>Catálogo com filtros tema/tag</td></tr>
-            <tr><td><code>refero_design_md</code></td><td>Generate</td><td>Renderiza style como <code>DESIGN.md</code>; opcionalmente escreve em disco</td></tr>
-            <tr><td><code>refero_refresh</code></td><td>Maintenance</td><td>Bypass cache 24h</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <p><strong>As 6 tools:</strong></p>
+
+    <div class="table-wrap reveal">
+      <table>
+        <thead><tr><th>Tool</th><th>Categoria</th><th>Propósito</th></tr></thead>
+        <tbody>
+          <tr><td><code>refero_search</code></td><td>Discover</td><td>Vibe search natural</td></tr>
+          <tr><td><code>refero_get</code></td><td>Inspect</td><td>designSystem completo de 1 site</td></tr>
+          <tr><td><code>refero_similar</code></td><td>Inspect</td><td>Similar styles ranking</td></tr>
+          <tr><td><code>refero_list</code></td><td>Browse</td><td>Catálogo com filtros</td></tr>
+          <tr><td><code>refero_design_md</code></td><td>Generate</td><td>Renderiza style como <code>DESIGN.md</code></td></tr>
+          <tr><td><code>refero_refresh</code></td><td>Maintenance</td><td>Bypass cache 24h</td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="subsection">
-      <div class="subsection-title">Cascade na skill 07a ETAPA 2.1</div>
+    <div class="callout reveal"><strong>Cascade de brand signals na skill 07a-page-design ETAPA 2</strong> Refero → screenshot→visão (membro tira print full-page da loja de referência e o Claude lê a imagem com visão nativa — imune a Cloudflare/JS/markup bagunçado; fallback primário de inspiração) → <code>tools/design-clone/</code> (Playwright, caminho 3 opcional pra hex exato) → manual / 8 presets.</div>
+
+    <div class="note reveal"><strong>O Claude Design SAIU do caminho crítico</strong> O design é HTML-first via a skill nativa <code>frontend-design</code> (gera a página inteira como HTML+CSS self-contained com a copy real). Refero entra antes, só como input de signals pro <code>frontend-design</code>.</div>
+  </div>
+
+  <!-- ═══════════════ SECTION 13 ═══════════════ -->
+  <div class="section" id="s13">
+    <div class="section-label reveal"><span class="num">13</span>Como rodar uma sessão completa do zero</div>
+
+    <div class="subsection reveal">
+      <p>Ordem canônica pra um produto novo:</p>
       <ol>
-        <li><strong>Refero MCP</strong> (preferencial) — catálogo curado, designSystems estruturados. Aura busca pela vibe descrita pelo membro ou pega style específico se o membro nomeou um site (ex: "vibe da Linear").</li>
-        <li><strong><code>tools/design-clone/</code></strong> (fallback ad-hoc) — extração via Playwright quando o membro passa URL <strong>fora</strong> do catálogo Refero (ex: PDP de concorrente nichado tipo Qure, Seranova).</li>
-        <li><strong>Manual</strong> — membro descreve a vibe em texto ou escolhe um dos 8 estilos pré-definidos.</li>
+        <li><strong>setup</strong> — cria workspace, profile, manifest</li>
+        <li><strong>product research</strong> — valida o produto, define vertical</li>
+        <li><strong>market research</strong> — VOC, awareness, drivers</li>
+        <li><strong>competitor analysis</strong> — 5-10 concorrentes, padrões, gaps</li>
+        <li><strong>offer</strong> — mecanismo, pricing, stack, garantia, unit economics</li>
+        <li><strong>copy</strong> — copy completa pra cada section</li>
+        <li><strong>storefront</strong> — 07a (page design HTML-first) → 07b (build + deploy) → 07c (tracking setup) → 07d (checkout AOV)</li>
+        <li><strong>creatives</strong> — 6-15 conceitos com briefings</li>
+        <li><strong>consistency audit</strong> — cross-phase drift check (gate de launch)</li>
+        <li><strong>ad strategy</strong> — estrutura de campanha, naming, PGS</li>
+        <li><strong>— LAUNCH —</strong></li>
+        <li><strong>ad analysis</strong> (depois de 3-7 dias) — 4Pi, diagnóstico, decisões</li>
+        <li><strong>scale</strong> (depois que winners emergem) — vertical + horizontal</li>
+        <li><strong>retention</strong> (≥50 compras) — fluxos Klaviyo + <strong>bonus delivery</strong> (asset de bônus de ecom)</li>
+        <li><strong>content recycler</strong> (depois de winner consolidado) — 9 derivadas</li>
       </ol>
     </div>
 
-    <div class="callout"><strong>Não é concorrente do Claude Design:</strong> os dois rodam em sequência. Refero (ETAPA 2.1) entrega <em>signals técnicos</em> da vibe escolhida (cores role-tagged, typography tokens, spacing); Claude Design (ETAPA 0.5) entrega <em>4 variações visuais</em> renderizadas no canvas pra membro escolher a direção. Refero é input pros specialists, Claude Design é decisão visual do membro.</div>
+    <div class="note reveal"><strong>Pre-flight encadeado</strong> Cada skill faz pre-flight da anterior. Se algum artefato falta, oferece fallback (rule <code>emergency-escape-paths</code> — ES1).</div>
 
-    <div class="note"><strong>Privacidade:</strong> MCP local, sem tokens persistidos. Cache em <code>~/.cache/refero-mcp/</code> com TTL 24h. Catálogo livre — único custo opcional é uso de embeddings OpenAI quando <code>OPENAI_API_KEY</code> setado (~$0.0001 por busca, irrelevante).</div>
+    <div class="callout reveal"><strong>Iteration loop normal</strong> depois de cada launch, ad analysis + iteração de creative ou copy é o ciclo. Skill 09 reroda antes de qualquer relaunch crítico.</div>
   </div>
 
-  <div class="section" id="s13">
-    <div class="section-label"><span class="num">13</span>Como rodar uma sessão completa do zero</div>
-    <p>Ordem canônica pra um produto novo:</p>
-
-    <ol class="flow-list">
-      <li><strong>setup</strong> — cria workspace, profile, manifest</li>
-      <li><strong>product research</strong> — valida o produto, define vertical</li>
-      <li><strong>market research</strong> — VOC, awareness, drivers (artefato mais consultado)</li>
-      <li><strong>competitor analysis</strong> — 5-10 concorrentes, padrões, gaps</li>
-      <li><strong>offer</strong> — mecanismo, pricing, stack, garantia, unit economics</li>
-      <li><strong>bonus delivery</strong> — asset prep pros bonuses definidos acima (PDFs, emails, Circle invites)</li>
-      <li><strong>copy</strong> — copy completa pra cada section da página</li>
-      <li><strong>page</strong> — 07a (planning) → 07b (sections) → 07c (deploy)</li>
-      <li><strong>creatives</strong> — 6-15 conceitos com briefings completos</li>
-      <li><strong>consistency audit</strong> — cross-phase drift check (gate antes do launch)</li>
-      <li><strong>ad strategy</strong> — estrutura de campanha, naming, PGS</li>
-      <li><strong>— LAUNCH —</strong></li>
-      <li><strong>ad analysis</strong> (depois de 3-7 dias) — 4Pi, diagnóstico, decisões</li>
-      <li><strong>scale</strong> (depois que winners emergem) — vertical + horizontal</li>
-      <li><strong>retention</strong> (≥50 compras) — fluxos Klaviyo</li>
-      <li><strong>content recycler</strong> (depois de winner consolidado) — 9 derivadas do criativo top</li>
-    </ol>
-
-    <div class="callout"><strong>Cada skill faz pre-flight da anterior.</strong> Se algum artefato falta, a skill oferece fallback (rule <code>emergency-escape-paths</code> — ES1).</div>
-    <div class="note"><strong>Iteration loop normal:</strong> depois de cada launch, ad analysis + iteração de creative ou copy é o ciclo. Skill 09 (consistency audit) reroda antes de qualquer relaunch crítico.</div>
-  </div>
-
+  <!-- ═══════════════ SECTION 14 ═══════════════ -->
   <div class="section" id="s14">
-    <div class="section-label"><span class="num">14</span>Mudanças recentes</div>
-    <p>Log de correções e upgrades. Os números das skills abaixo refletem a numeração da época de cada mudança — renumerações posteriores não modificam o histórico.</p>
+    <div class="section-label reveal"><span class="num">14</span>Mudanças recentes</div>
 
-    <div class="table-wrap">
+    <div class="subsection reveal">
+      <p>Os números das skills refletem a numeração da época de cada mudança.</p>
+    </div>
+
+    <div class="table-wrap reveal">
       <table>
         <thead><tr><th>Data</th><th>Mudança</th></tr></thead>
         <tbody>
           <tr><td>2026-04-30</td><td>Skill 06 deprecated removida (era só um redirect)</td></tr>
           <tr><td>2026-04-30</td><td>Skill 17 renomeada pra 14 (numeração contígua)</td></tr>
-          <tr><td>2026-04-30</td><td>Drift 04↔09 corrigido (<code>weighted_margin_per_order</code>, <code>target_cpa_primary_2x/3x</code> adicionados ao output da skill 04)</td></tr>
-          <tr><td>2026-04-30</td><td>Drift 04↔05 corrigido (<code>offer_stack</code> adicionado ao output da skill 04)</td></tr>
+          <tr><td>2026-04-30</td><td>Drift 04↔09 corrigido (<code>weighted_margin_per_order</code>, <code>target_cpa_primary_2x/3x</code> adicionados ao output da 04)</td></tr>
+          <tr><td>2026-04-30</td><td>Drift 04↔05 corrigido (<code>offer_stack</code> adicionado ao output da 04)</td></tr>
           <tr><td>2026-04-30</td><td>Drift 08↔09 corrigido (skill 08 grava <code>08_campaign_name</code> no manifest)</td></tr>
           <tr><td>2026-04-30</td><td>Skill 11 vira hard gate em 06c, 08, 12 (lê <code>launch_recommendation</code>, aborta em BLOCK)</td></tr>
-          <tr><td>2026-04-30</td><td>Google Cache removido do fallback chain da skill 03 (descontinuado set/2024)</td></tr>
-          <tr><td>2026-04-30</td><td>URL hardcoded do Higgsfield substituída por URL genérica em <code>prompt-directors/marketing-studio-director.md</code></td></tr>
+          <tr><td>2026-04-30</td><td>Google Cache removido do fallback chain da 03 (descontinuado set/2024)</td></tr>
+          <tr><td>2026-04-30</td><td>URL hardcoded do Higgsfield substituída por URL genérica</td></tr>
           <tr><td>2026-04-30</td><td>Libs órfãs deletadas: <code>shocking-stats</code>, <code>whisper-transcribe</code>, <code>section-patterns</code></td></tr>
           <tr><td>2026-04-30</td><td>Skill 14 ganha companion <code>.html</code> obrigatório (rule 6b)</td></tr>
           <tr><td>2026-04-30</td><td>CLAUDE.md atualizado com skill 14 na lista oficial</td></tr>
-          <tr><td>2026-04-30</td><td><strong>Integração MCP TrendTrack</strong> adicionada como lib opcional (<code>lib/trendtrack-integration/</code>). Skills 01, 03, 08, 11, 13 ganham ETAPAs condicionais que detectam tools <code>mcp__trendtrack__*</code> em runtime. Fallback silencioso quando ausente. CLAUDE.md ganha rule 10 sobre integrações MCP opcionais.</td></tr>
-          <tr><td>2026-05-11</td><td><strong>Integração do MCP oficial da Meta</strong> (<code>mcp.facebook.com/ads</code>, open beta desde 2026-04-29). Nova receita <code>sync-campaign-from-meta-official.md</code> usa as 29 tools nativas (incluindo industry benchmarks, dataset quality, auction ranking, opportunity score, anomaly signal que não existem no Pipeboard). Skill 11 ETAPA 1 vira cascade: oficial → Pipeboard → manual. <code>pause-ad-set.md</code> ganha cascade interno. <code>setup-mcps.md</code> documenta os dois caminhos em paralelo. CLAUDE.md rule 10 expandida pra mencionar Meta MCP.</td></tr>
-          <tr><td>2026-05-11</td><td><strong>Integração Refero MCP</strong> (<code>lorecraft-io/refero-design-mcp</code>). Catálogo curado de ~200 design systems premium alimentando a skill 07a ETAPA 2.1 Brand Discovery via 6 tools. Cascade: Refero → <code>tools/design-clone/</code> → manual. Complementar ao Claude Design (ETAPA 0.5 continua gerando 4 variações visuais), não concorrente. CLAUDE.md rule 10 expandida pra mencionar Refero. Nova lib <code>refero-integration/</code>.</td></tr>
+          <tr><td>2026-04-30</td><td><strong>Integração MCP TrendTrack</strong> adicionada como lib opcional. Skills 01, 03, 08, 11, 13 ganham ETAPAs condicionais. Fallback silencioso. CLAUDE.md ganha rule 10.</td></tr>
+          <tr><td>2026-05-11</td><td><strong>Integração do MCP oficial da Meta</strong> (<code>mcp.facebook.com/ads</code>, open beta desde 2026-04-29). Nova receita <code>sync-campaign-from-meta-official.md</code> usa as 29 tools nativas. Skill 11 ETAPA 1 vira cascade: oficial → Pipeboard → manual. <code>pause-ad-set.md</code> ganha cascade interno. CLAUDE.md rule 10 expandida.</td></tr>
+          <tr><td>2026-05-11</td><td><strong>Integração Refero MCP</strong> (<code>lorecraft-io/refero-design-mcp</code>). Catálogo curado de ~200 design systems premium. Skill 07a ETAPA 2.1 Brand Discovery vira cascade: Refero → <code>tools/design-clone/</code> → manual. Complementar ao Claude Design (ETAPA 0.5 continua gerando 4 variações visuais). CLAUDE.md rule 10 expandida. Nova lib <code>refero-integration/</code>.</td></tr>
           <tr><td>2026-05-03</td><td>Self-audit silencioso obrigatório no fim de toda skill (rule + CLAUDE.md rule 9)</td></tr>
-          <tr><td>2026-05-03</td><td><strong>Renumeração completa das skills pra match com a ordem de execução:</strong> bonus-delivery 13→05, copy 05→06, page 06→07, creatives 07→08, consistency-audit 11→09, ad-strategy 08→10, ad-analysis 09→11, scale 10→12, retention 12→13. Content-recycler permanece 14. Números daqui pra frente refletem o workflow cronológico.</td></tr>
-          <tr><td>2026-05-04</td><td>Skill 00 setup agora pergunta o idioma de relatório (<code>pt-BR</code> ou <code>en</code>) como primeira pergunta; salvo em <code>profile.md</code> como <code>report_language</code>. Toda skill lê antes de gerar relatórios internos.</td></tr>
-          <tr><td>2026-05-04</td><td>Page registry pattern introduzido: <code>07-page/page-registry.md</code> centraliza URL, frame e dados de message-match ad↔page pra que múltiplos criativos referenciem páginas por slug. Atualizar uma página não exige mais editar cada briefing.</td></tr>
+          <tr><td>2026-05-03</td><td><strong>Renumeração completa das skills</strong> pra match com ordem de execução: bonus-delivery 13→05, copy 05→06, page 06→07, creatives 07→08, consistency-audit 11→09, ad-strategy 08→10, ad-analysis 09→11, scale 10→12, retention 12→13. Content-recycler permanece 14.</td></tr>
+          <tr><td>2026-05-04</td><td>Skill 00 setup pergunta idioma de relatório (<code>pt-BR</code> ou <code>en</code>) como primeira pergunta; salvo em <code>profile.md</code> como <code>report_language</code>.</td></tr>
+          <tr><td>2026-05-04</td><td>Page registry pattern introduzido: <code>07-page/page-registry.md</code> centraliza URL, frame e dados de message-match ad↔page pra múltiplos criativos referenciarem páginas por slug.</td></tr>
+          <tr><td>2026-06-20</td><td><strong>Redesign storefront (Onda 2).</strong> Fase de página vira a cadeia storefront <strong>07a-page-design → 07b-page-build → 07c-tracking-setup → 07d-checkout-aov</strong>. 07a/07b são HTML-first determinístico: design nasce in-session via <code>frontend-design</code> (fonte única visual aprovada antes do Liquid), conversão HTML→Liquid por código via <code>liquid-converter.py</code>. Claude Design sai do caminho crítico; Refero vira fonte de signals e screenshot→visão vira o fallback primário de inspiração. <strong>07c-tracking-setup</strong> (Pixel + CAPI ≥80% + analytics stack) e <strong>07d-checkout-aov</strong> (upsell/bump/bundle/checkout trust) são skills novas. <strong>Bonus delivery (05)</strong> redesenhada pra bônus de ecom (GWP, e-book, free SKU, gift wrapping) e movida pra pós-launch junto da 13. Gate de consistência (09) trava o launch (skill 10), não o deploy da página. CLAUDE.md/AGENTS.md rule 10c atualizada.</td></tr>
         </tbody>
       </table>
     </div>
@@ -1003,5 +928,27 @@
   <p class="footer">Aura © 2026</p>
 
 </div>
+
+<!-- ═══════════════ ANIMAÇÃO (reveal no scroll + count-up nos números) ═══════════════ -->
+<script>
+  document.documentElement.classList.add('js');
+  const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const reveals = document.querySelectorAll('.reveal');
+  if (reduce) { reveals.forEach(e=>e.classList.add('in')); }
+  else {
+    const io = new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);
+      e.target.querySelectorAll && e.target.querySelectorAll('[data-count]').forEach(countUp); } })},{threshold:0.12, rootMargin:'0px 0px -6% 0px'});
+    reveals.forEach(el=>io.observe(el));
+  }
+  function countUp(el){
+    if (reduce) return;
+    const target = parseFloat(el.getAttribute('data-count')); if (isNaN(target)) return;
+    const suffix = el.getAttribute('data-suffix')||''; const prefix = el.getAttribute('data-prefix')||'';
+    const dec = (String(target).split('.')[1]||'').length; const dur = 900; const t0 = performance.now();
+    function frame(t){ const p = Math.min(1,(t-t0)/dur); const e = 1-Math.pow(1-p,3);
+      el.textContent = prefix + (target*e).toFixed(dec) + suffix; if (p<1) requestAnimationFrame(frame); else el.textContent = prefix+target.toFixed(dec)+suffix; }
+    requestAnimationFrame(frame);
+  }
+</script>
 </body>
 </html>
