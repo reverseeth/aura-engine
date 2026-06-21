@@ -132,7 +132,7 @@ REGRAS FUNDAMENTAIS:
     **WORKSPACE (LOCAL-ONLY, JAMAIS commitar/pushar):**
     - `workspace/` (todo o conteúdo exceto o `workspace/.gitkeep` placeholder)
     - Qualquer arquivo dentro de `workspace/[produto-slug]/` (manifest.json, profile.md, market-research, copy, criativos, ads, etc.)
-    - Qualquer arquivo da marca pessoal do membro (Solvn ou qualquer outro produto que ele esteja rodando)
+    - Qualquer arquivo da marca pessoal do membro (qualquer produto que ele esteja rodando)
 
     **Regras invioláveis:**
 

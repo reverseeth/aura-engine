@@ -108,7 +108,7 @@ Em todos, o **primeiro `<strong>` vira o rótulo** (uppercase, display:block). E
 
 - `.brand-card`, `.concept-card` — cards de marca/conceito (radius `--r`, hover-lift).
 - `.tier-card` (+ `.popular` pra destacar plano) — card de pricing/tier.
-- `.timeline-day` + `.timeline`/`.timeline-row`/`.timeline-time`/`.timeline-label`/`.timeline-content` — cronograma.
+- `.timeline-day` (+ `.timeline-day-label` — badge do dia) + `.timeline`/`.timeline-row`/`.timeline-time`/`.timeline-label`/`.timeline-content` — cronograma.
 - `.primary-text-box` + `.pt-label` — bloco de Primary Text de ad.
 - `.faq` + `.faq-q`/`.faq-a` — perguntas/objeções.
 - `.hook-row` + `.hook-label`/`.hook-text`/`.hook-use` — hooks de criativo.

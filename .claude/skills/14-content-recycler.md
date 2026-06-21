@@ -13,7 +13,7 @@ Skill auxiliar invocável. Reutiliza criativos vencedores em 9 formatos diferent
 
 **Manual**: membro diz `recycle [creative-id]` ou `recycle winner`.
 
-**Automático** (futuro, com Shadow Brain #1 rodando): disparada quando a skill 11 já marcou um criativo como winner em `latest.winners[]`.
+**Automático** (futuro, com Shadow Brain #1 rodando): disparada quando a skill 11 já marcou um criativo como winner em `dados.json.winners[]`.
 
 ## Pré-flight
 
@@ -29,7 +29,7 @@ Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; ta
 
 Se membro digitou `recycle winner` (sem ID específico):
 1. Ler `workspace/[produto]/11-ad-analysis/dados.json` (produzido pela Skill 11)
-2. Ler `latest.winners[]` — o array JÁ vem filtrado pela skill 11 (só criativos com `outcome == "winner"`). A 14 NÃO recomputa critério; apenas ordena por `spend_total` desc (tiebreak `days_active` desc). Se precisar de target pra exibir, leia explícito de `manifest.target_cpa`.
+2. Ler `winners[]` — o array JÁ vem filtrado pela skill 11 (só criativos com `outcome == "winner"`). A 14 NÃO recomputa critério; apenas ordena por `spend_total` desc (tiebreak `days_active` desc). Se precisar de target pra exibir, leia explícito de `manifest.target_cpa`.
 3. Se `winners.length === 1` → usar `winners[0].creative_id`
 4. Se `winners.length >= 2` → apresentar lista ordenada (id + cpa + roas + spend) e perguntar qual reciclar
 5. Se `winners.length === 0` OU campo `winners` ausente (versão antiga do `dados.json`) → responder:
@@ -48,7 +48,7 @@ Se membro digitou `recycle winner` (sem ID específico):
 
 Siga exatamente o fluxo descrito em `.claude/lib/content-recycler/recycler.md`:
 
-1. **Identificação do winner** — input `[creative-id]` ou `winner` (lê `latest.winners[]` já marcado pela skill 11, ordena por spend_total)
+1. **Identificação do winner** — input `[creative-id]` ou `winner` (lê `dados.json.winners[]` já marcado pela skill 11, ordena por spend_total)
 
 2. **Extração de essência** — destilar big idea, hook, mechanism, avatar, voice em `essence.json`. Esta etapa decide o que de fato pode ser reaproveitado: isole o que é replicável (ângulo, mecanismo, prova) do que é descartável (formato específico do criativo). Puxe os SISTEMAS NOMEADOS abaixo (rode `search_knowledge` com a `best_query`, `deep=true`):
    - **Hook Writing Framework — 3 Functions of a Hook** (rode `hook framework 3 functions ad video stop scroll create curiosity`) — pra identificar qual das 3 funções o hook winner cumpre antes de reembalar.

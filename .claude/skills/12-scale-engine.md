@@ -42,7 +42,7 @@ Se algum arquivo de pré-flight faltar, não aborte seco (rule `emergency-escape
 
 ### Breakeven é a âncora de tudo
 
-Toda a matemática de escala desta skill ancora no **CPA de breakeven** e no **CPA máximo** (target = breakeven menos a margem de lucro desejada). **Fonte canônica do breakeven CPA (a MESMA das Skills 10 e 11):** `04-offer-builder/dados.json.unit_economics.weighted_margin_per_order`. Use esse campo direto, não re-derive. A performance real vem do `11-ad-analysis/dados.json`. Não invente — leia. Se faltar, pegue na ETAPA 1.
+Toda a matemática de escala desta skill ancora no **CPA de breakeven** e no **CPA máximo** (`max_cpa` = breakeven menos a margem de lucro desejada — é o setpoint do cost cap/bid cap, **distinto** dos `target_cpa_primary_2x/3x` da Skill 04, que são alvos de múltiplo de ROAS; o `max_cpa` é dirigido pelo lucro que o membro quer por pedido). **Fonte canônica do breakeven CPA (a MESMA das Skills 10 e 11):** `04-offer-builder/dados.json.unit_economics.weighted_margin_per_order`. Use esse campo direto, não re-derive. A performance real vem do `11-ad-analysis/dados.json`. Não invente — leia. Se faltar, pegue na ETAPA 1.
 
 ### PSM real (vs teórico) — LER, não recalcular
 
@@ -132,7 +132,7 @@ Existem três escolas de escala vertical, todas reais e usadas por gestores de t
 A mecânica:
 
 1. **Isola o winner numa campanha 1-1-1** — 1 campanha, 1 ad set, 1 criativo vencedor. Limpo, sem ruído. Se 2 criativos validaram, uma estrutura 1-1-1 pra cada.
-2. **Bidding = Cost Cap** (custo por resultado), setado **~10% abaixo do CPA de breakeven**. Ex: breakeven $55, meta de ~30% de lucro → cost cap **~$50**. O cost cap é o teto: o Facebook só gasta enquanto consegue resultado abaixo dele.
+2. **Bidding = Cost Cap** (custo por resultado), setado **~10% abaixo do CPA de breakeven**. Ex: breakeven $55 → cost cap inicial **~$50** (deixa ~9% de lucro por pedido nesse teto: `lucro/pedido = breakeven − cap = $5` ≈ 9% da margem de $55). O cost cap é o teto: o Facebook só gasta enquanto consegue resultado abaixo dele. **São os caps decrescentes do passo 3 que vão exigindo mais lucro por pedido** — quanto mais baixo o cap, maior a margem por venda (ex: cap ~$38 ≈ 30% de lucro/pedido).
 3. **Duplica o 1-1-1 várias vezes com caps DECRESCENTES** — $50, $45, $40, $35… de $5 em $5. Cada duplicata com o mesmo budget de teste (ex: $160/dia). A lógica: cada cap mais baixo pega a eficiência num ponto diferente do leilão; o Facebook acha gasto onde dá pra entregar dentro daquele teto. Quanto mais baixo o cap, mais difícil gastar, mas mais barato o resultado.
 4. **Surf de manhã (a parte agressiva).** Ao acordar, olhe as campanhas. Uma com CPA **muito** abaixo do alvo (ex: 2 vendas, gastou $30, CPA $15 num produto de breakeven $55) está pedindo budget. **Joga o budget 10×** ($160 → $1.600), observa 2-3h.
    - Continua vendendo dentro do alvo → **sobe mais** ($3k, $30k — não gasta tudo, gasta o que conseguir vendendo).

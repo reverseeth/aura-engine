@@ -38,11 +38,13 @@ PHASES = [
     ("14", "14-content-recycler",   {"pt-BR": "Reciclagem de conteúdo","en": "Content recycler"},       "recycle", True),
 ]
 
-# subpastas/arquivos alternativos que contam como "fase concluída" (fases já com estrutura própria)
+# Relatório alternativo: só a fase 07 difere do padrão <folder>/relatorio.html — a página
+# humana é 07-page/07-page.html (escrita pela 07b APÓS o build/deploy). NÃO incluímos
+# design/page.html aqui de propósito: a fase "Página" só conta como concluída quando a
+# página foi de fato construída (07b), não quando só o design (07a) foi aprovado.
+# 08/11/12/14 escrevem relatorio.html no padrão, então não precisam de entrada aqui.
 ALT_REPORT = {
-    "07-page":  ["07-page/07-page.html", "07-page/design/page.html"],
-    "08-creative-engine": ["08-creative-engine/relatorio.html", "08-creatives/08-creative-strategy.html"],
-    "11-ad-analysis": ["11-ad-analysis/relatorio.html", "11-analysis/latest.json"],
+    "07-page":  ["07-page/07-page.html"],
 }
 
 LOGO_SVG = ('<svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
@@ -52,10 +54,12 @@ LOGO_SVG = ('<svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg
 T = {
   "pt-BR": dict(title="Seu painel", sub="Tudo que a Aura já criou pra <b>{p}</b>. Abra qualquer relatório, ou siga pro próximo passo.",
                 done="Concluído", pending="Pendente", open="Abrir relatório →", next="Próximo passo",
+                next_post="Próximo passo (pós-launch)",
                 run='Diga <code>{cmd}</code> pra rodar.', progress="{d} de {t} fases concluídas",
                 alldone="Tudo pronto. Sua máquina está montada.", post="Pós-launch"),
   "en": dict(title="Your dashboard", sub="Everything Aura has built for <b>{p}</b>. Open any report, or move to the next step.",
                 done="Done", pending="Pending", open="Open report →", next="Next step",
+                next_post="Next step (post-launch)",
                 run='Say <code>{cmd}</code> to run it.', progress="{d} of {t} phases done",
                 alldone="All set. Your machine is built.", post="Post-launch"),
 }
@@ -84,16 +88,26 @@ def build(slug):
         return None
 
     rows, done_count, total = [], 0, 0
-    next_phase = None
+    next_phase = None   # primeira fase NÃO-pós pendente
+    post_next = None    # primeira fase pós-launch pendente (fallback quando o core acabou)
     for sid, folder, names, cmd, post in PHASES:
         if sid == "00":  # setup não vira card de relatório
             continue
         total += 1
         link = report_link(folder)
-        is_done = link is not None or any(folder in s or s.startswith(sid) for s in completed)
+        # done = report artifact exists, OR manifest marks this phase complete.
+        # match skills_completed entries as "<sid>-..." to avoid the 07/07c/07d prefix
+        # collision (a bare startswith(sid) would let 07c mark the 07-page phase done).
+        # fase 07 (folder 07-page) é construída pela 07b: marca done quando 07b consta
+        # (a 07a só desenha; tracking/checkout 07c/07d são fases próprias e não contam aqui).
+        is_done = (link is not None
+                   or any(s == folder or s.startswith(sid + "-") for s in completed)
+                   or (sid == "07" and "07b-page-build" in completed))
         if is_done: done_count += 1
         elif next_phase is None and not post and cmd:
             next_phase = (names[lang], cmd)
+        elif post_next is None and post and cmd:
+            post_next = (names[lang], cmd)
         name = html.escape(names[lang])
         badge = (f'<span class="b-done">{tr["done"]}</span>' if is_done else f'<span class="b-pending">{tr["pending"]}</span>')
         post_tag = f'<span class="b-post">{tr["post"]}</span>' if post else ''
@@ -105,11 +119,19 @@ def build(slug):
           <div class="ph-badge">{badge}</div></div>''')
 
     pct = round(done_count / total * 100) if total else 0
+    # próximo passo: core pendente primeiro; se o core acabou mas faltam fases pós-launch,
+    # mostra a primeira delas (não deixa o card sumir); só "tudo pronto" quando tudo acabou.
     next_html = ''
     if next_phase:
-        next_html = f'''<div class="next reveal"><div class="next-label">{tr["next"]}</div>
-          <div class="next-name">{html.escape(next_phase[0])}</div>
-          <div class="next-cmd">{tr["run"].format(cmd=html.escape(next_phase[1]))}</div></div>'''
+        chosen, label = next_phase, tr["next"]
+    elif post_next and done_count < total:
+        chosen, label = post_next, tr["next_post"]
+    else:
+        chosen = label = None
+    if chosen:
+        next_html = f'''<div class="next reveal"><div class="next-label">{label}</div>
+          <div class="next-name">{html.escape(chosen[0])}</div>
+          <div class="next-cmd">{tr["run"].format(cmd=html.escape(chosen[1]))}</div></div>'''
     elif done_count == total:
         next_html = f'<div class="next reveal"><div class="next-name">{tr["alldone"]}</div></div>'
 
@@ -183,7 +205,15 @@ def main():
     slug = sys.argv[1]
     out_root = Path.cwd() / "workspace" / slug
     if not out_root.exists():
-        out_root = Path(__file__).resolve().parents[3] / "workspace" / slug
+        repo_root = Path(__file__).resolve().parents[3] / "workspace" / slug
+        if repo_root.exists():
+            out_root = repo_root
+        else:
+            # nem no cwd nem no repo — não cria pasta órfã (evita poluir o repo com um slug
+            # digitado errado). A skill que cria o produto já faz mkdir antes de chamar isto.
+            print(f"[aura] workspace/{slug} não existe (cwd nem repo). Rode a skill que cria o "
+                  f"produto primeiro, ou confira o slug.", file=sys.stderr)
+            sys.exit(1)
     out_root.mkdir(parents=True, exist_ok=True)
     (out_root / "ABRIR-AQUI.html").write_text(build(slug), encoding="utf-8")
     print(f"[aura] ABRIR-AQUI.html atualizado em {out_root/'ABRIR-AQUI.html'}")

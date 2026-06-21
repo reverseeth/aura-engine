@@ -47,7 +47,8 @@ ABRIR-AQUI.html                        ← painel, gerado por build_index.py
   compliance-log.json                   (era 06-compliance-log.json)
 07-page/                                ← storefront (07a design + 07b build); pasta já era foldered
   07-plan.json   07-design-system.md   07-design-system.html
-  design/page.html   design-tokens.json   design-signals.json
+  design/page.html                      (só page.html fica dentro de design/)
+  design-tokens.json   design-signals.json   (na raiz do 07-page/, NÃO em design/)
   iterations-log.json                   (movido pra cá; era na raiz do produto)
   07-page.md   07-page.html             (relatório humano da página = 07-page.html)
   07-deploy-report.json

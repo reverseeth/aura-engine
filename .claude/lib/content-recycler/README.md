@@ -6,7 +6,7 @@ Reaproveita o winner em 9 canais sem produção nova.
 ## Quando usar
 
 **Automaticamente** (quando Shadow Brain tiver rodando): quando a skill 11 já
-marcou um criativo como winner em `latest.winners[]`.
+marcou um criativo como winner em `dados.json.winners[]`.
 
 **Manual**: membro invoca com `recycle [creative-id]`.
 

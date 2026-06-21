@@ -43,7 +43,7 @@ Ler todos os artefatos disponíveis (só os que existem):
 - `06-copy-engine/relatorio.md` + `06-copy-engine/dados.json` → extract headlines, hero, mechanism mentions, claims, promises
 - `07-page/07-plan.json` → extract `sections_plan[]`, `section_order`, `brand_discovery`
 - `07-page/07-design-system.md` → extract paleta, tipografia (pra comparar com blueprint/tokens)
-- `07-page/design-tokens.json` (se Claude Design rodou) → tokens extraídos da variação aprovada
+- `07-page/design-tokens.json` (gerado por 07a, qualquer rota) → tokens extraídos da variação aprovada
 - `08-creative-engine/dados.json` → extract hooks, primary_texts, headlines per concept
 - `10-ad-strategy/dados.json` **(if exists)** — no modo pré-launch ainda não existe (a 10 roda depois da 09); só lê se presente, nunca bloqueia por ausência.
 - `11-ad-analysis/dados.json` **(if exists)** → extract `psm_real`, `winners[]`, `recommended_action` — só existe na re-execução pós-iteração, nunca no pré-launch.

@@ -363,7 +363,7 @@ Começa por **'ad analysis'**. Cole os dados do Ads Manager que eu rodo 4Pi comp
 
 "Setup completo. Modo otimização.
 
-Próximo passo: **'scale'**. Monto um plano baseado nos seus números — PGS pra escala vertical sistemática, análise de PSM pra garantir margem de crescimento, roadmap de canais horizontais (Google Search, TikTok, Amazon) quando fizer sentido, e ritmo de criativos/offers alinhado ao revenue tier que você tá operando."
+Próximo passo: **'scale'**. Monto um plano baseado nos seus números — PGS pra escala vertical sistemática, análise de PSM pra garantir margem de crescimento, roadmap de canais horizontais (Google Search, TikTok, Amazon) quando fizer sentido, e ritmo de criativos/offers alinhado à faixa de faturamento que você tá operando."
 
 Depois da mensagem específica, adicione SEMPRE:
 

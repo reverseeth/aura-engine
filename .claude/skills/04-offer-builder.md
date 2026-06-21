@@ -337,7 +337,7 @@ Exemplo: "90-day results guarantee. If you don't see visible improvement in the 
 - **Unit Economics Hierarchy (CPA vs CAC, GPT)** (rode `unit economics CPA vs CAC blended CPA GPT net profit hero offer`) — separa CPA de CAC e define o denominador correto de margem.
 - **Hormozi LTGP:CAC Ratio** (rode `Hormozi LTGP CAC ratio 3 to 1 lifetime gross profit acquisition cost`) — alvo 3:1 de lifetime gross profit sobre CAC.
 - **Client Financed Acquisition (CFA)** (rode `Hormozi client financed acquisition front end covers CAC backend pure profit`) — front-end (bump/upsell) cobre o CAC, backend vira lucro.
-- **Pricing Leverage Math (5% Price = 50% Profit)** (rode `pricing leverage 5 percent price increase 50 percent profit thin margin`) — quando a margem é fina, mexer no preço move o lucro desproporcionalmente (input pra ETAPA 7 quando PSM < 1.2).
+- **Pricing Leverage Math (5% Price = 50% Profit)** (rode `pricing leverage 5 percent price increase 50 percent profit thin margin`) — quando a margem é fina, mexer no preço move o lucro desproporcionalmente (input pra ETAPA 7 quando PSM < 1.1).
 
 Crie uma tabela de unit economics pra CADA variação da oferta (solo, bundle, com bump, com upsell):
 
@@ -375,9 +375,11 @@ Margem por unidade:
 - Para 3× ROAS → CPA máximo = 72/3 = $24
 - Sanidade: target (2×) < breakeven_cpa SEMPRE ($36 < $72).
 
-**PSM** (Profit-to-Spend Multiple, após cobrir CAC):
-- PSM = weighted_margin_per_order / CPA observado (ex: margem $72, CPA $36 → PSM = 2.0)
-- Viabilidade: PSM >= 1.2 é mínimo; PSM >= 1.5 é confortável
+**PSM — Profitable Scaling Margin** (o "golden ratio" que substitui ROAS na decisão de escala; é a **MESMA fórmula** que a skill 11 grava como `psm_real`, pra que o teórico do offer e o real medido sejam comparáveis — a skill 12 lê os dois):
+- **PSM = LTV / (CPA + COGS)** — LTV = AOV projetado quando não há histórico de recompra (proxy); COGS do `cogs_breakdown`; CPA = o CPA-alvo que o membro aceitaria. Avalie no **target 2×**, NÃO no breakeven (avaliar no breakeven daria sempre PSM = 1.0; no 2× daria sempre 2.0 se usasse margem/CPA — por isso a fórmula canônica usa LTV e COGS, que refletem a estrutura real).
+- Exemplo: AOV/LTV $118, COGS $30, CPA-alvo (2×) $36 → PSM = 118 / (36 + 30) = **1.79**.
+- Thresholds (idênticos às skills 11/12): **>1.3 escala agressiva · 1.1–1.3 escala estável (+5%) · 1.0–1.1 breakeven · <1.0 não viável**.
+- Grave como `psm_theoretical` no `dados.json`. A skill 11 grava `psm_real` (mesma fórmula, com o CPA real medido); a skill 12 compara os dois.
 
 **Regra crítica:** Target CPA pra 2× ROAS deve ser viável com o budget do membro. Se a margem $ < $15-20, a oferta não sustenta ads a não ser em volume muito alto.
 
@@ -404,20 +406,18 @@ AOV = (% compra solo × preço solo)
 Baseline mix (ajustar com data depois):
 - 50% solo, 35% 3-pack, 15% 6-pack (mix típico com Popular destacado no 3-pack)
 
-### ETAPA 7 — PSM Projetado (Profit-to-Spend Multiple)
+### ETAPA 7 — PSM Projetado (Profitable Scaling Margin)
 
-Aplique os princípios de PSM (ver Etapa 5 pra fórmula completa).
+Reavalie o PSM com o **AOV projetado da ETAPA 6** (pós bump/upsell) como LTV-proxy, pela MESMA fórmula da ETAPA 5 (a mesma que a skill 11 usa pro `psm_real`):
 
-**Fórmula:** PSM = Margem $ / CPA observado (ou projetado)
-
-Considere também LTV ao longo de 30-60-90 dias (com reorder rate se aplicável) para refinar a avaliação de escala.
+**Fórmula:** PSM = LTV / (CPA + COGS) — agora LTV = AOV projetado (ETAPA 6), CPA = target 2× (ou um CPA esperado de benchmark, se o membro tiver), COGS do `cogs_breakdown`. Se houver dado de recompra, use LTV com reorder ao longo de 30-60-90 dias (eleva o PSM e justifica CPA mais alto).
 
 - **PSM < 1.0**: cada cliente perde dinheiro em escala — oferta NÃO viável
-- **PSM = 1.0-1.2**: break-even, cresce devagar com risco
-- **PSM > 1.2**: crescimento lucrativo, pode escalar com confiança
-- **PSM > 1.5**: oferta forte, escala agressiva viável
+- **PSM 1.0–1.1**: breakeven, cresce devagar com risco
+- **PSM 1.1–1.3**: escala estável, +5% por ciclo
+- **PSM > 1.3**: escala agressiva viável
 
-Se PSM projetado < 1.2 — oferta **não é viável** com economics atuais. Sugira em ordem:
+Se PSM projetado < 1.1 — oferta **não sustenta escala lucrativa** com economics atuais. Sugira em ordem:
 1. **Aumentar AOV** (primeira opção, sem arriscar volume):
    - Bundle (ex: 3-pack desconto 15%)
    - Upsell no checkout (complemento de $20-40 com margem alta)
@@ -444,7 +444,7 @@ Antes de salvar, responda HONESTAMENTE:
 
 1. **A oferta faz sentido pro awareness level dominante?** (se é Problem Aware, a oferta foca em educação; se é Product Aware, foca em diferenciação; etc)
 2. **O mecanismo é genuinamente diferente dos concorrentes?** (passa no filtro S.I.N. + não é commodity do estágio de sophistication)
-3. **As economics permitem escalar?** (PSM > 1.2, CPA target viável com budget do membro)
+3. **As economics permitem escalar?** (PSM > 1.1 — escala estável; CPA target viável com budget do membro)
 4. **O stack de valor é convincente SEM inflar?** (cada bonus é real, útil, entregável)
 5. **A garantia quebra a objeção de risco identificada no market research?** (não é genérica — ataca o medo específico do avatar)
 6. **Pricing triangulado (as 3 ancoras convergem < 40% de diferença)?**

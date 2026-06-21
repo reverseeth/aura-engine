@@ -8,31 +8,34 @@ Orchestrates the full product-to-ads-to-retention workflow through 14 skills:
 
 | # | Skill | Output |
 |---|---|---|
-| 00 | setup | profile + first manifest |
+| 00 | setup | profile + first manifest + dashboard |
 | 01 | product research | product validation + score |
 | 02 | market research | VOC, awareness, sophistication, root cause |
 | 03 | competitor analysis | claims, gaps, creative patterns (Whisper transcription) |
 | 04 | offer builder | mechanism, research foundation, pricing, guarantee |
-| 05 | copy engine | headlines, leads, advertorial, PDP copy |
-| 06 | page engine | Shopify PDP deployed (Liquid 2.0, 4-variant blueprint) |
-| 07 | creative engine | 3-2-2 ad briefings (scripts, hooks, texts) |
-| 08 | ad strategy | CBO + Advantage+ + PGS campaign structure |
-| 09 | ad analysis | 4Pi diagnostic + next batch ideas |
-| 10 | scale engine | scaling plan (vertical + horizontal) |
-| 11 | consistency audit | cross-phase drift detection + fix report |
-| 12 | retention engine | Klaviyo/ESP lifecycle flows setup |
-| 13 | bonus delivery | technical delivery pipeline for offer bonuses |
-| 17 | content recycler | 9 derivatives from 1 winning creative |
+| 05 | bonus delivery | ecom bonus asset + delivery tracking (post-launch) |
+| 06 | copy engine | headlines, leads, advertorial, PDP copy |
+| 07a–d | storefront | page design → build/deploy → tracking (Pixel + CAPI) → checkout/AOV |
+| 08 | creative engine | ad briefings (scripts, hooks, prompts) + EDL |
+| 09 | consistency audit | cross-phase drift detection + launch gate |
+| 10 | ad strategy | 1-ad-set Advantage+ campaign structure + analytics |
+| 11 | ad analysis | 4Pi diagnostic + next batch ideas |
+| 12 | scale engine | scaling plan (vertical + horizontal) |
+| 13 | retention engine | Klaviyo/ESP lifecycle flows (post-launch) |
+| 14 | content recycler | 9 derivatives from 1 winning creative (post-winner) |
 
 Plus an intelligence layer (`.claude/lib/`) providing:
-- **Compliance pre-flight** — scores ad copy for Meta/FTC/FDA risk before submit (blocking gate)
-- **Creative DNA registry** — learns what works for this member's avatar over time
-- **Hook taxonomy** — 17 archetypes across Big 4 emotions, used by skills 03/07/09
-- **Section patterns** — 15 reusable patterns for Liquid sections (hero, proof, offer, etc)
-- **Whisper transcribe** — `medium` / `turbo-large` pipeline for transcribing scaled creatives
-- **Shocking stats vault** — authorized stats with a traceable source, for credible hooks
-- **Design blueprint via Claude Design** — mandatory 4-variation (A/B/C/D) artifact preview before Liquid
+- **Compliance pre-flight** — scores ad/page copy for Meta/FTC/FDA risk before submit (blocking gate)
+- **KB index** — catalog of 541 named frameworks; each skill pulls the exact systems by name
+- **Creative DNA** — learns what works for this member's avatar over time
+- **Hook taxonomy** — 17 archetypes across the Big 4 emotions, used by skills 03/08
+- **Prompt directors** — production-ready creative prompt generation (video/image)
+- **Content recycler** — turns 1 winning creative into 9 format derivatives
+- **Workspace index** — generates the per-product `ABRIR-AQUI.html` dashboard
+- **MCP detect + TrendTrack / Refero integrations** — auto-detect optional MCPs and enrich research/design when connected
 - **Automation recipes** — MCP-based deploy/sync through the Meta Ads + Shopify MCPs
+
+> The page (07) is HTML-first: the design is generated and approved in-session as self-contained HTML+CSS (the single source of visual truth), then compiled deterministically to Liquid — no mandatory Claude Design step.
 
 And operational rules in `.claude/rules/` (auto-loaded when relevant):
 
@@ -69,7 +72,7 @@ setup
 Follow the prompts (budget, market, tools available). Setup creates `/workspace/` with your product subfolder and a manifest.
 
 ### 4. (Optional) Connect Aura knowledge base
-Full setup instructions in `/Users/gustavo/Aura.html` (user-specific distribution). Summary:
+Full setup instructions are distributed with your Aura access. Summary:
 - Desktop: Settings → Integrations → Add Custom Integration → URL `https://aura-mcp-production.up.railway.app/mcp`
 - Terminal: `claude mcp add --transport http aura https://aura-mcp-production.up.railway.app/mcp`
 
@@ -83,7 +86,7 @@ Queries starting with `aura:` consult the knowledge base.
 ├── settings.json          # permissions + session hooks
 ├── hooks/
 │   └── post-start.sh      # shell alias setup (idempotent)
-├── skills/                # 14 skill markdown files
+├── skills/                # skill markdown files (00–14; 07 splits into 07a–d)
 ├── rules/                 # operational rules (auto-loaded)
 │   ├── shopify-theme-safety.md
 │   ├── pre-launch-gates.md
@@ -98,9 +101,12 @@ Queries starting with `aura:` consult the knowledge base.
 │   ├── content-recycler/
 │   ├── creative-dna/
 │   ├── hook-taxonomy/
-│   ├── section-patterns/
-│   ├── whisper-transcribe/
-│   └── shocking-stats/
+│   ├── kb-index/          # 541 named frameworks
+│   ├── mcp-detect/
+│   ├── prompt-directors/
+│   ├── refero-integration/
+│   ├── trendtrack-integration/
+│   └── workspace-index/   # ABRIR-AQUI.html dashboard generator
 ├── automations/           # MCP recipes
 │   └── recipes/           # deploy, sync, rotate, pause
 └── templates/
@@ -112,10 +118,11 @@ Queries starting with `aura:` consult the knowledge base.
 
 workspace/                 # member data (GITIGNORED)
 └── [product-slug]/        # per-product subfolder
+    ├── ABRIR-AQUI.html    # dashboard — the member's entry point
     ├── manifest.json      # single source of truth
-    ├── 01-product-research.{md,json,html}
-    ├── 02-market-research.{md,json,html}
-    └── ... (outputs from each skill)
+    ├── 01-product-research/   # relatorio.md / relatorio.html
+    ├── 02-market-research/    # relatorio.md / relatorio.html + dados.json
+    └── ...                    # one subfolder per phase (0X-stem/)
 
 tools/
 └── design-clone/          # optional design signal extractor
@@ -125,7 +132,7 @@ tools/
 
 The repo auto-pulls on each Claude Code session start (if no local changes).
 
-If you see:
+You may see this message (in Portuguese) saying the repo's history was restructured and you should re-clone:
 ```
 ⚠️  Aura Engine foi atualizado com mudanças estruturais no histórico.
     Pra continuar recebendo updates automáticos, re-clone o repo:
