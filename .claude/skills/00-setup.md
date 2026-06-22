@@ -75,9 +75,15 @@ Também detecte ferramentas opcionais pra uso futuro, mostrando como "disponíve
 - FFmpeg: `ffmpeg -version 2>/dev/null | head -1` — paths comuns: `/opt/homebrew/bin/ffmpeg`, `/usr/local/bin/ffmpeg`, `/usr/bin/ffmpeg`. Install: `brew install ffmpeg` (Mac) ou `apt install ffmpeg` (Linux).
 - Whisper.cpp: verificar `~/whisper.cpp/main`, `/usr/local/bin/whisper-cli`, `/opt/homebrew/bin/whisper-cli`. Install: `brew install whisper-cpp` (Mac) ou `git clone https://github.com/ggerganov/whisper.cpp.git ~/whisper.cpp && cd ~/whisper.cpp && make`.
 - Python 3: `python3 --version` — necessário pra pipeline de design-clone (skill 07 modo B). Mac já vem com Python 3.
-- Playwright + BeautifulSoup (opcional — só pra design-clone no modo B da skill 07): `python3 -c "import playwright, bs4" 2>&1`. Install: `pip install -r tools/design-clone/requirements.txt && playwright install chromium`. Se o membro não for usar design-clone, pode deixar pra instalar depois.
+- **Playwright + Chromium (RECOMENDADO — coleta resiliente de pesquisa):** o fetcher `.claude/lib/web-fetch/fetch.py` usa um navegador real pra contornar bloqueios (Cloudflare/403/429/Reddit) nas skills 02 (VOC), 03 (PDPs/ads) e no design-clone da 07. Como o python moderno é externally-managed (PEP 668), instale num venv:
+  ```bash
+  python3 -m venv .claude/lib/web-fetch/.venv
+  .claude/lib/web-fetch/.venv/bin/pip install -r .claude/lib/web-fetch/requirements.txt
+  .claude/lib/web-fetch/.venv/bin/playwright install chromium
+  ```
+  Se já existir `tools/design-clone/.venv` com Playwright, o fetcher reusa automaticamente — pode pular. Teste: `python3 .claude/lib/web-fetch/fetch.py https://example.com --json`. Sem isso, as skills 02/03 funcionam só com WebSearch/WebFetch (cobertura menor quando sites bloqueiam).
 
-NÃO prossiga enquanto o Node não estiver OK. As ferramentas opcionais podem ficar como aviso — se o membro indicar que vai usar a skill 07 em modo de clone de design, sinalize que Playwright + BeautifulSoup precisam ser instalados antes.
+NÃO prossiga enquanto o Node não estiver OK. As opcionais ficam como aviso — mas instalar o Playwright cedo melhora MUITO a qualidade de market research/competitor analysis (sem ele, Reddit/Trustpilot/Amazon/Cloudflare bloqueiam). Detalhes em `.claude/rules/resilient-fetch.md`.
 
 ### ETAPA 2 — Verificação do MCP Aura
 

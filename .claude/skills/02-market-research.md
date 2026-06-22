@@ -128,7 +128,9 @@ Defina a resposta estratégica certa pro estágio identificado.
 - **Cashvertising — Life-Force 8 (LF8)** (rode `Cashvertising Life-Force 8 LF8 biologically hardwired desires Whitman`) — checa que o desejo principal ancora num drive biológico, não num want aprendido raso
 - **Plutchik Emotion Wheel + Secondary-Emotion Frequency Tiers** (rode `Plutchik emotion wheel secondary emotions frequency tiers marketing utility`) — nomeia as dores emocionais com precisão (vergonha, frustração, invisibilidade)
 
-Pesquise extensivamente (web search em Reddit, Amazon reviews, TikTok comments, fóruns de nicho, Quora, grupos do Facebook). Use as técnicas de review mining.
+Pesquise extensivamente em Reddit, Amazon reviews, TikTok comments, fóruns de nicho, Quora, Trustpilot, grupos do Facebook. Use as técnicas de review mining.
+
+> **Coleta resiliente (rule `.claude/rules/resilient-fetch.md`):** descubra fontes com a tool **`WebSearch`** (nunca scrapear HTML de buscador — vira CAPTCHA). Busque páginas com **`WebFetch`**. Se barrar (403/429/Cloudflare/JS), use o **fetcher Playwright da Aura**: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode reddit|reviews|text --json` — **Reddit** sempre `--mode reddit` (via redlib, contorna o bloqueio de IP); **Amazon/Trustpilot/Loox** com `--mode reviews`. Se mesmo o fetcher cair em hard-CAPTCHA (ex: Walmart), use fonte redundante (Amazon cobre o mesmo produto) ou peça paste ao membro. **NUNCA inventar VOC** — fonte que caiu em todos os fallbacks vai no Data Quality Summary como bloqueada.
 
 Construa o perfil em camadas:
 
