@@ -86,16 +86,22 @@ Verifique no `workspace/profile.md` se o membro tem SpyBox/Adsparo.
 - **Schwartz Market Sophistication — 5 Stages** (rode `market sophistication five stages Schwartz enlarge claim new mechanism identity skepticism`) — pra ler em que stage de sofisticação o mercado está pela forma como os concorrentes tratam o claim/mecanismo.
 - **Schwartz Mechanization Stages — Name / Describe / Feature** (rode `Schwartz mechanization stages name describe feature mechanism promise reason why headline`) — pra classificar COMO cada concorrente apresenta o mecanismo (só nomeia? descreve? detalha feature?).
 
-Pra cada concorrente, acesse a página de produto (web fetch). Se tiver cloaker/Cloudflare bloqueando, execute os fallbacks **em sequência** (pare na primeira que retornar snapshot válido com > 500 bytes de HTML):
+Pra cada concorrente, acesse a página de produto (web fetch). Se tiver cloaker/Cloudflare bloqueando, execute os fallbacks **em sequência** (pare no primeiro que retornar conteúdo válido > 500 bytes):
 
-**Tentativa 1 — Wayback Machine**:
+**Tentativa 1 — Fetcher Playwright da Aura (navegador real — resolve Cloudflare/429/JS na maioria dos casos; rule `.claude/rules/resilient-fetch.md`):**
+```bash
+python3 .claude/lib/web-fetch/fetch.py "<url-da-pdp>" --mode text --json
+```
+Se vier `blocked: false`, use o conteúdo — é a página **AO VIVO** (melhor que snapshot). É a tentativa preferencial.
+
+**Tentativa 2 — Wayback Machine**:
 - Consulte `https://archive.org/wayback/available?url=<url>` e valide que `archived_snapshots.closest` existe e `timestamp` é dos últimos 365 dias.
 - Se houver, faça fetch do snapshot.
 
-**Tentativa 2 — archive.today**:
+**Tentativa 3 — archive.today**:
 - Tente `https://archive.ph/newest/<url>` e valide redirect para snapshot real.
 
-**Se NENHUM fallback funcionar**: pule esse concorrente específico (**não aborte a skill inteira**). Documente em "Concorrentes descartados por inacessibilidade" com a sequência de tentativas (`wayback`, `archive_today`) e motivo do descarte. Continue para os demais concorrentes.
+**Se NENHUM fallback funcionar** (hard-CAPTCHA tipo PerimeterX, ou todos caíram): pule esse concorrente específico (**não aborte a skill inteira**). Documente em "Concorrentes descartados por inacessibilidade" com a sequência de tentativas (`aura_fetch`, `wayback`, `archive_today`) e motivo do descarte. Continue para os demais concorrentes.
 
 **Safeguard de integridade — threshold crítico de acessibilidade:**
 
@@ -153,7 +159,7 @@ Outros fallbacks opcionais quando possível: view-source direto, scraping via Pl
 - **Reconnaissance Engine (Competitive Research via Social)** (rode `reconnaissance engine competitive research via social Instagram transcribe competitor videos algorithm`) — método de research via social/algoritmo pra achar e transcrever os criativos que o concorrente está rodando além do Meta Ad Library.
 - **Winning Ad Extraction / Processing Learnings** (rode `winning ads extracting strategies process learnings AdSpy shares validated hook why it works`) — como extrair o "porquê funciona" de cada criativo escalado, não só descrever.
 
-Pra cada concorrente, pesquise no Meta Ad Library (web fetch / scraping via Playwright quando possível).
+Pra cada concorrente, pesquise no Meta Ad Library. Se o `WebFetch` for barrado (comum — é SPA pesado em JS), use o fetcher da Aura, que renderiza a página: `python3 .claude/lib/web-fetch/fetch.py "<url-do-ad-library>" --mode text --wait 5000 --json`. Lembre: o Meta Ad Library público **não** traz métricas (CPM/freq/CTR) → a classificação de funil da 3B é especulativa.
 
 **Regras críticas:**
 

@@ -191,3 +191,5 @@ Quando precisar buscar na base, use queries como:
 Faça buscas com deep=true para resultados mais completos.
 
 ÍNDICE PERMANENTE DE FRAMEWORKS: existe um índice permanente em `.claude/lib/kb-index/` (frameworks.json + README.md) que cataloga os 541 frameworks NOMEADOS da base, organizados por domínio, com a query exata para puxar cada um e a skill que o usa. Toda skill deve puxar os sistemas por nome através desse índice, nunca por query genérica.
+
+COLETA RESILIENTE DA WEB: quando uma skill precisar de dados da web (VOC, PDPs de concorrente, ads, reviews) e o `WebFetch` for barrado (403/429/Cloudflare/JS/CAPTCHA soft), use o fetcher de navegador real da Aura: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode reddit|reviews|text --json` (Reddit via redlib, reviews com `--mode reviews`). Descoberta de fontes é sempre pela tool `WebSearch` (nunca scrapear HTML de buscador). A regra completa (cascade + integridade: nunca inventar VOC/claim quando bloqueia) está em `.claude/rules/resilient-fetch.md`.
