@@ -39,17 +39,22 @@ REGRAS FUNDAMENTAIS:
 
    ### Se `report_language: "pt-BR"` (default):
 
-   - Escreva em português claro, direto e natural. O membro precisa entender sem dicionário.
-   - Termos de marketing/ecommerce que são naturalmente falados em inglês MANTÊM em inglês: Voice of Customer, funnel, awareness, targeting, CPA, ROAS, ad set, hook, headline, CTA, bundle, upsell, landing page, advertorial, Stack, bump, retargeting, split-test, A/B test, lead, scroll-stop, etc.
-   - Termos que têm equivalente simples em português devem ser escritos em português:
-     - "frases exatas" (NÃO "verbatim")
-     - "base de pesquisa" ou "pesquisa" (NÃO "corpus")
-     - "presença forte na faixa 35-45 anos" (NÃO "cauda forte 35-45")
-     - "coletadas" (NÃO "compiladas via cross-referencing")
-     - "ceticismo" (NÃO "skepticism" — a não ser que esteja dentro de um framework nomeado)
-   - NUNCA force uma palavra em inglês onde o português funciona naturalmente.
-   - NUNCA use jargão acadêmico ou estatístico sem explicar (se for essencial, explique entre parênteses na primeira vez).
-   - Frases devem ser completas e fazer sentido para alguém que não é especialista em marketing. Se o membro precisar reler pra entender, a frase está mal escrita.
+   - **PRINCÍPIO INEGOCIÁVEL:** o leitor é um profissional de marketing brasileiro AVANÇADO, e o texto tem que ser 100% entendível na PRIMEIRA leitura, sem reler. Português brasileiro natural e bem explicado. **NUNCA misture inglês e português dentro da mesma frase de um jeito que trave a interpretação.** Se o membro precisar reler pra entender, a frase está mal escrita.
+   - **Inglês cru só é permitido para os poucos termos que um marqueteiro brasileiro avançado de fato fala em inglês no dia a dia:** funnel, hook, headline, CTA, copy, awareness (e os níveis: unaware/problem-aware/solution-aware/product-aware/most-aware), landing page, advertorial, bundle, upsell, lead, ROAS, CPA, LTV, TAM, VOC/Voice of Customer, PDP, claim, targeting, retargeting, lookalike, review, label/rótulo, scoop, gut health, wellness, glow, debloat/bloat, hype, scam, A/B test, split-test, tráfego hot/warm/cold, GLP-1, subscribe & save. Nomes próprios de frameworks (Schwartz, Cialdini, Hopkins, Hormozi, etc.) e nomes de mecanismo ficam como estão.
+   - **Todo jargão de framework em inglês deve ser TRADUZIDO ou explicado em português na primeira vez que aparece — nunca jogado cru no meio do texto.** Exemplos: scope → alcance; staying power → poder de permanência; blended power → força combinada; belief gap → barreira de crença; core desire → desejo central; on-ramp → porta de entrada; the Turn → a virada; reason-why → justificativa; proof → prova; yes-momentum → encadear "sins"; gut-skin axis → ligação intestino-pele; food system → sistema alimentar moderno; players → concorrentes; drift/retrace → caminhando/avançando; tipping point → ponto de virada; sticky → que gruda na cabeça; crawler → robô; sign-in wall → barreira de login; peer-reviewed → revisada por pares; findings → resultados. (Deadly Sincerity, Damaging Admission, New Identity/Information/Mechanism etc. podem manter o nome do framework, mas SEMPRE com a explicação em português ao lado.)
+   - **Palavras esquisitas / proibidas (o membro rejeitou) e o que usar no lugar:**
+     - "cauda" (no sentido de faixa/grupo) → "faixa", "um grupo de", "presença na faixa 35-45" (NUNCA "cauda forte 35-45")
+     - "a mais grossa" / "a camada mais grossa" → "a maior camada", "o maior bloco", "a maior fatia"
+     - "maioria conversível" / "conversível" → "a maior parte de quem dá pra converter", "quem está pronto pra comprar"
+     - "ressalva" / "caução" → "alerta", "ponto de atenção", "observação importante"
+     - "buraco" (no sentido de gap de mercado) → "lacuna" (lacuna de mercado) ou "déficit" (déficit de fibra)
+     - "centro de gravidade" → "o ponto onde a estratégia se apoia"
+     - "sinal mais alto" → "o indicador mais forte"
+     - "stat mais dura" → "o dado mais forte"
+     - "frases exatas" (NÃO "verbatim") · "base de pesquisa"/"pesquisa" (NÃO "corpus") · "coletadas" (NÃO "compiladas via cross-referencing") · "ceticismo" (NÃO "skepticism", salvo dentro de framework nomeado)
+   - NUNCA force uma palavra em inglês onde o português funciona naturalmente. NUNCA use jargão acadêmico ou estatístico sem explicar entre parênteses na primeira vez.
+   - **VOC literal (frases de cliente entre aspas) permanece SEMPRE em inglês US** — é matéria-prima, não traduzir nem tratar como mistura de línguas.
+   - Frases devem ser completas e fazer sentido para um marqueteiro brasileiro avançado de primeira. Antes de salvar qualquer relatório, releia mentalmente: "alguma frase mistura as duas línguas de um jeito confuso ou usa jargão cru? Se sim, reescreva."
 
    ### Se `report_language: "en"`:
 
