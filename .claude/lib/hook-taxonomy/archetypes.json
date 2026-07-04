@@ -1,6 +1,7 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "emotions": ["curiosity", "urgency", "fear", "delight"],
+  "format_vocabulary_note": "format_fit usa o enum CANÔNICO de format do .claude/lib/creative-dna/feature_schema.json (ugc_real_person, ugc_ai_avatar, stolen_ugc_stitch, founder_led, demo, motion_graphic, motion_graphic_hybrid, stock_footage, static_image, carousel) — cruzável com o registry do creative DNA. 'stolen_ugc_stitch' é vocabulário DESCRITIVO de análise de concorrente (descreve o que se vê no ad analisado), NUNCA recomendação de produção — a skill 08 só produz stitch com footage licenciado ('licensed_montage' no creator archetype).",
   "archetypes": [
     {
       "id": "pattern_interrupt",
@@ -9,7 +10,7 @@
       "signals": ["cena visual inesperada", "pergunta incompleta", "juxtaposition"],
       "structure": "Unexpected visual or statement + implicit question",
       "best_for_funnel": ["TOF"],
-      "format_fit": ["ugc_human", "ugc_ai", "motion_graphic", "stolen_footage"]
+      "format_fit": ["ugc_real_person", "ugc_ai_avatar", "motion_graphic", "stolen_ugc_stitch"]
     },
     {
       "id": "secret_reveal",
@@ -18,7 +19,7 @@
       "signals": ["the one thing nobody tells you", "insider knowledge"],
       "structure": "[Authority archetype] never told you about [topic]",
       "best_for_funnel": ["TOF", "MOF"],
-      "format_fit": ["ugc_human", "ugc_ai", "founder_led"]
+      "format_fit": ["ugc_real_person", "ugc_ai_avatar", "founder_led"]
     },
     {
       "id": "contrarian",
@@ -27,7 +28,7 @@
       "signals": ["challenge consensus", "opposite of common advice"],
       "structure": "Everyone says [X]. They're wrong. Here's why.",
       "best_for_funnel": ["TOF", "MOF"],
-      "format_fit": ["ugc_human", "founder_led", "motion_graphic"]
+      "format_fit": ["ugc_real_person", "founder_led", "motion_graphic"]
     },
     {
       "id": "listicle_open",
@@ -36,7 +37,7 @@
       "signals": ["number + quick list promise"],
       "structure": "[N] things about [topic] — starting with one you haven't heard",
       "best_for_funnel": ["TOF"],
-      "format_fit": ["motion_graphic", "ugc_ai", "carousel"]
+      "format_fit": ["motion_graphic", "ugc_ai_avatar", "carousel"]
     },
     {
       "id": "question_hook",
@@ -45,7 +46,7 @@
       "signals": ["unresolved question that demands completion"],
       "structure": "Ever wondered why [observation]?",
       "best_for_funnel": ["TOF", "MOF"],
-      "format_fit": ["ugc_human", "ugc_ai", "demo"]
+      "format_fit": ["ugc_real_person", "ugc_ai_avatar", "demo"]
     },
     {
       "id": "tempo_escasso",
@@ -54,7 +55,7 @@
       "signals": ["explicit window", "countdown"],
       "structure": "Only [N] hours/days left for [offer]",
       "best_for_funnel": ["BOF"],
-      "format_fit": ["static_image", "motion_graphic", "ugc_human"]
+      "format_fit": ["static_image", "motion_graphic", "ugc_real_person"]
     },
     {
       "id": "ultima_chance",
@@ -72,7 +73,7 @@
       "signals": ["fleeting seasonal/event window"],
       "structure": "Before [event/season] ends",
       "best_for_funnel": ["MOF", "BOF"],
-      "format_fit": ["ugc_human", "stolen_footage", "motion_graphic"]
+      "format_fit": ["ugc_real_person", "stolen_ugc_stitch", "motion_graphic"]
     },
     {
       "id": "missed_opportunity",
@@ -81,7 +82,7 @@
       "signals": ["inaction consequence"],
       "structure": "If you don't [action] now, [negative outcome]",
       "best_for_funnel": ["MOF"],
-      "format_fit": ["ugc_human", "founder_led"]
+      "format_fit": ["ugc_real_person", "founder_led"]
     },
     {
       "id": "pain_amplification",
@@ -90,7 +91,7 @@
       "signals": ["current pain explicit + visual trigger"],
       "structure": "Still dealing with [pain]?",
       "best_for_funnel": ["TOF", "MOF"],
-      "format_fit": ["ugc_human", "ugc_ai", "demo"]
+      "format_fit": ["ugc_real_person", "ugc_ai_avatar", "demo"]
     },
     {
       "id": "warning",
@@ -99,7 +100,7 @@
       "signals": ["alert about wrong behavior"],
       "structure": "Stop doing [X] before [consequence]",
       "best_for_funnel": ["MOF"],
-      "format_fit": ["ugc_human", "founder_led", "motion_graphic"]
+      "format_fit": ["ugc_real_person", "founder_led", "motion_graphic"]
     },
     {
       "id": "comparative_loss",
@@ -108,7 +109,7 @@
       "signals": ["others achieving, you not"],
       "structure": "Everyone else [has outcome] — why not you?",
       "best_for_funnel": ["MOF"],
-      "format_fit": ["ugc_human", "ugc_ai"]
+      "format_fit": ["ugc_real_person", "ugc_ai_avatar"]
     },
     {
       "id": "regret_future",
@@ -117,7 +118,7 @@
       "signals": ["future pacing negative"],
       "structure": "In [time horizon], you'll wish you had [action]",
       "best_for_funnel": ["MOF"],
-      "format_fit": ["ugc_human", "founder_led"]
+      "format_fit": ["ugc_real_person", "founder_led"]
     },
     {
       "id": "transformation",
@@ -126,7 +127,7 @@
       "signals": ["before-after implicit"],
       "structure": "[Person] had [problem], now [outcome]",
       "best_for_funnel": ["MOF", "BOF"],
-      "format_fit": ["ugc_human", "demo", "ugc_ai"]
+      "format_fit": ["ugc_real_person", "demo", "ugc_ai_avatar"]
     },
     {
       "id": "aspiration",
@@ -135,7 +136,7 @@
       "signals": ["future self positive"],
       "structure": "Imagine waking up and [outcome]",
       "best_for_funnel": ["TOF", "MOF"],
-      "format_fit": ["motion_graphic", "ugc_ai", "ugc_human"]
+      "format_fit": ["motion_graphic", "ugc_ai_avatar", "ugc_real_person"]
     },
     {
       "id": "discovery",
@@ -144,7 +145,7 @@
       "signals": ["finding that solves"],
       "structure": "I found the [thing] that actually [benefit]",
       "best_for_funnel": ["MOF", "BOF"],
-      "format_fit": ["ugc_human", "founder_led", "ugc_ai"]
+      "format_fit": ["ugc_real_person", "founder_led", "ugc_ai_avatar"]
     },
     {
       "id": "peer_validation",
@@ -153,7 +154,7 @@
       "signals": ["social proof from similar peers"],
       "structure": "[N] people like you already [outcome]",
       "best_for_funnel": ["BOF"],
-      "format_fit": ["ugc_human", "ugc_ai", "static_image"]
+      "format_fit": ["ugc_real_person", "ugc_ai_avatar", "static_image"]
     }
   ]
 }

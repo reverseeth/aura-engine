@@ -1,6 +1,6 @@
 ---
 name: offer-builder
-description: Engine de construção de oferta com mecanismo único, stack de valor, bundles, bumps, upsells, garantia, e unit economics completa. Use quando o membro disser "offer", "oferta", "montar oferta", "construir oferta", "pricing", "bundle", ou quando o market research e competitor analysis estiverem prontos e o membro quiser estruturar a oferta antes de escrever a copy. A oferta é o MOTOR ECONÔMICO do negócio — decisões aqui determinam se ads são viáveis em escala.
+description: Engine de construção de oferta com mecanismo único, stack de valor, bundles, bumps, upsells, garantia, e unit economics completa. A ideação de mecanismo roda em 2 rotas (default = recombinação validada a partir da validated_library da Skill 03) e todo componente de AOV passa pelo Gate de Complementaridade. Use quando o membro disser "offer", "oferta", "montar oferta", "construir oferta", "pricing", "bundle", ou quando o market research e competitor analysis estiverem prontos e o membro quiser estruturar a oferta antes de escrever a copy. A oferta é o MOTOR ECONÔMICO do negócio — decisões aqui determinam se ads são viáveis em escala.
 ---
 
 # Offer Builder Engine
@@ -10,8 +10,8 @@ description: Engine de construção de oferta com mecanismo único, stack de val
 ### Pré-flight (OBRIGATÓRIO)
 Valide antes de prosseguir:
 - [ ] `workspace/[produto]/manifest.json` existe
-- [ ] `02-market-research/dados.json` existe (awareness_distribution, sophistication_stage) E `02-market-research/relatorio.md` existe (narrativa: pain points, desires, objeções)
-- [ ] `03-competitor-analysis/relatorio.md` E `03-competitor-analysis/dados.json` existem
+- [ ] `02-market-research/dados.json` existe (awareness_distribution, sophistication_stage) E `02-market-research/market-research.md` existe (narrativa: pain points, desires, objeções; se não existir, procure o legado `relatorio.md` — mesmo fallback vale pras outras fases)
+- [ ] `03-competitor-analysis/competitor-analysis.md` E `03-competitor-analysis/dados.json` existem
 - [ ] Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language. As 3 versões do mecanismo (version_short/medium/long) são copy pública — permanecem em inglês se o mercado for US.
 
 Se faltar qualquer arquivo de fase anterior (02/03), em vez de abortar seco, ofereça ao membro 2 caminhos (escape-path ES1):
@@ -26,9 +26,9 @@ Quando o membro tem produto definido, market research pronto, e precisa construi
 ## Antes de Começar
 
 1. Leia `workspace/profile.md` (ferramentas disponíveis, budget diário — informa viabilidade econômica; lê também `report_language` conforme o pré-flight)
-2. Leia `workspace/[produto]/01-product-research/relatorio.md` (se existir — tem features, COGS preliminar, potencial de oferta)
-3. Leia `workspace/[produto]/02-market-research/relatorio.md` (narrativa: pain points, desires, root cause, objeções) E `02-market-research/dados.json` (campos estruturados: awareness_distribution, sophistication_stage, voc_phrases) — a oferta é a RESPOSTA direta ao market research
-4. Leia `workspace/[produto]/03-competitor-analysis/relatorio.md` E `03-competitor-analysis/dados.json` (claims saturados a evitar, mecanismos já usados, gaps de oferta identificados)
+2. Leia `workspace/[produto]/01-product-research/product-research.md` (se existir — tem features, COGS preliminar, potencial de oferta)
+3. Leia `workspace/[produto]/02-market-research/market-research.md` (narrativa: pain points, desires, root cause, objeções) E `02-market-research/dados.json` (campos estruturados: awareness_distribution, sophistication_stage, voc_phrases) — a oferta é a RESPOSTA direta ao market research
+4. Leia `workspace/[produto]/03-competitor-analysis/competitor-analysis.md` E `03-competitor-analysis/dados.json` (claims saturados a evitar, gaps de oferta, e os campos `validated_library`, `top_creatives` e `alternative_solutions` — matéria-prima da Rota A de mecanismo e do Gate de Complementaridade). Leia também `03-competitor-analysis/creative-patterns.json` SE existir (`recurring_claims` com `market_validated` — claims que o mercado já validou em ad)
 5. **Puxe os SISTEMAS NOMEADOS da base — não query genérica.** Para cada ETAPA desta skill, rode `search_knowledge` (com `deep=true`) usando a `best_query` exata de cada framework relevante. A lista completa do domínio desta skill (122 frameworks em `offer-mechanism`, `offer-pricing-guarantee`, `brand-building-bonus-aov`) está em `.claude/lib/kb-index/` (`frameworks.json` / `README.md`). Os frameworks de maior impacto já estão NOMEADOS e embutidos dentro de cada ETAPA abaixo (mecanismo → ETAPA 2, pricing/garantia → ETAPAs 3-4, economics/PSM → ETAPAs 5-7). Aprofunde em cada um até ter domínio completo — pricing é decisão estratégica, não técnica. NUNCA fundamente uma decisão de oferta numa busca genérica do tipo "offer pricing" — sempre puxe o sistema nomeado.
 
 ## Fluxo da Skill
@@ -45,7 +45,7 @@ Não aceite "custo total" agregado. Pergunte separadamente:
 1. Custo do produto (na fábrica / fornecedor) por unidade
 2. Frete médio por pedido (informe região principal: Brasil interior? EUA West Coast?)
 3. Pick & pack (fulfillment center): R$/$ por pedido
-4. Gateway fee: % + taxa fixa (Stripe: 3.99% + R$0.39 típico)
+4. Gateway fee: % + taxa fixa (Stripe US: 2.9% + $0.30; Stripe BR: 3.99% + R$0.39)
 5. Taxas e impostos incidentes por pedido
 
 Documente cada um em `04-offer-builder/dados.json` → `cogs_breakdown`.
@@ -56,6 +56,8 @@ Documente cada um em `04-offer-builder/dados.json` → `cogs_breakdown`.
 
 **3. Produto complementar:**
 "Tem algum produto complementar que poderia vender junto? (se não souber, diz 'não sei')"
+
+Se a resposta for "não sei", NÃO trave: o Gate de Complementaridade da ETAPA 3 deriva candidatos do market research automaticamente.
 
 **Decisões automáticas do sistema (NÃO PERGUNTE):**
 - **Preço final**: definido pelo framework de pricing abaixo (Etapa 3), triangulando 3 ancoras (value / competitor / economics)
@@ -98,15 +100,28 @@ O mecanismo único é o que diferencia seu produto de TODO concorrente. Sem meca
 
 Frameworks adjacentes de mecanismo (Big Domino, Three False Beliefs, Schwartz Mechanization, Big Idea, Sugarman Concept Selling, Hormozi MAGIC Naming) estão no índice `.claude/lib/kb-index/` — puxe conforme o vertical exigir.
 
-**2A — Ideação (Gerar 5-7 Opções):**
+**2A — Ideação (Gerar 5-7 Opções por DUAS rotas):**
 
-Com base em:
+Inputs (pras duas rotas):
 - Features/ingredientes do produto
 - Root cause research da Skill 02 (causa-raiz proprietária)
-- Gaps do competitor analysis (mecanismos já usados — evitar)
+- `03-competitor-analysis/dados.json` → `validated_library` (mecanismos + ângulos com evidência de veiculação/escala) e `claims_saturation`
+- `03-competitor-analysis/creative-patterns.json` (se existir) → `recurring_claims` com `market_validated: true`
 - Awareness level do mercado (Schwartz) e sophistication stage (determina que tipo de mecanismo funciona)
 
-Gere 5-7 opções de mecanismo único. Cada um com:
+**Rota A — Recombinação validada (DEFAULT).** Criar mecanismo do zero é mais caro e arriscado do que recombinar o que o mercado já validou com dinheiro alheio — a validação de mercado é o ativo. Gere a maioria dos candidatos por aqui:
+
+- **A1 — Aprimorar mecanismo validado (mantendo o ângulo):** pegue um mecanismo da `validated_library` com evidência de escala e construa a versão 2: mais específica, mais crível, com um elemento novo (ingrediente, número, etapa do processo) — subindo **+1 no estágio de sofisticação** (Schwartz: quando o mercado já aceitou um mecanismo, a versão ampliada/melhorada dele é o que vence o controle). O nome proprietário é SEMPRE nosso — aprimorar ≠ clonar. `validation_source: "improved_validated"`.
+- **A2 — Cruzar mecanismo validado × ângulo validado de OUTRA marca/vertical adjacente:** combinação única, porém pré-validada nas duas pontas (ex: mecanismo de gut health cruzado com ângulo de skincare via ligação intestino-pele). Use `validated_library.mechanisms` de um lado e `validated_library.angles` (ou ângulo escalado de vertical adjacente) do outro. `validation_source: "crossed_validated"`.
+
+**Rota B — Criação original (complementar).** O fluxo clássico: features + root cause + gaps de mecanismo da 03. Use quando a `validated_library` não tem NENHUM mecanismo com evidência real de escala (dias rodando, nº de criativos no mesmo ângulo — o critério é a qualidade da evidência, não a contagem: 2 mecanismos bem evidenciados sustentam a Rota A), ou quando o mercado está em **estágio 5** de sofisticação (pede identidade nova, não mecanismo recombinado). `validation_source: "original"`.
+
+**Regras transversais (valem pras duas rotas):**
+- EVITAR mecanismos/claims com saturação ALTA na matriz Claims Saturation da 03 (o público não acredita mais)
+- PREEMPTAR claim comum sem dono (Preemptive Claim — claim que vários usam mas ninguém CRAVOU como seu). Fontes: `claims_saturation` dá os candidatos com `count > 0` (claim/count/total/saturation — o campo NÃO diz quem é dono); **quem já "possui" cada claim vem da narrativa do `03-competitor-analysis/competitor-analysis.md`** (a análise por concorrente mostra quem cravou o quê). Claim frequente no JSON + sem dono no relatório = candidato a preempção.
+- Registrar em CADA candidato o `validation_source` (de onde veio a validação: qual mecanismo/ângulo, de qual concorrente, com que evidência)
+
+Gere 5-7 opções de mecanismo único no total (mix das rotas — se a validated_library sustentar, 4-5 da Rota A + 1-2 da Rota B). Cada um com:
 
 - **Nome proprietário** (2-4 palavras, memorável, proprietário-soando, pronunciável)
 - **Explicação simples** (2-3 frases — como funciona na prática)
@@ -114,6 +129,7 @@ Gere 5-7 opções de mecanismo único. Cada um com:
 - **Por que é diferente dos concorrentes** (qual claim rompe, qual gap preenche)
 - **Em qual nível de awareness funciona melhor**
 - **Match com sophistication stage** (ingredient-based pra Estágio 3, information-based pra Estágio 4, identification pra Estágio 5)
+- **validation_source** (improved_validated / crossed_validated / original) + o que valida (qual mecanismo/ângulo de qual concorrente, com que evidência da validated_library)
 
 **Aplicar o filtro S.I.N. (Simple / Intuitive / New):**
 - **Simple** (fácil de entender de primeira, sem jargão — "Joint Drought Protocol" comunica na hora, não exige explicação técnica)
@@ -142,7 +158,7 @@ Score final = soma / 5.
 
 **2C — Recomendação:**
 
-Recomende o mecanismo com maior score total, com justificativa explícita por que esse vence os outros.
+Recomende o mecanismo com maior score total, com justificativa explícita por que esse vence os outros. Registre o `validation_source` do vencedor em `dados.json` → `mechanism.validation_source`.
 
 **2D — Escrever 3 Versões do Mecanismo (pra uso em copy/ads):**
 
@@ -258,16 +274,36 @@ Regra prática (pode ajustar):
 
 Marcar **Popular** no 3-pack (visualmente destacado — driver de AOV). Best Value no 6-pack (pra clientes que compram em volume alto (whales)).
 
+**Gate de Complementaridade (OBRIGATÓRIO pra TODO componente de AOV — bump, upsell, bundle-mate, GWP):**
+
+Nenhum componente entra na oferta por ser "um produto que dá pra vender junto". Todo candidato passa pela hierarquia abaixo — avalie na ordem; a categoria mais alta em que ele se encaixa define a prioridade:
+
+1. **More-of-same** — mais unidades do PRÓPRIO produto (bundle, supply maior). Default e maior aceitação: pra comprador NOVO de tráfego frio, o que mais converte no pós-compra não é complemento, é o mesmo produto com desconto exclusivo do momento (operadores de supplements documentaram publicamente AOV saindo de $70-80 pra $100-130 só com isso). Inclui o "big swing": supply de 3-6 meses a 3-5× o valor do pedido — aceita menos, mas ganha em lucro por visitante.
+2. **Consumption chaining** — item consumido JUNTO, no mesmo ritual de uso do produto principal (o cleanser antes do sérum, o shaker do pré-treino).
+3. **Aceleração de resultado** — item que encurta o tempo até o resultado do desejo central (menos Time Delay = Value Equation melhor).
+4. **Problema adjacente** — o PRÓXIMO problema que o avatar enfrenta DEPOIS de alcançar o resultado (o passo seguinte da jornada).
+
+**REPROVADO:** componente que não se encaixa em NENHUMA das 4 = complemento aleatório — fica fora da oferta.
+
+**Se o membro respondeu "não sei" na pergunta 3 da ETAPA 1:** NÃO pule e NÃO aceite qualquer coisa. DERIVE 3-5 candidatos das 4 categorias cruzando o market research: ritual de uso + desejo central + jornada do avatar (`02-market-research/market-research.md` + `dados.json`) e o que o avatar já compra/tenta pra resolver o problema (`alternative_solutions` da 02 e da 03). Apresente cada candidato com a categoria em que se encaixa.
+
+**Branch "sem complemento viável":** se nenhum candidato externo passa no gate, a categoria 1 (more-of-same) SEMPRE existe — bundle e big swing não dependem de segundo produto. Zere as linhas de bump/upsell externo na tabela de unit economics (ETAPA 5) em vez de forçar componente aleatório.
+
+**Segmentação novo vs recorrente:** a hierarquia acima vale pro funil FRIO (comprador novo). Cliente recorrente inverte: produto complementar não-testado converte 20-35% melhor pra quem já confia na marca — essa é alavanca das Skills 07d (superfícies de checkout pra recorrente) e 13 (retention), não do funil de aquisição.
+
 **Checkout Bump:**
-- Produto complementar de baixo preço ($9-19 tipicamente) ou add-on (frete expresso, versão com mais, etc)
-- Incremento de 15-30% na taxa de aceitação se bem posicionado
+- Componente aprovado no Gate (tipicamente categoria 2-4) de baixo preço ($9-19) ou add-on (frete expresso, versão com mais, etc)
+- Taxa de aceitação: 20-35% quando bem posicionado (conservador: 20%). O teto de 20-50% vem do order-form bump de funil dedicado; em checkout Shopify real o range observado fica mais perto do piso — recalibre com o take rate real após 2 semanas
 - Copy curta do bump (1 frase + 1 benefício)
 
 **Upsell Pós-Compra:**
-- Produto complementar de alto ticket ($47-97+) que amplia o resultado
-- Apresentado na thank-you page após a compra
-- Taxa de aceitação tipica 5-15%
+- Prioridade 1 (tráfego frio): **more-of-same** — o próprio produto com desconto exclusivo do momento pós-compra, ou o big swing (supply 3-6 meses)
+- Prioridade 2: componente aprovado no Gate de maior ticket ($47-97+) que amplia o resultado
+- Apresentado na thank-you page após a compra (a 07d implementa a superfície)
+- Taxa de aceitação: média da plataforma 3-8%; oferta bem casada (Gate + more-of-same) chega a 8-14% (conservador: 8%)
 - Copy do upsell (2-3 frases + principal benefício + oferta)
+
+**OBRIGATÓRIO — Registrar bump, upsell e tiers de bundle no bloco top-level `aov_levers` do `04-offer-builder/dados.json`** (estrutura exata no Output Schema no fim desta skill). A Skill 07d lê DESSE bloco na ETAPA 1 dela — não da prosa acima (a prosa é a versão humana). Alavanca que a oferta não tem = `null` (nunca inventar).
 
 **Stack de Valor Com Ancoragem:**
 
@@ -286,9 +322,9 @@ Liste tudo que vem no pacote com valor ancorado:
 - **Preço hoje**: $(preço real)
 - **Economia percebida**: $(diferença)
 
-Cada bonus é REAL (entregável), não inflado artificialmente. O stack cria percepção de valor desproporcional ao preço.
+Cada bonus é REAL (entregável), não inflado artificialmente. O stack cria percepção de valor desproporcional ao preço. Bônus físicos (`gift_with_purchase` / `free_complementary_sku`) também passam no **Gate de Complementaridade** acima; os digitais seguem o Razor-Blade (o mesmo gate aplicado a conteúdo: o bônus aumenta o consumo/resultado do produto principal, senão descarta).
 
-**OBRIGATÓRIO — Registrar bonuses no campo top-level `bonuses[]` do `04-offer-builder/dados.json`.** Skill 05 (bonus-delivery) lê desse campo pra montar o pipeline de entrega. Pra cada bonus do stack, gerar entry:
+**OBRIGATÓRIO — Registrar bonuses no campo top-level `bonuses[]` do `04-offer-builder/dados.json`.** Skill 05 (bonus-delivery) lê desse campo pra montar o pipeline de entrega. Pra cada bonus do stack, gerar entry (enum idêntico ao do Output Schema no fim desta skill — é o enum canônico):
 
 ```json
 {
@@ -298,9 +334,12 @@ Cada bonus é REAL (entregável), não inflado artificialmente. O stack cria per
   "value_anchored": 49,
   "type": "gift_with_purchase | free_complementary_sku | free_ebook | gift_wrapping | digital_guide | discount_code | workbook | checklist | community_access | video_series | consultation_call | trial_extension",
   "format_hint": "in_box | shopify_function | gift_app | pdf | notion | figma | wistia | klaviyo_email | shopify_discount | circle_invite",
+  "condition": "unconditional | cart_threshold | tier_specific",
   "delivery_trigger": "post_purchase | on_signup | day_7_post_purchase | on_first_reorder"
 }
 ```
+
+**`condition` é OBRIGATÓRIO e a Skill 05 configura a entrega exatamente por ele:** bônus mostrado no offer_stack da PDP a TODO comprador = `unconditional` (auto-add em toda compra — threshold aqui quebraria a promessa da página); GWP destravado por subtotal do carrinho = `cart_threshold` (e a copy da página DEVE dizer a condição: "FREE over $X"); brinde de tier específico (3-pack/6-pack) = `tier_specific`. Mismatch entre condition e o que a página promete é promessa quebrada na cara do comprador.
 
 **Tipos NÃO default pra "PDF":** escolher o type que realmente bate com o avatar. Se membro disser "bonus é PDF só porque é fácil", questionar: "Esse avatar REALMENTE quer PDF? Pra [avatar profile], [alternative type] costuma ter access rate maior." Documentar essa decisão.
 
@@ -341,14 +380,14 @@ Exemplo: "90-day results guarantee. If you don't see visible improvement in the 
 
 Crie uma tabela de unit economics pra CADA variação da oferta (solo, bundle, com bump, com upsell):
 
-| Variação | AOV | COGS | Pick&Pack | Frete | Gateway | Custo Total | Margem $ | Margem % | Breakeven ROAS | Target CPA (2× ROAS) | Target CPA (3× ROAS) |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| Solo | | | | | | | | | | | |
-| 3-pack | | | | | | | | | | | |
-| 6-pack | | | | | | | | | | | |
-| Solo + Bump | | | | | | | | | | | |
-| 3-pack + Bump | | | | | | | | | | | |
-| Solo + Upsell | | | | | | | | | | | |
+| Variação | AOV | COGS | Pick&Pack | Frete | Gateway | Taxas | Custo Total | Margem $ | Margem % | Breakeven ROAS | Target CPA (2× ROAS) | Target CPA (3× ROAS) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Solo | | | | | | | | | | | | |
+| 3-pack | | | | | | | | | | | | |
+| 6-pack | | | | | | | | | | | | |
+| Solo + Bump | | | | | | | | | | | | |
+| 3-pack + Bump | | | | | | | | | | | | |
+| Solo + Upsell | | | | | | | | | | | | |
 
 ### Unit Economics — Fórmulas
 
@@ -356,7 +395,7 @@ Receita por unidade vendida:
 - AOV = Average Order Value (Preço × unidades médias por pedido)
 
 Custo por unidade vendida:
-- Custo Total = COGS + Frete + Pick&Pack + Gateway Fee (%)
+- Custo Total = COGS (produto) + Frete + Pick&Pack + Gateway Fee (%) + Taxas/Impostos — os 5 itens do `cogs_breakdown` da ETAPA 1, nenhum de fora (omitir taxas infla a margem e distorce breakeven_cpa/target_cpa/PSM)
 
 Margem por unidade:
 - Margem $ = AOV − Custo Total
@@ -376,8 +415,8 @@ Margem por unidade:
 - Sanidade: target (2×) < breakeven_cpa SEMPRE ($36 < $72).
 
 **PSM — Profitable Scaling Margin** (o "golden ratio" que substitui ROAS na decisão de escala; é a **MESMA fórmula** que a skill 11 grava como `psm_real`, pra que o teórico do offer e o real medido sejam comparáveis — a skill 12 lê os dois):
-- **PSM = LTV / (CPA + COGS)** — LTV = AOV projetado quando não há histórico de recompra (proxy); COGS do `cogs_breakdown`; CPA = o CPA-alvo que o membro aceitaria. Avalie no **target 2×**, NÃO no breakeven (avaliar no breakeven daria sempre PSM = 1.0; no 2× daria sempre 2.0 se usasse margem/CPA — por isso a fórmula canônica usa LTV e COGS, que refletem a estrutura real).
-- Exemplo: AOV/LTV $118, COGS $30, CPA-alvo (2×) $36 → PSM = 118 / (36 + 30) = **1.79**.
+- **PSM = LTV / (CPA + COGS)** — LTV = AOV projetado quando não há histórico de recompra (proxy); **COGS = somatório de TODOS os itens do `cogs_breakdown` (produto + frete + pick&pack + gateway + taxas), exatamente como a Skill 11 define — nunca só o custo do produto**; CPA = o CPA-alvo que o membro aceitaria. Avalie no **target 2×**, NÃO no breakeven (no breakeven, PSM = 1.0 por definição: AOV = weighted_margin + COGS = CPA breakeven + COGS).
+- Exemplo (mesmos números do exemplo acima): AOV/LTV $118, weighted_margin $72 → COGS (somatório do breakdown) = 118 − 72 = **$46**; CPA-alvo (2×) $36 → PSM = 118 / (36 + 46) = **1.44**.
 - Thresholds (idênticos às skills 11/12): **>1.3 escala agressiva · 1.1–1.3 escala estável (+5%) · 1.0–1.1 breakeven · <1.0 não viável**.
 - Grave como `psm_theoretical` no `dados.json`. A skill 11 grava `psm_real` (mesma fórmula, com o CPA real medido); a skill 12 compara os dois.
 
@@ -392,8 +431,9 @@ Margem por unidade:
 - **AOV Money Close + Offer Bump + Add-More-Packages** (rode `AOV money close offer bump add more packages biggest package most popular checkout`) — qual pacote destacar e como apresentar o "add more" no checkout.
 
 Estime taxas de aceitação realistas (ajustar depois com dados reais):
-- **Bump acceptance**: 20-35% (conservador: 20%)
-- **Upsell acceptance**: 5-15% (conservador: 8%)
+- **Bump acceptance**: 20-35% (conservador: 20%) — o teto de 20-50% é de order-form bump de funil dedicado; checkout Shopify real fica mais perto do piso
+- **Upsell acceptance (post-purchase)**: média da plataforma 3-8%; oferta bem casada (Gate de Complementaridade + more-of-same) 8-14% (conservador: 8%)
+- Referência de lift 2026: página post-purchase bem construída adiciona 12-22% no valor do pedido; as 3 superfícies juntas (cart + checkout + post-purchase) ≈ +22% de AOV
 
 Calcule AOV projetado:
 
@@ -406,11 +446,22 @@ AOV = (% compra solo × preço solo)
 Baseline mix (ajustar com data depois):
 - 50% solo, 35% 3-pack, 15% 6-pack (mix típico com Popular destacado no 3-pack)
 
+**Sanity de categoria (benchmarks 2026 — o AOV projetado deve cair numa faixa crível):**
+- Beauty/personal care: AOV $55-137 (média global $74; impulso single-SKU $30-55, bundle de rotina $75-95, skincare premium com assinatura $100-137)
+- Supplements: $45-65 transacional; bundle 90 dias $90-120 (billing trimestral triplica o AOV efetivo e derruba o payback do CAC de ~3 pedidos pra 1)
+- Shopify DTC geral: $85-95 (top 20% acima de $120); CAC de referência nas duas categorias ≈ $61; margem bruta 60-70%; recompra 37.7% em supplements vs 25-30% em beauty
+
+Se o AOV projetado ficar muito fora da faixa da categoria sem justificativa clara (posicionamento premium, bundle robusto), reveja o mix antes de prosseguir.
+
+**Guardrail de canibalização de bundle (net AOV, não AOV bruto):**
+- Desconto de 15% num bundle que sobe o AOV em 30% derruba a margem de contribuição em **6-7 pontos percentuais**, A MENOS que **mais de 20% dos pedidos do bundle sejam incrementais** (gente que não teria comprado o solo full-price). Sem histórico, assuma o cenário conservador (incrementalidade baixa) e avalie o bundle pela **margem de contribuição líquida**, nunca pelo AOV do painel.
+- Net AOV: desconte devoluções — com 15% de returns, AOV $120 no painel é ~$102 real. Use o net nas projeções de PSM da ETAPA 7.
+
 ### ETAPA 7 — PSM Projetado (Profitable Scaling Margin)
 
 Reavalie o PSM com o **AOV projetado da ETAPA 6** (pós bump/upsell) como LTV-proxy, pela MESMA fórmula da ETAPA 5 (a mesma que a skill 11 usa pro `psm_real`):
 
-**Fórmula:** PSM = LTV / (CPA + COGS) — agora LTV = AOV projetado (ETAPA 6), CPA = target 2× (ou um CPA esperado de benchmark, se o membro tiver), COGS do `cogs_breakdown`. Se houver dado de recompra, use LTV com reorder ao longo de 30-60-90 dias (eleva o PSM e justifica CPA mais alto).
+**Fórmula:** PSM = LTV / (CPA + COGS) — agora LTV = AOV projetado (ETAPA 6, ajustado pra net AOV se houver estimativa de devoluções), CPA = target 2× (ou um CPA esperado de benchmark, se o membro tiver), COGS = somatório de todos os itens do `cogs_breakdown` (igual à ETAPA 5 e à Skill 11). Se houver dado de recompra, use LTV com reorder ao longo de 30-60-90 dias (eleva o PSM e justifica CPA mais alto).
 
 - **PSM < 1.0**: cada cliente perde dinheiro em escala — oferta NÃO viável
 - **PSM 1.0–1.1**: breakeven, cresce devagar com risco
@@ -436,7 +487,7 @@ Cruze unit economics com budget diário do membro (do profile):
 - AOV projetado × 3 vendas/dia = ~$Y/dia em receita
 - Margem total projetada = $Z/dia
 
-É viável? Pra qual revenue tier (da Skill 12) essa oferta leva o membro em 30/60/90 dias?
+É viável? Cruze com as projeções 30/60/90 com cash flow da Skill 12 — em qual patamar de receita mensal essa oferta coloca o membro em 30, 60 e 90 dias?
 
 ### ETAPA 9 — Validação Final (Sanity Checks)
 
@@ -450,15 +501,15 @@ Antes de salvar, responda HONESTAMENTE:
 6. **Pricing triangulado (as 3 ancoras convergem < 40% de diferença)?**
 7. **COGS breakdown completo (produto + frete + pick&pack + gateway + taxas), sem valor agregado?**
 8. **Margem $ ≥ $20 em pelo menos uma variação?** (senão CPA viável inviabiliza ads)
-9. **Bundle structure aumenta AOV sem canibalizar margem?**
-10. **breakeven_roas < 3.0?** (se >3, a oferta depende de CAC muito baixo — validar com @analyst)
+9. **Bundle structure aumenta AOV sem canibalizar margem?** (rode o guardrail de net AOV da ETAPA 6: desconto que sobe AOV bruto mas derruba a margem de contribuição líquida reprova)
+10. **breakeven_roas < 3.0?** (se > 3.0, a oferta depende de CPA baixo demais pra ser realista — trate como falha do check e volte pra ETAPA 7: aumentar AOV, reduzir COGS ou repricing, antes de salvar)
 11. **`04-offer-builder/research-foundation.json` existe e cobre todos os claims centrais do mecanismo com fonte rastreável?** (sem fundação de evidência, copy da Skill 06 sai sem lastro — bloqueante)
 
 Registre o resultado em `04-offer-builder/dados.json` → `sanity_checks` como `{ "total": 11, "passed": N, "failed": [<números dos checks que falharam>] }` (NÃO um inteiro hard-coded). Se alguma resposta for "não", **itere antes de salvar**. Uma oferta fraca que passa adiante vira ad ruim, copy genérica, e membro frustrado em 30 dias.
 
 **Bloqueio de save (checks críticos):** se QUALQUER um dos checks críticos falhar — check 3 (economics/PSM viável), check 8 (margem $ ≥ $20 em ao menos uma variação), ou check 11 (`04-offer-builder/research-foundation.json` cobre os claims centrais) — NÃO salve o `04-offer-builder/dados.json` final. Itere até passar, ou aplique o escape-path correspondente (ES1 pra foundation faltante; ETAPA 7 pra economics; ETAPA 1 sanity de margem). Os demais checks que falharem entram em `failed[]` como aviso, mas não bloqueiam.
 
-### Output Schema — `04-offer-builder/relatorio.md` + `04-offer-builder/dados.json`
+### Output Schema — `04-offer-builder/offer-builder.md` + `04-offer-builder/dados.json`
 
 O markdown é humano; o JSON é para as skills 06/07/10/11/12. Estrutura obrigatória:
 
@@ -472,7 +523,8 @@ O markdown é humano; o JSON é para as skills 06/07/10/11/12. Estrutura obrigat
     "version_short": "1 frase (inglês US se mercado for US)",
     "version_medium": "1 parágrafo (inglês US se mercado for US)",
     "version_long": "2-3 parágrafos (inglês US se mercado for US)",
-    "sin_score": { "simplicity": 9, "intuitiveness": 8, "novelty": 7 }
+    "sin_score": { "simplicity": 9, "intuitiveness": 8, "novelty": 7 },
+    "validation_source": "improved_validated|crossed_validated|original"
   },
   "pricing": {
     "main_sku_price": 97.00,
@@ -489,19 +541,29 @@ O markdown é humano; o JSON é para as skills 06/07/10/11/12. Estrutura obrigat
     "target_cpa_for_3x": 24.00,
     "target_cpa_primary_2x": 36.00,
     "target_cpa_primary_3x": 24.00,
-    "psm_theoretical": 2.0
+    "psm_theoretical": 1.44
   },
   "guarantee": { "type": "...", "duration_days": 30 },
-  "offer_stack": "Stack montado: produto principal $97 + Bonus 01 ($49) + Bonus 02 ($39) + Bonus 03 ($29) = valor total ancorado $214. Membro paga $97 (savings de $117). String pré-montada para a Skill 06 usar literal em copy de página/ad sem reformatar.",
+  "offer_stack": "Main product ($97 value) + Bonus 01 ($49 value) + Bonus 02 ($39 value) + Bonus 03 ($29 value) = $214 total value. Today: $97 (you save $117).",
+  "aov_levers": {
+    "bump": { "name": "...", "price": 14.00, "copy": "1 frase + 1 benefício (inglês US, ad-safe)", "take_projected": 0.20 },
+    "upsell": { "name": "...", "price": 67.00, "anchor_was": 97.00, "oto_structure": "more_of_same | next_thing | do_it_faster | need_help", "take_projected": 0.08 },
+    "bundles": [
+      { "qty": 1, "price": 97.00, "label": "Solo", "savings_pct": 0 },
+      { "qty": 3, "price": 197.00, "label": "Popular", "savings_pct": 32 },
+      { "qty": 6, "price": 327.00, "label": "Best Value", "savings_pct": 44 }
+    ]
+  },
   "bonuses": [
     {
       "id": "bonus-01",
       "name": "nome humano",
       "description": "o que é / por que vale",
       "value_anchored": 49,
-      "type": "digital_guide|digital_template|physical_freebie|community_access|video_series|consultation_call|discount_code|trial_extension|workbook|checklist",
-      "format_hint": "pdf|notion|figma|wistia|in_box|klaviyo_email|shopify_discount|circle_invite",
-      "delivery_trigger": "post_purchase|on_signup|day_7_post_purchase|on_first_reorder"
+      "type": "gift_with_purchase | free_complementary_sku | free_ebook | gift_wrapping | digital_guide | discount_code | workbook | checklist | community_access | video_series | consultation_call | trial_extension",
+      "format_hint": "in_box | shopify_function | gift_app | pdf | notion | figma | wistia | klaviyo_email | shopify_discount | circle_invite",
+      "condition": "unconditional | cart_threshold | tier_specific",
+      "delivery_trigger": "post_purchase | on_signup | day_7_post_purchase | on_first_reorder"
     }
   ],
   "sanity_checks": { "total": 11, "passed": 11, "failed": [] }
@@ -519,16 +581,20 @@ Depois de atualizar o manifest, regenera o painel do produto: `python3 .claude/l
 - `breakeven_roas` = `aov_expected / weighted_margin_per_order`
 - Sanidade: `target_cpa_primary_2x` < `breakeven_cpa` SEMPRE.
 
-No exemplo acima: weighted_margin_per_order 72 → breakeven_cpa 72, target_2x 36 (72/2), target_3x 24 (72/3), breakeven_roas 1.64 (118/72). A Skill 11 (ad-analysis) lê por esses nomes "primary"/"weighted" e assume esse denominador único. Os campos legacy (`margin_per_unit`, `target_cpa_for_2x/3x`) são emitidos em paralelo só por compat. `weighted_margin_per_order` = margem média ponderada por AOV (considera bumps + upsells); `margin_per_unit` é a margem unitária do SKU principal. Se a oferta não tem bump/upsell, os dois valores são iguais — mas os derivados de CPA sempre referenciam `weighted_margin_per_order`. `offer_stack` é a string pré-montada que a Skill 06 consome literal.
+No exemplo acima: weighted_margin_per_order 72 → breakeven_cpa 72, target_2x 36 (72/2), target_3x 24 (72/3), breakeven_roas 1.64 (118/72), psm_theoretical 1.44 (118/(36+46), COGS = somatório do breakdown). A Skill 11 (ad-analysis) lê por esses nomes "primary"/"weighted" e assume esse denominador único. Os campos legacy (`margin_per_unit`, `target_cpa_for_2x/3x`) são emitidos em paralelo só por compat. `weighted_margin_per_order` = margem média ponderada por AOV (considera bumps + upsells); `margin_per_unit` é a margem unitária do SKU principal. Se a oferta não tem bump/upsell, os dois valores são iguais — mas os derivados de CPA sempre referenciam `weighted_margin_per_order`. `offer_stack` é a string pré-montada que a Skill 06 consome literal em copy de página/ad — é copy pública: SEMPRE inglês US, mesma regra das versions do mechanism.
+
+**Enum canônico de `bonuses[]`:** os valores de `type`, `format_hint`, `condition` e `delivery_trigger` do schema acima são o enum ÚNICO do framework — reproduzidos idênticos na ETAPA 3 desta skill e no pré-flight da Skill 05. Não criar valores fora dessa lista.
+
+**Bloco `aov_levers` (contrato machine-readable com a 07d):** espelha ESTRUTURADO o que a ETAPA 3 define em prosa — bump (nome, preço, copy curta, take projetado), upsell (nome, preço, âncora "was", estrutura de OTO, take projetado) e os tiers de bundle (`{qty, price, label, savings_pct}`). A Skill 07d lê DAQUI na ETAPA 1 dela (fim do parsing de prosa; a prosa da ETAPA 3 continua sendo a versão humana). Alavanca que a oferta não tem = campo `null` (ex: oferta sem upsell → `"upsell": null`) — a 07d registra como `not_in_offer`, nunca inventa. `take_projected` em fração (0.20 = 20%), consistente com as taxas conservadoras da ETAPA 3. `copy` do bump é consumidor-final: inglês US, ad-safe (rule 8b).
 
 **Se `04-offer-builder/dados.json` falhar validação, NÃO salvar `.md`.**
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer-builder/relatorio.md` → `04-offer-builder/relatorio.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer-builder/offer-builder.md` → `04-offer-builder/offer-builder.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
 
-`workspace/[produto]/04-offer-builder/relatorio.md` contendo:
+`workspace/[produto]/04-offer-builder/offer-builder.md` contendo:
 1. Mecanismo único recomendado (com scoring das 5-7 opções geradas) + 3 versões (1 frase / 1 parágrafo / 2-3 parágrafos)
 2. **Research Foundation** (Etapa 2.5) — evidências que sustentam o mecanismo, com fontes rastreáveis
 3. Estrutura de oferta completa (produto principal, bundles, bump, upsell, stack de valor)
@@ -543,6 +609,8 @@ Também salvar companion `04-offer-builder/research-foundation.json` conforme sc
 
 ## Mensagem Final
 
-"Oferta construída. Mecanismo único: **[Nome do Mecanismo]**. PSM projetado: [valor]. Viável pro seu budget: [sim/com ajustes].
+"Primeira versão da oferta pronta. Mecanismo único: **[Nome do Mecanismo]** (rota: [recombinação validada / criação original]). PSM projetado: [valor]. Viável pro seu budget: [sim/com ajustes].
 
-Próximo passo: diga **'copy'** pra escrever a copy completa da página aplicando o mecanismo, stack, garantia, e linguagem do market research."
+Revisa antes de seguir: o nome do mecanismo gruda? O pricing e o stack fazem sentido pro seu avatar? A garantia ataca o medo certo? Me diz o que não fecha e eu itero.
+
+Quando fechar: diga **'copy'** pra escrever a copy completa da página aplicando o mecanismo, stack, garantia, e linguagem do market research."

@@ -1,6 +1,6 @@
 ---
 name: page-design
-description: Primeira skill da fase STOREFRONT. Planeja a página (page_type por awareness, menu de sections, hero_type, strategy block completo no 07-plan.json), roda brand signals (cascade Refero → screenshot→visão → manual, todos convergindo pra design-signals.json) e apresenta ao MEMBRO um MENU DE ROTAS DE DESIGN (clone-and-adapt, Claude Design handoff, AIDesigner MCP opcional, frontend-design fallback) pra ele escolher — todas convergindo pra design/page.html, a PÁGINA INTEIRA aprovada com a copy real de 06 inserida e os signals aplicados. O membro aprova esse HTML ANTES de qualquer Liquid existir — ele é a FONTE ÚNICA DE VERDADE visual. Gera design-tokens.json. Use quando o membro disser "page", "página", "design da página", logo após ter copy pronta. Depois rode 07b-page-build pra compilar e deployar.
+description: Primeira skill da fase STOREFRONT. Planeja a página (page_type por awareness, menu de sections, hero_type, strategy block completo no page-plan.json), roda brand signals (lê brand.md primeiro e só pergunta o que faltar; cascade Refero → screenshot→visão → design-clone opcional → manual/presets, todos convergindo pra design-signals.json) e apresenta ao MEMBRO um MENU DE ROTAS DE DESIGN (clone-and-adapt, Claude Design handoff, AIDesigner MCP opcional, frontend-design fallback, AI site-builders externos se o membro usa) pra ele escolher — todas convergindo pra design/page.html, a PÁGINA INTEIRA aprovada com a copy real de 06 inserida e os signals aplicados. O membro aprova esse HTML ANTES de qualquer Liquid existir — ele é a FONTE ÚNICA DE VERDADE visual. Gera design-tokens.json. Use quando o membro disser "page", "página", "design da página", logo após ter copy pronta. Depois rode 07b-page-build pra compilar e deployar.
 ---
 
 # 07a — Page Design (PLAN + BRAND SIGNALS + MENU DE ROTAS DE DESIGN)
@@ -9,20 +9,20 @@ Primeira das duas skills da fase **STOREFRONT** (07a → 07b). Esta skill decide
 
 Princípio reitor: **HTML-first → fonte única de verdade visual → aprovação humana ANTES do código.** Nada de "gerar Liquid e torcer pra renderizar igual". O membro vê a página real, navegável, com a copy dele dentro, e só depois ela vira Shopify.
 
-Decisão de design: a 07a NÃO escolhe sozinha COMO o design nasce. Ela **apresenta ao membro um menu de rotas** (clone-and-adapt, Claude Design handoff, AIDesigner MCP, frontend-design fallback) e ele escolhe. Causa raiz de página genérica/"horrível" = gerar do zero sem referência concreta. Por isso clone-and-adapt (partir de um layout de concorrente que já converte) é o padrão recomendado, e gerar do zero (frontend-design) é o fallback. Todas as rotas convergem pro MESMO `design/page.html`.
+Decisão de design: a 07a NÃO escolhe sozinha COMO o design nasce. Ela **apresenta ao membro um menu de rotas** (clone-and-adapt, Claude Design handoff, AIDesigner MCP, frontend-design fallback, AI site-builders externos quando o membro já usa um) e ele escolhe. Causa raiz de página genérica/"horrível" = gerar do zero sem referência concreta. Por isso clone-and-adapt (partir de um layout de concorrente que já converte) é o padrão recomendado, e gerar do zero (frontend-design) é o fallback. Todas as rotas convergem pro MESMO `design/page.html`.
 
 > **Índice completo dos frameworks desta skill (domínio page-landing-cro):** `.claude/lib/kb-index/` (`frameworks.json` + `README.md`, mapa skill→domínio no README). Sempre que esta skill mandar "consulte a base", isso significa: **puxe os SISTEMAS NOMEADOS da base — rode `search_knowledge` com a `best_query` de cada framework relevante PRA AQUELA ETAPA, com `deep=true`.** NUNCA use query genérica. Os frameworks de maior impacto já vêm embutidos nas ETAPAs abaixo com sua query exata; o resto do domínio (33 frameworks) está no índice.
 
 **O que esta skill faz:**
 
-1. Pré-flight + PLAN — detecta produto, lê copy/offer/research, escolhe `page_type` pelo awareness, monta o plano de sections, escolhe `hero_type`, persiste o bloco `strategy` completo em `07-plan.json` + eyebrows criativos.
-2. BRAND SIGNALS — cascade (Refero MCP → screenshot→visão → manual), tudo convergindo pro mesmo `design-signals.json`.
+1. Pré-flight + PLAN — detecta produto, lê copy/offer/research, escolhe `page_type` pelo awareness, monta o plano de sections, escolhe `hero_type`, persiste o bloco `strategy` completo em `page-plan.json` + eyebrows criativos.
+2. BRAND SIGNALS — lê `workspace/[produto]/brand.md` PRIMEIRO (só pergunta o que faltar), depois cascade (Refero MCP → screenshot→visão → design-clone opcional pra hex exato → manual/presets), tudo convergindo pro mesmo `design-signals.json`.
 3. MENU DE ROTAS DE DESIGN — apresenta as rotas viáveis (detectadas em runtime), o membro escolhe; a rota gera a PÁGINA INTEIRA em `design/page.html` com a copy real inserida e os signals aplicados. Member aprova. Gera `design-tokens.json`.
 4. Dual output dos relatórios (.md + .html, logo SVG) + framing de draft + atualiza manifest.
 
 **Outputs gravados em `workspace/[produto]/07-page/`:**
-- `07-plan.json` — plano machine-readable + bloco `strategy` completo (consumido pela 07b e pela skill 09)
-- `07-design-system.md` + `07-design-system.html` — design system humanizado
+- `page-plan.json` — plano machine-readable + bloco `strategy` completo (consumido pela 07b e pela skill 09)
+- `design-system.md` + `design-system.html` — design system humanizado
 - `design/page.html` — **a página inteira aprovada (FONTE ÚNICA DE VERDADE visual)**
 - `design-tokens.json` — tokens consolidados da variação escolhida (consumido pela 07b)
 - `design-signals.json` — signals de marca (heading_font, body_font, palette role-tagged, radius, shadow, density)
@@ -33,13 +33,13 @@ Depois desta skill, rode **07b-page-build** pra compilar o HTML aprovado em Liqu
 
 ## Pré-flight
 
-1. Leia `workspace/profile.md` — em especial `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno desta skill (`07-plan.json` reasoning, `07-design-system.md`/`.html`, conversa com o membro) usa esse idioma. **A copy consumidor-final (headlines, eyebrows, hero, bullets, CTAs) inserida no `design/page.html` permanece SEMPRE em inglês US**, independente do `report_language` — copy pública nunca traduz.
+1. Leia `workspace/profile.md` — em especial `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno desta skill (`page-plan.json` reasoning, `design-system.md`/`.html`, conversa com o membro) usa esse idioma. **A copy consumidor-final (headlines, eyebrows, hero, bullets, CTAs) inserida no `design/page.html` permanece SEMPRE em inglês US**, independente do `report_language` — copy pública nunca traduz.
 2. Valide os inputs (todos sob `workspace/[produto]/`):
    - [ ] `manifest.json` existe e tem `06-copy-engine` em `skills_completed`
-   - [ ] `06-copy-engine/dados.json` + `06-copy-engine/relatorio.md` existem e parseiam
-   - [ ] `04-offer-builder/dados.json` + `04-offer-builder/relatorio.md` existem (preço, stack, garantia, mecanismo nomeado)
-   - [ ] `02-market-research/dados.json`/`relatorio.md` existe (awareness, sophistication, ceticismo, VOC) — usado pra detectar `page_type`
-   - [ ] `03-competitor-analysis/relatorio.md` existe (opcional, mas alimenta gaps/diferenciação)
+   - [ ] `06-copy-engine/dados.json` + `06-copy-engine/copy-engine.md` existem e parseiam (se o `.md` novo não existir, use o legado `relatorio.md` — mesmo fallback vale pras outras fases)
+   - [ ] `04-offer-builder/dados.json` + `04-offer-builder/offer-builder.md` existem (preço, stack, garantia, mecanismo nomeado)
+   - [ ] `02-market-research/dados.json`/`market-research.md` existe (awareness, sophistication, ceticismo, VOC) — usado pra detectar `page_type`
+   - [ ] `03-competitor-analysis/competitor-analysis.md` existe (opcional, mas alimenta gaps/diferenciação)
    - [ ] Dir de output: `workspace/[produto]/07-page/` (criar com `mkdir -p` se não existir)
 
 **Se algum input obrigatório faltar** (regra `emergency-escape-paths` ES1) — não aborte seco. Ofereça:
@@ -79,7 +79,7 @@ Aprofunde até ter domínio de conversão + estrutura de página. Schwartz aware
 
 ### 0.3 Ler inputs obrigatórios
 
-Leia, sob `workspace/[produto]/`: `06-copy-engine/relatorio.md` + `06-copy-engine/dados.json` (OBRIGATÓRIO), `04-offer-builder/relatorio.md`/`dados.json` (preço, stack, garantia, **mecanismo nomeado LITERAL**), `02-market-research/relatorio.md`/`dados.json` (awareness, sophistication, ceticismo, VOC), `03-competitor-analysis/relatorio.md` (gaps, claims saturados a evitar). Leia `workspace/profile.md` (estilo de marca, stage).
+Leia, sob `workspace/[produto]/`: `06-copy-engine/copy-engine.md` + `06-copy-engine/dados.json` (OBRIGATÓRIO), `04-offer-builder/offer-builder.md`/`dados.json` (preço, stack, garantia, **mecanismo nomeado LITERAL**), `02-market-research/market-research.md`/`dados.json` (awareness, sophistication, ceticismo, VOC), `03-competitor-analysis/competitor-analysis.md` (gaps, claims saturados a evitar). Leia `workspace/profile.md` (estilo de marca, stage).
 
 ---
 
@@ -89,7 +89,7 @@ A página NÃO tem estrutura fixa. Cada produto merece um plano que reflita sua 
 
 ### 1.1 Detectar `page_type` — PRIMARIAMENTE pelo awareness (Schwartz)
 
-O `page_type` é decidido pelo **awareness level** lido de `02-market-research/dados.json` (campo de awareness) e confirmado em `06-copy-engine/dados.json` (lead type). Heurística sintática é só **tie-break**.
+O `page_type` é decidido pelo **awareness level** lido de `02-market-research/dados.json` (campo `dominant_awareness`) e confirmado pelo campo **top-level `lead_type`** de `06-copy-engine/dados.json` (a 06 grava esse campo na ETAPA 2 dela — é o contrato machine-readable entre as duas skills). Confirmação: lead `story`/`big_idea`/`problem_agitation` casa com `advertorial`; `mechanism`/`secret`/`proclamation` casa com `landing`; `offer`/`direct` casa com `pdp_robust`/`pdp_lean`. Se `lead_type` estiver ausente (dados.json de produto legado), siga só pelo awareness e anote a lacuna. Heurística sintática é só **tie-break**. Se `dominant_awareness_secondary` presente no dados.json da 02 (empate ±5pp), trate a página como híbrida: grave `hybrid: true` no bloco strategy do `page-plan.json` e escolha o page_type que serve os dois níveis (na dúvida, o do nível de menor awareness — página que educa converte os dois; página que assume conhecimento perde o menos consciente).
 
 | Awareness (Schwartz) | page_type | Lógica | Estrutura típica |
 |---|---|---|---|
@@ -99,6 +99,13 @@ O `page_type` é decidido pelo **awareness level** lido de `02-market-research/d
 | **Most-Aware** | `pdp_lean` | Só precisa do empurrão final (preço/oferta/urgência) | hero curto → offer → proof condensada → guarantee → cta-final |
 
 **Tie-break sintático** (só se awareness ambíguo entre dois níveis): copy abre com narrativa "I used to..." / "Doctor reveals..." e sem CTA no topo → puxa pra `advertorial`; copy abre com pricing tiers/bundles explícitos no topo → puxa pra `landing`/`pdp`. Hybrid (narrativa abrindo + offer stack convergindo nos últimos 40%) é válido — marque `page_type` como o dominante e anote `hybrid: true` no strategy.
+
+**Se `page_type = advertorial` — defina o DESTINO do soft CTA (obrigatório):** advertorial é pré-lander, não fecha a venda sozinho; o soft CTA precisa apontar pra uma página que fecha. Pergunte ao membro e registre a escolha em `page-plan.json.destination_ref`:
+- **(a) Rodar a cadeia 07a→07b uma SEGUNDA vez** pra gerar a página de fechamento (`pdp_lean` com a oferta da 04) — recomendado quando não existe PDP trabalhada;
+- **(b) PDP existente da loja** — só se a copy/oferta dela já foram trabalhadas (apontar pra PDP default do tema quebra a congruência exigida na 3.7);
+- **(c) Checkout direto** com a oferta da 04 (produto simples, membro quer funil curto).
+
+A 07b usa `destination_ref` pra linkar o soft CTA. Sem destino definido, o advertorial vai ao ar mandando tráfego pago pra uma página sem copy nem oferta — NÃO pule esta decisão.
 
 **Frameworks que sustentam essa decisão** (puxe os nomeados, não query genérica):
 - **Schwartz awareness levels** (rode `product market awareness Schwartz levels`) + **Bond sophistication stages** (rode `market sophistication stages`) — confirme que o awareness lido de `02` casa com o lead type de `06`.
@@ -124,6 +131,7 @@ Não force "9 sections padrão". Escolha o que a estratégia pede.
 - `before-after` — cosmético / estético / transformação visual
 - `how-it-works` — produtos com 3+ passos de uso
 - `ingredients` — skincare / supplements / food
+- `specs` — bloco de especificações objetivas (materiais/ingredientes com dosagem, dimensões/peso, quantidade por unidade, certificações, modo de uso). Recomendado em TODA pdp: agentes de compra AI (ChatGPT/Perplexity shopping) decidem lendo specs e dados estruturados, não copy sensorial — sem esse bloco a página fica invisível pra esse tráfego. A copy vem da seção de specs da 06 (fatos verificáveis, sem adjetivos); a skill 07e (agentic-readiness) audita depois, junto da camada GEO/Schema.org que a 07b injeta
 - `founder-story` — DTC com narrativa de origem forte
 - `video-demo` — produto que precisa ver em ação
 - `sustainability` — claim ambiental relevante
@@ -140,7 +148,7 @@ Puxe o framework nomeado: **Hero Sections (5 Types + Selection)** (rode `hero se
 
 ### 1.4 Decidir blocks por section
 
-Pra cada section do plano, decida: monolítica (só settings) ou com blocks; quais blocks universais (eyebrow, heading, paragraph, button_row, etc — ver Catálogo na 07b) e quais type-specific (benefit_card, pricing_tier, review_card, faq_item...). Isso vira `sections_plan[].blocks` no `07-plan.json`. Não precisa detalhar settings aqui (a 07b deriva do HTML) — basta listar os block types que cada section vai ter.
+Pra cada section do plano, decida: monolítica (só settings) ou com blocks; quais blocks universais (eyebrow, heading, paragraph, button_row, etc — ver Catálogo na 07b) e quais type-specific (benefit_card, pricing_tier, review_card, faq_item...). Isso vira `sections_plan[].blocks` no `page-plan.json`. Não precisa detalhar settings aqui (a 07b deriva do HTML) — basta listar os block types que cada section vai ter.
 
 ### 1.5 Mostrar o plano ao membro
 
@@ -167,7 +175,7 @@ Aguarde confirmação ou ajuste. Só então siga.
 | FAQ | "FAQ" | "You Asked", "Before You Buy", "The Real Questions" |
 | CTA Final | "CTA Final" | "One Last Thing", "Ready?", "Your Glow Starts Here" |
 
-Regras pra eyebrows: 2-5 palavras, específico do produto ("The pH Difference" > "The Science"), **em inglês** (copy pública), nunca rotule o framework, pode pular (trust-bar/hero/cta-final podem não precisar). Se o copy tem um Big Idea, USE ("It's Not the Fragrance — It's the pH"). Esses eyebrows vão pro `07-plan.json` (`sections_plan[].eyebrow`) e são inseridos no HTML na ETAPA 3.
+Regras pra eyebrows: 2-5 palavras, específico do produto ("The pH Difference" > "The Science"), **em inglês** (copy pública), nunca rotule o framework, pode pular (trust-bar/hero/cta-final podem não precisar). Se o copy tem um Big Idea, USE ("It's Not the Fragrance. It's the pH." — sem travessão: rule 8a vale pra eyebrow também). Esses eyebrows vão pro `page-plan.json` (`sections_plan[].eyebrow`) e são inseridos no HTML na ETAPA 3.
 
 ---
 
@@ -175,12 +183,12 @@ Regras pra eyebrows: 2-5 palavras, específico do produto ("The pH Difference" >
 
 Isto NÃO é a fonte do layout. É só extração de signals (paleta, tipografia, vibe) que vão alimentar QUALQUER rota de design escolhida na ETAPA 3 (clone-and-adapt aplica esses signals sobre o esqueleto de layout do concorrente; frontend-design e AIDesigner geram com eles; no handoff do canvas eles dirigem o membro). O layout em si vem da rota escolhida na ETAPA 3 — aqui só sai a direção de cor/tipografia/densidade.
 
-Os 3 caminhos convergem TODOS pro MESMO arquivo `workspace/[produto]/07-page/design-signals.json`:
+Os 4 caminhos convergem TODOS pro MESMO arquivo `workspace/[produto]/07-page/design-signals.json`:
 
 ```json
 {
-  "source": "refero | screenshot_vision | manual",
-  "source_detail": "Linear (via Refero) | print da loja X | estilo Atelier Document",
+  "source": "refero | screenshot_vision | design_clone | manual",
+  "source_detail": "Linear (via Refero) | print da loja X | hex extraído de competitor.com | estilo Atelier Document",
   "heading_font": "'Fraunces', Georgia, serif",
   "body_font": "'Inter', -apple-system, sans-serif",
   "palette": {
@@ -198,7 +206,7 @@ Os 3 caminhos convergem TODOS pro MESMO arquivo `workspace/[produto]/07-page/des
 }
 ```
 
-Antes de começar, faça a brand discovery mínima em UMA mensagem (estilo visual desejado: minimalist editorial / bold modern / clinical premium / wellness organic / custom; cores da marca se houver, ou "escolhe pra mim"; tem site de referência cujo visual ele curte?). Use as respostas pra dirigir a cascade.
+Antes de começar, **leia `workspace/[produto]/brand.md` PRIMEIRO** — as skills 00 (ETAPA 5A) e 01 (etapa SALVAR) criam esse arquivo e prometem ao membro literalmente que "a 07a lê esse arquivo na brand discovery e só pergunta o que faltar". O que já estiver preenchido lá (posicionamento, arquétipo/tom, paleta com hex reais, tipografia, do/don'ts) entra DIRETO como brand discovery — não pergunte de novo o que o arquivo já responde (hex reais do brand.md alimentam a paleta dos signals sem cascade). Depois, pergunte em UMA mensagem SÓ o que estiver ausente ou marcado `[preencher]` (estilo visual desejado: minimalist editorial / bold modern / clinical premium / wellness organic / custom; cores da marca se houver, ou "escolhe pra mim"; tem site de referência cujo visual ele curte?). Se `brand.md` não existir, faça a brand discovery mínima completa nessa mesma mensagem única. Use as respostas pra dirigir a cascade.
 
 ### Caminho 1 — Refero MCP (preferencial, catálogo curado)
 
@@ -227,17 +235,23 @@ Substitui o scraping de computed-styles do design-clone como fallback principal.
 
 > Hex extraído de imagem é aproximado — está OK. São signals de direção, não pixel-exato. O `frontend-design` ajusta pra garantir contraste WCAG e hierarquia.
 
-### Caminho 3 — Manual / 8 presets (último recurso)
+### Caminho 3 (opcional) — design-clone para hex exato
+
+Só pra quem QUER hex exato de um concorrente nichado e tem o venv do design-clone instalado (skill 00). Não é o fallback primário (screenshot→visão é). Se o membro pedir, use o caminho canônico — o wrapper orquestra downloader → analyzer → pattern-extractor e a cascade de captura sozinho (não chame os scripts soltos):
+
+```bash
+python3 tools/design-clone/aura_clone.py "URL" --output=/tmp/ref-[produto] --skip-images
+```
+
+Leia o bloco `design_system` de `/tmp/ref-[produto]/patterns.json` e **cheque o campo `design_system_source`**: se `"extracted"`, mapeie pro shape do `design-signals.json` com `source: "design_clone"`; se `"defaults_fallback"` (o site não rendeu CSS computado real), **IGNORE o bloco e caia pro próximo caminho** — nada de paleta inventada. Se o modo signals abortar com "engine não extrai computed-styles" (a captura veio do single-file-cli, que não gera computed-styles), ou se Playwright não estiver instalado, pule graciosamente pro Caminho 2 (screenshot→visão) ou pro Caminho 4.
+
+### Caminho 4 — Manual / 8 presets (último recurso)
 
 Quando Refero não tem match E o membro não tem print/URL:
 - Peça descrição livre da vibe ("editorial sério, low-pressure, italic em keywords"), OU
 - Ofereça 8 presets (Modern Clean, Bold Editorial, Premium Minimal, Warm Lifestyle, Tech Sharp, Atelier Document, Apothecary Calm, Luxe Magazine) — membro escolhe um, signals saem dos defaults do preset.
 
 Se o membro passou nomes de cor por extenso (ex: "sage green"), valide via regex de hex `^#([0-9A-Fa-f]{3,8})$` ou converta por nome (sage green `#9CAF88`, dusty rose `#D4A5A5`, off-white `#FDFAF4`, navy `#14213D`, terracotta `#C66B3D`, olive `#6B7040`, etc). Se a cor não for reconhecível, peça o hex.
-
-### Caminho 3 opcional — design-clone para hex exato
-
-Só pra quem QUER hex exato de um concorrente nichado e tem Playwright instalado. Não é o fallback primário (screenshot→visão é). Se o membro pedir: `python3 tools/design-clone/downloader.py "URL" "/tmp/ref-[produto]"` → `pattern-extractor.py` → ler o bloco `design_system` de `/tmp/ref-[produto]/patterns.json`. Se Playwright/BeautifulSoup não estiver instalado, pule graciosamente pro Caminho 2.
 
 ### Output da ETAPA 2
 
@@ -260,11 +274,11 @@ Antes de apresentar o menu, detecte o que está disponível NESTA sessão e só 
 
 | Rota | Disponível quando |
 |---|---|
-| **1. Clone-and-adapt** | `tools/design-clone/` existe no repo (sempre presente no framework). O membro precisa ter uma URL de concorrente cuja página ele ache boa. |
+| **1. Clone-and-adapt** | `tools/design-clone/` existe no repo (sempre presente no framework). O membro precisa ter uma URL de concorrente cuja página ele ache boa (ou um .html da página salvo com a extensão SingleFile — ver degrau 4 da cascade na §3.3). |
 | **2. Claude Design (handoff)** | Sempre ofertável — depende só do membro ter acesso ao canvas do `claude.ai/design` (Claude Pro/Max). Não há tool a detectar; é um handoff manual de arquivo. |
 | **3. AIDesigner MCP** | Há tools com prefixo `mcp__aidesigner__` na sessão. Se ausente, NÃO liste como rota ativa — mencione em 1 linha "rota paga opcional, conecte o MCP se quiser" e siga. |
 | **4. frontend-design (fallback)** | Sempre disponível (skill nativa). É a rota de menor qualidade — só quando o membro não tem referência nem quer desenhar. |
-| **5. AI site-builders (v0 / Lovable / Manus)** | Sempre ofertável como rota EXTERNA. O membro descreve a página num desses geradores, eles criam o HTML. Ressalva: trazem **runtime próprio** (stack/hospedagem deles), não Liquid nativo do Shopify — então serve como landing externa OU o membro exporta o HTML e a 07b reintegra ao tema. Só liste se o membro mencionar que usa algum deles. |
+| **5. AI site-builders (v0 / Lovable / Manus)** | Rota EXTERNA — só entra no menu se o membro mencionar que usa algum deles (não ofereça espontaneamente). O membro descreve a página num desses geradores, eles criam o HTML. Ponto de atenção: trazem **runtime próprio** (stack/hospedagem deles), não Liquid nativo do Shopify — então serve como landing externa OU o membro exporta o HTML e a 07b reintegra ao tema. |
 
 > Refero (`mcp__refero__`), se presente, já foi usado na ETAPA 2 pra brand signals — NÃO é uma rota de design de página aqui, é fonte de signals que alimenta qualquer rota.
 
@@ -277,15 +291,15 @@ Mostre esta tabela (traduzida pro idioma do membro, listando só as rotas viáve
 | **1. Clone-and-adapt** *(padrão recomendado p/ velocidade)* | Você indica 1 PDP/landing de concorrente que acha bonita. A Aura captura só a **estrutura/layout** dela e adapta com a SUA copy (06), oferta (04) e imagens. Herda hierarquia e fluxo de conversão já validados no mercado. | Alta — parte de um layout que já converte | Zero | Alta | Você viu uma página de concorrente que funciona e quer velocidade sem reinventar layout |
 | **2. Claude Design (handoff)** | Você desenha/itera a página no canvas visual do `claude.ai/design`, exporta como HTML standalone, e cola o arquivo aqui. A Aura consome esse HTML como `page.html`. | Alta — controle visual fino, aprovação no canvas | Incluso no Claude Pro/Max (consome mais token, mesmo limite) | Média (design semi-manual no canvas — isso é feature: você aprova visualmente antes do Liquid) | Você quer controle visual total e gosta de iterar num canvas |
 | **3. AIDesigner MCP** *(se conectado)* | Roda dentro do Claude Code injetando padrões de design premium; cospe HTML/CSS limpo direto como `page.html`. | Alta | ~$20/mês (MCP pago) | Alta | Você já tem o MCP e quer design premium automatizado sem sair do Claude Code |
-| **4. frontend-design** *(fallback)* | Gera a página via skill nativa, **com direção forte** (brand-signals da ETAPA 2 + referência concreta + estilo nomeado). | A mais baixa das 4 — gerada do zero | Zero | Total | Você NÃO tem página de referência nem quer desenhar no canvas. É o fallback. |
-| **5. AI site-builders (v0 / Lovable / Manus)** *(rota externa)* | Você descreve a página num desses geradores, ele cria o HTML, e você cola aqui como `page.html`. Eles trazem **runtime próprio** (não é Liquid nativo do Shopify) — então serve como landing externa OU a 07b exporta/reintegra ao tema. Consumida igual à rota 2 (você traz o HTML; a Aura injeta os markers `data-aura-section` e segue pra 3.7). | Alta — geradores modernos | Free tier / pago conforme uso | Média (gera no app deles; você traz o HTML) | Você já usa v0/Lovable/Manus e prefere desenhar lá fora, ciente de que o runtime é deles |
+| **4. frontend-design** *(fallback)* | Gera a página via skill nativa, **com direção forte** (brand-signals da ETAPA 2 + referência concreta + estilo nomeado). | A mais baixa do menu — única gerada do zero, sem referência | Zero | Total | Você NÃO tem página de referência nem quer desenhar no canvas. É o fallback. |
+| **5. AI site-builders (v0 / Lovable / Manus)** *(rota externa — só aparece se você usa um deles)* | Você descreve a página num desses geradores, ele cria o HTML, e você cola aqui como `page.html`. Eles trazem **runtime próprio** (não é Liquid nativo do Shopify) — então serve como landing externa OU a 07b exporta/reintegra ao tema. Consumida igual à rota 2 (você traz o HTML; a Aura injeta os markers `data-aura-section` e segue pra 3.7). | Alta — geradores modernos | Free tier / pago conforme uso | Média (gera no app deles; você traz o HTML) | Você já usa v0/Lovable/Manus e prefere desenhar lá fora, ciente de que o runtime é deles |
 
 Pergunte direto, sem decidir por ele:
 > "Qual rota você prefere pro design da página? A **1 (clone-and-adapt)** é a mais rápida e costuma sair melhor, porque parte de um layout de concorrente que já converte — você só me indica uma página que acha boa. Mas escolhe a que fizer sentido pra você."
 
 Auto-sugira a rota 1 como **default** (não imposição) por velocidade e qualidade, mas respeite a escolha do membro. Se o membro estiver em stage starter (member-stage-awareness) e sem referência em mente, explique a rota 4 sem empurrar custo.
 
-Depois da escolha, vá pra sub-etapa correspondente. **Toda rota termina gerando `design/page.html` + indo pra 3.7 (regras de qualidade comuns) + checkpoint de aprovação.** Crie o dir com `mkdir -p workspace/[produto]/07-page/design`.
+Depois da escolha, vá pra sub-etapa correspondente (rota 1 → 3.3 · rota 2 → 3.4 · rota 3 → 3.5 · rota 4 → 3.6 · rota 5 → 3.6b). **Toda rota termina gerando `design/page.html` + indo pra 3.7 (regras de qualidade comuns) + checkpoint de aprovação.** Crie o dir com `mkdir -p workspace/[produto]/07-page/design`.
 
 > **Ajustes rápidos no admin (Sidekick) — pós-launch:** depois que a página estiver no ar (pós-07b), o membro pode usar o **Sidekick** (a IA dentro do admin do Shopify) pra microajustes pontuais — trocar uma imagem, ajustar um texto, mexer numa cor — sem voltar pro Claude Code. Não substitui a 07a/07b (que constroem a página inteira com a copy real e fazem o deploy versionado e seguro): é só pro retoque rápido depois. Mencione isso ao membro só se for útil no contexto, não como rota de design.
 
@@ -304,8 +318,21 @@ O membro indica 1 URL de concorrente. A Aura captura a **ESTRUTURA** dessa pági
    ```bash
    python3 tools/design-clone/aura_clone.py clone-and-adapt "URL" --output=/tmp/clone-[produto] --product=[produto]
    ```
-   Ele emite `skeleton.html` (sections só com estrutura/placeholder, ordem+tipo+layout do concorrente, ZERO copy/imagem/marca) + `skeleton.json`. Esse esqueleto é o que você preenche com a copy de `06` e a oferta de `04`. (Os scripts `downloader.py`/`analyzer.py` rodam por baixo — não os chame soltos; o `analyzer.py` sozinho não gera o skeleton.)
-   - **Fallback anti-bot (ES1-style):** se o scraping de DOM falhar (Cloudflare, JS pesado, bloqueio), o `aura_clone.py` grava `raw/fallback-screenshot.png` e marca `mode: screenshot_fallback` no manifest. Leia o PNG por visão nativa (Read) pra derivar a estrutura. Não aborte — degrade pro screenshot.
+   Ele emite `skeleton.html` (sections só com estrutura/placeholder, ordem+tipo+layout do concorrente, ZERO copy/imagem/marca) + `skeleton.json`. Esse esqueleto é o que você preenche com a copy de `06` e a oferta de `04`. (Os scripts `downloader.py`/`analyzer.py` rodam por baixo — não os chame soltos; o `analyzer.py` sozinho não gera o skeleton.) Exit codes do wrapper: `0` sucesso · `1` input inválido · `2` pipeline incompleto (ver manifest/stderr).
+
+   **Cascade de captura (degraus 1-2 são AUTOMÁTICOS dentro do wrapper; 3-4 são a degradação):**
+
+   - **Degrau 1 — `downloader.py` (Playwright stealth):** roda primeiro, é o único que extrai DOM com fidelidade máxima.
+   - **Degrau 2 — `snapshot.py` (single-file-cli), automático:** se o DOM falhar, o `--engine=auto` (default) já cai sozinho pro motor SingleFile — não precisa invocar nada. Requer Node >= 20; se ausente, o wrapper pula esse degrau e segue a degradação.
+   - **Degrau 3 — screenshot→visão (ES1-style):** se nenhuma engine pegou DOM, o wrapper grava `raw/fallback-screenshot.png` e marca `"mode": "screenshot_fallback"` + `"skeleton": null` no manifest. Leia o PNG por visão nativa (Read) pra derivar a estrutura. **EXCEÇÃO — challenge detectado:** se `raw/fallback.json` marcar `challenge_detected: true`, o screenshot é o interstitial do Cloudflare ("Just a moment…"/Turnstile) — NÃO leia por visão (derivaria estrutura de uma tela de bloqueio); vá DIRETO pro degrau 4.
+   - **Degrau 4 — MANUAL via extensão SingleFile (vence Cloudflare/login, 1 clique):** peça ao membro, com instrução mastigada:
+     > "Instala a extensão **SingleFile** no Chrome (https://chromewebstore.google.com/detail/singlefile/mpiodijhokgodhhofbcjdecpffjipkle), abre a página do concorrente normalmente no SEU Chrome (logado, sem tela de bloqueio), clica no ícone da extensão — ela salva a página inteira num único arquivo .html em Downloads. Me manda o caminho do arquivo (ou arrasta ele pro chat)."
+
+     Ingira o arquivo com o mesmo pipeline (não precisa de browser nem de Node):
+     ```bash
+     python3 tools/design-clone/aura_clone.py clone-and-adapt --from-file=<arquivo.html> --output=/tmp/clone-[produto]
+     ```
+     O browser real do membro é imune a anti-bot — esse degrau resolve o que os automáticos não conseguem. O .html salvo é material de trabalho (referência de concorrente): vive em `/tmp`/workspace, JAMAIS é commitado (rule 11).
 3. **Reconcilie com o plano da ETAPA 1.** O esqueleto do concorrente é referência de layout, mas a verdade estratégica é o seu `sections_plan` (que veio do awareness/sophistication do SEU produto). Onde o concorrente tem sections que o seu plano não pede (ex: gift-guide irrelevante), descarte. Onde o seu plano pede sections que o concorrente não tem (ex: `mechanism` porque você tem mecanismo único real), adicione. O layout do concorrente informa hierarquia e ritmo; o conteúdo e a seleção de sections são seus.
 4. **Gere `design/page.html`** aplicando: a estrutura reconciliada, a copy REAL de `06`, a oferta de `04`, os `design-signals` da ETAPA 2 (paleta/tipografia/radius/density). Uma única variação fiel ao layout-base é suficiente aqui (o membro já escolheu a referência); ofereça iterar se quiser ajustar densidade/paleta.
 
@@ -330,7 +357,7 @@ Só ofereça se as tools `mcp__aidesigner__*` existirem na sessão.
 
 ### 3.6 Rota 4 — frontend-design (fallback, qualidade menor)
 
-Use quando o membro não tem referência (sem URL de concorrente, sem canvas). Deixe explícito que é o fallback e a qualidade é a mais baixa das 4.
+Use quando o membro não tem referência (sem URL de concorrente, sem canvas). Deixe explícito que é o fallback e a qualidade é a mais baixa do menu (única rota gerada do zero, sem referência).
 
 **Invoque a skill `frontend-design` UMA vez** pra gerar a **PÁGINA INTEIRA** como HTML+CSS self-contained (vanilla, não Tailwind) — mas **NUNCA de tela em branco.** Sempre com direção forte:
 
@@ -339,6 +366,15 @@ Use quando o membro não tem referência (sem URL de concorrente, sem canvas). D
 - **(c)** **direção de design explícita**: estilo nomeado (ex: "minimalist editorial"), do/don't, e um anti-genérico (o que NÃO fazer pra não sair "cara de template AI").
 
 Demais inputs idênticos às outras rotas: a copy REAL de `06` já inserida (nada de lorem ipsum), a estrutura do `sections_plan` + `section_order` da ETAPA 1, `page_type` e `hero_type` respeitados. Gere **2-3 variações da PÁGINA INTEIRA** (não 4 só do hero) — tratamentos visuais diferentes do mesmo layout/sections (tipografia editorial vs utilitária, paleta warm vs cool, densidade alta vs respiro, hierarquia de proof diferente) num único HTML navegável com tabs/anchors pra alternar A / B / C. Salve em `design/page.html`.
+
+### 3.6b Rota 5 — AI site-builders (externa; consumo igual à rota 2)
+
+Só quando o membro mencionou que usa v0/Lovable/Manus. O design acontece no app externo; o lado da Aura é fornecer o material e consumir o HTML:
+
+1. Forneça ao membro o mesmo pacote da rota 2: `section_order` + `sections_plan` da ETAPA 1, eyebrows criativos, copy de `06` por section, e os `design-signals` da ETAPA 2 — pra ele não descrever a página no escuro.
+2. Quando ele trouxer o HTML exportado, siga o passo 3 da §3.4: leia o arquivo, normalize pro shape self-contained de `page.html`, confira que a copy real de `06` está dentro (não placeholder do gerador), injete os markers `data-aura-section` e salve como `design/page.html`.
+3. Lembre o membro do runtime: se o destino for o tema Shopify, a 07b compila esse HTML em Liquid normalmente; se ele preferir hospedar no runtime do gerador (landing externa), o deploy sai do fluxo 07b e o tracking (07c) precisa ser configurado lá.
+4. Registre `design_route: "site-builder"` no `page-plan.json` e siga pra 3.7.
 
 ---
 
@@ -365,12 +401,12 @@ Apresente como **draft navegável**, não como "pronto". Adapte a pergunta à ro
 **Este HTML é a FONTE ÚNICA DE VERDADE visual.** O membro aprova AQUI, antes de qualquer Liquid existir. Não avance pra 07b sem aprovação.
 
 - Cada iteração salva versão nova (`design/page-v2.html`, `-v3`), não sobrescreve. Log em `workspace/[produto]/07-page/iterations-log.json`.
-- Max 3 iterações sem progresso → escalate. Na rota 4, peça referência descritiva em vez de draft-reativo; nas rotas 1/2/3, ofereça trocar de rota (ex: "clone-and-adapt não está saindo bom — quer desenhar no canvas (rota 2) ou me dar outra referência?").
+- Max 3 iterações sem progresso → escalate. Na rota 4, peça referência descritiva em vez de draft-reativo; nas rotas 1/2/3/5, ofereça trocar de rota (ex: "clone-and-adapt não está saindo bom — quer desenhar no canvas (rota 2) ou me dar outra referência?"; na rota 5, iterar exige voltar ao gerador externo — se o loop ficar caro, ofereça migrar pra rota 1 ou 2).
 - Quando o membro aprova, consolide como `design/page.html` (versão canônica). Na rota 4, isso significa promover a variação escolhida (ou o mix) ao arquivo final; nas demais rotas, é o HTML aprovado da própria rota. Diga: "Salvando como `design/page.html` — fonte única de verdade. A 07b vai compilar exatamente isso em Liquid."
 
 ### Gerar `design-tokens.json` (programaticamente)
 
-Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não "extraídos do HTML por reasoning"). A 07b consome isto pra mapear cada token → CSS var + setting. `variant_chosen` registra a variação na rota 4 (A/B/C ou mix); nas rotas 1/2/3, use o nome da rota (ex: `"clone-and-adapt"`, `"claude-design"`, `"aidesigner"`):
+Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não "extraídos do HTML por reasoning"). A 07b consome isto pra mapear cada token → CSS var + setting. `variant_chosen` registra a variação na rota 4 (A/B/C ou mix); nas rotas 1/2/3/5, use o nome da rota (ex: `"clone-and-adapt"`, `"claude-design"`, `"aidesigner"`, `"site-builder"`):
 
 ```json
 {
@@ -400,13 +436,13 @@ Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não 
 }
 ```
 
-`spacing.base` é 4 ou 8 (base-4/8). `components_by_section` lista, por section, os block types que a 07b vai criar — cruza com `sections_plan` do `07-plan.json`.
+`spacing.base` é 4 ou 8 (base-4/8). `components_by_section` lista, por section, os block types que a 07b vai criar — cruza com `sections_plan` do `page-plan.json`.
 
 ---
 
-## ETAPA 4 — Persistir `07-plan.json` + relatórios + manifest
+## ETAPA 4 — Persistir `page-plan.json` + relatórios + manifest
 
-### 4.1 `07-plan.json` (com bloco `strategy` COMPLETO)
+### 4.1 `page-plan.json` (com bloco `strategy` COMPLETO)
 
 ```json
 {
@@ -432,15 +468,16 @@ Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não 
   "brand_discovery": {
     "style": "minimalist-editorial",
     "brand_colors": ["#...","#..."],
-    "signals_source": "refero | screenshot_vision | manual",
-    "reference": "Linear | print loja X | preset Atelier Document"
+    "signals_source": "refero | screenshot_vision | design_clone | manual",
+    "reference": "Linear | print loja X | hex de competitor.com | preset Atelier Document"
   },
-  "design_route": "clone-and-adapt | claude-design | aidesigner | frontend-design",
-  "design_route_ref": "URL do concorrente (clone-and-adapt) | path do export (claude-design) | null",
+  "design_route": "clone-and-adapt | claude-design | aidesigner | frontend-design | site-builder",
+  "design_route_ref": "URL do concorrente (clone-and-adapt) | path do export (claude-design/site-builder) | null",
+  "destination_ref": "SÓ quando page_type=advertorial: destino do soft CTA — handle/URL da pdp_lean gerada numa 2ª passada da cadeia, PDP existente trabalhada, ou checkout direto. null nos demais page_types",
   "design_signals_ref": "design-signals.json",
   "design_tokens_ref": "design-tokens.json",
   "design_html_ref": "design/page.html",
-  "design_system_ref": "07-design-system.md",
+  "design_system_ref": "design-system.md",
   "generated_at": "2026-...Z"
 }
 ```
@@ -450,9 +487,9 @@ Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não 
 
 ### 4.2 Relatórios (dual output — rule 6b)
 
-Salve `07-design-system.md` (paleta role-tagged, tipografia, spacing, radii, shadow, density, components por section — humanizado, no `report_language`) + o `.html` companion. O `.html` usa `.claude/templates/aura-report-template.html` (CSS inline, self-contained) e **abre com o bloco SVG da logo copiado LITERAL de `.claude/templates/aura-logo-snippet.html`** (rule 6b — NUNCA texto). Use componentes Aura (section-label, callout, note, kpi-grid, table-wrap). Responsivo mobile.
+Salve `design-system.md` (paleta role-tagged, tipografia, spacing, radii, shadow, density, components por section — humanizado, no `report_language`) + o `.html` companion. O `.html` usa `.claude/templates/aura-report-template.html` (CSS inline, self-contained) e **abre com o bloco SVG da logo copiado LITERAL de `.claude/templates/aura-logo-snippet.html`** (rule 6b — NUNCA texto). Use componentes Aura (section-label, callout, note, kpi-grid, table-wrap). Responsivo mobile.
 
-> Nota: `design/page.html` é a página do CONSUMIDOR (ícones SVG, sem emoji, sem logo Aura). Os relatórios internos (`07-design-system.html`) são documentos Aura (logo SVG Aura no topo, emojis OK). Não confunda os dois.
+> Nota: `design/page.html` é a página do CONSUMIDOR (ícones SVG, sem emoji, sem logo Aura). Os relatórios internos (`design-system.html`) são documentos Aura (logo SVG Aura no topo, emojis OK). Não confunda os dois.
 
 ### 4.3 Manifest
 
@@ -464,17 +501,17 @@ Atualize `workspace/[produto]/manifest.json` adicionando `07a-page-design` ao ar
 
 ## Mensagem final (framing de draft)
 
-> "Design da página pronto e aprovado por você (rota [escolhida], salvo em `design/page.html` — fonte única de verdade). Plano + strategy em `07-plan.json`, tokens em `design-tokens.json`.
+> "Design da página pronto e aprovado por você (rota [escolhida], salvo em `design/page.html` — fonte única de verdade). Plano + strategy em `page-plan.json`, tokens em `design-tokens.json`.
 > Próximo passo: rode **07b-page-build** (ou diga 'build page' / 'deploy'). Ela vai compilar esse HTML exato em sections Liquid editáveis, popular o template e subir no Shopify. Como o Liquid é gerado deterministicamente do HTML que você aprovou, o que você vê no theme editor vai ser pixel-idêntico ao que aprovou aqui."
 
 ---
 
 ## Self-audit silencioso (rule post-task-self-audit)
 
-Antes de declarar concluído, rode os 5 gates internos e corrija inline (sem mencionar): `mechanism_name` em `07-plan.json` bate LITERAL com `04-offer-builder/dados.json`; `page_type` é coerente com o awareness de `02`; eyebrows são criativos (não rótulos de framework); a copy inserida em `design/page.html` veio de `06` (não inventada); `design-tokens.json` e `design-signals.json` existem e parseiam; `section_order` e `sections_plan` consistentes entre si; `design_route` registrado no plan; markers `data-aura-section` presentes em todas as sections (qualquer rota, inclusive handoff do canvas e clone-and-adapt); regras de qualidade comuns da 3.7 passaram (SVG, ad-safe, contraste); logo SVG presente nos `.html` internos. **Se a rota foi clone-and-adapt: confirme que NENHUMA copy, imagem, logo, claim ou nome de marca do concorrente vazou pra `design/page.html` — só o esqueleto de layout.** Surface só o que exige decisão do membro (ex: conflito de nome de mecanismo entre 02 e 04, ou rota escolhida que ficou inviável a meio caminho).
+Antes de declarar concluído, rode os 5 gates internos e corrija inline (sem mencionar): `mechanism_name` em `page-plan.json` bate LITERAL com `04-offer-builder/dados.json`; `page_type` é coerente com o awareness de `02` e com o `lead_type` de `06`; se `page_type=advertorial`, `destination_ref` está definido (não null); eyebrows são criativos (não rótulos de framework); a copy inserida em `design/page.html` veio de `06` (não inventada); `design-tokens.json` e `design-signals.json` existem e parseiam; `section_order` e `sections_plan` consistentes entre si; `design_route` registrado no plan; markers `data-aura-section` presentes em todas as sections (qualquer rota, inclusive handoff do canvas e clone-and-adapt); regras de qualidade comuns da 3.7 passaram (SVG, ad-safe, contraste); logo SVG presente nos `.html` internos. **Se a rota foi clone-and-adapt: confirme que NENHUMA copy, imagem, logo, claim ou nome de marca do concorrente vazou pra `design/page.html` — só o esqueleto de layout.** Surface só o que exige decisão do membro (ex: conflito de nome de mecanismo entre 02 e 04, ou rota escolhida que ficou inviável a meio caminho).
 
 ## Referências cruzadas
 
 - **Próxima skill:** `07b-page-build` (compila `design/page.html` em Liquid + deploya)
 - **Conversor canônico (usado pela 07b):** `tools/design-clone/liquid-converter.py` (Modo C)
-- **Skill que audita o output:** `09-consistency-audit` (lê `07-plan.json` strategy + `design-tokens.json`)
+- **Skill que audita o output:** `09-consistency-audit` (lê `page-plan.json` strategy + `design-tokens.json`)

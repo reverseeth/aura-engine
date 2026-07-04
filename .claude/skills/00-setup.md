@@ -32,8 +32,9 @@ Se já existe profile (membro refazendo setup), pule a saudação e vá direto p
 Antes de prosseguir, valide:
 
 - [ ] `workspace/` existe e é gravável: `mkdir -p workspace && touch workspace/.aura-probe && rm workspace/.aura-probe` — se falhar (permissão), pare e dê a instrução de correção (sem permissão de escrita não há onde salvar nada).
-- [ ] MCP `aura` responde dentro de 10s (usar timeout explícito na chamada de teste) — se falhar, pare e mostre o comando de reconexão da ETAPA 2 (é a fonte de dados do sistema, não há fallback aqui).
 - [ ] Template HTML disponível em `.claude/templates/aura-report-template.html` — se ausente, NÃO pare: a Etapa 5 gera HTML mínimo inline com aviso.
+
+O MCP `aura` é testado UMA vez, na ETAPA 2 (com query real) — não duplique o teste aqui.
 
 > **report_language (rule 0 — INVIOLÁVEL):** esta skill é onde o `report_language` é DEFINIDO (ETAPA 2.6). A partir do momento em que o membro escolhe, TODA conversa e TODO output interno (.md/.html/.json descritivo) usam esse idioma; antes disso, default é `pt-BR`. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language. A escolha é gravada em `workspace/profile.md` E espelhada em `manifest.report_language`.
 
@@ -74,14 +75,23 @@ Para a dependência obrigatória:
 Também detecte ferramentas opcionais pra uso futuro, mostrando como "disponível" (não bloqueador):
 - FFmpeg: `ffmpeg -version 2>/dev/null | head -1` — paths comuns: `/opt/homebrew/bin/ffmpeg`, `/usr/local/bin/ffmpeg`, `/usr/bin/ffmpeg`. Install: `brew install ffmpeg` (Mac) ou `apt install ffmpeg` (Linux).
 - Whisper.cpp: verificar `~/whisper.cpp/main`, `/usr/local/bin/whisper-cli`, `/opt/homebrew/bin/whisper-cli`. Install: `brew install whisper-cpp` (Mac) ou `git clone https://github.com/ggerganov/whisper.cpp.git ~/whisper.cpp && cd ~/whisper.cpp && make`.
-- Python 3: `python3 --version` — necessário pra pipeline de design-clone (skill 07 modo B). Mac já vem com Python 3.
-- **Playwright + Chromium (RECOMENDADO — coleta resiliente de pesquisa):** o fetcher `.claude/lib/web-fetch/fetch.py` usa um navegador real pra contornar bloqueios (Cloudflare/403/429/Reddit) nas skills 02 (VOC), 03 (PDPs/ads) e no design-clone da 07. Como o python moderno é externally-managed (PEP 668), instale num venv:
+- **Groq API key (opcional — transcrição rápida):** cheque `[ -n "${GROQ_API_KEY:-}" ] && echo "disponível"`. Se o membro tiver uma key da Groq no ambiente, a skill 03 (competitor analysis, ETAPA 3C) transcreve os vídeos dos concorrentes via API (`whisper-large-v3-turbo`) — muito mais rápido que o Whisper local. A cascade de transcrição é: Groq API (se key) → Whisper local → pedir o transcript ao membro. Sem a key, nada quebra.
+- Python 3: `python3 --version` — necessário pra pipeline de design-clone (skill 07a — rotas clone-and-adapt e brand signals). Mac já vem com Python 3.
+- **single-file-cli (opcional — snapshot de página, via npm):** usado por `tools/design-clone/snapshot.py` (rota clone-and-adapt da skill 07a) pra capturar uma página de referência inteira num único arquivo HTML. Não precisa instalar globalmente — roda on-demand via npx. Teste rápido: `npx -y -p single-file-cli single-file --help >/dev/null 2>&1 && echo "disponível"`. Se npm/npx estiver ausente ou o download falhar, nada quebra: a 07a degrada graciosamente pros próximos degraus da cascade de captura (screenshot → arquivo salvo manualmente pela extensão SingleFile do Chrome).
+- **Playwright + Chromium (RECOMENDADO — coleta resiliente de pesquisa):** o fetcher `.claude/lib/web-fetch/fetch.py` usa um navegador real pra contornar bloqueios (Cloudflare/403/429/Reddit) nas skills 02 (VOC), 03 (PDPs/ads) e no design-clone da 07a. Como o python moderno é externally-managed (PEP 668), instale num venv:
   ```bash
   python3 -m venv .claude/lib/web-fetch/.venv
   .claude/lib/web-fetch/.venv/bin/pip install -r .claude/lib/web-fetch/requirements.txt
   .claude/lib/web-fetch/.venv/bin/playwright install chromium
   ```
   Se já existir `tools/design-clone/.venv` com Playwright, o fetcher reusa automaticamente — pode pular. Teste: `python3 .claude/lib/web-fetch/fetch.py https://example.com --json`. Sem isso, as skills 02/03 funcionam só com WebSearch/WebFetch (cobertura menor quando sites bloqueiam).
+- **Venv do design-clone (RECOMENDADO — rotas clone-and-adapt e brand signals da 07a):** os scripts de `tools/design-clone/` (downloader, analyzer, pattern-extractor, liquid-converter) precisam de Playwright/bs4 num venv PRÓPRIO (mesma razão PEP 668). Crie logo após o venv do fetcher:
+  ```bash
+  python3 -m venv tools/design-clone/.venv
+  tools/design-clone/.venv/bin/pip install -r tools/design-clone/requirements.txt
+  tools/design-clone/.venv/bin/playwright install chromium
+  ```
+  O download do Chromium é compartilhado entre venvs (cache do Playwright em `~/Library/Caches/ms-playwright`) — se o passo anterior já baixou, este comando só registra e não baixa de novo. Todos os entry-points do design-clone fazem bootstrap re-exec automático (mesmo padrão do fetch.py): com o venv existindo, `python3 tools/design-clone/aura_clone.py ...` direto funciona. Se a criação falhar (sem rede, pip bloqueado), NÃO bloqueie o setup: avise que as rotas clone-and-adapt/brand-signals da 07a vão degradar pros degraus seguintes da cascade (single-file-cli → screenshot→visão → extensão SingleFile manual) e siga.
 
 NÃO prossiga enquanto o Node não estiver OK. As opcionais ficam como aviso — mas instalar o Playwright cedo melhora MUITO a qualidade de market research/competitor analysis (sem ele, Reddit/Trustpilot/Amazon/Cloudflare bloqueiam). Detalhes em `.claude/rules/resilient-fetch.md`.
 
@@ -93,12 +103,12 @@ O sistema depende do MCP `aura` pra acessar a base de conhecimento. Teste com um
 search_knowledge("market sophistication stages")
 ```
 
-Verifique que a resposta retorna conteúdo real (não vazio, não erro). Se funcionar, mostre ✅ "Aura conectada (XX notas disponíveis)". Se não:
+Verifique que a resposta retorna conteúdo real (não vazio, não erro). Se funcionar, mostre ✅ "Aura conectada e respondendo." (sem inventar números — a tool não retorna contagem de conteúdo). Se não:
 
-"Rode no terminal, FORA do Claude Code:
+"Rode no terminal, FORA do Claude Code (troque `SUA_CHAVE` pela chave de acesso que veio com o seu acesso Aura; se você não recebeu chave, use a URL sem o `?key=`):
 
 ```
-claude mcp add aura --transport http https://aura-mcp-production.up.railway.app/mcp
+claude mcp add aura --transport http "https://aura-mcp-production.up.railway.app/mcp?key=SUA_CHAVE"
 ```
 
 Depois reinicie o Claude Code e digite 'setup' novamente."
@@ -111,7 +121,7 @@ O alias `aura` (`cd ~/aura-engine && claude`) é criado automaticamente pelo hoo
 
 > "Atalho criado. Da próxima vez, basta abrir o Terminal e digitar: **aura**"
 
-Se o shell do membro não for zsh nem bash (ex: fish, nushell), o hook pula silenciosamente — nesse caso não mostre a mensagem acima.
+O hook cobre zsh, bash e fish (cada um recebe o alias no arquivo de config certo). Só oculte a mensagem acima se o shell do membro não for nenhum desses (ex: nushell) — nesse caso o hook pula silenciosamente.
 
 ### ETAPA 2.6 — Idioma dos Relatórios (PERGUNTA 1, ANTES DE QUALQUER OUTRA)
 
@@ -177,7 +187,7 @@ Formato da mensagem a enviar:
 >
 > **2. Budget diário pra ads** (em dólares — ex: `100`)
 >
-> **3. Ferramentas que você tem acesso** (marca as que se aplicam): SpyBox · Shopify · ElevenLabs · Meta Ads Manager
+> **3. Ferramentas que você tem acesso** (marca as que se aplicam): SpyBox/Kalodata · Shopify · ElevenLabs · Meta Ads Manager
 >
 > **3b. Plataforma de email (ESP)** que você usa — escolha uma:
 > - A) Klaviyo
@@ -190,18 +200,18 @@ Formato da mensagem a enviar:
 Depois que o membro responder, parseie a resposta e extraia:
 - `SITUACAO` → A, B, C ou D
 - `BUDGET` → número em dólares
-- `TOOLS` → lista das ferramentas mencionadas (SpyBox, Shopify, ElevenLabs, Meta Ads Manager)
-- `ESP` → plataforma de email escolhida na 3b: `klaviyo` (A), `omnisend` / `mailerlite` / `shopify-email` conforme o que o membro citar (B), ou `none` (C)
+- `TOOLS` → lista das ferramentas mencionadas (SpyBox/Kalodata, Shopify, ElevenLabs, Meta Ads Manager)
+- `ESP` → plataforma de email escolhida na 3b: `klaviyo` (A), `omnisend` / `mailerlite` / `shopify_email` conforme o que o membro citar (B), ou `none` (C) — tokens EXATOS do enum do manifest-schema (`shopify_email` com underscore, nunca hífen)
 - `LINK` → URL do produto principal (se SITUACAO ≠ A)
 - `SHOPIFY_LINK` → URL da loja Shopify (se TOOLS contém Shopify)
 
 Se o membro esquecer alguma resposta essencial, pergunte APENAS o que faltou — não re-apresente tudo.
 
-Classifique o budget internamente pra uso futuro (não mostre ao membro):
+Classifique o budget internamente pra uso futuro (não mostre ao membro). Intervalos fechados, sem sobreposição:
 - < $50/dia → starter
-- $50-200/dia → standard
-- $200-1000/dia → escala-inicial
-- $1000+/dia → escala-avançada
+- $50-199/dia → standard
+- $200-999/dia → escala-inicial
+- ≥ $1000/dia → escala-avançada
 
 Capture TODAS as respostas (`SITUACAO`, `BUDGET`, `TOOLS`, `ESP`, `LINK`, `SHOPIFY_LINK`) pra usar na Etapa 4 (auto-extração) e Etapa 5 (salvar profile).
 
@@ -221,7 +231,7 @@ SE o membro forneceu link do produto, faça **web fetch da página** automaticam
 - **Cores dominantes** — extraia os hex principais (background, texto, accent/CTA) do CSS ou do computed style da página (`:root` custom properties, classes de botão/header). Capture 3-5 hex.
 - **Font-families** — extraia as `font-family` declaradas (heading e body) do CSS/`@font-face` ou computed style.
 
-Se a página estiver bloqueada (Cloudflare, login wall), documente "não acessível" sem falhar. O importante é capturar o que consegue. Cores/fontes que não der pra extrair ficam como `[preencher]` na ETAPA 5A.
+**Cascade de coleta (rule `.claude/rules/resilient-fetch.md`):** tente `WebFetch` primeiro. Se barrar (Cloudflare, 403, login wall) OU se precisar do CSS cru (o WebFetch devolve markdown, sem `<style>`/classes — inviável pra extrair cores/fontes), use o fetcher Playwright instalado na ETAPA 1: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode html` (devolve o HTML renderizado com CSS). Só depois desses dois degraus documente "não acessível" sem falhar. O importante é capturar o que consegue. Cores/fontes que não der pra extrair ficam como `[preencher]` na ETAPA 5A.
 
 Salve tudo no profile pra servir de referência em TODAS as skills seguintes — nunca mais perguntamos essas informações ao membro.
 
@@ -249,11 +259,11 @@ Budget diário: $[X]
 Data do setup: [YYYY-MM-DD]
 
 ## Ferramentas
-- SpyBox: [sim/não]
+- SpyBox/Kalodata: [sim/não]
 - Shopify: [sim + link / não]
 - ElevenLabs: [sim/não]
 - Meta Ads Manager: [sim + conta ativa / não]
-- ESP (plataforma de email): [klaviyo / omnisend / mailerlite / shopify-email / none]
+- ESP (plataforma de email): [klaviyo / omnisend / mailerlite / shopify_email / none]
 
 ## Produto (se aplicável)
 Link da loja: [url ou "N/A"]
@@ -285,7 +295,7 @@ Fields que NÃO conseguiu extrair (página bloqueada, hex/fontes não detectados
 
 > "Criei `workspace/[produto]/brand.md` com o que consegui extrair da sua loja. Abre e completa o que ficou como `[preencher]` antes de rodar `page` — isso é single-source-of-truth pra identidade visual e editorial."
 
-Se SITUACAO = A (sem produto ainda), pule essa etapa. `brand.md` é criado depois que o produto é definido na Skill 01.
+Se SITUACAO = A (sem produto ainda), pule essa etapa. A Skill 01 cria o `brand.md` do produto vencedor na etapa SALVAR dela (com os fields visuais como `[preencher]`, já que ainda não existe loja pra extrair). A skill 07a (page design) lê esse arquivo na brand discovery e só pergunta o que faltar.
 
 > **Escape (ES1):** se `.claude/templates/brand.md.template` estiver ausente, não aborte — ofereça **(A)** gerar um `brand.md` mínimo inline com os fields auto-extraídos e o resto como `[preencher]`, OU **(B)** pular a criação do brand.md agora marcando `manifest.skipped_preflight += ["brand.md.template"]` e avisando que recomenda re-executar antes de `page`.
 
@@ -299,13 +309,14 @@ Paralelamente ao `profile.md`, crie o arquivo `workspace/[produto]/manifest.json
 - `store_url` — URL da loja Shopify (de `SHOPIFY_LINK`), se o membro deu o link.
 - `created_at` / `updated_at` — timestamps ISO-8601 UTC (mesmo valor inicial).
 - `setup_complete: true`.
-- `budget_tier` — mapeie de `BUDGET` (starter / standard / escala-inicial / escala-avancada). Campo ECONÔMICO, separado de `stage`.
+- `budget_daily` — o valor NUMÉRICO de `BUDGET` em dólares/dia (ex: `80`). É o campo canônico de budget que as skills leem (member-stage-awareness usa `budget_daily < 50` como sinal de stage; a 07c usa na decision tree do analytics stack) — grave sempre.
+- `budget_tier` — mapeie de `BUDGET` (starter / standard / escala-inicial / escala-avancada). Campo ECONÔMICO derivado de `budget_daily`, separado de `stage`.
 - `stage` — mapeie da `SITUACAO`: A/B → `starter`, C → `validating`, D → `scaling`.
 - `market` — default `"US"`.
 - `copy_language` — default `"en"` (copy consumidor-final é sempre inglês US).
 - `report_language` — valor capturado em `REPORT_LANGUAGE` na ETAPA 2.6 (`pt-BR` ou `en`), espelhando o `profile.md`.
-- `esp` — valor de `ESP` (`klaviyo` / `omnisend` / `mailerlite` / `shopify-email` / `none`).
-- `product_vertical` — infira do nome/descrição auto-extraídos na ETAPA 4 (ex: `skincare`, `supplement`, `fitness`, `home`, `pet`, `apparel`). Se ambíguo, pergunte em 1 linha; default `"other"`.
+- `esp` — valor de `ESP` (`klaviyo` / `omnisend` / `mailerlite` / `shopify_email` / `none` — enum exato do manifest-schema).
+- `product_vertical` — infira do nome/descrição auto-extraídos na ETAPA 4, usando EXCLUSIVAMENTE o enum do manifest-schema.json: `beauty` / `skincare` / `supplements` / `health` / `fitness` / `fashion` / `home` / `pet` / `food` / `financial` / `tech` / `education` / `other`. Se ambíguo, pergunte em 1 linha; default `"other"`.
 - `skills_completed: ["00-setup"]`.
 
 **Se SITUACAO = C ou D (já vende):** faça 2 perguntas opcionais rápidas (1 mensagem só) e grave o que vier:
@@ -326,6 +337,7 @@ Exemplo:
   "created_at": "2026-04-16T13:00:00Z",
   "updated_at": "2026-04-16T13:00:00Z",
   "setup_complete": true,
+  "budget_daily": 80,
   "budget_tier": "standard",
   "stage": "validating",
   "market": "US",
@@ -374,7 +386,7 @@ Próximo passo: **'scale'**. Monto um plano baseado nos seus números — PGS pr
 Depois da mensagem específica, adicione SEMPRE:
 
 "Você pode dizer o nome de qualquer fase a qualquer momento:
-`product research` · `market research` · `competitor analysis` · `offer` · `bonus delivery` · `copy` · `page` · `creatives` · `consistency audit` (ou `audit`) · `ad strategy` · `ad analysis` · `scale` · `retention` (ou `email flows` / `klaviyo`) · `content recycler` (ou `recycle`)
+`product research` · `market research` · `competitor analysis` · `offer` · `bonus delivery` · `copy` · `page` · `build page` (ou `deploy`) · `tracking` (ou `pixel` / `capi`) · `checkout` (ou `upsell` / `aov`) · `creatives` · `agentic readiness` (ou `ai visibility`) · `consistency audit` (ou `audit`) · `ad strategy` · `ad analysis` · `scale` · `retention` (ou `email flows` / `klaviyo`) · `content recycler` (ou `recycle`)
 
 Cada fase lê o que as anteriores produziram em workspace/[produto]/ — você nunca precisa repetir informação.
 
@@ -392,7 +404,7 @@ Salve em QUATRO arquivos:
 3. **`workspace/[produto]/manifest.json`** (Etapa 5B — fonte única de verdade para todas as próximas skills)
 4. **`workspace/[produto]/brand.md`** (Etapa 5A — apenas se SITUACAO ≠ A; copiado de `.claude/templates/brand.md.template` com fields auto-extraídos preenchidos)
 
-**Validação do template HTML**: antes de escrever `profile.html`, confirme que `.claude/templates/aura-report-template.html` existe (`test -f`). Se NÃO existir, gere um HTML mínimo inline com CSS básico, um cabeçalho textual "Aura Engine — Profile" e um aviso no topo: `<!-- WARNING: template .claude/templates/aura-report-template.html missing; fallback HTML in use -->`. Nunca aborte por template ausente.
+**Validação do template HTML**: antes de escrever `profile.html`, confirme que `.claude/templates/aura-report-template.html` existe (`test -f`). Se NÃO existir, gere um HTML mínimo inline com CSS básico e a logo SVG copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` (arquivo independente do template — pode existir mesmo com o template ausente) + o CSS mínimo da logo (`.logo-wrap { margin-bottom: 30px; } .logo-wrap svg { height: 28px; width: auto; }`), e um aviso no topo: `<!-- WARNING: template .claude/templates/aura-report-template.html missing; fallback HTML in use -->`. Só se o snippet da logo TAMBÉM estiver ausente, PARE e peça ajuda ao membro (regra 6b do CLAUDE.md — nunca cabeçalho textual no lugar da logo). Template ausente sozinho nunca aborta o setup.
 
 Se o membro já tinha um profile anterior e está refazendo, faça backup em `workspace/.profile-backup-[YYYYMMDD-HHMMSS].md` e do manifest em `workspace/[produto]/.manifest-backup-[YYYYMMDD-HHMMSS].json` antes de sobrescrever.
 

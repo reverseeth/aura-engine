@@ -1,23 +1,26 @@
 # Aura KB Index — mapa completo da base de conhecimento
 
-Catálogo de **541 frameworks/sistemas nomeados** da base Aura, por domínio, com a query exata pra puxar cada um e a skill que deve usar. Gerado 2026-06-20 a partir de análise completa da base (14 domínios).
+Catálogo de **541 entradas de frameworks/sistemas nomeados** da base Aura (~520 sistemas únicos — um mesmo framework aparece em mais de um domínio quando serve a skills diferentes), por domínio, com a query exata pra puxar cada um e a skill que deve usar. Gerado 2026-06-20 a partir de análise completa da base (14 domínios).
 
 ## Como as skills usam este índice (REGRA)
 
 Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "offer"). Em cada ETAPA relevante, ela abre a seção deste índice correspondente ao seu domínio, e roda `search_knowledge` com a `best_query` dos 3-6 frameworks NOMEADOS relevantes pra aquela fase — trazendo os **sistemas completos** (ex: as 35 fórmulas de Caples, não "fórmulas de headline"). O catálogo completo, legível por máquina, está em `frameworks.json`.
 
+**Não repita busca de framework já puxado na mesma sessão:** as entradas duplicadas entre domínios (ex: Hormozi Value Equation, LF8) apontam pro MESMO conteúdo da base — se a skill já rodou a query daquele sistema nesta sessão, reuse o resultado em vez de buscar de novo.
+
 ## Mapa skill → domínios deste índice
 
 | Skill | Domínios a consultar |
 |---|---|
+| 00 | pontual: brand-building-bonus-aov (member stage), market-research-voc (brand voice) |
 | 01 | product-research |
 | 02 | market-research-voc, persuasion-psychology |
 | 03 | competitor-positioning |
 | 04 | offer-mechanism, offer-pricing-guarantee, brand-building-bonus-aov |
 | 05 | brand-building-bonus-aov |
 | 06 | copy-headlines-leads, copy-proof-persuasion-structure, persuasion-psychology |
-| 07a/07b | page-landing-cro |
-| 07d | brand-building-bonus-aov, offer-pricing-guarantee |
+| 07a | page-landing-cro |
+| 07d | page-landing-cro (checkout / AOV / profit), brand-building-bonus-aov, offer-pricing-guarantee |
 | 08 | creatives-hooks-formats, persuasion-psychology |
 | 09 | copy-proof-persuasion-structure, page-landing-cro |
 | 10 | meta-ads-strategy, persuasion-psychology |
@@ -25,6 +28,8 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
 | 12 | scaling |
 | 13 | retention-email, persuasion-psychology |
 | 14 | creatives-hooks-formats, page-landing-cro |
+
+Este mapa é a **fonte de verdade** skill→domínio; o header de cada seção abaixo lista as consumidoras principais. As skills **07b** (compile determinístico HTML→Liquid — toda decisão de conteúdo/design nasce na 07a), **07c** (tracking/pixel) e **07e** (agentic-readiness — não existe domínio de AEO na base; as fontes dela são docs oficiais + verificação na loja viva) não consultam este índice.
 
 
 ## Product Research  ·  skill 01  ·  (29 frameworks)
@@ -100,7 +105,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - Unaware → Problem Aware → Solution Aware → Product Aware → Most Aware; measures how much the prospect knows about how your product satisfies his desire, and dictates headline, copy length and education depth.
 - **Awareness Stage Headline Strategy (5 stages + 7 superiority tasks)** _— Eugene Schwartz, Breakthrough Advertising (Ch. 2)_ · `Schwartz awareness stage headline strategy seven tasks superiority approaches`
   - Each awareness stage has a distinct headline approach (Most Aware = product+price; Stage 2 'knows product not yet wanting' = 7 superiority tasks; down to identification for unaware); a headline that works at one stage fails at another.
-- **Awareness TAM Distribution (1/13.5/60/99% pyramid)** _— Schwartz framework as applied in DR market research_ · `awareness levels percentage TAM distribution problem aware unaware easiest convert`
+- **Awareness TAM Distribution (awareness pyramid)** _— Schwartz framework as applied in DR market research_ · `awareness levels percentage TAM distribution problem aware unaware easiest convert`
   - Most Aware ~1%, Product Aware ~10-15%, Solution Aware ~15-20%, Problem Aware 30-40%, Unaware 30-40% of TAM; 70-80% of most markets sit in problem-aware/unaware, the largest growth pool but costliest to convert.
 - **Eugene Schwartz — 5 Stages of Market Sophistication** _— Eugene Schwartz, Breakthrough Advertising (Ch. 3)_ · `market sophistication five stages Schwartz mechanism claim escalation jaded market`
   - First-to-market → enlarge the claim → New Mechanism → mechanism elaboration → exhausted/identification; measures how many competing claims the market has heard and how skeptical it is (distinct from awareness).
@@ -126,7 +131,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - Six fundamental motives of human action: Love, Gain, Duty, Pride, Self-indulgence, Self-preservation; one motive rarely compels alone — reinforce the primary with touches of others.
 - **Bencivenga — Pre-Existing Motivation Principle** _— Gary Bencivenga_ · `Bencivenga pre-existing motivation principle already motivated minority`
   - You cannot create motivation; find what people already want and show your product helps them get it — write only to the already-motivated minority and let them sell themselves.
-- **Psychographic Research — Decision Drivers (RMBC R-stage questions)** _— Stefan Georgi (RMBC method) — the Research phase_ · `psychographic research decision drivers struggles pain points beliefs RMBC research questions`
+- **Psychographic Research — Decision Drivers (RMBC R-stage questions)** _— Stefan Georgi (RMBC method) — the Research phase (internal; do not surface)_ · `psychographic research decision drivers struggles pain points beliefs RMBC research questions`
   - Structured questions exploring pain points, hopes/dreams, beliefs, prejudices and perceived barriers to systematically build a psychological profile of the market; pioneered as the R in RMBC.
 - **Prejudices & Core Beliefs (Institutional / Age / Product biases)** _— psychographic research methodology (DR tradition)_ · `market prejudices core beliefs institutional bias age bias product bias worldview`
   - Map the market's biases (big-pharma distrust, age-related, natural-vs-synthetic) and core beliefs about life/success/family to position the product within their worldview and earn trust.
@@ -156,7 +161,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - Demographics alienate and are weak starting points (a 22yo and 45yo share the same desire); start from a shared desire because desires drive purchase behavior and create the group label — avoid combining more than one desire per avatar.
 - **Surface Desire vs Core Desire** _— avatar-building methodology (Schwartz desire theory)_ · `surface level desire vs core desire why behind the desire avatar building`
   - Build avatars on surface-level desires ('I want better sleep') for specificity, but dig in research for the underlying core desire (the why) to guide messaging and sub-avatar creation.
-- **Unified Research Document (Processo Completo)** _— Stefan Georgi RMBC lineage; DR research-consolidation practice_ · `unified research document process demographics psychographics promises objections language`
+- **Unified Research Document (Processo Completo)** _— Stefan Georgi RMBC lineage; DR research-consolidation practice (internal; do not surface)_ · `unified research document process demographics psychographics promises objections language`
   - Consolidates product/market awareness + competitor research + psychographic research into one brief (demographics, psychographics, language to use/avoid, promises, objections, existing solutions) to feed LLMs consistent context for all copy.
 - **RMBC Method (Research, Mechanism, Brief, Copy)** _— Stefan Georgi_ · `RMBC method research mechanism brief copy Stefan Georgi pipeline`
   - Four-stage copy production pipeline — Research the market, identify the Mechanism, write the Brief, then the Copy; the R-stage psychographic questions and the brief structure underpin DR offer and copy creation.
@@ -164,9 +169,9 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - Run separate deep-research sessions across multiple AIs (Gemini, ChatGPT, Perplexity), save each output, then use a generic 'quad prompt' in Claude to synthesize them into one unified psychographic profile.
 - **Deep Research AI Prompt (Awareness assessment)** _— AI-assisted market-awareness research (Schwartz-based prompt)_ · `deep research AI prompt market awareness TAM distribution Schwartz levels geography`
   - Structured prompt fed to deep-research AIs to estimate TAM, the % distribution of TAM across the 5 Schwartz awareness levels, and a final pick of the dominant stage — using social chatter, search trends, articles and sales data.
-- **Reconnaissance Engine (competitive research via social)** _— Disrupter Academy market-research process_ · `reconnaissance engine competitive research social algorithm training competitor transcription`
+- **Reconnaissance Engine (competitive research via social)** _— Disrupter Academy market-research process (internal; do not surface)_ · `reconnaissance engine competitive research social algorithm training competitor transcription`
   - Build an always-on competitive intelligence feed: follow/transcribe competitor content, join their email lists, train your social algorithm to serve market content, and stockpile screenshots/videos.
-- **Consumer Insights Database (where + what + how to mine)** _— Disrupter Academy market-research process_ · `consumer insights database mine reviews reddit tiktok ad comments fears desires motivations`
+- **Consumer Insights Database (where + what + how to mine)** _— Disrupter Academy market-research process (internal; do not surface)_ · `consumer insights database mine reviews reddit tiktok ad comments fears desires motivations`
   - Mine reviews, Amazon, Reddit (10+ comment threads), TikTok, ad comments and Q&A for patterns in Language, Fears, Desires, Motivations; organize into tabbed sheets by source to feed copy/ad tools.
 - **Says-vs-Does (Trust Behavior, Not Surveys)** _— Drayton Bird / Claude Hopkins DR tradition (cited as principle)_ · `says vs does trust purchasing behavior not surveys beer survey national enquirer right answer bias`
   - Base decisions on what people actually BUY, not what they SAY in surveys/focus groups (beer survey, National Enquirer); stated preferences carry a 'right answer' bias that misleads.
@@ -217,9 +222,9 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - In sophisticated markets (stages 3-5) simple claims fail; break resistance with a New Mechanism (new HOW/hope), New Information (reframe the problem / why past solutions failed), or New Identity (what using the product says about you).
 - **Competitor Research Process (Extracting Claims)** _— Direct response course methodology (Hopkins/Reeves applied)_ · `competitor research process extracting claims messaging hooks customer feedback differentiation`
   - Define research parameters (product, geography, competitor type), identify key competitors, analyze messaging/hooks/big ideas, evaluate customer feedback to find differentiation opportunities, compiled into a research doc for copy.
-- **Reconnaissance Engine (Competitive Research via Social)** _— Disrupter Academy (5-step research process)_ · `reconnaissance engine competitive research via social Instagram transcribe competitor videos algorithm`
+- **Reconnaissance Engine (Competitive Research via Social)** _— Disrupter Academy (5-step research process) (internal; do not surface)_ · `reconnaissance engine competitive research via social Instagram transcribe competitor videos algorithm`
   - Always-on competitive intel: become competitors' ideal customer (follow 3+ on IG/TikTok/YouTube, engage, join email lists) so the algorithm serves market content; screenshot, download and transcribe competitor videos (SnapInsta + Descript).
-- **Consumer Insights Database (3-source lift)** _— Disrupter Academy (research process step 2)_ · `consumer insights database review mining Reddit Amazon ad comments three source lift customer language`
+- **Consumer Insights Database (3-source lift)** _— Disrupter Academy (research process step 2) (internal; do not surface)_ · `consumer insights database review mining Reddit Amazon ad comments three source lift customer language`
   - Mine customer language/fears/desires from competitor reviews, Amazon, Reddit (10+ comment threads), TikTok honest-reviews, ad comments, Q&A; 3+ sources per category produces far more accurate customer profiles for copy.
 - **Cloaker Breaking / Competitive Espionage** _— Direct response course methodology (advanced competitive intel)_ · `cloaker breaking competitive espionage hidden funnels what is scaling access competitor offer`
   - Techniques to access competitor funnels hidden by cloakers; the goal is not to clone offers but to understand what is actually scaling behind the curtain to make better briefing decisions.
@@ -327,7 +332,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
 - **Brief 2.0 / Mechanism Brief** _— Applied AI brief generator_ · `brief unique mechanism nickname new claim root cause ingredients`
   - Brief capturing new claim and root cause, mechanism nickname, ingredient studies, bold claims; LLM-ready.
 
-## Offer — Pricing & Guarantee  ·  skill 04  ·  (54 frameworks)
+## Offer — Pricing & Guarantee  ·  skill 04·07d  ·  (54 frameworks)
 
 - **Hormozi Value Equation** _— Alex Hormozi, $100M Offers_ · `Hormozi value equation dream outcome perceived likelihood time delay effort sacrifice`
   - Value = (Dream Outcome x Perceived Likelihood) / (Time Delay x Effort & Sacrifice) — four levers to maximize perceived value.
@@ -403,9 +408,9 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - Front-end revenue covers acquisition cost so backend is pure profit; business grows for free.
 - **Drayton Bird Magic Number (Allowable CAC)** _— Drayton Bird, Commonsense Direct and Digital Marketing_ · `Drayton Bird magic number allowable cost per customer lifetime value`
   - Max allowable acquisition cost from LTV and target margin; the number that liberates ad spend.
-- **Profitable Scaling Margin (PSM)** _— Disrupter Academy (taught framework)_ · `Profitable Scaling Margin PSM LTV CPA COGS replaces ROAS golden ratio growth`
+- **Profitable Scaling Margin (PSM)** _— Disrupter Academy (taught framework) (internal; do not surface)_ · `Profitable Scaling Margin PSM LTV CPA COGS replaces ROAS golden ratio growth`
   - PSM = LTV / (CPA + COGS); replaces ROAS/MER because it includes COGS, LTV and repeat-purchase cash flow.
-- **Unit Economics Hierarchy (CPA vs CAC, GPT)** _— Disrupter Academy (taught)_ · `unit economics CPA vs CAC blended CPA GPT net profit hero offer`
+- **Unit Economics Hierarchy (CPA vs CAC, GPT)** _— Disrupter Academy (taught) (internal; do not surface)_ · `unit economics CPA vs CAC blended CPA GPT net profit hero offer`
   - Profit stack distinguishing CPA (per transaction) from CAC (per new customer), plus blended CPA, GPT, net profit.
 - **Offer Economics Go-Negative / Maximize-What Model** _— Taught framework (peptide/GLP-1 CMO case)_ · `offer economics going negative acquire customers LTV rebills maximize net profit goal`
   - Choose goal (max net profit/revenue/new customers/lifestyle) then decide whether to go negative on day-0 GM for LTV.
@@ -530,9 +535,9 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - PASO (Problem-Agitation-Solution-Outcome) and the Desire-Obstacle-Solution alternative when PAS doesn't fit; expanded PAS = Problem-Agitation-Solution-Introducing-Why-Try-Buy for sales pages.
 - **AIDA in Funnels** _— Knowledge base (DTC overview, classic DR)_ · `AIDA framework in funnels attention interest desire action layered`
   - Attention-Interest-Desire-Action mapped across the funnel; layered over the points your letter-writing exercise told you to make.
-- **RMBC System (Research, Mechanism, Brief, Copy)** _— Knowledge base (Stefan Georgi RMBC, named in KB)_ · `RMBC research mechanism brief copy system process Georgi`
+- **RMBC System (Research, Mechanism, Brief, Copy)** _— Knowledge base (Stefan Georgi RMBC, named in KB) (internal; do not surface)_ · `RMBC research mechanism brief copy system process Georgi`
   - Central 2025 copy-creation system: Research (unified doc) > Mechanism (UMP/UMS evaluation) > Brief (Claude-assisted) > Copy; brief quality determines output quality, works for VSL/long/medium/short/PDP/advertorial.
-- **Unique Mechanism Theory (UMP + UMS)** _— Knowledge base (RMBC), Reeves USP lineage_ · `unique mechanism UMP UMS problem solution knowledge gap direct response`
+- **Unique Mechanism Theory (UMP + UMS)** _— Knowledge base (RMBC), Reeves USP lineage (internal; do not surface)_ · `unique mechanism UMP UMS problem solution knowledge gap direct response`
   - Two-part logical connection: Unique Mechanism behind the Problem (why past solutions failed) + behind the Solution (the missing crucial piece); core of sophisticated-market copy.
 - **Four U's (Unique, Useful, Urgent, Ultra-specific)** _— Attributed in KB to Caples' priority order (hook/headline application)_ · `Four U's unique useful urgent ultra-specific hook headline hierarchy`
   - Headline/hook evaluation hierarchy ranking Unique (most important, must be present) > Useful > Urgent > Ultra-specific.
@@ -551,7 +556,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
 - **Storytelling in Copy (Background / Emotional / Discovery Stories + Story Spine)** _— Knowledge base (descends from Ken Adams Story Spine / hero's journey)_ · `storytelling copy background emotional discovery story spine once upon a time hero journey`
   - Three copy story types (Background, Emotional, Discovery) matched to Guru vs Transformed-Avatar spokesperson; Story Spine ('Once upon a time... but one day... because of that... until finally') as the underlying structure.
 
-## Copy — Proof & Structure  ·  skill 06  ·  (56 frameworks)
+## Copy — Proof & Structure  ·  skill 06·09  ·  (56 frameworks)
 
 - **Hopkins' Specificity Principle (Reason-Why)** _— Claude Hopkins — Scientific Advertising_ · `Hopkins specificity principle reason-why platitudes generalities specific claims transformation`
   - Specific numerical claims carry full weight; generalities carry zero ('more light' vs 'three and one-third times the light'). Every claim needs a reason-why.
@@ -659,14 +664,14 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - Logical ladder (Frustration, Cause, Function, Solution, Hope, Purchase) making the buy the only rational conclusion; each point is a stacked belief.
 - **Neck-Brace / Head-Nod Agreement Moments** _— Aura methodology (offer/sales-page)_ · `neck brace head nod agreement moments confirm struggle skepticism before the ask validate`
   - Seed agreement throughout: confirm the prospect's struggle, why solving matters, and especially their rightful skepticism, 'you really get me' head-nods before the ask.
-- **Pain-to-Hope CTA Transition + CTA Style Matrix** _— Aura methodology (ecom masterclass)_ · `pain to hope CTA transition style matrix emotional trigger solution-aware avoidance call to value`
+- **Pain-to-Hope CTA Transition + CTA Style Matrix** _— Aura methodology (ecom masterclass) (internal; do not surface)_ · `pain to hope CTA transition style matrix emotional trigger solution-aware avoidance call to value`
   - At the CTA transition from pain to possibility; solution-aware audiences avoid pain-based CTAs. Match CTA tone to the emotional trigger the copy built.
 - **Kennedy's 'No' Button as Conversion Tool** _— Dan Kennedy — No BS Direct Marketing_ · `Kennedy no button conscious rejection restate forfeited benefit no thanks I don't want`
   - A 'No' option restating the forfeited benefit ('No thanks, I don't want to save $500') forces conscious rejection, often reversing the decision.
 - **Reeves' USP + Burning Glass + Vampire Claims** _— Rosser Reeves — Reality in Advertising_ · `Reeves USP burning glass vampire claims mosaic structure single proposition unrelated claims`
   - One dominant proposition; multiple claims allowed only if each supports the single USP (belief-stacking origin). Vampire claims/video are beautiful-but-unrelated elements that drain selling power.
 
-## Page / Landing / CRO  ·  skill 07a/07b  ·  (33 frameworks)
+## Page / Landing / CRO  ·  skill 07a·07d·09·14  ·  (33 frameworks)
 
 - **Empathy-Trust-Offer (3 Pillars of Landing Pages)** _— Aura KB (synthesized direct-response method)_ · `landing pages that convert empathy trust offer three pillars`
   - Every high-converting landing page rests on 3 pillars: Empathy (deep customer understanding), Trust (testimonials/guarantees/endorsements), Offer; diagnose the weakest pillar and conversion rises.
@@ -684,7 +689,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - Hero/above-fold must have: (1) an offer above the fold, (2) obvious direct + transitional CTAs, (3) images of success, (4) a revenue/transformation breakdown, (5) very few words.
 - **Long-Form Sales Page (15-Point Themeplate / Sales Page in a Day)** _— Aura KB (10x Sales Pages method)_ · `long-form sales page 15-point themeplate establish explore invite escape gap`
   - 15-section themeplate (not template) across 4 workshops: establish the gap, explore the gap (install beliefs), invite out of the gap (product reveal), escape the gap (closes/urgency); fed by 3D Avatar, coach-mining, Launch Bible.
-- **Congruence Principle (Ad-to-Page Message Match / Scent)** _— Aura KB (RMBC funnel method) + Kennedy Consistency Rule_ · `congruence principle message match ad to landing page scent Kennedy consistency rule`
+- **Congruence Principle (Ad-to-Page Message Match / Scent)** _— Aura KB (RMBC funnel method) + Kennedy Consistency Rule (internal; do not surface)_ · `congruence principle message match ad to landing page scent Kennedy consistency rule`
   - Maintain a consistent feeling from ad click to landing page: article-style ad → advertorial (not hard-sell checkout); video ad → video page; breaking congruence breaks the spell. Ad headline should match page headline.
 - **Ad-Based CRO (Per-Winner Landing Pages)** _— Aura KB_ · `ad-based CRO congruent landing pages per winning ad angle mirror`
   - Instead of one generic LP, build a specific LP per winning ad that mirrors that ad's angle, headline and imagery; ad-to-LP disconnect is one of the biggest conversion killers.
@@ -712,7 +717,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - An ad designed to look like editorial content gets ~5x the readership of one that looks like an ad; advertorial activates information-processing mode instead of ad-resistance; pairs with native-ad congruence.
 - **Listicle Advertorials (2 Types)** _— Aura KB_ · `listicle advertorial product-focused education-focused types awareness bridge`
   - Listicle is an advertorial variant ('7 things every woman with X should know') as an awareness bridge; Product-focused (benefits/objections disguised as editorial) vs Education-focused (root-cause teaching, product as logical conclusion); best for solution/product-aware (L3-L4).
-- **Funnel Structure Variations (Congruent Paths)** _— Aura KB (RMBC funnel method)_ · `funnel structure variations ad advertorial VSL product page checkout congruence`
+- **Funnel Structure Variations (Congruent Paths)** _— Aura KB (RMBC funnel method) (internal; do not surface)_ · `funnel structure variations ad advertorial VSL product page checkout congruence`
   - No single right funnel; common paths Ad→VSL→Checkout, Ad→Advertorial→VSL→Checkout, Ad→Advertorial→PDP→Checkout, Ad→PDP→Checkout (most common 8-fig eCom); short ads need longer pages, long video ads can go straight to PDP; cheap products = shorter funnels.
 - **Kennedy Funnel Architecture + 5 Holes in the Bucket** _— No B.S. Direct Marketing / Magnetic Marketing — Dan Kennedy_ · `Kennedy funnel architecture five holes in the bucket squeeze sales letter upsell`
   - Headline(squeeze)→Full page(sales letter)→Upsell→Thank-you, each page one job/one CTA, no nav/escape routes; 5 revenue leaks: no follow-up, no ascension, no referral, no reactivation, no retention.
@@ -735,7 +740,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
 - **Rule of One (One Reader, One Offer, One Value Prop)** _— Aura KB; Sugarman (I-to-You) + Hopkins complete-story doctrine_ · `rule of one one reader one offer one value prop Sugarman I to you`
   - Each page targets one reader, one big idea, one offer, one value prop; copy speaks I-to-you (personal), and for eCom ads = 1 avatar, 1 desire, 1 message.
 
-## Creatives / Hooks / Formats  ·  skill 08  ·  (43 frameworks)
+## Creatives / Hooks / Formats  ·  skill 08·14  ·  (43 frameworks)
 
 - **Hook Writing Framework — 3 Functions of a Hook** _— Aura KB (ad creative system)_ · `hook framework 3 functions ad video stop scroll create curiosity`
   - Every effective hook must fulfill at least one of three jobs: stop the scroll (pattern interrupt), create curiosity (open a gap), or call out the avatar (self-identification) — the foundational lens for evaluating any hook.
@@ -749,7 +754,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - Four proven direct-hook templates that communicate an angle: juxtaposition ('This is bread. This is breakfast'), timeline+result ('14+ Hours. No Swelling'), number+promise ('Boosts GLP-1 by 68%'), identity callout ('POV: You work night shift').
 - **Hopkins' Specificity Rule / 1-2 Second Rule** _— Claude Hopkins (Scientific Advertising / My Life in Advertising)_ · `Hopkins specificity rule 1-2 second rule vague vs specific claims`
   - Vague claims are ignored, specific claims are believed ('Reduces cost 16%' > 'very effective'); the hook has 1-2 seconds to stop the scroll, and different hooks vary response 5-10X.
-- **Caples' Four U's Hierarchy (Unique, Useful, Urgent, Ultra-Specific)** _— John Caples (Tested Advertising Methods)_ · `Caples four U's hierarchy unique useful urgent ultra-specific headlines`
+- **Caples' Four U's Hierarchy (Unique, Useful, Urgent, Ultra-Specific)** _— Attributed in KB to Caples (priority order); framework popularized by Michael Masterson/AWAI_ · `Caples four U's hierarchy unique useful urgent ultra-specific headlines`
   - Headline/hook priority order: UNIQUE must almost always be present (the scroll-stopper), then Useful, Urgent, Ultra-Specific; different U combinations produce 5-10X response differences.
 - **Caples' 32 Proven Response Methods** _— John Caples (Tested Advertising Methods)_ · `Caples 32 methods response checklist split-run keyed response`
   - A diagnostic checklist of 32 split-tested response-boosting techniques; used to audit competitor ads (which are they using vs missing) to find response gaps.
@@ -775,23 +780,23 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - The shared vocabulary: Concept = the big idea being tested (= a full 3-2-2); Angle = how you choose to sell (must always be defined); Variation = individual executions of the angle; Format = how the ad is delivered.
 - **Ad Angles Framework (extract actionable angles from sub-avatars)** _— Aura KB (Ad Angles note)_ · `Ad Angles how to create actionable angles from sub avatars desire behavior gap 3 hooks`
   - Angles exist on a broad-to-specific spectrum; derive them from sub-avatars via desire → current behavior → identify the gap, then keep them ACTIONABLE; for each angle generate 3 hooks/headlines.
-- **3-2-2 Flexible Ad — Format + 5 Hard Rules** _— Aura KB (Disrupter Academy / Andromeda-era system)_ · `3-2-2 flexible ad hard rules same format awareness intent one question 12 combinations`
-  - 3 creatives + 2 primary texts + 2 headlines = 12 combos Meta treats as one post ID; hard rules: same format, same awareness level, same intent, meaningfully different headlines, primary texts attack the same problem — one question per 3-2-2.
+- **3-2-2 Flexible Ad — Format + 5 Hard Rules** _— Aura KB (Disrupter Academy / Andromeda-era system) (internal; do not surface)_ · `3-2-2 flexible ad hard rules same format awareness intent one question 12 combinations`
+  - 3 creatives + 2 primary texts + 2 headlines = 12 combos Meta treats as one post ID; hard rules: same format, same awareness level, same intent, meaningfully different headlines, primary texts attack the same problem — one question per 3-2-2. NOTE: Meta retired the Flexible Ads FORMAT (Mar 2026); the 3-2-2 packaging principle survives as a manual variant batch, not via the retired ad format.
 - **3 Testing Methods — Marksman / Sniper / Shotgun** _— Aura KB (creative testing system)_ · `Metodos de Teste 3 methods Marksman Sniper Shotgun direction depth image video`
-  - Marksman = multiple angles, one variation each, find DIRECTION fast (best for image ads); Sniper = one angle, many executions, go DEEP (best for video); Shotgun = unstructured volume (only for UGC seeding, kills hit rate otherwise in 2025).
+  - Marksman = multiple angles, one variation each, find DIRECTION fast (best for image ads); Sniper = one angle, many executions, go DEEP (best for video); Shotgun = unstructured volume (only for UGC seeding, kills hit rate otherwise in 2025). Creative-decision layer (what goes INTO a test); complements — is not replaced by — the Scientific Method, which is the campaign layer (how the test runs).
 - **Marksman→Sniper→Marksman Cycle + 'Direction' as formal concept** _— Aura KB (testing-sequencing system)_ · `marksman sniper marksman cycle direction plateau next direction`
-  - Marksman finds direction (which angle gets spend/traction) → Sniper deepens the winning angle with new executions → back to Marksman when the angle plateaus to find the next direction.
+  - Marksman finds direction (which angle gets spend/traction) → Sniper deepens the winning angle with new executions → back to Marksman when the angle plateaus to find the next direction. Creative-sequencing layer; runs inside the Scientific Method campaign structure.
 - **Hook-Specificity-for-Video Rule (specific hooks, generic universal hold)** _— Aura KB (video testing system)_ · `hook specificity rule video specific sub-avatar hooks generic universal hold POV`
   - When testing video with Marksman, make hooks call out specific sub-avatars ('POV: night shift / light sleeper / insomnia') while the universal Hold demonstrates the core avatar's shared desire — lets one hold support multiple angle hooks.
 - **Creative Benchmarks — Hook Rate / Hold Rate / CTR** _— Aura KB (creative performance system)_ · `creative benchmarks hook rate 25 hold rate CTR 1 percent video hold through plays`
   - Soft targets: Hook rate ~25% (3s video plays/impressions), Hold rate ~30% of hook rate / video hold = throughplays(15s)/impressions, CTR min ~1% — guides, not gospel (ROAS/CPA are truth).
-- **Funnel Creative Playbook — Olympic Rings Model** _— Aura KB (Disrupter Academy / Fraggle)_ · `Funnel Creative Playbook Olympic Rings model prospecting closing rings`
+- **Funnel Creative Playbook — Olympic Rings Model** _— Aura KB (Disrupter Academy / Fraggle) (internal; do not surface)_ · `Funnel Creative Playbook Olympic Rings model prospecting closing rings`
   - Account = 5 overlapping rings (3 prospecting/top + 2 closing/bottom), not a linear staircase; most ads fail because they do the wrong job — top earns attention (doesn't sell), mid clarifies value, bottom converts trust.
 - **Video Archetypes by Funnel Position** _— Aura KB (4Pi creative diversity system)_ · `video archetypes by funnel position UGC talking head product demo VSL educational`
   - UGC/Talking Head = top (problem-first, reach); Product Demo = mid (clarify how it works); Educational/VSL = bottom (high-intent conversion). Rule: more entertaining/problem-focused serves higher, more product/educational serves lower.
 - **Static/Image Archetypes by Funnel Position** _— Aura KB (4Pi creative diversity system)_ · `static image archetypes funnel position plain reminder direct response complexity rule`
   - Plain product image = top; Reminder image (feature lists, before/after, '3 reasons why') = mid; Direct-response image (price tags, urgency banners, offers) = bottom. Universal rule: the more complex the image, the lower it serves.
-- **4Pi Creative Diversity Signature (Spend/Frequency/CPM/CPR per archetype)** _— Aura KB (Disrupter Academy)_ · `4Pi creative diversity signature spend frequency CPM cost per result funnel position`
+- **4Pi Creative Diversity Signature (Spend/Frequency/CPM/CPR per archetype)** _— Aura KB (Disrupter Academy) (internal; do not surface)_ · `4Pi creative diversity signature spend frequency CPM cost per result funnel position`
   - Each creative type produces a predictable 4Pi signature (e.g. TOF = high spend, freq ~1.0-1.1, low CPM, poor CPR) telling you where in the funnel it actually serves — diagnose role before building the next asset.
 - **Sprinters vs Marathoners (creative portfolio balance)** _— Aura KB (Funnel Creative Playbook)_ · `sprinters marathoners creative portfolio balance top mid bottom budget allocation`
   - Bottom-funnel ads are sprinters (fast cash, narrow reach); top/mid are marathoners (feed tomorrow's buyers) — killing marathoners for low direct ROAS starves future sales; most budget goes to top.
@@ -801,7 +806,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - Named video formats: Voiceover+B-roll (most scalable), Subtitles+B-roll (internal voice), Slideshow w/text, Authentic UGC/talking head, Professional studio (rarely converts), Animation — plus image formats; lets you brief editors on FORMAT not just 'video/image'.
 - **9-Part Creative Brief Template** _— Aura KB (ad production system)_ · `creative brief template 9 parts concept angle testing method format sizes safe zones`
   - Concept/Swing, Angle(s), Testing Method, Format, The Brief (most important), Sizes (1080x1920 always + safe zones), Example Ads, Asset Folder, FB Copy + Headlines — the complete brief any ad needs.
-- **13+ Winning Static Ad Templates (named breakdowns)** _— Aura KB (Image Ads / Origins static breakdowns)_ · `13 winning static ad templates avatar callout nutella meme breakdown why it works`
+- **13+ Winning Static Ad Templates (named breakdowns)** _— Aura KB (Image Ads / Origins static breakdowns) (internal; do not surface)_ · `13 winning static ad templates avatar callout nutella meme breakdown why it works`
   - ~13 validated static templates each with a 'why this works' breakdown (e.g. Avatar Callout ad, 'This is bread. This is breakfast' Nutella template, meme static, whiteboard) — strategy/messaging matters more than the template.
 - **Whiteboard Ad Prompt (transcript → educational static)** _— Aura KB (community hack)_ · `whiteboard ad prompt transcript professor whiteboard diagrams educational static`
   - Transform a winning video ad transcript into a 1:1 professor's-whiteboard image (diagrams, arrows, boxes, captions + CTA) — reads as educational content, not advertising, and ports a video concept into static format.
@@ -824,7 +829,9 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
 - **Strategic Pacing (cut rhythm by section)** _— Aura KB (video editing/script system)_ · `strategic pacing rapid cuts hook bridge solution CTA video editing rhythm`
   - Rapid cuts in Hook (0-3s), 2-3 problem cuts in Bridge (3-8s), slow during Solution (product/mechanism shots), direct urgency in CTA with clean product shot + guarantee badge.
 
-## Meta Ads Strategy  ·  skill 10  ·  (26 frameworks)
+## Meta Ads Strategy  ·  skill 10·11  ·  (26 frameworks)
+
+> **Arbitragem (escolas conflitantes na base):** a doutrina Aura é a estrutura canônica **1 campanha Advantage+ → 1 ad set → 3-10 ads**, com teste Control vs Variable (One Campaign / Scientific Method). Notas da base que ensinam multi-campanha (TOF/MOF/BOF separados, múltiplas ASCs, 'shotgunning' de conteúdo) vêm de outras escolas de media buying e valem como contexto de mercado — a skill 10 não as recomenda como default. Na camada criativa, Marksman/Sniper decidem O QUE testar; o Scientific Method decide COMO o teste roda na campanha — camadas complementares, não frameworks concorrentes.
 
 - **Andromeda System (5 Core Principles)** _— Disrupter Academy methodology (internal; do not surface)_ · `Andromeda 5 principles one campaign method scaling Meta Ads`
   - Post-Andromeda 'creative understanding engine' treats the whole account as ONE unified learning system; 5 principles: FB is a user-retention machine, broad+advanced matching beats interests/lookalikes, creative is the #1 lever, farmer mentality, simplification wins.
@@ -833,9 +840,9 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
 - **One Campaign Method (AndroMeta One Architecture)** _— Disrupter Academy methodology (internal)_ · `One Campaign Method AndroMeta One CBO control variable ad set structure`
   - Consolidate the account into ONE CBO with Control (5-8 best post IDs) + Variable ad set(s); core question 'Can we spend more tomorrow?'; Foundation -> Evolution 1 (1 control + 1 variable) -> Evolution 2 (1 control + 2 variables); Accordion Principle.
 - **Scientific Method for Meta Ads (Control vs Variable)** _— Disrupter Academy methodology (internal)_ · `scientific method meta ads control variable environmental impact`
-  - Testing = a Control (proven post IDs, stability) + ONE Variable (single new 3-2-2, challenge); measured by ENVIRONMENTAL IMPACT on the whole campaign not isolated CPA; if you can't isolate the variable you're gambling; test in the scaling environment ('practice like you play').
+  - Testing = a Control (proven post IDs, stability) + ONE Variable (single new 3-2-2, challenge); measured by ENVIRONMENTAL IMPACT on the whole campaign not isolated CPA; if you can't isolate the variable you're gambling; test in the scaling environment ('practice like you play'). Campaign-architecture layer; Marksman/Sniper remain the creative-decision layer inside it (KB notes saying it 'replaces' them refer to campaign structure only).
 - **3-2-2 Flexible Ads (Format and Test Rules)** _— Disrupter Academy methodology (internal; replaced DCT)_ · `3-2-2 flexible ads format rules testing`
-  - 3 creatives + 2 primary texts + 2 headlines = 12 combinations Meta treats as ONE ad object/post ID; 5 hard rules (same format, same awareness, same intent, headlines meaningfully different, primary texts attack same problem); answers ONE question.
+  - 3 creatives + 2 primary texts + 2 headlines = 12 combinations Meta treats as ONE ad object/post ID; 5 hard rules (same format, same awareness, same intent, headlines meaningfully different, primary texts attack same problem); answers ONE question. NOTE: Meta retired the Flexible Ads FORMAT (Mar 2026); the 3-2-2 packaging principle survives as a manual variant batch, not via the retired ad format.
 - **3-2-2-2 Method (Landing Page Testing extension)** _— Disrupter Academy methodology (internal)_ · `3-2-2-2 landing page testing link clicks vs landing page views clickbait`
   - Adds 2 landing pages -> 3x2x2x2 = 24 combinations; Meta finds best ad+LP congruence; Link Clicks vs Landing Page Views ratio is a clickbait detector (LP views should be 70%+ of link clicks).
 - **4Pi Analysis (Spend, Frequency, CPM, Cost per Result)** _— Disrupter Academy methodology (internal)_ · `4Pi analysis spend frequency CPM cost per result funnel position`
@@ -881,31 +888,33 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
 
 ## Scaling  ·  skill 12  ·  (28 frameworks)
 
-- **Performance Gate Scaling (PGS)** _— Disrupter Academy media-buying system (no book author named)_ · `Performance Gate Scaling PGS 3 principles trailing CPA automated rules`
+> **Roteamento PSM vs ROAS:** conta nova sem histórico de LTV/recompra → meta por ROAS (break-even + 1) e bumps de budget conservadores; quando existir dado real de repeat purchase → migrar pra PSM/PGS como métrica primária de escala. As duas escolas convivem na base; o estágio do membro decide qual usar.
+
+- **Performance Gate Scaling (PGS)** _— Disrupter Academy media-buying system (no book author named) (internal; do not surface)_ · `Performance Gate Scaling PGS 3 principles trailing CPA automated rules`
   - Automated rule system that scales Meta budgets based on trailing multi-day CPA vs a predefined target, replacing manual day-trading. Three principles: trailing multi-day KPI average, never scale past margin, campaign-based results.
-- **The Three PGS Principles** _— Disrupter Academy media-buying system_ · `The three PGS principles never scale past margin trailing multi-day KPI campaign-based`
+- **The Three PGS Principles** _— Disrupter Academy media-buying system (internal; do not surface)_ · `The three PGS principles never scale past margin trailing multi-day KPI campaign-based`
   - (1) Use a trailing multi-day KPI average (7d), never react to one day; (2) Never scale past margin (target $50, trailing $45, a 5% bump at zero added sales only moves blended CPA to ~$47.25); (3) Results are campaign-based, not ad-by-ad.
-- **Profitable Scaling Margin (PSM)** _— Disrupter Academy growth-marketing methodology (no book author)_ · `Profitable Scaling Margin PSM golden ratio LTV CPA COGS formula`
+- **Profitable Scaling Margin (PSM)** _— Disrupter Academy growth-marketing methodology (no book author) (internal; do not surface)_ · `Profitable Scaling Margin PSM golden ratio LTV CPA COGS formula`
   - PSM = LTV / (CPA + COGS). Replaces ROAS/MER as primary scaling compass because it accounts for COGS, repeat purchases, future cash flow and LTV. As long as LTV > CPA + COGS, growth is profitable (PSM > 1.0).
-- **PSM Scaling Thresholds** _— Disrupter Academy methodology_ · `PSM thresholds 1.3 aggressive 1.1 healthy breakeven zone scaling decision`
+- **PSM Scaling Thresholds** _— Disrupter Academy methodology (internal; do not surface)_ · `PSM thresholds 1.3 aggressive 1.1 healthy breakeven zone scaling decision`
   - PSM >1.3 = strong margin, aggressive scaling; 1.1-1.3 = healthy, steady 5% compounding; 1.0-1.1 = breakeven zone, fix LTV/COGS first; <1.0 = unprofitable, fix unit economics first.
-- **PSM Catalog Filter** _— Disrupter Academy methodology_ · `PSM catalog filter 1.3 40% repeat rate 65 days second purchase prioritize advertising`
+- **PSM Catalog Filter** _— Disrupter Academy methodology (internal; do not surface)_ · `PSM catalog filter 1.3 40% repeat rate 65 days second purchase prioritize advertising`
   - Filter a multi-product catalog to prioritize ad spend on: PSM 1.3+, 40%+ repeat rate, under 65 days to second purchase. Build creative testing around these, not cheapest-CPA products.
-- **Three Budget Scaling Methods** _— Disrupter Academy methodology_ · `Three budget scaling methods farmer 5% aggressive 50% business-led MRR`
+- **Three Budget Scaling Methods** _— Disrupter Academy methodology (internal; do not surface)_ · `Three budget scaling methods farmer 5% aggressive 50% business-led MRR`
   - Farmer (5% Mon/Wed/Fri, doubles spend ~every 30 days); Aggressive (50% jumps when CPA far below target, gated by Total Loss Investment); Business-Led (budget set as fixed % of MRR, not CPA-driven, for mature brands).
-- **Total Loss Investment Concept** _— Disrupter Academy methodology_ · `total loss investment concept aggression ceiling zero additional revenue acceptable loss`
+- **Total Loss Investment Concept** _— Disrupter Academy methodology (internal; do not surface)_ · `total loss investment concept aggression ceiling zero additional revenue acceptable loss`
   - Treat every budget increase as a controlled low-risk investment. Ask: how much more could I spend per day, even at zero additional revenue, and still be okay? That defines your aggression ceiling. More increase = less confidence.
-- **Sliding Scale Rules (PGS Advanced)** _— Disrupter Academy methodology_ · `sliding scale rules PGS different CPA targets spend levels 60 55 52 50`
+- **Sliding Scale Rules (PGS Advanced)** _— Disrupter Academy methodology (internal; do not surface)_ · `sliding scale rules PGS different CPA targets spend levels 60 55 52 50`
   - Different CPA targets at different spend levels: $0-400/day $60, $400-600 $55, $600-1000 $52, $1000+ $50, all increase 5%. Aggressive when spend is low, tight efficiency when high.
-- **Soft Surfing (PGS Advanced)** _— Disrupter Academy methodology_ · `soft surfing additional daily 5% increase CPA far below target accelerate growth`
+- **Soft Surfing (PGS Advanced)** _— Disrupter Academy methodology (internal; do not surface)_ · `soft surfing additional daily 5% increase CPA far below target accelerate growth`
   - When CPA is far below target, add a daily 5% increase on top of the standard 5% Mon/Wed/Fri (target $50, standard fires at <$45, soft surfing adds daily 5% when CPA <$38). Still respects Total Loss Investment.
-- **Scale-Down Rules (PGS reverse)** _— Disrupter Academy methodology_ · `scale-down rules decrease budget 20% 7-day CPA exceeds target safety net`
+- **Scale-Down Rules (PGS reverse)** _— Disrupter Academy methodology (internal; do not surface)_ · `scale-down rules decrease budget 20% 7-day CPA exceeds target safety net`
   - PGS in reverse: if 7-day CPA exceeds target, decrease budget by a defined % (typically 20%). Safety net. Meta can push/pull budget ~75% on any day regardless.
-- **Three Reasons Scale Breaks** _— Disrupter Academy / Andromeda methodology_ · `three reasons scale breaks unit economics funnel imbalance cash constraints can we spend more tomorrow`
+- **Three Reasons Scale Breaks** _— Disrupter Academy / Andromeda methodology (internal; do not surface)_ · `three reasons scale breaks unit economics funnel imbalance cash constraints can we spend more tomorrow`
   - Scaling answers one question: can we spend more tomorrow? If no, only 3 reasons: bad unit economics (GPT = AOV-CPA too low), funnel imbalance (4Pi shows all ads same position), cash constraints (make each dollar work harder, lift second-purchase rate).
-- **Scaling Mindset Farmer vs Hunter (Andromeda)** _— Disrupter Academy / Andromeda methodology_ · `scaling mindset farmer vs hunter Andromeda think bigger clarity not volume`
+- **Scaling Mindset Farmer vs Hunter (Andromeda)** _— Disrupter Academy / Andromeda methodology (internal; do not surface)_ · `scaling mindset farmer vs hunter Andromeda think bigger clarity not volume`
   - ROAS creates hunters (only as good as today's kill, 3-5 bad days = out of business); PSM creates farmers (compounding predictable revenue, weather volatility on rolling revenue). Post-Andromeda needs clarity/coherence, not volume/chaos.
-- **Fractional Banking** _— Disrupter Academy methodology_ · `fractional banking borrow against future revenue rolling repeat purchase cash flow scale negative CPA`
+- **Fractional Banking** _— Disrupter Academy methodology (internal; do not surface)_ · `fractional banking borrow against future revenue rolling repeat purchase cash flow scale negative CPA`
   - Once rolling repeat-purchase revenue arrives, borrow against future revenue to invest more aggressively in acquisition today. PSM (not ROAS) enables this via future-cash-flow accounting. Model with a fractional CFO before going negative on CPA.
 - **More Better New Scaling Framework** _— Alex Hormozi_ · `More Better New scaling framework Hormozi sequence maximize before new method`
   - Before adding a new acquisition method: More (do more of what works), Better (improve scripts/targeting/follow-up), New (only after maximizing More and Better). Most jump to New prematurely, abandoning winners.
@@ -913,7 +922,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - Reach beats frequency, better to show one ad to 10 people than to 1 person 10 times. Diminishing returns set in fast; each new person has full response potential. When scaling, prioritize new audiences over saturating existing ones.
 - **Drayton Bird's Square Root Principle** _— Drayton Bird (Commonsense Direct and Digital Marketing)_ · `Drayton Bird square root principle smaller ads cost per response Commonsense Direct Marketing`
   - A quarter-page ad pulls ~half the response of a full-page ad, so it's ~2x more cost-effective per response. Smaller media spaces can win on cost-per-acquisition. Direct-response media is judged by cost per response, not cost per thousand.
-- **Creative Diversity as a Scaling Mechanism** _— Disrupter Academy / Andromeda methodology_ · `creative diversity as a scaling mechanism funnel balance video image 4Pi same position`
+- **Creative Diversity as a Scaling Mechanism** _— Disrupter Academy / Andromeda methodology (internal; do not surface)_ · `creative diversity as a scaling mechanism funnel balance video image 4Pi same position`
   - When budget increases break performance, 4Pi usually shows all ads in the same funnel position. Restore balance: add video (top-funnel) to image-heavy accounts where scale fails; add images (bottom-funnel) to video-heavy accounts where CPA climbs. Diversity = variety of messages, not volume of ads.
 - **ROAS Targets Vertical vs Horizontal (Add-One Rule)** _— Easy A Media (EAM) scaling SOP (no book author)_ · `ROAS target add one to break-even rule vertical horizontal scaling gross profit margin`
   - Target ROAS = break-even ROAS + 1 (BE 1.6 -> target 2.6). Break-even ROAS derives from gross-profit margin. Can scale slightly below target if added spend nets more profit. PSM ultimately replaces ROAS because it incorporates LTV and COGS.
@@ -923,17 +932,17 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - Structure you must earn: L1 ($0-50K/day) one campaign (Meta consolidates everything); L2 ($3-10K/day) CBO + raw content; L3 ($10-50K+/day) CBO + raw content + ASC + whitelisting; L4 ($50-100K/day) segmented CBOs by collection/avatar. Promo structure alone can hit six figures/day.
 - **Scaling Click-Based Data Gate** _— Easy A Media (EAM) scaling SOP_ · `scaling click-based data gate 60% purchases view-through attribution 7-day click 1-day view`
   - Before any scale-up verify 60%+ of purchases are click-based (7-day-click/1-day-view). If >60% view-through, performance may be phantom attribution, consider 7-day-click-only before scaling. Scaling on view-through-heavy data tanks the account.
-- **Spend Redistribution Framework (Don't Kill the Top Spender)** _— Disrupter Academy / Andromeda methodology_ · `spend redistribution framework do not turn off top spender ROAS drops higher budget`
+- **Spend Redistribution Framework (Don't Kill the Top Spender)** _— Disrupter Academy / Andromeda methodology (internal; do not surface)_ · `spend redistribution framework do not turn off top spender ROAS drops higher budget`
   - Before turning off a high-spend ad, ask: if spend redistributes to other ads, would they hold a better ROAS at higher spend? Bumping budget drops ROAS 5-25%, so the top spender (lower ROAS, most purchases) is usually your best scaling asset. Only kill it when ROAS is so low (~0.78x) redistribution clearly wins.
-- **Frequency as Prospecting-vs-Retargeting Proxy** _— Disrupter Academy / 4Pi methodology_ · `frequency prospecting vs retargeting proxy low 1.0 high 2.5 broad CBO scaling signal`
+- **Frequency as Prospecting-vs-Retargeting Proxy** _— Disrupter Academy / 4Pi methodology (internal; do not surface)_ · `frequency prospecting vs retargeting proxy low 1.0 high 2.5 broad CBO scaling signal`
   - In broad CBO campaigns frequency reveals prospecting vs disguised retargeting: low (1.0-1.5) = prospecting (reliable scaling signal); high (2.5+) = retargeting. High-ROAS + high-frequency = ROAS inflated by retargeting, don't scale on it. Killing a top prospecting ad starves retargeting and collapses performance within a week.
-- **Would It Hold at 3X Budget? (Mental Model)** _— Disrupter Academy / EAM methodology_ · `would it hold at 3X budget mental model low spend high ROAS statistically insignificant`
+- **Would It Hold at 3X Budget? (Mental Model)** _— Disrupter Academy / EAM methodology (internal; do not surface)_ · `would it hold at 3X budget mental model low spend high ROAS statistically insignificant`
   - When a low-spend ad shows very high ROAS, ask: if I put 3x budget on it, would it hold? Almost always no, a $50-spend 10X-ROAS ad is statistically insignificant, not a winner. Don't scale based on it.
-- **Hero Offer First Scale vs Second Scale** _— Disrupter Academy methodology_ · `hero offer first scale vs second scale cheapest CPA vs best customer journey repeat LTV`
+- **Hero Offer First Scale vs Second Scale** _— Disrupter Academy methodology (internal; do not surface)_ · `hero offer first scale vs second scale cheapest CPA vs best customer journey repeat LTV`
   - First Scale = cheapest CPA, attracts discount hunters/one-time buyers (builds nothing). Second Scale = best customer journey, high-LTV repeat buyers and advocates (builds the business). Identify via Customer Journey Insights + PSM filter (1.3+, 40%+ repeat, <65 days), then build all creative testing around it.
-- **Minimum Daily Spend & Creative Hamster Wheel** _— Disrupter Academy / Andromeda methodology_ · `minimum daily spend creative hamster wheel new ads steal bottom of funnel never turn off main campaign`
+- **Minimum Daily Spend & Creative Hamster Wheel** _— Disrupter Academy / Andromeda methodology (internal; do not surface)_ · `minimum daily spend creative hamster wheel new ads steal bottom of funnel never turn off main campaign`
   - Minimum daily spend = amount you'll spend regardless of performance ($50-100/day for algorithm data; budget 1-2+ months). The creative hamster wheel: post-Andromeda, every new ad launches bottom-funnel and steals warm-audience attention from winners, destabilizing the account. Never turn off main campaigns (kills accumulated learning).
-- **Margin vs Volume Two Paths** _— Disrupter Academy / EAM methodology_ · `margin vs volume two paths high-margin slow high-volume fast choose your game`
+- **Margin vs Volume Two Paths** _— Disrupter Academy / EAM methodology (internal; do not surface)_ · `margin vs volume two paths high-margin slow high-volume fast choose your game`
   - High-margin makes more per sale but grows slowly; high-volume makes less per sale but grows fast. Neither is right, they build different machines. Choose your scaling game consciously because target ROAS, aggression and acceptable CPA all flow from it.
 - **Going Negative on CPA (LTV-Funded Acquisition)** _— Funnel-economics methodology (Agora cited as example; no book author)_ · `going negative on CPA LTV rebills Agora upfront capital dominate market acquire more customers`
   - With strong rebills/LTV, willingly run negative gross profit on first purchase to acquire more customers and dominate (Agora went negative for months). Needs large upfront capital or predictable rebills, plus CFO-level modeling. Still optimize CPA down; CPA rises with scale and broader channels.
@@ -970,7 +979,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - For every 3 value-creating emails you send, allow yourself 1 sales email — balances free/paid content and tips the scale toward goodwill.
 - **Fibonacci Drip-Cadence Sequence** _— Joanna Wiebe (Copyhackers)_ · `Fibonacci sequence drip campaign email cadence day 0 1 2 3 5 8 spacing Copyhackers`
   - Space drip emails on the Fibonacci sequence (Day 0,1,1,2,3,5,8,13...) — frequent early to train opens, then tapering so you keep ties without overwhelming.
-- **Day Zero Triggered-Email Method (behavior-triggered mini-funnels)** _— Joanna Wiebe / Copyhackers (Copy School method)_ · `Day Zero behavior-triggered email mini-funnel outperforms time-based drip cap day 4 Copy School`
+- **Day Zero Triggered-Email Method (behavior-triggered mini-funnels)** _— Joanna Wiebe / Copyhackers (Copy School method) (internal; do not surface)_ · `Day Zero behavior-triggered email mini-funnel outperforms time-based drip cap day 4 Copy School`
   - Replace long time-based drips with many behavior-triggered 'Day Zero' standalone emails (Day 0 outperforms because it's tied to a just-taken action), each spun into a mini-funnel with a few time-triggered follow-ups capped ~Day 4.
 - **5-Step Welcome Sequence Process (welcome = lead-nurturing, not 'welcome')** _— Joanna Wiebe / Copyhackers (welcome-sequence framework)_ · `welcome sequence lead nurturing 5 step process VOC research plan automate not a template`
   - Welcome sequences are lead-nurturing sequences that support sales (direct or indirect); built via a 5-step framework: VOC research → analyze → plan strategic sequence → write → automate/test — a framework, not a template.
@@ -993,7 +1002,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
 - **Seasonal Abandoned-Cart SMS Update Checklist** _— Aura methodology (SMS/seasonal)_ · `seasonal abandoned cart SMS update checklist offer details campaign close time urgency scarcity no rain check`
   - To convert an evergreen abandoned-cart SMS for a seasonal sale: 1) swap in optimized seasonal offer details, 2) add campaign details (sale name + exact close time), 3) layer urgency (loss aversion, 'no rain check'), 4) layer real scarcity only if it exists.
 
-## Persuasion / Psychology  ·  skill 06·08·10·13  ·  (49 frameworks)
+## Persuasion / Psychology  ·  skill 02·06·08·10·13  ·  (49 frameworks)
 
 - **Cialdini's Six Weapons of Influence** _— Robert Cialdini — Influence: The Psychology of Persuasion_ · `Cialdini six weapons of influence reciprocity commitment social proof authority liking scarcity`
   - Six automatic 'click-whirr' compliance triggers: Reciprocation, Commitment/Consistency, Social Proof, Liking (5 factors), Authority (titles/clothes/trappings), Scarcity (loss aversion + reactance).
@@ -1102,7 +1111,7 @@ Toda skill que consulta a base NÃO deve usar query genérica ("headlines", "off
   - Positioning is about the mind not the product; ladders hold ~3-7 brands, first brand gets 2x No.2's share, find an unoccupied creneau, never Forget What Made Them Successful.
 - **ECommerce Bootstrapping (101-Test Log, 9-in-10-Fail Sine Wave, The Crash, $10K/Hour Framework)** _— Aura methodology (multi-7-figure bootstrapping case study)_ · `ecommerce bootstrapping zero to multi 7 figures 101 testing log crash 10000 hour framework`
   - Zero-to-multi-7-figure journey: 100+ failed product tests logged, the crash after scaling without foundation, delegate all but $10K/hour tasks, understand WHY over what.
-- **Hormozi Value Equation (Dream Outcome x Perceived Likelihood / Time Delay x Effort & Sacrifice)** _— Alex Hormozi, $100M Offers_ · `Hormozi grand slam offer value equation dream outcome perceived likelihood time delay effort`
+- **Hormozi Value Equation (Dream Outcome x Perceived Likelihood / Time Delay x Effort & Sacrifice)** _— Alex Hormozi, $100M Offers_ · `Hormozi value equation dream outcome perceived likelihood time delay effort sacrifice`
   - Master equation for perceived value: raise dream outcome and likelihood, lower time delay and effort; the core lever behind every strong offer.
 - **Hormozi Grand Slam Offer System (Starving Crowd 4 Indicators, Problems-Solutions, Logical vs Psychological, Virtuous Cycle of Price)** _— Alex Hormozi, $100M Offers_ · `Hormozi starving crowd four indicators logical psychological solution virtuous cycle of price`
   - Select a starving crowd (massive pain, purchasing power, easy to target, growing), solve every problem, sell ease not the solution, let premium price drive a virtuous quality cycle.

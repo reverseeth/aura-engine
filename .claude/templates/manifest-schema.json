@@ -35,22 +35,47 @@
     },
     "budget_tier": {
       "enum": ["starter", "standard", "escala-inicial", "escala-avancada"],
-      "description": "Internal budget tier captured from the setup input (daily ad budget)."
+      "description": "Internal budget tier captured from the setup input (daily ad budget). Derived from budget_daily; budget_daily is the canonical numeric source."
+    },
+    "budget_daily": {
+      "type": "number",
+      "description": "CANONICAL daily ad budget in USD (numeric). Written by 00-setup from the member's BUDGET answer (budget_tier is derived from it); updated if the member declares a new budget in later skills. Read by member-stage-awareness.md (stage inference signal budget_daily < 50), skill 07c (analytics stack decision tree) and skill 10 (test budget context). Legacy manifests without it: fall back to budget_tier + the 'Budget diário' line in profile.md."
     },
     "skills_completed": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "Ordered list of skill IDs already completed (e.g. '00-setup', '01-product-research', '07a-page-planning', '07b-page-sections', '07c-page-deploy')."
-    },
-    "skills_pending": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "Optional list of skills expected to run next."
+      "items": {
+        "enum": [
+          "00-setup",
+          "01-product-research",
+          "02-market-research",
+          "03-competitor-analysis",
+          "04-offer-builder",
+          "05-bonus-delivery",
+          "06-copy-engine",
+          "07a-page-design",
+          "07b-page-build",
+          "07c-tracking-setup",
+          "07d-checkout-aov",
+          "07e-agentic-readiness",
+          "08-creative-engine",
+          "09-consistency-audit",
+          "10-ad-strategy",
+          "11-ad-analysis",
+          "12-scale-engine",
+          "13-retention-engine",
+          "14-content-recycler"
+        ]
+      },
+      "description": "Ordered list of canonical skill IDs already completed. These are the ONLY valid IDs — never invent variants (e.g. '07c-page-deploy' does not exist; the deploy skill is '07b-page-build' and 07c is tracking-setup). Downstream pre-flights match against these exact strings."
     },
     "voc_count": {
       "type": "integer",
       "minimum": 0,
       "description": "Number of unique, verbatim voice-of-customer phrases captured in skill 02."
+    },
+    "voc_adequacy": {
+      "enum": ["ok", "medium", "insufficient"],
+      "description": "Qualitative adequacy of the VOC corpus, written by skill 02 alongside voc_count. Read by skill 06 as a copy gate: 'insufficient' means copy should not anchor on VOC-driven claims until skill 02 is re-run with more sources."
     },
     "awareness_distribution": {
       "type": "object",
@@ -68,6 +93,14 @@
       "minimum": 1,
       "maximum": 5,
       "description": "Schwartz sophistication stage (1-5)."
+    },
+    "page_type": {
+      "enum": ["advertorial", "landing", "pdp_robust", "pdp_lean"],
+      "description": "Page format chosen by dominant awareness level. Written by skill 07a (page-design); read by 07b and by skill 09 (consistency audit, coherence check against 02 awareness)."
+    },
+    "signals_source": {
+      "enum": ["refero", "screenshot_vision", "manual"],
+      "description": "Where the brand signals came from (07a ETAPA 2 cascade: Refero MCP -> screenshot->vision -> manual). Written by skill 07a."
     },
     "psm_theoretical": {
       "type": "number",
@@ -106,7 +139,7 @@
     },
     "copy_language": {
       "type": "string",
-      "description": "Language of member-facing copy (e.g. 'en', 'pt-BR', 'es')."
+      "description": "Language of CONSUMER-facing copy (ads, pages, PDPs, emails) — always 'en' for the US market regardless of report_language (CLAUDE.md rule 0). Member-facing report language lives in report_language, not here. Written by 00-setup."
     },
     "market": {
       "type": "string",
@@ -126,7 +159,91 @@
     },
     "store_url": {
       "type": "string",
-      "description": "Canonical .myshopify.com (or custom domain) store handle. Captured in 00-setup when a Shopify link is provided; otherwise written by the page-deploy step. Consumed by page deploy + skill 13."
+      "description": "Canonical .myshopify.com (or custom domain) store handle. Captured in 00-setup when a Shopify link is provided; otherwise written by skill 07b (page-build) at deploy. Consumed by 07b/07c/07d + skill 13."
+    },
+    "tracking": {
+      "type": "object",
+      "description": "Tracking status block. Written by skill 07c (tracking-setup); read by skills 08 and 10 pre-flights via manifest.tracking.tracking_ready and manifest.tracking.analytics_stack (canonical paths — never flat top-level variants like manifest.tracking_stack).",
+      "properties": {
+        "pixel_installed": {
+          "type": "boolean",
+          "description": "Meta Pixel base code live on the storefront."
+        },
+        "capi_active": {
+          "type": "boolean",
+          "description": "Conversions API sending server-side events."
+        },
+        "emq_score": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Event Match Quality from Meta Events Manager (0-10 scale). Quality gate: EMQ >= 6.0. null when not yet measured (needs traffic)."
+        },
+        "analytics_stack": {
+          "enum": ["meta_app", "wetracked", "triple_whale", "aimerce"],
+          "description": "Attribution stack chosen in 07c ETAPA 4. Read by skills 10 and 11 to orient data reading."
+        },
+        "tracking_ready": {
+          "type": "boolean",
+          "description": "True only when Pixel + CAPI are validated with EMQ >= 6.0 (or the member explicitly accepted degraded signal via escape path ES1). Hard pre-flight for skills 08 and 10."
+        }
+      }
+    },
+    "storefront": {
+      "type": "object",
+      "description": "Published page block. Written by skill 07b (page-build) at deploy/publish; read by 07d (operates on the theme where the page lives) and by skill 10 (campaign destination URL — canonical source, NEVER taken from the 06 copy report).",
+      "properties": {
+        "theme_id": {
+          "type": ["string", "integer"],
+          "description": "Shopify theme ID where the page lives."
+        },
+        "page_url": {
+          "type": "string",
+          "description": "Final public URL of the published page. Skill 10 reads this as the campaign destination URL."
+        },
+        "published_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601 timestamp of when the page went live."
+        }
+      }
+    },
+    "agentic": {
+      "type": "object",
+      "description": "Agentic readiness block. Written by skill 07e (agentic-readiness) after the AEO checklist runs against the live store; read by skill 09 as informative context (NOT a launch gate) and by skill 12 to treat AI-referral traffic as an incremental scale source.",
+      "properties": {
+        "ready": {
+          "type": "boolean",
+          "description": "True when ai_visibility_score >= 80 and no blocked_pending structured-data items remain."
+        },
+        "channel_enabled": {
+          "type": "boolean",
+          "description": "Agentic Storefronts sales channel enabled in the Shopify admin with the required policies complete."
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "AI visibility score (passed items / applicable items, in %). Full checklist detail lives in 07e-agentic-readiness/dados.json."
+        },
+        "checked_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601 timestamp of the last 07e run."
+        }
+      }
+    },
+    "10_campaign_name": {
+      "type": "string",
+      "description": "Campaign name (naming convention) generated by skill 10. Read by skill 11 and by the Meta sync recipe (sync-campaign-from-meta.md) to match Meta data."
+    },
+    "10_campaign_id": {
+      "type": "string",
+      "description": "Meta campaign ID, written by skill 10 when the campaign is created via MCP. Skill 11 pulls insights by ID (more robust than by name)."
+    },
+    "10_ad_set_id": {
+      "type": "string",
+      "description": "Meta ad set ID (canonical structure: 1 Advantage+ campaign -> 1 ad set -> N ads). Written by skill 10 when created via MCP; read by skill 11 and automation recipes."
     },
     "aov_baseline": {
       "type": "number",
@@ -141,6 +258,11 @@
       "minimum": 0,
       "description": "Number of creative batches launched. Written by skill 08. Read by member-stage-awareness.md for stage inference."
     },
+    "analysis_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of skill 11 (ad-analysis) runs on this product. Incremented by skill 11 at wrap-up (skills_completed only records '11-ad-analysis' once); tracks analysis cadence."
+    },
     "champions": {
       "type": "array",
       "items": { "type": "string" },
@@ -150,11 +272,6 @@
       "type": "array",
       "items": { "type": "object" },
       "description": "Winning creatives with metrics (creative_id, cpa, spend_total, days_active, outcome). Written by skill 11; consumed by skill 14 (content-recycler)."
-    },
-    "active_channels": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "Channels currently running (meta, tiktok, google, etc). Written by skill 12 (horizontal scale)."
     },
     "margin_warning": {
       "type": "boolean",

@@ -1,6 +1,6 @@
 ---
 name: retention-engine
-description: Setup automático de fluxos de retenção/lifecycle email via ESP (Klaviyo primário, Omnisend/MailerLite secundários). Gera sequências (welcome, abandoned-cart, post-purchase, win-back, replenishment) e cria os flows via Klaviyo MCP oficial quando disponível, com fallback pra assets HTML + setup-guide que o membro importa. Use quando o membro disser "retention", "email flows", "automation", "lifecycle", "Klaviyo", ou após launch da primeira campanha de ads com tráfego rodando.
+description: Setup automático de fluxos de retenção/lifecycle email via ESP (Klaviyo primário; Omnisend/MailerLite/Shopify Email via assets + setup-guide). Gera sequências (welcome, abandoned-cart, post-purchase, win-back, replenishment) e cria os flows via Klaviyo MCP oficial quando disponível, com fallback pra assets HTML + setup-guide que o membro importa. Use quando o membro disser "retention", "email flows", "automation", "lifecycle", "Klaviyo", ou após launch da primeira campanha de ads com tráfego rodando.
 ---
 
 # Retention Engine
@@ -15,7 +15,7 @@ Esta skill puxa SISTEMAS NOMEADOS de email lifecycle e psicologia de persuasão 
 
 ## Pré-flight
 
-**Idioma (report_language).** Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). Todo output interno (`13-retention-engine/relatorio.md`/`.html`, `flow-metadata.json` descritivo, mensagens e perguntas ao membro) usa esse idioma. **A copy dos emails em si (subject, preview, body, CTA) permanece SEMPRE em inglês US**, independente do report_language — é consumidor-final do mercado US.
+**Idioma (report_language).** Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). Todo output interno (`13-retention-engine/retention-engine.md`/`.html`, `flow-metadata.json` descritivo, mensagens e perguntas ao membro) usa esse idioma. **A copy dos emails em si (subject, preview, body, CTA) permanece SEMPRE em inglês US**, independente do report_language — é consumidor-final do mercado US.
 
 ### Gate de consistência (Skill 09)
 Antes das checagens abaixo, ler `workspace/[produto]/09-consistency-audit/dados.json` se existir:
@@ -24,15 +24,16 @@ Antes das checagens abaixo, ler `workspace/[produto]/09-consistency-audit/dados.
 - Se `GO` ou arquivo não existe → prosseguir.
 
 - [ ] `workspace/[produto]/manifest.json` com `10-ad-strategy` em `skills_completed`
-- [ ] **ESP identificado.** Ler `manifest.esp` (e `profile.md` → `esp: "klaviyo" | "omnisend" | "mailerlite" | "none"`). Se o campo estiver **ausente** (membro nunca rodou setup completo), PERGUNTAR inline ao membro qual ESP ele usa e gravar a resposta em `manifest.esp`. Se `esp: "none"` (membro não tem ESP), **não abortar** — recomendar Klaviyo (free tier até 250 contatos + Shopify integration nativa), e se o membro topar, gravar `manifest.esp = "klaviyo"` e seguir; se ele preferir decidir depois, gerar os fluxos no fallback HTML + setup-guide (seção abaixo) pra ele importar quando escolher.
-- [ ] `04-offer-builder/relatorio.md` + `04-offer-builder/dados.json` carregados (pra saber a janela de reorder, guarantee period, e os `bonuses[]` com seus `delivery_trigger`)
-- [ ] `02-market-research/relatorio.md` carregado (objeções = hooks de win-back; dores = hooks de abandoned cart)
+- [ ] **ESP identificado.** Ler `manifest.esp` (e `profile.md` → `esp: "klaviyo" | "omnisend" | "mailerlite" | "shopify_email" | "none"` — enum exato do manifest-schema, `shopify_email` com underscore). Se o campo estiver **ausente** (membro nunca rodou setup completo), PERGUNTAR inline ao membro qual ESP ele usa e gravar a resposta em `manifest.esp`. Se `esp: "shopify_email"`, **não abortar** — seguir direto pro Caminho 2 (assets + setup-guide adaptado ao editor do Shopify Email); ver a nota de limitações na seção do Caminho 2. Se `esp: "none"` (membro não tem ESP), **não abortar** — recomendar Klaviyo (free tier até 250 contatos + Shopify integration nativa), e se o membro topar, gravar `manifest.esp = "klaviyo"` e seguir; se ele preferir decidir depois, gerar os fluxos no fallback HTML + setup-guide (seção abaixo) pra ele importar quando escolher.
+- [ ] `04-offer-builder/offer-builder.md` (ou o legado `relatorio.md` — mesmo fallback vale pras outras fases) + `04-offer-builder/dados.json` carregados (pra saber a janela de reorder, guarantee period, e os `bonuses[]` com seus `delivery_trigger`)
+- [ ] `02-market-research/market-research.md` carregado (objeções = hooks de win-back; dores = hooks de abandoned cart)
+- [ ] `06-copy-engine/dados.json` carregado **(if exists)** → campo `email_hooks[]` (3-5 hooks de follow-up que a 06 gera na ETAPA 7, derivados das top-5 headlines + Big Idea + objeções — inglês US; também na seção canônica `## Email Follow-up Hooks` de `copy-engine.md`). É o seed dos subject lines/aberturas dos flows — ver nota em "Fluxos base". Ausente (copy legada, gerada antes do contrato) → derivar os hooks das headlines de `copy-engine.md` direto.
 
 ## TrendTrack MCP (opcional, se conectado)
 
 Se há tools com prefixo `mcp__trendtrack__` disponíveis:
 
-- **`mcp__trendtrack__analyze_shop_emails`** com domínio de 1-3 concorrentes do `03-competitor-analysis/relatorio.md` → retorna padrões reais de cadência, subject lines e content categories da concorrência. Use como referência (não copy-paste) pra calibrar timing dos fluxos abaixo (welcome series, abandoned cart, post-purchase) com benchmark de mercado.
+- **`mcp__trendtrack__analyze_shop_emails`** com domínio de 1-3 concorrentes do `03-competitor-analysis/competitor-analysis.md` → retorna padrões reais de cadência, subject lines e content categories da concorrência. Use como referência (não copy-paste) pra calibrar timing dos fluxos abaixo (welcome series, abandoned cart, post-purchase) com benchmark de mercado.
 
 Se TrendTrack NÃO estiver disponível, segue templates abaixo direto, baseados em VOC + offer.
 
@@ -57,7 +58,7 @@ Antes de gerar os fluxos, ler `04-offer-builder/dados.json.bonuses[]` e casar o 
 |--------------------|-----------------------------------|
 | `on_signup` | Welcome Series — Email 1 (boas-vindas) |
 | `post_purchase` | Post-Purchase Welcome — Email 1 (obrigado) |
-| `day_7` | Post-Purchase Welcome — Email 3 (~dia 7) |
+| `day_7_post_purchase` | Post-Purchase Welcome — Email 3 (~dia 7) |
 | `on_first_reorder` | Replenishment — Email 2/3 (no reorder) |
 
 Incluir o asset/link do bonus (PDF, Circle invite, código de acesso — produzidos na Skill 05) no corpo do email correspondente. Se a Skill 05 ainda não gerou o asset, deixar placeholder `{{BONUS_LINK}}` no HTML e avisar no output final que o link precisa ser colado antes de ativar.
@@ -70,6 +71,8 @@ Incluir o asset/link do bonus (PDF, Circle invite, código de acesso — produzi
 - **Email/SMS Coordination Rule (echo, don't collide)** — se o membro também roda SMS, escalonar (email primeiro, SMS follow-up pra não-openers), nunca colidir (rode `email SMS coordination echo not collide send email first SMS follow up non-openers staggered cadence`)
 - **Drayton Bird's Email = Direct Mail Principle** — tratar cada email como carta de uma pessoa real, subject = headline, copy longa quando o argumento exige (rode `Drayton Bird email direct mail principle long copy real person subject line headline`)
 
+**Seed de subject lines — `06-copy-engine/dados.json.email_hooks[]`:** os 3-5 hooks que a 06 gerou são o ponto de partida dos subject lines e das primeiras linhas dos flows de maior volume (welcome, abandoned cart, post-purchase) — eles já carregam a Big Idea, o mecanismo nomeado e as objeções reais do mercado, então usar eles garante message match entre o que o subscriber viu no ad/página e o que chega no inbox. Adapte cada hook ao contexto do flow (o mesmo hook vira curiosity no welcome e urgency no abandoned cart), não copie 1:1 nos 5 flows. Hooks são consumidor-final: **sempre inglês US**, ad-safe (rule 8b).
+
 
 ### 1. Welcome Series (novo subscriber, sem compra ainda)
 
@@ -81,15 +84,15 @@ Incluir o asset/link do bonus (PDF, Circle invite, código de acesso — produzi
 - **Restock / Testimonial / Anniversary Coupon Welcome Beats** — batidas de ecommerce pra calibrar o conteúdo de cada email (rode `ecommerce welcome series restock coupon testimonial week 5 anniversary coupon weekly post-purchase beats`)
 
 - Email 1 (imediato): boas-vindas + reforço do motivo do opt-in + code do welcome offer (se houver)
-- Email 2 (dia 2): educação sobre o mecanismo único (do `04-offer-builder/relatorio.md`) + soft CTA
+- Email 2 (dia 2): educação sobre o mecanismo único (do `04-offer-builder/offer-builder.md`) + soft CTA
 - Email 3 (dia 4): social proof stack + trust reinforcement
-- Email 4 (dia 7): urgency layer (expiração do welcome code) + hard CTA
+- Email 4 (dia 7): urgency layer + hard CTA. **Branch obrigatório:** se existe welcome code, a urgência é a expiração real do code (cross-check com o Promise↔Config gate — regra de rigor 4). Se NÃO existe welcome offer, NUNCA inventar deadline — usar urgência legítima alternativa: estoque real, prova social acumulada ("2.400 já compraram"), ou recap do mecanismo + custo de adiar o resultado.
 
 ### 2. Abandoned Cart (viewed product, added to cart, didn't checkout)
 
 **Frameworks a puxar (rode a query de cada um antes de escrever):**
 - **Abandoned-Cart Decay Curve + Two Sequence Styles** — quando disparar (curva de decaimento, Baymard 69.8%) e escolher entre estilo Discount-focused vs Emotion-focused conforme margem (rode `abandoned cart decay curve Baymard 69.8% discount-focused emotion-focused sequence escalating discount day 0 6 hours`)
-- **5 Reasons People Abandon (objection map)** — mapear o motivo real de abandono pra Email 2 (preço / urgência / experiência negativa / info incompleta / ceticismo), cruzando com objeções do `02-market-research/relatorio.md` (rode `five reasons people abandon cart price urgency negative experience incomplete information skepticism objection map`)
+- **5 Reasons People Abandon (objection map)** — mapear o motivo real de abandono pra Email 2 (preço / urgência / experiência negativa / info incompleta / ceticismo), cruzando com objeções do `02-market-research/market-research.md` (rode `five reasons people abandon cart price urgency negative experience incomplete information skepticism objection map`)
 - **Kennedy's 4-Step Follow-Up Campaign** — Re-state / Second Notice / Final Notice / Change Offer pra estruturar a escalada dos 4 emails (rode `Kennedy 4-step follow-up campaign re-state second notice final notice change offer No BS Direct Marketing`)
 - **Inoculation Theory** — pré-armar a objeção #1 antes que o cliente a verbalize (rode `inoculation theory McGuire weakened attack pre-emptive defense competitor argument resistance`)
 
@@ -154,7 +157,7 @@ klaviyo_mcp_available = existe ao menos 1 tool com prefixo `mcp__klaviyo__` na s
 
 Se **disponível**, CRIE os flows direto via MCP (com contrato estável, sem scraping):
 
-1. Gerar o HTML de cada email adaptando ao produto (usa `06-copy-engine/relatorio.md` pra copy + `02-market-research/relatorio.md` pra VOC + `04-offer-builder/relatorio.md` pra mecanismo), mesma geração do caminho de assets.
+1. Gerar o HTML de cada email adaptando ao produto (usa `06-copy-engine/copy-engine.md` pra copy + `02-market-research/market-research.md` pra VOC + `04-offer-builder/offer-builder.md` pra mecanismo), mesma geração do caminho de assets.
 2. Criar cada flow (welcome series, abandoned-cart, post-purchase, win-back, replenishment) via as tools `mcp__klaviyo__*` de flow creation/configuration: trigger, filtros, ações (email/delay/branch), subject + preview + conteúdo HTML.
 3. **Flows criados SEMPRE em draft/manual** — nunca ativar automaticamente (regra "NUNCA ativar automaticamente" abaixo vale igual aqui: risco de spam se um email tiver bug). Membro revisa no Klaviyo UI e ativa.
 4. Logar `source: "klaviyo_mcp"` no `13-retention-engine/dados.json` e no `automation-log.jsonl`.
@@ -164,7 +167,7 @@ Se uma chamada MCP falhar (auth, rate limit, tool indisponível), cair silencios
 
 ### Caminho 2 (FALLBACK confiável) — assets + setup-guide
 
-Gerar os assets prontos + setup-guide e o membro importa no Klaviyo UI. Veja a seção "Caminho 2 detalhado — assets + setup-guide" abaixo. Default quando não há Klaviyo MCP. Logar `source: "klaviyo_assets_guide"`. Vale também pra Omnisend/MailerLite/outros ESPs (que não têm MCP).
+Gerar os assets prontos + setup-guide e o membro importa no Klaviyo UI. Veja a seção "Caminho 2 detalhado — assets + setup-guide" abaixo. Default quando não há Klaviyo MCP. Logar `source: "klaviyo_assets_guide"`. Vale também pra Omnisend/MailerLite/Shopify Email/outros ESPs (que não têm MCP).
 
 ### NUNCA ativar automaticamente (vale pros dois caminhos)
 
@@ -172,12 +175,14 @@ Ativar flow via skill — por MCP ou de qualquer outra forma — = risco de spam
 
 ## Caminho 2 detalhado — assets + setup-guide (todos os ESPs)
 
-Este é o caminho confiável e o fallback da skill quando não há MCP — vale pra Klaviyo e pra Omnisend/MailerLite/outros. Skill gera:
+Este é o caminho confiável e o fallback da skill quando não há MCP — vale pra Klaviyo e pra Omnisend/MailerLite/Shopify Email/outros. Skill gera:
 
 1. `workspace/[produto]/13-retention-engine/[fluxo]/email-1.html`, `email-2.html`, etc (HTML pronto)
 2. `workspace/[produto]/13-retention-engine/[fluxo]/setup-guide.md` com step-by-step manual no dashboard do ESP (trigger, delays, subject/preview de cada email, onde colar o HTML)
 
 Membro faz o setup manual seguindo o guia, skill entrega os materiais prontos.
+
+**Nota específica pra `esp: "shopify_email"`:** o Shopify Email (com Shopify automations/Flow) cobre bem welcome, abandoned cart e post-purchase, mas os flows com branch/segmentação avançada (win-back por janela de inatividade, replenishment com timing por consumo) são limitados. O setup-guide adapta: usa as automations nativas onde existem, e converte os flows que o Shopify Email não suporta em campanhas agendadas manualmente (com o timing calculado no guia). Avisar no output final: quando o membro passar de ~$5k/mês em receita de email, migrar pra Klaviyo destrava os 5 flows completos + segmentação — recomendar a migração sem forçar.
 
 ## Compliance & deliverability
 
@@ -188,7 +193,7 @@ Pra cada email gerado:
 - **Unsubscribe link**: obrigatório no footer (CAN-SPAM + GDPR)
 - **From name**: "[Brand Name]" — não email genérico tipo "noreply@"
 - **Reply-to**: endereço monitorado (replies de cliente vão pra algum lugar)
-- **Spam trigger words check**: rodar `compliance-preflight` no subject + body. Palavras tipo "FREE!!!", "ACT NOW", "GUARANTEED" no subject reduzem inbox rate
+- **Spam trigger words check (checklist inline — a lib `compliance-preflight` cobre ad-flags de Meta/TikTok, não spam de email; não usar aqui):** revisar subject + body contra: "FREE!!!" e variações all-caps, "ACT NOW", "LIMITED TIME!!!", "GUARANTEED", "RISK-FREE", "100% free", excesso de `!` e `$`, subject inteiro em caixa alta, mais de 1 emoji no subject. Esses padrões derrubam inbox rate (caem em Promotions/Spam) — reescrever antes de salvar
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
@@ -198,8 +203,8 @@ Salvar:
 
 1. **`workspace/[produto]/13-retention-engine/[fluxo]/email-N.html`** — HTML pronto de cada email do fluxo (consumidor final; responsive table-based email HTML, NÃO o design-system Aura)
 2. **`workspace/[produto]/13-retention-engine/[fluxo]/flow-metadata.json`** — metadata de cada email (subject, preview, trigger, delay)
-3. **`workspace/[produto]/13-retention-engine/relatorio.md`** — relatório operacional do setup pra AI ler em skills futuras (resumo dos fluxos criados, triggers, status)
-4. **`workspace/[produto]/13-retention-engine/relatorio.html`** — visualização humana (AI report) usando `.claude/templates/aura-report-template.html` como base. Logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por fluxo, `.pill` pra status (DRAFT/ACTIVE), `.callout` pra avisos de compliance.
+3. **`workspace/[produto]/13-retention-engine/retention-engine.md`** — relatório operacional do setup pra AI ler em skills futuras (resumo dos fluxos criados, triggers, status)
+4. **`workspace/[produto]/13-retention-engine/retention-engine.html`** — visualização humana (AI report) usando `.claude/templates/aura-report-template.html` como base. Logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por fluxo, `.pill` pra status (DRAFT/ACTIVE), `.callout` pra avisos de compliance.
 5. **`workspace/[produto]/13-retention-engine/dados.json`** — log de flows criados + timestamps + status + delivery results
 
 **Distinção importante:** os emails em si (item 1) são HTML de email marketing (table-based, inline styles pra ESP compatibility) — NÃO usam o design-system Aura, NÃO têm logo Aura. Já os relatórios internos (itens 3-4) seguem a rule 6b do CLAUDE.md normalmente.
@@ -211,7 +216,7 @@ Atualizar `manifest.json.skills_completed` com `"13-retention-engine"`.
 ## Regras de rigor
 
 1. **NUNCA ativar flow sem revisão humana** — risco de spam em escala
-2. **Dois idiomas, dois papéis.** A copy dos emails (subject, preview, body, CTA) é consumidor-final do mercado US e fica SEMPRE em **inglês**, independente do `report_language`. Já o relatório interno (`13-retention-engine/relatorio.md`/`.html`), o setup-guide e a conversa com o membro seguem o `report_language` do `profile.md` (default `pt-BR`). Nunca misturar: nunca email em português, nunca relatório interno forçado em inglês quando o membro escolheu pt-BR.
+2. **Dois idiomas, dois papéis.** A copy dos emails (subject, preview, body, CTA) é consumidor-final do mercado US e fica SEMPRE em **inglês**, independente do `report_language`. Já o relatório interno (`13-retention-engine/retention-engine.md`/`.html`), o setup-guide e a conversa com o membro seguem o `report_language` do `profile.md` (default `pt-BR`). Nunca misturar: nunca email em português, nunca relatório interno forçado em inglês quando o membro escolheu pt-BR.
 3. **Replenishment requer a janela de reorder definida** — perguntar ao membro em quantos dias o produto acaba (ver Fluxo 5). Se o produto é one-time (não consumível), pular Fluxo 5.
 4. **Welcome offer code precisa existir** — cross-check com Promise↔Config gate antes de enviar
 5. **Rate limit**: ao criar flows via Klaviyo MCP oficial, respeitar o rate limit da API pública (spacing entre chamadas; ao receber 429, backoff conforme ES6). No fallback (assets + guide) não há chamada de API, então não se aplica.

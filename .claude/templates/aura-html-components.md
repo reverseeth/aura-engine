@@ -1,6 +1,6 @@
 # Aura HTML Components — v5 "Premium / Liquid Glass"
 
-Referência dos componentes do design system Aura. Usado por TODA skill que gera `.html` dual output (regra 6b do CLAUDE.md).
+Referência dos componentes do design system Aura. Usado por TODA skill que gera `.html` dual output de relatório (regra 6b do CLAUDE.md — arquivos operacionais de handoff como `dados.json`/`scale-directives.md` são isentos).
 
 A fonte única de verdade é **`aura-report-template.html`** (v5). Esta doc é o mapa: lista cada classe e quando usar. **Não reinvente CSS** — copie o `<head>` + `<style>` + `<script>` do template e adapte só o conteúdo.
 
@@ -34,7 +34,7 @@ São o que separa um report v5 de um report "morto". Três regras:
 ## Tokens (já no `:root` do template — referência)
 
 - Cores: `--bg:#EFF1F5` (fundo cool light), `--surface:#FFFFFF`, `--ink:#14161D` (texto forte), `--ink-2:#3A3E4A`, `--muted:#565B68`, `--faint:#9499A5`, `--line:#E5E7EE`.
-- Accent: `--accent:#2D5BFF` (indigo), `--accent-2:#7C5CFF` (violeta, usado nos glows).
+- Accent: `--accent:#2D5BFF` (indigo), `--accent-2:#7C5CFF` (violeta — o tom dos glows/halos; no CSS os glows usam esse tom em rgba literal).
 - Semânticas: `--green:#0E9F6E`, `--red:#E5484D`, `--amber:#B7791F` (+ variantes `-soft`).
 - Glass: `--glass:rgba(255,255,255,.62)`, `--glass-line:rgba(255,255,255,.75)`.
 - Tipografia: `--display:'Satoshi'` (títulos/números), `--sans:'Inter'` (corpo), `--mono` (código/VOC).
@@ -49,7 +49,7 @@ São o que separa um report v5 de um report "morto". Três regras:
 - `.container` — wrapper max-width 840px, centralizado. Tudo vai dentro.
 - `.page-title` — H1 gigante (clamp 40-62px, Satoshi). O título do report.
 - `.page-subtitle` — deck abaixo do título (19px, muted, max 60ch).
-- `.meta-bar` — barra de metadados em **grid glass** (auto-fit minmax 160px). Cada `<div><strong>Label</strong> valor</div>`; o `strong` vira overline uppercase. Use pra Produto · Mercado · Data · Alimenta.
+- `.meta-bar` — barra de metadados em **grid glass** (auto-fit minmax 160px). Cada `<div><strong>Label</strong> valor</div>`; o `strong` vira overline uppercase. Use pra Produto · Mercado · Data · Alimenta (report em `en`: Product · Market · Date · Feeds).
 - `.toc` / `.toc-title` — sumário com `<ol>` numerado (decimal-leading-zero), hover desliza.
 - `.section` — bloco de seção (margin-bottom grande). Use `id` pra ancorar do TOC.
 - `.section-label` — label da seção com `<span class="num">01</span>Título` + régua que esvai.
@@ -123,7 +123,7 @@ Em todos, o **primeiro `<strong>` vira o rótulo** (uppercase, display:block). E
 ### Logo & footer
 
 - `.logo-wrap` (`reveal`) — SVG da logo, height 28px. SEMPRE SVG, NUNCA texto.
-- `.footer` — rodapé. Texto fixo: **`Aura © 2026`**.
+- `.footer` — rodapé. Texto: **`Aura © [ano corrente da geração do report]`** (ex: `Aura © 2026` num report gerado em 2026), nada mais.
 
 ---
 
@@ -133,8 +133,9 @@ Em todos, o **primeiro `<strong>` vira o rótulo** (uppercase, display:block). E
 2. **`<head>` + `<style>` + `<script>` copiados literais** do template — self-contained, fontes via `<link>`, sem editar CSS.
 3. **`reveal` nos blocos de topo + `data-count` nos `.big-num`** — senão o report fica estático.
 4. **Emojis ✅ ⚠️ ❌ OK em report interno** (exceção regra 7) — NUNCA em página pro consumidor final.
-5. **Mobile** — `overflow-wrap:anywhere` em code/quote; o template já trata `.kpi-grid`, `.winner`, `.timeline` etc. no `@media (max-width:640px)`.
-6. **Footer = `Aura © 2026`** — sempre esse texto, nada mais.
+5. **Mobile** — `overflow-wrap:anywhere` em `code`, `.quote` e nos callouts (`.note`/`.callout`/`.opportunity`/`.danger`) — o CSS do template já aplica; o `@media (max-width:640px)` já trata `.kpi-grid`, `.winner`, `.timeline` etc.
+6. **Footer = `Aura © [ano corrente]`** — o ano da geração do report (o mesmo da meta-bar Data), nada mais.
+7. **Idioma do chrome segue o `report_language`** — pra membro `en`: `<html lang="en">`, toc-title "Contents", meta-bar "Product/Market/Date/Feeds". Pra `pt-BR` (default), mantenha o chrome do template como está.
 
 ## Extensão
 
@@ -146,7 +147,7 @@ Pra adicionar componente novo: (1) adiciona o CSS em `aura-report-template.html`
 
 ```html
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR"> <!-- report_language "en" → lang="en" + chrome em inglês (regra 7 acima) -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -176,7 +177,7 @@ Pra adicionar componente novo: (1) adiciona o CSS em `aura-report-template.html`
       <div class="callout reveal"><strong>Recomendação</strong> insight-chave.</div>
     </div>
 
-    <p class="footer">Aura © 2026</p>
+    <p class="footer">Aura © [ano corrente]</p>
   </div>
 
   <!-- ANIMAÇÃO — copiar literal o <script> de aura-report-template.html -->

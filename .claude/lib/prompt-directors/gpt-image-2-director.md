@@ -52,7 +52,7 @@ Write a single JSON object describing every visible region. GPT Image 2.0 reads 
    ```json
    "messages": {
      "count": 7,
-     "items": ["user1: hello", "user2: hi there", ...]
+     "labels": ["user1: hello", "user2: hi there", ...]
    }
    ```
 

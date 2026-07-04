@@ -34,7 +34,7 @@ Quando uma skill do Aura Engine não entrega resultado esperado, seguir esse dia
 
 | Causa | Check | Fix |
 |-------|-------|-----|
-| Temperature AI alta sem seed | Prompt da skill tem `temperature: 0.7+`? | Reduzir pra 0.3-0.5 OU fixar seed |
+| Inputs lidos em ordem/subconjunto diferente entre runs | A skill leu os MESMOS arquivos nas duas rodadas? (comparar lista de leituras) | Fixar na skill a lista explícita de arquivos que ela lê, na ordem |
 | Context window pressão | Skill carregou >200k tokens? | Reduzir inputs lidos (só essencial) |
 | Prompt vago com muitas interpretações | Instruções ambíguas ("bom copy", "atrativo") | Reescrever skill com exemplos concretos |
 | Conflito entre rules | Rules contradizem CLAUDE.md? | Conferir hierarquia, corrigir |
@@ -72,7 +72,7 @@ Quando uma skill do Aura Engine não entrega resultado esperado, seguir esse dia
 
 ### 6. Ad rodou 3 dias sem gastar
 
-**Sintomas**: ad set com spend < 10% do fair share em 72h
+**Sintomas**: ad com spend perto de zero após 72h (bem abaixo do fair share = 1/N do budget da campanha), OU a campanha inteira sem entregar
 
 **Causas prováveis:**
 
@@ -80,8 +80,8 @@ Quando uma skill do Aura Engine não entrega resultado esperado, seguir esse dia
 |-------|-------|-----|
 | Audience muito pequena | Advantage+ mas audience bloqueada? | Check warnings em Ads Manager |
 | Creative rejected pelo Meta | Ad status "In review" há > 24h? | Appeal via "Request Review" |
-| Pixel/CAPI degradou | Match quality caiu? | Re-verificar CAPI no Events Manager |
-| Daily budget muito baixo pra CPA target | Budget < 2× target CPA? | Aumentar budget OU reduzir N de ad sets |
+| Pixel/CAPI degradou | EMQ caiu (< 6.0/10 no Events Manager)? | Re-verificar CAPI no Events Manager |
+| Daily budget muito baixo pra CPA target | Budget < 2× target CPA? | Aumentar budget OU reduzir N de ads no ad set |
 
 ## Protocolo geral
 
@@ -90,6 +90,6 @@ Quando uma skill do Aura Engine não entrega resultado esperado, seguir esse dia
 3. **Se nada da árvore resolve**, escalate pro membro com info concreta: "Diagnóstico rodado, X/Y/Z checados, tudo OK. Pode ser [hipótese restante]. Investigação manual necessária."
 4. **NUNCA sugerir fix destrutivo** (rm -rf, git reset --hard, drop workspace) sem confirmação explícita do membro
 
-## Integração com NSN Mode
+## Princípio de exaustão
 
-Essa árvore complementa o NSN Mode (global rule `~/.claude/rules/nsn-mode.md`). NSN Mode é pra BARRIERS novos; troubleshooting-patterns é pra problemas CONHECIDOS e recorrentes do Aura Engine.
+Antes de dizer "não dá" pra qualquer problema, esgote as alternativas: esta árvore cobre os problemas CONHECIDOS e recorrentes do Aura Engine; pra barreiras novas (tool inédita falhando, serviço externo bloqueando de um jeito não mapeado), pesquise workarounds e tente ≥ 3 abordagens diferentes antes de escalar pro membro.

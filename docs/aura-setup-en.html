@@ -1,42 +1,14 @@
-<!--
-  AURA ENGINE — HTML Report Template (Design System Reference) · v5 "Premium / Liquid Glass"
-
-  Estilo visual padrão pra TODOS os reports HTML gerados pelas skills do Aura Engine.
-  A AI lê este arquivo como referência de design — copie a <style> completa + a
-  estrutura de componentes (e o <script> de animação), adapte apenas o conteúdo.
-
-  Estética: moderno, light, premium (Apple / Human Academy / academypass.ai). Sans
-  geométrica (Satoshi → Inter). Fundo com GLOW AMBIENTE sutil. Cards em LIQUID GLASS
-  (frosted, backdrop-blur). Títulos grandes, stats gigantes com divisores, overlines.
-  ANIMAÇÕES: reveal no scroll, count-up nos números, hover-lift nos cards. Glow leve
-  no winner e nos números. Tudo com progressive enhancement (visível sem JS).
-
-  PRESERVE os nomes de classe (skills dependem). Mantenha o <script> no fim do body.
-  Cada relatório .md em workspace/ tem um .html. Self-contained. Não altere sem aprovar o membro.
-
-  IDIOMA DO CHROME: o template é pt-BR por default. Se o membro tem report_language: "en"
-  (workspace/profile.md), adapte o chrome junto com o conteúdo: <html lang="en">,
-  toc-title "Contents", meta-bar "Product / Market / Date / Feeds". Pra pt-BR, mantenha como está.
-
-  COMPONENTES note/callout/opportunity/danger: o PRIMEIRO <strong> filho direto é o RÓTULO
-  (overline maiúsculo). Pode usar <strong> à vontade no CORPO pra ênfase — só o primeiro vira
-  rótulo; os demais ficam negrito inline e não quebram a frase (garantido por :first-of-type no CSS).
--->
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<!--
-  PLACEHOLDERS: não existe pipeline de render — a AI escreve o HTML final direto.
-  Ao substituir `{{KEY}}`, escape `<`, `>` e `&` (&lt; &gt; &amp;) se o dado contiver esses
-  caracteres. `{{KEY_HTML}}` marca os pontos onde a AI pode inserir markup próprio (ex: <strong>).
--->
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com; font-src 'self' https://fonts.gstatic.com https://cdn.fontshare.com data:; script-src 'self' 'unsafe-inline';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{TITLE}} — Aura Engine</title>
+<title>Aura — Setup Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   /* ═══════════ AURA DESIGN SYSTEM v5 · Premium / Liquid Glass ═══════════ */
@@ -137,19 +109,15 @@
   .script-block { border-radius:var(--r-sm); padding:22px 26px; margin:16px 0; font-family:var(--mono); font-size:13.5px; color:var(--ink-2); line-height:1.62; white-space:pre-wrap; word-break:break-word; }
 
   /* === NOTE / CALLOUT / OPPORTUNITY / DANGER (cards glass + overline-label + glow leve) === */
-  /* overflow-wrap: URL/token longo em quote de VOC ou callout não estoura o card no mobile */
-  .quote, .note, .callout, .opportunity, .danger { overflow-wrap:anywhere; }
   .note, .callout, .opportunity, .danger { font-size:16.5px; line-height:1.6; padding:24px 28px; border-radius:var(--r); margin:24px 0; position:relative; }
-  /* RÓTULO = só o PRIMEIRO <strong> (filho direto) do card. Qualquer <strong> seguinte é ênfase inline no corpo — NUNCA vira rótulo (evita quebrar a frase no meio). */
-  .note > strong:first-of-type, .callout > strong:first-of-type, .opportunity > strong:first-of-type, .danger > strong:first-of-type { display:block; font-family:var(--sans); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px; }
-  .note strong, .callout strong, .opportunity strong, .danger strong { font-weight:600; }
-  .note { color:var(--muted); } .note > strong:first-of-type { color:var(--faint); }
+  .note strong, .callout strong, .opportunity strong, .danger strong { display:block; font-family:var(--sans); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px; }
+  .note { color:var(--muted); } .note strong { color:var(--faint); }
   .callout { color:var(--ink); background:linear-gradient(180deg,rgba(238,242,255,.85),rgba(238,242,255,.6)); border-color:#DDE4FF; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 10px 30px rgba(45,91,255,.10); }
-  .callout > strong:first-of-type { color:var(--accent); }
+  .callout strong { color:var(--accent); }
   .opportunity { color:#0C2A20; background:linear-gradient(180deg,rgba(233,248,241,.85),rgba(233,248,241,.6)); border-color:#CFEEE1; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 10px 30px rgba(14,159,110,.10); }
-  .opportunity > strong:first-of-type { color:#0B7A53; }
+  .opportunity strong { color:#0B7A53; }
   .danger { color:#3A1416; background:linear-gradient(180deg,rgba(253,240,240,.85),rgba(253,240,240,.6)); border-color:#F7D8D9; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 10px 30px rgba(229,72,77,.10); }
-  .danger > strong:first-of-type { color:#C9343A; }
+  .danger strong { color:#C9343A; }
 
   /* === PILLS / BADGES (liquid glass) === */
   .pill { display:inline-block; font-size:11px; font-weight:600; padding:5px 12px; border-radius:9px; letter-spacing:0.01em; text-transform:uppercase; margin-right:5px;
@@ -262,84 +230,195 @@
   </div>
 
   <!-- ═══════════════ HEADER ═══════════════ -->
-  <h1 class="page-title reveal">{{TITLE}}</h1>
-  <p class="page-subtitle reveal">{{DESCRIPTION_HTML}}</p>
+  <h1 class="page-title reveal">Aura — Setup Guide</h1>
+  <p class="page-subtitle reveal">In a few minutes Aura is running on your machine, connected to the knowledge base, and ready to build your ecommerce business phase by phase. This guide takes you from zero to the first command.</p>
 
   <div class="meta-bar reveal">
-    <div><strong>Produto</strong> {{PRODUCT}}</div>
-    <div><strong>Mercado</strong> {{MARKET}}</div>
-    <div><strong>Data</strong> {{DATE}}</div>
-    <div><strong>Alimenta</strong> {{FEEDS}}</div>
+    <div><strong>Document</strong> Setup Guide</div>
+    <div><strong>Reading time</strong> 8 minutes</div>
+    <div><strong>Next step</strong> Type <code>setup</code></div>
   </div>
 
   <div class="toc reveal">
-    <div class="toc-title">Sumário</div>
-    <ol><li><a href="#s1">Section 1</a></li><li><a href="#s2">Section 2</a></li></ol>
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#s1">What Aura is (in 30 seconds)</a></li>
+      <li><a href="#s2">What you'll need</a></li>
+      <li><a href="#s3">Installation, step by step</a></li>
+      <li><a href="#s4">Using Aura day to day</a></li>
+      <li><a href="#s5">Where to start (by your situation)</a></li>
+      <li><a href="#s6">One thing to expect</a></li>
+    </ol>
   </div>
 
-  <!-- ═══════════════ SECTION EXAMPLE (referência de todos os componentes) ═══════════════ -->
+  <!-- ═══════════════ 01 ═══════════════ -->
   <div class="section" id="s1">
-    <div class="section-label reveal"><span class="num">01</span>Section Title</div>
+    <div class="section-label reveal"><span class="num">01</span>What Aura is (in 30 seconds)</div>
 
     <div class="subsection reveal">
-      <div class="subsection-title">Subsection</div>
-      <p>Regular paragraph text with <strong>bold</strong> words.</p>
+      <p>Aura is your complete brand and marketing team inside an AI environment. It <strong>runs on Claude Code</strong>, right on your computer. It builds your ecommerce business in phases (research, offer, store, ads, retention), and each phase uses what the previous one discovered, so you never repeat information.</p>
+      <p>You drive everything by typing the name of what you want to do. No menus, no complicated configuration: you say "product research" or "copy", and Aura runs that step and tells you what comes next.</p>
     </div>
 
-    <div class="kpi-grid reveal">
-      <div class="kpi-card"><div class="big-num" data-count="58" data-suffix="%">58%</div><div class="big-num-label">Metric label</div></div>
-      <div class="kpi-card"><div class="big-num" data-count="34" data-suffix="%">34%</div><div class="big-num-label">Metric label</div></div>
-      <div class="kpi-card"><div class="big-num" data-count="2" data-suffix="%">2%</div><div class="big-num-label">Metric label</div></div>
+    <div class="callout reveal">
+      <strong>Why this exists</strong>
+      Most people who teach ecommerce sell what's working today, and it goes stale within months. Aura codifies the fundamentals that don't age and lets the AI execute on them. Quality, automation, and speed in the same place.
+    </div>
+  </div>
+
+  <!-- ═══════════════ 02 ═══════════════ -->
+  <div class="section" id="s2">
+    <div class="section-label reveal"><span class="num">02</span>What you'll need</div>
+
+    <div class="subsection reveal">
+      <p>Three tiers. The essentials are non-negotiable (without them Aura won't even turn on), and two accounts only become essential once you reach the phase that uses them. The rest you add as your moment calls for it. You don't need everything on day one.</p>
     </div>
 
     <div class="table-wrap reveal">
-      <table><thead><tr><th>Col 1</th><th>Col 2</th><th>Col 3</th></tr></thead>
-      <tbody><tr><td><strong>Row 1</strong></td><td>Value</td><td><span class="pill pill-win">status</span></td></tr></tbody></table>
+      <table>
+        <thead><tr><th>Tier</th><th>Tool</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill pill-win">Essential</span></td><td><strong>Claude Code + a Claude subscription (Pro/Max)</strong></td><td>The engine that runs Aura. Create the account at <code>claude.ai</code>.</td></tr>
+          <tr><td><span class="pill pill-win">Essential</span></td><td><strong>Git</strong></td><td>Needed to download Aura (step 2 of the install). Macs ship with it; on Windows, install it from <code>git-scm.com</code>.</td></tr>
+          <tr><td><span class="pill pill-win">Essential</span></td><td><strong>Node.js 20+</strong></td><td>Aura checks the version and walks you through the setup if it's missing.</td></tr>
+          <tr><td><span class="pill pill-win">Essential</span></td><td><strong>Shopify store</strong></td><td>Where your page will live. Becomes essential from the Store phase onwards (page → tracking → checkout).</td></tr>
+          <tr><td><span class="pill pill-win">Essential</span></td><td><strong>Meta Ads Manager</strong></td><td>The ad account where the campaigns run. Becomes essential from the Traffic phase onwards (strategy → analysis → scale).</td></tr>
+          <tr><td><span class="pill pill-common">Recommended</span></td><td><strong>TrendTrack</strong></td><td>Product research and competitor creatives. Connects as an integration and becomes a primary source for several research phases.</td></tr>
+          <tr><td><span class="pill pill-tof">Optional</span></td><td><strong>SpyBox</strong></td><td>A single subscription that bundles several research tools: Kalodata, SimilarWeb, and others come inside it, so you don't subscribe to each one separately.</td></tr>
+          <tr><td><span class="pill pill-tof">Optional</span></td><td><strong>AIDesigner</strong></td><td>AI page design (paid). One of the routes for building the page.</td></tr>
+          <tr><td><span class="pill pill-tof">Optional</span></td><td><strong>Higgsfield Ultra</strong> (~$129/mo)</td><td>AI creatives (video and UGC). Only if you'll make ads with AI instead of modeling competitors.</td></tr>
+          <tr><td><span class="pill pill-tof">Optional</span></td><td><strong>ElevenLabs</strong></td><td>AI voice for creative narration. Only comes in at the creatives phase, if you'll produce video with voiceover.</td></tr>
+          <tr><td><span class="pill pill-tof">Optional</span></td><td><strong>Email/SMS</strong> (e.g. Klaviyo)</td><td>This comes <strong>after launch</strong> (retention). Early on the focus is media buying, not email marketing.</td></tr>
+        </tbody>
+      </table>
     </div>
-
-    <div class="quote reveal">"Exact customer quote goes here"<span class="quote-source">Reddit r/SelfTanning</span></div>
-    <div class="note reveal"><strong>Key point</strong> informational context goes here.</div>
-    <div class="callout reveal"><strong>Recommendation</strong> strategic recommendation goes here.</div>
-    <div class="opportunity reveal"><strong>Gap identified</strong> opportunity description.</div>
-    <div class="danger reveal"><strong>Warning</strong> critical error to avoid.</div>
-
-    <div class="winner reveal">
-      <div class="winner-label">Winner</div>
-      <div class="winner-name">Mechanism Name</div>
-      <p>Explanation of why this wins.</p>
-    </div>
-
-    <div class="faq reveal"><div class="faq-q">"Question from customer?"</div><div class="faq-a">Answer that breaks the objection.</div></div>
-    <div class="check-row reveal"><span class="check-icon">1</span><div><strong>Sanity check question?</strong><br><span style="color:var(--muted);">Answer with reasoning.</span></div></div>
   </div>
 
-  <p class="footer">Aura © {{YEAR}}</p>
+  <!-- ═══════════════ 03 ═══════════════ -->
+  <div class="section" id="s3">
+    <div class="section-label reveal"><span class="num">03</span>Installation, step by step</div>
+
+    <div class="subsection reveal">
+      <div class="subsection-title">1. Install Claude Code</div>
+      <p>Open your Terminal and run the command for your system.</p>
+      <p><strong>Mac:</strong></p>
+      <div class="script-block reveal">curl -fsSL https://claude.ai/install.sh | sh</div>
+      <p><strong>Windows:</strong></p>
+      <div class="script-block reveal">irm https://claude.ai/install.ps1 | iex</div>
+    </div>
+
+    <div class="subsection reveal">
+      <div class="subsection-title">2. Download Aura and open it</div>
+      <p>Clone the repository, enter the folder, and open the environment.</p>
+      <div class="script-block reveal">git clone https://github.com/reverseeth/aura-engine.git
+cd aura-engine
+claude</div>
+    </div>
+
+    <div class="subsection reveal">
+      <div class="subsection-title">3. Connect the knowledge base</div>
+      <p>This command wires Aura to the base behind every recommendation. Run it in the Terminal, outside the Claude Code session (press Ctrl+C twice to exit, or open another Terminal tab):</p>
+      <div class="script-block reveal">claude mcp add --transport http aura "https://aura-mcp-production.up.railway.app/mcp?key=YOUR_KEY"</div>
+      <div class="note reveal">
+        <strong>Using Claude Desktop?</strong>
+        Go to Settings → Integrations → Add Custom Integration and paste the same URL (with your key): <code>https://aura-mcp-production.up.railway.app/mcp?key=YOUR_KEY</code>. Your access key comes with your Aura access; if you did not receive a key, use the URL without the <code>?key=</code> suffix.
+      </div>
+    </div>
+
+    <div class="subsection reveal">
+      <div class="subsection-title">4. Run the setup</div>
+      <p>With Aura open, type:</p>
+      <div class="script-block reveal">setup</div>
+      <p>Aura first asks which language you want your reports in (English or Portuguese) and then asks 4 quick questions (your current situation, your ad budget, the tools you already have, including your email platform, and your store link). It reads your page automatically and routes you to the right next step.</p>
+    </div>
+
+    <div class="subsection reveal">
+      <div class="subsection-title">5. Next time</div>
+      <p>You don't need to repeat any of this. Open your Terminal and type:</p>
+      <div class="script-block reveal">aura</div>
+      <p>Aura keeps itself up to date: when it opens, it fetches the latest framework improvements automatically. To update by hand, enter the folder and run <code>git pull</code>.</p>
+      <div class="danger reveal">
+        <strong>Never delete the folder to "reinstall"</strong>
+        All of your work (research, offers, copy, creatives) lives in <code>workspace/</code>, which exists only on your computer (there is no cloud copy). Deleting the folder or re-downloading everything over it erases that work. Before any big operation, copy <code>workspace/</code> to a backup.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════ 04 ═══════════════ -->
+  <div class="section" id="s4">
+    <div class="section-label reveal"><span class="num">04</span>Using Aura day to day</div>
+
+    <div class="subsection reveal">
+      <p>After the setup, the day to day is simple. You say what you need, Aura delivers, and it always tells you what the next step is.</p>
+    </div>
+
+    <div class="check-row reveal"><span class="check-icon">1</span><div><strong>Fire any phase by name.</strong><br><span style="color:var(--muted);">Say "product research", "market research", "offer", "copy", "page", "creatives", "ad strategy", and so on. Aura runs the phase and points to what to run next.</span></div></div>
+
+    <div class="check-row reveal"><span class="check-icon">2</span><div><strong>Every product gets its own dashboard.</strong><br><span style="color:var(--muted);">Open the <code>ABRIR-AQUI.html</code> file in the product's folder (that is the actual file name Aura generates; it keeps its Portuguese name, meaning "open here") to see what's already done, open any report, and know what to run next.</span></div></div>
+
+    <div class="check-row reveal"><span class="check-icon">3</span><div><strong>Follow the logical order.</strong><br><span style="color:var(--muted);">Research (product → market → competition) → offer → copy → store (page → tracking → checkout) → creatives → audit → ads (strategy → analysis → scale) → post-launch (retention → bonus → recycling).</span></div></div>
+
+    <div class="check-row reveal"><span class="check-icon">4</span><div><strong>You never repeat information.</strong><br><span style="color:var(--muted);">Each phase reads what the earlier ones produced. What you discovered in research feeds the offer, which feeds the copy, and so on.</span></div></div>
+  </div>
+
+  <!-- ═══════════════ 05 ═══════════════ -->
+  <div class="section" id="s5">
+    <div class="section-label reveal"><span class="num">05</span>Where to start (by your situation)</div>
+
+    <div class="subsection reveal">
+      <p>Find the line that describes your moment and say the command in the last column. Aura takes it from there.</p>
+    </div>
+
+    <div class="table-wrap reveal">
+      <table>
+        <thead>
+          <tr><th>Your situation</th><th>Start by saying</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>I don't have a product yet</strong></td><td><code>product research</code></td></tr>
+          <tr><td><strong>I have a product, haven't launched</strong></td><td><code>market research</code></td></tr>
+          <tr><td><strong>I'm selling but not scaling</strong></td><td><code>ad analysis</code> <span style="color:var(--muted);">(diagnosis first)</span></td></tr>
+          <tr><td><strong>I'm already scaling and want to optimize</strong></td><td><code>scale</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 06 ═══════════════ -->
+  <div class="section" id="s6">
+    <div class="section-label reveal"><span class="num">06</span>One thing to expect</div>
+
+    <div class="subsection reveal">
+      <p>Aura hands you a first draft to react to and refine, not a finished "done" on the first try. Tell it what to adjust (tone, angle, emphasis) and it iterates on what it already built.</p>
+      <p>The more you use it on a product, the sharper it gets: each phase leaves a trail the next one picks up. Start small, let each phase feed the next, and the whole thing gains consistency on its own.</p>
+    </div>
+
+    <div class="winner reveal">
+      <div class="winner-label">The right pace</div>
+      <div class="winner-name">Start small. Let each phase feed the next.</div>
+      <p>You don't have to do everything today. Run one phase, react to the draft, move to the next. Aura keeps the context and tells you where you are whenever you come back.</p>
+    </div>
+
+    <div class="callout reveal">
+      <strong>The short version</strong>
+      Install Claude Code, download Aura, connect the knowledge base, and type <code>setup</code>. Then find your line in section 05 and go.
+    </div>
+  </div>
+
+  <p class="footer">Aura © 2026</p>
 
 </div>
 
-<!-- ═══════════════ ANIMAÇÃO (reveal no scroll + count-up nos números) ═══════════════ -->
+<!-- ═══════════════ ANIMAÇÃO (reveal no scroll) ═══════════════ -->
 <script>
-  // Guard: sem IntersectionObserver, NADA é escondido (a classe .js nunca entra) —
-  // a página se comporta como sem-JS, tudo visível estático (progressive enhancement).
-  if ('IntersectionObserver' in window) {
-    document.documentElement.classList.add('js');
-    const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
-    const reveals = document.querySelectorAll('.reveal');
-    if (reduce) { reveals.forEach(e=>e.classList.add('in')); }
-    else {
-      const io = new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);
-        e.target.querySelectorAll && e.target.querySelectorAll('[data-count]').forEach(countUp); } })},{threshold:0.12, rootMargin:'0px 0px -6% 0px'});
-      reveals.forEach(el=>io.observe(el));
-    }
-    function countUp(el){
-      if (reduce) return;
-      const target = parseFloat(el.getAttribute('data-count')); if (isNaN(target)) return;
-      const suffix = el.getAttribute('data-suffix')||''; const prefix = el.getAttribute('data-prefix')||'';
-      const dec = (String(target).split('.')[1]||'').length; const dur = 900; const t0 = performance.now();
-      function frame(t){ const p = Math.min(1,(t-t0)/dur); const e = 1-Math.pow(1-p,3);
-        el.textContent = prefix + (target*e).toFixed(dec) + suffix; if (p<1) requestAnimationFrame(frame); else el.textContent = prefix+target.toFixed(dec)+suffix; }
-      requestAnimationFrame(frame);
-    }
+  document.documentElement.classList.add('js');
+  const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const reveals = document.querySelectorAll('.reveal');
+  if (reduce) { reveals.forEach(e=>e.classList.add('in')); }
+  else {
+    const io = new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } })},{threshold:0.12, rootMargin:'0px 0px -6% 0px'});
+    reveals.forEach(el=>io.observe(el));
   }
 </script>
 </body>

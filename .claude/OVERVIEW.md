@@ -2,8 +2,8 @@
 
 Tudo que existe no ecossistema Aura: o que cada peça faz, como se conectam, e como uma sessão flui do início ao fim.
 
-**Versão:** junho 2026
-**Skills:** 16 (numeradas 00-14, com sub-cadeia storefront 07a/07b/07c/07d)
+**Versão:** julho 2026
+**Skills:** 19 (numeradas 00-14, com o slot 07 expandido em 07a/07b/07c/07d — sub-cadeia storefront — + 07e agentic readiness)
 **Plataforma:** Claude Code (CLI da Anthropic)
 **Raiz de output:** `workspace/[product-slug]/`
 
@@ -14,7 +14,7 @@ Tudo que existe no ecossistema Aura: o que cada peça faz, como se conectam, e c
 A Aura é um sistema de duas partes pra construir e escalar marcas de ecommerce dentro do **Claude Code**, a CLI da Anthropic:
 
 - **Base de Conhecimento Aura** — um servidor MCP remoto (ferramenta `search_knowledge`) que guarda os frameworks especialistas em que o raciocínio da Aura é construído (Schwartz, Hopkins, Hormozi, Cialdini, Sugarman, Ogilvy, Caples, mais metodologia original sobre construção de oferta, Meta Ads científico e produção de criativos). Conectada uma vez via Settings do Claude; consultada silenciosamente dentro de toda skill que precisa fundamentar uma decisão.
-- **Aura Engine** — um projeto (clonado em `~/aura-engine`) contendo 15 skills, libs de suporte, rules, hooks e templates. Skills se ativam por contexto: o membro descreve o que precisa, a Aura identifica em qual fase está, e a skill apropriada roda.
+- **Aura Engine** — um projeto (clonado em `~/aura-engine`) contendo 19 skills, libs de suporte, rules, hooks e templates. Skills se ativam por contexto: o membro descreve o que precisa, a Aura identifica em qual fase está, e a skill apropriada roda.
 
 **Princípio central:** cada fase produz artefatos versionados em `/workspace/[product-slug]/` que alimentam a próxima. Nada é jogado fora — a copy se apoia na pesquisa, os criativos se apoiam na copy, os ads se apoiam nos criativos, a retenção se apoia na venda.
 
@@ -33,7 +33,7 @@ Conexão acontece uma vez por dispositivo, e fica permanente até o membro remov
 - **Claude Desktop:** Settings → Integrations → Add Custom Integration → Nome *Aura* → URL `https://aura-mcp-production.up.railway.app/mcp` → Add
 - **Claude Code (terminal):** `claude mcp add --transport http aura https://aura-mcp-production.up.railway.app/mcp`
 
-Instruções completas com screenshots ficam em `Aura.html` (português) e `Aura-en.html` (inglês).
+Instruções completas com screenshots ficam em `docs/aura-setup-pt.html` (português) e `docs/aura-setup-en.html` (inglês).
 
 ### O que tem dentro
 
@@ -44,13 +44,13 @@ A base agrega a literatura fundacional de direct-response e ecommerce mais metod
 | Pesquisa de produto | `product research criteria validation`, `market desires mass desire`, `market sophistication stages` |
 | Pesquisa de mercado | `unified research document process`, `psychographic research drivers`, `voice of customer review mining`, `product market awareness Schwartz levels` |
 | Análise de concorrente | `competitor research extracting claims`, `market sophistication saturation` |
-| Construção de oferta | `unique mechanism UMP UMS theory`, `offer stack pricing guarantee`, `Hormozi grand slam offer value equation` |
-| Copywriting | `headlines formulas process 100 lines`, `leads types Schwartz awareness`, `hero sections types selection`, `PDP product page copy`, `CTA psychology call to action` |
-| Produção de criativo | `ad angles concepts variations`, `3-2-2 flexible ads format`, `hooks video ads`, `funnel creative playbook` |
+| Construção de oferta | `unique mechanism UMP UMS theory`, `offer stack pricing guarantee`, `Hormozi value equation dream outcome perceived likelihood time delay effort sacrifice` |
+| Copywriting | `headlines formulas process 100 lines`, `Schwartz lead desire identification belief dimension awareness lead selection`, `hero sections types selection`, `PDP structure reviews above fold how it works section ecommerce product detail page`, `CTA psychology call to action` |
+| Produção de criativo | `ad angles concepts variations`, `ad formats roadmap creative`, `hooks video ads`, `funnel creative playbook` |
 | Meta Ads | `scientific method meta ads control variable`, `one campaign method AndroMeta`, `4Pi analysis spend frequency CPM`, `budget scaling methods 5% rule`, `performance gate scaling PGS` |
 | Escala | `scaling strategy vertical horizontal`, `creative diversity scaling mechanism` |
-| Retenção | `email lifecycle welcome abandoned cart post-purchase winback`, `Klaviyo flow trigger replenishment` |
-| Reciclagem de conteúdo | `1 winner 9 derivatives formats advertorial email TikTok blog Pinterest` |
+| Retenção | `email lifecycle welcome abandoned cart post-purchase winback`, `30-60-90 day LTV email SMS flow second purchase window replenishment` |
+| Reciclagem de conteúdo | A estrutura "1 winner → 9 formatos" vem da lib `.claude/lib/content-recycler/` (formats.json), não da base. Na base a skill 14 puxa só frameworks de copy nomeados, ex: `Caples four U's hierarchy unique useful urgent ultra-specific headlines`, `gap theory of curiosity hooks counterintuitive open loop slippery slope` |
 
 Toda busca roda com `deep=true` pra resultados completos. Múltiplas buscas por tópico são normais.
 
@@ -71,7 +71,7 @@ Toda busca roda com `deep=true` pra resultados completos. Múltiplas buscas por 
 ├── .claude/
 │   ├── CLAUDE.md          ← instruções fundamentais (idioma, copy rules, dual output, MCP)
 │   ├── OVERVIEW.md / .html ← companion interno deste documento
-│   ├── skills/            ← skills 00-14, com sub-cadeia storefront 07a/07b/07c/07d
+│   ├── skills/            ← skills 00-14, com sub-cadeia storefront 07a/07b/07c/07d + 07e (agentic readiness)
 │   ├── lib/               ← libs reutilizáveis chamadas pelas skills
 │   ├── rules/             ← diretrizes auto-carregadas por contexto
 │   ├── hooks/             ← scripts que rodam em eventos do Claude Code
@@ -92,7 +92,7 @@ A Base de Conhecimento Aura **não** está nesta árvore — é um servidor MCP 
 
 ## 4. As skills (em detalhe)
 
-Cada skill é um arquivo `.md` com frontmatter (nome + descrição) e corpo estruturado em ETAPAs numeradas. Skills estão listadas abaixo na ordem em que o membro roda em uma sessão normal. A fase de página virou a fase **storefront** (07a→07b→07c→07d), e a bonus delivery (05) roda pós-launch.
+Cada skill é um arquivo `.md` com frontmatter (nome + descrição) e corpo estruturado em ETAPAs numeradas. Skills estão listadas abaixo na ordem em que o membro roda em uma sessão normal. A fase de página virou a fase **storefront** (07a→07b→07c→07d), a bonus delivery (05) roda em duas fases (Fase A pré-launch, Fase B pós-launch) e a agentic readiness (07e) roda depois dos criativos, antes do gate de launch (09).
 
 ### Skill 00 — Setup
 **Trigger:** `"setup"`
@@ -103,20 +103,20 @@ Configuração da primeira vez. Pergunta o idioma preferido pra relatórios inte
 **Trigger:** `"product research"`
 Valida produtos contra critérios (mass desire, mass urgency, mass uniqueness), aplica framework de sophistication de Schwartz (stages 1-5), recomenda go/no-go.
 **Enrichment opcional:** quando MCP TrendTrack conectado, ETAPA 0.5 usa `find_winning_products` + `search_shops` + `creative_inspiration_pack`.
-**Output:** `01-product-research/relatorio.md` + `relatorio.html`
+**Output:** `01-product-research/product-research.md` + `product-research.html`
 
 ### Skill 02 — Market Research
 **Trigger:** `"market research"`
 Coleta de Voice of Customer em Reddit, fóruns, reviews, comentários do TikTok. Identifica frases exatas dos clientes, mapeia awareness distribution, drivers psicográficos, objeções ranqueadas.
 **Por que importa:** o documento mais consultado do sistema.
-**Output:** `02-market-research/relatorio.md` + `relatorio.html` + `dados.json`
+**Output:** `02-market-research/market-research.md` + `market-research.html` + `dados.json`
 
 ### Skill 03 — Competitor Analysis
 **Trigger:** `"competitor analysis"`
-Identifica 5-10 concorrentes ativos via Meta Ad Library + Similarweb. Analisa PDPs. ETAPA 3C: análise profunda de criativos escalados via Whisper transcription.
+Identifica 5-10 concorrentes ativos via Meta Ad Library + Similarweb. Analisa PDPs. ETAPA 3C: análise profunda de criativos escalados com transcrição (Groq API ou Whisper local).
 **Fallback chain pra páginas bloqueadas:** Wayback Machine → archive.today.
 **Enrichment opcional:** quando MCP TrendTrack conectado, ETAPA 0.5 condensa ETAPAs 1-3 em `brief_competitor` + `search_shops` + `find_similar_shops` + `scan_ad`.
-**Output:** `03-competitor-analysis/relatorio.md` + `relatorio.html` + `dados.json` + `creative-patterns.json`
+**Output:** `03-competitor-analysis/competitor-analysis.md` + `competitor-analysis.html` + `dados.json` + `creative-patterns.json` + `creatives-inbox/` (uploads do membro + transcripts Whisper)
 
 ### Skill 04 — Offer Builder
 **Trigger:** `"offer"`
@@ -126,68 +126,72 @@ Constrói mecanismo único (UMP/UMS — a razão pela qual o produto resolve o p
 - `offer_stack` string → lido pela skill 06
 - `unit_economics.weighted_margin_per_order` + `target_cpa_primary_2x/3x` → lidos pela skill 11
 
-**Output:** `04-offer-builder/relatorio.md` + `relatorio.html` + `dados.json` + `research-foundation.json`
+**Output:** `04-offer-builder/offer-builder.md` + `offer-builder.html` + `dados.json` + `research-foundation.json`
 
-### Skill 05 — Bonus Delivery (roda PÓS-LAUNCH)
+### Skill 05 — Bonus Delivery (DUAS fases: A pré-launch, B pós-launch)
 **Trigger:** `"bonus delivery"` / `"bônus"`
-Geração do asset de bônus de ecom + delivery. A DEFINIÇÃO do bônus continua na skill 04; a 05 gera o ASSET (PDF/e-book/checklist) e rastreia access rate. Tipos primários de ecom: gift-with-purchase (GWP, threshold de cart subtotal vindo do AOV, take-rate como KPI), free e-book/guide toward dream outcome, free complementary SKU, free gift wrapping (Q4). A entrega do email integra com a skill 13 (via `delivery_trigger`); a config de GWP integra com a 07d-checkout-aov (é config de loja). Roda pós-launch, junto da 13.
-**Output:** `05-bonus-delivery/relatorio.md` + `relatorio.html` + `dados.json` (log de entrega) + `bonuses/[bonus-id]/`
+Geração do asset de bônus de ecom + delivery. A DEFINIÇÃO do bônus continua na skill 04; a 05 gera o ASSET (PDF/e-book/checklist) e rastreia access rate. Tipos primários de ecom: gift-with-purchase (GWP, threshold de cart subtotal vindo do AOV, take-rate como KPI), free e-book/guide toward dream outcome, free complementary SKU, free gift wrapping (Q4). A entrega do email integra com a skill 13 (via `delivery_trigger`); a config de GWP integra com a 07d-checkout-aov (é config de loja). **Fase A (pré-launch, entre a 07d e a 09):** gerar assets + configurar GWP/entrega — todo bônus prometido na PDP precisa existir antes do primeiro ad (a 09 verifica no gate). **Fase B (pós-launch, junto da 13):** tracking de take-rate/access rate.
+**Output:** `05-bonus-delivery/bonus-delivery.md` + `bonus-delivery.html` + `dados.json` (log de entrega) + `bonuses/[bonus-id]/`
 
 ### Skill 06 — Copy Engine
 **Trigger:** `"copy"`
 Headlines ("Process of 100" de Caples). Lead types por awareness stage. Hero sections, bullets, social proof, FAQ, urgency, email hooks. 8 sweeps de revisão.
-**Output:** `06-copy-engine/relatorio.md` + `relatorio.html` + `dados.json`
+**Output:** `06-copy-engine/copy-engine.md` + `copy-engine.html` + `dados.json` + `compliance-log.json`
 
 ### Skill 07 — Storefront (cadeia 07a → 07b → 07c → 07d)
 **Trigger:** `"page"` / `"tracking"` / `"checkout"`
 A fase storefront monta a loja inteira: página, deploy, tracking e AOV. Arquitetura **HTML-first determinística** — o design nasce in-session, vira a fonte única de verdade visual, e a conversão pra Liquid é por código, não por reasoning. Mata o drift entre o que o membro aprova e o que vai pro ar.
-- **07a — Page Design:** PLAN adaptativo de sections (page_type detectado primariamente pelo awareness_level de Schwartz) + brand signals + design HTML-first via a skill nativa `frontend-design` (gera a página inteira como HTML+CSS self-contained com a copy real já inserida). O membro aprova esse HTML ANTES de qualquer Liquid existir. **Output:** `07-plan.json` (com bloco `strategy`), `07-design-system.md/html`, `design/page.html` (aprovado), `design-tokens.json`, `design-signals.json`
+- **07a — Page Design:** PLAN adaptativo de sections (page_type detectado primariamente pelo awareness_level de Schwartz) + brand signals + design HTML-first via a skill nativa `frontend-design` (gera a página inteira como HTML+CSS self-contained com a copy real já inserida). O membro aprova esse HTML ANTES de qualquer Liquid existir. **Output:** `page-plan.json` (com bloco `strategy`), `design-system.md/html`, `design/page.html` (aprovado), `design-tokens.json`, `design-signals.json`
 - **07b — Page Build:** compile determinístico HTML→Liquid via `liquid-converter.py` (conversor canônico), populate `templates/page.[produto].json` com blocks/block_order/settings preenchidos com a copy real, GATEs de compliance + promise↔config, deploy seguro (duplicate → pull --nodelete → cp → push --allow-live --nodelete) + marker verification + smoke test
-- **07c — Tracking Setup:** Meta Pixel + Conversions API (CAPI), valida Match Quality ≥80% no Events Manager, escolhe o analytics stack por stage (Meta App / Wetracked / Triple Whale / Aimerce). Destrava os pré-flights de tracking das skills 08 e 10. **Output:** estado no manifest (`tracking_ready`, `analytics_stack`)
-- **07d — Checkout AOV:** post-purchase upsell (one-click), cart bump, bundle/quantity-break, free-shipping threshold, checkout trust. Consome os bumps/upsells já definidos no `04-offer-builder/dados.json`. Caminho real Shopify: Functions (cart transform / discount), post-purchase extension (Checkout UI) ou apps equivalentes
-
-**Page registry:** quando múltiplas páginas existem pra um produto, `07-page/page-registry.md` centraliza URL, ângulo da página, opening line, message-match ad→page.
+- **07c — Tracking Setup:** Meta Pixel + Conversions API (CAPI), valida EMQ ≥ 6/10 (Event Match Quality, escala 0-10 do Events Manager), escolhe o analytics stack por stage (Meta App / Wetracked / Triple Whale / Aimerce). Destrava os pré-flights de tracking das skills 08 e 10. **Output:** `07c-tracking-setup/tracking-setup.md/.html` + `dados.json` + estado no manifest (bloco `tracking`: `tracking_ready`, `analytics_stack`)
+- **07d — Checkout AOV:** post-purchase upsell (one-click), cart bump, bundle/quantity-break, free-shipping threshold, checkout trust. Consome os bumps/upsells já definidos no `04-offer-builder/dados.json`. Caminho real Shopify: Functions (cart transform / discount), post-purchase extension (Checkout UI) ou apps equivalentes. **Output:** `07d-checkout-aov/checkout-aov.md/.html` + `dados.json` + `manifest.aov_baseline` (quando a config foi aplicada na loja)
 
 ### Skill 08 — Creative Engine
 **Trigger:** `"creatives"`
 Pipeline completo. Por conceito: 3 format variants (Real Cuts / Hyper Motion / AI UGC). ETAPAs: detecção de material, quantidade por stage, ângulos das 3 verticais, regras estruturais, briefings, prompts production-ready (Higgsfield), LP congruency mapping, hooks bank, DNA registry load/extract, compliance pre-flight.
 **Enrichment opcional:** quando MCP TrendTrack conectado, Hooks Bank ganha archetypes vencedores reais.
-**Output:** `08-creative-engine/relatorio.md` + `relatorio.html` + `dados.json` + 1 briefing por conceito (`concept-NN.md/html`)
+**Output:** `08-creative-engine/creative-engine.md` + `creative-engine.html` + `dados.json` + 1 briefing por conceito (`concept-NN.md/html`)
+
+### Skill 07e — Agentic Readiness (AEO / AI visibility)
+**Trigger:** `"agentic readiness"` / `"aeo"` / `"ai visibility"`
+Checklist de descoberta por agentes de compra com AI (ChatGPT, Perplexity, Google AI Mode, Copilot). Roda depois do deploy (07b) — na prática, depois dos criativos — e antes do gate de launch (09). Verifica na loja VIVA: canal Agentic Storefronts + 3 policies, Knowledge Base app populado, dados estruturados da PDP (GTIN, ratings, FAQ/shipping/return — audita o que a camada GEO da 07b injetou), bloco de specs legível por agente, robots.txt liberando OAI-SearchBot/ChatGPT-User/PerplexityBot/ClaudeBot/Google-Extended, `/llms.txt` (nativo ou override), registro no Perplexity Merchant Program e qualidade do feed do Merchant Center. Fecha com score de AI visibility. **Não consulta a base Aura** (não há domínio de AEO lá — fontes são docs oficiais + verificação direta). Checklist barato de 1×, vale pra todo stage.
+**Output:** `07e-agentic-readiness/agentic-readiness.md` + `agentic-readiness.html` + `dados.json` + bloco `agentic` no manifest (lido pela 09 como contexto e pela 12 como fonte incremental de tráfego)
 
 ### Skill 09 — Consistency Audit
 **Trigger:** `"consistency audit"` / `"audit"`
 Cross-phase drift detection: mecanismo, awareness stage, VOC, oferta concordam entre todos os artefatos (skills 02 → 03 → 04 → 06 → 07 → 08). VOC traceability + promise↔config. Roda ANTES do launch, conferindo a página já no ar + criativos + oferta.
-**Vira gate de launch:** skills 10 e 13 abortam em `BLOCK`. A página existir (07b) não gasta dinheiro; os ads (10) sim — por isso o gate fica antes da 10, não do deploy da página.
-**Output:** `09-consistency-audit/relatorio.md` + `relatorio.html` + `dados.json` com `launch_recommendation`
+**Vira gate de launch:** em `BLOCK`, a 10 aborta (override só via `compliance_override` no manifest); a 13 bloqueia por default mas oferece prosseguir com `skipped_preflight` reconhecido (filosofia never-stuck). A página existir (07b) não gasta dinheiro; os ads (10) sim — por isso o gate fica antes da 10, não do deploy da página.
+**Output:** `09-consistency-audit/consistency-audit.md` + `consistency-audit.html` + `dados.json` com `launch_recommendation`
 
 ### Skill 10 — Ad Strategy
 **Trigger:** `"ad strategy"`
-Pre-flight pra Pixel/CAPI/produto live/criativos prontos. One Campaign Method, 3-2-2 ad sets, naming convention, decisão por timeline, PGS automático. Inclui árvore de analytics (Meta App / Wetracked / Triple Whale / Aimerce).
+Pre-flight pra Pixel/CAPI/produto live/criativos prontos. One Campaign Method: 1 campanha → 1 ad set (Advantage+/broad) → 5-12 criativos, criada em PAUSED via Meta MCP (o membro revisa e ativa). Naming convention, warmup de conta, Automated Rule de PGS opcional (nasce desativada). Confirma o analytics stack gravado pela 07c em `manifest.tracking` (a escolha da stack é da 07c, não desta).
 **GATE skill 09** roda no pre-flight.
-**Output:** `10-ad-strategy/relatorio.md` + `relatorio.html` + `dados.json` + manifest `10_campaign_name`
+**Output:** `10-ad-strategy/ad-strategy.md` + `ad-strategy.html` + `dados.json` + manifest `10_campaign_name`
 
 ### Skill 11 — Ad Analysis
 **Trigger:** `"ad analysis"`
 4Pi (Spend, Frequency, CPM, Cost per Result). LOSER detection dinâmico (lê unit_economics da skill 04). 19-Point Loser Diagnostic. Identifica WINNERs.
 **Enrichment opcional:** quando MCP TrendTrack conectado, `scan_ad` faz benchmark dos winners e `daily_radar` monitora concorrentes.
-**Output:** `11-ad-analysis/relatorio.md` + `relatorio.html` + `dados.json` (última análise) + `[YYYYMMDD]-analysis.md/html` (histórico)
+**Output:** `11-ad-analysis/ad-analysis.md` + `ad-analysis.html` + `dados.json` (última análise) + `[YYYYMMDD]-analysis.md/html` (histórico)
 
 ### Skill 12 — Scale Engine
 **Trigger:** `"scale"`
 Vertical scaling (PGS 5% rule). Horizontal scaling. Champion promotion. Diversification por stage.
-**Output:** `12-scale-engine/relatorio.md` + `relatorio.html` + `dados.json` + `scale-directives.md`
+**Output:** `12-scale-engine/scale-engine.md` + `scale-engine.html` + `dados.json` + `scale-directives.md`
 
 ### Skill 13 — Retention Engine
 **Trigger:** `"retention"` / `"email flows"` / `"klaviyo"`
 ESP identificado, ≥50 compras. Fluxos base: welcome series, abandoned cart, post-purchase, win-back, replenishment.
 **GATE skill 09** no pre-flight.
-**Enrichment opcional:** `analyze_shop_emails` calibra timing dos fluxos.
-**Output:** `13-retention-engine/relatorio.md` + `relatorio.html` + `dados.json` + `[fluxo]/`
+**Setup pipeline:** Klaviyo MCP oficial (`mcp__klaviyo__`) cria os flows direto, SEMPRE em draft → fallback assets HTML + setup-guide (único caminho pra Omnisend/MailerLite/Shopify Email). Ver §12.4.
+**Enrichment opcional:** `analyze_shop_emails` (TrendTrack) calibra timing dos fluxos.
+**Output:** `13-retention-engine/retention-engine.md` + `retention-engine.html` + `dados.json` + `[fluxo]/`
 
 ### Skill 14 — Content Recycler
 **Trigger:** `"content recycler"` / `"recycle [id]"` / `"recycle winner"`
-Lê 1 criativo winner (auto-detect via `11-ad-analysis/dados.json.winners[]`). Extrai essência. Gera 9 derivadas: advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad.
-**Output:** `14-content-recycler/relatorio.md` + `relatorio.html` (índice) + `[source-id]/` com 9 `.md` + 9 `.html`
+Lê 1 criativo winner (auto-detect via `11-ad-analysis/dados.json.winners[]`). Extrai essência. Gera 9 derivadas: advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad. Engine e specs dos formatos vivem na lib `.claude/lib/content-recycler/` (`recycler.md` + `formats.json`).
+**Output:** `14-content-recycler/content-recycler.md` + `content-recycler.html` (índice) + `[source-id]/` com 9 `.md` + 9 `.html`
 
 ---
 
@@ -201,10 +205,14 @@ Libs reutilizáveis em `.claude/lib/`.
 | **content-recycler** | Engine prompt-driven pra skill 14. Arquivos: `recycler.md` + `formats.json`. | 14 |
 | **creative-dna** | Cross-product DNA registry. Skill 08 salva padrões abstratos; próxima execução em outro produto carrega e adapta. | 08 |
 | **hook-taxonomy** | Taxonomia de hooks (Problema / Resultado / Curiosidade / Prova Social). | 08 |
+| **kb-index** | Índice permanente das 541 entradas de frameworks nomeados da base (~520 sistemas únicos; `frameworks.json` + `README.md`), por domínio, com a `best_query` exata de cada um. Skills puxam sistemas por nome via esse índice, nunca por query genérica. | Todas as skills que consultam a base |
+| **mcp-detect** | Fonte única de verdade dos prefixos de tool MCP detectáveis (`mcp__trendtrack__`, `mcp__meta__ads_*`, `mcp__meta-ads__`, `mcp__refero__`, `mcp__klaviyo__`, `mcp__shopify_dev__`, `mcp__stripe__`) + convenção de log `source`. | 07c, 10, 11, 13 + receitas de automação |
 | **prompt-directors** | Directors de prompt pra ferramentas externas (Higgsfield Marketing Studio). | 08 (ETAPA 5.7) |
+| **web-fetch** | Fetcher Playwright de navegador real (`fetch.py --mode text\|reddit\|reviews`) pro cascade resiliente da rule `resilient-fetch` (WebSearch → WebFetch → fetcher). Reddit via redlib, reviews com scroll de widgets lazy. | 00 (setup), 02, 03 + qualquer skill que minera web (rule `resilient-fetch`) |
+| **workspace-index** | `build_index.py` regenera o painel `ABRIR-AQUI.html` do produto; `workspace-layout.md` define a estrutura canônica do workspace. | Todas as skills (no SALVAR) |
 | **trendtrack-integration** (opcional) | Integração read-only com MCP TrendTrack. 11 tools. Detecção runtime: tools com prefixo `mcp__trendtrack__`. Aura funciona 100% sem ela. | 01, 03, 08, 11, 13 |
 | **refero-integration** (opcional) | Integração com Refero Design MCP (`fidgetcoding-refero-mcp`). Catálogo curado de ~200 design systems premium (Cursor, Linear, Vercel, Notion, Stripe). 6 tools (`refero_search`, `refero_get`, `refero_similar`, `refero_list`, `refero_design_md`, `refero_refresh`). Fonte de brand signals (não decisão visual) que alimentam o `frontend-design`. Cascade na 07a ETAPA 2 (Brand Signals): Refero → screenshot→visão → `tools/design-clone/` → manual. | 07a (ETAPA 2) |
-| **automations/ (Meta + Shopify)** | Vive em `.claude/automations/`. Cascade resiliente pra Meta Ads: **(1)** MCP oficial da Meta `mcp.facebook.com/ads` (open beta desde 2026-04-29, tools `mcp__meta__ads_*`, 29 tools); **(2)** MCP Pipeboard 3rd-party (tools `mcp__meta-ads__*`) como fallback automático; **(3)** paste manual. Receitas: `sync-campaign-from-meta-official.md`, `sync-campaign-from-meta.md`, `pause-ad-set.md`, `upload-creative-to-meta.md`, etc. | 10, 11 |
+| **automations/ (Meta + Shopify)** | Vive em `.claude/automations/`. Cascade resiliente pra Meta Ads: **(1)** MCP oficial da Meta `mcp.facebook.com/ads` (open beta desde 2026-04-29, tools `mcp__meta__ads_*`, 29 tools); **(2)** MCP Pipeboard 3rd-party (tools `mcp__meta-ads__*`) como fallback automático; **(3)** paste manual. Receitas: `sync-campaign-from-meta.md` (única, com cascade interna oficial → Pipeboard → manual), `pause-ad-set.md`, `upload-creative-to-meta.md`, `creative-loop.md` (loop semi-autônomo: performance → DNA dos winners → variações novas → aprovação humana → upload), `full-deploy.md`, `deploy-shopify-product.md`, `create-fixed-bundles.md` (bundles fixos via Admin GraphQL `productBundleCreate`), `rotate-winning-creative.md` | 10, 11 |
 
 **Por que cascade no Meta:** o MCP oficial está em rollout gradual — algumas ad accounts aparecem "disabled" mesmo depois do setup correto. Manter Pipeboard como fallback elimina dependência da Meta liberar acesso.
 
@@ -223,7 +231,8 @@ Diretrizes em `.claude/rules/` auto-carregadas pelo Claude Code conforme context
 | `emergency-escape-paths` | ES1-ES7 cobrem pre-flights travados, workspace corrompido, etc. |
 | `troubleshooting-patterns` | Quando skill não entrega. Árvore de diagnóstico estruturada. |
 | `post-task-self-audit` | Toda skill peso médio/alto. 5 gates silenciosos antes de declarar "completo". Fixes inline silenciosos. |
-| `reverse-order-insertion` | Inserir múltiplos elementos em arquivo em ordem reversa pra line numbers não mudarem de lugar. |
+| `resilient-fetch` | **NON-NEGOTIABLE.** Toda skill que busca dados na web. Cascade WebSearch → WebFetch → fetcher Playwright (`lib/web-fetch`); nunca inventar VOC/claim quando a fonte bloqueia. |
+| `reverse-order-insertion` | Multi-insert safety: em arrays posicionais (`order[]`, `block_order`), inserir em ordem reversa; em edits por anchor de texto, planejar anchors únicos e disjuntos. |
 
 **Rules são diretrizes, não código enforced.** O Claude lê e aplica. A camada real de enforcement são os hooks.
 
@@ -235,7 +244,7 @@ Scripts em `.claude/hooks/` registrados em `.claude/settings.json`.
 
 ### post-start.sh
 **Quando:** abertura de sessão Claude Code (1× por dia).
-**O que faz:** adiciona o alias `aura` no shell rc do membro.
+**O que faz:** adiciona o alias `aura` no shell rc do membro e instala o guard `.git/hooks/pre-commit` que bloqueia mecanicamente qualquer commit com arquivos de `workspace/` (camada 2 da separação framework vs workspace — CLAUDE.md rule 11e).
 
 ### Hooks globais (vindos de ~/.claude/settings.json)
 - `enforce-git-push-authority.sh` — só @devops pode push
@@ -268,7 +277,7 @@ JSON Schema (draft-07) pro `manifest.json`. `additionalProperties: true` — ski
 
 Cada produto vive em `/workspace/[slug]/`.
 
-Cada fase mora numa subpasta própria `0X-<stem>/`. Dentro: `relatorio.html` (o que o membro abre), `relatorio.md` (o que a AI lê na fase seguinte), `dados.json` (dados estruturados). Arquivos secundários mantêm nome descritivo dentro da pasta. Estrutura canônica completa em `.claude/lib/workspace-index/workspace-layout.md`.
+Cada fase mora numa subpasta própria `0X-<stem>/`. Dentro: `<stem>.html` (o que o membro abre), `<stem>.md` (o que a AI lê na fase seguinte), `dados.json` (dados estruturados) — o relatório humano leva o nome da pasta sem o prefixo numérico (ex.: `02-market-research/market-research.html`). Arquivos secundários mantêm nome descritivo dentro da pasta. Estrutura canônica completa (incl. compat com nomes legados) em `.claude/lib/workspace-index/workspace-layout.md`.
 
 ```
 /workspace/produto-x/
@@ -277,27 +286,28 @@ Cada fase mora numa subpasta própria `0X-<stem>/`. Dentro: `relatorio.html` (o 
 ├── brand.md  ·  brand/logo.svg        ← identidade (infra)
 ├── promise-check.json · compliance-warnings.json   ← infra compartilhada
 ├── creative-dna/                      ← infra compartilhada (08 + 11)
-├── 01-product-research/   → relatorio.md / .html
-├── 02-market-research/    → relatorio.md / .html + dados.json
-├── 03-competitor-analysis/ → relatorio.md / .html + dados.json + creative-patterns.json + creatives-inbox/
-├── 04-offer-builder/      → relatorio.md / .html + dados.json + research-foundation.json
-├── 05-bonus-delivery/     → relatorio.md / .html + dados.json + bonuses/[bonus-id]/   (pós-launch)
-├── 06-copy-engine/        → relatorio.md / .html + dados.json + compliance-log.json
+├── 01-product-research/   → product-research.md / .html
+├── 02-market-research/    → market-research.md / .html + dados.json
+├── 03-competitor-analysis/ → competitor-analysis.md / .html + dados.json + creative-patterns.json + creatives-inbox/
+├── 04-offer-builder/      → offer-builder.md / .html + dados.json + research-foundation.json
+├── 05-bonus-delivery/     → bonus-delivery.md / .html + dados.json + bonuses/[bonus-id]/   (pós-launch)
+├── 06-copy-engine/        → copy-engine.md / .html + dados.json + compliance-log.json
 ├── 07-page/               ← storefront (07a design + 07b build)
-│   ├── 07-design-system.md / .html · 07-plan.json (bloco strategy)
+│   ├── design-system.md / .html · page-plan.json (bloco strategy)
 │   ├── design/page.html               ← HTML aprovado (fonte única visual)
 │   ├── design-tokens.json · design-signals.json · iterations-log.json
-│   ├── 07-page.html                   ← página final (relatório humano da fase)
-│   └── 07-deploy-report.json · page-registry.md / .html · staging/
-├── 07c-tracking-setup/    → relatorio.md / .html + dados.json
-├── 07d-checkout-aov/      → relatorio.md / .html + dados.json
-├── 08-creative-engine/    → relatorio.md / .html + dados.json + concept-NN.md/html + hooks-bank + prompts/
-├── 09-consistency-audit/  → relatorio.md / .html + dados.json
-├── 10-ad-strategy/        → relatorio.md / .html + dados.json
-├── 11-ad-analysis/        → relatorio.md / .html + dados.json + [YYYYMMDD]-analysis.md/html
-├── 12-scale-engine/       → relatorio.md / .html + dados.json + scale-directives.md
-├── 13-retention-engine/   → relatorio.md / .html + dados.json + [fluxo]/   (pós-launch)
-└── 14-content-recycler/   → relatorio.md / .html (índice) + [source-id]/   (pós-winner)
+│   ├── page-report.html                   ← página final (relatório humano da fase)
+│   └── deploy-report.json · staging/
+├── 07c-tracking-setup/    → tracking-setup.md / .html + dados.json
+├── 07d-checkout-aov/      → checkout-aov.md / .html + dados.json
+├── 07e-agentic-readiness/ → agentic-readiness.md / .html + dados.json   (pós-deploy, pré-launch)
+├── 08-creative-engine/    → creative-engine.md / .html + dados.json + concept-NN.md/html + hooks-bank + prompts/
+├── 09-consistency-audit/  → consistency-audit.md / .html + dados.json
+├── 10-ad-strategy/        → ad-strategy.md / .html + dados.json
+├── 11-ad-analysis/        → ad-analysis.md / .html + dados.json + [YYYYMMDD]-analysis.md/html
+├── 12-scale-engine/       → scale-engine.md / .html + dados.json + scale-directives.md
+├── 13-retention-engine/   → retention-engine.md / .html + dados.json + [fluxo]/   (pós-launch)
+└── 14-content-recycler/   → content-recycler.md / .html (índice) + [source-id]/   (pós-winner)
 ```
 
 `/workspace/profile.md` (fora de qualquer produto) guarda dados do membro: budget, ESP, tools, mercado, idioma. Escrito pela skill 00, lido por todas. O **`ABRIR-AQUI.html`** de cada produto é a porta de entrada: lista cada fase, o que já foi feito e o próximo passo — toda skill o regenera ao terminar.
@@ -335,7 +345,7 @@ Cada fase mora numa subpasta própria `0X-<stem>/`. Dentro: `relatorio.html` (o 
 Antes de declarar qualquer skill "completa", 5 gates mentais rodam silenciosamente. Fixes inline sem mencionar. Surface só quando precisa decisão do membro.
 
 ### Integrações MCP opcionais — rule 10
-A Aura detecta MCPs externos e enriquece skills automaticamente. **Meta MCP** (cascade oficial → Pipeboard → manual) e **TrendTrack MCP** são os casos principais.
+A Aura detecta MCPs externos e enriquece skills automaticamente. **Meta MCP** (cascade oficial → Pipeboard → manual), **TrendTrack**, **Refero** e **Klaviyo** são os casos principais. Prefixos canônicos em `.claude/lib/mcp-detect/README.md`.
 
 ---
 
@@ -343,13 +353,13 @@ A Aura detecta MCPs externos e enriquece skills automaticamente. **Meta MCP** (c
 
 Cross-product learning. A skill 08 (creatives) salva DNA toda vez que executa: hook archetypes que funcionaram, voice signatures, padrões estruturais. Próxima execução em outro produto carrega esse registry e adapta sem reinventar.
 
-**Read/write:** via `lib/creative-dna/registry.py`. Skill 08 chama em silent steps (ETAPA 7.4 carrega, ETAPA 7.6 escreve).
+**Read/write:** via `lib/creative-dna/registry.py`. Skill 08 chama em silent steps (o "Contexto a carregar" — item 6 — carrega o dna-profile.json e enviesa a ideação desde a ETAPA 3; a ETAPA 7.6 escreve).
 
 **O que NÃO entra no registry:** dados específicos do produto (nomes, claims, preços). Só padrões abstratos.
 
 ---
 
-## 12. Integrações MCP opcionais — Meta + TrendTrack + Refero
+## 12. Integrações MCP opcionais — Meta + TrendTrack + Refero + Klaviyo
 
 A Aura é desenhada em volta de um padrão cascade resiliente pra MCPs externos. Cada skill enriquecida detecta tools MCP disponíveis em runtime e usa como fonte primária; ausência dispara fallback silencioso. O membro nunca vê estado quebrado.
 
@@ -379,8 +389,8 @@ Passo 2 — Pipeboard fallback (recomendado em paralelo): token long-lived do Ma
 
 | Skill / Receita | Tools | O que melhora |
 |---|---|---|
-| 11 ad analysis (ETAPA 1) | Cascade via `sync-campaign-from-meta-official.md` | Auto-pull + market context (industry benchmark, auction ranking, opportunity score, anomalies). Compara membro vs vertical p50. |
-| 10 ad strategy (pre-flight) | `ads_get_dataset_quality` | Gate de Match Quality ≥80% antes do launch |
+| 11 ad analysis (ETAPA 1) | Cascade via `sync-campaign-from-meta.md` (receita única: oficial → Pipeboard → manual) | Auto-pull + market context (industry benchmark, auction ranking, opportunity score, anomalies). Compara membro vs vertical p50. |
+| 10 ad strategy (pre-flight) | `ads_get_dataset_quality` | Gate de EMQ ≥ 6/10 (Event Match Quality) antes do launch |
 | `pause-ad-set.md` | `ads_update_entity` (cascade) | PGS guard sem interação manual |
 | `upload-creative-to-meta.md` | Continua via Pipeboard/Playwright | MCP oficial não aceita arquivos locais |
 
@@ -454,6 +464,14 @@ Opcionais: `OPENAI_API_KEY` (semantic search) e `REFERO_MCP_VAULT_DIR` (escrever
 
 **O Claude Design SAIU do caminho crítico.** O design é HTML-first via a skill nativa `frontend-design` (gera a página inteira como HTML+CSS self-contained com a copy real). Refero entra antes, só como input de signals pro `frontend-design`.
 
+### 12.4 — Klaviyo MCP oficial (criação de flows de retenção)
+
+O Klaviyo publicou um MCP oficial (25 tools, 2026) que a skill 13 (retention-engine) usa como caminho preferencial pra criar os flows de lifecycle direto na conta do membro — com contrato de API estável, sem scraping e sem cookie de sessão (o caminho de session-cookie foi REMOVIDO por risco de segurança).
+
+**Padrão de detecção:** tools com prefixo `mcp__klaviyo__` na sessão → Caminho 1 (criação direta via MCP). Ausente ou falha (auth/rate-limit) → fallback silencioso pro Caminho 2: assets HTML + `setup-guide.md` que o membro importa no UI do ESP (único caminho pra Omnisend/MailerLite/Shopify Email, que não têm MCP).
+
+**Regra inviolável:** flows criados via MCP nascem SEMPRE em draft/manual — a skill nunca ativa automaticamente (risco de spam se um email tiver bug). O membro revisa no Klaviyo UI e ativa. `source` logado no `13-retention-engine/dados.json`: `klaviyo_mcp` ou `klaviyo_assets_guide`.
+
 ---
 
 ## 13. Como rodar uma sessão completa do zero
@@ -467,14 +485,16 @@ Ordem canônica pra um produto novo:
 5. **offer** — mecanismo, pricing, stack, garantia, unit economics
 6. **copy** — copy completa pra cada section
 7. **storefront** — 07a (page design HTML-first) → 07b (build + deploy) → 07c (tracking setup) → 07d (checkout AOV)
-8. **creatives** — 6-15 conceitos com briefings
-9. **consistency audit** — cross-phase drift check (gate de launch)
-10. **ad strategy** — estrutura de campanha, naming, PGS
-11. **— LAUNCH —**
-12. **ad analysis** (depois de 3-7 dias) — 4Pi, diagnóstico, decisões
-13. **scale** (depois que winners emergem) — vertical + horizontal
-14. **retention** (≥50 compras) — fluxos Klaviyo + **bonus delivery** (asset de bônus de ecom)
-15. **content recycler** (depois de winner consolidado) — 9 derivadas
+8. **bonus delivery — Fase A** (05) — assets + config de GWP/entrega (todo bônus da PDP existe antes do primeiro ad)
+9. **creatives** — 6-15 conceitos com briefings
+10. **agentic readiness** (07e) — checklist de descoberta por agentes de AI na loja viva
+11. **consistency audit** — cross-phase drift check (gate de launch)
+12. **ad strategy** — estrutura de campanha, naming, PGS
+13. **— LAUNCH —**
+14. **ad analysis** (depois de 3-7 dias) — 4Pi, diagnóstico, decisões
+15. **scale** (depois que winners emergem) — vertical + horizontal
+16. **retention** (≥50 compras) — fluxos Klaviyo + **bonus delivery — Fase B** (tracking de take-rate)
+17. **content recycler** (depois de winner consolidado) — 9 derivadas
 
 Cada skill faz pre-flight da anterior. Se algum artefato falta, oferece fallback (rule `emergency-escape-paths` — ES1).
 
@@ -500,10 +520,12 @@ Os números das skills refletem a numeração da época de cada mudança.
 | 2026-04-30 | Skill 14 ganha companion `.html` obrigatório (rule 6b) |
 | 2026-04-30 | CLAUDE.md atualizado com skill 14 na lista oficial |
 | 2026-04-30 | **Integração MCP TrendTrack** adicionada como lib opcional. Skills 01, 03, 08, 11, 13 ganham ETAPAs condicionais. Fallback silencioso. CLAUDE.md ganha rule 10. |
-| 2026-05-11 | **Integração do MCP oficial da Meta** (`mcp.facebook.com/ads`, open beta desde 2026-04-29). Nova receita `sync-campaign-from-meta-official.md` usa as 29 tools nativas. Skill 11 ETAPA 1 vira cascade: oficial → Pipeboard → manual. `pause-ad-set.md` ganha cascade interno. CLAUDE.md rule 10 expandida. |
-| 2026-05-11 | **Integração Refero MCP** (`lorecraft-io/refero-design-mcp`). Catálogo curado de ~200 design systems premium. Skill 07a ETAPA 2.1 Brand Discovery vira cascade: Refero → `tools/design-clone/` → manual. Complementar ao Claude Design (ETAPA 0.5 continua gerando 4 variações visuais). CLAUDE.md rule 10 expandida. Nova lib `refero-integration/`. |
 | 2026-05-03 | Self-audit silencioso obrigatório no fim de toda skill (rule + CLAUDE.md rule 9) |
 | 2026-05-03 | **Renumeração completa das skills** pra match com ordem de execução: bonus-delivery 13→05, copy 05→06, page 06→07, creatives 07→08, consistency-audit 11→09, ad-strategy 08→10, ad-analysis 09→11, scale 10→12, retention 12→13. Content-recycler permanece 14. |
 | 2026-05-04 | Skill 00 setup pergunta idioma de relatório (`pt-BR` ou `en`) como primeira pergunta; salvo em `profile.md` como `report_language`. |
-| 2026-05-04 | Page registry pattern introduzido: `07-page/page-registry.md` centraliza URL, frame e dados de message-match ad↔page pra múltiplos criativos referenciarem páginas por slug. |
-| 2026-06-20 | **Redesign storefront (Onda 2).** Fase de página vira a cadeia storefront **07a-page-design → 07b-page-build → 07c-tracking-setup → 07d-checkout-aov**. 07a/07b são HTML-first determinístico: design nasce in-session via `frontend-design` (fonte única visual aprovada antes do Liquid), conversão HTML→Liquid por código via `liquid-converter.py`. Claude Design sai do caminho crítico; Refero vira fonte de signals e screenshot→visão vira o fallback primário de inspiração. **07c-tracking-setup** (Pixel + CAPI ≥80% + analytics stack) e **07d-checkout-aov** (upsell/bump/bundle/checkout trust) são skills novas. **Bonus delivery (05)** redesenhada pra bônus de ecom (GWP, e-book, free SKU, gift wrapping) e movida pra pós-launch junto da 13. Gate de consistência (09) trava o launch (skill 10), não o deploy da página. CLAUDE.md/AGENTS.md rule 10c atualizada. |
+| 2026-05-11 | **Integração do MCP oficial da Meta** (`mcp.facebook.com/ads`, open beta desde 2026-04-29). Nova receita `sync-campaign-from-meta-official.md` usa as 29 tools nativas. Skill 11 ETAPA 1 vira cascade: oficial → Pipeboard → manual. `pause-ad-set.md` ganha cascade interno. CLAUDE.md rule 10 expandida. |
+| 2026-05-11 | **Integração Refero MCP** (`fidgetcoding-refero-mcp`). Catálogo curado de ~200 design systems premium. Skill 07a ETAPA 2.1 Brand Discovery vira cascade: Refero → `tools/design-clone/` → manual. Complementar ao Claude Design (ETAPA 0.5 continua gerando 4 variações visuais). CLAUDE.md rule 10 expandida. Nova lib `refero-integration/`. |
+| 2026-06-20 | **Redesign storefront (Onda 2).** Fase de página vira a cadeia storefront **07a-page-design → 07b-page-build → 07c-tracking-setup → 07d-checkout-aov**. 07a/07b são HTML-first determinístico: design nasce in-session via `frontend-design` (fonte única visual aprovada antes do Liquid), conversão HTML→Liquid por código via `liquid-converter.py`. Claude Design sai do caminho crítico; Refero vira fonte de signals e screenshot→visão vira o fallback primário de inspiração. **07c-tracking-setup** (Pixel + CAPI + analytics stack) e **07d-checkout-aov** (upsell/bump/bundle/checkout trust) são skills novas. **Bonus delivery (05)** redesenhada pra bônus de ecom (GWP, e-book, free SKU, gift wrapping) e movida pra pós-launch junto da 13. Gate de consistência (09) trava o launch (skill 10), não o deploy da página. CLAUDE.md/AGENTS.md rule 10c atualizada. |
+| 2026-06-20 | **Skill 13 sem cookie.** Caminho de session-cookie/internal-API do Klaviyo DELETADO (risco de segurança: cookie dava acesso full à conta). Cascade da 13 vira: **Klaviyo MCP oficial** (`mcp__klaviyo__`, flows sempre em draft) → assets HTML + setup-guide. Papéis pós-compra consolidados: 05 produz asset de bônus, 13 é o executor único de email, 14 gera só variação de nutrição derivada de winner. |
+| 2026-06-22 | **Coleta resiliente da web.** Nova lib `web-fetch` (fetcher Playwright headless + stealth: `--mode text\|reddit\|reviews`, Reddit via redlib) + rule `resilient-fetch` (NON-NEGOTIABLE): cascade WebSearch → WebFetch → fetcher; bloqueio é tratado, nunca preenchido com texto inventado. Resolve os bloqueios de fetch (403/Cloudflare/CAPTCHA soft) nas skills de research. |
+| 2026-07-03 | **Skill 07e — Agentic Readiness (AEO).** Skill nova (19ª): checklist pós-deploy/pré-launch de descoberta por agentes de compra com AI — canal Agentic Storefronts + policies, Knowledge Base app, dados estruturados da PDP (audita a camada GEO da 07b), specs legíveis por agente, robots.txt (OAI-SearchBot/ChatGPT-User/PerplexityBot/ClaudeBot/Google-Extended), llms.txt, Perplexity Merchant Program, feed do Merchant Center, score de AI visibility. Não usa a base Aura (fontes: docs oficiais + verificação na loja viva). Bonus delivery (05) formalizada em DUAS fases (Fase A pré-launch: assets + GWP; Fase B pós-launch: tracking). Recipes novas registradas: `creative-loop.md` e `create-fixed-bundles.md`; `sync-campaign-from-meta.md` vira receita única com cascade interna. |

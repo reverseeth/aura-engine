@@ -134,7 +134,7 @@ Exemplo: cálculo do PSM real depende de dado de Stripe que membro não passou. 
 
 ## Modo "deep audit" (skills peso crítico)
 
-Em Skills 04 (offer), 06 (copy), 07c (deploy), 08 (creatives), 09 (consistency-audit), 10 (ad-strategy), o silent audit é EXPANDIDO:
+Em Skills 04 (offer), 06 (copy), 07b (page-build/deploy), 08 (creatives), 09 (consistency-audit), 10 (ad-strategy), o silent audit é EXPANDIDO:
 
 - Re-ler as skills anteriores da cadeia (não só artefatos JSON)
 - Verificar se `04-offer-builder/research-foundation.json` sustenta todo claim forte

@@ -32,9 +32,9 @@ recycle winner
 
 Antes de destilar, abrir as fontes pra herdar dados reais (nunca reparafrasear o que já é canônico):
 
-- `workspace/[produto]/04-offer-builder/relatorio.md` (ou `04-offer-builder/dados.json`) → copiar o `mechanism_name` **LITERAL** pra `mechanism_name_canonical`. NÃO reparafraseie o nome do mecanismo.
+- `workspace/[produto]/04-offer-builder/offer-builder.md` (ou `04-offer-builder/dados.json`) → copiar o `mechanism_name` **LITERAL** pra `mechanism_name_canonical`. NÃO reparafraseie o nome do mecanismo.
 - `workspace/[produto]/08-creative-engine/dados.json` → herdar `voc_source.ref_id` de cada hook do conceito fonte pra popular `voc_refs[]`.
-- `workspace/[produto]/02-market-research/relatorio.md` (ou `02-market-research/dados.json`) → VOC real (frases exatas do consumidor, em inglês US literal) referenciadas por `voc_refs[]`.
+- `workspace/[produto]/02-market-research/market-research.md` (ou `02-market-research/dados.json`) → VOC real (frases exatas do consumidor, em inglês US literal) referenciadas por `voc_refs[]`.
 
 Destilar em shape estruturado (valores extraídos das fontes acima, não pré-definidos):
 
@@ -92,7 +92,11 @@ Pra cada formato:
 2. Construir prompt usando essence.json + format spec + knowledge base context
 3. Gerar derivada respeitando `length_words`, `structure`, `tone`
 4. Rodar Compliance Pre-flight (`.claude/lib/compliance-preflight/checker.md`)
-5. Se severity >= high: auto-rewrite e log
+5. Decidir pela severity (mesmo protocolo do checker.md):
+   - `critical` → PARAR essa derivada, mostrar triggers + `rewrite_suggestion` ao membro e aguardar aprovação antes de salvar (nunca auto-reescrever claim critical silenciosamente)
+   - `high` → auto-rewrite + log, re-rodar o check
+   - `medium` → salvar original + logar warning
+   - `low` → salvar silencioso
 6. Salvar em `workspace/[produto]/14-content-recycler/[source-id]/[output_file]`
 
 ### ETAPA 5 — Gerar índice + relatório
@@ -115,13 +119,13 @@ Gerado em [timestamp] a partir de [source file].
 |---|---|---|---|
 | Advertorial 1500w | advertorial-1500w.md | 1540 | ✅ low |
 | Email sequence | email-sequence.md | 1080 | ✅ low |
-| Organic TikTok 20s | organic-tiktok-20s.md | 78 | ⚠️ medium (1 trigger) |
+| Organic TikTok 20s | organic-tiktok-20s.md | 58 | ⚠️ medium (1 trigger) |
 | Blog SEO post | blog-seo-post.md | 1820 | ✅ low |
 | Pinterest carousel | pinterest-carousel-8.md | 290 | ✅ low |
 | YouTube pre-roll 15s | youtube-preroll-15s.md | 48 | ✅ low |
 | SMS welcome | sms-welcome.md | 24 | ✅ low |
 | Package insert | package-insert.md | 165 | ✅ low |
-| Podcast host-read 30s | podcast-ad-30s.md | 88 | ✅ low |
+| Podcast host-read 30s | podcast-ad-30s.md | 74 | ✅ low |
 
 ## Como usar
 
@@ -199,8 +203,8 @@ workspace/[produto]/14-content-recycler/
 ## Custo estimado
 
 - ~10-12 chamadas Claude (extração essência + 9 derivadas + compliance em cada)
-- Tokens totais: ~40-60k
-- Custo: ~$0.10-0.30 em tokens (Sonnet) ou incluso na assinatura Claude Code
+- Tokens totais: ~40-60k por rodada
+- Custo: zero custo extra — só tokens da assinatura Claude Code
 
 ## Tempo
 

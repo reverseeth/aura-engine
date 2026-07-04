@@ -19,12 +19,13 @@ description: Engine de escrita de copy completo baseado em market research, comp
   >     3. Prossiga mesmo assim reconhecendo limitação (copy ficará abstrata)
 
   Se membro escolher 3, marca `"voc_forced_continue": true` no output pra Skill 11 diagnosticar depois.
-- [ ] `03-competitor-analysis/relatorio.md` existe
-- [ ] `04-offer-builder/dados.json` existe → extrair `mechanism` (objeto `{name, ...}` — usar `mechanism.name`, NÃO tratar como string), `pricing`, `guarantee`
+- [ ] `03-competitor-analysis/competitor-analysis.md` existe (ou o legado `relatorio.md` — mesmo fallback vale pras outras fases)
+- [ ] `04-offer-builder/dados.json` existe → extrair `mechanism` (objeto `{name, ...}` — usar `mechanism.name`, NÃO tratar como string), `pricing`, `guarantee`, `bonuses[]` (cada bonus tem `condition` — dirige a copy de GWP/stack, ver ETAPA 4)
 - [ ] `04-offer-builder/research-foundation.json` existe → extrair `evidence_items[]`, `confidence_score`, `gaps_and_risks`
   - Se ausente: WARN "Research foundation não rodou (Skill 04 Etapa 2.5). Claims na copy vão sair sem lastro verificável. Opções: (1) voltar pra skill 04 e rodar Etapa 2.5; (2) prosseguir marcando `claims_unverified: true` no output — skill 09 (consistency-audit) vai bloquear launch depois."
   - Se existe mas `confidence_score == "low"`: WARN "Evidence weak — claims fortes (clinically proven, X% melhoria) vão ser suavizados automaticamente pra 'helps with', 'designed to support'. Skill 09 vai re-validar antes de launch."
 - [ ] Extrair `product_vertical` do manifest (default "other" se ausente) — usado pelo Compliance Pre-flight (Sweep 8)
+- [ ] Ler `manifest.copy_language` (se presente; default `"en"`) — confirma o idioma da copy consumidor-final. Não confundir com `report_language` (idioma dos relatórios internos): a copy pública segue `copy_language`, que hoje é sempre inglês US pro mercado US
 
 Se faltar qualquer arquivo de fase anterior (02/03/04), em vez de abortar seco ofereça ≥2 caminhos:
 > **(A)** Rodar a skill faltante agora (02/03/04), OU **(B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["arquivo"]` e avisando no output final que recomenda re-executar com o arquivo real. VOC com opção 3 e research-foundation com acknowledgment já seguem esse padrão acima. Exceção: se `manifest.json` ou `profile.md` estiverem TOTALMENTE ausentes, não há o que inferir — ofereça rodar o setup (skill 00) inline.
@@ -35,16 +36,16 @@ Quando o membro tem market research, competitor analysis e oferta prontos, e pre
 ## Antes de Começar
 
 1. Leia `workspace/profile.md` — em especial `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno desta skill (strategy brief, sweeps documentados, `.md`/`.html` descritivos) e toda conversa com o membro usam esse idioma. **A copy consumidor-final (headlines, leads, hero, bullets, CTAs, advertorial, email hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language` — copy pública nunca traduz.
-2. Leia `workspace/[produto]/02-market-research/relatorio.md` (psychographics, awareness/sophistication, VOC literal, objeções, root cause)
-3. Leia `workspace/[produto]/03-competitor-analysis/relatorio.md` (claims saturados a evitar, gaps, posicionamento recomendado, swipe file)
-4. Leia `workspace/[produto]/04-offer-builder/relatorio.md` (mecanismo único com 3 versões, bundles, garantia, unit economics)
+2. Leia `workspace/[produto]/02-market-research/market-research.md` (psychographics, awareness/sophistication, VOC literal, objeções, root cause)
+3. Leia `workspace/[produto]/03-competitor-analysis/competitor-analysis.md` (claims saturados a evitar, gaps, posicionamento recomendado, swipe file)
+4. Leia `workspace/[produto]/04-offer-builder/offer-builder.md` (mecanismo único com 3 versões, bundles, garantia, unit economics)
 5. **Puxe os SISTEMAS NOMEADOS da base — não query genérica.** Esta skill é o coração do sistema. Para cada ETAPA, rode `search_knowledge` com a `best_query` exata de cada framework relevante (as queries estão embutidas nas ETAPAs 2-6 abaixo, no ponto onde cada framework é usado). NUNCA dispare uma busca tipo "copy framework" ou "headlines" — sempre o nome do sistema + sua query curada. **Índice completo dos frameworks desta skill (3 domínios: copy-headlines-leads, copy-proof-persuasion-structure, persuasion-psychology): `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — mapa skill→domínio no README).** Faça múltiplas buscas por ETAPA pra cobrir o assunto a fundo; se um framework adjacente aparecer numa busca e for útil pra fase, puxe também.
 
 ## Fluxo da Skill
 
 ### Input Extraction (automático)
 Antes de gerar copy, carregue:
-1. `dominant_awareness` = stage com maior % em `awareness_distribution` do market research JSON
+1. `dominant_awareness` = ler DIRETO o campo `dominant_awareness` de `02-market-research/dados.json` (a Skill 02 já grava esse campo decidido, com nuance de fonte). Só recompute a partir de `awareness_distribution` (stage com maior %) como FALLBACK se o campo faltar (produto legado) — recomputar quando o campo existe abre porta pra drift em distribuições apertadas. Se `dominant_awareness_secondary` presente (empate ±5pp na 02), trate como híbrido: escolha um lead que sirva os DOIS níveis (ex: empate problem/solution → lead de mecanismo com abertura de problema), não só o primário
 2. `sophistication` = `sophistication_stage` (1-5)
 3. `voc_checklist` = array das 20 VOC phrases mais repetidas (achate os 3 pools de `voc_phrases` — `{problem, desire, frustration}` — num único array antes do substring matching). VOC permanece SEMPRE no inglês original do consumidor.
 4. `mechanism` = objeto do `04-offer-builder/dados.json` (use `mechanism.name` pro nome; não tratar como string)
@@ -70,7 +71,7 @@ Se o membro disser "não sei", use o awareness level dominante do market researc
 **2. Página atual:**
 "Tem página atual que quer melhorar? Se sim, me manda o link."
 
-- SE mandar o link: leia/extraia a página (web fetch) e use como baseline — identifique o que manter (o que funciona) e o que reescrever (o que tá fraco).
+- SE mandar o link: leia/extraia a página (`WebFetch`; se barrado — 403/Cloudflare/password page da loja —, use o fetcher resiliente: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode text`, conforme `resilient-fetch.md`; último caso, o membro cola o texto da página) e use como baseline — identifique o que manter (o que funciona) e o que reescrever (o que tá fraco).
 - SE não tiver: partimos do zero.
 
 **NENHUMA outra pergunta ao membro.** Todas as decisões estratégicas abaixo são tomadas automaticamente pelo sistema.
@@ -157,7 +158,11 @@ Apresente a estratégia (6-8 linhas no máximo) como um BRIEF antes de escrever:
 
 Não peça aprovação — segue direto pra escrita. O membro pode ajustar depois se quiser, mas o default é o sistema executar a decisão fundamentada.
 
-### ETAPA 3 — Headlines (Processo de 100 Linhas)
+**Persistir a decisão de lead (contrato com a 07a):** o tipo de lead escolhido nesta etapa DEVE ser gravado no campo **top-level `lead_type`** do `06-copy-engine/dados.json` (ver Output Schema). A 07a lê esse campo pra confirmar o `page_type` da página — sem ele, a fase STOREFRONT decide no escuro.
+
+### ETAPA 3 — Headlines (Processo de 100 Linhas, versão condensada)
+
+> O processo canônico gera 100 linhas; aqui rodamos a versão condensada (20-30 variações) que preserva as fases do framework (gerar em volume sem julgar → categorizar → top 5 → 3 hipóteses A/B) sem estourar contexto. As primeiras variações "ruins" continuam fazendo parte do método — elas destravam as boas.
 
 Puxe os SISTEMAS de headline da base antes de gerar (rode cada `best_query` — não query genérica tipo "headlines"):
 - **100-Headline Exercise (Process)** (rode `100 headlines exercise process first 20 suck VOC immersion prereqs`) — o processo que governa esta ETAPA inteira
@@ -245,7 +250,7 @@ Use a **versão 1 parágrafo** do mecanismo da oferta (ou a 2-3 parágrafos se f
 - Product Aware → foca na especificidade do mecanismo (ingredientes, dosagem, processo)
 
 Inclua:
-- Nome do mecanismo (do 04-offer-builder/relatorio.md)
+- Nome do mecanismo (do 04-offer-builder/offer-builder.md)
 - Como funciona (biology/mechanism of action se aplicável)
 - Por que é diferente
 - Referência a evidência (estudo, ingredient research, patents se aplicável)
@@ -275,12 +280,19 @@ Organize em formato visual navegável (tiles, carrossel, grid).
 
 #### Oferta / Stack Com Ancoragem
 
-Do `04-offer-builder/relatorio.md`:
+Do `04-offer-builder/offer-builder.md`:
 - Produto com nome
 - Bundles (Solo / Popular 3-pack / Best Value 6-pack) com savings visíveis
 - Bump (produto complementar baixo ticket)
 - Stack de valor: "Você recebe [X + Y + Z] no valor de $[total ancorado]. Hoje: $[preço]"
 - Savings visíveis ("Você economiza $[diff] hoje")
+
+**Bônus/GWP respeitam `bonuses[].condition` do `04-offer-builder/dados.json`** (extraído no pré-flight) — a copy do stack DEVE refletir a condição configurada:
+- `cart_threshold` → a copy diz a condição explícita ("FREE [bonus] on orders over $X") — NUNCA prometa incondicional um brinde que só destrava por subtotal
+- `unconditional` → sem condição na copy (todo comprador recebe)
+- `tier_specific` → o brinde aparece SÓ no tier que o destrava (3-pack/6-pack), não no stack geral
+
+Mismatch entre a promessa da página e a `condition` real é promessa quebrada no checkout — o GATE 2 (promise↔config) bloqueia por isso.
 
 Aplique **pricing psychology** — puxe os sistemas por nome (rode cada `best_query`):
 - **Anchoring & Adjustment + Contrast Principle** (rode `anchoring adjustment Tversky Kahneman SSN auction real estate listing reference price Poundstone`) — o valor ancorado do stack
@@ -290,7 +302,7 @@ Aplique **pricing psychology** — puxe os sistemas por nome (rode cada `best_qu
 
 #### Garantia
 
-Do `04-offer-builder/relatorio.md`, a copy de garantia (2-3 frases, tom confiante, detalhes claros).
+Do `04-offer-builder/offer-builder.md`, a copy de garantia (2-3 frases, tom confiante, detalhes claros).
 
 Posicione com destaque visual (box, shield icon, destaque colorido).
 
@@ -324,12 +336,17 @@ Call to VALUE, não call to action. Reforça o outcome + remove fricção:
 
 Repita CTA em 3-5 pontos da página (após hero, após mecanismo, após social proof, após oferta, no final).
 
+#### Urgency/Scarcity
+
+Curta e com razão REAL — urgência inventada (countdown falso, "only 3 left" de mentira) destrói confiança e viola policy. Ancore num elemento verdadeiro da oferta da 04: bônus que expira de verdade, preço de lançamento com data definida, lote/estoque real limitado, GWP por threshold enquanto durar. Escreva 2-4 frases prontas pra usar junto da oferta e no close (esta é a seção canônica `## Urgency/Scarcity` do relatório e o campo `urgency` do dados.json). Se a oferta da 04 NÃO tem nenhum elemento de urgência real, registre isso no relatório e entregue a página sem urgência fabricada — o custo da inação (Temporal Discounting, já puxado no CTA Final) cobre o empurrão. NÃO invente escassez.
+
 #### Seções Adicionais (se fizer sentido)
 
 - **Comparação com concorrentes** (se Product Aware): tabela "Nosso produto vs [concorrente A] vs [concorrente B]" com dimensões claras (ingrediente, preço, guarantee, mechanism)
 - **How it works** (se mechanism exige explicação): 3-step visual (Step 1 → Step 2 → Step 3) com ícones e copy curta
 - **Before/After grid** (se visual): 3-4 comparisons
 - **Ingredient/feature spotlight** (se ingredient-based mechanism): cada ingrediente com benefit e research
+- **Specs objetivas (legíveis por agente de compra AI)** — recomendado em TODA PDP: um bloco curto de especificações concretas e verificáveis (materiais/ingredientes com dosagem exata, dimensões/peso, quantidade por unidade, certificações reais, país de fabricação, modo de uso em passos numerados). Agentes de compra AI (ChatGPT/Perplexity shopping e afins) decidem lendo specs e dados estruturados, não copy sensorial — uma página sem specs objetivas fica invisível pra esse tráfego crescente. Escreva como fatos secos (Hopkins: especificidade sem adjetivos); a skill 07e (agentic-readiness) audita esse bloco depois.
 
 ### ETAPA 5 — Se for ADVERTORIAL (Alternativa à Etapa 4)
 
@@ -346,9 +363,9 @@ Se o tipo de página definido é Advertorial, siga a **estrutura de 7 seções**
 2. **Lead** que pulls readers in (primeiras 100-200 palavras — responde as 4 perguntas mentais do leitor: por que ler agora? por que isso importa? por que isso é diferente? por que vai funcionar pra mim?)
 3. **Background Story** (storytelling pessoal ou de terceiro — builds empathy + credibility — aplica a Discovery Story)
 4. **Root Cause Explanation** — use a causa raiz do market research (Etapa 6 da Skill 02). Explique o problema de forma clara, externaliza a culpa (genética, hormônios, indústria — NÃO o leitor)
-5. **Unique Mechanism Reveal** — apresente o mecanismo único como a descoberta, a revelação (use a versão de 2-3 parágrafos do 04-offer-builder/relatorio.md)
+5. **Unique Mechanism Reveal** — apresente o mecanismo único como a descoberta, a revelação (use a versão de 2-3 parágrafos do 04-offer-builder/offer-builder.md)
 6. **Product Build-Up** — traz o produto no contexto do mecanismo. Primeiros parágrafos são sobre o MÉTODO/PRODUTO antes da oferta
-7. **Product Reveal + Close** — oferta, stack, garantia, urgência, CTA. Manipulation close (scarcity real, bonus que expiram, urgency com razão)
+7. **Product Reveal + Close** — oferta, stack, garantia, urgência, CTA. Manipulation close (scarcity real, bonus que expiram, urgency com razão). O trecho de urgência do close também é extraído pra seção canônica `## Urgency/Scarcity` do relatório (e pro campo `urgency` do dados.json), com a mesma regra da ETAPA 4: razão REAL, nunca escassez inventada
 
 Tom editorial (não vendedor). Use parágrafos curtos (2-4 linhas). Inclua imagens/quotes entre parágrafos.
 
@@ -391,12 +408,13 @@ Pra calibrar o que cada sweep procura, puxe os sistemas de edição (rode cada `
    Copy a analisar:
    \"{copy_text}\"
 
-   Retorne JSON conforme o shape definido em `.claude/lib/compliance-preflight/output-schema.json` (essa é a fonte da verdade do formato — siga os campos e enums dela). `rewrite_suggestion` deve ser preenchido SOMENTE quando `severity >= high`; caso contrário, `null`.
+   Retorne JSON conforme o shape definido em `.claude/lib/compliance-preflight/output-schema.json` (essa é a fonte da verdade do formato — siga os campos e enums dela). `rewrite_suggestions[]` é SEMPRE presente (uma entrada por flag não-informational); `rewrite_suggestion` (reescrita COMPLETA da peça) deve ser preenchido SOMENTE quando `severity >= high`; caso contrário, `null`.
    {
      "risk_score": 0,
      "severity": "low|medium|high|critical",
-     "overall_verdict": "APPROVE|APPROVE_WITH_EDIT|REVISE|REJECT",
+     "overall_verdict": "pass|warning|critical",
      "triggers": [{"phrase": "...", "severity": "...", "reason": "...", "eixo": "...", "suggested_replacement": "..."}],
+     "rewrite_suggestions": [{"phrase": "...", "severity": "...", "suggested_replacement": "...", "reason": "..."}],
      "rewrite_suggestion": null,
      "em_dash_count": 0,
      "ai_style_score": 0,
@@ -404,13 +422,12 @@ Pra calibrar o que cada sweep procura, puxe os sistemas de edição (rode cada `
    }
    ```
 
-   Ação conforme severity:
-   - `critical` → PARAR, reportar triggers ao membro, aplicar `rewrite_suggestion` ou pedir revisão manual
-   - `high` → aplicar `rewrite_suggestion` automaticamente + logar em `workspace/[produto]/06-copy-engine/compliance-log.json`
-   - `medium` → manter copy original, logar warning
-   - `low` → salvar silenciosamente (sem output)
+   Ação pelo `overall_verdict` — mesma tabela do GATE 1 de `pre-launch-gates.md` (a rule é a fonte da verdade do protocolo; mapeamento severity→verdict: low → `pass`, medium → `warning`, high/critical → `critical`):
+   - `critical` → **BLOCK**: se algum trigger tem `severity: "critical"`, PARAR direto — apresentar os triggers ao membro com as `rewrite_suggestions[]` e pedir revisão manual (rota ES3 se launch urgente). Se o verdict veio só de triggers `high`, aplicar o `rewrite_suggestion` (reescrita completa) e **RE-RODAR este check no texto reescrito**; se ainda `critical`, PARAR e apresentar ao membro — a peça não entra no relatório final sem passar.
+   - `warning` → aplicar as `rewrite_suggestions[]` automáticas e re-rodar o check. Se virar `pass`, prosseguir. Se persistir `warning`, salvar a peça MAS logar em `workspace/[produto]/compliance-warnings.json` (path canônico do gate) e citar os warnings na Mensagem Final ("N warnings de compliance — revise se quiser").
+   - `pass` → salvar silenciosamente (sem output).
 
-   Log consolidado em `workspace/[produto]/06-copy-engine/compliance-log.json`. Se diretório não existir, `mkdir -p` antes de escrever.
+   Além do log de warnings acima, mantenha o log consolidado de TODOS os checks (qualquer verdict) em `workspace/[produto]/06-copy-engine/compliance-log.json`. Se diretório não existir, `mkdir -p` antes de escrever.
 
 Para cada sweep, documente o que mudou (as edits são o output do sweep).
 
@@ -420,10 +437,11 @@ Gere:
 - **3 headlines** diferentes (já feito na Etapa 3C — compile aqui)
 - **2 hero sections** com abordagens diferentes (authority vs problem-agitate, por exemplo)
 - **2 CTAs diferentes** (call to value variations)
+- **3-5 email follow-up hooks** — subject lines/hooks de abertura derivados das top 5 headlines + Big Idea + objeções principais. São o material de partida pros flows da Skill 13 (welcome, abandoned cart, post-purchase) — em inglês US, como toda copy consumidor-final. Vão na seção canônica `## Email Follow-up Hooks` do relatório e no campo `email_hooks` do dados.json.
 
-Documente a hipótese por trás de cada variação.
+Documente a hipótese por trás de cada variação. As variações de hero e CTA vão pro dados.json em `hero.variants[]` e `cta_variants[]` (com `hypothesis` preenchida) — presas só na prosa do relatório, a 07a/07b e um A/B test futuro não conseguem consumi-las.
 
-## Output Schema — Seções Canônicas (`06-copy-engine/relatorio.md`)
+## Output Schema — Seções Canônicas (`06-copy-engine/copy-engine.md`)
 
 O markdown DEVE ter as seções NOMEADAS ASSIM (case-sensitive, H2). Cada seção contém texto pronto pra colar, SEM comentários de instrução no output final.
 
@@ -452,6 +470,7 @@ Schema:
   "copy_id": "uuid-v4",
   "product_slug": "...",
   "offer_id": "ref ao 04-offer-builder/dados.json",
+  "lead_type": "story | big_idea | problem_agitation | mechanism | secret | proclamation | offer | direct",
   "hero": {
     "headlines": [
       {"id": "h-01", "text": "...", "type": "benefit|curiosity|authority|contrarian|big_idea", "score": 9.2, "reasoning": "..."}
@@ -460,8 +479,10 @@ Schema:
     "ab_test_picks": ["h-01", "h-07", "h-12"],
     "subheadline": "...",
     "cta_primary": "...",
-    "cta_secondary": "..."
+    "cta_secondary": "...",
+    "variants": [{"id": "hero-A", "approach": "authority | problem_agitate | ...", "subheadline": "...", "hypothesis": "..."}]
   },
+  "cta_variants": [{"id": "cta-A", "text": "...", "hypothesis": "..."}],
   "mechanism_copy": "...",
   "benefits": [{"title": "...", "body": "...", "voc_refs": ["..."]}],
   "social_proof": {"testimonials": [...], "proof_stack": [...]},
@@ -471,21 +492,25 @@ Schema:
   "urgency": "...",
   "email_hooks": ["..."],
   "voc_compliance": { "total_checked": 20, "literal_hits": 14, "paraphrased": 5, "missing": 1 },
+  "voc_forced_continue": false,
+  "claims_unverified": false,
   "decision_modalities_covered": ["spontaneous", "competitive", "humanistic", "methodical"]
 }
 ```
 
-**Skill 07 vai ler diretamente este JSON** — se inválido, skill 07 não prossegue.
+`lead_type` é o campo **top-level** decidido na ETAPA 2 — contrato com a 07a (que o lê pra confirmar `page_type`). `voc_forced_continue` e `claims_unverified` são os flags do pré-flight (só `true` quando o membro escolheu prosseguir com VOC insuficiente / sem research foundation).
+
+**A 07a (pré-flight/PLAN) e a 07b (populate/GEO) leem diretamente este JSON** — se inválido, a fase STOREFRONT não prossegue.
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
 **Antes de salvar, garanta o diretório:** `mkdir -p workspace/[produto]/06-copy-engine/`.
 
-**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `06-copy-engine/relatorio.md` → `06-copy-engine/relatorio.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `06-copy-engine/copy-engine.md` → `06-copy-engine/copy-engine.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
 Atualizar `manifest.json`: adicionar `06-copy-engine` em `skills_completed`, atualizar `updated_at`. Em seguida, regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug`; atualiza ABRIR-AQUI.html).
 
-`workspace/[produto]/06-copy-engine/relatorio.md` contendo (seções canônicas acima):
+`workspace/[produto]/06-copy-engine/copy-engine.md` contendo (seções canônicas acima):
 1. Strategy brief (Etapa 2 — tipo de página, lead, hero, ângulo, tom, framework, modalities mapping)
 2. 20-30 headlines geradas + top 5 + 3 pra teste A/B
 3. Página completa seção por seção (Etapa 4 ou 5)
@@ -496,6 +521,6 @@ Também salvar `workspace/[produto]/06-copy-engine/dados.json` no schema acima.
 
 ## Mensagem Final
 
-"Copy completa pro [tipo de página]. Big Idea: [big idea]. Mecanismo aplicado: [nome]. VOC integrado, objeções quebradas, 3 variações de headline pra teste.
+"Copy completa pro [tipo de página]. Big Idea: [big idea]. Mecanismo aplicado: [nome]. VOC integrado, objeções quebradas, 3 variações de headline pra teste. [Se houver warnings residuais de compliance: N warnings — revise se quiser.]
 
-Próximo passo: diga **'page'** pra construir a página no Shopify (aplicar a copy no tema atual ou clonar o design de um concorrente que você gosta). Só depois da página pronta é que fazemos os criativos — não adianta criar ads pra uma página que ainda não existe."
+Próximo passo: diga **'page'** pro design da página (skill 07a — você escolhe a rota de design e aprova o HTML navegável, com essa copy dentro, ANTES de qualquer código existir); depois **'build page'** pra compilar e subir no Shopify (07b). Só depois da página no ar é que fazemos os criativos — não adianta criar ads pra uma página que ainda não existe."

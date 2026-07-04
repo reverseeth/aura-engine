@@ -26,13 +26,13 @@ venv/
 Thumbs.db
 .claude/scheduled_tasks.lock
 .claude/settings.local.json
-.claude/local.settings.json
 
 # OpenAI Codex CLI — local-only, never push
 AGENTS.md
 .Codex/
 .codex/
 
-# design-clone scratch experiments — local-only (keep the real _css_utils.py helper)
+# design-clone scratch experiments — local-only (keep the real helpers: _css_utils.py, _venv_bootstrap.py)
 tools/design-clone/_*.py
 !tools/design-clone/_css_utils.py
+!tools/design-clone/_venv_bootstrap.py

@@ -54,11 +54,11 @@ Se você acabou de rodar `shopify theme push` e o comando retornou sem erro MAS 
 
 **Verificação obrigatória antes de pull pós-push:**
 
-1. Insira um marker único no arquivo editado antes do push — comentário Liquid `{%- comment -%}AURA-PUSH-MARKER-{timestamp}{%- endcomment -%}` no topo da section
-2. Após push, rode `curl -s https://<shop>.myshopify.com/products/<handle>?preview_theme_id=<id> | grep AURA-PUSH-MARKER`
-3. Se grep encontra o marker → push OK, seguro pullar
+1. O marker de build é um ATRIBUTO DE DADOS no elemento raiz da section: `data-aura-build="<slug>-<hash8>"` (a skill 07b já gera esse atributo no compile). **NUNCA use comentário Liquid `{% comment %}` como marker de verificação** — o renderizador Liquid remove o bloco e ele jamais chega ao HTML servido, então o grep falharia SEMPRE, mesmo com push 100% ok. (Um comentário Liquid pode existir como marca no código-fonte do tema, verificável via `shopify theme pull` — mas a verificação pós-deploy usa o data-attribute, que renderiza no DOM.)
+2. Após push, rode `curl -s "https://<shop>.myshopify.com/products/<handle>?preview_theme_id=<id>" | grep data-aura-build`
+3. Se grep encontra o marker (e o hash bate com o build atual) → push OK, seguro pullar
 4. Se grep NÃO encontra → push rejeitado silenciosamente, investigar (rate limit? theme lock? compile error?) antes de qualquer pull
-5. Após confirmar, remover o marker do arquivo local E rerun push (limpeza)
+5. O atributo é inerte e identifica o build — NÃO precisa ser removido depois (sem re-push de limpeza)
 
 ## Regra 5 — Silent push rejection diagnosis
 
@@ -66,25 +66,36 @@ Push silenciosamente rejeitado é cenário comum. Checklist de diagnóstico:
 
 | Sintoma | Causa provável | Fix |
 |---------|----------------|-----|
-| Marker não aparece no storefront após push "ok" | Theme lock ativo (outro CLI/editor aberto) | Fechar sessões duplicadas, retry |
-| Marker não aparece + erro 429 em curl | Rate limit Shopify CLI | Esperar 60s, retry com `--force` |
-| Marker aparece mas CSS/JS quebrado | Compile error silencioso | `shopify theme check` local antes de re-push |
-| Marker aparece intermitentemente | CDN propagation (raro, mas acontece) | Esperar 120s e re-verificar |
+| `data-aura-build` não aparece no storefront após push "ok" | Theme lock ativo (outro CLI/editor aberto) | Fechar sessões duplicadas, retry |
+| `data-aura-build` não aparece + erro 429 em curl | Rate limit Shopify CLI | Esperar 60s, retry |
+| `data-aura-build` aparece mas CSS/JS quebrado | Compile error silencioso | `shopify theme check` local antes de re-push |
+| `data-aura-build` aparece intermitentemente | CDN propagation (raro, mas acontece) | Esperar 120s e re-verificar |
+| `data-aura-build` aparece mas com hash ANTIGO | Push subiu versão stale (arquivo local errado) | Recompilar a section e re-push |
 | Push retorna warning "live theme" sem confirmar | Faltou `--allow-live` | Re-push com flag correto |
+| Deploy que funcionava quebra com "command not found" / flag inválida | **Auto-upgrade do Shopify CLI 4.x** (ver nota abaixo) | Checar `shopify version` + changelog do CLI antes de debugar o tema |
 
 Nunca assuma sucesso baseado apenas em exit code 0.
+
+**Nota — auto-upgrade do Shopify CLI 4.x (mai/2026+):** a CLI se atualiza sozinha via package manager entre sessões e a série 4.x removeu comandos/flags legados. Se um deploy que funcionava ontem quebra hoje com "command not found" ou flag inválida, o primeiro suspeito é upgrade automático da CLI — NÃO o tema. Rode `shopify version`, compare com o changelog oficial, e só depois debug o tema. A skill 07b já loga `shopify version` no início do deploy (ETAPA 6.1 da 07b) exatamente pra esse diff ser trivial.
 
 ## Regra 6 — Backup antes de qualquer edit massivo
 
 Antes de editar ≥ 3 arquivos de section ou qualquer template crítico (`theme.liquid`, `product.json`, `cart.json`):
 
+O backup precisa ser uma cópia do tema **LIVE** — nunca do estado local (que pode estar stale). Dois caminhos:
+
+**Caminho A — via CLI** (pull do live pra um diretório temporário, depois push desse diretório pra um tema novo unpublished):
+
 ```bash
-# Duplicate theme no admin antes do pull local
-# Via Shopify CLI:
-shopify theme push --unpublished --path=<dir> --json > backup-<timestamp>.json
+shopify theme pull --live --path=<tmp-backup-dir> --nodelete
+shopify theme push --unpublished --path=<tmp-backup-dir> --theme "BACKUP-<data>-pre-edit"
 ```
 
-Ou manualmente: Admin → Themes → ⋯ → Duplicate. Nomear como `BACKUP-<data>-pre-edit`. Esse duplicado fica como rollback point.
+**ATENÇÃO:** rodar `shopify theme push --unpublished` direto no diretório de trabalho NÃO é backup — isso sobe o estado LOCAL pra um tema novo, não o live que você quer proteger. E redirecionar o output com `> backup.json` grava só o metadata JSON do CLI (id/nome do tema), não os arquivos.
+
+**Caminho B — manual:** Admin → Themes → ⋯ → Duplicate. Nomear como `BACKUP-<data>-pre-edit`.
+
+Em ambos os casos, o duplicado fica como rollback point.
 
 ## Regra 7 — Após deploy, smoke test obrigatório
 
@@ -110,4 +121,4 @@ Se qualquer smoke test falha, rollback automático pro BACKUP duplicado (Regra 6
 
 - `shopify theme --help`
 - Shopify theme check: `shopify theme check --path=<dir>`
-- Rate limits: 2 req/s burst, 40 req/min sustained (Shopify CLI)
+- Rate limits: bucket de 40 requests, vazão sustentada de 2 req/s (Admin API REST, modelo leaky bucket)

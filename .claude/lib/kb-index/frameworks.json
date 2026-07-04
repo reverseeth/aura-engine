@@ -132,7 +132,7 @@
     "name": "Brunson Traffic Temperature (Hot/Warm/Cold)",
     "source": "Russell Brunson, DotCom Secrets",
     "one_line": "Translates Schwartz awareness into traffic: Hot (knows you equals Most/Product-Aware), Warm (Solution-Aware), Cold (Problem/Unaware). Never send cold traffic straight to a sales page.",
-    "use_in_skill": "01/02 (map awareness to traffic) and 10 ad-strategy / 07 page bridge",
+    "use_in_skill": "01/02 (map awareness to traffic) and 10 ad-strategy / 07a page bridge",
     "best_query": "Brunson DotCom Secrets traffic temperature hot warm cold awareness mapping"
    },
    {
@@ -232,7 +232,7 @@
     "name": "Eugene Schwartz — 5 Stages of Awareness",
     "source": "Eugene Schwartz, Breakthrough Advertising (Ch. 2)",
     "one_line": "Unaware → Problem Aware → Solution Aware → Product Aware → Most Aware; measures how much the prospect knows about how your product satisfies his desire, and dictates headline, copy length and education depth.",
-    "use_in_skill": "02 (determine market awareness) → drives 06 copy, 07 page, 10 ad strategy",
+    "use_in_skill": "02 (determine market awareness) → drives 06 copy, 07a page, 10 ad strategy",
     "best_query": "Schwartz five stages of awareness unaware problem aware solution aware product aware most aware"
    },
    {
@@ -243,7 +243,7 @@
     "best_query": "Schwartz awareness stage headline strategy seven tasks superiority approaches"
    },
    {
-    "name": "Awareness TAM Distribution (1/13.5/60/99% pyramid)",
+    "name": "Awareness TAM Distribution (awareness pyramid)",
     "source": "Schwartz framework as applied in DR market research",
     "one_line": "Most Aware ~1%, Product Aware ~10-15%, Solution Aware ~15-20%, Problem Aware 30-40%, Unaware 30-40% of TAM; 70-80% of most markets sit in problem-aware/unaware, the largest growth pool but costliest to convert.",
     "use_in_skill": "02 market research (TAM + awareness % estimate); 10 ad strategy targeting",
@@ -335,7 +335,7 @@
    },
    {
     "name": "Psychographic Research — Decision Drivers (RMBC R-stage questions)",
-    "source": "Stefan Georgi (RMBC method) — the Research phase",
+    "source": "Stefan Georgi (RMBC method) — the Research phase (internal; do not surface)",
     "one_line": "Structured questions exploring pain points, hopes/dreams, beliefs, prejudices and perceived barriers to systematically build a psychological profile of the market; pioneered as the R in RMBC.",
     "use_in_skill": "02 market research (psychographics core); feeds 04 offer + 06 copy",
     "best_query": "psychographic research decision drivers struggles pain points beliefs RMBC research questions"
@@ -379,21 +379,21 @@
     "name": "Brunson — Traffic Temperature (Hot/Warm/Cold)",
     "source": "Russell Brunson, DotCom Secrets",
     "one_line": "Hot (knows you) / Warm (knows someone who knows you) / Cold (stranger) maps to Schwartz awareness; never send cold traffic straight to a sales page — it needs a pre-frame bridge first.",
-    "use_in_skill": "10 ad strategy; 07 page (pre-sell/advertorial); 02 awareness mapping",
+    "use_in_skill": "10 ad strategy; 07a page (pre-sell/advertorial); 02 awareness mapping",
     "best_query": "Brunson traffic temperature hot warm cold pre-frame bridge dotcom secrets"
    },
    {
     "name": "Schwartz↔TTM↔Brunson Awareness Mapping Table",
     "source": "synthesis of Schwartz / Whitman TTM / Brunson",
     "one_line": "Cross-walk table aligning each Schwartz awareness stage with its TTM behavior stage, Brunson traffic temperature, and the correct copy approach for that combination.",
-    "use_in_skill": "02 market research synthesis; 06/07/10 copy & funnel decisions",
+    "use_in_skill": "02 market research synthesis; 06/07a/10 copy & funnel decisions",
     "best_query": "Schwartz TTM Brunson awareness mapping table copy approach by stage"
    },
    {
     "name": "Carry-Forward Through All Awareness Stages",
     "source": "awareness application to eCom (Schwartz-derived rule)",
     "one_line": "Wherever you enter the conversation (e.g., Problem Aware), you MUST carry the prospect forward through every subsequent stage before asking for the sale — build the full bridge, don't just identify the stage.",
-    "use_in_skill": "06 copy structure; 07 page; 08 creatives",
+    "use_in_skill": "06 copy structure; 07a page; 08 creatives",
     "best_query": "carry forward through all stages of awareness build complete bridge before the sale"
    },
    {
@@ -414,7 +414,7 @@
     "name": "Push & Pull Questions + The Switch (Conversion Copywriting)",
     "source": "Joanna Wiebe, Copyhackers (Conversion Copywriting)",
     "one_line": "Research framework: Push (what problems drive them to seek a solution) + Pull (what desires draw them to it) + the often-skipped Switch (what prevents them leaving their status quo); research best done with prospects about-to-switch and recent switchers.",
-    "use_in_skill": "02 market research; 06 copy; 07 page empathy section",
+    "use_in_skill": "02 market research; 06 copy; 07a page empathy section",
     "best_query": "push pull questions the switch switching costs status quo conversion copywriting research"
    },
    {
@@ -440,7 +440,7 @@
    },
    {
     "name": "Unified Research Document (Processo Completo)",
-    "source": "Stefan Georgi RMBC lineage; DR research-consolidation practice",
+    "source": "Stefan Georgi RMBC lineage; DR research-consolidation practice (internal; do not surface)",
     "one_line": "Consolidates product/market awareness + competitor research + psychographic research into one brief (demographics, psychographics, language to use/avoid, promises, objections, existing solutions) to feed LLMs consistent context for all copy.",
     "use_in_skill": "02 market research final output; input to 04 offer + 06 copy + 08 creatives",
     "best_query": "unified research document process demographics psychographics promises objections language"
@@ -468,14 +468,14 @@
    },
    {
     "name": "Reconnaissance Engine (competitive research via social)",
-    "source": "Disrupter Academy market-research process",
+    "source": "Disrupter Academy market-research process (internal; do not surface)",
     "one_line": "Build an always-on competitive intelligence feed: follow/transcribe competitor content, join their email lists, train your social algorithm to serve market content, and stockpile screenshots/videos.",
     "use_in_skill": "02/03 competitor & market intel; 08 creatives swipe",
     "best_query": "reconnaissance engine competitive research social algorithm training competitor transcription"
    },
    {
     "name": "Consumer Insights Database (where + what + how to mine)",
-    "source": "Disrupter Academy market-research process",
+    "source": "Disrupter Academy market-research process (internal; do not surface)",
     "one_line": "Mine reviews, Amazon, Reddit (10+ comment threads), TikTok, ad comments and Q&A for patterns in Language, Fears, Desires, Motivations; organize into tabbed sheets by source to feed copy/ad tools.",
     "use_in_skill": "02 market research; 03 competitor sentiment; 06/08 language source",
     "best_query": "consumer insights database mine reviews reddit tiktok ad comments fears desires motivations"
@@ -505,7 +505,7 @@
     "name": "Rule of One (One Reader / One Offer / One Value Prop)",
     "source": "Joanna Wiebe, Copyhackers",
     "one_line": "Write to One Reader (the overlap of your segments' shared qualities/desires/anxieties), with One Offer tailored to them and One Value Proposition for that offer — the research target that focuses all messaging.",
-    "use_in_skill": "02 avatar synthesis (One Reader); 06 copy; 07 page",
+    "use_in_skill": "02 avatar synthesis (One Reader); 06 copy; 07a page",
     "best_query": "Rule of One one reader one offer one value proposition Venn overlap"
    }
   ],
@@ -645,14 +645,14 @@
    },
    {
     "name": "Reconnaissance Engine (Competitive Research via Social)",
-    "source": "Disrupter Academy (5-step research process)",
+    "source": "Disrupter Academy (5-step research process) (internal; do not surface)",
     "one_line": "Always-on competitive intel: become competitors' ideal customer (follow 3+ on IG/TikTok/YouTube, engage, join email lists) so the algorithm serves market content; screenshot, download and transcribe competitor videos (SnapInsta + Descript).",
     "use_in_skill": "03 (competitor analysis — primary), 08 (creatives — angle mining), 02 (market research)",
     "best_query": "reconnaissance engine competitive research via social Instagram transcribe competitor videos algorithm"
    },
    {
     "name": "Consumer Insights Database (3-source lift)",
-    "source": "Disrupter Academy (research process step 2)",
+    "source": "Disrupter Academy (research process step 2) (internal; do not surface)",
     "one_line": "Mine customer language/fears/desires from competitor reviews, Amazon, Reddit (10+ comment threads), TikTok honest-reviews, ad comments, Q&A; 3+ sources per category produces far more accurate customer profiles for copy.",
     "use_in_skill": "02 (market research — VOC), 03 (competitor analysis), 06 (copy)",
     "best_query": "consumer insights database review mining Reddit Amazon ad comments three source lift customer language"
@@ -1099,7 +1099,7 @@
     "name": "Anchoring & Adjustment",
     "source": "Tversky & Kahneman; Poundstone Priceless; Ariely Predictably Irrational",
     "one_line": "Buyers adjust insufficiently from a starting number; set a high anchor first.",
-    "use_in_skill": "04 offer (price architecture); 07 page; 06 copy",
+    "use_in_skill": "04 offer (price architecture); 07a page; 06 copy",
     "best_query": "pricing anchoring adjustment set high anchor was price SSN auction Ariely"
    },
    {
@@ -1113,7 +1113,7 @@
     "name": "Decoy Effect (Asymmetric Dominance)",
     "source": "Huber & Puto; Tversky & Simonson; Ariely",
     "one_line": "Add an inferior option nobody buys to shift preference toward your target (The Economist).",
-    "use_in_skill": "04 offer (tiers/bundles); 07 page (pricing table)",
+    "use_in_skill": "04 offer (tiers/bundles); 07a page (pricing table)",
     "best_query": "decoy effect asymmetric dominance Economist subscription Williams-Sonoma bread machine"
    },
    {
@@ -1134,7 +1134,7 @@
     "name": "Charm Pricing (Endings in 9)",
     "source": "Anderson & Simester; Priceless; Whitman Cashvertising",
     "one_line": "9-endings lift sales ~24% via left-digit effect; round numbers for luxury.",
-    "use_in_skill": "04 offer (price points); 07 page",
+    "use_in_skill": "04 offer (price points); 07a page",
     "best_query": "charm pricing nine ending left-digit effect 24 percent catalog"
    },
    {
@@ -1155,7 +1155,7 @@
     "name": "Transaction Utility",
     "source": "Richard Thaler 1985; Priceless",
     "one_line": "Joy of a deal is separate from item value; raise reference price via brand/packaging and show the was-price.",
-    "use_in_skill": "04 offer; 07 page; 03 competitor analysis",
+    "use_in_skill": "04 offer; 07a page; 03 competitor analysis",
     "best_query": "transaction utility joy of a deal reference price beer resort hotel"
    },
    {
@@ -1190,7 +1190,7 @@
     "name": "Menu Psychology (Four-Category System)",
     "source": "Gregg Rapp; Priceless",
     "one_line": "Classify items Stars/Puzzles/Plow Horses/Dogs; use layout, anchors, no dollar signs to steer to profit.",
-    "use_in_skill": "07 page (pricing table); 04 offer (catalog)",
+    "use_in_skill": "07a page (pricing table); 04 offer (catalog)",
     "best_query": "menu psychology stars puzzles plow horses dogs remove dollar signs"
    },
    {
@@ -1279,14 +1279,14 @@
    },
    {
     "name": "Profitable Scaling Margin (PSM)",
-    "source": "Disrupter Academy (taught framework)",
+    "source": "Disrupter Academy (taught framework) (internal; do not surface)",
     "one_line": "PSM = LTV / (CPA + COGS); replaces ROAS/MER because it includes COGS, LTV and repeat-purchase cash flow.",
     "use_in_skill": "10 ad strategy; 12 scale; 04 offer economics",
     "best_query": "Profitable Scaling Margin PSM LTV CPA COGS replaces ROAS golden ratio growth"
    },
    {
     "name": "Unit Economics Hierarchy (CPA vs CAC, GPT)",
-    "source": "Disrupter Academy (taught)",
+    "source": "Disrupter Academy (taught) (internal; do not surface)",
     "one_line": "Profit stack distinguishing CPA (per transaction) from CAC (per new customer), plus blended CPA, GPT, net profit.",
     "use_in_skill": "04 offer economics; 10 ad strategy",
     "best_query": "unit economics CPA vs CAC blended CPA GPT net profit hero offer"
@@ -1302,7 +1302,7 @@
     "name": "Four Profit Optimization Categories",
     "source": "Taught framework (IntelliGems data)",
     "one_line": "Base pricing, promotions (seasonal+flow), AOV builders, persona personalization; 93% find a better price by testing.",
-    "use_in_skill": "04 offer; 07 page; 13 retention",
+    "use_in_skill": "04 offer; 07a page; 13 retention",
     "best_query": "profit optimization base pricing promotions AOV builders personalization IntelliGems 93 percent"
    },
    {
@@ -1330,7 +1330,7 @@
     "name": "Free-Plus-Shipping & Order Form Bump",
     "source": "Russell Brunson, DotCom Secrets",
     "one_line": "Free+shipping converts a lead to a buyer (10-15x more valuable); order-form bump converts 20-50%.",
-    "use_in_skill": "04 offer; 07 page (checkout); 12 scale",
+    "use_in_skill": "04 offer; 07d (checkout); 12 scale",
     "best_query": "Brunson free plus shipping buyer 10x order form bump 20 to 50 percent"
    },
    {
@@ -1386,7 +1386,7 @@
     "name": "Collier One-Product-at-a-Time Rule",
     "source": "Robert Collier, The Robert Collier Letter Book",
     "one_line": "Choice kills sales; sell one product per communication or make one the clear recommendation.",
-    "use_in_skill": "04 offer (focus); 06 copy; 07 page",
+    "use_in_skill": "04 offer (focus); 06 copy; 07a page",
     "best_query": "Collier one product at a time choice kills sales single recommendation"
    },
    {
@@ -1500,7 +1500,7 @@
     "name": "Schwab's Subheadlines as Refueling Stations (8 Guidelines)",
     "source": "Victor Schwab, How to Write a Good Advertisement",
     "one_line": "Subheads get 3-10x body readership; 8 rules to make each subhead independently compelling and re-engage scanners so the subhead sequence tells the whole story.",
-    "use_in_skill": "06 (copy — structure), 07 (page)",
+    "use_in_skill": "06 (copy — structure), 07a (page)",
     "best_query": "Schwab subheadlines refueling stations 8 guidelines scanner"
    },
    {
@@ -1591,7 +1591,7 @@
     "name": "Halbert's Rave Review Framework + Editorial Look (5x Readership)",
     "source": "Gary Halbert, The Boron Letters",
     "one_line": "Write copy as a journalist enthusiastically recommending the product; ads formatted as editorial get ~5x the readership of ads that look like ads.",
-    "use_in_skill": "06 (copy — advertorial), 07 (page)",
+    "use_in_skill": "06 (copy — advertorial), 07a (page)",
     "best_query": "Halbert rave review framework editorial look 5x readership advertorial"
    },
    {
@@ -1612,7 +1612,7 @@
     "name": "Ogilvy's Ten Headline Rules + 14 Readability Devices",
     "source": "David Ogilvy, Confessions of an Advertising Man",
     "one_line": "Ten headline rules (specific numbers, promise a benefit, headline read 5x more than body) plus 14 readability/typography devices for body copy.",
-    "use_in_skill": "06 (copy — headlines/structure), 07 (page)",
+    "use_in_skill": "06 (copy — headlines/structure), 07a (page)",
     "best_query": "Ogilvy ten headline rules 14 readability devices Confessions"
    },
    {
@@ -1682,7 +1682,7 @@
     "name": "Miller's SB7 (StoryBrand 7-Part) + Three Levels of Problems",
     "source": "Donald Miller, Building a StoryBrand",
     "one_line": "Seven-part story framework (Character, Problem, Guide, Plan, Call to Action, Success, avoid Failure); problems exist on External/Internal/Philosophical levels — customers buy solutions to the internal problem.",
-    "use_in_skill": "06 (copy — messaging), 07 (page hero)",
+    "use_in_skill": "06 (copy — messaging), 07a (page hero)",
     "best_query": "Miller SB7 StoryBrand seven part external internal philosophical problem guide hero"
    },
    {
@@ -1696,7 +1696,7 @@
     "name": "PCPO (Problem, Cure, Proof, Offer)",
     "source": "Knowledge base / Copyhackers conversion copywriting",
     "one_line": "Body-copy framework for sections: Problem, Cure, Proof, Offer — the natural expansion of the 'solution' stage of PAS; proof must be tied to the claim it proves.",
-    "use_in_skill": "06 (copy — body), 07 (page)",
+    "use_in_skill": "06 (copy — body), 07a (page)",
     "best_query": "PCPO problem cure proof offer body copy framework"
    },
    {
@@ -1715,14 +1715,14 @@
    },
    {
     "name": "RMBC System (Research, Mechanism, Brief, Copy)",
-    "source": "Knowledge base (Stefan Georgi RMBC, named in KB)",
+    "source": "Knowledge base (Stefan Georgi RMBC, named in KB) (internal; do not surface)",
     "one_line": "Central 2025 copy-creation system: Research (unified doc) > Mechanism (UMP/UMS evaluation) > Brief (Claude-assisted) > Copy; brief quality determines output quality, works for VSL/long/medium/short/PDP/advertorial.",
     "use_in_skill": "06 (copy — master workflow), 02 (research feeds it), 04 (mechanism)",
     "best_query": "RMBC research mechanism brief copy system process Georgi"
    },
    {
     "name": "Unique Mechanism Theory (UMP + UMS)",
-    "source": "Knowledge base (RMBC), Reeves USP lineage",
+    "source": "Knowledge base (RMBC), Reeves USP lineage (internal; do not surface)",
     "one_line": "Two-part logical connection: Unique Mechanism behind the Problem (why past solutions failed) + behind the Solution (the missing crucial piece); core of sophisticated-market copy.",
     "use_in_skill": "04 (offer — mechanism), 06 (copy — lead/body)",
     "best_query": "unique mechanism UMP UMS problem solution knowledge gap direct response"
@@ -1752,7 +1752,7 @@
     "name": "Hero Sections (5 Types + 3 Questions)",
     "source": "Knowledge base / Donald Miller diagnostic",
     "one_line": "Five hero formats (video, image, text-only, slider, interactive) chosen by awareness level; hero must answer 3 questions in 5 seconds.",
-    "use_in_skill": "06 (copy — hero), 07 (page)",
+    "use_in_skill": "06 (copy — hero), 07a (page)",
     "best_query": "hero sections five types selection three questions five seconds awareness"
    },
    {
@@ -1789,7 +1789,7 @@
     "name": "Hopkins' Specificity Principle (Reason-Why)",
     "source": "Claude Hopkins — Scientific Advertising",
     "one_line": "Specific numerical claims carry full weight; generalities carry zero ('more light' vs 'three and one-third times the light'). Every claim needs a reason-why.",
-    "use_in_skill": "06 (copy), 07 (page), 09 (audit)",
+    "use_in_skill": "06 (copy), 07a (page), 09 (audit)",
     "best_query": "Hopkins specificity principle reason-why platitudes generalities specific claims transformation"
    },
    {
@@ -1817,7 +1817,7 @@
     "name": "Hopkins' Economy-of-Space Principle",
     "source": "Claude Hopkins — My Life in Advertising",
     "one_line": "Every element not directly selling is waste; cut every word not worth its cost, never repeat. Same ad in 2x space doubled cost-per-reply.",
-    "use_in_skill": "06 (editing), 07 (page)",
+    "use_in_skill": "06 (editing), 07a (page)",
     "best_query": "Hopkins economy of space mail-order ruthless elimination cut every word"
    },
    {
@@ -1845,7 +1845,7 @@
     "name": "Schwab's Subheadlines as Refueling Stations (8 Guidelines)",
     "source": "Victor Schwab — How to Write a Good Advertisement",
     "one_line": "Subheads get 3-10x body-copy readership; each must be independently compelling and advance the argument; the subhead sequence alone tells the story.",
-    "use_in_skill": "06 (copy), 07 (page structure)",
+    "use_in_skill": "06 (copy), 07a (page structure)",
     "best_query": "Schwab subheadlines refueling stations 8 guidelines mini-headlines scanners"
    },
    {
@@ -1936,14 +1936,14 @@
     "name": "Length-Implies-Strength Heuristic",
     "source": "Gary Bencivenga (persuasion psychology)",
     "one_line": "Sheer volume of content is itself a persuasion cue. 101-testimonial brochures and '22 Reasons to Buy' trigger 'look how much is here, it must be true.'",
-    "use_in_skill": "06 (copy), 07 (long-form page), 04 (stack)",
+    "use_in_skill": "06 (copy), 07a (long-form page), 04 (stack)",
     "best_query": "length implies strength heuristic volume persuasion cue 101 testimonials 22 reasons"
    },
    {
     "name": "Sugarman's Slippery Slide",
     "source": "Joseph Sugarman — The Adweek Copywriting Handbook",
     "one_line": "Every element has ONE job: get the reader to read the next element. The whole ad is a frictionless slide from headline to order form.",
-    "use_in_skill": "06 (flow), 07 (page), 08 (VSL)",
+    "use_in_skill": "06 (flow), 07a (page), 08 (VSL)",
     "best_query": "Sugarman slippery slide every element read the next sentence frictionless"
    },
    {
@@ -1957,21 +1957,21 @@
     "name": "Sugarman's 15 Axioms of Copywriting",
     "source": "Joseph Sugarman — The Adweek Copywriting Handbook",
     "one_line": "15 rules incl: first sentence's only job is to get the second read; create the buying environment; get 'yes'; sell the concept not the product; incubation.",
-    "use_in_skill": "06 (copy), 07 (page)",
+    "use_in_skill": "06 (copy), 07a (page)",
     "best_query": "Sugarman 15 axioms copywriting first sentence buying environment sell the concept incubation"
    },
    {
     "name": "Sugarman's Copy Sequence Flowchart",
     "source": "Joseph Sugarman — The Adweek Copywriting Handbook",
     "one_line": "Ordered progression: headline interest, expand headline, reasons for action, proof, credibility, value, urgency, call to action.",
-    "use_in_skill": "06 (architecture), 07 (page)",
+    "use_in_skill": "06 (architecture), 07a (page)",
     "best_query": "Sugarman copy sequence flowchart headline expansion reasons proof credibility value urgency"
    },
    {
     "name": "Sugarman's Satisfaction Conviction",
     "source": "Joseph Sugarman — The Adweek Copywriting Handbook",
     "one_line": "Reader must feel satisfied claims are TRUE before the order form. Raise and resolve objections proactively; every unresolved doubt is friction.",
-    "use_in_skill": "06 (objection resolution), 07 (page), 09 (audit)",
+    "use_in_skill": "06 (objection resolution), 07a (page), 09 (audit)",
     "best_query": "Sugarman satisfaction conviction objection raising resolution before order form doubt friction"
    },
    {
@@ -1985,21 +1985,21 @@
     "name": "Kennedy's 28-Step Sales Letter System",
     "source": "Dan Kennedy — The Ultimate Sales Letter",
     "one_line": "3-phase system (Prep 1-8, Writing 9-17, Production 18-28): get into customer/offer, damaging admission, beat price, draft 2-3x length, rewrite, answer objections, creative P.S.",
-    "use_in_skill": "06 (long-form), 07 (sales page)",
+    "use_in_skill": "06 (long-form), 07a (sales page)",
     "best_query": "Kennedy 28-step sales letter system three phases preparation writing production damaging admission"
    },
    {
     "name": "Kennedy's Double Readership Path",
     "source": "Dan Kennedy — The Ultimate Sales Letter",
     "one_line": "Long letters work for skimmers (headline, subheads, bold, bullets, captions, P.S.) AND analytical readers. A skimmer on the fast path must get the complete argument.",
-    "use_in_skill": "06 (copy), 07 (formatting), 09 (audit)",
+    "use_in_skill": "06 (copy), 07a (formatting), 09 (audit)",
     "best_query": "Kennedy double readership path skimmers analytical readers fast path subheads P.S. bold"
    },
    {
     "name": "Kennedy's Internal Repetition — 7-Times Method",
     "source": "Dan Kennedy — The Ultimate Sales Letter",
     "one_line": "Convey the core message 7 times in 6 formats: statement, example, story, testimonial, quote, numbered summary. Repetition + shock are the only ways humans accept new ideas.",
-    "use_in_skill": "06 (copy), 07 (page), 13 (email)",
+    "use_in_skill": "06 (copy), 07a (page), 13 (email)",
     "best_query": "Kennedy internal repetition 7 times method six formats statement example story testimonial quote summary"
    },
    {
@@ -2013,7 +2013,7 @@
     "name": "Kennedy's 12 Graphic Devices + Pest-to-Guest",
     "source": "Dan Kennedy — The Ultimate Sales Letter",
     "one_line": "12 visual tools (margin notes, highlights, boxes, certificates, P.S., subheads, captions). Pest-to-Guest: envelope/opening turns intruder into welcome visitor.",
-    "use_in_skill": "06 (copy), 07 (visual structure), 13 (email)",
+    "use_in_skill": "06 (copy), 07a (visual structure), 13 (email)",
     "best_query": "Kennedy 12 graphic devices pest to guest transformation envelope subheads P.S."
    },
    {
@@ -2048,14 +2048,14 @@
     "name": "Schwartz's Promise-Belief Variation (Ratcheting)",
     "source": "Eugene Schwartz — Breakthrough Advertising",
     "one_line": "Alternate promise and belief-building so each promise is immediately followed by proof; conviction deepens each cycle.",
-    "use_in_skill": "06 (copy), 07 (page)",
+    "use_in_skill": "06 (copy), 07a (page)",
     "best_query": "Schwartz promise belief variation alternate ratcheting effect conviction deepens"
    },
    {
     "name": "Bly's 15 Ways to Start + 8 Headline Types + Copy Length Grid",
     "source": "Robert Bly — The Copywriter's Handbook",
     "one_line": "15 sales-letter openings, 8 headline types, and the Emotion x Involvement length grid deciding long vs short copy.",
-    "use_in_skill": "06 (copy), 07 (length decision)",
+    "use_in_skill": "06 (copy), 07a (length decision)",
     "best_query": "Bly 15 ways start sales letter 8 headline types copy length grid emotion involvement"
    },
    {
@@ -2069,42 +2069,42 @@
     "name": "Collier's Six Essentials + Mental Conversation",
     "source": "Robert Collier — The Robert Collier Letter Book",
     "one_line": "Six elements: Opening, Description, Motive, Proof/Guarantee, Snapper, Close. Core law: 'enter the conversation already in the customer's mind.' Word-picture visualization.",
-    "use_in_skill": "06 (copy), 07 (page), 13 (email), 02 (VOC)",
+    "use_in_skill": "06 (copy), 07a (page), 13 (email), 02 (VOC)",
     "best_query": "Collier six essentials sales letter mental conversation enter conversation in customer's mind word pictures"
    },
    {
     "name": "Seven Sweeps (Editing Ladder)",
     "source": "Copyhackers / Joanna Wiebe",
     "one_line": "Ladder through 7 sweeps, always returning to clarity: Clarity, Voice & Tone, So What, Prove It, Specificity, Heightened Emotion, Zero Risk. Clarity is always last.",
-    "use_in_skill": "06 (editing), 07 (polish), 09 (audit)",
+    "use_in_skill": "06 (editing), 07a (polish), 09 (audit)",
     "best_query": "Seven Sweeps editing ladder clarity voice tone so what prove it specificity heightened emotion zero risk"
    },
    {
     "name": "Crossheads (Teaser Structure)",
     "source": "Copyhackers / Joanna Wiebe",
     "one_line": "Crossheads must be as engaging as a headline, tease not summarize, never be placeholders ('FAQs'), be H2/centered/bold. Frontload for F-pattern scanning.",
-    "use_in_skill": "06 (copy), 07 (section structure)",
+    "use_in_skill": "06 (copy), 07a (section structure)",
     "best_query": "crossheads teaser not summarize placeholder F-pattern frontload scanning H2 subheads"
    },
    {
     "name": "Fascinations / Bullets as Teasers (Mega List)",
     "source": "Copyhackers / Joanna Wiebe + classic DR",
     "one_line": "Bullets must be teasers not tell-alls, opening a curiosity loop. Checkmarks not dots, best bullet on top, 6 outperform 9 in hero; mega lists signal 'plenty more.'",
-    "use_in_skill": "06 (bullets), 07 (page), 08 (creatives)",
+    "use_in_skill": "06 (bullets), 07a (page), 08 (creatives)",
     "best_query": "fascinations bullets teasers not tell-alls mega list curiosity loop checkmarks six versus nine"
    },
    {
     "name": "Headline Sweep",
     "source": "Copyhackers / Joanna Wiebe",
     "one_line": "Laddered checklist: captures attention, avoids confusion, matches message, keeps me reading, frictionless, fat-free, works with nearest button, works for SEO.",
-    "use_in_skill": "06 (headline finalization), 07 (page)",
+    "use_in_skill": "06 (headline finalization), 07a (page)",
     "best_query": "Copyhackers headline sweep captures attention avoids confusion matches message frictionless fat-free button SEO"
    },
    {
     "name": "Ogilvy's 14 Readability Devices + Facts Doctrine",
     "source": "David Ogilvy — Confessions of an Advertising Man",
     "one_line": "14 readability rules (short words, drop caps +13%, bold first paragraph, captions read 2x, subheads, serif body). Facts Doctrine: 'the consumer is not a moron'; factual superiority + preemption wins.",
-    "use_in_skill": "06 (copy), 07 (formatting)",
+    "use_in_skill": "06 (copy), 07a (formatting)",
     "best_query": "Ogilvy 14 readability devices drop caps captions facts doctrine consumer is not a moron"
    },
    {
@@ -2118,7 +2118,7 @@
     "name": "Cashvertising — Extreme Specificity + PVAs + VAKOG Mental Movies",
     "source": "Drew Eric Whitman — Cashvertising",
     "one_line": "Extreme specificity anchors belief ('Saves $1,237 a year'); PVAs replace vague with sensory ('sizzling, fork-tender steak'); VAKOG triggers all 5 senses for a mental movie.",
-    "use_in_skill": "06 (sensory), 08 (creatives), 07 (page)",
+    "use_in_skill": "06 (sensory), 08 (creatives), 07a (page)",
     "best_query": "Cashvertising extreme specificity PVAs powerful visual adjectives VAKOG mental movies five senses"
    },
    {
@@ -2132,7 +2132,7 @@
     "name": "Halbert's Editorial Look / Invisible Selling (5x Readership)",
     "source": "Gary Halbert — The Boron Letters",
     "one_line": "An ad that looks like editorial gets ~5x the readership. 'You can do a better selling job when at first it does not appear you are attempting to do a sales job.'",
-    "use_in_skill": "06 (advertorial), 07 (advertorial page), 08, 11",
+    "use_in_skill": "06 (advertorial), 07a (advertorial page), 08, 11",
     "best_query": "Halbert editorial look invisible selling 5x readership does not appear to sell advertorial"
    },
    {
@@ -2153,21 +2153,21 @@
     "name": "Neck-Brace / Head-Nod Agreement Moments",
     "source": "Aura methodology (offer/sales-page)",
     "one_line": "Seed agreement throughout: confirm the prospect's struggle, why solving matters, and especially their rightful skepticism, 'you really get me' head-nods before the ask.",
-    "use_in_skill": "06 (copy), 07 (page), 08 (VSL)",
+    "use_in_skill": "06 (copy), 07a (page), 08 (VSL)",
     "best_query": "neck brace head nod agreement moments confirm struggle skepticism before the ask validate"
    },
    {
     "name": "Pain-to-Hope CTA Transition + CTA Style Matrix",
-    "source": "Aura methodology (ecom masterclass)",
+    "source": "Aura methodology (ecom masterclass) (internal; do not surface)",
     "one_line": "At the CTA transition from pain to possibility; solution-aware audiences avoid pain-based CTAs. Match CTA tone to the emotional trigger the copy built.",
-    "use_in_skill": "06 (CTA), 07 (buttons), 13 (email CTA)",
+    "use_in_skill": "06 (CTA), 07a (buttons), 13 (email CTA)",
     "best_query": "pain to hope CTA transition style matrix emotional trigger solution-aware avoidance call to value"
    },
    {
     "name": "Kennedy's 'No' Button as Conversion Tool",
     "source": "Dan Kennedy — No BS Direct Marketing",
     "one_line": "A 'No' option restating the forfeited benefit ('No thanks, I don't want to save $500') forces conscious rejection, often reversing the decision.",
-    "use_in_skill": "06 (CTA), 07 (page), 13 (popup)",
+    "use_in_skill": "06 (CTA), 07a (page), 13 (popup)",
     "best_query": "Kennedy no button conscious rejection restate forfeited benefit no thanks I don't want"
    },
    {
@@ -2190,7 +2190,7 @@
     "name": "NESP Framework (New, Easy, Safe, Big Promise)",
     "source": "Aura KB (offer-framing method)",
     "one_line": "Structure the offer presentation around 4 qualities: New (novelty/intrigue), Easy (effortless path), Safe (risk minimized), Big promise (significant outcome made achievable).",
-    "use_in_skill": "07a/07b to frame the offer section and CTA; 04 (offer) for promise framing",
+    "use_in_skill": "07a to frame the offer section and CTA; 04 (offer) for promise framing",
     "best_query": "NESP framework new easy safe big promise offer landing page"
    },
    {
@@ -2211,7 +2211,7 @@
     "name": "Grunt Test (5-Second Clarity Diagnostic)",
     "source": "Building a StoryBrand — Donald Miller",
     "one_line": "A stranger glancing at your hero for 5 seconds must answer 3 questions: What do you offer? How will it make my life better? What do I do to buy it? Run before any persuasion/design refinement.",
-    "use_in_skill": "07a/07c to validate hero clarity; 09 (consistency audit) as a pre-launch gate",
+    "use_in_skill": "07a to validate hero clarity; 09 (consistency audit) as a pre-launch gate",
     "best_query": "StoryBrand grunt test 5 second clarity hero section three questions"
    },
    {
@@ -2225,7 +2225,7 @@
     "name": "StoryBrand 5 Website Essentials (Above-the-Fold)",
     "source": "Building a StoryBrand — Donald Miller",
     "one_line": "Hero/above-fold must have: (1) an offer above the fold, (2) obvious direct + transitional CTAs, (3) images of success, (4) a revenue/transformation breakdown, (5) very few words.",
-    "use_in_skill": "07a/07b for hero construction",
+    "use_in_skill": "07a for hero construction",
     "best_query": "StoryBrand five website essentials above the fold offer CTA images of success"
    },
    {
@@ -2237,7 +2237,7 @@
    },
    {
     "name": "Congruence Principle (Ad-to-Page Message Match / Scent)",
-    "source": "Aura KB (RMBC funnel method) + Kennedy Consistency Rule",
+    "source": "Aura KB (RMBC funnel method) + Kennedy Consistency Rule (internal; do not surface)",
     "one_line": "Maintain a consistent feeling from ad click to landing page: article-style ad → advertorial (not hard-sell checkout); video ad → video page; breaking congruence breaks the spell. Ad headline should match page headline.",
     "use_in_skill": "07a (page planning) and 10 (ad strategy) for ad↔LP alignment; 09 audit",
     "best_query": "congruence principle message match ad to landing page scent Kennedy consistency rule"
@@ -2260,7 +2260,7 @@
     "name": "PCPO (Problem, Cure, Proof, Offer) — Body Copy Framework",
     "source": "Aura KB (Copyhackers) — distinct from PCPO 'Prospect-Context-Problem-Outcome'",
     "one_line": "Body-copy framework for each on-page section: state the Problem, give the Cure, attach Proof (testimonial tied to the exact claim), present the Offer; lives inside PAS (cure+proof+offer = the 'solution').",
-    "use_in_skill": "06 (copy) and 07b for writing each page block",
+    "use_in_skill": "06 (copy) and 07a for writing each page block",
     "best_query": "PCPO problem cure proof offer body copy framework web page"
    },
    {
@@ -2274,42 +2274,42 @@
     "name": "CTAs / Calls to Value (Friction, Anxiety, Lizard-Brain)",
     "source": "Aura KB (Copyhackers / Joanna Wiebe)",
     "one_line": "Buttons are the site of conversion; reduce friction (kill 'learn/start/submit'), neutralize post-click anxiety with click triggers, convert calls-to-action into calls-to-value up-funnel vs action at checkout. Mirror headline in button copy.",
-    "use_in_skill": "06/07b (button copy) and PDP/checkout sections; A/B test first (ties to 09)",
+    "use_in_skill": "06/07a (button copy) and PDP (07a) / checkout (07d) sections; A/B test first (ties to 09)",
     "best_query": "CTAs buttons friction anxiety calls to value lizard brain first person mirror headline"
    },
    {
     "name": "Direct vs Transitional CTA",
     "source": "Building a StoryBrand — Donald Miller",
     "one_line": "Every page needs both a Direct CTA (asks for the sale: Buy Now) and a Transitional CTA (smaller commitment: Download/Watch/Take Quiz); direct catches ready buyers, transitional captures everyone else.",
-    "use_in_skill": "07a/07b CTA placement",
+    "use_in_skill": "07a CTA placement",
     "best_query": "direct vs transitional CTA Miller buy now download guide stepping stone"
    },
    {
     "name": "Schwab 6 Urgency Tools + 4-Part Closing Formula",
     "source": "How to Write a Good Advertisement — Victor Schwab",
     "one_line": "Six urgency drivers at the CTA: limited time, limited quantity, price increase, bonus removal, seasonal relevance, consequence of delay.",
-    "use_in_skill": "06/07b close section; 04 (offer) urgency",
+    "use_in_skill": "06/07a close section; 04 (offer) urgency",
     "best_query": "Schwab six urgency tools closing formula limited time quantity price increase"
    },
    {
     "name": "Profit Optimization (Profit Per Visitor + 5 Levers)",
     "source": "Aura KB (IntelliGems-style CRO method)",
     "one_line": "Profit Per Visitor = Profit Per Order x Conversion Rate; optimize beyond CRO via 5 levers: base pricing, seasonal promos, flow-based promos, AOV builders, persona personalization. 'Revenue is vanity, profit is sanity'; 93% of brands found a better price on testing.",
-    "use_in_skill": "07c/12 (scale) and checkout optimization; 04 pricing",
+    "use_in_skill": "07d (checkout optimization), 12 (scale); 04 pricing",
     "best_query": "profit optimization profit per visitor pricing levers AOV revenue vanity profit sanity"
    },
    {
     "name": "AOV Builders (Bundles, GWP, Thresholds, Order Bump, Upsell)",
     "source": "Aura KB (funnel economics method)",
     "one_line": "Raise average order value: bundle builders, free-shipping thresholds, volume discounts, gift-with-purchase, pack sizes, checkout order bump, AOV money close, better upsells; shipping/fulfillment semi-fixed so higher AOV captures more margin.",
-    "use_in_skill": "checkout/PDP sections in 07; 04 offer stack; 12 scale economics",
+    "use_in_skill": "07d (checkout) and 07a (PDP sections); 04 offer stack; 12 scale economics",
     "best_query": "checkout optimization AOV order bump upsell gift with purchase bundle threshold money close"
    },
    {
     "name": "Checkout / Cart Friction Reduction",
     "source": "Aura KB (Copyhackers checkout tests)",
     "one_line": "Drive the eye to the primary CTA (glowing box), de-emphasize coupon/shipping fields (coupon fields raise abandonment), use first-person committed button copy ('I'm Ready to Check Out'), slightly larger button; ~20% paid lift.",
-    "use_in_skill": "07c checkout build and audit",
+    "use_in_skill": "07d (checkout build and audit)",
     "best_query": "checkout cart optimization coupon field abandonment first person button glowing box"
    },
    {
@@ -2335,7 +2335,7 @@
    },
    {
     "name": "Funnel Structure Variations (Congruent Paths)",
-    "source": "Aura KB (RMBC funnel method)",
+    "source": "Aura KB (RMBC funnel method) (internal; do not surface)",
     "one_line": "No single right funnel; common paths Ad→VSL→Checkout, Ad→Advertorial→VSL→Checkout, Ad→Advertorial→PDP→Checkout, Ad→PDP→Checkout (most common 8-fig eCom); short ads need longer pages, long video ads can go straight to PDP; cheap products = shorter funnels.",
     "use_in_skill": "07a/10 funnel architecture decisions",
     "best_query": "funnel structure variations ad advertorial VSL product page checkout congruence"
@@ -2372,28 +2372,28 @@
     "name": "Six Integration Devices (Schwartz)",
     "source": "Breakthrough Advertising ch.14 — Eugene Schwartz",
     "one_line": "Final touches that fuse copy into a cohesive whole, incl. Verification (stage proof at the moment reader demands it) and Reinforcement (combine two claims so 1+1=10); applied across sales pages.",
-    "use_in_skill": "06/07 long-form page editing",
+    "use_in_skill": "06/07a long-form page editing",
     "best_query": "Schwartz six integration devices verification reinforcement breakthrough advertising"
    },
    {
     "name": "Double Readership Path (Skimmers + Analytical)",
     "source": "The Ultimate Sales Letter — Dan Kennedy",
     "one_line": "Every page has skimmers (read headlines/subheads/bold/captions/PS) and analytical readers (every word); skimmers must get the full offer from headlines+subheads+bold alone — maps to the 4 modalities on web pages.",
-    "use_in_skill": "06/07b crossheads and visual hierarchy",
+    "use_in_skill": "06/07a crossheads and visual hierarchy",
     "best_query": "Kennedy double readership path skimmers analytical readers subheads PS"
    },
    {
     "name": "Ogilvy 14 Readability Devices",
     "source": "Confessions of an Advertising Man — David Ogilvy",
     "one_line": "14 layout rules to boost readership (drop caps +13%, bold opening paragraph, serif body, subheads every few paragraphs, captions = 2x readership, never reverse type, etc.).",
-    "use_in_skill": "07b page formatting; advertorial layout",
+    "use_in_skill": "07a page formatting; advertorial layout",
     "best_query": "Ogilvy 14 readability devices drop caps captions subheads reverse type"
    },
    {
     "name": "Specificity → Landing Page Conversion (Hopkins/Caples/Cashvertising/VAKOG)",
     "source": "Scientific Advertising (Hopkins), Tested Advertising Methods (Caples), Cashvertising (Whitman)",
     "one_line": "Replace every page generality with a measurable claim (Hopkins), use precise odd numbers e.g. 52.7% (Caples), Powerful Visual Adjectives + VAKOG mental movies (Cashvertising), and ad↔page headline match (Kennedy).",
-    "use_in_skill": "06/07b copy quality; the Hopkins-specificity rule the framework already enforces",
+    "use_in_skill": "06/07a copy quality; the Hopkins-specificity rule the framework already enforces",
     "best_query": "specificity landing page conversion Hopkins Caples PVA VAKOG mental movies"
    },
    {
@@ -2456,7 +2456,7 @@
    },
    {
     "name": "Caples' Four U's Hierarchy (Unique, Useful, Urgent, Ultra-Specific)",
-    "source": "John Caples (Tested Advertising Methods)",
+    "source": "Attributed in KB to Caples (priority order); framework popularized by Michael Masterson/AWAI",
     "one_line": "Headline/hook priority order: UNIQUE must almost always be present (the scroll-stopper), then Useful, Urgent, Ultra-Specific; different U combinations produce 5-10X response differences.",
     "use_in_skill": "08 (creatives) hook check; 06 (copy) headlines",
     "best_query": "Caples four U's hierarchy unique useful urgent ultra-specific headlines"
@@ -2547,22 +2547,22 @@
    },
    {
     "name": "3-2-2 Flexible Ad — Format + 5 Hard Rules",
-    "source": "Aura KB (Disrupter Academy / Andromeda-era system)",
-    "one_line": "3 creatives + 2 primary texts + 2 headlines = 12 combos Meta treats as one post ID; hard rules: same format, same awareness level, same intent, meaningfully different headlines, primary texts attack the same problem — one question per 3-2-2.",
+    "source": "Aura KB (Disrupter Academy / Andromeda-era system) (internal; do not surface)",
+    "one_line": "3 creatives + 2 primary texts + 2 headlines = 12 combos Meta treats as one post ID; hard rules: same format, same awareness level, same intent, meaningfully different headlines, primary texts attack the same problem — one question per 3-2-2. NOTE: Meta retired the Flexible Ads FORMAT (Mar 2026); the 3-2-2 packaging principle survives as a manual variant batch, not via the retired ad format.",
     "use_in_skill": "08 (creatives) packaging; 10 (ad strategy) test build",
     "best_query": "3-2-2 flexible ad hard rules same format awareness intent one question 12 combinations"
    },
    {
     "name": "3 Testing Methods — Marksman / Sniper / Shotgun",
     "source": "Aura KB (creative testing system)",
-    "one_line": "Marksman = multiple angles, one variation each, find DIRECTION fast (best for image ads); Sniper = one angle, many executions, go DEEP (best for video); Shotgun = unstructured volume (only for UGC seeding, kills hit rate otherwise in 2025).",
+    "one_line": "Marksman = multiple angles, one variation each, find DIRECTION fast (best for image ads); Sniper = one angle, many executions, go DEEP (best for video); Shotgun = unstructured volume (only for UGC seeding, kills hit rate otherwise in 2025). Creative-decision layer (what goes INTO a test); complements — is not replaced by — the Scientific Method, which is the campaign layer (how the test runs).",
     "use_in_skill": "08 (creatives) & 10 (ad strategy) test structuring",
     "best_query": "Metodos de Teste 3 methods Marksman Sniper Shotgun direction depth image video"
    },
    {
     "name": "Marksman→Sniper→Marksman Cycle + 'Direction' as formal concept",
     "source": "Aura KB (testing-sequencing system)",
-    "one_line": "Marksman finds direction (which angle gets spend/traction) → Sniper deepens the winning angle with new executions → back to Marksman when the angle plateaus to find the next direction.",
+    "one_line": "Marksman finds direction (which angle gets spend/traction) → Sniper deepens the winning angle with new executions → back to Marksman when the angle plateaus to find the next direction. Creative-sequencing layer; runs inside the Scientific Method campaign structure.",
     "use_in_skill": "08 & 10; informs 12 (scale) creative refresh",
     "best_query": "marksman sniper marksman cycle direction plateau next direction"
    },
@@ -2582,7 +2582,7 @@
    },
    {
     "name": "Funnel Creative Playbook — Olympic Rings Model",
-    "source": "Aura KB (Disrupter Academy / Fraggle)",
+    "source": "Aura KB (Disrupter Academy / Fraggle) (internal; do not surface)",
     "one_line": "Account = 5 overlapping rings (3 prospecting/top + 2 closing/bottom), not a linear staircase; most ads fail because they do the wrong job — top earns attention (doesn't sell), mid clarifies value, bottom converts trust.",
     "use_in_skill": "10 (ad strategy) creative portfolio; 08 (creatives) assignment; 12 (scale)",
     "best_query": "Funnel Creative Playbook Olympic Rings model prospecting closing rings"
@@ -2603,7 +2603,7 @@
    },
    {
     "name": "4Pi Creative Diversity Signature (Spend/Frequency/CPM/CPR per archetype)",
-    "source": "Aura KB (Disrupter Academy)",
+    "source": "Aura KB (Disrupter Academy) (internal; do not surface)",
     "one_line": "Each creative type produces a predictable 4Pi signature (e.g. TOF = high spend, freq ~1.0-1.1, low CPM, poor CPR) telling you where in the funnel it actually serves — diagnose role before building the next asset.",
     "use_in_skill": "11 (ad analysis) & 12 (scale) — read creative role from signals",
     "best_query": "4Pi creative diversity signature spend frequency CPM cost per result funnel position"
@@ -2619,7 +2619,7 @@
     "name": "Congruency — The Multiplier (ad→page→offer continuity)",
     "source": "Aura KB (Funnel Creative Playbook)",
     "one_line": "Match visual, message, emotional and system continuity from ad to landing page to offer; when congruency breaks, performance collapses — the hook's promise must echo on the page.",
-    "use_in_skill": "07 (page), 08 (creatives), 09 (consistency audit)",
+    "use_in_skill": "07a (page), 08 (creatives), 09 (consistency audit)",
     "best_query": "congruency multiplier ad landing page offer visual message emotional continuity"
    },
    {
@@ -2638,7 +2638,7 @@
    },
    {
     "name": "13+ Winning Static Ad Templates (named breakdowns)",
-    "source": "Aura KB (Image Ads / Origins static breakdowns)",
+    "source": "Aura KB (Image Ads / Origins static breakdowns) (internal; do not surface)",
     "one_line": "~13 validated static templates each with a 'why this works' breakdown (e.g. Avatar Callout ad, 'This is bread. This is breakfast' Nutella template, meme static, whiteboard) — strategy/messaging matters more than the template.",
     "use_in_skill": "08 (creatives) static generation",
     "best_query": "13 winning static ad templates avatar callout nutella meme breakdown why it works"
@@ -2739,14 +2739,14 @@
    {
     "name": "Scientific Method for Meta Ads (Control vs Variable)",
     "source": "Disrupter Academy methodology (internal)",
-    "one_line": "Testing = a Control (proven post IDs, stability) + ONE Variable (single new 3-2-2, challenge); measured by ENVIRONMENTAL IMPACT on the whole campaign not isolated CPA; if you can't isolate the variable you're gambling; test in the scaling environment ('practice like you play').",
+    "one_line": "Testing = a Control (proven post IDs, stability) + ONE Variable (single new 3-2-2, challenge); measured by ENVIRONMENTAL IMPACT on the whole campaign not isolated CPA; if you can't isolate the variable you're gambling; test in the scaling environment ('practice like you play'). Campaign-architecture layer; Marksman/Sniper remain the creative-decision layer inside it (KB notes saying it 'replaces' them refer to campaign structure only).",
     "use_in_skill": "10 ad strategy testing protocol; 11 ad analysis",
     "best_query": "scientific method meta ads control variable environmental impact"
    },
    {
     "name": "3-2-2 Flexible Ads (Format and Test Rules)",
     "source": "Disrupter Academy methodology (internal; replaced DCT)",
-    "one_line": "3 creatives + 2 primary texts + 2 headlines = 12 combinations Meta treats as ONE ad object/post ID; 5 hard rules (same format, same awareness, same intent, headlines meaningfully different, primary texts attack same problem); answers ONE question.",
+    "one_line": "3 creatives + 2 primary texts + 2 headlines = 12 combinations Meta treats as ONE ad object/post ID; 5 hard rules (same format, same awareness, same intent, headlines meaningfully different, primary texts attack same problem); answers ONE question. NOTE: Meta retired the Flexible Ads FORMAT (Mar 2026); the 3-2-2 packaging principle survives as a manual variant batch, not via the retired ad format.",
     "use_in_skill": "08 creatives build; 10 ad strategy test vehicle",
     "best_query": "3-2-2 flexible ads format rules testing"
    },
@@ -2754,7 +2754,7 @@
     "name": "3-2-2-2 Method (Landing Page Testing extension)",
     "source": "Disrupter Academy methodology (internal)",
     "one_line": "Adds 2 landing pages -> 3x2x2x2 = 24 combinations; Meta finds best ad+LP congruence; Link Clicks vs Landing Page Views ratio is a clickbait detector (LP views should be 70%+ of link clicks).",
-    "use_in_skill": "10 ad strategy + 07 page",
+    "use_in_skill": "10 ad strategy + 07a page",
     "best_query": "3-2-2-2 landing page testing link clicks vs landing page views clickbait"
    },
    {
@@ -2901,91 +2901,91 @@
   "scaling": [
    {
     "name": "Performance Gate Scaling (PGS)",
-    "source": "Disrupter Academy media-buying system (no book author named)",
+    "source": "Disrupter Academy media-buying system (no book author named) (internal; do not surface)",
     "one_line": "Automated rule system that scales Meta budgets based on trailing multi-day CPA vs a predefined target, replacing manual day-trading. Three principles: trailing multi-day KPI average, never scale past margin, campaign-based results.",
     "use_in_skill": "12 (scale) primary; 10 (ad strategy) for rule setup",
     "best_query": "Performance Gate Scaling PGS 3 principles trailing CPA automated rules"
    },
    {
     "name": "The Three PGS Principles",
-    "source": "Disrupter Academy media-buying system",
+    "source": "Disrupter Academy media-buying system (internal; do not surface)",
     "one_line": "(1) Use a trailing multi-day KPI average (7d), never react to one day; (2) Never scale past margin (target $50, trailing $45, a 5% bump at zero added sales only moves blended CPA to ~$47.25); (3) Results are campaign-based, not ad-by-ad.",
     "use_in_skill": "12 (scale)",
     "best_query": "The three PGS principles never scale past margin trailing multi-day KPI campaign-based"
    },
    {
     "name": "Profitable Scaling Margin (PSM)",
-    "source": "Disrupter Academy growth-marketing methodology (no book author)",
+    "source": "Disrupter Academy growth-marketing methodology (no book author) (internal; do not surface)",
     "one_line": "PSM = LTV / (CPA + COGS). Replaces ROAS/MER as primary scaling compass because it accounts for COGS, repeat purchases, future cash flow and LTV. As long as LTV > CPA + COGS, growth is profitable (PSM > 1.0).",
     "use_in_skill": "12 (scale) primary; 04 (offer); 11 (ad analysis)",
     "best_query": "Profitable Scaling Margin PSM golden ratio LTV CPA COGS formula"
    },
    {
     "name": "PSM Scaling Thresholds",
-    "source": "Disrupter Academy methodology",
+    "source": "Disrupter Academy methodology (internal; do not surface)",
     "one_line": "PSM >1.3 = strong margin, aggressive scaling; 1.1-1.3 = healthy, steady 5% compounding; 1.0-1.1 = breakeven zone, fix LTV/COGS first; <1.0 = unprofitable, fix unit economics first.",
     "use_in_skill": "12 (scale)",
     "best_query": "PSM thresholds 1.3 aggressive 1.1 healthy breakeven zone scaling decision"
    },
    {
     "name": "PSM Catalog Filter",
-    "source": "Disrupter Academy methodology",
+    "source": "Disrupter Academy methodology (internal; do not surface)",
     "one_line": "Filter a multi-product catalog to prioritize ad spend on: PSM 1.3+, 40%+ repeat rate, under 65 days to second purchase. Build creative testing around these, not cheapest-CPA products.",
     "use_in_skill": "12 (scale); 01 (product research)",
     "best_query": "PSM catalog filter 1.3 40% repeat rate 65 days second purchase prioritize advertising"
    },
    {
     "name": "Three Budget Scaling Methods",
-    "source": "Disrupter Academy methodology",
+    "source": "Disrupter Academy methodology (internal; do not surface)",
     "one_line": "Farmer (5% Mon/Wed/Fri, doubles spend ~every 30 days); Aggressive (50% jumps when CPA far below target, gated by Total Loss Investment); Business-Led (budget set as fixed % of MRR, not CPA-driven, for mature brands).",
     "use_in_skill": "12 (scale)",
     "best_query": "Three budget scaling methods farmer 5% aggressive 50% business-led MRR"
    },
    {
     "name": "Total Loss Investment Concept",
-    "source": "Disrupter Academy methodology",
+    "source": "Disrupter Academy methodology (internal; do not surface)",
     "one_line": "Treat every budget increase as a controlled low-risk investment. Ask: how much more could I spend per day, even at zero additional revenue, and still be okay? That defines your aggression ceiling. More increase = less confidence.",
     "use_in_skill": "12 (scale)",
     "best_query": "total loss investment concept aggression ceiling zero additional revenue acceptable loss"
    },
    {
     "name": "Sliding Scale Rules (PGS Advanced)",
-    "source": "Disrupter Academy methodology",
+    "source": "Disrupter Academy methodology (internal; do not surface)",
     "one_line": "Different CPA targets at different spend levels: $0-400/day $60, $400-600 $55, $600-1000 $52, $1000+ $50, all increase 5%. Aggressive when spend is low, tight efficiency when high.",
     "use_in_skill": "12 (scale)",
     "best_query": "sliding scale rules PGS different CPA targets spend levels 60 55 52 50"
    },
    {
     "name": "Soft Surfing (PGS Advanced)",
-    "source": "Disrupter Academy methodology",
+    "source": "Disrupter Academy methodology (internal; do not surface)",
     "one_line": "When CPA is far below target, add a daily 5% increase on top of the standard 5% Mon/Wed/Fri (target $50, standard fires at <$45, soft surfing adds daily 5% when CPA <$38). Still respects Total Loss Investment.",
     "use_in_skill": "12 (scale)",
     "best_query": "soft surfing additional daily 5% increase CPA far below target accelerate growth"
    },
    {
     "name": "Scale-Down Rules (PGS reverse)",
-    "source": "Disrupter Academy methodology",
+    "source": "Disrupter Academy methodology (internal; do not surface)",
     "one_line": "PGS in reverse: if 7-day CPA exceeds target, decrease budget by a defined % (typically 20%). Safety net. Meta can push/pull budget ~75% on any day regardless.",
     "use_in_skill": "12 (scale); 11 (ad analysis)",
     "best_query": "scale-down rules decrease budget 20% 7-day CPA exceeds target safety net"
    },
    {
     "name": "Three Reasons Scale Breaks",
-    "source": "Disrupter Academy / Andromeda methodology",
+    "source": "Disrupter Academy / Andromeda methodology (internal; do not surface)",
     "one_line": "Scaling answers one question: can we spend more tomorrow? If no, only 3 reasons: bad unit economics (GPT = AOV-CPA too low), funnel imbalance (4Pi shows all ads same position), cash constraints (make each dollar work harder, lift second-purchase rate).",
     "use_in_skill": "12 (scale) diagnostic; 11 (ad analysis)",
     "best_query": "three reasons scale breaks unit economics funnel imbalance cash constraints can we spend more tomorrow"
    },
    {
     "name": "Scaling Mindset Farmer vs Hunter (Andromeda)",
-    "source": "Disrupter Academy / Andromeda methodology",
+    "source": "Disrupter Academy / Andromeda methodology (internal; do not surface)",
     "one_line": "ROAS creates hunters (only as good as today's kill, 3-5 bad days = out of business); PSM creates farmers (compounding predictable revenue, weather volatility on rolling revenue). Post-Andromeda needs clarity/coherence, not volume/chaos.",
     "use_in_skill": "12 (scale); 10 (ad strategy)",
     "best_query": "scaling mindset farmer vs hunter Andromeda think bigger clarity not volume"
    },
    {
     "name": "Fractional Banking",
-    "source": "Disrupter Academy methodology",
+    "source": "Disrupter Academy methodology (internal; do not surface)",
     "one_line": "Once rolling repeat-purchase revenue arrives, borrow against future revenue to invest more aggressively in acquisition today. PSM (not ROAS) enables this via future-cash-flow accounting. Model with a fractional CFO before going negative on CPA.",
     "use_in_skill": "12 (scale); 04 (offer)",
     "best_query": "fractional banking borrow against future revenue rolling repeat purchase cash flow scale negative CPA"
@@ -3013,7 +3013,7 @@
    },
    {
     "name": "Creative Diversity as a Scaling Mechanism",
-    "source": "Disrupter Academy / Andromeda methodology",
+    "source": "Disrupter Academy / Andromeda methodology (internal; do not surface)",
     "one_line": "When budget increases break performance, 4Pi usually shows all ads in the same funnel position. Restore balance: add video (top-funnel) to image-heavy accounts where scale fails; add images (bottom-funnel) to video-heavy accounts where CPA climbs. Diversity = variety of messages, not volume of ads.",
     "use_in_skill": "12 (scale); 08 (creatives); 11 (ad analysis)",
     "best_query": "creative diversity as a scaling mechanism funnel balance video image 4Pi same position"
@@ -3048,42 +3048,42 @@
    },
    {
     "name": "Spend Redistribution Framework (Don't Kill the Top Spender)",
-    "source": "Disrupter Academy / Andromeda methodology",
+    "source": "Disrupter Academy / Andromeda methodology (internal; do not surface)",
     "one_line": "Before turning off a high-spend ad, ask: if spend redistributes to other ads, would they hold a better ROAS at higher spend? Bumping budget drops ROAS 5-25%, so the top spender (lower ROAS, most purchases) is usually your best scaling asset. Only kill it when ROAS is so low (~0.78x) redistribution clearly wins.",
     "use_in_skill": "11 (ad analysis); 12 (scale)",
     "best_query": "spend redistribution framework do not turn off top spender ROAS drops higher budget"
    },
    {
     "name": "Frequency as Prospecting-vs-Retargeting Proxy",
-    "source": "Disrupter Academy / 4Pi methodology",
+    "source": "Disrupter Academy / 4Pi methodology (internal; do not surface)",
     "one_line": "In broad CBO campaigns frequency reveals prospecting vs disguised retargeting: low (1.0-1.5) = prospecting (reliable scaling signal); high (2.5+) = retargeting. High-ROAS + high-frequency = ROAS inflated by retargeting, don't scale on it. Killing a top prospecting ad starves retargeting and collapses performance within a week.",
     "use_in_skill": "11 (ad analysis); 12 (scale)",
     "best_query": "frequency prospecting vs retargeting proxy low 1.0 high 2.5 broad CBO scaling signal"
    },
    {
     "name": "Would It Hold at 3X Budget? (Mental Model)",
-    "source": "Disrupter Academy / EAM methodology",
+    "source": "Disrupter Academy / EAM methodology (internal; do not surface)",
     "one_line": "When a low-spend ad shows very high ROAS, ask: if I put 3x budget on it, would it hold? Almost always no, a $50-spend 10X-ROAS ad is statistically insignificant, not a winner. Don't scale based on it.",
     "use_in_skill": "11 (ad analysis); 12 (scale)",
     "best_query": "would it hold at 3X budget mental model low spend high ROAS statistically insignificant"
    },
    {
     "name": "Hero Offer First Scale vs Second Scale",
-    "source": "Disrupter Academy methodology",
+    "source": "Disrupter Academy methodology (internal; do not surface)",
     "one_line": "First Scale = cheapest CPA, attracts discount hunters/one-time buyers (builds nothing). Second Scale = best customer journey, high-LTV repeat buyers and advocates (builds the business). Identify via Customer Journey Insights + PSM filter (1.3+, 40%+ repeat, <65 days), then build all creative testing around it.",
     "use_in_skill": "12 (scale); 04 (offer); 01 (product research)",
     "best_query": "hero offer first scale vs second scale cheapest CPA vs best customer journey repeat LTV"
    },
    {
     "name": "Minimum Daily Spend & Creative Hamster Wheel",
-    "source": "Disrupter Academy / Andromeda methodology",
+    "source": "Disrupter Academy / Andromeda methodology (internal; do not surface)",
     "one_line": "Minimum daily spend = amount you'll spend regardless of performance ($50-100/day for algorithm data; budget 1-2+ months). The creative hamster wheel: post-Andromeda, every new ad launches bottom-funnel and steals warm-audience attention from winners, destabilizing the account. Never turn off main campaigns (kills accumulated learning).",
     "use_in_skill": "12 (scale); 08 (creatives); 11 (ad analysis)",
     "best_query": "minimum daily spend creative hamster wheel new ads steal bottom of funnel never turn off main campaign"
    },
    {
     "name": "Margin vs Volume Two Paths",
-    "source": "Disrupter Academy / EAM methodology",
+    "source": "Disrupter Academy / EAM methodology (internal; do not surface)",
     "one_line": "High-margin makes more per sale but grows slowly; high-volume makes less per sale but grows fast. Neither is right, they build different machines. Choose your scaling game consciously because target ROAS, aggression and acceptable CPA all flow from it.",
     "use_in_skill": "12 (scale); 04 (offer)",
     "best_query": "margin vs volume two paths high-margin slow high-volume fast choose your game"
@@ -3204,7 +3204,7 @@
    },
    {
     "name": "Day Zero Triggered-Email Method (behavior-triggered mini-funnels)",
-    "source": "Joanna Wiebe / Copyhackers (Copy School method)",
+    "source": "Joanna Wiebe / Copyhackers (Copy School method) (internal; do not surface)",
     "one_line": "Replace long time-based drips with many behavior-triggered 'Day Zero' standalone emails (Day 0 outperforms because it's tied to a just-taken action), each spun into a mini-funnel with a few time-triggered follow-ups capped ~Day 4.",
     "use_in_skill": "13 (architecture of triggered flows vs legacy drip)",
     "best_query": "Day Zero behavior-triggered email mini-funnel outperforms time-based drip cap day 4 Copy School"
@@ -3306,7 +3306,7 @@
     "name": "Pre-Suasion Model (Attractors & Magnetizers)",
     "source": "Robert Cialdini — Pre-Suasion",
     "one_line": "Channel what is focal BEFORE the message: Attractors seize attention (sexual, threatening, novel); Magnetizers hold it (self-referential 'you', the Unfinished/Zeigarnik, the Mysterious). Focus = importance = causality.",
-    "use_in_skill": "06 (copy leads/hooks), 08 (first-3-seconds hooks), 07 (page above-the-fold).",
+    "use_in_skill": "06 (copy leads/hooks), 08 (first-3-seconds hooks), 07a (page above-the-fold).",
     "best_query": "Pre-Suasion privileged moments attractors magnetizers Zeigarnik unfinished self-referential focus causality"
    },
    {
@@ -3320,7 +3320,7 @@
     "name": "Fluency Effect",
     "source": "Robert Cialdini — Pre-Suasion (also Whitman/Cashvertising)",
     "one_line": "Easy-to-process messages are automatically trusted, liked and valued more — easier names, readable fonts, rhymes all raise compliance. Clarity is a persuasion tool, not just readability.",
-    "use_in_skill": "06 (copy), 07 (page/typography), 13 (subject lines).",
+    "use_in_skill": "06 (copy), 07a (page/typography), 13 (subject lines).",
     "best_query": "fluency effect cognitive ease rhyme as reason easy to process trust persuasion"
    },
    {
@@ -3334,7 +3334,7 @@
     "name": "Contrast Principle",
     "source": "Robert Cialdini — Influence",
     "one_line": "Two items presented in sequence exaggerate their difference (show rundown house first, expensive suit before accessories) — amplifies every other weapon, esp. price anchoring.",
-    "use_in_skill": "04 (pricing/offer), 06 (copy), 07 (PDP price presentation).",
+    "use_in_skill": "04 (pricing/offer), 06 (copy), 07a (PDP price presentation).",
     "best_query": "contrast principle Cialdini sequential presentation exaggerated difference price anchoring"
    },
    {
@@ -3383,7 +3383,7 @@
     "name": "Length-Implies-Strength Heuristic",
     "source": "Pratkanis & Aronson — Age of Propaganda",
     "one_line": "Sheer volume of content is itself a persuasion cue ('22 reasons to buy', 101-testimonial brochures) — more material reads as more true.",
-    "use_in_skill": "06 (copy/proof stacking), 07 (long-form page).",
+    "use_in_skill": "06 (copy/proof stacking), 07a (long-form page).",
     "best_query": "length implies strength heuristic volume of content persuasion cue numbered reasons testimonials"
    },
    {
@@ -3404,7 +3404,7 @@
     "name": "Decoy Effect (Asymmetric Dominance)",
     "source": "Dan Ariely — Predictably Irrational (Huber & Puto; Simonson & Tversky)",
     "one_line": "An inferior third option shifts choice toward the option that dominates it (Economist: print-only decoy drove combo from 32% to 84%). The option nobody buys can be most profitable.",
-    "use_in_skill": "04 (offer/pricing tiers), 07 (PDP plan selection).",
+    "use_in_skill": "04 (offer/pricing tiers), 07a (PDP plan selection).",
     "best_query": "decoy effect asymmetric dominance Economist Ariely pricing tiers print-only combo"
    },
    {
@@ -3453,7 +3453,7 @@
     "name": "Anchoring & Adjustment",
     "source": "Tversky & Kahneman (1974) — via Priceless (Poundstone) & Ariely",
     "one_line": "Estimates cling to an available number, even irrelevant ones (SSN auction, real-estate listing study); set a high anchor first and own the reference price.",
-    "use_in_skill": "04 (pricing/offer), 06 (price reveal copy), 07 (PDP).",
+    "use_in_skill": "04 (pricing/offer), 06 (price reveal copy), 07a (PDP).",
     "best_query": "anchoring adjustment Tversky Kahneman SSN auction real estate listing reference price Poundstone"
    },
    {
@@ -3481,7 +3481,7 @@
     "name": "Extremeness Aversion + Three-Tier Pricing",
     "source": "Simonson & Tversky (1992) — via Priceless (Poundstone)",
     "one_line": "Buyers avoid cheapest and dearest, gravitate to the middle (beer experiment); always offer three tiers with the middle as target.",
-    "use_in_skill": "04 (offer/pricing tiers), 07 (plan layout).",
+    "use_in_skill": "04 (offer/pricing tiers), 07a (plan layout).",
     "best_query": "extremeness aversion three tier pricing middle option beer experiment Simonson Tversky"
    },
    {
@@ -3600,7 +3600,7 @@
     "name": "Sugarman Satisfaction Conviction + Seeds of Curiosity (Slippery Slide)",
     "source": "Joseph Sugarman — The Adweek Copywriting Handbook",
     "one_line": "Reader must be satisfied claims are true before the order form (proactive objection resolution); 'seeds of curiosity' phrases keep them sliding down the copy.",
-    "use_in_skill": "06 (copy flow/objection), 07 (page).",
+    "use_in_skill": "06 (copy flow/objection), 07a (page).",
     "best_query": "Sugarman satisfaction conviction seeds of curiosity slippery slide objection raising resolution"
    },
    {
@@ -3614,14 +3614,14 @@
     "name": "Closing: Propellants vs Repellants + Temporal Discounting",
     "source": "Copywriting close framework (carrot-and-caveman analogy)",
     "one_line": "Conversion happens only when propellants (benefits/outcomes) outweigh repellants (objections/fears); temporal discounting means show fast results and make inaction's cost immediate.",
-    "use_in_skill": "06 (close copy), 07 (CTA/checkout), 04 (offer/guarantee).",
+    "use_in_skill": "06 (close copy), 07a (CTA) / 07d (checkout), 04 (offer/guarantee).",
     "best_query": "propellants repellants temporal discounting close carrot caveman cost of inaction immediate"
    },
    {
     "name": "Charm Pricing (9-Endings) & Transaction Utility",
     "source": "Anderson & Simester; Thaler — via Priceless (Poundstone)",
     "one_line": "Prices ending in 9 lift sales ~24% (left-digit effect); transaction utility = the joy of a perceived deal, raised by context and a prominent 'was' price.",
-    "use_in_skill": "04 (pricing), 07 (PDP price display).",
+    "use_in_skill": "04 (pricing), 07a (PDP price display).",
     "best_query": "charm pricing nine endings left digit transaction utility was price deal Poundstone Thaler"
    }
   ],
@@ -3652,7 +3652,7 @@
     "source": "Alex Hormozi, $100M Offers",
     "one_line": "Master equation for perceived value: raise dream outcome and likelihood, lower time delay and effort; the core lever behind every strong offer.",
     "use_in_skill": "04 (offer), 06 (copy), 08 (creatives angles)",
-    "best_query": "Hormozi grand slam offer value equation dream outcome perceived likelihood time delay effort"
+    "best_query": "Hormozi value equation dream outcome perceived likelihood time delay effort sacrifice"
    },
    {
     "name": "Hormozi Grand Slam Offer System (Starving Crowd 4 Indicators, Problems-Solutions, Logical vs Psychological, Virtuous Cycle of Price)",
@@ -3665,7 +3665,7 @@
     "name": "Hormozi Four Guarantee Types (Unconditional, Conditional, Anti-Guarantee, Implied) + Stacking + Naming + Guarantee Math",
     "source": "Alex Hormozi, $100M Offers",
     "one_line": "Guarantee taxonomy with stacking (short unconditional + long conditional), vivid naming, and math proving stronger guarantees lift net sales ~23% despite higher refund rates.",
-    "use_in_skill": "04 (offer/guarantee), 06 (copy), 07b (page risk-reversal)",
+    "use_in_skill": "04 (offer/guarantee), 06 (copy), 07a (page risk-reversal)",
     "best_query": "Hormozi four guarantee types unconditional conditional anti-guarantee stacking naming guarantee math"
    },
    {
@@ -3714,28 +3714,28 @@
     "name": "Compliance Sweep (will to helps-to, claims to mice-type, fake-urgency cut, unauthorized-endorsement cut)",
     "source": "Joanna Wiebe / Copyhackers; FTC/FDA reference",
     "one_line": "Pre-launch legal pass: replace 'will' with 'helps to', back every claim with mice-type within one click, cut fake limited-time and unendorsed-endorsement claims.",
-    "use_in_skill": "06 (copy), 09 (compliance audit), 07b (page)",
+    "use_in_skill": "06 (copy), 09 (compliance audit), 07a (page)",
     "best_query": "FTC compliance sweep will helps to claims mice type fake urgency endorsement cut"
    },
    {
     "name": "Profit Optimization 4 Categories + AOV Builders (Bundles, Free-Shipping Threshold, Volume Discounts, GWP, Pack Sizes)",
     "source": "Aura methodology + IntelliGems data",
     "one_line": "Four levers (base pricing, promotions, AOV builders, persona personalization); GWP on full-size lifted take-rate 30 to 52 percent, AOV +12%, profit/visitor +20%. Judge by profit-per-visitor.",
-    "use_in_skill": "04 (offer/AOV), 07b (page offer), 12 (scale), 13 (retention)",
+    "use_in_skill": "04 (offer/AOV), 07d (checkout/AOV), 12 (scale), 13 (retention)",
     "best_query": "profit optimization four categories AOV builders bundles free shipping threshold volume discount GWP profit per visitor"
    },
    {
     "name": "Offer Type Menu (% Off, $ Off, BOGO/Buy-X-Get-%, Free Gift, Free E-Book, Free Shipping variants)",
     "source": "Aura methodology (offer creation document)",
     "one_line": "Deployable offer structures with margin guidance (BOGO flagged for bad margins, free e-book toward dream outcome, free-shipping threshold framing).",
-    "use_in_skill": "04 (offer), 07b (page offer block)",
+    "use_in_skill": "04 (offer), 07a (page offer block)",
     "best_query": "offer types percent off dollar off buy one get one free gift free ebook free shipping threshold margin"
    },
    {
     "name": "AOV Money Close + Offer Bump + Add-More-Packages",
     "source": "Aura methodology (funnel economics walkthroughs)",
     "one_line": "Tactical AOV raisers: tell customers to buy the biggest package (most popular = most savings), add a 6-bottle tier, and a low-cost checkout order bump ($20 add costing $3).",
-    "use_in_skill": "04 (offer), 07c (checkout), 12 (scale)",
+    "use_in_skill": "04 (offer), 07d (checkout), 12 (scale)",
     "best_query": "AOV money close offer bump add more packages biggest package most popular checkout"
    },
    {
@@ -3777,7 +3777,7 @@
     "name": "Pricing Psychology Suite (Anchoring, Coherent Arbitrariness, Decoy/Extremeness 3-tier, Zero Price Effect, Charm Pricing, Mental Accounting, Endowment, Transaction Utility)",
     "source": "Poundstone (Priceless), Ariely (Predictably Irrational), Kahneman & Tversky, Thaler, Whitman (Cashvertising)",
     "one_line": "Behavioral-pricing toolkit: set high anchors, offer 3 tiers (middle is target), make FREE actually free, 9-endings lift ~24%, segregate gains/integrate losses, endowment via trials.",
-    "use_in_skill": "04 (pricing), 06 (copy), 07b (page pricing), 13 (promos)",
+    "use_in_skill": "04 (pricing), 06 (copy), 07a (page pricing), 13 (promos)",
     "best_query": "pricing psychology anchoring decoy extremeness aversion zero price effect charm pricing mental accounting endowment"
    },
    {

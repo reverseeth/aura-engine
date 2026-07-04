@@ -1,6 +1,6 @@
 ---
 name: competitor-analysis
-description: Engine de análise profunda de concorrentes que mapeia PDPs, ads em Meta Ad Library, claims, alternative solutions, e gap analysis. Use quando o membro disser "competitor analysis", "análise de concorrentes", "analisar concorrentes", ou quando o market research estiver completo e o membro quiser entender o cenário competitivo antes de montar a oferta. Este é o input decisivo pra posicionamento: onde você vai BRIGAR e onde você vai CONTORNAR.
+description: Engine de análise profunda de concorrentes que mapeia PDPs, ads em Meta Ad Library, claims, alternative solutions, gap analysis — e grava a validated_library (mecanismos + ângulos validados com evidência de veiculação/escala) que alimenta a recombinação de mecanismo da Skill 04. Use quando o membro disser "competitor analysis", "análise de concorrentes", "analisar concorrentes", ou quando o market research estiver completo e o membro quiser entender o cenário competitivo antes de montar a oferta. Este é o input decisivo pra posicionamento: onde você vai BRIGAR e onde você vai CONTORNAR.
 ---
 
 # Competitor Analysis Engine
@@ -10,9 +10,9 @@ Quando o membro tem produto definido e market research feito, e precisa mapear o
 
 ## Antes de Começar
 
-1. Leia `workspace/profile.md`. Leia o campo `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language`. Ressalva específica desta skill: copy literal de concorrentes (headlines, hooks, claims, transcrições de ads) permanece no idioma original do ad — é evidência, não tradução.
-2. Leia `workspace/[produto]/01-product-research/relatorio.md` (se existir — tem concorrentes já identificados)
-3. Leia `workspace/[produto]/02-market-research/relatorio.md` (overview competitivo básico + gaps já identificados)
+1. Leia `workspace/profile.md`. Leia o campo `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language`. Observação importante específica desta skill: copy literal de concorrentes (headlines, hooks, claims, transcrições de ads) permanece no idioma original do ad — é evidência, não tradução.
+2. Leia `workspace/[produto]/01-product-research/product-research.md` (se existir — tem concorrentes já identificados)
+3. Leia `workspace/[produto]/02-market-research/market-research.md` (overview competitivo básico + gaps já identificados; se não existir, leia o legado `relatorio.md`)
 4. **Puxe os SISTEMAS NOMEADOS da base** — NUNCA use query genérica tipo "competitor analysis". Pra cada ETAPA, rode `search_knowledge` (com `deep=true`) usando a `best_query` exata de cada framework relevante listado nas próprias ETAPAs abaixo. O índice completo do domínio desta skill (domínio `competitor-positioning`, 31 frameworks) está em **`.claude/lib/kb-index/`** (`frameworks.json` + `README.md` com o mapa skill→domínio). Esta skill opera em detalhe EXECUTIVO, não conceitual — puxe o sistema completo de cada framework, não o resumo de superfície.
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (domínio `competitor-positioning`; o README mapeia skill→domínio). Os blocos `**Nome do framework** (rode \`best_query\`)` embutidos nas ETAPAs abaixo são os de MAIOR IMPACTO — não a lista inteira. Quando uma ETAPA precisar de mais profundidade, consulte o índice.
@@ -24,15 +24,15 @@ Quando o membro tem produto definido e market research feito, e precisa mapear o
 1. Leia `workspace/profile.md`. Se TOTALMENTE ausente → sem profile não há o que inferir; ofereça rodar o setup inline: `"Não achei seu profile. Rode \`setup\` agora (eu conduzo aqui mesmo) e a gente segue."`
 2. Leia `workspace/[produto]/manifest.json` (identifique `[produto]` via manifest com `setup_complete === true`). Se TOTALMENTE ausente → ofereça rodar o setup inline (mesma mensagem do item 1).
 3. Valide a existência de TODOS os arquivos obrigatórios:
-   - `workspace/[produto]/01-product-research/relatorio.md`
-   - `workspace/[produto]/02-market-research/relatorio.md`
+   - `workspace/[produto]/01-product-research/product-research.md`
+   - `workspace/[produto]/02-market-research/market-research.md`
    - `workspace/[produto]/02-market-research/dados.json`
 4. Valide que `skills_completed` do manifest contém `"01-product-research"` E `"02-market-research"`.
 5. Se faltar qualquer arquivo obrigatório dos itens 3-4 (mas profile + manifest existem), NÃO aborte seco. Ofereça ≥2 caminhos: **(A)** Rodar a skill faltante agora (`product research` ou `market research`), OU **(B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["<arquivo>"]` e avisando no output final que recomenda re-executar com o arquivo real. Default conservador = (A).
 
-### ETAPA 0.5 — TrendTrack MCP (opcional, se conectado)
+### ETAPA 0.5 — MCPs de research (opcionais, se conectados)
 
-Verifique se há tools com prefixo `mcp__trendtrack__` disponíveis. Se SIM, use TrendTrack como fonte primária pra ETAPAs 1-3 e fallback de Cloudflare/cloaker fica desnecessário:
+**TrendTrack MCP:** verifique se há tools com prefixo `mcp__trendtrack__` disponíveis. Se SIM, use TrendTrack como fonte primária pra ETAPAs 1-3 e fallback de Cloudflare/cloaker fica desnecessário:
 
 - **`mcp__trendtrack__search_shops`** com niche/keyword → substitui Etapa 1 manual de identificação de concorrentes (browse 1M+ Shopify stores indexados, com sinais de receita/crescimento).
 - **`mcp__trendtrack__find_similar_shops`** após identificar 1 concorrente forte → encontra adjacentes ranqueados por similaridade.
@@ -43,7 +43,9 @@ Pra cada concorrente, prefira 1 chamada `brief_competitor` em vez de 4-5 chamada
 
 Se uma chamada falhar → silent fallback pra ETAPA tradicional, sem avisar membro.
 
-Se TrendTrack NÃO estiver disponível, pule esta etapa e siga ETAPAs 1-3 normalmente.
+**Foreplay MCP (ad spy):** verifique se há tools com prefixo `mcp__foreplay__`. Se SIM, use-as como fonte primária de criativos escalados dos concorrentes nas ETAPAs 3/3C (boards, top ads por marca, dados de veiculação) — elimina a dependência de screenshots/uploads do membro na 3C. Mesma regra do TrendTrack: chamada falhou → silent fallback pro método tradicional, sem avisar o membro.
+
+Se nenhum MCP estiver disponível, pule esta etapa e siga ETAPAs 1-3 normalmente.
 
 ### ETAPA 1 — Identificar Concorrentes
 
@@ -66,9 +68,10 @@ Identifique **5-10 concorrentes** ATIVOS (têm ads rodando agora + loja funciona
 **Validação de URLs (obrigatória)**: para cada URL de concorrente identificada, faça um HTTP HEAD request com timeout de **5 segundos**. Classifique:
 
 - **Acessível (2xx / 3xx)** → inclua na análise principal
-- **Inacessível (4xx, 5xx, timeout, DNS error)** → **NÃO** inclua na análise principal. Liste numa seção dedicada **"Concorrentes descartados por inacessibilidade"** com: URL, status/erro, e hora do check.
+- **QUALQUER 4xx / 5xx / timeout** → **NÃO descarte ainda.** Rode a cascade completa da ETAPA 2 (fetcher Playwright → Wayback → archive.today) antes de classificar. Muitos servidores bloqueiam HEAD mas servem GET, e bot-protections comuns (Akamai, PerimeterX, Shopify bot check) devolvem 403 **sem** header `cf-*` — descartar concorrente real no primeiro 403 viola a rule `.claude/rules/resilient-fetch.md`.
+- **Só DNS error descarta direto** (domínio morto).
 
-Se a inacessibilidade for por Cloudflare/bot-protection (status 403/503 + header `cf-*`), tente o fallback da Etapa 2 antes de descartar (Wayback → archive.today).
+Concorrente que falhou em TODA a cascade vai pra seção dedicada **"Concorrentes descartados por inacessibilidade"** com: URL, status/erro, fallbacks tentados, e hora do check.
 
 ### ETAPA 1B — Ads Screenshots dos Concorrentes
 
@@ -124,12 +127,10 @@ access_rate = concorrentes_com_PDP_analisada / total_concorrentes_identificados
   >
   > O que prefere?
 
-Outros fallbacks opcionais quando possível: view-source direto, scraping via Playwright com user-agent de browser real.
-
 **Pra cada PDP, documente:**
 
 **Estrutura da página (aplicando frameworks):**
-- **Tipo de hero section**: autoridade (expert/doctor), UGC/testimonial, product-hero, problem-agitate, lifestyle, demo/before-after (aplica os 5 tipos de hero)
+- **Tipo de hero section**: autoridade (expert/doctor), UGC/testimonial, product-hero, problem-agitate, lifestyle, demo/before-after
 - **Headline principal exata** (copie literalmente)
 - **Sub-headline exata**
 - **Como apresenta o produto**: foto, vídeo (quanto tempo?), GIF, demonstração
@@ -145,7 +146,7 @@ Outros fallbacks opcionais quando possível: view-source direto, scraping via Pl
 - **Aplicação dos 15 Fatores de Funil**: quais fatores a página cobre bem, quais ignora
 
 **Copy analysis (frameworks):**
-- **Tipo de lead** (Story, Secret, Proclamation, Problem-Solution, Offer, Direct — identificar aplicando os 5 tipos de lead por awareness de Schwartz)
+- **Tipo de lead** (Story, Secret, Proclamation, Problem-Solution, Direct/Offer — identificar aplicando os 5 tipos de lead por awareness de Schwartz)
 - **Nível de awareness que a página assume** do visitante (dita onde no funil essa LP está)
 - **Gatilhos de persuasão usados** (escassez, autoridade, prova social, reciprocidade, compromisso — identifique quais da lista dos 6 de Cialdini). Anote também se o concorrente usa **Vampire Claims / Vampire Video** (rode `vampire claims vampire video mosaic structure architectural support single USP`) — elementos chamativos que roubam atenção do claim central, sinal de página mal-arquitetada que você pode explorar.
 - **Grande promessa** (qual é? quão específica?)
@@ -207,55 +208,63 @@ Se todos os top criativos estão numa posição só, o concorrente tem **funil d
 
 ### ETAPA 3C — Scaled Creative Deep Analysis (opcional, mas recomendado)
 
-Se o membro tiver acesso a plataformas de inteligência de criativos (Adsparo, SpyBox, Kalodata, Pipiads, Foreplay, Minea, Atria) ou listas curadas de criativos que ESCALARAM (não apenas "ativos"), peça pra enviar:
+Se o **Foreplay MCP** estiver conectado (tools `mcp__foreplay__*` — ver ETAPA 0.5), puxe os criativos escalados direto por ele, sem pedir uploads ao membro. Senão: se o membro tiver acesso a plataformas de inteligência de criativos (Adsparo, SpyBox, Kalodata, Pipiads, Foreplay, Minea, Atria) ou listas curadas de criativos que ESCALARAM (não apenas "ativos"), peça pra enviar:
 
 1. **URLs públicas** de vídeo ad (Meta Ad Library direct links, TikTok urls, ou assets hospedados)
 2. **Uploads de vídeo/imagem** diretamente pro workspace (salvar em `workspace/[produto]/03-competitor-analysis/creatives-inbox/`)
 3. **CSV/planilha** com lista de criativos + métricas se disponível (spend, days live, impressions estimadas)
 
-Critério de curadoria do membro: só criativos que ESCALARAM (proxy: 90+ dias ativos com variação semanal, OU métricas diretas de plataforma de inteligência mostrando alto spend/impressões). Ads recém-lançados NÃO servem pra essa análise — a ideia é extrair padrões do que o mercado já VALIDOU.
+Critério de curadoria do membro: só criativos que ESCALARAM (proxy: 90+ dias ativos **E** com variações novas lançadas semanalmente — a variação contínua, não o tempo sozinho, é o sinal de spend; ver Regra crítica 1 da ETAPA 3 — OU métricas diretas de plataforma de inteligência mostrando alto spend/impressões). Ads recém-lançados NÃO servem pra essa análise — a ideia é extrair padrões do que o mercado já VALIDOU.
 
 **Pipeline de análise profunda:**
 
-**Pré-flight de transcrição** (antes do primeiro criativo):
+**Pré-flight de transcrição** (antes do primeiro criativo) — **cascade em 3 degraus, nesta ordem:**
 
-Valide que Whisper está acessível — uma das três opções DEVE estar disponível:
+**Degrau 1 — Groq API (`whisper-large-v3-turbo`)** — preferencial: rápido, barato (~$0.02-0.04 por hora de áudio) e sem instalar nada:
 
 ```bash
-# Opção 1: openai-whisper instalado localmente
-python3 -c "import whisper; print('ok')" 2>/dev/null
-
-# Opção 2: faster-whisper (recomendado pra batch > 10 criativos)
-python3 -c "import faster_whisper; print('ok')" 2>/dev/null
-
-# Opção 3: OpenAI API (Whisper endpoint)
-test -n "$OPENAI_API_KEY" && echo "ok"
+test -n "$GROQ_API_KEY" && echo "ok"
+# transcrição com timestamps por palavra (pra mapear hook/bridge/hold/CTA):
+curl -s https://api.groq.com/openai/v1/audio/transcriptions \
+  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -F model=whisper-large-v3-turbo \
+  -F response_format=verbose_json \
+  -F "timestamp_granularities[]=word" \
+  -F file=@<arquivo-de-video-ou-audio>
 ```
 
-Se NENHUMA disponível, mostre ao membro:
+**Degrau 2 — Whisper local** (se não há `GROQ_API_KEY`):
+
+```bash
+python3 -c "import faster_whisper; print('ok')" 2>/dev/null   # recomendado pra batch > 10 criativos
+python3 -c "import whisper; print('ok')" 2>/dev/null          # openai-whisper baseline
+```
+
+Modelo `medium` OU `turbo` (large-v3-turbo) — NUNCA `base`/`small` (erros demais pra análise confiável). CLI: `whisper <arquivo> --model medium --language en --word_timestamps True`.
+
+**Degrau 3 — Membro:** se nem Groq nem Whisper local estão disponíveis, peça o transcript ao membro (plataformas de ad spy exportam transcrição; ou ele cola o texto do ad). **NUNCA invente transcrição** — sem transcript real, o criativo sai da análise profunda.
+
+Se nenhum degrau estiver disponível, mostre ao membro:
 
 ```
-Pra análise profunda de criativos, preciso de Whisper. Opções:
+Pra análise profunda de criativos, preciso de transcrição. Opções (em ordem de facilidade):
 
-1. Local (sem custo recorrente):
-   pip install openai-whisper      # baseline
+1. Groq API (rápido, ~centavos por batch): export GROQ_API_KEY=gsk_...
+2. Whisper local (sem custo recorrente):
    pip install faster-whisper      # 4-5x mais rápido
-
-2. API (pay-per-use, ~$0.006/min):
-   export OPENAI_API_KEY=sk-...
+   pip install openai-whisper      # baseline
+3. Me manda o transcript de cada criativo (export da plataforma de spy, ou colado).
 
 Escolhe uma e me avisa quando tiver setup.
 ```
 
-PARE a Etapa 3C até membro confirmar. Se nenhum Whisper estiver disponível e o membro não conseguir configurar, grave `creative_deep_analysis.status: "whisper_unavailable"` no JSON companion e prossiga sem. Se o membro quiser pular essa etapa, grave `creative_deep_analysis.status: "skipped"` e prossiga sem.
+PARE a Etapa 3C até membro confirmar. Se nenhum degrau sair e o membro não conseguir configurar, grave `creative_deep_analysis.status: "whisper_unavailable"` no JSON companion e prossiga sem. Se o membro quiser pular essa etapa, grave `creative_deep_analysis.status: "skipped"` e prossiga sem.
 
 **Para cada criativo recebido:**
 
 **1. Transcrição de áudio (vídeos):**
-- Usar Whisper `medium` OU `large-v3-turbo` (na CLI: `--model turbo`) — NUNCA `base` ou `small` (essas geram transcrição com erros demais pra análise confiável)
-- Se o membro tem OpenAI API: `whisper-1` endpoint (baseline, equivalente a `large-v2`)
-- CLI local: `whisper <arquivo> --model medium --language en` (ou `--model turbo` se disponível)
-- Output obrigatório: transcript com timestamps por palavra (`word_timestamps=true`) pra mapear hook/bridge/hold/CTA
+- Use o degrau ativo da cascade (Groq `whisper-large-v3-turbo` → Whisper local `medium`/`turbo` → transcript do membro)
+- Output obrigatório: transcript com timestamps por palavra (Groq: `timestamp_granularities[]=word`; local: `--word_timestamps True`) pra mapear hook/bridge/hold/CTA. Se o transcript veio do membro sem timestamps, mapeie hook/bridge/hold/CTA por posição aproximada no texto
 - Salvar em `workspace/[produto]/03-competitor-analysis/creatives-inbox/transcripts/[creative-id].json`
 
 **2. Extração de padrões (por criativo):**
@@ -272,7 +281,7 @@ PARE a Etapa 3C até membro confirmar. Se nenhum Whisper estiver disponível e o
 Depois de transcrever N criativos, identifique:
 
 - **Hook archetypes recorrentes**: quais formas de abrir aparecem em ≥ 30% dos criativos escalados?
-- **Claim overlap**: quais afirmações aparecem em múltiplos criativos (e devem ser consideradas "validadas pelo mercado")?
+- **Claim overlap**: quais afirmações aparecem em múltiplos criativos? Essas são **validadas pelo mercado** (é o que está convertendo em ad) — MAS cruze cada uma com a matriz Claims Saturation da ETAPA 4: se o claim também está SATURADO nas PDPs, ele serve como prova/base do argumento, não como headline (headline saturada morre no feed). Registre os dois sinais no JSON (`market_validated` + `also_saturated_pdp` + `usage`).
 - **Duration distribution**: histograma de durações — qual faixa concentra os escalados? (típico: 15-22s pra TOF, 25-45s pra MOF)
 - **Format mix**: % UGC humano / AI UGC / stock + motion / demonstração / antes-depois
 - **Spoken vs overlay split**: claims técnicos ficam em overlay ou na fala? Padrão dominante?
@@ -286,12 +295,12 @@ Output obrigatório: `workspace/[produto]/03-competitor-analysis/creative-patter
 {
   "analyzed_at": "ISO timestamp",
   "creatives_analyzed_count": 12,
-  "transcription_model": "whisper-medium|whisper-large-v3-turbo|whisper-1",
+  "transcription_model": "groq-whisper-large-v3-turbo|whisper-medium|whisper-large-v3-turbo|member_provided",
   "hook_archetypes": [
     { "pattern": "descrição", "frequency_pct": 42, "examples_creative_ids": ["c-03","c-07","c-11"] }
   ],
   "recurring_claims": [
-    { "claim": "texto", "count": 5, "market_validated": true }
+    { "claim": "texto", "count": 5, "market_validated": true, "also_saturated_pdp": false, "usage": "anchor_headline|proof_only" }
   ],
   "duration_histogram": { "0-15s": 2, "15-22s": 5, "22-30s": 3, "30-45s": 2 },
   "format_distribution": { "ugc_human": 5, "ugc_ai": 3, "motion_graphic": 2, "demo": 2 },
@@ -301,7 +310,7 @@ Output obrigatório: `workspace/[produto]/03-competitor-analysis/creative-patter
 }
 ```
 
-Esse arquivo vira input crítico pra Skill 08 (Creative Engine) — criativos novos nascem ancorados em padrões validados + 20-30% de novelty intencional pra testar rupturas.
+Esse arquivo vira input crítico pra Skill 08 (Creative Engine) — criativos novos nascem ancorados em padrões validados + 20-30% de novelty intencional pra testar rupturas. Leitura correta dos dois sinais: claim `market_validated` E não saturado na PDP (`usage: "anchor_headline"`) = ancorar criativos nele; `also_saturated_pdp: true` (`usage: "proof_only"`) = usar só como prova/base, nunca como headline.
 
 Quando esta etapa rodar até o fim, grave no JSON companion `creative_deep_analysis.status: "completed"`, `creative_deep_analysis.creatives_analyzed_count` (N transcritos) e `creative_deep_analysis.patterns_file` (path do `03-competitor-analysis/creative-patterns.json`). Assim as skills 08/09 leem o status direto, sem adivinhar a existência do arquivo.
 
@@ -486,6 +495,15 @@ Baseado em toda a análise, a recomendação estratégica:
 
 - **Top 3 elementos que NÃO vale seguir**: saturados ou fracos. Para cada: `Elemento → Por que evitar → Alternativa sugerida` (ex: "todo mundo usa 'clinically proven' — saturado; alternativa: claim de mecanismo específico com nome proprietário").
 
+**6. Validated Library (ativo estruturado pro `dados.json` — alimenta a Rota A da Skill 04)**
+
+Criar mecanismo do zero é mais caro e arriscado do que recombinar o que o mercado já validou — a validação de mercado é o ATIVO desta análise. Consolide num bloco estruturado tudo que tem evidência real de veiculação/escala:
+
+- **Mecanismos validados**: cada mecanismo nomeado encontrado nas PDPs (ETAPA 2) e nos ads (ETAPAs 3/3C), com: nome, concorrente, Mechanization Stage (name/describe/feature), estágio de sofisticação que ele representa, o ângulo com que roda, e a evidência de validação — tempo de veiculação, nº de criativos rodando no mesmo ângulo, aparições no top 10 (a métrica de escala da ETAPA 3), sinal de escala consolidado (high/medium/low).
+- **Ângulos validados**: cada ângulo dos top criativos (ETAPA 3) com nº de criativos, total de aparições, posição de funil e sinal de escala.
+
+A Skill 04 (ETAPA 2A — Rota A) usa esse bloco pra APRIMORAR um mecanismo validado (mantendo o ângulo) ou CRUZAR mecanismo validado × ângulo validado de outra marca/vertical. Sem validated_library preenchida, a 04 cai na Rota B (criação original) — mais cara e arriscada. Preencha mesmo com poucos itens: 2 mecanismos com evidência real valem mais que 10 sem.
+
 ### Data Source Audit (antes de salvar)
 
 Seção obrigatória no output (md + json):
@@ -503,12 +521,12 @@ Seção obrigatória no output (md + json):
 
 **Antes de qualquer write**, garanta: `mkdir -p workspace/[produto]/03-competitor-analysis/`.
 
-**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer-builder/relatorio.md` → `04-offer-builder/relatorio.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer-builder/offer-builder.md` → `04-offer-builder/offer-builder.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
 Salvar os seguintes artefatos:
 
-1. **`workspace/[produto]/03-competitor-analysis/relatorio.md`**
-2. **`workspace/[produto]/03-competitor-analysis/relatorio.html`**
+1. **`workspace/[produto]/03-competitor-analysis/competitor-analysis.md`**
+2. **`workspace/[produto]/03-competitor-analysis/competitor-analysis.html`**
 3. **`workspace/[produto]/03-competitor-analysis/dados.json`** — JSON companion estruturado (ver abaixo)
 4. **`workspace/[produto]/03-competitor-analysis/creative-patterns.json`** — SE membro forneceu criativos pra análise profunda (Etapa 3C); senão, pular. Schema definido na própria Etapa 3C.
 5. **`workspace/[produto]/03-competitor-analysis/creatives-inbox/transcripts/[creative-id].json`** — transcripts Whisper individuais (um por criativo).
@@ -526,6 +544,20 @@ Salvar os seguintes artefatos:
   ],
   "funnel_classification": { "TOF": 0, "MOF": 0, "BOF": 0, "classification_confidence": "speculative" },
   "gaps": { "audience": [], "messaging": [], "format": [], "offer": [], "mechanism": [] },
+  "top_creatives": [
+    { "creative_id": "", "competitor": "", "angle": "", "hook_literal": "", "appearances": 0, "funnel_position": "TOF|MOF|BOF" }
+  ],
+  "alternative_solutions": [
+    { "category": "", "price_range": "", "why_abandoned": "" }
+  ],
+  "validated_library": {
+    "mechanisms": [
+      { "name": "", "competitor": "", "mechanization_stage": "name|describe|feature", "sophistication_stage_represented": 3, "angle_paired": "", "validation_evidence": { "days_running": 0, "creatives_same_angle": 0, "appearances_top10": 0, "scale_signal": "high|medium|low" } }
+    ],
+    "angles": [
+      { "angle": "", "competitors": [], "creatives_count": 0, "appearances_total": 0, "funnel_position": "TOF|MOF|BOF", "scale_signal": "high|medium|low" }
+    ]
+  },
   "swipe_adapt": [ { "item": "", "why": "", "how_to_adapt": "", "where_to_use": "" } ],
   "swipe_avoid": [ { "item": "", "why_avoid": "", "alternative": "" } ],
   "positioning_recommendation": { "angle": "", "mechanism": "", "avatar_segment": "", "page_type": "" },
@@ -542,7 +574,7 @@ Estrutura do `.md`:
 5. Claims compilation table + Claims Saturation matrix (Etapa 4)
 6. Alternative solutions map (Etapa 5)
 7. Gap analysis (Etapa 6)
-8. Síntese estratégica — posicionamento + swipe file com "COMO adaptar" (Etapa 7)
+8. Síntese estratégica — posicionamento + swipe file com "COMO adaptar" + validated library (Etapa 7)
 9. Data Source Audit
 
 **Atualize o `manifest.json`**:
@@ -553,8 +585,10 @@ Estrutura do `.md`:
 
 ## Mensagem Final
 
-"Análise competitiva completa. Agora temos:
+"Primeira versão da análise competitiva pronta. Agora temos:
 - Market research profundo (Skill 02)
-- Mapa competitivo completo com gaps acionáveis (esta skill)
+- Mapa competitivo completo com gaps acionáveis + validated library (mecanismos e ângulos que o mercado já validou com dinheiro alheio)
 
-Próximo passo: diga **'offer'** pra construir a oferta com mecanismo único, stack de valor, garantia, e unit economics. A oferta vai puxar direto das recomendações de posicionamento desta análise + do perfil psicográfico do market research."
+Revisa a recomendação de posicionamento e as oportunidades ranqueadas — o ângulo faz sentido pro seu produto? O avatar sugerido é o que você quer atacar? Me diz o que não fecha e eu itero antes de você seguir.
+
+Quando fechar: diga **'offer'** pra construir a oferta com mecanismo único, stack de valor, garantia, e unit economics. A oferta vai puxar direto das recomendações de posicionamento + da validated library desta análise + do perfil psicográfico do market research."

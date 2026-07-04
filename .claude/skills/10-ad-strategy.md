@@ -15,19 +15,21 @@ A teoria de diagnóstico (PSM, 4Pi, ROAS targets) continua viva como **leitura**
 ## Antes de Começar
 
 ### Pré-flight (OBRIGATÓRIO)
-- [ ] `workspace/[produto]/08-creative-engine/dados.json` existe (5-12 criativos prontos — eles vão TODOS pro mesmo ad set; o handoff é `concepts[].concept_id`/criativo)
-- [ ] `workspace/[produto]/04-offer-builder/dados.json` existe (`target_cpa` / `breakeven_cpa`, `breakeven_roas`, `weighted_margin_per_order` — base do budget de teste)
+- [ ] `workspace/[produto]/08-creative-engine/dados.json` existe (5-12 criativos prontos — eles vão TODOS pro mesmo ad set; o handoff é `concepts[].id`/criativo)
+- [ ] `workspace/[produto]/04-offer-builder/dados.json` existe (`target_cpa` / `breakeven_cpa`, `breakeven_roas`, `weighted_margin_per_order` — base do budget de teste). **Se `manifest.target_cpa`/`manifest.breakeven_roas` existirem, eles PREVALECEM sobre os valores do 04**: a 04 os grava no manifest, e a 07d os ATUALIZA quando o escopo real das alavancas de checkout mudou a economics (`07d-checkout-aov/dados.json.aov_reconciliation.scope_diff` não-vazio + aplicado na loja) — o manifest carrega o recálculo mais recente; o dados.json do 04 é a projeção original
 - [ ] `workspace/[produto]/profile.md` existe (budget diário, stage, conta do Meta Ads ativa)
+- [ ] **`manifest.margin_warning` lido**: se `true` (a Skill 04 flagou margem ponderada < $20/pedido), capar o budget inicial de teste no piso da faixa (nunca acima de 2× breakeven CPA, preferir mais perto de 1×) e AVISAR o membro que a margem apertada reduz o espaço de erro do CPA — subir budget só depois de revisar a margem na 04
 - [ ] **`report_language`** lido (default `pt-BR`) — ver "Contexto a carregar"
-- [ ] Tracking validado via Skill 07c (Pixel + CAPI, Match Quality ≥ 80%). Se 07c não rodou, redirecionar pra `'tracking'` antes — sem evento de Purchase confiável, Max Conversion não otimiza.
+- [ ] Tracking validado via Skill 07c: `manifest.tracking.tracking_ready == true` (Pixel + CAPI, EMQ ≥ 6.0 na escala 0-10 do Events Manager). Se não, redirecionar pra `'tracking'` antes — sem evento de Purchase confiável, Max Conversion não otimiza.
+- [ ] `manifest.storefront.page_url` preenchido (a página publicada pela 07b — é a URL de destino da campanha). Se vazio, redirecionar pra `'build page'` (07b) antes.
 
 Se algum arquivo crítico sumiu/corrompeu, aplicar `.claude/rules/emergency-escape-paths.md` (ES1/ES2): oferecer **(A)** re-rodar a skill que gera o arquivo, ou **(B)** proceder com default e marcar `manifest.skipped_preflight`. Nunca abortar sem ≥ 2 caminhos.
 
 ### Contexto a carregar
 
 1. Leia `workspace/profile.md`. **Leia `report_language`** (default `pt-BR` se ausente; também em `manifest.report_language`): TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language`.
-2. Leia `workspace/[produto]/04-offer-builder/relatorio.md` + `04-offer-builder/dados.json` — daqui sai o **breakeven CPA**, o número que governa o budget de teste e os critérios de kill da Skill 11. **Fonte canônica (a MESMA que a Skill 11 e a 12 usam):** `breakeven_cpa = 04-offer-builder/dados.json.unit_economics.weighted_margin_per_order`. Use esse campo direto — não re-derive. Só se ele faltar, caia pro fallback `breakeven_cpa = AOV / breakeven_roas`.
-3. Leia `workspace/[produto]/06-copy-engine/relatorio.md` (URL de destino — a PDP/landing aprovada da cadeia 07).
+2. Leia `workspace/[produto]/04-offer-builder/offer-builder.md` (se não existir, leia o legado `relatorio.md`) + `04-offer-builder/dados.json` — daqui sai o **breakeven CPA**, o número que governa o budget de teste e os critérios de kill da Skill 11. **Ordem de precedência de `target_cpa`/`breakeven_roas`:** primeiro `manifest.target_cpa`/`manifest.breakeven_roas` (se presentes — a 04 grava, e a 07d atualiza quando o escopo de alavancas de checkout aplicado mudou a economics); só na ausência deles, os valores de `04-offer-builder/dados.json`. **Fonte canônica do breakeven CPA (a MESMA que a Skill 11 e a 12 usam):** `breakeven_cpa = 04-offer-builder/dados.json.unit_economics.weighted_margin_per_order`. Use esse campo direto — não re-derive. Só se ele faltar, caia pro fallback `breakeven_cpa = AOV / breakeven_roas`.
+3. Leia a **URL de destino** de `manifest.storefront.page_url` (gravada pela 07b no deploy — a PDP/landing publicada). Essa é a fonte canônica da URL da campanha; NUNCA tirar a URL do relatório da 06 (copy não é deploy — a página pode ter mudado de handle na publicação).
 4. Leia `workspace/[produto]/08-creative-engine/dados.json` (os 5-12 criativos que entram no único ad set de teste).
 5. Detecte o **stage** do membro (`.claude/rules/member-stage-awareness.md`): starter / validating / scaling. Define tom, agressividade e número de criativos recomendado.
 6. Puxe os **SISTEMAS NOMEADOS** da base como camada de LEITURA/diagnóstico (não de execução de estrutura) — rode `search_knowledge` com a `best_query` de cada um, nunca query genérica. O que sustenta esta skill como leitura:
@@ -39,7 +41,7 @@ Se algum arquivo crítico sumiu/corrompeu, aplicar `.claude/rules/emergency-esca
    A EXECUÇÃO operacional (estrutura de campanha abaixo) é o playbook desta skill; os outros frameworks de `meta-ads-strategy` (escala, redistribuição de spend, lucky vs durable wins) estão no índice `.claude/lib/kb-index/` e entram via Skill 11/12.
 
 ### Analytics stack — quem decide
-A escolha da stack de atribuição (Meta App / Wetracked / Triple Whale / Aimerce) é da **Skill 07c (tracking-setup)**, não desta. Aqui só **confirmamos** que existe stack validada antes de criar campanha. Se `manifest.tracking_stack` estiver vazio → redirecionar pra `'tracking'` (07c) e parar. Sem atribuição confiável, a Skill 11 lê dado ruim e mata criativo bom.
+A escolha da stack de atribuição (Meta App / Wetracked / Triple Whale / Aimerce) é da **Skill 07c (tracking-setup)**, não desta. Aqui só **confirmamos** que existe stack validada antes de criar campanha: ler o bloco `manifest.tracking` gravado pela 07c. Se `manifest.tracking.tracking_ready != true` OU `manifest.tracking.analytics_stack` estiver vazio → redirecionar pra `'tracking'` (07c) e parar. Sem atribuição confiável, a Skill 11 lê dado ruim e mata criativo bom.
 
 ### Compatibilidade
 Testada em Meta Ads Manager **2026 Q2** e Meta Marketing API **v21.0+**. Se o membro usa interface legada (Business Suite antigo) ou API anterior, adaptar passos visuais manualmente.
@@ -55,8 +57,9 @@ Testada em Meta Ads Manager **2026 Q2** e Meta Marketing API **v21.0+**. Se o me
 
 **Pre-launch gates (NON-NEGOTIABLE — `.claude/rules/pre-launch-gates.md`)** — ANTES de criar qualquer campanha/ad set/criativo (PAUSED ou não), rodar os dois gates:
 
-- **GATE 1 — Ad-flag Compliance**: rodar `.claude/lib/compliance-preflight/run.py --input <copy do ad: primary text + headline + UTM + URL destino> --config .claude/lib/compliance-preflight/red_flags.json --schema .claude/lib/compliance-preflight/output-schema.json`. `critical`/`high` → **BLOCK**: aplicar `rewrite_suggestion` e re-rodar; se não passar, parar e pedir revisão. `medium` → WARN (logar em `workspace/[produto]/compliance-warnings.json`). `low` → PASS. Bypass só via `manifest.compliance_override` com risco reconhecido (`.claude/rules/emergency-escape-paths.md` ES3 — exige o membro digitar "EU ACEITO O RISCO").
+- **GATE 1 — Ad-flag Compliance**: salvar a copy de cada ad (primary text + headline + descrição + URL de destino) num arquivo temporário e rodar a CLI canônica: `python3 .claude/lib/compliance-preflight/run.py --file <arquivo> --vertical <manifest.product_vertical> --stage pre_ad --json` (pra trecho curto, `--text "<string>"` no lugar de `--file`). Ler `overall_verdict` do JSON de saída: `critical` → **BLOCK**: aplicar as `rewrite_suggestions[]` e re-rodar; se não passar, parar e pedir revisão. `warning` → **BLOCK por default** (protocolo do GATE 1): aplicar as `rewrite_suggestions[]` e re-rodar o check; se virar `pass`, seguir; se persistir, logar em `workspace/[produto]/compliance-warnings.json` e notificar o membro no output final — go-live só com decisão explícita dele. `pass` → seguir. Bypass só via `manifest.compliance_override` com risco reconhecido (`.claude/rules/emergency-escape-paths.md` ES3 — exige o membro digitar "EU ACEITO O RISCO").
 - **GATE 2 — Promise ↔ Config**: validar cada promessa da copy/ad (free shipping, money-back, discount code, "limited time", reviews) contra a config real da loja Shopify. Output em `workspace/[produto]/promise-check.json`. `fail` ≥ 1 → **BLOCK** com `fix` (ajustar copy OU ajustar config); `warn` → apresentar pra decisão; tudo `pass` → prosseguir. Zero bypass automático.
+- **GATE 3 — Disclosure "AI Info" (Meta)**: ler `08-creative-engine/dados.json.concepts[]` — todo concept com `ai_disclosure_required: true` (humano fotorrealista gerado por AI, gate I da ETAPA 4.5 da 08) precisa do label **"AI Info"** marcado no nível do ad (a receita `upload-creative-to-meta.md` marca/verifica no upload). A campanha NÃO vai ao ar sem o membro confirmar o label desses ads no Ads Manager — com o label correto não há penalidade de entrega; sem ele, distribuição reduzida ou remoção (`.claude/rules/pre-launch-gates.md`).
 
 ### ETAPA 2 — Leitura de Credibilidade da Loja (lever de conversão, pré-launch)
 
@@ -104,6 +107,7 @@ A estrutura de teste do Aura é **enxuta de propósito**. O aprendizado acontece
 - **Ad Set Name**: `[Produto]_MainTest_[YYYYMMDD]` (ex: `CollagenSerum_MainTest_20260620`)
 - **Conversion event / Optimization**: **Purchase** (Max Conversion). Se a conta ainda não tem volume de Purchase pra otimizar, NÃO descer pra ViewContent às cegas — isso traz tráfego que não compra; preferir o warmup da ETAPA 4 pra a conta esquentar antes.
 - **Budget de teste = 2× o CPA de breakeven/dia.** Ex: breakeven CPA $80 → começar **$160/dia**. Esse é o número que dá ao Facebook fôlego pra distribuir entre os criativos e achar onde gasta com retorno. (Budget muito abaixo de 2× breakeven CPA = cada criativo recebe migalha, learning nunca fecha, decisão impossível.)
+- **Se 2× breakeven estoura o budget do membro** (starter com budget diário menor que o número): não finja que dá. Dois caminhos honestos, apresentar os dois: **(a)** adiar o teste até ter caixa pro número certo (leitura limpa, sem desperdício), ou **(b)** mínimo viável = **1× breakeven CPA/dia com 3-4 criativos** — o teste demora mais e a leitura sai mais ruidosa (avisar isso explicitamente ao membro). Abaixo de 1× breakeven/dia, **não rodar**: é queimar caixa sem conseguir decidir nada.
 - **Audience**:
   - **Location**: mercado principal do market research (US/UK/EU/global).
   - **Age**: **18-65+** (broad — deixar o Meta otimizar).
@@ -113,21 +117,22 @@ A estrutura de teste do Aura é **enxuta de propósito**. O aprendizado acontece
   - **Excluded**: nenhum (a menos que retargeting de aquisição precise excluir clientes existentes).
 - **Placements**: **Advantage+ Placements** (automático) — Meta distribui entre Feed/Stories/Reels/etc. Não usar manual placements.
 - **Schedule**: "Run continuously starting today".
-- **Attribution**: 7-day click, 1-day view (padrão 2026 BR/US; em EU pode ser 28d-default — confirmar com o membro).
+- **Attribution**: 7-day click, 1-day view (padrão 2026). Em EU, restrições de consent podem limitar o view-through — se necessário, ficar só com 7d-click (confirmar com o membro). Não existe janela de 28 dias no Meta desde 2021 — não procure. E **não ligar o setting de Incremental Attribution na campanha de teste**: a régua de kill da Skill 11 foi calibrada no baseline 7d-click/1d-view (ver nota na 11).
 
 **Criativos (5-12 no mesmo ad set):**
 - Carregar **todos os criativos da Skill 08 como ads separados dentro deste único ad set**. Sweet spot **~5-8**; teto **12**. Abaixo de 5, pouco material pro Facebook escolher; acima de 12, dilui demais o budget de teste.
+- **Diversidade GENUÍNA entre os criativos:** no sistema de entrega pós-Andromeda/GEM, criativos muito similares são tratados como praticamente a mesma entidade — subir 8 variações do mesmo visual conta como ~1 criativo pro algoritmo (e pro teste). Os 5-12 precisam ser conceitos/ângulos realmente diferentes; o gate de diversidade da Skill 08 já força isso — não dilua na hora de subir.
 - O Facebook distribui o budget entre os criativos. **Onde ele começa a concentrar gasto é onde tem escala** — esse é o sinal que a Skill 11 vai ler.
 - **Ad Name** (cada um): `[concept_id]_[YYYYMMDD]` (ex: `RootCauseAngle_20260620`) — preserva o handoff 08→10→11.
 - **CTA Button**: "Shop Now" (PDP direta) ou "Learn More" (advertorial/landing).
-- **URL**: a URL aprovada da cadeia 07.
+- **URL**: `manifest.storefront.page_url` (a página publicada pela 07b — fonte canônica).
 - **UTM (schema obrigatório):**
   ```
   utm_source=facebook
   utm_medium=paid_social
   utm_campaign=[product-slug]_[YYYYMMDD]_test
   utm_content=[concept-id]
-  utm_term=[ad-set-id]
+  utm_term={{adset.id}}   (dinâmico via macro do Meta — nunca placeholder estático)
   utm_id={{ad.id}}        (dinâmico via macro do Meta)
   ```
 
@@ -142,7 +147,7 @@ Número de criativos recomendado por stage:
 
 Conta de anúncio recém-criada precisa "esquentar" antes da campanha real — o Facebook precisa cobrar o cartão algumas vezes e ver atividade legítima antes de confiar gasto de conversão.
 
-- **3 dias** de uma campanha simples de **engajamento (~$50/dia)** ANTES da campanha de teste real.
+- **3 dias** de uma campanha simples de **engajamento (~$50/dia — ou o budget diário do membro, o que for MENOR)** ANTES da campanha de teste real.
 - Objetivo só esquentar a conta — não é teste de criativo.
 - **Day 4**: sobe a campanha de teste real (ETAPA 3).
 
@@ -154,9 +159,10 @@ Conta de anúncio recém-criada precisa "esquentar" antes da campanha real — o
 
 **Não mexer por 3 dias.** Depois de ativar, **deixar 3 dias rodando sem otimizar** (leilão e demanda variam dia a dia; mexer cedo destrói o sinal). Nada de pausar criativo, mudar budget ou trocar audiência nesse período.
 
-**Cadência de teste de PRODUTO:**
-- **Lançar quarta-feira**, deixar até **domingo**. Se até domingo não vendeu, **matar** (segunda/terça/quarta são dias mais fracos pra teste novo; quarta→domingo pega os dias fortes).
+**Cadência de teste de PRODUTO (preview — quem decreta o kill é a Skill 11):**
+- **Lançar quarta-feira**, deixar até **domingo** (segunda/terça/quarta são dias mais fracos pra teste novo; quarta→domingo pega os dias fortes).
 - **7 dias é o teto** por teste de produto.
+- Se até domingo nenhum criativo vendeu, o default é **matar o produto** — mas a decisão é da **Skill 11**, que antes roda os checks de precedência (funil quebrado? conta suspeita? entrega travada?). Matar produto por culpa da página ou da conta é o erro caro que esses checks evitam.
 - Quem testa volume: ~**3 produtos/semana**.
 
 **Janela de decisão (handoff pra Skill 11):**
@@ -171,18 +177,20 @@ Em vez de só entregar "cole isso no Ads Manager", esta skill **cria** a campanh
 
 **Cascade de MCP** (detecção de prefixo — ver `.claude/lib/mcp-detect/README.md` e regra 10 do CLAUDE.md):
 
-1. **Caminho 1 — MCP oficial da Meta (`mcp__meta__ads_*`):** criar a campanha (objective Sales) e o ad set (audience broad/Advantage+, placements automáticos, budget = 2× breakeven CPA, optimization Purchase, attribution 7d/1d) em `status: PAUSED`. O oficial é remoto e lida bem com criação de estrutura por parâmetros.
+1. **Caminho 1 — MCP oficial da Meta (`mcp__meta__ads_*`):** criar a campanha (objective Sales) e o ad set (audience broad/Advantage+, placements automáticos, budget = 2× breakeven CPA, optimization Purchase, attribution 7d/1d) em `status: PAUSED`. O oficial é remoto e lida bem com criação de estrutura por parâmetros. (Status: o connector oficial segue em **open beta desde 2026-04-29**, com rollout gradual e sem GA — contas podem aparecer "disabled" mesmo com setup correto; é exatamente o buraco que o Caminho 2 cobre.)
 2. **Caminho 2 — Pipeboard (`mcp__meta-ads__*`):** fallback automático quando o oficial está indisponível/"disabled" no rollout. **O upload do binário dos criativos (.mp4) força Pipeboard ou Playwright** mesmo quando o oficial está conectado (o oficial é remote-hosted e não lê arquivo local) — ver receita `.claude/automations/recipes/upload-creative-to-meta.md`.
 3. **Caminho 3 — manual:** se nenhum MCP está conectado, entregar o passo-a-passo exato pra o membro montar no Ads Manager (a estrutura das ETAPAS 3-5, formatada pra colar campo a campo).
 
+**Passo opcional — Automated Rule de PGS (só com aprovação explícita do membro):** oferecer criar, junto da estrutura, a Automated Rule de Performance Gate Scaling — condições: CPA trailing (Purchase) abaixo de `pgs_cpa_threshold`, spend acima de `pgs_spend_threshold`, frequency ≤ `pgs_freq_max`; ação: +5% de budget; schedule 3×/semana. **A rule nasce DESATIVADA** (nenhuma ação automática roda até o membro revisar e ativar no Ads Manager, junto com a campanha). Gravar a escolha em `pgs_enabled` no dados.json. Se o membro recusar ou nenhum caminho MCP suportar a criação, `pgs_enabled: false` — e a Skill 11 então NÃO promete escala automática (ela orienta configurar quando fizer sentido).
+
 **Regras invioláveis da criação:**
-- **Tudo nasce em `status: PAUSED`.** O membro revisa e ativa. A skill NUNCA ativa campanha sozinha.
-- Os **gates da ETAPA 1** (compliance + promise↔config) rodam ANTES de criar — não há criação sem gate verde (ou override explícito do membro).
+- **Tudo nasce em `status: PAUSED`** (inclusive Automated Rules — nascem desativadas). O membro revisa e ativa. A skill NUNCA ativa nada sozinha.
+- Os **gates da ETAPA 1** (compliance + promise↔config + disclosure "AI Info") rodam ANTES de criar — não há criação sem gate verde (ou override explícito do membro).
 - Reutilizar as receitas existentes onde aplicável: `upload-creative-to-meta.md` (subir os criativos + criar o creative object) e o setup de MCP em `.claude/automations/setup-mcps.md`.
 - Após criar, **guardar os IDs retornados** (campaign_id, ad_set_id, ad_ids) no JSON e no manifest — a Skill 11 lê esses IDs pra puxar insights.
 
 **Mensagem ao membro após criar em PAUSED:**
-> "Criei a campanha `[nome]` em **PAUSED** na sua conta — 1 ad set broad/Advantage+, [N] criativos, budget $[2× breakeven CPA]/dia, otimizando pra Purchase. Revisa no Ads Manager (audiência, budget, criativos) e **ativa quando estiver OK**. Não ativei nada por você."
+> "Criei a campanha `[nome]` em **PAUSED** na sua conta — 1 ad set broad/Advantage+, [N] criativos, budget $[2× breakeven CPA]/dia, otimizando pra Purchase. Revisa no Ads Manager (audiência, budget, criativos) e **ativa quando estiver OK**. Não ativei nada por você. [Se houver concepts com `ai_disclosure_required: true`:] Os ads [lista] têm humano gerado por AI — confirma que o label 'AI Info' está marcado neles antes de ativar (GATE 3)."
 
 Se a criação via MCP falhar (rate limit, auth), aplicar `.claude/rules/emergency-escape-paths.md` ES6: backoff, depois oferecer **(A)** retomar em 1h, ou **(B)** cair pro Caminho 3 manual com a estrutura formatada.
 
@@ -193,7 +201,7 @@ Se a criação via MCP falhar (rate limit, auth), aplicar `.claude/rules/emergen
 3. **NÃO mexer antes de 3 dias** — cada mudança (budget, audiência, pausar criativo) reseta o sinal. Deixar rodar.
 4. **NÃO usar daily minimums** ("garantir $X de spend") — força o Meta a gastar em impressão ruim pra bater meta. Deixar a otimização fluir.
 5. **NÃO misturar 2 produtos numa conta** — embaralha o aprendizado. 1 conta por produto.
-6. **NÃO subir budget muito acima de 2× breakeven CPA "pra acelerar"** — não acelera o teste, só queima caixa. 2× breakeven CPA é o número.
+6. **NÃO subir budget muito acima de 2× breakeven CPA "pra acelerar"** — não acelera o teste, só queima caixa. 2× breakeven CPA é o número (pra baixo, só a regra de mínimo viável da ETAPA 3 — nunca menos que 1× breakeven).
 7. **NÃO escalar manualmente durante o teste** — escala é depois do winner (Skill 12).
 8. **NÃO ler CTR como verdade** — CPA é o que manda; isso a Skill 11 detalha. Aqui só não tome decisão de kill na base de CTR.
 
@@ -201,7 +209,7 @@ Se a criação via MCP falhar (rate limit, auth), aplicar `.claude/rules/emergen
 
 **Garantir diretório:** `mkdir -p workspace/[produto]/10-ad-strategy/` antes de salvar.
 
-`workspace/[produto]/10-ad-strategy/relatorio.md` (no `report_language`) contendo:
+`workspace/[produto]/10-ad-strategy/ad-strategy.md` (no `report_language`) contendo:
 1. Estrutura de teste completa: 1 campanha → 1 ad set → N criativos (ETAPA 3)
 2. Budget de teste = 2× breakeven CPA, com o número calculado pra este produto
 3. Warmup de conta (se aplicável) e cadência quarta→domingo / 7 dias (ETAPAS 4-5)
@@ -212,7 +220,7 @@ Se a criação via MCP falhar (rate limit, auth), aplicar `.claude/rules/emergen
 8. Status da criação via MCP (criado em PAUSED / fallback manual) + IDs retornados
 9. Checklist de erros a evitar (ETAPA 7)
 
-**Dual output:** gerar `10-ad-strategy/relatorio.html` companion (mesmo diretório) usando `.claude/templates/aura-report-template.html` como base — CSS inline, self-contained, **logo SVG do Aura no topo copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` (NUNCA texto)**, componentes aura (callout, note, danger, winner, kpi-grid, table-wrap). O `.md` é fonte pra AI; o `.html` é visualização humana.
+**Dual output:** gerar `10-ad-strategy/ad-strategy.html` companion (mesmo diretório) usando `.claude/templates/aura-report-template.html` como base — CSS inline, self-contained, **logo SVG do Aura no topo copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` (NUNCA texto)**, componentes aura (callout, note, danger, winner, kpi-grid, table-wrap). O `.md` é fonte pra AI; o `.html` é visualização humana.
 
 ### JSON companion — `10-ad-strategy/dados.json`
 
@@ -220,7 +228,7 @@ Se a criação via MCP falhar (rate limit, auth), aplicar `.claude/rules/emergen
 {
   "strategy_id": "uuid",
   "product_slug": "...",
-  "creative_batch_ref": "08-creative-engine/dados.json batch_id (concepts[].concept_id é o handoff 08→10→11)",
+  "creative_batch_ref": "08-creative-engine/dados.json batch_id (concepts[].id é o handoff 08→10→11)",
   "breakeven_cpa": 80,
   "test_budget_daily": 160,
   "structure": "1_campaign_1_adset_broad",
@@ -242,11 +250,17 @@ Se a criação via MCP falhar (rate limit, auth), aplicar `.claude/rules/emergen
   },
   "account_warmup": { "required": false, "days": 3, "engagement_budget_daily": 50 },
   "cadence": { "launch_day": "wednesday", "kill_by": "sunday", "max_days": 7 },
+  "pgs_enabled": false,
+  "pgs_cpa_threshold": 40,
+  "pgs_spend_threshold": 80,
+  "pgs_freq_max": 1.5,
   "store_credibility": { "instagram": "ok", "reviews_count": 0, "comment_management": "flagged", "gaps": [] },
   "mcp_creation": { "path": "official|pipeboard|manual", "status": "created_paused|fallback_manual", "campaign_id": "", "ad_set_id": "", "ad_ids": [] },
   "utm_schema": {}
 }
 ```
+
+> **Campos `pgs_*`:** defaults derivados da oferta — `pgs_cpa_threshold` = target CPA (o alvo de 2× ROAS da 04), `pgs_spend_threshold` = breakeven CPA, `pgs_freq_max` = 1.5. São os campos que a receita `full-deploy.md` (Stage 4 — a rule nasce DESATIVADA, alinhada à ETAPA 6 desta skill) e a Skill 11 leem; `pgs_enabled` só vira `true` se a Automated Rule foi criada E o membro ativou.
 
 ### Atualizar manifest
 
@@ -255,6 +269,7 @@ Após salvar, atualizar `workspace/[produto]/manifest.json`:
 - Registrar `strategy_id`, `creative_batch_ref`, `test_budget_daily`, `breakeven_cpa`
 - **Gravar `10_campaign_name`** com o nome da campanha gerado (naming convention). A Skill 11 lê via `read_manifest("10_campaign_name")` pra cruzar com dados do Meta.
 - Se criou via MCP, gravar `10_campaign_id` / `10_ad_set_id` (a Skill 11 puxa insights por ID, mais robusto que por nome).
+- Registrar `pgs_enabled` (se a Automated Rule de PGS foi criada e ativada pelo membro) — a Skill 11 lê esse campo antes de falar em "escala automática".
 - Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug` — atualiza ABRIR-AQUI.html).
 
 ## Mensagem Final

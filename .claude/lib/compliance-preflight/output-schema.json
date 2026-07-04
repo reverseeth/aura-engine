@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Compliance Pre-flight Output Schema",
-  "description": "Structured output produced by the checker (either Claude-based checker.md prompt or heuristic run.py). Both MUST conform to this schema so downstream skills can consume predictably.",
+  "description": "Structured output produced by the checker (either Claude-based checker.md prompt or heuristic run.py). Both MUST conform to this schema so downstream skills can consume predictably. Gates (Skills 07b/10, rule pre-launch-gates) decide on overall_verdict: pass | warning | critical.",
   "type": "object",
-  "required": ["risk_score", "severity", "overall_verdict", "triggers"],
+  "required": ["risk_score", "severity", "overall_verdict", "triggers", "rewrite_suggestions"],
   "properties": {
     "risk_score": {
       "type": "integer",
@@ -13,11 +13,13 @@
     },
     "severity": {
       "type": "string",
-      "enum": ["low", "medium", "high", "critical"]
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Derivada do score (0-20 low, 21-40 medium, 41-70 high, 71-100 critical), com piso na maior severity de trigger individual (1 trigger critical → severity critical)."
     },
     "overall_verdict": {
       "type": "string",
-      "enum": ["APPROVE", "APPROVE_WITH_EDIT", "REVISE", "REJECT"]
+      "enum": ["pass", "warning", "critical"],
+      "description": "Decisão de gate: low → pass (salvar/publicar), medium → warning (logar + alertar), high/critical → critical (BLOCK: rewrite e re-rodar)."
     },
     "triggers": {
       "type": "array",
@@ -32,22 +34,47 @@
             "type": "string",
             "description": "Which axis: Meta Policy, FTC, FDA, Credibility, AI Style, Universal, Pattern, or vertical-specific"
           },
-          "suggested_replacement": {"type": "string"}
+          "suggested_replacement": {"type": "string"},
+          "informational": {
+            "type": "boolean",
+            "description": "True = listado só pra contexto (padrão OK se específico/verdadeiro); não soma risk_score e não gera rewrite suggestion."
+          }
+        }
+      }
+    },
+    "rewrite_suggestions": {
+      "type": "array",
+      "description": "SEMPRE presente: uma entrada por flag encontrada (exceto informational). suggested_replacement = substituição padrão da rule 8b (safe_substitutions do red_flags.json) quando houver; null quando a correção exige reescrita contextual.",
+      "items": {
+        "type": "object",
+        "required": ["phrase", "suggested_replacement"],
+        "properties": {
+          "phrase": {"type": "string"},
+          "severity": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
+          "suggested_replacement": {"type": ["string", "null"]},
+          "alternatives": {"type": "array", "items": {"type": "string"}},
+          "reason": {"type": "string"}
         }
       }
     },
     "rewrite_suggestion": {
       "type": ["string", "null"],
-      "description": "Full rewrite only when severity >= high"
+      "description": "Reescrita COMPLETA da copy — só o passe Claude (checker.md) produz, quando severity >= high. O heurístico run.py emite sempre null."
     },
     "alternative_claims": {
       "type": "array",
       "items": {"type": "string"},
-      "description": "3 alternative compliant claims preserving persuasion"
+      "description": "3 alternative compliant claims preserving persuasion (passe Claude apenas)"
     },
     "em_dash_count": {"type": "integer", "minimum": 0},
     "ai_style_score": {"type": "integer", "minimum": 0, "maximum": 10},
     "recommendation": {"type": "string"},
+    "vertical": {"type": "string", "description": "product_vertical do manifest usado na análise"},
+    "stage": {
+      "type": ["string", "null"],
+      "enum": ["pre_ad", "pre_page", null],
+      "description": "Contexto do gate que invocou (pre_ad = skill 10, pre_page = skill 07b)"
+    },
     "heuristic_only": {
       "type": "boolean",
       "description": "True when produced by run.py heuristic (lightweight, ~80% accuracy). False/absent when produced by full Claude checker.md."

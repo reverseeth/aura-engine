@@ -7,13 +7,13 @@ description: Pega 1 criativo winner e gera 9 derivadas adaptadas a canais difere
 
 Skill auxiliar invocável. Reutiliza criativos vencedores em 9 formatos diferentes.
 
-> **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (`frameworks.json` + `README.md`, mapa skill→domínio no README). O domínio desta skill é **creatives-hooks-formats** (43 sistemas). Quando uma etapa pede "consultar a base", NUNCA use query genérica — puxe os SISTEMAS NOMEADOS rodando `search_knowledge` com a `best_query` de cada framework relevante pra aquela etapa (`deep=true`).
+> **Fonte primária desta skill é a lib, não a base.** A estrutura "1 winner → 9 formatos" (specs, length, tom, compliance de cada derivada) vem INTEIRA de `.claude/lib/content-recycler/` (`recycler.md` = engine do fluxo, `formats.json` = specs dos 9 formatos) — não existe framework "9 derivadas" na base de conhecimento, então NUNCA busque isso lá. A base entra só pros **frameworks de copy NOMEADOS** que reforçam cada formato: os domínios desta skill no índice `.claude/lib/kb-index/` (`frameworks.json` + `README.md`, mapa skill→domínio) são **creatives-hooks-formats** (43 sistemas, principal) e **page-landing-cro** (33 sistemas — relevante pras derivadas advertorial e blog SEO). Quando uma etapa pede "consultar a base", NUNCA use query genérica — puxe os SISTEMAS NOMEADOS rodando `search_knowledge` com a `best_query` de cada framework relevante pra aquela etapa (`deep=true`).
 
 ## Quando usar
 
 **Manual**: membro diz `recycle [creative-id]` ou `recycle winner`.
 
-**Automático** (futuro, com Shadow Brain #1 rodando): disparada quando a skill 11 já marcou um criativo como winner em `dados.json.winners[]`.
+**Automático** (futuro): disparada automaticamente quando a skill 11 marca um criativo como winner em `dados.json.winners[]`. Hoje o trigger é sempre manual.
 
 ## Pré-flight
 
@@ -65,7 +65,7 @@ Siga exatamente o fluxo descrito em `.claude/lib/content-recycler/recycler.md`:
    - Demais frameworks do domínio (Hormozi Callout System, What-Who-When Matrix, SUCCESs, New Opportunity vs Improvement, etc.) ficam disponíveis em `.claude/lib/kb-index/` pra puxar sob demanda quando o formato pedir.
 
 4. **Gerar 9 derivadas** em paralelo (advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad)
-5. **Compliance Pre-flight em cada** — severity >= high dispara auto-rewrite
+5. **Compliance Pre-flight em cada** — protocolo por severity (o mesmo da ETAPA 4 do `recycler.md`): `critical` → PARAR essa derivada, mostrar triggers + rewrite ao membro e aguardar aprovação (nunca auto-reescrever claim critical silenciosamente); `high` → auto-rewrite + log + re-rodar o check; `medium` → salvar original + logar warning; `low` → salvar silencioso
 6. **Gerar README.md + compliance-log.json** consolidados
 
 ## Email-sequence: não colidir com os flows da Skill 13
@@ -87,13 +87,14 @@ Pasta `workspace/[produto]/14-content-recycler/[source-id]/` com:
 - 9 arquivos `.md`, um por formato (advertorial, email, TikTok, blog, Pinterest, YouTube preroll, SMS, package insert, podcast)
 - 9 arquivos `.html` correspondentes — um pra cada `.md` (rule 6b: dual output obrigatório)
 
-Além das pastas por source-id, escreva também no topo de `workspace/[produto]/14-content-recycler/` um índice `relatorio.md` + `relatorio.html` que lista todas as fontes recicladas (cada `[source-id]` com seus 9 formatos e link pra pasta). Esse índice é o relatório humano que o painel do produto exibe.
+Além das pastas por source-id, escreva também no topo de `workspace/[produto]/14-content-recycler/` um índice `content-recycler.md` + `content-recycler.html` que lista todas as fontes recicladas (cada `[source-id]` com seus 9 formatos e link pra pasta). Esse índice é o relatório humano que o painel do produto exibe.
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
 Toda derivada salva em `workspace/[produto]/14-content-recycler/[source-id]/` DEVE ter `.md` (fonte pra AI) + `.html` companion (visualização humana). Use `.claude/templates/aura-report-template.html` como base — copie o CSS inline e a logo SVG do `.claude/templates/aura-logo-snippet.html` LITERALMENTE no topo do `<body>`. NUNCA gere HTML sem a logo SVG nem com texto "AURA"/"Aura Engine" no lugar dela.
 
-Depois de salvar todos os outputs e atualizar o `manifest.json`:
+Depois de salvar todos os outputs:
+- Atualizar `manifest.json`: adicionar `"14-content-recycler"` em `skills_completed` (se ainda não estiver) + `updated_at`.
 - Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug` — atualiza ABRIR-AQUI.html).
 
 ## Sucesso
@@ -108,7 +109,7 @@ Depois de salvar todos os outputs e atualizar o `manifest.json`:
 
 Pra adicionar novo formato (ex: LinkedIn post, Substack newsletter, Twitter thread), editar `.claude/lib/content-recycler/formats.json` adicionando entry com:
 - `id`, `name`, `output_file`
-- `length_words` range
+- `length_words_total` range (+ opcional `length_words_per_email`/`length_words_per_pin` quando o formato tem unidades, seguindo as entries existentes)
 - `structure` template
 - `tone`
 - `compliance_notes`

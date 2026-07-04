@@ -4,8 +4,10 @@ Catálogo de archetypes de hook pra ad creatives. Usado pela Skill 08 (creative-
 
 ## Estrutura
 
-- `archetypes.json` — definição estruturada de cada archetype (id, name, emotion dominante, signals de identificação, estrutura-tipo, exemplo genérico)
-- `patterns.md` — este arquivo, descrição humana dos padrões
+- `archetypes.json` — definição estruturada de cada archetype (id, name, emotion dominante, signals de identificação, estrutura-tipo, format_fit)
+- `README.md` — este arquivo, descrição humana dos padrões
+
+O `format_fit` de cada archetype usa o enum canônico de `format` do `.claude/lib/creative-dna/feature_schema.json` — mesmo vocabulário do registry, então dá pra cruzar "archetype X performa em formato Y" com o creative DNA.
 
 ## Archetypes (Big 4 emotions as anchors)
 
@@ -70,5 +72,5 @@ Esses são ilustrativos. Sempre gerar o hook específico pro produto/avatar/VOC 
 ## Integração com Skills
 
 - **Skill 03 Etapa 3C** (scaled creative deep analysis): classifica criativos escalados dos concorrentes usando esse taxonomy. Preenche `hook_archetypes[]` em `03-competitor-analysis/creative-patterns.json`.
-- **Skill 08 Etapa 4.5.E + Etapa 7**: cada hook gerado declara archetype + emotion. Hooks Bank final tem cobertura balanceada.
-- **Skill 11** (ad-analysis): quando winner é identificado, registra archetype do hook pra aprender padrão ao longo do tempo (creative DNA).
+- **Skill 08 Etapa 4.5.E + Etapa 7**: cada hook gerado declara archetype + emotion. Hooks Bank final tem cobertura balanceada. Na ETAPA 7.6, o archetype declarado entra no registry via a feature `hook_archetype` do creative DNA (`feature_schema.json`).
+- **Skill 11** (ad-analysis): ao marcar winners/losers, a performance conecta-se ao `hook_archetype` já registrado — o padrão por archetype emerge no `dna-profile.json` ao longo do tempo.

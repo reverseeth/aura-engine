@@ -4,27 +4,28 @@ preview.py — Renderiza um .liquid gerado pelo liquid-converter como HTML stand
 
 O arquivo .liquid normalmente só funciona dentro de um tema Shopify. Este script
 lê a section, extrai os defaults do {% schema %}, substitui {{ section.settings.X }}
-pelos valores default, expande {% content_for 'blocks' %} (N instâncias com
-defaults do block), injeta o CSS original do concorrente (que foi baixado pelo
-downloader), e gera um HTML standalone pra visualização no browser.
+pelos valores default, expande os blocks LOCAIS do schema ({% for block in
+section.blocks %} + {% case block.type %} — uma instância por entrada do preset,
+com a copy real), resolve {% if %}/{% else %} com comparações (== / != blank /
+== 'valor'), injeta o CSS, e gera um HTML standalone pra visualização no browser.
+
+Imagens: {{ ... | image_url | image_tag }} vira <img> com placeholder; se
+--images-dir tiver arquivos (ou --images-json tiver URLs), eles são usados em
+rotação no lugar do placeholder.
 
 Uso:
     python3 preview.py \\
         --section <path.liquid> \\
-        --blocks-dir <path> \\
-        --styles <path/styles.css> \\
+        --styles <path/page.css> \\
         --images-dir <path/images> \\
         --images-json <path/images.json> \\
         --output <preview.html> \\
-        [--blocks-count 3]
+        [--blocks-dir <path>]        # legacy: blocks antigos em arquivos separados
+        [--blocks-count 3]           # instâncias quando o schema não tem preset
 
 Exemplo:
     python3 preview.py \\
-        --section /tmp/test-stripe-out/sections/page-mybrand-hero.liquid \\
-        --blocks-dir /tmp/test-stripe-out/blocks \\
-        --styles /tmp/clone-test-stripe/styles.css \\
-        --images-dir /tmp/clone-test-stripe/images \\
-        --images-json /tmp/clone-test-stripe/images.json \\
+        --section /tmp/liquid-test/sections/page-mybrand-hero.liquid \\
         --output /tmp/preview.html
 
 Depois:
@@ -39,6 +40,7 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+from urllib.parse import quote
 
 # Módulo compartilhado (consolidação do CSS rewrite antes duplicado)
 try:
@@ -60,15 +62,50 @@ if not logger.handlers:
 
 SECTION_SPLIT_RE = re.compile(r"\{%\s*schema\s*%\}(.*?)\{%\s*endschema\s*%\}", re.DOTALL)
 STYLESHEET_RE = re.compile(r"\{%\s*stylesheet\s*%\}(.*?)\{%\s*endstylesheet\s*%\}", re.DOTALL)
-SCHEMA_RE = SECTION_SPLIT_RE
 CONTENT_FOR_BLOCKS_RE = re.compile(r"\{%\s*content_for\s+['\"]blocks['\"]\s*%\}")
-IF_BLOCK_RE = re.compile(r"\{%\s*if\s+section\.settings\.(\w+)\s*%\}(.*?)\{%\s*endif\s*%\}", re.DOTALL)
-SETTINGS_VAR_RE = re.compile(r"\{\{\s*section\.settings\.(\w+)(?:\s*\|\s*([^}]+?))?\s*\}\}")
+FOR_BLOCKS_RE = re.compile(r"\{%\s*for\s+block\s+in\s+section\.blocks\s*%\}(.*?)\{%\s*endfor\s*%\}", re.DOTALL)
+CASE_BLOCK_RE = re.compile(r"\{%\s*case\s+block\.type\s*%\}(.*?)\{%\s*endcase\s*%\}", re.DOTALL)
+WHEN_SPLIT_RE = re.compile(r"\{%\s*when\s+['\"]([^'\"]+)['\"]\s*%\}")
+SHOPIFY_ATTRS_RE = re.compile(r"\{\{\s*block\.shopify_attributes\s*\}\}")
+
+# Token intermediário: {{ x | image_url | image_tag }} vira <img src="TOKEN">, e o
+# passo final troca cada TOKEN por imagem local (--images-dir), URL (--images-json)
+# ou um SVG placeholder inline.
+IMG_PLACEHOLDER_TOKEN = "__AURA_IMG_PLACEHOLDER__"
+PLACEHOLDER_SVG = (
+    "<svg xmlns='http://www.w3.org/2000/svg' width='800' height='500'>"
+    "<rect width='100%' height='100%' fill='#e8e6e1'/></svg>"
+)
+PLACEHOLDER_DATA_URI = "data:image/svg+xml;charset=utf-8," + quote(PLACEHOLDER_SVG, safe="")
+
+
+def _settings_var_re(scope: str) -> re.Pattern:
+    return re.compile(r"\{\{\s*" + scope + r"\.settings\.(\w+)(?:\s*\|\s*([^}]+?))?\s*\}\}")
+
+
+def _if_block_re(scope: str) -> re.Pattern:
+    """Regex do if INNERMOST (corpo sem if/else/endif aninhado) — aplicado em loop
+    até estabilizar, resolve aninhamento de dentro pra fora. Suporta:
+    {% if x %} · {% if x == 'v' %} · {% if x != blank %} · branch {% else %}."""
+    return re.compile(
+        r"\{%\s*if\s+" + scope + r"\.settings\.(\w+)\s*"
+        r"(?:(==|!=)\s*(blank|'[^']*'|\"[^\"]*\"))?\s*%\}"
+        r"((?:(?!\{%\s*(?:if|else|endif)\b).)*?)"
+        r"(?:\{%\s*else\s*%\}((?:(?!\{%\s*(?:if|endif)\b).)*?))?"
+        r"\{%\s*endif\s*%\}",
+        re.DOTALL,
+    )
 
 
 def _path_allowlist() -> list[Path]:
     """Allowlist para paths de input/output (anti path-traversal)."""
-    roots: list[Path] = [Path(tempfile.gettempdir()).resolve(), Path.cwd().resolve()]
+    roots: list[Path] = [
+        Path(tempfile.gettempdir()).resolve(),
+        Path("/tmp").resolve(),  # macOS: TMPDIR aponta pra /var/folders, mas o staging usual é /tmp
+        Path.cwd().resolve(),
+        # workspace derivado do próprio repo (funciona em qualquer path de clone)
+        (Path(__file__).resolve().parents[2] / "workspace").resolve(),
+    ]
     home = os.environ.get("HOME")
     if home:
         roots.append((Path(home) / "aura-engine" / "workspace").resolve())
@@ -93,7 +130,9 @@ def validate_path(path_str: str, must_exist: bool = False) -> Path:
             if must_exist and not candidate.exists():
                 raise ValueError(f"Path {candidate!r} não existe")
             return candidate
-        except ValueError:
+        except ValueError as exc:
+            if "não existe" in str(exc):
+                raise
             continue
     raise ValueError(
         f"Path {candidate!r} fora da allowlist. Permitido em: "
@@ -105,7 +144,7 @@ def parse_liquid_file(liquid_path):
     """Lê um arquivo .liquid e retorna (markup, stylesheet, schema_dict)."""
     content = liquid_path.read_text(encoding="utf-8")
 
-    schema_match = SCHEMA_RE.search(content)
+    schema_match = SECTION_SPLIT_RE.search(content)
     schema = json.loads(schema_match.group(1).strip()) if schema_match else {}
 
     stylesheet_match = STYLESHEET_RE.search(content)
@@ -121,74 +160,173 @@ def parse_liquid_file(liquid_path):
 
 
 def settings_to_defaults(settings):
-    """Converte lista de settings do schema em dict {id: {type, default}}."""
+    """Converte lista de settings do schema em dict {id: {type, default}}.
+
+    Entradas sem id (type: header/paragraph) são puladas — o conversor SEMPRE
+    emite headers de grupo ('Colors', 'Design tokens', por imagem)."""
     out = {}
     for s in settings or []:
-        out[s["id"]] = {"type": s.get("type"), "default": s.get("default", "")}
+        if not isinstance(s, dict):
+            continue
+        sid = s.get("id")
+        if not sid:
+            continue
+        out[sid] = {"type": s.get("type"), "default": s.get("default", "")}
     return out
 
 
-def apply_settings(markup, defaults, images_url_map):
-    """Substitui {{ section.settings.X }} e {% if section.settings.X %} pelos defaults."""
+def apply_settings(markup, defaults, scope="section"):
+    """Substitui {{ scope.settings.X }} e resolve {% if scope.settings.X ... %} pelos defaults."""
 
-    def replace_if(m):
-        sid = m.group(1)
-        inner = m.group(2)
-        entry = defaults.get(sid)
-        if not entry:
-            return ""
-        # image_picker: mantém sempre (preview usa placeholder)
-        if entry.get("type") == "image_picker":
+    def _resolve_if(m):
+        sid, op, rhs = m.group(1), m.group(2), m.group(3)
+        inner = m.group(4)
+        else_part = m.group(5) or ""
+        entry = defaults.get(sid) or {}
+        default = entry.get("default") or ""
+        # image_picker sem comparação: preview sempre mostra o placeholder
+        if entry.get("type") == "image_picker" and not op:
             return inner
-        if entry.get("default"):
-            return inner
-        return ""
+        if op:
+            if rhs == "blank":
+                is_blank = str(default).strip() == ""
+                truthy = is_blank if op == "==" else not is_blank
+            else:
+                rhs_val = rhs[1:-1]  # tira as aspas
+                truthy = (str(default) == rhs_val) if op == "==" else (str(default) != rhs_val)
+        else:
+            truthy = bool(default)
+        return inner if truthy else else_part
+
+    # Innermost-first em loop: resolve ifs aninhados de dentro pra fora.
+    if_re = _if_block_re(scope)
+    prev = None
+    while prev != markup:
+        prev = markup
+        markup = if_re.sub(_resolve_if, markup)
 
     def replace_var(m):
         sid = m.group(1)
         filters = (m.group(2) or "").strip()
         entry = defaults.get(sid)
-        if not entry:
+        if entry is None:
             return ""
         default = entry.get("default") or ""
         s_type = entry.get("type")
 
         if s_type == "image_picker":
-            # No preview, substitui por placeholder (não temos o objeto image do Shopify)
-            return "/tmp/preview-placeholder.svg"
+            # | image_tag produz um <img> no Shopify — o preview emite um <img>
+            # de verdade (com a classe do image_tag) apontando pro token.
+            if "image_tag" in filters:
+                cls_m = re.search(r"class:\s*'([^']*)'", filters)
+                cls = f' class="{cls_m.group(1)}"' if cls_m else ""
+                return f'<img src="{IMG_PLACEHOLDER_TOKEN}" alt=""{cls}>'
+            return IMG_PLACEHOLDER_TOKEN
+        if not default and "default:" in filters:
+            dm = re.search(r"default:\s*'([^']*)'", filters)
+            if dm:
+                default = dm.group(1)
         if s_type == "url":
             return str(default) if default else "#"
-        if s_type == "richtext":
-            return str(default)
         return str(default)
 
-    markup = IF_BLOCK_RE.sub(replace_if, markup)
-    markup = SETTINGS_VAR_RE.sub(replace_var, markup)
+    markup = _settings_var_re(scope).sub(replace_var, markup)
+    if scope == "block":
+        markup = SHOPIFY_ATTRS_RE.sub("", markup)
     return markup
+
+
+def expand_inline_blocks(markup, schema, blocks_count):
+    """Expande {% for block in section.blocks %} + {% case block.type %} usando os
+    blocks LOCAIS do schema.
+
+    Instâncias vêm de presets[0].blocks (copy real por instância, como o conversor
+    emite); sem preset, renderiza `blocks_count` instâncias com os defaults."""
+    block_defs = {}
+    for bd in schema.get("blocks", []) or []:
+        if isinstance(bd, dict) and bd.get("type"):
+            block_defs[bd["type"]] = settings_to_defaults(bd.get("settings", []))
+    if not block_defs:
+        return markup
+
+    presets = schema.get("presets") or []
+    preset_blocks = []
+    if presets and isinstance(presets[0], dict):
+        preset_blocks = presets[0].get("blocks") or []
+
+    instances = []
+    for pb in preset_blocks:
+        if not isinstance(pb, dict):
+            continue
+        t = pb.get("type")
+        if t not in block_defs:
+            continue
+        merged = {sid: dict(entry) for sid, entry in block_defs[t].items()}
+        for sid, val in (pb.get("settings") or {}).items():
+            base = merged.get(sid, {"type": None, "default": ""})
+            merged[sid] = {**base, "default": val}
+        instances.append((t, merged))
+    if not instances:
+        for t, defs in block_defs.items():
+            instances.extend((t, defs) for _ in range(blocks_count))
+
+    def _expand(m):
+        body = m.group(1)
+        case_m = CASE_BLOCK_RE.search(body)
+        rendered = []
+        for t, defaults in instances:
+            if case_m:
+                parts = WHEN_SPLIT_RE.split(case_m.group(1))
+                # parts = [prefixo, type1, corpo1, type2, corpo2, ...]
+                chosen = ""
+                for k in range(1, len(parts), 2):
+                    if parts[k] == t:
+                        chosen = parts[k + 1]
+                        break
+                inst_markup = body[:case_m.start()] + chosen + body[case_m.end():]
+            else:
+                inst_markup = body
+            rendered.append(apply_settings(inst_markup, defaults, scope="block"))
+        return "\n".join(rendered)
+
+    return FOR_BLOCKS_RE.sub(_expand, markup)
 
 
 def inject_image_url_placeholders(markup, images_url_map, images_dir):
-    """Substitui placeholders de image_picker por imagens locais aleatórias pra preview."""
-    local_images = sorted(images_dir.glob("*")) if images_dir.exists() else []
-    if not local_images:
-        return markup
+    """Troca cada token de imagem por: arquivo local (--images-dir) → URL do
+    images.json (--images-json) → SVG placeholder inline (sempre renderiza algo)."""
+    sources: list[str] = []
+    if images_dir and images_dir.is_dir():
+        sources = [f"file://{p}" for p in sorted(images_dir.glob("*")) if p.is_file()]
+    if not sources and images_url_map:
+        candidates = []
+        if isinstance(images_url_map, dict):
+            candidates = list(images_url_map.values())
+        elif isinstance(images_url_map, list):
+            candidates = images_url_map
+        for c in candidates:
+            if isinstance(c, str) and c:
+                sources.append(c)
+            elif isinstance(c, dict):
+                u = c.get("url") or c.get("src")
+                if u:
+                    sources.append(u)
+
     counter = [0]
 
-    def replace_placeholder(m):
-        rel = local_images[counter[0] % len(local_images)]
+    def _next(_m):
+        if not sources:
+            return PLACEHOLDER_DATA_URI
+        s = sources[counter[0] % len(sources)]
         counter[0] += 1
-        return f'src="file://{rel}"'
+        return s
 
-    markup = re.sub(
-        r'src="[^"]*preview-placeholder\.svg"',
-        replace_placeholder,
-        markup,
-    )
-    return markup
+    return re.sub(re.escape(IMG_PLACEHOLDER_TOKEN), _next, markup)
 
 
-def render_blocks(blocks_dir, namespace, count, images_dir):
-    """Renderiza N instâncias de cada block type com defaults."""
+def render_blocks(blocks_dir, namespace, count):
+    """LEGACY: renderiza N instâncias de cada block em arquivo separado
+    (outputs antigos do conversor, pré-blocks-inline)."""
     if not blocks_dir or not blocks_dir.exists():
         return ""
 
@@ -198,8 +336,9 @@ def render_blocks(blocks_dir, namespace, count, images_dir):
         markup, _, schema = parse_liquid_file(block_file)
         defaults = settings_to_defaults(schema.get("settings", []))
         for _ in range(count):
-            instance = apply_settings(markup, defaults, {})
-            instance = inject_image_url_placeholders(instance, {}, images_dir)
+            # Arquivos legados referenciam section.settings dentro do block.
+            instance = apply_settings(markup, defaults, scope="section")
+            instance = apply_settings(instance, defaults, scope="block")
             rendered.append(instance)
 
     return "\n".join(rendered)
@@ -231,7 +370,7 @@ def build_html(markup, stylesheet, external_css_path, namespace):
 * {{ box-sizing: border-box; }}
 body {{ margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif; }}
 
-/* CSS original do concorrente (escopo global — pode conflitar) */
+/* CSS externo opcional (escopo global — pode conflitar) */
 {external_css}
 
 /* CSS da section gerada */
@@ -239,7 +378,7 @@ body {{ margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, '
 
 /* Placeholder pra imagens faltantes */
 img[src=""], img:not([src]) {{ display: none; }}
-.icon-placeholder {{ display: inline-block; width: 1em; height: 1em; background: #ccc; border-radius: 2px; }}
+.icon-placeholder, [class*='icon_placeholder'] {{ display: inline-block; width: 1em; height: 1em; background: #ccc; border-radius: 2px; }}
 </style>
 </head>
 <body>
@@ -257,17 +396,20 @@ img[src=""], img:not([src]) {{ display: none; }}
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--section", required=True, help="Path to .liquid section file")
-    parser.add_argument("--blocks-dir", default=None, help="Directory with block .liquid files")
-    parser.add_argument("--styles", default=None, help="Path to original styles.css from downloader")
+    parser.add_argument("--blocks-dir", default=None, help="(legacy) Directory with block .liquid files")
+    parser.add_argument("--styles", default=None, help="Path to external page CSS (optional)")
     parser.add_argument("--images-dir", default=None, help="Directory with downloaded images")
-    parser.add_argument("--images-json", default=None, help="images.json from downloader")
+    parser.add_argument("--images-json", default=None, help="images.json from downloader (map/list of URLs)")
     parser.add_argument("--output", required=True, help="Path to output .html")
-    parser.add_argument("--blocks-count", type=int, default=3, help="How many block instances to render")
+    parser.add_argument("--blocks-count", type=int, default=3,
+                        help="Block instances to render when schema has no preset (default 3)")
     args = parser.parse_args()
 
-    section_path = Path(args.section).expanduser().resolve()
-    if not section_path.exists():
-        print(f"ERRO: {section_path} não encontrado", file=sys.stderr)
+    # Validação uniforme de paths (mesma allowlist pra todos os args de path).
+    try:
+        section_path = validate_path(args.section, must_exist=True)
+    except ValueError as exc:
+        print(f"ERRO: --section inválido: {exc}", file=sys.stderr)
         sys.exit(1)
 
     try:
@@ -287,12 +429,16 @@ def main():
         except ValueError as exc:
             print(f"ERRO: --images-dir inválido: {exc}", file=sys.stderr)
             sys.exit(1)
-        if not images_dir.exists():
+        if not images_dir.is_dir():
             images_dir = None
 
     images_url_map: dict = {}
     if args.images_json:
-        p = Path(args.images_json).expanduser().resolve()
+        try:
+            p = validate_path(args.images_json, must_exist=False)
+        except ValueError as exc:
+            print(f"ERRO: --images-json inválido: {exc}", file=sys.stderr)
+            sys.exit(1)
         if p.exists():
             try:
                 images_url_map = json.loads(p.read_text(encoding="utf-8"))
@@ -303,16 +449,34 @@ def main():
                 )
                 sys.exit(1)
 
-    markup_filled = apply_settings(markup, defaults, images_url_map)
-    markup_filled = inject_image_url_placeholders(markup_filled, images_url_map, images_dir or Path("/dev/null"))
+    # 1) Blocks inline PRIMEIRO ({% if block.settings %} tem que resolver com o
+    #    escopo do block, não com os defaults da section).
+    markup_filled = expand_inline_blocks(markup, schema, args.blocks_count)
 
-    if args.blocks_dir:
-        blocks_dir = Path(args.blocks_dir).expanduser().resolve()
+    # 2) Legacy: {% content_for 'blocks' %} + arquivos em --blocks-dir.
+    if args.blocks_dir and CONTENT_FOR_BLOCKS_RE.search(markup_filled):
+        try:
+            blocks_dir = validate_path(args.blocks_dir, must_exist=False)
+        except ValueError as exc:
+            print(f"ERRO: --blocks-dir inválido: {exc}", file=sys.stderr)
+            sys.exit(1)
         namespace = detect_namespace(schema)
-        blocks_markup = render_blocks(blocks_dir, namespace, args.blocks_count, images_dir or Path("/dev/null"))
+        blocks_markup = render_blocks(blocks_dir, namespace, args.blocks_count)
         markup_filled = CONTENT_FOR_BLOCKS_RE.sub(lambda _: blocks_markup, markup_filled)
 
-    external_css = Path(args.styles).expanduser().resolve() if args.styles else None
+    # 3) Settings da section.
+    markup_filled = apply_settings(markup_filled, defaults, scope="section")
+
+    # 4) Imagens (tokens → local files / URLs / SVG placeholder).
+    markup_filled = inject_image_url_placeholders(markup_filled, images_url_map, images_dir)
+
+    external_css = None
+    if args.styles:
+        try:
+            external_css = validate_path(args.styles, must_exist=False)
+        except ValueError as exc:
+            print(f"ERRO: --styles inválido: {exc}", file=sys.stderr)
+            sys.exit(1)
     namespace = detect_namespace(schema)
 
     html = build_html(markup_filled, stylesheet, external_css, namespace)
@@ -324,9 +488,9 @@ def main():
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(html, encoding="utf-8")
 
+    n_block_defs = len(schema.get("blocks", []) or [])
     print(f"[preview] gerado: {output_path}")
-    print(f"[preview] settings aplicados: {len(defaults)}")
-    print(f"[preview] blocks: {args.blocks_count if args.blocks_dir else 0} instâncias por tipo")
+    print(f"[preview] settings aplicados: {len(defaults)} · block types no schema: {n_block_defs}")
     print(f"[preview] abra no browser:")
     print(f"  open {output_path}")
 

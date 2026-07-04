@@ -1,5 +1,9 @@
 playwright>=1.40.0
 beautifulsoup4>=4.12.0
+# lxml: nenhum script do design-clone importa lxml diretamente, mas NAO remova —
+# o fetcher resiliente (.claude/lib/web-fetch/fetch.py) faz bootstrap re-exec pra
+# este .venv como fallback e usa BeautifulSoup(html, "lxml"); sem o lxml aqui, o
+# fetcher degradaria silenciosamente.
 lxml>=5.0.0
 requests>=2.32.0
 chardet>=5.2.0

@@ -31,7 +31,7 @@ Membro do Aura Engine não é dev. Se skill trava ou workspace fica em estado ru
 1. Skill tenta ler manifest → erro
 2. Em vez de abortar, oferece:
    - **(A) Rebuild manifest** — skill inspeciona `workspace/[produto]/` e reconstrói manifest com base nos arquivos presentes. Asks user questions pra preencher fields não-inferíveis (budget, stage, etc)
-   - **(B) Restore from backup** — se `workspace/[produto]/manifest.backup-*.json` existe, restaurar o mais recente
+   - **(B) Restore from backup** — se `workspace/[produto]/.manifest-backup-*.json` existe (dot-prefixed, sufixo `YYYYMMDD-HHMMSS` — é o padrão que a skill 00 cria), restaurar o mais recente
    - **(C) Start fresh** — reinicializar workspace (membro explicitamente confirma data loss)
 3. Default = (A) se nenhum backup existe; (B) se backup < 24h
 
@@ -59,14 +59,16 @@ Membro do Aura Engine não é dev. Se skill trava ou workspace fica em estado ru
    - **(C) Rollback pra backup duplicado** (criado na Regra 6)
 3. Se nada funciona, escalate: "Shopify CLI tá com issue não-standard. Passos manuais no admin: [link docs]. Me avisa quando resolvido."
 
-### ES5 — Klaviyo session cookie expirado mid-skill
+### ES5 — Klaviyo MCP falha mid-skill (auth, rate limit, tool indisponível)
 
-**Sintoma**: Skill 13 (retention-engine) falha autenticação no meio
+**Sintoma**: Skill 13 (retention-engine) rodando o Caminho 1 (Klaviyo MCP oficial) e uma chamada `mcp__klaviyo__*` falha no meio
 
 **Path**:
 1. Salvar progresso parcial em `workspace/[produto]/13-retention-engine/[fluxo]/.partial-state.json`
-2. Avisar: "Cookie Klaviyo expirou. Loga de novo, copia novo cookie, e me manda. Retomo de onde parei."
-3. Next run, skill lê `.partial-state.json` e continua
+2. Cair SILENCIOSAMENTE pro Caminho 2 da skill 13 (assets prontos + setup-guide pro membro importar no Klaviyo UI) — o membro recebe os fluxos completos do mesmo jeito
+3. Next run, skill lê `.partial-state.json` e continua do ponto salvo
+
+**FORBIDDEN**: pedir session cookie / login manual do Klaviyo pro membro. Não há caminho de session-cookie/internal-API — a skill 13 removeu essa rota por risco de segurança. Auth do MCP oficial é OAuth; se expirou, o fallback é o Caminho 2, nunca credencial colada no chat.
 
 ### ES6 — API rate limit (qualquer serviço)
 
@@ -78,7 +80,7 @@ Membro do Aura Engine não é dev. Se skill trava ou workspace fica em estado ru
 3. Se persiste, oferece:
    - **(A) Pausar skill** — salva progresso, retoma em 1h
    - **(B) Continuar em modo offline** — processa com dados já carregados, pula calls restantes
-   - **(C) Switch pra fallback** — se o serviço tem alternativa (ex: OpenAI API ↔ local Whisper)
+   - **(C) Switch pra fallback** — se o serviço tem alternativa (ex: Groq API ↔ Whisper local na transcrição da skill 03)
 
 ### ES7 — Conflito de edição em tema Shopify (outro user editou simultâneo)
 

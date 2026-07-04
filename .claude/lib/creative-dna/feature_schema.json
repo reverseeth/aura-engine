@@ -1,6 +1,6 @@
 {
-  "version": "1.0",
-  "description": "Features estruturadas extraídas de cada criativo. Claude usa este schema pra garantir consistência na extração.",
+  "version": "1.1",
+  "description": "Features estruturadas extraídas de cada criativo. Claude usa este schema pra garantir consistência na extração. Enums com 'none'/'not_used' indicam onde a extração pode legitimamente não classificar.",
   "features": {
     "hook_type": {
       "type": "enum",
@@ -14,9 +14,34 @@
         "story_personal",
         "proclamation",
         "secret_reveal",
-        "problem_agitation"
+        "problem_agitation",
+        "none"
       ],
-      "description": "Categoria primária do hook"
+      "description": "Categoria primária do hook ('none' se impossível classificar)"
+    },
+    "hook_archetype": {
+      "type": "enum",
+      "values": [
+        "pattern_interrupt",
+        "secret_reveal",
+        "contrarian",
+        "listicle_open",
+        "question_hook",
+        "tempo_escasso",
+        "ultima_chance",
+        "trend_expiring",
+        "missed_opportunity",
+        "pain_amplification",
+        "warning",
+        "comparative_loss",
+        "regret_future",
+        "transformation",
+        "aspiration",
+        "discovery",
+        "peer_validation",
+        "none"
+      ],
+      "description": "Archetype do hook declarado na geração (Skill 08 ETAPA 4.5.E) — ids de .claude/lib/hook-taxonomy/archetypes.json. Fecha o loop de aprendizado: quando a Skill 11 marca winners, o padrão por archetype emerge no dna-profile."
     },
     "hook_duration_seconds": {
       "type": "number",
@@ -50,9 +75,10 @@
         "identity_preservation",
         "urgency",
         "anti_urgency",
-        "curiosity_tease"
+        "curiosity_tease",
+        "none"
       ],
-      "description": "Estilo do call to action final"
+      "description": "Estilo do call to action final ('none' se o criativo não tem CTA)"
     },
     "voice_profile": {
       "type": "enum",
@@ -90,8 +116,8 @@
     },
     "avatar_age_depicted": {
       "type": "number",
-      "range": [18, 80],
-      "description": "Idade do avatar/persona depicted (0 se sem pessoa)"
+      "range": [0, 80],
+      "description": "Idade do avatar/persona depicted. 0 = sem pessoa no criativo (motion graphic, static de produto); idades reais ficam em 18-80"
     },
     "format": {
       "type": "enum",
@@ -99,13 +125,15 @@
         "ugc_real_person",
         "ugc_ai_avatar",
         "stolen_ugc_stitch",
+        "founder_led",
+        "demo",
         "motion_graphic",
         "motion_graphic_hybrid",
         "stock_footage",
         "static_image",
         "carousel"
       ],
-      "description": "Formato primário de produção"
+      "description": "Formato primário de produção. Vocabulário CANÔNICO de formatos — o format_fit do hook-taxonomy/archetypes.json usa esses mesmos valores. NOTA sobre 'stolen_ugc_stitch': valor DESCRITIVO de análise de concorrente (registrar que um concorrente usa stitch de UGC alheio é análise de mercado, não recomendação) — a skill 08 NUNCA recomenda produzir com footage sem Usage Rights (a rota licenciada é 'licensed_montage' no creator archetype)"
     },
     "duration_total_seconds": {
       "type": "number",

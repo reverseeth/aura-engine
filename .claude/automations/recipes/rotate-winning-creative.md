@@ -16,7 +16,6 @@ Esta receita não chama o Meta diretamente: o único toque na plataforma é o **
 ## Pre-flight
 - [ ] Winner tem CPA < target × 0.8 E spend > $300 E age > 5 days
 - [ ] Skill 08 disponível pra gerar variations
-- [ ] Content Recycler disponível (#17)
 - [ ] MCP de upload disponível (Pipeboard `mcp__meta-ads__*` ou Playwright — herda de `upload-creative-to-meta.md`)
 
 ## Steps
@@ -27,18 +26,15 @@ winner = read(/workspace/[produto]/08-creative-engine/concept-XX.md)
 dna = read(/workspace/[produto]/creative-dna/dna-profile.json)  # se existe
 ```
 
-### 2. Gerar N variações preservando DNA
-Invocar Skill 08 em modo "rotation":
-```
-Pra cada N:
-  briefing = skill_07.generate_rotation(
-    parent_creative=winner,
-    dna_profile=dna,
-    variation_axis=["hook_text", "voiceover_tone", "visual_opening"][N-1]
-  )
-```
+### 2. Gerar N variações preservando DNA (instruções diretas — não existe "modo rotation" na Skill 08)
 
-Cada variação muda UM eixo; preserva mechanism, CTA, proof stack.
+Gere cada briefing de variação diretamente, a partir do conceito-pai:
+
+1. Carregue o concept do winner em `08-creative-engine/dados.json` (o objeto do concept correspondente — hook, ângulo, mechanism, CTA, proof stack, formato) + o briefing `concept-XX.md` como contexto.
+2. Pra variação N, mude **UM único eixo** — `["hook_text", "voiceover_tone", "visual_opening"][N-1]` — e escreva o novo briefing herdando TODO o resto do conceito-pai inalterado: mechanism (nome + posição), CTA, proof stack, estrutura 3-2-2.
+3. Se `dna-profile.json` existe, use as features de maior win-rate como guia do que NÃO tocar.
+
+O output de cada variação é um briefing novo (`concept-XX-v2.md`, `-v3`, `-v4`) no mesmo formato da Skill 08 — mas gerado aqui inline, sem re-rodar o fluxo completo da 08 (a rotação pula ideação/batch: o conceito já está validado, só o eixo varia).
 
 ### 3. Rodar compliance + DNA extraction em cada
 (Automático via ETAPAs 7.5 + 7.6 da Skill 08)
@@ -57,7 +53,7 @@ for variation in new_variations:
 ```json
 {
   "action": "rotate_winner",
-  "source": "meta_mcp_pipeboard",
+  "source": "<meta_mcp_pipeboard | playwright — herdado da receita de upload>",
   "parent_creative": "<creative-id>",
   "variations_generated": ["<creative-id>-v2", "<creative-id>-v3", "<creative-id>-v4"],
   "all_paused": true,
@@ -78,10 +74,12 @@ Mensagem:
   DNA preserved: 85% overlap com winner (hook_type, mechanism_position, cta_tone mantidos)
 ```
 
-## Integração com Shadow Brain (#1)
-Se Shadow Brain rodando e critério de winner batido automaticamente:
-- Alert pra membro com recomendação
-- Se `autonomous_rotate: true` no manifest: executa receita sem input
+## Integração com o loop criativo
+A receita `creative-loop.md` invoca esta rotação como parte do ciclo
+ad → performance → variação quando o critério de winner é batido. A execução
+SEMPRE passa por aprovação do membro antes do upload — não existe rotação
+autônoma no framework hoje (o "Shadow Brain" citado em versões antigas é
+conceito futuro, não implementado).
 
 ## Limitação
 - Não substitui análise humana. Criatividade mecânica preserva DNA mas pode

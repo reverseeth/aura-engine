@@ -17,12 +17,20 @@ import json
 import sqlite3
 import sys
 import datetime
+from collections import Counter
 from pathlib import Path
 from statistics import mean
 
 
 SCHEMA_PATH = Path(__file__).parent / "schema.sql"
 MIN_CREATIVES_FOR_DNA = 10
+
+# Campos de identificação — nunca entram no DNA (não são features do criativo)
+METADATA_FIELDS = {"creative_id", "concept_id", "source_file", "produced_at"}
+
+
+def utcnow_iso() -> str:
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
 
 
 def connect(db_path: Path) -> sqlite3.Connection:
@@ -63,12 +71,12 @@ def add_creative(db_path: Path, creative_id: str, features_file: Path, product_s
         features.get("concept_id"),
         features.get("source_file", str(features_file)),
         json.dumps(features),
-        features.get("produced_at", datetime.datetime.utcnow().isoformat()),
+        features.get("produced_at", utcnow_iso()),
     ))
     conn.execute("""
         INSERT OR IGNORE INTO performance (creative_id, outcome, measured_at)
         VALUES (?, 'pending', ?)
-    """, (creative_id, datetime.datetime.utcnow().isoformat()))
+    """, (creative_id, utcnow_iso()))
     conn.commit()
     print(f"Added creative: {creative_id}")
 
@@ -76,7 +84,7 @@ def add_creative(db_path: Path, creative_id: str, features_file: Path, product_s
 def update_performance(db_path: Path, creative_id: str, perf_file: Path):
     perf = json.loads(perf_file.read_text())
     conn = connect(db_path)
-    conn.execute("""
+    cur = conn.execute("""
         UPDATE performance SET
           cpa = ?, ctr = ?, thumbstop_3s = ?, hold_15s = ?, roas = ?,
           spend = ?, impressions = ?, clicks = ?, purchases = ?,
@@ -88,10 +96,17 @@ def update_performance(db_path: Path, creative_id: str, perf_file: Path):
         perf.get("impressions"), perf.get("clicks"), perf.get("purchases"),
         perf.get("days_active"), perf.get("decile_rank"),
         perf.get("outcome", "neutral"),
-        datetime.datetime.utcnow().isoformat(),
+        utcnow_iso(),
         creative_id,
     ))
     conn.commit()
+    if cur.rowcount == 0:
+        sys.stderr.write(
+            f"ERROR: creative_id '{creative_id}' not found in registry — "
+            "check the id (e.g. c-01 vs c-1) or run `add` first. "
+            "Performance NOT recorded.\n"
+        )
+        sys.exit(1)
     print(f"Updated performance: {creative_id} → {perf.get('outcome')}")
 
 
@@ -137,6 +152,8 @@ def compute_dna(db_path: Path, product_slug: str) -> dict:
     for r in rows:
         features = json.loads(r["features_json"])
         for feat, val in features.items():
+            if feat in METADATA_FIELDS:
+                continue
             if feat not in feature_stats:
                 feature_stats[feat] = {"values": [], "winners": [], "losers": []}
             feature_stats[feat]["values"].append(val)
@@ -169,7 +186,6 @@ def compute_dna(db_path: Path, product_slug: str) -> dict:
             except (TypeError, ValueError, ZeroDivisionError):
                 continue
         else:
-            from collections import Counter
             w_counter = Counter(w_vals)
             l_counter = Counter(l_vals) if len(l_vals) > 0 else None
             top_winner_val = w_counter.most_common(1)[0] if w_counter else (None, 0)
@@ -182,7 +198,7 @@ def compute_dna(db_path: Path, product_slug: str) -> dict:
             }
 
     snapshot = {
-        "generated_at": datetime.datetime.utcnow().isoformat(),
+        "generated_at": utcnow_iso(),
         "product_slug": product_slug,
         "total_creatives": len(rows),
         "winners": len(winners),
@@ -249,6 +265,10 @@ def main():
         stats(db, args.product)
     elif args.cmd == "dna":
         snapshot = compute_dna(db, args.product)
+        if "error" in snapshot:
+            # Não persiste — preserva um dna-profile.json anterior válido
+            print(json.dumps(snapshot, indent=2))
+            return
         out = args.workspace / "creative-dna" / "dna-profile.json"
         out.write_text(json.dumps(snapshot, indent=2))
         print(f"DNA profile saved: {out}")

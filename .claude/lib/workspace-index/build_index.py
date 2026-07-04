@@ -11,13 +11,15 @@ Toda skill, ao terminar de salvar seus outputs, roda:
     python3 .claude/lib/workspace-index/build_index.py <produto-slug>
 
 O idioma vem de manifest.report_language (default pt-BR). O painel reflete o estado
-real escaneando as subpastas de fase (0X-<stem>/relatorio.html).
+real escaneando as subpastas de fase (0X-<stem>/<stem>.html; legado relatorio.html).
 """
-import json, sys, html, datetime
+import json, sys, re, html, datetime
 from pathlib import Path
 
 # Fases na ordem lógica de execução. folder = subpasta de fase; o relatório humano é
-# sempre <folder>/relatorio.html. "post" marca fases pós-launch (rodam depois).
+# <stem>.html, onde stem = nome da pasta sem o prefixo numérico (ex: 02-market-research/
+# market-research.html), com fallback legado relatorio.html (produtos antigos).
+# "post" marca fases pós-launch (rodam depois).
 PHASES = [
     ("00", "00-setup",              {"pt-BR": "Setup",                 "en": "Setup"},                  None, False),
     ("01", "01-product-research",   {"pt-BR": "Pesquisa de produto",   "en": "Product research"},       "product research", False),
@@ -29,6 +31,7 @@ PHASES = [
     ("07c","07c-tracking-setup",    {"pt-BR": "Tracking (pixel + CAPI)","en": "Tracking (pixel + CAPI)"},"tracking", False),
     ("07d","07d-checkout-aov",      {"pt-BR": "Checkout & AOV",        "en": "Checkout & AOV"},         "checkout", False),
     ("08", "08-creative-engine",    {"pt-BR": "Criativos",             "en": "Creatives"},              "creatives", False),
+    ("07e","07e-agentic-readiness", {"pt-BR": "Visibilidade pra agentes de AI","en": "Agentic readiness (AI visibility)"}, "agentic readiness", False),
     ("09", "09-consistency-audit",  {"pt-BR": "Auditoria de consistência","en": "Consistency audit"},   "audit", False),
     ("10", "10-ad-strategy",        {"pt-BR": "Estratégia de ads",     "en": "Ad strategy"},            "ad strategy", False),
     ("11", "11-ad-analysis",        {"pt-BR": "Análise de ads",        "en": "Ad analysis"},            "ad analysis", False),
@@ -38,13 +41,15 @@ PHASES = [
     ("14", "14-content-recycler",   {"pt-BR": "Reciclagem de conteúdo","en": "Content recycler"},       "recycle", True),
 ]
 
-# Relatório alternativo: só a fase 07 difere do padrão <folder>/relatorio.html — a página
-# humana é 07-page/07-page.html (escrita pela 07b APÓS o build/deploy). NÃO incluímos
-# design/page.html aqui de propósito: a fase "Página" só conta como concluída quando a
-# página foi de fato construída (07b), não quando só o design (07a) foi aprovado.
-# 08/11/12/14 escrevem relatorio.html no padrão, então não precisam de entrada aqui.
+# Relatório alternativo: só a fase 07 difere do padrão <folder>/<stem>.html — a página
+# humana é 07-page/page-report.html (escrita pela 07b APÓS o build/deploy; nome legado
+# 07-page.html). NÃO incluímos design/page.html aqui de propósito: a fase "Página" só
+# conta como concluída quando a página foi de fato construída (07b), não quando só o
+# design (07a) foi aprovado. Pra folders listados aqui, SOMENTE esta lista vale (o
+# candidato padrão <stem>.html/relatorio.html NÃO conta — evita que um relatório de
+# design marque a fase como concluída antes do deploy).
 ALT_REPORT = {
-    "07-page":  ["07-page/07-page.html"],
+    "07-page":  ["07-page/page-report.html", "07-page/07-page.html"],
 }
 
 LOGO_SVG = ('<svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
@@ -81,7 +86,12 @@ def build(slug):
     completed = set(mani.get("skills_completed") or [])
 
     def report_link(folder):
-        cand = [f"{folder}/relatorio.html"] + ALT_REPORT.get(folder, [])
+        if folder in ALT_REPORT:                     # fase 07: só conta via 07b (build)
+            cand = ALT_REPORT[folder]
+        else:
+            stem = re.sub(r"^\d+[a-z]?-", "", folder)
+            cand = [f"{folder}/{stem}.html",         # esquema novo (nome descritivo)
+                    f"{folder}/relatorio.html"]      # legado (produtos antigos)
         for c in cand:
             if (root / c).exists():
                 return c
@@ -94,6 +104,10 @@ def build(slug):
         if sid == "00":  # setup não vira card de relatório
             continue
         total += 1
+        # 07a (design) pronta mas 07b (build) pendente → o trigger certo é "build page";
+        # "page" re-executaria o design (07a), que já foi aprovado.
+        if sid == "07" and "07a-page-design" in completed and "07b-page-build" not in completed:
+            cmd = "build page"
         link = report_link(folder)
         # done = report artifact exists, OR manifest marks this phase complete.
         # match skills_completed entries as "<sid>-..." to avoid the 07/07c/07d prefix
@@ -111,8 +125,11 @@ def build(slug):
         name = html.escape(names[lang])
         badge = (f'<span class="b-done">{tr["done"]}</span>' if is_done else f'<span class="b-pending">{tr["pending"]}</span>')
         post_tag = f'<span class="b-post">{tr["post"]}</span>' if post else ''
+        # fase concluída via manifest mas sem HTML: sem call-to-action (mostrar "diga X
+        # pra rodar" junto do badge Concluído seria contraditório pro membro)
         action = (f'<a class="open" href="{html.escape(link)}">{tr["open"]}</a>' if link
-                  else (f'<span class="run">{tr["run"].format(cmd=html.escape(cmd))}</span>' if cmd else ''))
+                  else ('' if is_done
+                        else (f'<span class="run">{tr["run"].format(cmd=html.escape(cmd))}</span>' if cmd else '')))
         rows.append(f'''<div class="phase {'is-done' if is_done else 'is-pending'} reveal">
           <div class="ph-num">{sid}</div>
           <div class="ph-body"><div class="ph-name">{name} {post_tag}</div>{action}</div>
@@ -192,7 +209,7 @@ transition:transform .3s cubic-bezier(.2,.7,.3,1),box-shadow .3s}}
 <div class="prog reveal">{tr["progress"].format(d=done_count,t=total)}</div>
 {next_html}
 <div class="phases">{''.join(rows)}</div>
-<p class="foot">Aura © {datetime.date.today().year if False else 2026}</p>
+<p class="foot">Aura © {datetime.date.today().year}</p>
 </div>
 <script>document.documentElement.classList.add('js');
 const io=new IntersectionObserver((es)=>{{es.forEach(e=>{{if(e.isIntersecting){{e.target.classList.add('in');io.unobserve(e.target)}}}})}},{{threshold:.1}});
