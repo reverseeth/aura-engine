@@ -318,10 +318,10 @@ claude</div>
     <div class="subsection reveal">
       <div class="subsection-title">3. Connect the knowledge base</div>
       <p>This command wires Aura to the base behind every recommendation. Run it in the Terminal, outside the Claude Code session (press Ctrl+C twice to exit, or open another Terminal tab):</p>
-      <div class="script-block reveal">claude mcp add --transport http aura https://aura-mcp-production.up.railway.app/mcp</div>
+      <div class="script-block reveal">claude mcp add --transport http aura "https://aura-mcp-production.up.railway.app/mcp?key=YOUR_KEY"</div>
       <div class="note reveal">
         <strong>Using Claude Desktop?</strong>
-        Go to Settings → Integrations → Add Custom Integration and paste the same URL: <code>https://aura-mcp-production.up.railway.app/mcp</code>
+        Go to Settings → Integrations → Add Custom Integration and paste the same URL (with your key): <code>https://aura-mcp-production.up.railway.app/mcp?key=YOUR_KEY</code>. Your access key comes with your Aura access; if you did not receive a key, use the URL without the <code>?key=</code> suffix.
       </div>
     </div>
 

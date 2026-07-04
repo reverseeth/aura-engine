@@ -105,10 +105,10 @@ search_knowledge("market sophistication stages")
 
 Verifique que a resposta retorna conteúdo real (não vazio, não erro). Se funcionar, mostre ✅ "Aura conectada e respondendo." (sem inventar números — a tool não retorna contagem de conteúdo). Se não:
 
-"Rode no terminal, FORA do Claude Code:
+"Rode no terminal, FORA do Claude Code (troque `SUA_CHAVE` pela chave de acesso que veio com o seu acesso Aura; se você não recebeu chave, use a URL sem o `?key=`):
 
 ```
-claude mcp add aura --transport http https://aura-mcp-production.up.railway.app/mcp
+claude mcp add aura --transport http "https://aura-mcp-production.up.railway.app/mcp?key=SUA_CHAVE"
 ```
 
 Depois reinicie o Claude Code e digite 'setup' novamente."

@@ -77,9 +77,11 @@ setup
 Follow the prompts (budget, market, tools available). Setup creates `/workspace/` with your product subfolder and a manifest.
 
 ### 4. (Optional) Connect Aura knowledge base
-Full setup instructions are distributed with your Aura access. Summary:
-- Desktop: Settings → Integrations → Add Custom Integration → URL `https://aura-mcp-production.up.railway.app/mcp`
-- Terminal: `claude mcp add --transport http aura https://aura-mcp-production.up.railway.app/mcp`
+Full setup instructions — including your personal access key — are distributed with your Aura access. Summary (replace `YOUR_MEMBER_KEY` with the key from the member area):
+- Desktop: Settings → Integrations → Add Custom Integration → URL `https://aura-mcp-production.up.railway.app/mcp?key=YOUR_MEMBER_KEY`
+- Terminal: `claude mcp add --transport http aura "https://aura-mcp-production.up.railway.app/mcp?key=YOUR_MEMBER_KEY"`
+
+If you have no key (legacy access), the same URLs work without the `?key=` suffix while keyless access remains enabled.
 
 Queries starting with `aura:` consult the knowledge base.
 
