@@ -1,6 +1,6 @@
 ---
 name: scale-engine
-description: Engine de escala vertical de Meta Ads em cima de 3 escolas reais de gestores de tráfego escalando ecom US/EU — (A) cost-cap duplication + surf de manhã, (B) bid cap "campanha monstro", (C) budget-doubling a cada 3 dias — recomendadas por member-stage. Mantém PSM (lê manifest.psm_real, não recomputa) como diagnóstico, projeções 30/60/90 com cash flow, e fecha ciclo de volta pra 08 quando precisa de criativo novo. Use quando o membro disser "scale", "escalar", "plano de escala", "crescer", "maximizar", ou quando os ads estão estáveis e quer aumentar spend de forma sistemática.
+description: Engine de escala vertical de Meta Ads em cima de 3 escolas reais de gestores de tráfego escalando ecom US/EU — (A) cost-cap duplication + surf de manhã, (B) bid cap "campanha monstro", (C) budget-doubling a cada 3 dias — recomendadas por member-stage, com execução opcional das estruturas em PAUSED via Meta Ads MCP (membro revisa e ativa) e graduação pra Advantage+ Sales em spend alto. Mantém PSM (lê manifest.psm_real, não recomputa) como diagnóstico, projeções 30/60/90 com cash flow, e fecha ciclo de volta pra 08 quando precisa de criativo novo. Use quando o membro disser "scale", "escalar", "plano de escala", "crescer", "maximizar", ou quando os ads estão estáveis e quer aumentar spend de forma sistemática.
 ---
 
 # Scale Engine
@@ -20,17 +20,18 @@ Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; ta
 - [ ] `10-ad-strategy/dados.json` + `11-ad-analysis/dados.json` existem (`workspace/[produto]/11-ad-analysis/dados.json`)
 - [ ] Manifest tem `11-ad-analysis` em `skills_completed`
 - [ ] `manifest.psm_real` foi gravado por ≥ 1 análise recente (senão, rodar 11 — quem calcula `psm_real`)
-- [ ] Existe ≥ 1 winner identificado no `11-ad-analysis/dados.json` (Post ID com CPA ≤ breakeven estável) — sem isso, escala é prematura
+- [ ] Existe ≥ 1 entrada em `11-ad-analysis/dados.json.winners[]` (a 11 já filtra winners por **CPA ≤ target**, estável — a classificação é responsabilidade exclusiva dela). Post ID dedicado vem de `champions[]` e é **opcional** pra escalar. Sem winner, escala é prematura.
 
 Se algum arquivo de pré-flight faltar, não aborte seco (rule `emergency-escape-paths.md` ES1). Ofereça **(A)** rodar a skill faltante agora (11 pra `11-ad-analysis/dados.json`/`psm_real`, 10 pra ad-strategy), **OU (B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["arquivo"]` e avisando no output final que recomenda re-executar.
 
 ### Contexto a carregar
 
 1. Leia `workspace/profile.md` (budget atual + stage — define ponto de partida e agressividade)
-2. Leia `workspace/[produto]/04-offer-builder/relatorio.md` + `04-offer-builder/dados.json` (breakeven CPA/ROAS, `cogs_breakdown`, PSM projetado — define o teto de cost cap / bid cap)
-3. Leia `workspace/[produto]/10-ad-strategy/relatorio.md` (estrutura de campanha atual: estamos em 1-1-N de teste? cost cap já roda?)
+2. Leia `workspace/[produto]/04-offer-builder/offer-builder.md` (se não existir, leia o legado `relatorio.md`) + `04-offer-builder/dados.json` (breakeven CPA/ROAS, `cogs_breakdown`, PSM projetado — define o teto de cost cap / bid cap). Leia também `manifest.margin_warning`: se `true`, a Skill 04 flagou margem ponderada < $20/pedido — tratar como pré-requisito de prontidão na ETAPA 3 (margem apertada amplia o dano de qualquer CPA acima do alvo na escala)
+3. Leia `workspace/[produto]/10-ad-strategy/ad-strategy.md` (estrutura de campanha atual: estamos em 1-1-N de teste? cost cap já roda?)
 4. Leia TODAS as análises em `workspace/[produto]/11-ad-analysis/` em ordem cronológica (trajetória real de performance, winners estáveis, CPM por conta) + `dados.json` (handoff da skill 11)
 5. Leia scale plans anteriores em `workspace/[produto]/12-scale-engine/` (se existir — comparar premissas com realidade)
+5b. Leia `manifest.agentic` **(if exists)** — `{ready, channel_enabled, score, checked_at}` escrito pela Skill 07e. Se `ready: true`, a loja está descobrível por agentes de compra com AI (ChatGPT, Perplexity, Google AI Mode) — trate esse referral como **fonte incremental de tráfego no scale horizontal** (ver ETAPA 8). Ausente ou `ready: false` → ignorar silenciosamente (canal não existe ainda; se o membro está escalando forte, vale sugerir rodar a 07e como quick win).
 6. **Puxe os SISTEMAS NOMEADOS da base — NUNCA query genérica.** Rode `search_knowledge` (deep=true) com a `best_query` exata de cada framework relevante pra ETAPA que está rodando. O índice completo do domínio de escala desta skill está em `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — mapa skill→domínio). Os sistemas de maior impacto pra escala estão embutidos nas ETAPAS abaixo; o resto (28 frameworks de scaling) fica disponível no índice. Mínimo a carregar antes de montar qualquer plano:
    - **Performance Gate Scaling (PGS) + The Three PGS Principles** (rode `Performance Gate Scaling PGS 3 principles trailing CPA automated rules` e `The three PGS principles never scale past margin trailing multi-day KPI campaign-based`) — espinha dorsal de quando subir/segurar
    - **Profitable Scaling Margin (PSM)** (rode `Profitable Scaling Margin PSM golden ratio LTV CPA COGS formula`) + **PSM Scaling Thresholds** (rode `PSM thresholds 1.3 aggressive 1.1 healthy breakeven zone scaling decision`) — leitura de diagnóstico (a 11 calcula)
@@ -68,7 +69,7 @@ Se `manifest.psm_real` estiver ausente, rode a skill 11 primeiro (quem o grava) 
 
 ### ETAPA 1 — Receber Panorama Atual
 
-Primeiro, pré-popule dos artefatos: `11-ad-analysis/dados.json` (spend diário, CPA médio, CPM por conta, ROAS médio, AOV real, winners estáveis com Post ID) + `04-offer-builder/dados.json` (breakeven CPA/ROAS) + `manifest.psm_real`. Só pergunte ao membro o que NÃO está nos artefatos.
+Primeiro, pré-popule dos artefatos: `11-ad-analysis/dados.json` (spend diário, CPA médio, CPM por conta, ROAS médio, AOV real, `winners[]` estáveis + `champions[]` com Post ID, se houver) + `04-offer-builder/dados.json` (breakeven CPA/ROAS) + `manifest.psm_real`. Só pergunte ao membro o que NÃO está nos artefatos.
 
 Se algo faltar (ex: cash disponível pra surf, que não vive em nenhum JSON), peça em UMA única mensagem só os campos faltantes:
 
@@ -101,12 +102,13 @@ Antes de aumentar spend, validar se o sistema aguenta. Falhar em qualquer um = i
 
 | Pré-requisito | Critério | Se falhar |
 |---|---|---|
-| **Winner provado** | ≥ 1 criativo com CPA ≤ breakeven, estável por 3+ dias (ideal 2-3 winners) | **Volta pra 08** (mais criativo) — escala sem winner é prematura |
+| **Winner provado** | ≥ 1 entrada em `11-ad-analysis/dados.json.winners[]` (CPA ≤ target pela régua da 11), estável por 3+ dias (ideal 2-3 winners) | **Volta pra 08** (mais criativo) — escala sem winner é prematura |
 | **PSM real ≥ teórico** | `manifest.psm_real` não está > 20% abaixo do `psm_theoretical` | Ajustar oferta (AOV, garantia, stack) ANTES de escalar |
+| **Margem por pedido saudável** | `manifest.margin_warning` ≠ `true` (a Skill 04 grava `true` quando a margem ponderada fica < $20/pedido) | Segurar a escala VERTICAL e alertar o membro: com margem apertada, cada dólar de CPA acima do alvo come uma fatia grande do lucro — revisar oferta/pricing na 04 antes de subir budget |
 | **CPA estável ou melhorando** | Trend dos últimos 3-7 dias estável ou descendo | Diagnóstico de fadiga (skill 11) antes de escalar |
 | **CPM saudável na conta** | CPM dentro da faixa normal pro nicho/conta | CPM muito alto = problema de CONTA, não de produto. Testar winner em outra conta (skill 11) antes de escalar |
 | **Creative pipeline ativo** | Batch novo a cada 1-2 semanas no ritmo de escala | Recomendar Skill 08 — escala consome volume de criativo |
-| **Pixel/CAPI health** | Match quality ≥ 80%, sem events perdidos | Fix técnico (skill 07c) antes de escalar |
+| **Pixel/CAPI health** | EMQ ≥ 6.0 (escala 0-10 do Events Manager), sem events perdidos | Fix técnico (skill 07c) antes de escalar |
 | **Cash flow pra COGS + spend** | Membro tem $ pra cobrir o gap entre spend (cobrado diário) e payout (Shopify 3-5 dias) | Ajustar pace de escala ao cash disponível (ver ETAPA 6) |
 
 Pra cada pré-requisito que falha, documente o bloqueio e recomende ação específica. **Winner provado é eliminatório** — sem ele, a skill não monta plano de escala, manda de volta pra 08.
@@ -152,7 +154,7 @@ A mecânica:
 3. **Alimenta a MESMA campanha continuamente** com mais ad sets de criativo (≈5 criativos por ad set). A cada 1-2 dias, adiciona um ad set novo com criativos novos. Pode chegar a 20 ad sets / 200 criativos numa única campanha "monstro".
 4. **NÃO desativa criativos.** Deixa o Facebook varrer todos atrás de CPA abaixo do bid cap. O algoritmo concentra gasto onde acha resultado e ignora o resto (criativo ruim simplesmente não gasta — você não precisa matar manualmente).
 
-**Risco e safeguard:** adicionar ad set novo numa campanha que está ótima pode **travar a entrega** (resetar o aprendizado). Se a campanha tá voando, **prefira abrir OUTRA conta/campanha** em vez de arriscar mexer na boa. Baixar o bid cap de $2 em $2 pra apertar o CPA é possível, mas arriscado (também pode travar) — faça só com folga.
+**Risco e safeguard:** adicionar ad set novo numa campanha que está ótima pode **travar a entrega** (resetar o aprendizado). Se a campanha tá voando, **prefira abrir OUTRA conta/campanha** em vez de arriscar mexer na boa. Baixar o bid cap de $2 em $2 pra apertar o CPA é possível, mas arriscado (também pode travar) — faça só com folga. Isso ficou AINDA mais verdadeiro desde abril/2026: edições antes consideradas "seguras" (ajuste pequeno de bid, tweak de criativo) passaram a resetar o learning com mais facilidade — duplicar/abrir conta nova em vez de editar campanha boa é a jogada default da era.
 
 **Quando usar:** stage `validating` ou `scaling` que quer crescimento estável com pouca mão. Menos volatilidade que a Escola A, menos upside explosivo.
 
@@ -181,6 +183,10 @@ Recomendação por stage (default, não trava): **starter → C** (ou bid cap se
 
 Pergunte ao membro qual escola quer rodar. Se ele não tiver opinião, vá com o default do stage e explique por quê. Registre a escola escolhida no `12-scale-engine/dados.json` (`scaling_school`).
 
+**Graduação pra ASC — Advantage+ Sales (nível $1K+/dia sustentado):** as três escolas seguem sendo o playbook até aí. Acima disso, o desenho operacional 2026 em ecom é **ASC como campanha principal + a estrutura 1-1-N da Skill 10 virando sandbox de teste de criativo** (winners promovidos pra ASC). Requisitos práticos: volume de conversão alto e 6-10 criativos vivos. Dois detalhes que mudam o setup: (1) configurar o **existing-customer budget cap** (reintroduzido em março/2026) pra manter o ASC prospectando em vez de virar retargeting disfarçado; (2) dentro do ASC não existe bid cap — o controle de custo é o **cost-per-result goal**. Números de lift divulgados (4.5x ROAS etc.) vêm de fontes pró-automação — trate como direcionais, valide com o SEU CPA.
+
+**Variante condicional — value optimization (só se o AOV varia de verdade):** se o spread de AOV entre pedidos passa de ~30% (bundle/subscription/upsell forte pós-07d), otimizar por CPA uniforme sub-otimiza — paga o mesmo por pedido de $40 e de $120. Nesse caso, teste **ROAS goal + value rules** numa campanha DUPLICADA (nunca na campanha de controle), com 14+ dias de teste antes de julgar. Pra produto único de preço estável (a maioria dos membros), ignore esta variante: cost cap/bid cap por CPA segue superior em simplicidade e controle.
+
 ### ETAPA 4.5 — Quando o budget trava a entrega → abrir nova conta
 
 Padrão que aparece em todas as escolas: às vezes você sobe o budget e a entrega **não acompanha** — a campanha não gasta o novo budget, ou trava o aprendizado e o CPA dispara. Antes de concluir "atingi meu teto", diagnostique:
@@ -190,6 +196,17 @@ Padrão que aparece em todas as escolas: às vezes você sobe o budget e a entre
 3. **Na Escola B**, lembre: se a campanha boa não aguenta mais um ad set sem travar, **abra outra conta/campanha** em vez de arriscar a que está performando.
 
 > **Limite ético (inviolável):** esta skill encode SÓ a mecânica legítima de organização de conta e campanha. **NÃO** ensina nem recomenda comprar BM/contas de terceiros, "farmar" contas, contingenciar perfil-dono-vs-anunciante pra driblar ban, produto réplica ou cloaking. Essas táticas derrubam a conta da marca real e brigam com a tese brand-building do Aura. Abrir uma conta de anúncio nova e legítima dentro do seu próprio Business Manager é resiliência; farmar conta pra driblar política não é — e não tem suporte aqui.
+
+### ETAPA 4.6 — Execução opcional via Meta MCP (criar em PAUSED)
+
+A escala não precisa ser só instrução manual — o membro é não-técnico, e as operações das escolas são numerosas e repetitivas. Se ele topar, criar a estrutura da escola escolhida via a MESMA cascade da Skill 10 ETAPA 6 (oficial `mcp__meta__ads_*` → Pipeboard `mcp__meta-ads__*` → manual — detecção por prefixo, ver `.claude/lib/mcp-detect/README.md`):
+
+- **Escola A:** as campanhas 1-1-1 do winner, duplicadas com os caps decrescentes calculados ($50/$45/$40/$35…), todas em `status: PAUSED`. O surf em si continua manual — é monitoramento ativo por definição.
+- **Escola B:** a campanha bid cap (bid = CPA máximo, budget 100×) em PAUSED; os ad sets novos de alimentação também nascem PAUSED a cada adição.
+- **Escola C:** sem estrutura nova pra criar — só o plano de doubling (mudança de budget é sempre aprovada pelo membro, nunca automática).
+- **Automated Rules opcionais** (scale-down −20% quando o CPA de 7 dias estoura o target; PGS): criar **DESATIVADAS** — nenhuma rule executa ação automática até o membro revisar e ativar no Ads Manager.
+
+**Regras invioláveis (as mesmas da 10):** tudo nasce PAUSED/desativado; o membro revisa e ativa; a skill NUNCA ativa nada sozinha. Gravar os IDs criados em `12-scale-engine/dados.json.mcp_execution`. Sem MCP conectado → entregar o passo-a-passo manual formatado campo a campo (como sempre). Se a criação falhar (rate limit/auth), aplicar `.claude/rules/emergency-escape-paths.md` ES6.
 
 ### ETAPA 5 — Credibilidade da Loja (lever de conversão antes de escalar)
 
@@ -252,8 +269,10 @@ Impacto: escala atrasa ~1 mês, mas sem queimar cash flow.
 | Dia | Daily Budget | Daily Revenue | Payable (ads) | Receivable (payout +3d) | Cash Float Needed |
 |-----|--------------|---------------|---------------|-------------------------|-------------------|
 | 1   | $200         | $500          | -$200         | $0                      | $200              |
-| 3   | $300         | $750          | -$300         | +$500                   | $300-500          |
+| 4   | $300         | $750          | -$300         | +$500 (payout do Dia 1) | $300-500          |
 | ...  | ...          | ...           | ...           | ...                     | ...               |
+
+(Com payout +3d, a receita do Dia 1 só vira caixa no Dia 4 — os dias 1-3 são cobertos 100% pelo float. Esse é exatamente o descasamento que a tabela existe pra mostrar.)
 
 Alerte se `cash_float_needed_peak > cash_disponivel × 0.7`.
 
@@ -281,7 +300,9 @@ Escalar consome criativo. Mesmo winner satura a audiência: a $100/dia satura em
 | Escala Agressiva ($1K-5K) | 12-20 | Semanal | 2-4 |
 | Otimização ($5K+) | 20+ | Semanal | 4+ ou agência |
 
-Calibre pelo stage (`member-stage-awareness.md`): starter recebe a ponta baixa, scaling a ponta alta. Se `frequency_max < 1.3` e CPM estável, pode segurar a contagem atual mesmo escalando.
+Calibre pelo stage (`member-stage-awareness.md`): starter recebe a ponta baixa, scaling a ponta alta. Se `frequency_max < 1.3` e CPM estável (banda de folga da régua única — ver ETAPA 10), pode segurar a contagem atual mesmo escalando.
+
+**Canal incremental — tráfego de agentes de AI (se `manifest.agentic.ready: true`):** além da diversificação de criativo, o scale horizontal ganha uma fonte que não depende de leilão do Meta: referral de agentes de compra com AI (ChatGPT, Perplexity, Google AI Mode). Se a Skill 07e marcou a loja como pronta (`agentic.ready: true`, score no bloco), trate esse canal como **fonte incremental** no plano: (1) confira no analytics se já existe referral desses domínios (chatgpt.com, perplexity.ai) e registre a linha de base; (2) inclua o canal nas projeções 30/60/90 como upside conservador (não como premissa de caixa — o volume ainda é pequeno e não-comprável); (3) se `agentic.score < 80`, mencione que re-rodar a 07e fecha gaps que aumentam a chance de citação. Nunca desvie budget de ads pra "otimizar AEO" — é canal orgânico incremental, não substituto do paid.
 
 ### ETAPA 9 — Checklist Operacional Semanal
 
@@ -300,11 +321,17 @@ Escala sustentável é ritmo. Adapte ao stage e à escola escolhida:
 **Monthly review** (1× ao mês, primeiro dia útil):
 - PSM real vs projetado (re-ler `manifest.psm_real`)
 - Winning ad rate (% de conceitos testados que viraram winners)
-- A escola atual ainda serve? (graduou de stage? trocar de C pra bid cap, ou bid cap pra cost-cap+surf?)
+- A escola atual ainda serve? (graduou de stage? trocar de C pra bid cap, ou bid cap pra cost-cap+surf? passou de $1K/dia sustentado → hora de avaliar a graduação pra ASC, ETAPA 4?)
 - Algum CPM de conta subiu a ponto de pedir conta nova legítima?
+- Membro ligou **Incremental Attribution** em alguma campanha? Os CPAs dela não são comparáveis aos clássicos — re-baseline antes de qualquer decisão de kill/escala (ver nota na Skill 11). Em multi-canal com suspeita de over-attribution do Meta, pode servir como teste de eficiência real — nunca como régua default.
 - Re-rodar Skill 12 se mudança estrutural (novo produto, nova oferta, novo teto)
 
 ### ETAPA 10 — Sinais de Alerta (Quando Parar/Recuar)
+
+**Régua única de frequency desta skill (freq DIÁRIA, mesma base da Skill 11 — as três leituras abaixo usam ESTA régua, não invente outra):**
+- **< 1.3** → folga: pode segurar a contagem de criativos mesmo escalando (ETAPA 8).
+- **> 1.4 sustentada + CTR caindo > 20% vs baseline** → fadiga: refresh de criativo — volta pra 08 (é o trigger canônico do `dados.json`).
+- **> 1.5 sustentada em prospecting** → audiência saturada: batch novo ANTES de mais budget.
 
 **Frameworks de recuo e diagnóstico de saturação (rode quando algum sinal disparar):**
 - **Scale-Down Rules (PGS reverse)** (rode `scale-down rules decrease budget 20% 7-day CPA exceeds target safety net`) — quando o CPA de 7 dias estoura, corta 20% e segura (não desliga). É a regra dura por trás de "derruba o surf" / "volta pro último nível bom".
@@ -312,7 +339,7 @@ Escala sustentável é ritmo. Adapte ao stage e à escola escolhida:
 - **Frequency as Prospecting-vs-Retargeting Proxy** (rode `frequency prospecting vs retargeting proxy low 1.0 high 2.5 broad CBO scaling signal`) — lê frequency como sinal de saturação: baixa (~1.0) = ainda prospectando (pode subir), alta (~2.5) = virou retargeting disfarçado (audiência saturada, pede batch novo).
 
 - **CPA dos últimos 3 dias acima do breakeven** → para de subir budget, refresh criativo antes de qualquer escala. Na Escola A, derruba o surf.
-- **Frequency em todos os ad sets > 1.5** → audiência saturada, precisa batch novo (08).
+- **Frequency > 1.5 sustentada em prospecting** (nas campanhas/ad sets ativos — régua única acima) → audiência saturada, precisa batch novo (08).
 - **CPM subindo 30%+ em 14 dias** → saturação, competição, ou conta cansada. Diagnóstico na skill 11; se for conta, abrir conta nova legítima (ETAPA 4.5).
 - **Budget novo não gasta / trava entrega** → diagnóstico ETAPA 4.5 (conta vs produto), não conclua "teto" cedo demais.
 - **Cash flow gap** → spend correndo na frente do payout. Ajustar pace (ETAPA 6).
@@ -322,7 +349,7 @@ Escala sustentável é ritmo. Adapte ao stage e à escola escolhida:
 
 Se algum destes → invoque skill 08 pra novo batch:
 - Top 3 criativos com > 14 dias de idade
-- Frequency max > 1.4 com CTR caindo > 20% vs baseline
+- Frequency max > 1.4 sustentada com CTR caindo > 20% vs baseline (régua única da ETAPA 10)
 - Escala cruzou 2× budget (precisa creative diversity pra sustentar)
 - Conta nova aberta (ETAPA 4.5) precisa de criativo pra alimentar
 
@@ -330,17 +357,17 @@ Skill 08 lerá `11-ad-analysis/NEXT_BATCH_IDEAS.md` (de 11) + `12-scale-engine/s
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome. O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, **logo SVG do Aura no topo copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto**, componentes aura).
+**Todo relatório `.md` voltado ao membro DEVE gerar `.html` companion** com o mesmo nome (aqui: `scale-engine.md` → `scale-engine.html`). **Isentos** (arquivos operacionais de handoff — rule 6b do CLAUDE.md, lista completa em `.claude/lib/workspace-index/workspace-layout.md`): `scale-directives.md`, `dados.json`. O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, **logo SVG do Aura no topo copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto**, componentes aura).
 
 **Garantir diretório:** `mkdir -p workspace/[produto]/12-scale-engine/` antes de salvar.
 
 Outputs em `workspace/[produto]/12-scale-engine/`:
 
-- `relatorio.md` contendo:
+- `scale-engine.md` contendo:
   1. Classificação de estágio + sub-fase de escala (Etapa 2)
   2. Análise de prontidão com bloqueios identificados (Etapa 3)
   3. **Escola de escala escolhida** + setup operacional concreto (cost cap value / bid cap + budget / cadência de doubling) (Etapa 4)
-  4. Política de conta nova quando entrega trava (Etapa 4.5)
+  4. Política de conta nova quando entrega trava (Etapa 4.5) + status da execução via MCP, se usada: o que foi criado em PAUSED e os IDs (Etapa 4.6)
   5. Credibilidade da loja — gaps a resolver (Etapa 5)
   6. Cash flow check + gap projetado (Etapa 6)
   7. Projeção 30/60/90 base + pessimista + template cash flow (Etapa 7)
@@ -382,6 +409,11 @@ Outputs em `workspace/[produto]/12-scale-engine/`:
   "new_account_policy": {
     "trigger": "delivery_throttled_or_account_cpm_too_high",
     "legitimate_only": true
+  },
+  "mcp_execution": {
+    "path": "official|pipeboard|manual",
+    "created_paused_campaign_ids": [],
+    "automated_rules_created_disabled": []
   },
   "cash_flow": {
     "cash_gap_projected": 0,

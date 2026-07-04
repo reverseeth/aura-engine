@@ -1,24 +1,23 @@
 #!/usr/bin/env python3
 """
-pattern-extractor.py — Aura Engine design-clone pipeline · Modo C
+pattern-extractor.py — Aura Engine design-clone pipeline · Brand Signals
 
-Lê o output do downloader + analyzer e extrai APENAS a estrutura semântica
-e os sinais de design (cores, fontes, spacing, radius) de um concorrente.
-NÃO copia código. NÃO preserva HTML do concorrente. Produz patterns.json
-que o fresh-generator (orquestrado pela skill 06) usa pra criar um design
-novo, inspirado no visual mas limpo, theme-agnostic, e editável.
+Lê o output do downloader (computed-styles.json) e extrai APENAS os sinais de
+design agregados de um site de referência (cores, fontes, radius, shadow,
+densidade de spacing). NÃO copia código. NÃO preserva HTML do concorrente.
+Produz patterns.json com o bloco `design_system` que a skill 07a-page-design
+(ETAPA 2 — Brand Signals) consome como caminho 3 de signals.
+
+Não requer o analyzer.py: o único input é o computed-styles.json do downloader.
 
 Uso:
     python3 pattern-extractor.py <clone_dir>
 
 Exemplo:
-    python3 pattern-extractor.py /tmp/clone-gruns
+    python3 pattern-extractor.py /tmp/ref-gruns
 
 Output:
     <clone_dir>/patterns.json
-
-Dependências:
-    pip install beautifulsoup4
 """
 
 import json
@@ -28,11 +27,16 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+# Bootstrap re-exec (mesmo padrão do fetch.py da lib web-fetch): se o python
+# atual não tem chardet e o venv do design-clone existe, re-executa nele.
+# Sem venv, segue no python atual — o guard abaixo degrada pro fallback
+# utf-8-sig/latin-1 do read_text_robust.
 try:
-    from bs4 import BeautifulSoup, Tag
+    from _venv_bootstrap import bootstrap as _venv_bootstrap
 except ImportError:
-    print("ERRO: BeautifulSoup4 não instalado. Rode: pip install beautifulsoup4", file=sys.stderr)
-    sys.exit(1)
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _venv_bootstrap import bootstrap as _venv_bootstrap
+_venv_bootstrap("chardet")
 
 try:
     import chardet  # type: ignore
@@ -66,7 +70,6 @@ def read_text_robust(path: Path) -> str:
     return raw.decode("latin-1", errors="replace")
 
 
-HEX_COLOR_RE = re.compile(r"#(?:[0-9a-fA-F]{3}){1,2}\b|rgba?\([^)]+\)")
 PX_VALUE_RE = re.compile(r"([\d.]+)(px|rem|em)")
 
 
@@ -224,176 +227,53 @@ def extract_design_signals(computed_styles):
     }
 
 
-def detect_layout_pattern(section_dict):
-    """Infere o padrão de layout da section (split-lr, centered, grid-3col, carousel, full-bleed)."""
-    html = section_dict.get("html", "")
-    soup = BeautifulSoup(html, "html.parser")
-
-    images = section_dict.get("images", [])
-    has_image = len(images) > 0
-
-    has_h1 = bool(soup.find("h1"))
-    has_h2 = bool(soup.find("h2"))
-    repeating = section_dict.get("repeating_pattern", {})
-    repeat_count = repeating.get("count", 0)
-    semantic_type = section_dict.get("semantic_type", "unknown")
-
-    if semantic_type == "hero":
-        if has_image and (has_h1 or has_h2):
-            return "split-lr"
-        if has_h1:
-            return "centered-bold"
-        return "full-bleed"
-
-    if semantic_type in ("features", "benefits"):
-        if repeat_count == 3:
-            return "grid-3col"
-        if repeat_count == 4:
-            return "grid-4col"
-        if repeat_count >= 5:
-            return "grid-multi"
-        return "grid-3col"
-
-    if semantic_type == "testimonials":
-        if repeat_count >= 4:
-            return "grid-multi"
-        return "carousel"
-
-    if semantic_type == "faq":
-        return "accordion-stacked"
-
-    if semantic_type == "pricing":
-        if repeat_count == 2:
-            return "tiers-2col"
-        if repeat_count == 3:
-            return "tiers-3col"
-        return "tiers-grid"
-
-    if semantic_type == "cta":
-        return "full-bleed-centered"
-
-    if has_image and (has_h1 or has_h2):
-        return "split-lr"
-    if has_h1 or has_h2:
-        return "centered"
-    return "stacked"
-
-
-def detect_content_slots(section_dict):
-    """Detecta os 'slots' de conteúdo que a section espera (o que a fresh-gen vai preencher)."""
-    html = section_dict.get("html", "")
-    soup = BeautifulSoup(html, "html.parser")
-    semantic_type = section_dict.get("semantic_type", "unknown")
-
-    slots = {}
-
-    h1 = soup.find("h1")
-    h2 = soup.find("h2")
-    if h1:
-        txt = h1.get_text(strip=True)
-        slots["heading"] = {"tag": "h1", "length_hint": len(txt) if txt else 60}
-    elif h2:
-        txt = h2.get_text(strip=True)
-        slots["heading"] = {"tag": "h2", "length_hint": len(txt) if txt else 60}
-
-    paragraphs = soup.find_all("p")
-    if paragraphs:
-        first_p = paragraphs[0]
-        ptxt = first_p.get_text(strip=True)
-        slots["subhead"] = {"tag": "p", "length_hint": len(ptxt) if ptxt else 120}
-
-    buttons = soup.find_all(["button", "a"])
-    cta_candidates = [b for b in buttons if any(
-        kw in " ".join(b.get("class", []) or []).lower()
-        for kw in ("btn", "button", "cta")
-    )]
-    if cta_candidates:
-        btn_txt = cta_candidates[0].get_text(strip=True)
-        slots["cta_label"] = {"tag": "button", "length_hint": len(btn_txt) if btn_txt else 20}
-
-    images = section_dict.get("images", [])
-    if images:
-        slots["image"] = {"count": len(images), "has_alt": any(img.get("alt") for img in images)}
-
-    repeating = section_dict.get("repeating_pattern", {})
-    if repeating.get("detected"):
-        count = repeating.get("count", 0)
-        if semantic_type == "testimonials":
-            slots["testimonials"] = {"count": count, "fields": ["quote", "author_name", "author_role"]}
-        elif semantic_type in ("features", "benefits"):
-            slots["features"] = {"count": count, "fields": ["icon_or_image", "title", "description"]}
-        elif semantic_type == "faq":
-            slots["faq_items"] = {"count": count, "fields": ["question", "answer"]}
-        elif semantic_type == "pricing":
-            slots["pricing_tiers"] = {"count": count, "fields": ["name", "price", "features_list", "cta"]}
-        else:
-            slots["items"] = {"count": count, "fields": ["title", "description"]}
-
-    return slots
-
-
-def build_section_pattern(section_dict):
-    """Constrói o pattern objeto final de uma section (sem HTML do concorrente)."""
-    return {
-        "index": section_dict.get("index"),
-        "type": section_dict.get("semantic_type", "unknown"),
-        "confidence": section_dict.get("confidence", 0),
-        "layout": detect_layout_pattern(section_dict),
-        "slots": detect_content_slots(section_dict),
-        "visual_hints": {
-            "has_repeating_items": section_dict.get("repeating_pattern", {}).get("detected", False),
-            "repeating_count": section_dict.get("repeating_pattern", {}).get("count", 0),
-            "image_count": len(section_dict.get("images", [])),
-        },
-        "description": section_dict.get("description", ""),
-    }
-
-
 def main():
     if len(sys.argv) < 2:
         print("Uso: python3 pattern-extractor.py <clone_dir>", file=sys.stderr)
         sys.exit(1)
 
     clone_dir = Path(sys.argv[1]).expanduser().resolve()
-    sections_path = clone_dir / "sections.json"
     computed_path = clone_dir / "computed-styles.json"
 
-    if not sections_path.exists():
-        print(f"ERRO: {sections_path} não encontrado. Rode analyzer.py primeiro.", file=sys.stderr)
-        sys.exit(1)
-
-    print(f"[pattern-extractor] lendo {sections_path}")
-    try:
-        sections_data = json.loads(read_text_robust(sections_path))
-    except json.JSONDecodeError as exc:
+    # Sem computed-styles.json não existe sinal REAL nenhum — emitir defaults como
+    # se fossem a paleta do site violaria o invariante de zero alucinação.
+    if not computed_path.exists():
         print(
-            f"ERRO: JSON inválido em {sections_path} (linha {exc.lineno} col {exc.colno}): {exc.msg}",
+            f"ERRO: {computed_path} não encontrado. Rode downloader.py primeiro — é ele "
+            f"que gera o computed-styles.json de onde os sinais reais saem.",
             file=sys.stderr,
         )
         sys.exit(1)
-    computed = []
-    if computed_path.exists():
-        try:
-            computed = json.loads(read_text_robust(computed_path))
-        except json.JSONDecodeError as exc:
-            logger.warning(
-                "computed-styles.json inválido (%s) — seguindo sem signals de CSS computado", exc
-            )
+
+    print(f"[pattern-extractor] lendo {computed_path}")
+    try:
+        computed = json.loads(read_text_robust(computed_path))
+    except json.JSONDecodeError as exc:
+        print(
+            f"ERRO: JSON inválido em {computed_path} (linha {exc.lineno} col {exc.colno}): {exc.msg}. "
+            f"Re-rode downloader.py — sem computed styles válidos o design_system seria inventado.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if not isinstance(computed, list):
+        computed = []
 
     print("[pattern-extractor] extraindo design signals (cores, fontes, spacing)...")
     design_system = extract_design_signals(computed)
-
-    print("[pattern-extractor] detectando patterns por section...")
-    patterns = []
-    for section in sections_data.get("sections", []):
-        patterns.append(build_section_pattern(section))
+    design_system_source = "extracted" if computed else "defaults_fallback"
+    if design_system_source == "defaults_fallback":
+        logger.warning(
+            "computed-styles.json está vazio — o design_system abaixo contém DEFAULTS "
+            "genéricos, NÃO sinais do site. A 07a não deve usar isso como brand signals."
+        )
 
     output = {
         "source": str(clone_dir),
         "design_system": design_system,
-        "sections": patterns,
+        # "extracted" = sinais reais do site; "defaults_fallback" = valores genéricos
+        # (a 07a DEVE ignorar o bloco nesse caso e cair pro próximo caminho de signals).
+        "design_system_source": design_system_source,
         "meta": {
-            "total_sections": len(patterns),
             "computed_styles_elements": len(computed),
         },
     }
@@ -401,14 +281,14 @@ def main():
     out_path = clone_dir / "patterns.json"
     out_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
 
-    print(f"[pattern-extractor] {len(patterns)} patterns extraídos")
-    print(f"[pattern-extractor] design system:")
+    tag = "" if design_system_source == "extracted" else " (DEFAULTS — não são sinais do site)"
+    print(f"[pattern-extractor] design system{tag}:")
     print(f"  - fontes: {design_system['typography']['heading_font']} / {design_system['typography']['body_font']}")
     print(f"  - cores: bg={design_system['colors']['background_primary']} · text={design_system['colors']['text_primary']} · accents={design_system['colors']['accents']}")
     print(f"  - shape: radius={design_system['shape']['border_radius_px']}px · shadow={design_system['shape']['shadow_style']}")
     print(f"  - density: {design_system['spacing']['density']} (avg padding {design_system['spacing']['avg_padding_px']}px)")
     print(f"[pattern-extractor] salvo em {out_path}")
-    print(f"\n[pattern-extractor] próximo passo: o skill 06 (modo C) usa este patterns.json + copy.md pra gerar HTML fresh via frontend-design, depois converter pra Liquid")
+    print("\n[pattern-extractor] próximo passo: a skill 07a-page-design (ETAPA 2 — Brand Signals) lê o bloco design_system deste patterns.json")
 
 
 if __name__ == "__main__":

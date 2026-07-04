@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "notes": "Word ranges assumem ~150 wpm speech (2.5 wps). Adjust per format tone: conversational ~130wpm, rapid/punchy ~170wpm.",
   "formats": [
     {
@@ -16,7 +16,7 @@
       "name": "Email welcome sequence (5 emails)",
       "output_file": "email-sequence.md",
       "length_words_total": [800, 1200],
-      "length_words_per_email": [150, 260],
+      "length_words_per_email": [160, 240],
       "structure": "E1 story hook, E2 mechanism deeper, E3 social proof, E4 objection break, E5 CTA with guarantee",
       "tone": "personal, conversational, segmented by signup trigger",
       "compliance_notes": "CAN-SPAM compliant + unsubscribe footer"

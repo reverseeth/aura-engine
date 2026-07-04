@@ -14,7 +14,7 @@ Pra qualquer dado que precise vir da web (VOC, PDP, ads, reviews):
    ```bash
    python3 .claude/lib/web-fetch/fetch.py "<url>" --mode text|reddit|reviews [--json]
    ```
-   - **Reddit** → sempre `--mode reddit` (Reddit bloqueia fetch direto por IP; o fetcher usa front-ends redlib com fallback).
+   - **Reddit** → sempre `--mode reddit`. Cascade interna do modo: (1) front-ends redlib (com fallback entre instâncias); (2) se todos os redlib caírem → **API do Arctic Shift** (arquivo público de posts/comments do Reddit, sem key e sem login — cobre thread inteira por ID/URL). Reddit bloqueia fetch direto por IP, por isso nunca bater em reddit.com direto.
    - **Páginas de review (Amazon/Trustpilot/Loox/Yotpo)** → `--mode reviews` (rola pra carregar os widgets lazy).
    - **PDP com Cloudflare / Meta Ad Library** → `--mode text`.
    - Exit code 2 = bloqueio irrecuperável; 3 = Playwright não instalado (rode o setup do README da lib).

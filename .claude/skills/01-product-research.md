@@ -1,6 +1,6 @@
 ---
 name: product-research
-description: Engine completo de pesquisa e validação de produto. Use quando o membro disser "product research", "pesquisa de produto", "encontrar produto", "qual produto vender", ou quando estiver na situação A do setup (não tem produto). Faz filtragem técnica, validação de Trends, trademark, Meta Ad Library, review mining, validação de eficácia, análise estratégica completa usando os frameworks, e entrega ranking com veredicto + plano preliminar pro produto #1.
+description: Engine completo de pesquisa e validação de produto. Use quando o membro disser "product research", "pesquisa de produto", "encontrar produto", "qual produto vender", ou quando estiver na situação A do setup (não tem produto). Faz filtragem técnica, validação de Trends, trademark, Meta Ad Library, review mining, validação de eficácia, análise estratégica completa usando os frameworks, e entrega ranking com veredicto + plano preliminar + brand.md inicial pro produto #1.
 ---
 
 # Product Research Engine
@@ -28,6 +28,7 @@ Antes de qualquer outra coisa:
 2. Localize `manifest.json`:
    - Procure um `manifest.json` em `workspace/*/manifest.json` cujo `setup_complete === true`.
    - Se existir, leia `product_slug` — este é o path canônico para qualquer salvamento (ver Etapa SALVAR).
+   - **Se houver MAIS de um** manifest com `setup_complete === true` (membro roda 2+ produtos), NÃO escolha silenciosamente: liste os `product_name` e pergunte em 1 linha qual é o produto-alvo. Se o membro já nomeou o produto no trigger (ex: "product research do [produto]"), use esse sem perguntar.
    - Se **não existir**, aborte com: `"Rode \`setup\` primeiro — manifest.json ausente."` (ofereça rodar o setup inline).
 3. Confirme que `00-setup` está em `skills_completed` do manifest. Caso contrário, re-rode o setup.
 4. Use `product_slug` do manifest como `[produto]` padrão para todos os paths nesta skill até que o produto vencedor seja escolhido (ver Etapa SALVAR para substituição).
@@ -69,6 +70,12 @@ Antes da análise profunda (ETAPAS 5+), corte dos ~15 pros **top 8-10** por um `
 ```
 triage_score = growth*0.35 + ad_traction*0.30 + price_fit_AOV60*0.20 + store_smallness*0.15
   (cada componente normalizado 0-1; ad_traction = densidade de ads ativos do nicho)
+
+SEM dado de ads no momento do triage (caminho manual Kalodata/SpyBox — o membro cola
+nome/preço/revenue, não densidade de ads), NÃO tente levantar Ad Library pros 15 candidatos
+(é exatamente o custo que o triage evita). Re-normalize sem o componente:
+  triage_score = growth*0.50 + price_fit_AOV60*0.30 + store_smallness*0.20
+No caminho TrendTrack, use o sinal de ads que a própria tool de discovery já retornou.
 ```
 
 **Regra:** o motor de descoberta (TrendTrack-auto OU Kalodata-colado) só ACELERA achar candidatos. Nunca pula os filtros eliminatórios — todo candidato passa pelas ETAPAS 2/3/4.
@@ -80,9 +87,9 @@ triage_score = growth*0.35 + ad_traction*0.30 + price_fit_AOV60*0.20 + store_sma
 > | 1 | **Descoberta** | TrendTrack `mcp__trendtrack__*` **OU** Kalodata/SpyBox | **AUTO** (TrendTrack, runtime-discovery) **OU** membro cola (Kalodata/SpyBox) | não (gera a leva) |
 > | 2 | **AOV ≥ $60 + 3× markup** | dado do produto + **supplier price do membro** | semi-auto: AOV do dado; markup precisa o membro informar o supplier price (Alibaba/1688) | **SIM** |
 > | 3 | **Peso / logística** | descrição do produto | AUTO leve (FLAG, não elimina) | não (flag) |
-> | 4 | **Google Trends 5 anos** | Google Trends público | **AUTO** via WebFetch (fallback: membro cola screenshot) | **SIM** se queda |
+> | 4 | **Google Trends 5 anos** | Google Trends público | **AUTO** via WebFetch (fallback: fetcher Playwright → membro cola screenshot) | **SIM** se queda |
 > | 5 | **Revenue / sizing do concorrente** | TrendTrack **OU** SimilarWeb/Kalodata | **AUTO** (TrendTrack) **OU** membro **COLA** (SimilarWeb é pago, sem API — revenue via SimilarWeb é SEMPRE colado) | não (calibra) |
-> | 6 | **USPTO trademark** | uspto.gov público | **AUTO** via WebFetch | **SIM** se marca grande |
+> | 6 | **USPTO trademark** | uspto.gov público | **AUTO** via WebFetch (fallback: fetcher Playwright) | **SIM** se marca grande |
 > | 7 | **Mecanismo único + avatar underserved** | frameworks da base Aura | **AUTO** (raciocínio sobre frameworks) | não (scoring) |
 >
 > Os estágios 2-7 mapeiam nas ETAPAS 2-8 abaixo. Onde diz "membro cola", a AI **pede o dado exato e espera** — nunca inventa o número nem finge ter aberto a ferramenta.
@@ -160,7 +167,7 @@ Produtos descartados saem da análise. Produtos com flags continuam mas com o ri
 - Janela: últimos 5 anos
 - Comparar com termos relacionados e concorrentes quando relevante
 
-> **Fallback** se o WebFetch do Trends falhar (bloqueio/anti-bot): peça ao membro pra abrir `trends.google.com`, setar a janela de 5 anos pro termo, e colar um screenshot da curva. Aí você lê a tendência pela imagem (visão nativa). Marque como fonte manual.
+> **Fallback em cascade (rule `.claude/rules/resilient-fetch.md`)** se o WebFetch do Trends falhar (bloqueio/anti-bot — trends.google.com é app só-JS, o WebFetch quase sempre falha): primeiro tente o fetcher Playwright da Aura: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode text`. Só se o fetcher também falhar, peça ao membro pra abrir `trends.google.com`, setar a janela de 5 anos pro termo, e colar um screenshot da curva. Aí você lê a tendência pela imagem (visão nativa). Marque como fonte manual.
 
 Classifique:
 - **QUEDA CONSISTENTE** (tendência negativa há 12+ meses) → DESCARTA
@@ -172,7 +179,7 @@ Mostre tendência por produto com o classificador aplicado.
 
 ### ETAPA 4 — USPTO Trademark + Brand Check
 
-**Estágio AUTO.** Pra cada produto ainda na lista, consulte o USPTO via WebFetch (`tmsearch.uspto.gov`, base pública) + web search:
+**Estágio AUTO.** Pra cada produto ainda na lista, consulte o USPTO via WebFetch (`tmsearch.uspto.gov`, base pública) + web search. Se o WebFetch barrar (o tmsearch é app JS pesado), use o fetcher Playwright: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode text` (rule `.claude/rules/resilient-fetch.md`):
 
 - Existe trademark ativo pro nome do produto, da marca mais conhecida vendendo ele, ou do mecanismo/fórmula?
 - Classifique o owner:
@@ -191,7 +198,7 @@ Também busque no Google por `"nome do produto" site:bbb.org` e `"nome do produt
   > *"Pra dimensionar o concorrente [loja X], abre o SimilarWeb (direto ou pelo painel do SpyBox) e me cola: visitas/mês (visits) + receita estimada da loja. Eu não consigo puxar esse número sozinho — a receita via SimilarWeb é sempre colada por você."*
   Trate o número como input manual e marque a fonte no relatório. NUNCA estime revenue do SimilarWeb sem o dado colado (não invente "deve faturar ~$200k").
 
-Acesse o Meta Ad Library (web search / fetch quando possível) pra cada produto.
+Acesse o Meta Ad Library (web search / fetch quando possível) pra cada produto. A Ad Library é conteúdo só-JS — se o WebFetch voltar vazio ou barrado, use o fetcher Playwright: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode text` (rule `.claude/rules/resilient-fetch.md`); só depois disso caia pra pedir screenshot ao membro.
 
 **Regras críticas de análise:**
 
@@ -220,12 +227,12 @@ Se for vídeo, transcreva pelo menos o hook + 2-3 frases do corpo do script.
 
 ### ETAPA 6 — Review Mining (Voice of Customer Preliminar)
 
-Pra cada produto ainda na lista, pesquise (web search):
+Pra cada produto ainda na lista, pesquise (descoberta via `WebSearch`; aprofundamento via `WebFetch` — se barrado, fetcher Playwright: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode reviews|reddit|text`, conforme rule `.claude/rules/resilient-fetch.md`; só então fallback manual de paste/screenshot):
 
-- **Amazon reviews** — pegue 4-star e 1-star reviews (as mais honestas). Foco: o que elogiam E o que reclamam. 4-star especialmente útil porque geralmente elogia MAS identifica um problema real que pode virar positioning.
-- **Reddit** — procure em subreddits relevantes (r/SkincareAddiction, r/HairLoss, r/BuyItForLife, etc). Use busca: `"nome do produto" OR "categoria" site:reddit.com`.
+- **Amazon reviews** — pegue 4-star e 1-star reviews (as mais honestas). Foco: o que elogiam E o que reclamam. 4-star especialmente útil porque geralmente elogia MAS identifica um problema real que pode virar positioning. Se a página de reviews barrar o WebFetch, use `--mode reviews` (rola pra carregar os widgets lazy).
+- **Reddit** — procure em subreddits relevantes (r/SkincareAddiction, r/HairLoss, r/BuyItForLife, etc). Use busca: `"nome do produto" OR "categoria" site:reddit.com`. Reddit bloqueia fetch direto por IP — pra abrir o thread inteiro, sempre `--mode reddit`.
 - **TikTok comments** — nos próprios ads dos concorrentes identificados na Etapa 5. Comentários em viral posts (#nomedoproduto) também.
-- **Fóruns** específicos do nicho (ex: realself.com pra beauty, baltimoresportsfitness pra fitness)
+- **Fóruns** específicos do nicho (ex: realself.com pra beauty, forum.bodybuilding.com ou r/fitness / r/xxfitness pra fitness)
 - **"Tired of" + "tried everything" shortcuts**: buscar essas frases + categoria revela a exata frustração da pessoa pronta pra comprar
 
 Extraia e organize:
@@ -304,9 +311,9 @@ Liste os claims saturados que devem ser EVITADOS. Defina a resposta estratégica
 
 > Sistema-base deste sub-passo: **Two Forms of Differentiation — Mechanism Innovation** (já puxado no topo da ETAPA 8, rode `two forms of differentiation mechanism innovation avatar innovation overlooked avatar` se ainda não puxou). O mecanismo é a primeira das duas formas de diferenciar.
 
-Aplique o filtro S.I.N.:
-- **Specific** — pode ser nomeado especificamente?
-- **Intriguing** — desperta curiosidade?
+Aplique o filtro S.I.N. (Simple / Intuitive / New — o mesmo da Skill 04 e do kb-index):
+- **Simple** — dá pra explicar em 1-2 frases que qualquer pessoa entende?
+- **Intuitive** — faz sentido imediato ("ah, é ÓBVIO que isso funciona") sem exigir fé?
 - **New** — soa novo pro mercado (mesmo que a ciência subjacente seja antiga)?
 
 Consigo criar um mecanismo proprietário baseado em algo REAL do produto (ingrediente, feature, processo, combinação única)? Dê 1-2 exemplos preliminares (detalhe completo na Skill 04).
@@ -345,7 +352,7 @@ Formula:
 - **Magnitude** (do desejo, ETAPA 8.1): FRACO = 2-3 · MÉDIO = 5-7 · FORTE = 8-10.
 - **Sophistication** = FACILIDADE de diferenciação dado o estágio (sentido INVERTIDO do stage: quanto mais cedo o mercado, mais fácil diferenciar, maior o score). Stage 1-2 = 9-10 · Stage 3 = 6-7 · Stage 4 = 4-5 · Stage 5 = 2-3.
 - **AwarenessFit** = quão bem o funil/copy viável bate com a distribuição de awareness dominante (ETAPA 8.2) e o budget do membro: distribuição majoritária em Most/Product Aware (PDP direta, conversão barata) = 8-10 · Solution Aware (landing com mecanismo) = 6-7 · Problem Aware (advertorial/listicle, conversão mais cara mas TAM maior) = 4-6 · majoritariamente Unaware = 2-3.
-- **UMPotential** = score do filtro S.I.N. da ETAPA 8.4 (média de simplicity/intuitiveness/novelty do mecanismo possível, 1-10).
+- **UMPotential** = score do filtro S.I.N. da ETAPA 8.4 — média dos 3 componentes **Simple / Intuitive / New** (simplicity/intuitiveness/novelty, como no `sin_score` da Skill 04) do mecanismo possível, 1-10 cada.
 - **AvatarFit** = força do avatar underserved da ETAPA 8.5 (segmento ignorado claro e alcançável = alto; todos os concorrentes já falam com o mesmo público sem brecha = baixo).
 - **OfferPotential** = potencial de stack/bundle/bump e AOV projetado da ETAPA 8.6.
 - **CreativePotential** = ângulos não-usados + demonstrabilidade visual + viabilidade de UGC da ETAPA 8.7.
@@ -416,8 +423,8 @@ Pro produto com maior score, entregue um plano inicial (detalhado depois nas ski
 
 Salve em DOIS arquivos dentro de `workspace/[produto]/` (onde `[produto]` = slug do PRODUTO VENCEDOR, não do produto original da pesquisa — assim as fases seguintes salvam no mesmo lugar):
 
-1. **`01-product-research/relatorio.md`** (a AI lê nas fases seguintes)
-2. **`01-product-research/relatorio.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto))
+1. **`01-product-research/product-research.md`** (a AI lê nas fases seguintes)
+2. **`01-product-research/product-research.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto))
 
 Conteúdo de ambos:
 - Lista completa de todos os produtos analisados (mesmo os descartados, com razão)
@@ -443,6 +450,13 @@ Conteúdo de ambos:
 5. Preserve todos os campos preenchidos no setup (`budget_tier`, `product_url`, etc.)
 6. Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` = `product_slug` do vencedor — atualiza o `ABRIR-AQUI.html`).
 
+**Crie o `brand.md` do vencedor** (se ainda não existir `workspace/[produto]/brand.md` — membros de situação B/C/D já ganharam o deles no setup):
+
+- Copie `.claude/templates/brand.md.template` pra `workspace/[produto]/brand.md`.
+- Preencha o que a pesquisa já sabe: `{{ PRODUCT_SLUG }}` (slug do vencedor), posicionamento preliminar (1 frase, do ângulo de diferenciação da ETAPA 9/10), atributos de tom sugeridos pelo nicho/avatar, e "o que NUNCA dizer" (claims saturados da ETAPA 8.3).
+- Paleta de cores, tipografia e logo ficam como `[preencher]` — o produto ainda não tem loja pra extrair identidade visual. A skill 07a (page design) lê este arquivo na brand discovery e só pergunta o que faltar.
+- Avise o membro: `"Criei workspace/[produto]/brand.md com o posicionamento preliminar. Cores/fontes/logo ficam pra fase de page."`
+
 Se o slug mudou, informe ao membro: `"Produto vencedor: [nome]. Movi os artefatos para workspace/[novo-slug]/."`
 
 ## Mensagem Final
@@ -451,7 +465,7 @@ Se houver produto TESTAR no ranking:
 
 "Product research completo. [Nome do produto] venceu com score X.X/10.
 
-Plano preliminar salvo em `workspace/[produto]/01-product-research/relatorio.md`. Alinhamento com budget: [starter/standard/escala-inicial] — viável.
+Plano preliminar salvo em `workspace/[produto]/01-product-research/product-research.md`. Alinhamento com budget: [starter/standard/escala-inicial/escala-avançada] — viável.
 
 Próximo passo: diga **'market research'** pra aprofundar a pesquisa e montar o Unified Research Brief."
 

@@ -4,7 +4,7 @@ AI-powered operating system for DTC ecommerce brands. Runs inside Claude Code.
 
 ## What it does
 
-Orchestrates the full product-to-ads-to-retention workflow through 14 skills:
+Orchestrates the full product-to-ads-to-retention workflow through 19 skills (15 numbered phases, 00–14; phase 07 splits into 07a–07e):
 
 | # | Skill | Output |
 |---|---|---|
@@ -13,9 +13,13 @@ Orchestrates the full product-to-ads-to-retention workflow through 14 skills:
 | 02 | market research | VOC, awareness, sophistication, root cause |
 | 03 | competitor analysis | claims, gaps, creative patterns (Whisper transcription) |
 | 04 | offer builder | mechanism, research foundation, pricing, guarantee |
-| 05 | bonus delivery | ecom bonus asset + delivery tracking (post-launch) |
+| 05 | bonus delivery | ecom bonus asset + delivery (Phase A pre-launch: assets + GWP config; Phase B post-launch: take-rate tracking) |
 | 06 | copy engine | headlines, leads, advertorial, PDP copy |
-| 07a–d | storefront | page design → build/deploy → tracking (Pixel + CAPI) → checkout/AOV |
+| 07a | page design | HTML-first page design (brand signals + member-approved HTML) |
+| 07b | page build | deterministic HTML→Liquid compile + Shopify deploy |
+| 07c | tracking setup | Meta Pixel + CAPI + analytics stack |
+| 07d | checkout / AOV | post-purchase upsell, cart bump, bundles, checkout trust |
+| 07e | agentic readiness | AEO checklist: Agentic Storefronts channel, structured data, AI crawler access, AI visibility score (post-deploy, pre-launch) |
 | 08 | creative engine | ad briefings (scripts, hooks, prompts) + EDL |
 | 09 | consistency audit | cross-phase drift detection + launch gate |
 | 10 | ad strategy | 1-ad-set Advantage+ campaign structure + analytics |
@@ -41,12 +45,13 @@ And operational rules in `.claude/rules/` (auto-loaded when relevant):
 
 - `shopify-theme-safety.md` — pull-before-edit, `--nodelete`, silent push rejection diagnosis
 - `pre-launch-gates.md` — Compliance gate + Promise↔Config gate (blocking, non-negotiable)
-- `post-task-self-audit.md` — mandatory self-audit after every skill or important task (6 gates)
+- `post-task-self-audit.md` — mandatory self-audit after every skill or important task (5 gates, silent-fix-first)
 - `iteration-driven-refinement.md` — skills produce a draft plus an invitation to iterate, not a "done"
 - `troubleshooting-patterns.md` — diagnostic tree for recurring issues
 - `member-stage-awareness.md` — adapts tone/recommendation to starter/validating/scaling
-- `reverse-order-insertion.md` — insert elements in descending line-number order to preserve positions
+- `reverse-order-insertion.md` — multi-insert safety (reverse order for indexed arrays, disjoint anchors for text edits)
 - `emergency-escape-paths.md` — 7 error scenarios, each with 2 or more paths forward
+- `resilient-fetch.md` — WebSearch → WebFetch → Playwright fetcher cascade; never fabricate VOC/claims when a source blocks
 
 ## Setup
 
@@ -82,11 +87,12 @@ Queries starting with `aura:` consult the knowledge base.
 
 ```
 .claude/
-├── CLAUDE.md              # main rules + auto-update hook
+├── CLAUDE.md              # main rules
 ├── settings.json          # permissions + session hooks
 ├── hooks/
-│   └── post-start.sh      # shell alias setup (idempotent)
-├── skills/                # skill markdown files (00–14; 07 splits into 07a–d)
+│   ├── post-start.sh      # shell alias + daily auto-update + installs the git pre-commit guard (idempotent)
+│   └── pre-commit-guard.sh # blocks commits mixing workspace/ or containing secrets
+├── skills/                # skill markdown files (00–14; 07 splits into 07a–e)
 ├── rules/                 # operational rules (auto-loaded)
 │   ├── shopify-theme-safety.md
 │   ├── pre-launch-gates.md
@@ -95,7 +101,8 @@ Queries starting with `aura:` consult the knowledge base.
 │   ├── troubleshooting-patterns.md
 │   ├── member-stage-awareness.md
 │   ├── reverse-order-insertion.md
-│   └── emergency-escape-paths.md
+│   ├── emergency-escape-paths.md
+│   └── resilient-fetch.md
 ├── lib/                   # intelligence layer
 │   ├── compliance-preflight/
 │   ├── content-recycler/
@@ -120,8 +127,8 @@ workspace/                 # member data (GITIGNORED)
 └── [product-slug]/        # per-product subfolder
     ├── ABRIR-AQUI.html    # dashboard — the member's entry point
     ├── manifest.json      # single source of truth
-    ├── 01-product-research/   # relatorio.md / relatorio.html
-    ├── 02-market-research/    # relatorio.md / relatorio.html + dados.json
+    ├── 01-product-research/   # product-research.md / .html
+    ├── 02-market-research/    # market-research.md / .html + dados.json
     └── ...                    # one subfolder per phase (0X-stem/)
 
 tools/
@@ -130,24 +137,32 @@ tools/
 
 ## Updates
 
-The repo auto-pulls on each Claude Code session start (if no local changes).
+The framework auto-updates once a day, at the first Claude Code session start of the day. The `post-start.sh` hook fetches `origin/main` and fast-forwards your clone when ALL of these hold:
 
-You may see this message (in Portuguese) saying the repo's history was restructured and you should re-clone:
-```
-⚠️  Aura Engine foi atualizado com mudanças estruturais no histórico.
-    Pra continuar recebendo updates automáticos, re-clone o repo:
-    rm -rf ~/aura-engine
-    git clone https://github.com/reverseeth/aura-engine.git ~/aura-engine
-```
+- you're on the `main` branch
+- your working tree is clean (tracked files only — `workspace/` is gitignored and never touched)
+- the update is a pure fast-forward (no forced merges, no stash, no reset — ever)
 
-Just follow the instructions. Your `workspace/` content is outside the repo and stays intact.
+On success you'll see `[aura] Aura atualizada (N commits novos)`. Network failures are silent (they never block your session).
+
+**Opt out:** create the file `.claude/.no-auto-update`, or set the env var `AURA_AUTO_UPDATE=0`.
+
+**If your clone diverged** (local commits on `main`, or the repo's history was restructured upstream), auto-update pauses and you'll see a warning. To re-sync **without losing your `workspace/`** (it lives INSIDE the repo folder — never `rm -rf` the folder directly):
+
+```bash
+mv ~/aura-engine/workspace ~/aura-workspace-backup
+rm -rf ~/aura-engine
+git clone https://github.com/reverseeth/aura-engine.git ~/aura-engine
+rm -rf ~/aura-engine/workspace && mv ~/aura-workspace-backup ~/aura-engine/workspace
+```
 
 ## Privacy
 
 - `workspace/` is gitignored — your product data, copy, campaigns, performance never leave your machine
 - `.env*` and `*.key`/`*.pem` patterns are gitignored
-- Never commit member-brand data in skill docs or examples (see `.claude/CLAUDE.md` rule 6b)
+- A git pre-commit guard (installed automatically at session start) mechanically blocks any commit containing `workspace/` files or secrets
+- Never commit member-brand data in skill docs or examples (see `.claude/CLAUDE.md` rule 11)
 
 ## License
 
-Private — use by authorized members only.
+Proprietary — source-available to authorized Aura members only. All rights reserved.

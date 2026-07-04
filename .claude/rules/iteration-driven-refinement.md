@@ -42,7 +42,7 @@ Feedback binário ("sim/não") não melhora a próxima rodada.
 
 ### 4. Estado preservado entre iterações
 
-Toda iteração salva versão nova com suffix `-v2`, `-v3`, não sobrescreve. Membro pode voltar pra versão anterior se mudar de ideia. Skill mantém log em `workspace/[produto]/iterations-log.json`.
+Toda iteração salva versão nova com suffix `-v2`, `-v3`, não sobrescreve. Membro pode voltar pra versão anterior se mudar de ideia. Skill mantém log **per-fase** em `workspace/[produto]/[fase]/iterations-log.json` (ex: a 07a usa `workspace/[produto]/07-page/iterations-log.json`) — escopo por skill facilita a auditoria de cada fase e evita um log único misturando iterações de copy com iterações de página. Não existe log global na raiz do produto.
 
 ### 5. Max 3 iterações antes de escalate
 

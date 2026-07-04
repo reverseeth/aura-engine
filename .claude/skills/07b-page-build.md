@@ -1,27 +1,28 @@
 ---
 name: page-build
-description: Segunda skill da fase STOREFRONT. COMPILE determinístico do design/page.html aprovado na 07a em sections Liquid via liquid-converter.py (Modo C, por código não por reasoning), valida cada section com shopify-plugin:shopify-liquid (3 retries), POPULATE do templates/page.[produto].json com blocks pré-populados, roda os gates de launch (compliance + promise↔config) e faz DEPLOY seguro no Shopify (shopify-theme-safety integral). Use quando o membro disser "build page", "deploy", "subir página", depois de aprovar o design na 07a.
+description: Segunda skill da fase STOREFRONT. COMPILE+POPULATE determinístico do design/page.html aprovado na 07a em sections Liquid via liquid-converter.py (Modo C por section ou --batch pra página inteira, por código não por reasoning), valida cada section com shopify-plugin:shopify-liquid (3 retries), roda os gates de launch (compliance + promise↔config), faz DEPLOY seguro no Shopify (shopify-theme-safety integral, marker data-aura-build) e conduz a PUBLICAÇÃO do tema com aprovação do membro (grava manifest.storefront). Use quando o membro disser "build page", "deploy", "subir página", depois de aprovar o design na 07a.
 ---
 
 # 07b — Page Build (COMPILE determinístico + POPULATE + DEPLOY)
 
 Segunda e última skill da fase **STOREFRONT** (07a → 07b). A 07a produziu o `design/page.html` aprovado — a FONTE ÚNICA DE VERDADE visual. Esta skill **compila esse HTML em Liquid por CÓDIGO, não por reasoning**, popula o template com a copy real, passa os gates de launch e deploya no Shopify.
 
-Princípio: **conversão determinística mata as traduções lossy e o drift.** O Liquid é gerado mecanicamente do HTML aprovado via `tools/design-clone/liquid-converter.py` (Modo C). O Claude entra só pra (a) splitar o HTML por section, (b) nomear blocks semanticamente, (c) validar. O conversor aplica os 6 padrões críticos por código — impossível de esquecer.
+Princípio: **conversão determinística mata as traduções lossy e o drift.** O Liquid é gerado mecanicamente do HTML aprovado via `tools/design-clone/liquid-converter.py` (Modo C por section, ou `--batch` pra página inteira). O Claude entra só pra (a) splitar o HTML por section, (b) renomear blocks semanticamente DEPOIS do compile, (c) reimplementar interações que o conversor removeu (`<script>` sai com warning — usar `<details>` nativo etc.), (d) validar. O que o conversor aplica por código e o que ele NÃO faz está na seção **Padrões aplicados pelo conversor** — não afirme capacidade que não existe.
 
 **O que esta skill faz:**
 
-1. Pré-flight — exige `design/page.html` aprovado + `design-tokens.json` + `07-plan.json`.
+1. Pré-flight — exige `design/page.html` aprovado + `design-tokens.json` + `page-plan.json`.
 2. SPLIT — separa o HTML aprovado em fragmentos por section (via marcadores `data-aura-section`) + o CSS.
-3. COMPILE — roda `liquid-converter.py` Modo C por section (CLI exato).
-4. VALIDATE — cada `.liquid` passa por `shopify-plugin:shopify-liquid` (3 retries).
-5. POPULATE — o conversor emite `templates/page.[produto].json` com blocks/block_order/settings populados com a copy real (ordem reversa).
-5.5. GEO / Schema (agent-readability) — gera o JSON-LD Schema.org (Product + Offer + AggregateRating + BreadcrumbList) de `04-offer-builder/dados.json` + `06-copy-engine/dados.json` + reviews, valida, e injeta no template como bloco `custom_liquid` + um bloco "agent-readable facts" (specs, envio/retorno, disponibilidade, garantia) em texto limpo separado da copy persuasiva.
-6. GATES (blocking) — GATE 1 compliance (ad-flag) + GATE 2 promise↔config, ANTES do deploy.
-7. DEPLOY — shopify-theme-safety integral (duplicate → pull --nodelete → push --allow-live --nodelete + marker verification + smoke test).
-8. Dual output (.md + .html, logo SVG) + iteration loop.
+3. COMPILE+POPULATE — roda `liquid-converter.py` numa invocação só (preferir `--batch`; ou Modo C por section com `--emit-template-json`). O template `page.[produto].json` sai populado com blocks/block_order/settings e a copy real.
+4. RENAME semântico — o Claude renomeia os block types genéricos pros type-specific (editando `.liquid` E template JSON juntos), SÓ DEPOIS do compile (nunca re-rode o conversor por cima de renames).
+5. VALIDATE — cada `.liquid` passa por `shopify-plugin:shopify-liquid` (3 retries) + snippet de validação cruzada do template JSON.
+5.5. GEO / Schema (agent-readability) — gera o JSON-LD Schema.org (Product + Offer + AggregateRating + BreadcrumbList + FAQPage das perguntas reais da section faq) de `04-offer-builder/dados.json` + `06-copy-engine/dados.json` + reviews, valida, e injeta no template como bloco `custom_liquid` + um bloco "agent-readable facts" (specs, envio/retorno, disponibilidade, garantia) em texto limpo separado da copy persuasiva.
+6. GATES (blocking) — GATE 1 compliance (ad-flag, CLI canônica) + GATE 2 promise↔config, ANTES do deploy.
+7. DEPLOY — shopify-theme-safety integral (duplicate → pull --nodelete → push --nodelete + marker `data-aura-build` + criação da página + smoke test).
+8. PUBLISH — com aprovação explícita do membro: backup do live → `shopify theme publish` → grava `manifest.storefront` (theme_id, page_url, published_at) que a 07d e a 10 leem.
+9. Dual output (.md + .html, logo SVG) + iteration loop.
 
-**Outputs em `workspace/[produto]/07-page/`:** `staging/sections/page-[produto]-*.liquid`, `staging/blocks/*.liquid` (se houver), `staging/templates/page.[produto].json`, `staging/geo/product-schema.json` (JSON-LD), `staging/geo/agent-facts.html`, `07-page.md` + `07-page.html`, `07-deploy-report.json`.
+**Outputs em `workspace/[produto]/07-page/`:** `staging/html/*.html` + `staging/html/page.css` (fragmentos do SPLIT), `staging/sections/page-[produto]-*.liquid`, `staging/templates/page.[produto].json`, `staging/geo/product-schema.json` (JSON-LD), `staging/geo/agent-facts.html`, `page-report.md` + `page-report.html`, `deploy-report.json`. (O conversor NÃO gera `blocks/*.liquid` — blocks são inline no schema da section.)
 
 ---
 
@@ -35,10 +36,10 @@ Princípio: **conversão determinística mata as traduções lossy e o drift.** 
 3. Valide os inputs (sob `workspace/[produto]/07-page/`):
    - [ ] `design/page.html` existe (HTML aprovado da 07a — **sem ele, PARE e direcione pra 07a**; não existe modo "gera Liquid direto")
    - [ ] `design-tokens.json` existe e parseia
-   - [ ] `07-plan.json` existe com bloco `strategy` + `sections_plan` + `section_order`
+   - [ ] `page-plan.json` existe com bloco `strategy` + `sections_plan` + `section_order`
    - [ ] `manifest.json` tem `07a-page-design` em `skills_completed`
    - [ ] Plugin `shopify-plugin:shopify-liquid` disponível (se falhar, instrua `/plugin install shopify-plugin@shopify-plugin`)
-4. Dirs de staging: `workspace/[produto]/07-page/staging/{sections,blocks,templates,geo}/` (criar com `mkdir -p`).
+4. Dirs de staging: `workspace/[produto]/07-page/staging/{html,sections,templates,geo}/` (criar com `mkdir -p`).
 
 Se `design/page.html` faltar → "Não achei o design aprovado. Rode `07a-page-design` primeiro — preciso do `design/page.html` que você aprova antes de gerar Liquid."
 
@@ -53,28 +54,54 @@ DESIGN_HTML="${PAGE_DIR}/design/page.html"
 STAGING_DIR="${PAGE_DIR}/staging"
 THEME_DIR="${PAGE_DIR}/theme-clone"
 TOOLS_DIR="tools/design-clone"
-STORE=""  # preenchido na detecção da loja (ETAPA 7)
+STORE=""  # preenchido na detecção da loja (ETAPA 6.1)
 ```
 
 ---
 
 ## ETAPA 1 — SPLIT (HTML aprovado → fragmentos por section)
 
-O `design/page.html` aprovado tem cada section marcada com `<section data-aura-section="hero">` etc (a 07a pediu isso ao `frontend-design`). Splite:
+O `design/page.html` aprovado tem cada section marcada com `<section data-aura-section="hero">` etc (a 07a garante esses markers em QUALQUER rota de design — §3.7 dela, inclusive handoff do canvas, clone-and-adapt e site-builders). Splite:
 
-1. Parse do `design/page.html`. Pra cada `<section data-aura-section="X">`, extraia o fragmento HTML completo daquela section → salve em `${STAGING_DIR}/html/<X>.html`. Os ids `X` batem com `sections_plan[].id` de `07-plan.json`.
+1. Parse do `design/page.html`. Pra cada `<section data-aura-section="X">`, extraia o fragmento HTML completo daquela section → salve em `${STAGING_DIR}/html/<X>.html`. Os ids `X` batem com `sections_plan[].id` de `page-plan.json`.
 2. Extraia o CSS (do `<style>` do documento, ou do `.css` companion se houver) → `${STAGING_DIR}/html/page.css`. O conversor injeta isso no `{% stylesheet %}` de cada section (namespaced).
-3. **Se os marcadores `data-aura-section` faltarem** (HTML antigo ou editado à mão): splite por âncoras/headings de section seguindo o `section_order` de `07-plan.json`, ou peça à `frontend-design` pra re-emitir o HTML com os marcadores. Não chute fronteiras de section.
+3. **Se os marcadores `data-aura-section` faltarem** (HTML antigo ou editado à mão): splite por âncoras/headings de section seguindo o `section_order` de `page-plan.json`, ou peça à `frontend-design` pra re-emitir o HTML com os marcadores. Não chute fronteiras de section.
 
 Resultado: N fragmentos HTML (1 por section do plano) + 1 CSS compartilhado.
 
 ---
 
-## ETAPA 2 — COMPILE (liquid-converter.py Modo C, por section)
+## ETAPA 2 — COMPILE+POPULATE (liquid-converter.py, UMA invocação)
 
-O `liquid-converter.py` é o conversor **CANÔNICO e OBRIGATÓRIO** (não é mais "legacy/draft" — é o caminho determinístico). Ele aplica por código os 6 padrões críticos (ver seção **Padrões aplicados pelo conversor** abaixo): color settings inline no root + `| escape`, shadow/radius/font como `var(--x)`+setting+migração de hardcoded, form `/cart/add` nativo, everything-editable, ícones 3 camadas.
+O `liquid-converter.py` é o conversor **CANÔNICO e OBRIGATÓRIO** (não é mais "legacy/draft" — é o caminho determinístico). O que ele aplica por código está na seção **Padrões aplicados pelo conversor** abaixo: text→settings (everything-editable), color settings inline no root + `| escape`, tokens (shadow/radius/font) como `var(--x)`+setting com migração de hardcoded, form `/cart/add` nativo, blocks inline com copy real por instância, CSS filtrado e rescopado por section, POPULATE do template JSON.
 
-Pra **cada section**, rode (CLI exato — Modo C):
+**COMPILE e POPULATE saem da MESMA invocação** — nunca rode o conversor duas vezes sobre o mesmo `--output` (a segunda execução regenera o `.liquid` do zero e apaga renames manuais).
+
+### Caminho preferido — batch (página inteira numa invocação)
+
+Monte `${STAGING_DIR}/batch-manifest.json`:
+
+```json
+{
+  "product_slug": "[slug]",
+  "page_handle": "[slug]",
+  "sections": [
+    { "type": "hero", "html": "workspace/[slug]/07-page/staging/html/hero.html", "css": "workspace/[slug]/07-page/staging/html/page.css", "namespace": "page-[slug]-hero", "output": "workspace/[slug]/07-page/staging/sections/page-[slug]-hero.liquid" }
+  ]
+}
+```
+
+(1 entry por section do `section_order`; `html`/`css` aceitam path ou conteúdo inline.) Rode:
+
+```bash
+python3 ${TOOLS_DIR}/liquid-converter.py \
+  --batch ${STAGING_DIR}/batch-manifest.json \
+  --emit-template-json ${STAGING_DIR}/templates/page.${PRODUTO}.json
+```
+
+O batch converte todas as sections + emite o `page.[produto].json` populado (ordem = ordem do manifest) numa passada.
+
+### Caminho alternativo — Modo C por section (quando só 1 section muda, ex: iteration loop)
 
 ```bash
 python3 ${TOOLS_DIR}/liquid-converter.py \
@@ -82,18 +109,24 @@ python3 ${TOOLS_DIR}/liquid-converter.py \
   --css ${STAGING_DIR}/html/page.css \
   --type <id> \
   --output ${STAGING_DIR}/sections/page-${PRODUTO}-<id>.liquid \
-  --blocks-dir ${STAGING_DIR}/blocks \
   --namespace page-${PRODUTO}-<id> \
-  --product-slug ${PRODUTO}
+  --product-slug ${PRODUTO} \
+  --emit-template-json ${STAGING_DIR}/templates/page.${PRODUTO}.json \
+  --page-handle ${PRODUTO}
 ```
 
 - `<id>` = o id da section (`hero`, `benefits`, `mechanism`, `offer`...) de `sections_plan`.
-- O conversor extrai cores → CSS vars + color settings, detecta padrões repetíveis → blocks, faz dedup de settings, naming semântico, e valida o schema internamente (`validate_shopify_schema`).
-- **O Claude entra depois pra nomear blocks semanticamente** (o conversor dá nomes genéricos a partir das classes BEM; renomeie pros type-specific certos: `benefit_card`, `pricing_tier`, `review_card`, `faq_item`, `mechanism_card` conforme o Catálogo) e pra conferir que os universais (`eyebrow`, `heading`, `paragraph`, `button_row`, `divider`, `spacer`, `custom_liquid`, `custom_html`) e os type-specific da section estão presentes no `{% case block.type %}`.
+- O merge single-section do `--emit-template-json` PRESERVA a posição da section no `order[]` (re-compilar o hero não o manda pro fim).
+- **NÃO use `--blocks-dir`** (deprecado e ignorado — blocks são inline no schema; nenhum `blocks/*.liquid` é gerado).
+- O Modo B legacy (`--sections-json`, markup de página de concorrente) é **BLOQUEADO por default** — exige `--allow-competitor-markup` e só se usa em página PRÓPRIA. O fluxo desta skill é sempre Modo C/batch sobre o HTML aprovado da 07a.
 
-### Batch (modo wrapper, se disponível)
+### Depois do compile — rename semântico (Claude, editando .liquid + template JSON JUNTOS)
 
-Se o conversor expõe o modo batch (GAP-E), uma única invocação converte a página inteira (loop por section) e já chama o POPULATE — preferível a orquestrar N chamadas à mão. Use o batch quando existir; senão, loop manual por section (acima).
+O conversor dá nomes genéricos aos block types (derivados do `--type`/classes). **SÓ AGORA** (depois da última invocação do conversor) renomeie pros type-specific do Catálogo: `benefit_card`, `pricing_tier`, `review_card`, `faq_item`, `mechanism_card`... Cada rename toca 4 lugares em sincronia: o `{% when '<tipo>' %}` no markup, o `type` no `schema.blocks[]`, o `type` em `presets[0].blocks` (se presente), e o `type` de cada block no `templates/page.[produto].json`. Rode o snippet de validação da ETAPA 4 depois — ele acusa type órfão.
+
+**Contrato de variant IDs (lido pela recipe `deploy-shopify-product.md`):** todo block `pricing_tier` DEVE expor os settings `variant_id` (text, default vazio — preenchido pela recipe/membro com o ID real) e `qty` (number — a quantidade do tier: 1/3/6, default preenchido com o valor real do tier). O conversor já emite settings de CTA `variant_id_*`/`cta_quantity_*` quando detecta o form de compra; no rename, normalize-os pra `variant_id`/`qty` dentro do block `pricing_tier`. É por `qty` que a recipe casa block ↔ variant criada no Shopify.
+
+Também confira que interações removidas pelo conversor (`<script>` sai com warning listando cada um) foram reimplementadas de forma nativa (`<details><summary>` pra FAQ/accordion, CSS puro pra tabs simples) — nunca perder interação silenciosamente.
 
 ---
 
@@ -105,37 +138,20 @@ Cada `.liquid` gerado passa pelo skill `shopify-plugin:shopify-liquid` (modo val
 2. **Auto-fix + revalidate** — modo `fix` do plugin, revalida.
 3. **Leitura manual do erro** — consulte a tabela **Debug — Quando validação falha** (abaixo), aplique o fix, revalide. Se ainda falhar → **PARE e reporte** ao membro (arquivo, erro exato, tentativas, ação manual sugerida).
 
-Comando manual (se o plugin estiver indisponível):
-```bash
-node .../shopify-liquid/scripts/validate.mjs --filename page-${PRODUTO}-<id>.liquid --filetype sections --code "$(cat <file>)" --model ... --client-name claude-code --artifact-id ${PRODUTO}-<id> --revision 1
-```
+Se o plugin estiver indisponível, **instale antes de seguir** (`/plugin marketplace add Shopify/shopify-ai-toolkit` + `/plugin install shopify-plugin@shopify-plugin`) — não existe fallback manual confiável; validar Liquid "no olho" é exatamente o modo de falha que esta skill elimina.
 
 ---
 
-## ETAPA 4 — POPULATE (template JSON com blocks pré-populados)
+## ETAPA 4 — Validação do template JSON populado
 
-**Modelo de blocks vs settings:** o conversor emite conteúdo ÚNICO (hero headline, eyebrow, sub, CTA único) como **section settings** (grupo Content — editável no theme editor) e conteúdo REPETÍVEL (benefit cards, pricing tiers, review cards, FAQ items, ingredients, steps) como **blocks** arrastáveis/reordenáveis. Ambos vêm com a copy real pré-preenchida. Sections monolíticas (só settings) são válidas e comuns (ex: hero).
+O POPULATE já aconteceu na ETAPA 2 (o `--emit-template-json`/batch monta o `templates/page.[produto].json` com `blocks{}` + `block_order[]` + `settings{}` populados, usando a copy real do HTML como `default` de cada setting). Esta etapa valida o resultado — não re-roda o conversor.
+
+**Modelo de blocks vs settings:** o conversor emite conteúdo ÚNICO (hero headline, eyebrow, sub, CTA único) como **section settings** (grupo Content — editável no theme editor) e conteúdo REPETÍVEL (benefit cards, pricing tiers, review cards, FAQ items, ingredients, steps) como **blocks** arrastáveis/reordenáveis, com UMA instância por item real do HTML (FAQ de 5 perguntas = 5 instâncias distintas). Sections monolíticas (só settings) são válidas e comuns (ex: hero).
 
 **Erro #1 histórico (vale só pra sections COM blocks):** quando uma section É block-based (schema define block types repetíveis), o `templates/page.[produto].json` precisa ter `blocks: {...}` + `block_order: [...]` EXPLÍCITOS — senão renderiza ZERO daqueles blocks (o Shopify só popula preset blocks quando o membro adiciona a section manualmente via "Add section"). O POPULATE resolve isso. Sections monolíticas (settings-only) legitimamente têm `blocks: {}` e renderizam do markup direto.
 
-O conversor emite o template JSON populado (GAP-B). Rode o POPULATE via os flags novos do conversor:
-
-```bash
-python3 ${TOOLS_DIR}/liquid-converter.py \
-  --html ${STAGING_DIR}/html/<id>.html \
-  --css ${STAGING_DIR}/html/page.css \
-  --type <id> \
-  --output ${STAGING_DIR}/sections/page-${PRODUTO}-<id>.liquid \
-  --blocks-dir ${STAGING_DIR}/blocks \
-  --namespace page-${PRODUTO}-<id> \
-  --product-slug ${PRODUTO} \
-  --emit-template-json ${STAGING_DIR}/templates/page.${PRODUTO}.json \
-  --page-handle ${PRODUTO}
-```
-
-- `--emit-template-json <path>` — o conversor monta/atualiza `templates/page.[produto].json`, inserindo a section convertida com `blocks{}` + `block_order[]` + `settings{}` populados, usando a copy real do HTML como `default` de cada setting.
-- `--page-handle <handle>` — handle da página no template.
-- **Inserção em ordem reversa** (rule `reverse-order-insertion`): quando o conversor (ou o Claude, se ajustar o JSON à mão) insere múltiplas sections no `order[]`/`sections{}`, insere da maior posição pra menor pra não deslocar índices. No modo batch o conversor já cuida disso.
+Notas pra ajustes manuais no JSON:
+- **Inserção em ordem reversa** (rule `reverse-order-insertion`): quando o Claude insere múltiplas sections no `order[]`/`sections{}` à mão, insere da maior posição pra menor pra não deslocar índices. No modo batch/merge o conversor já cuida disso.
 - As cores das section settings vêm de `design-tokens.json` (role-tagged: background/surface/foreground/primary/accent/border).
 
 ### Validação do template JSON (OBRIGATÓRIA antes do deploy)
@@ -144,8 +160,9 @@ Pra cada section em `sections`:
 - [ ] Se a section é **block-based** (schema do `.liquid` define block types), `blocks` é objeto **não-vazio** com `block_order`. Sections **monolíticas** (só settings, ex: hero) legitimamente têm `blocks: {}` — não é erro (o snippet abaixo já distingue os dois casos)
 - [ ] `block_order` referencia apenas chaves de `blocks`; todo block de `block_order` existe em `blocks`
 - [ ] Todo block tem `type` válido presente no schema da section `.liquid` correspondente
-- [ ] `order[]` lista todas as sections na sequência persuasiva (`section_order` de `07-plan.json`)
+- [ ] `order[]` lista todas as sections na sequência persuasiva (`section_order` de `page-plan.json`)
 - [ ] Copy REAL populada (hero headline, sub, CTAs, stats, benefits VOC, tiers, FAQ Q+A, CTA final) — tudo de `06-copy`
+- [ ] **Se `page_type = advertorial`:** o href dos soft CTAs aponta pro destino de `page-plan.json.destination_ref` (a 07a define obrigatoriamente: handle/URL da pdp_lean de 2ª passada, PDP existente trabalhada, ou checkout direto). Advertorial é pré-lander — o soft CTA é `<a href>` de navegação pro destino, NUNCA form `/cart/add` (o fechamento acontece na página de destino). Se `destination_ref` estiver `null` num advertorial, PARE e mande o membro de volta pra 07a ETAPA 1 — advertorial no ar com CTA sem destino manda tráfego pago pro vazio.
 
 Snippet de validação cruzada (roda antes de todo push — cruza template JSON contra os schemas dos `.liquid`):
 
@@ -197,12 +214,12 @@ A loja precisa ser **legível por máquina**, não só por humano. ChatGPT, Perp
 
 Esta etapa NÃO toca o design visual nem a copy persuasiva. Ela adiciona duas camadas invisíveis pro consumidor humano e visíveis pro crawler: (1) o **JSON-LD Schema.org** no `<head>`/markup, (2) um bloco de **fatos legíveis por agente** em texto limpo.
 
-### 4.5.1 — Montar o JSON-LD (Product + Offer + AggregateRating + BreadcrumbList)
+### 4.5.1 — Montar o JSON-LD (Product + Offer + AggregateRating + BreadcrumbList + FAQPage)
 
 Leia as fontes (todas já existem na cadeia; não invente nenhum campo):
 
 - `workspace/[produto]/04-offer-builder/dados.json` → nome do produto, preço, `compare_at_price`, moeda, garantia (dias), unique mechanism, descrição da oferta.
-- `workspace/[produto]/06-copy-engine/dados.json` → headline/descrição do produto, specs/benefícios em texto, brand.
+- `workspace/[produto]/06-copy-engine/dados.json` → headline/descrição do produto, specs/benefícios em texto, brand, **e as perguntas/respostas REAIS da section faq** (fonte do nó FAQPage — as mesmas Q&A que a página exibe, nunca perguntas inventadas só pro Schema).
 - **Reviews** → `04-offer-builder/dados.json` (se traz `social_proof`/`rating`) OU a review app real (Judge.me/Loox/Yotpo via Admin API, se conectada) OU o número que o GATE 2 já valida em `promise-check.json`. **O rating do Schema TEM que bater com o rating exibido na página e com a review app real** (senão é structured-data fraudulento — Google penaliza e pode disparar manual action).
 
 **Regra dura — sem dado, sem nó.** Se um campo não tem fonte real (ex: rating sem review app conectada, ou `compare_at_price` ausente), **OMITA o nó/propriedade** em vez de inventar. `AggregateRating` só entra se há reviews reais e contáveis. Schema com número fabricado é pior que Schema ausente (vira manual action no Google Search Console).
@@ -255,15 +272,27 @@ Monte `staging/geo/product-schema.json` com este shape (preencha dos arquivos, s
         { "@type": "ListItem", "position": 2, "name": "<categoria/coleção>", "item": "https://<STORE>/collections/<handle>" },
         { "@type": "ListItem", "position": 3, "name": "<product_name>", "item": "<URL absoluta da PDP>" }
       ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "<pergunta REAL da section faq (copy da 06), texto idêntico ao da página>",
+          "acceptedAnswer": { "@type": "Answer", "text": "<resposta REAL da section faq, texto limpo sem markup>" }
+        }
+      ]
     }
   ]
 }
 ```
 
+O nó **FAQPage** cobre TODAS as perguntas da section faq da página (uma entrada `Question` por Q&A, na mesma ordem). Se a página não tem section faq, omita o nó inteiro (mesma regra dura: sem dado, sem nó) — mas registre no `deploy-report.json` que a página saiu sem FAQ (a 07e vai apontar isso como gap de agent-readability).
+
 Notas de montagem:
 - **Coerência com o GATE 2** (ETAPA 5): `merchantReturnDays`, `returnFees` (free vs paid), `shippingDetails` (free shipping vs cobrado) e `priceValidUntil` (promo time-bound) TÊM que bater com o que `promise-check.json` valida contra a config real da Shopify. Se a promise de free shipping só cobre US, o `shippingDestination` é US — não invente cobertura mundial. **O Schema é mais uma superfície onde a promise tem que ser verdade** (Gate 2 cobre isso na ETAPA 5; se o Schema diverge da config, o gate barra).
 - `availability` reflete o estoque real (`InStock`/`OutOfStock`/`PreOrder`).
-- `priceValidUntil`: só se há promo com data-fim FIXA real (mesma regra do countdown — Padrão 6; nunca rolling/evergreen).
+- `priceValidUntil`: só se há promo com data-fim FIXA real (mesma regra do countdown na seção Padrões — nunca rolling/evergreen).
 - `image`/`url`/`item` são URLs **absolutas** (`https://$STORE/...`), nunca relativas.
 
 ### 4.5.2 — Validar o JSON-LD (obrigatório antes de injetar)
@@ -295,9 +324,19 @@ for node in graph:
     if node.get("@type") == "BreadcrumbList":
         for li in node.get("itemListElement", []):
             if not str(li.get("item","")).startswith("http"): errors.append("Breadcrumb item não-absoluto")
+    if node.get("@type") == "FAQPage":  # RECOMENDADO (não bloqueia se ausente) — mas se existe, tem que ser válido
+        qs = node.get("mainEntity", [])
+        if not qs: errors.append("FAQPage sem mainEntity — OMITA o nó se a página não tem FAQ")
+        for q in qs:
+            if not q.get("name"): errors.append("FAQPage Question.name vazio")
+            if not (q.get("acceptedAnswer") or {}).get("text"): errors.append("FAQPage acceptedAnswer.text vazio")
+if "FAQPage" not in types:
+    print("AVISO: nó FAQPage ausente (RECOMENDADO quando a página tem section faq — a 07e audita isso)")
 if errors: print("\n".join(errors)); raise SystemExit(1)
 print("JSON-LD válido:", ", ".join(sorted(types)))
 ```
+
+Required = **Product + BreadcrumbList** (a validação barra sem eles). **FAQPage é RECOMENDADO**: não bloqueia se ausente (página sem FAQ existe), mas quando a página TEM section faq o nó deve estar presente e com as perguntas idênticas às da página — a 07e (agentic readiness) audita exatamente isso.
 
 Falhou → corrija (preencher campo de fonte real, ou OMITIR o nó que não tem dado) e revalide. Não injete JSON-LD que não passou.
 Validação externa adicional recomendada ao membro (não bloqueante): colar o `product-schema.json` no [Google Rich Results Test](https://search.google.com/test/rich-results) e no [Schema.org validator](https://validator.schema.org/) depois do deploy.
@@ -352,20 +391,36 @@ Os dois gates da rule `pre-launch-gates.md` rodam sobre a copy injetada ANTES do
 
 ### GATE 1 — Ad-flag compliance
 
-Rode sobre TODA a copy injetada nas sections/template:
+Consolide TODA a copy consumidor-final do template JSON (settings + blocks + agent-facts) num arquivo e rode a CLI canônica (rule `pre-launch-gates.md`):
 ```bash
+# 1. salvar a copy consolidada
+#    → workspace/[produto]/07-page/staging/gate1-copy.md
+# 2. rodar o gate
 python3 .claude/lib/compliance-preflight/run.py \
-  --input "<toda a copy consumidor-final do template JSON>" \
-  --config .claude/lib/compliance-preflight/red_flags.json \
-  --schema .claude/lib/compliance-preflight/output-schema.json
+  --file workspace/${PRODUTO}/07-page/staging/gate1-copy.md \
+  --vertical <manifest.product_vertical> \
+  --stage pre_page \
+  --json
 ```
-Decisão: `critical` → **BLOCK** (apresenta `rewrite_suggestion`, pede revisão). `high` → BLOCK por default, aplica rewrite automático e re-roda; se passar (low/medium), prossegue. `medium` → WARN (loga em `workspace/[produto]/compliance-warnings.json`, notifica). `low` → PASS.
+Decisão pelo `overall_verdict` do JSON: `critical` → **BLOCK** (apresenta as flags com suas `rewrite_suggestions[]`, pede revisão). `warning` → BLOCK por default: aplica as `rewrite_suggestions[]` e **re-roda o check**; se virar `pass`, prossegue; se continuar `warning`/`critical`, loga em `workspace/[produto]/compliance-warnings.json` e o deploy só segue com decisão explícita do membro. `pass` → PASS.
 
 Também cheque: zero travessão em headlines, ≤2 em copy longa (rule 8a); zero emoji na UI da página (rule 7 — ícones SVG).
 
 ### GATE 2 — Promise ↔ Config
 
-Pra cada promise na copy/página (free shipping, "90-day money-back", "Use code XXXX", "Limited time — ends [date]", "Rated 4.X by N", "Made in [country]", "FDA cleared"), valide contra a config real da loja Shopify (shipping zones, policy pages, discount codes, review app, regulatório). Output em `workspace/[produto]/promise-check.json`. `fail ≥ 1` → **BLOCK deploy** com `fix` sugerido (ajustar copy OU ajustar config — membro escolhe, re-valida). `warn` → membro decide. Todos `pass` → prossegue.
+Pra cada promise na copy/página (free shipping, "90-day money-back", "Use code XXXX", "Limited time — ends [date]", "Rated 4.X by N", "Made in [country]", "FDA cleared"), valide contra a config real da loja Shopify. Output em `workspace/[produto]/promise-check.json`. `fail ≥ 1` → **BLOCK deploy** com `fix` sugerido (ajustar copy OU ajustar config — membro escolhe, re-valida). `warn` → membro decide. Todos `pass` → prossegue.
+
+**Mecânica executável por tipo de promise** (a skill só tem credencial de theme CLI — não assuma acesso Admin API que não existe; registre em cada item do `promise-check.json` o `method` que validou):
+
+| Promise | Método de validação | `method` |
+|---|---|---|
+| Garantia/returns ("90-day money-back") | `curl -s https://$STORE/policies/refund-policy` e conferir os dias declarados | `policy_page_curl` |
+| Free shipping / threshold | Perguntar ao membro com screenshot de Settings → Shipping (starter), OU Admin API `deliveryProfiles` se houver token de app (Dev Dashboard + client_credentials) conectado | `member_screenshot` / `admin_api` |
+| Discount code ("Use code XXXX") | Screenshot de Discounts no admin, OU Admin API discount codes se houver token | `member_screenshot` / `admin_api` |
+| Rating ("Rated 4.X by N") | Números reais da review app (Judge.me/Loox/Yotpo — painel ou API dela) | `review_app` |
+| Regulatório ("Made in", "FDA cleared") | Confirmação documentada do membro + artefato (doc/link) | `member_confirmation` |
+
+Sem método disponível pra um item → o item fica `warn` com nota "não-verificável agora" e o membro decide — NUNCA marcar `pass` sem verificação real (gate que "assume pass" é teatro).
 
 O **JSON-LD e o bloco agent-facts (ETAPA 4.5)** são superfícies de promise adicionais: confira que `merchantReturnDays`/`returnFees`, `shippingDetails`, `availability`, `priceValidUntil`, `price` e `aggregateRating` do Schema batem com a config real e com `promise-check.json`. Schema divergente da config = structured-data fraudulento (manual action no Google) → trate como `fail` no gate.
 
@@ -378,9 +433,11 @@ O **JSON-LD e o bloco agent-facts (ETAPA 4.5)** são superfícies de promise adi
 ### 6.1 Shopify CLI + detecção da loja
 
 ```bash
-which shopify && shopify --version
+which shopify && shopify version
 ```
 Se não instalado, instrua (`brew install shopify-cli` ou `npm i -g @shopify/cli @shopify/theme`) e **ABORTE** até confirmar.
+
+**Logue a versão no deploy-report.** O Shopify CLI 4.x (mai/2026+) se **auto-atualiza** via package manager entre sessões e removeu comandos legados (`theme serve` → `theme dev`). Se um deploy que funcionava ontem quebrar hoje com "command not found"/flag inválida, o primeiro suspeito é upgrade automático da CLI — cheque o changelog do release antes de debugar o tema. (Os comandos desta skill — `push/pull/duplicate/list/publish` com `--nodelete`/`--allow-live`/`--json` — continuam válidos no 4.x.)
 
 Detecte `STORE`: leia `manifest.json` (`product_url`/`store_url`), extraia `.myshopify.com`. Se custom domain ou ausente, pergunte: "Qual seu store handle `.myshopify.com`?". Todos os `shopify theme ...` usam `--store "$STORE"`.
 
@@ -400,19 +457,27 @@ shopify theme pull --theme "$NEW_THEME_ID" --store "$STORE" --path "$THEME_DIR" 
 ```
 > `--nodelete` protege arquivos locais recém-criados. No iteration loop, SEMPRE pull antes de re-push pra não sobrescrever settings que o membro mexeu no theme editor.
 
-### 6.4 Instalar arquivos gerados + marker (Regra 4)
+### 6.4 Instalar arquivos gerados + marker `data-aura-build` (Regra 4)
 
 ```bash
 cp "$STAGING_DIR"/sections/page-"$PRODUTO"-*.liquid "$THEME_DIR"/sections/
-[ -d "$STAGING_DIR/blocks" ] && [ "$(ls -A "$STAGING_DIR"/blocks 2>/dev/null)" ] && cp "$STAGING_DIR"/blocks/*.liquid "$THEME_DIR"/blocks/ 2>/dev/null
 mkdir -p "$THEME_DIR"/templates
 cp "$STAGING_DIR"/templates/page."$PRODUTO".json "$THEME_DIR"/templates/
 ```
-Insira o marker único `{%- comment -%}AURA-PUSH-MARKER-<timestamp>{%- endcomment -%}` no topo da section hero antes do push (verificação pós-push).
 
-### 6.5 Push (Regra 3 — `--allow-live` + `--nodelete`)
+Marker de verificação de push: **atributo de dados no elemento raiz da section hero** (comentário Liquid NÃO renderiza no HTML — jamais serviria pra verificar). Compute e injete:
 
-Fluxo padrão = cópia unpublished (`NEW_THEME_ID`). `--allow-live` só quando o membro explicitamente quer push no tema LIVE.
+```bash
+HASH8=$(shasum -a 256 "$THEME_DIR/sections/page-${PRODUTO}-hero.liquid" | cut -c1-8)
+# adicionar ao elemento raiz do markup da section hero (a tag mais externa, fora do schema):
+#   data-aura-build="${PRODUTO}-${HASH8}"
+```
+
+O atributo é inerte, identifica o build, e **fica no arquivo** (não há re-push de limpeza; a cada re-compile do hero, recalcule o hash). É o mesmo mecanismo da `shopify-theme-safety.md` Regras 4/5.
+
+### 6.5 Push (Regra 3 — `--nodelete`; `--allow-live` só no tema live)
+
+Fluxo padrão = cópia unpublished (`NEW_THEME_ID`). `--allow-live` só quando o push é no tema LIVE (ex: hotfix pós-publicação).
 ```bash
 shopify theme push --theme "$NEW_THEME_ID" --store "$STORE" --path "$THEME_DIR" --nodelete --json
 # push no LIVE (exceção, com backup já feito em 6.2):
@@ -420,30 +485,65 @@ shopify theme push --theme "$NEW_THEME_ID" --store "$STORE" --path "$THEME_DIR" 
 ```
 Leia o `--json` procurando `"errors"` (não só `"warning"`). Resolva erro por erro (tabela de debug abaixo).
 
-### 6.6 Marker verification (Regra 4) — NUNCA pull pós-push não-verificado
+### 6.6 Criar a página no admin (pré-requisito da verificação)
+
+`shopify page create` NÃO existe na CLI — a página é criada uma vez, manualmente:
+
+> "Abre **Admin → Online Store → Pages → Add page**. Título: `[nome do produto]`. **Confere que o handle (final da URL) ficou exatamente `[produto]`** (edita em 'Edit website SEO' se o Shopify gerou outro). Pode deixar o template default por enquanto — a atribuição do template vem depois da publicação. Salva e me avisa."
+
+- Se houver Admin API token/MCP conectado (`mcp__shopify__*`), crie via `pageCreate` em vez de pedir ao membro.
+- No iteration loop (página já existe), pule este passo.
+- Enquanto o tema não é publicado, o template `page.[produto]` não aparece no dropdown do admin Pages (só lista templates do tema LIVE) — por isso o preview usa `?view=[produto]`, que força o template alternativo.
+
+### 6.7 Marker verification (Regra 4) — NUNCA pull pós-push não-verificado
 
 ```bash
-curl -s "https://$STORE/products/<handle>?preview_theme_id=$NEW_THEME_ID" | grep AURA-PUSH-MARKER
+curl -s "https://$STORE/pages/$PRODUTO?preview_theme_id=$NEW_THEME_ID&view=$PRODUTO" | grep data-aura-build
 ```
-- Marker encontrado → push OK. Remova o marker do arquivo local e re-push (limpeza).
-- Marker ausente → push rejeitado silenciosamente (theme lock? rate limit 429? compile error?). Diagnostique pela Regra 5 ANTES de qualquer pull. **Nunca pull depois de push não-verificado** (o tema remoto antigo sobrescreveria o trabalho local).
+- Marker encontrado com o hash atual → push OK.
+- Página retorna 404 → a página não foi criada (volte ao 6.6) — NÃO é falha de push, não faça rollback.
+- Página 200 mas marker ausente (ou hash ANTIGO) → push rejeitado silenciosamente (theme lock? rate limit 429? compile error? arquivo stale?). Diagnostique pela Regra 5 da `shopify-theme-safety.md` ANTES de qualquer pull. **Nunca pull depois de push não-verificado** (o tema remoto antigo sobrescreveria o trabalho local).
 
-### 6.7 Smoke test (Regra 7) — antes de dizer "tá no ar"
+### 6.8 Smoke test (Regra 7) — antes de dizer "tá no ar"
 
 ```bash
-curl -sI "https://$STORE/pages/$PRODUTO?preview_theme_id=$NEW_THEME_ID"   # esperar 200
-curl -s  "https://$STORE/pages/$PRODUTO?preview_theme_id=$NEW_THEME_ID" | grep -E "(404|500|Liquid error)"   # esperar zero
+curl -sI "https://$STORE/pages/$PRODUTO?preview_theme_id=$NEW_THEME_ID&view=$PRODUTO"   # esperar 200
+curl -s  "https://$STORE/pages/$PRODUTO?preview_theme_id=$NEW_THEME_ID&view=$PRODUTO" | grep -E "(500|Liquid error)"   # esperar zero
 curl -sI "https://$STORE/cart.js"   # esperar 200
 ```
-Se qualquer smoke falha → rollback automático pro backup duplicado (Regra 6) e reporte antes de tentar de novo (ES4 oferece paths alternativos).
+- 404 aqui = página não criada no admin (6.6) — instrução ao membro, NÃO rollback.
+- 500/`Liquid error` no corpo, ou `cart.js` fora do ar → falha real: rollback pro backup duplicado (Regra 6) e reporte antes de tentar de novo (ES4 oferece paths alternativos).
 
-### 6.8 Preview links
+### 6.9 Preview links + aprovação do membro
 
 ```
 Theme editor: https://$STORE/admin/themes/$NEW_THEME_ID/editor?template=page.$PRODUTO
-Storefront:   https://$STORE/pages/$PRODUTO?preview_theme_id=$NEW_THEME_ID
+Storefront:   https://$STORE/pages/$PRODUTO?preview_theme_id=$NEW_THEME_ID&view=$PRODUTO
 ```
-> O dropdown "Theme template" do admin Pages só lista templates do tema LIVE. Como `page.[produto]` está na cópia unpublished, use o theme editor direto (sempre funciona) ou `?view=[produto]` no storefront.
+O membro revisa o preview (é o gate humano antes do go-live). Iterou? Volte ao iteration loop. Aprovou? Siga pro 6.10.
+
+### 6.10 PUBLISH (go-live — só com aprovação explícita)
+
+Sem este passo a página vive pra sempre num tema unpublished: a 07d editaria o tema errado e a Skill 10 mandaria tráfego pago pra uma URL 404. O fluxo:
+
+1. **Confirmação explícita** — publicar troca o tema da loja INTEIRA, não só a página: "Preview aprovado. Posso publicar o tema `[nome]`? Isso torna ele o tema live da loja (a página entra no ar em `https://$STORE/pages/$PRODUTO`)."
+2. **Backup do live atual** (mais um rollback point além do 6.2):
+   ```bash
+   shopify theme duplicate --theme "$LIVE_THEME_ID" --name "BACKUP-$(date +%Y%m%d)-pre-publish" --store "$STORE" --force --json
+   ```
+3. **Publicar:**
+   ```bash
+   shopify theme publish --theme "$NEW_THEME_ID" --store "$STORE"
+   ```
+4. **Atribuir o template à página** (agora o dropdown lista): "Admin → Pages → `[produto]` → Theme template → seleciona `[produto]` → Save." Confirme com `curl -sI "https://$STORE/pages/$PRODUTO"` (200) + grep do `data-aura-build` na URL pública.
+5. **Gravar no manifest** (contrato lido pela 07d — tema onde a página vive — e pela Skill 10 — URL de destino da campanha):
+   ```json
+   "storefront": { "theme_id": "<NEW_THEME_ID>", "page_url": "https://<STORE>/pages/<produto>", "published_at": "<ISO-8601>" }
+   ```
+
+Se o membro NÃO quiser publicar ainda (loja em construção), tudo bem — mas deixe explícito: "A página só existe no preview. Antes da Skill 10 (ads), a gente precisa publicar — a campanha usa a URL pública do `manifest.storefront.page_url`." NÃO grave `manifest.storefront` sem publicação (a 10 bloqueia sem ele, que é o comportamento certo).
+
+> Aviso anti-drift: depois de publicado, NÃO edite as sections da Aura via Sidekick/AI do theme editor — isso cria drift silencioso entre o design aprovado e o que está no ar. Ajustes passam pelo iteration loop desta skill.
 
 ---
 
@@ -451,28 +551,30 @@ Storefront:   https://$STORE/pages/$PRODUTO?preview_theme_id=$NEW_THEME_ID
 
 ### Reports
 
-Salve `07-page.md` (fonte pra AI) + `07-page.html` (humano) + `07-deploy-report.json`. O `.html` usa `.claude/templates/aura-report-template.html` (CSS inline, self-contained) e **abre com o bloco SVG da logo copiado LITERAL de `.claude/templates/aura-logo-snippet.html`** (rule 6b — NUNCA texto; o 07c/deploy antigo não tinha logo, agora tem). Componentes Aura, responsivo mobile.
+Salve `page-report.md` (fonte pra AI) + `page-report.html` (humano) + `deploy-report.json`. O `.html` usa `.claude/templates/aura-report-template.html` (CSS inline, self-contained) e **abre com o bloco SVG da logo copiado LITERAL de `.claude/templates/aura-logo-snippet.html`** (rule 6b — NUNCA texto; o 07c/deploy antigo não tinha logo, agora tem). Componentes Aura, responsivo mobile.
 
-Conteúdo do `.md`/`.html`: plano de sections + justificativa (de `07-plan.json`), brand signals usados (source), design system, variante aprovada, lista de arquivos com paths absolutos, settings expostos por section (resumo), **resumo da camada GEO** (nós Schema.org gerados + fatos do bloco agent-facts + o que ganha: discovery/citação por AI search, não venda-no-chat — seja honesto com o membro), preview links, resultado dos gates (compliance + promise-check), issues conhecidas, histórico de iterações.
+Conteúdo do `.md`/`.html`: plano de sections + justificativa (de `page-plan.json`), brand signals usados (source), design system, variante aprovada, lista de arquivos com paths absolutos, settings expostos por section (resumo), **resumo da camada GEO** (nós Schema.org gerados + fatos do bloco agent-facts + o que ganha: discovery/citação por AI search, não venda-no-chat — seja honesto com o membro), preview links, resultado dos gates (compliance + promise-check), issues conhecidas, histórico de iterações.
 
-`07-deploy-report.json`:
+`deploy-report.json`:
 ```json
 {
   "deploy_id": "<uuid>", "produto": "[slug]", "store": "<STORE>",
   "live_theme_id": "<LIVE_THEME_ID>", "theme_id": "<NEW_THEME_ID>",
+  "cli_version": "<output de shopify version>",
   "preview_url_editor": "https://<STORE>/admin/themes/<NEW_THEME_ID>/editor?template=page.<produto>",
-  "preview_url_storefront": "https://<STORE>/pages/<produto>?preview_theme_id=<NEW_THEME_ID>",
-  "sections_deployed": [{"id": "hero", "type": "page-<produto>-hero", "blocks_count": 7}],
-  "geo": {"jsonld_types": ["Product", "Offer", "AggregateRating", "BreadcrumbList"], "jsonld_validated": true, "agent_facts_block": true, "schema_path": "workspace/<produto>/07-page/staging/geo/product-schema.json"},
+  "preview_url_storefront": "https://<STORE>/pages/<produto>?preview_theme_id=<NEW_THEME_ID>&view=<produto>",
+  "sections_deployed": [{"id": "hero", "type": "page-<produto>-hero", "blocks_count": 0}, {"id": "benefits", "type": "page-<produto>-benefits", "blocks_count": 4}],
+  "geo": {"jsonld_types": ["Product", "Offer", "AggregateRating", "BreadcrumbList", "FAQPage"], "jsonld_validated": true, "agent_facts_block": true, "schema_path": "workspace/<produto>/07-page/staging/geo/product-schema.json"},
   "gates": {"compliance": "pass", "promise_check": "pass"},
   "validation_passed": true, "validation_errors": [], "push_warnings": [],
   "marker_verified": true, "smoke_test_passed": true,
+  "published": false, "page_url": null,
   "staging_dir": "workspace/<produto>/07-page/staging",
   "deployed_at": "2026-MM-DDTHH:MM:SSZ"
 }
 ```
 
-Atualize `manifest.json` adicionando `07b-page-build` a `skills_completed`.
+Atualize `manifest.json`: adicione `07b-page-build` a `skills_completed`; se ainda ausente, grave `store_url`; se o 6.10 publicou, o bloco `storefront` (`theme_id`/`page_url`/`published_at`) já foi gravado lá — confira que `published`/`page_url` do deploy-report batem com ele.
 
 Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug` — atualiza o `ABRIR-AQUI.html`).
 
@@ -481,22 +583,24 @@ Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.p
 > "Página compilada, validada, gates passados e deployada (preview acima). Como o Liquid foi gerado deterministicamente do HTML que você aprovou, o theme editor é pixel-idêntico ao que você viu. Quer ajustar? Pode pedir 'hero mais apertado', 'cores mais escuras', 'features em 2 colunas', 'adicionar countdown na oferta'. Refino sem regenerar do zero."
 
 Pra ajustes:
-- **Spacing/layout/cor** → ajuste o HTML aprovado (`design/page.html`) e re-rode SPLIT→COMPILE só da section afetada, OU edite o `{% stylesheet %}`/template JSON direto → revalide → re-push.
-- **Estrutural** (novos blocks/sections) → re-COMPILE + re-POPULATE → validação de blocks (ETAPA 4) → push.
+- **Spacing/layout/cor** → ajuste o HTML aprovado (`design/page.html`) e re-rode SPLIT→COMPILE só da section afetada (Modo C single-section — o merge do `--emit-template-json` preserva a posição no `order[]`), OU edite o `{% stylesheet %}`/template JSON direto → revalide → re-push.
+- **Estrutural** (novos blocks/sections) → re-COMPILE (uma invocação, com `--emit-template-json`) → validação de blocks (ETAPA 4) → push.
+- **Re-compile apaga renames**: o conversor regenera o `.liquid` do zero — depois de qualquer re-COMPILE, re-aplique o rename semântico daquela section (ETAPA 2) e recalcule o hash do `data-aura-build` se foi o hero.
 - **Preço/rating/política mudou** → regenere o `product-schema.json` e o bloco agent-facts (ETAPA 4.5), revalide o JSON-LD, e confira que ainda bate com a config (Gate 2) antes do re-push. Schema e config nunca podem divergir.
+- **FAQ mudou (pergunta adicionada/removida/reescrita na section faq)** → regenere o nó FAQPage do `product-schema.json` e revalide — as Q&A do Schema têm que continuar idênticas às da página.
 - **SEMPRE pull antes de re-push** (Regra 1) pra preservar settings que o membro mexeu no editor.
 - **SEMPRE** revalide com `shopify-plugin:shopify-liquid` + rode o snippet de validação do template JSON antes de cada push.
-- Atualize `07-deploy-report.json` (`iterations: [...]` com timestamp + mudanças). Max 3 iterações sem progresso → escalate.
+- Atualize `deploy-report.json` (`iterations: [...]` com timestamp + mudanças). Max 3 iterações sem progresso → escalate.
 
 ### Mensagem final
 
-> "Page-build completo. Próximo passo: 'tracking' (07c-tracking-setup — pixel + CAPI antes dos criativos), ou 'checkout' (07d-checkout-aov), ou 'creatives' (skill 08)."
+> "Page-build completo. [Se publicou: 'Página no ar em `<page_url>`.' / Se não: 'Página no preview — publica quando você aprovar; sem publicar, a campanha da Skill 10 não tem URL de destino.'] Próximo passo: 'tracking' (07c-tracking-setup — pixel + CAPI antes dos criativos), depois 'checkout' (07d-checkout-aov), depois 'creatives' (skill 08)."
 
 ---
 
 ## Self-audit silencioso (rule post-task-self-audit) — deep audit (skill peso crítico)
 
-Antes de declarar concluído, rode os 5 gates expandidos e corrija inline (sem mencionar): cada section do `section_order` virou um `.liquid` validado; template JSON tem `blocks{}` não-vazio em TODA section; copy injetada veio de `06` (não inventada); cores das section settings batem com `design-tokens.json`; **JSON-LD da ETAPA 4.5 valida (Product + BreadcrumbList no mínimo), todo campo vem de fonte real (nenhum rating/preço inventado — nó omitido se sem dado), e Schema + agent-facts + config são a MESMA verdade (envio/retorno/garantia/rating/preço)**; GATE 1 e GATE 2 passaram (sem override silencioso), incluindo o bloco agent-facts na varredura de compliance; marker verificado + smoke test OK antes de declarar "no ar"; logo SVG presente no `07-page.html`. Surface só o que exige decisão (gate `critical` sem rewrite seguro, promise `fail` que precisa escolha copy-vs-config, rating do Schema que diverge da review app e precisa escolha de qual fonte vale).
+Antes de declarar concluído, rode os 5 gates expandidos e corrija inline (sem mencionar): cada section do `section_order` virou um `.liquid` validado; template JSON tem `blocks{}` + `block_order[]` não-vazios em toda section **block-based** (schema define blocks) — sections monolíticas legitimamente ficam com `blocks: {}` (NÃO "corrija" injetando blocks fantasma); copy injetada veio de `06` (não inventada); cores das section settings batem com `design-tokens.json`; blocks `pricing_tier` expõem `qty` + `variant_id` (contrato da recipe deploy-shopify-product); **JSON-LD da ETAPA 4.5 valida (Product + BreadcrumbList no mínimo), todo campo vem de fonte real (nenhum rating/preço inventado — nó omitido se sem dado), e Schema + agent-facts + config são a MESMA verdade (envio/retorno/garantia/rating/preço)**; GATE 1 e GATE 2 passaram (sem override silencioso), incluindo o bloco agent-facts na varredura de compliance; marker `data-aura-build` verificado (hash atual) + smoke test OK antes de declarar "no ar"; se publicou, `manifest.storefront` gravado com theme_id/page_url/published_at; logo SVG presente no `page-report.html`. Surface só o que exige decisão (gate `critical` sem rewrite seguro, promise `fail` que precisa escolha copy-vs-config, rating do Schema que diverge da review app e precisa escolha de qual fonte vale, publicar ou não o tema).
 
 ---
 
@@ -506,20 +610,32 @@ Os ativos abaixo vinham da skill antiga `page-sections`. Aqui são **referência
 
 ## Padrões aplicados pelo conversor (por código, determinísticos)
 
-O `liquid-converter.py` Modo C aplica estes 6 padrões automaticamente. Conheça-os pra validar que o output está correto:
+O que o `liquid-converter.py` (v3) REALMENTE aplica — valide o output contra esta lista, e NÃO afirme capacidade fora dela:
 
-- **Padrão 1 + 1.5 (CRÍTICO)** — toda cor extraída vira `color` setting E é injetada INLINE no root da section via `style="--c-x: {{ section.settings.color_x | escape }}; ..."` (NUNCA só em `:root` do stylesheet, senão o theme editor não aplica). `| escape` em TODA interpolação dentro de `style=""` (até numérico) — sem isso, aspas internas (`"Playfair Display", serif`) fecham o atributo e órfãm as vars seguintes (página renderiza sem radius/shadow/fonte, silenciosamente).
-- **Padrão 1.6 + 5 (everything-editable)** — `box-shadow`/`border-radius`/`font-size`/`font-family` que vêm de token viram `var(--x)` + setting, com migração automática de usages hardcoded no CSS (grep/replace). Exceções: focus rings (`0 0 0 3px`), mono fonts contextuais, `clamp()` em fluids.
-- **Padrão 2 (ícones, 3 camadas)** — todo block com icon: preset enum + `icon_custom_svg` textarea (override) + opção `none`. Markup condicional: custom SVG > preset > none.
-- **Padrão 3 (auditoria de cores)** — cada cor visível tem color setting próprio (média 15-30 por section). Não economizar.
-- **Padrão 4 (CTAs de offer)** — pricing/offer usam `<form action="/cart/add" method="post">` nativo com settings `variant_id`/`quantity`/`after_add`/`cta_fallback_url` (+ Subscribe & Save), NÃO `<a href>`. Form POST dispara `cart_updated` no Shopify Web Pixel → propaga AddToCart pra Meta Pixel/CAPI/GA4/TikTok automaticamente. `<a href="/cart/add?id=X">` (GET) quebra essa cascade — pixel cego.
-- **Padrão 6 (countdown/subscribe)** — `countdown_banner` (limit 1) com deadline FIXO real (sale end/launch/drop) ou `compare_at_price`; NUNCA rolling per-user nem reset evergreen (Meta detecta fake scarcity → disapproval). Subscribe & Save: `<input type="radio" name="selling_plan" value="ID">` do app (Shopify Subscriptions native / Loop / Recharge / Skio / Seal).
+1. **Texto → settings (everything-editable)** — toda tag FOLHA com texto direto vira setting (inclui `<div class="price">$49</div>`, eyebrows em div). Texto misto com inline tags (`<em>/<strong>/<br>`) vira `inline_richtext` (tags preservadas, attrs removidos); `<p>` longo (>80 chars) vira `richtext`. Dedup: texto idêntico reutiliza o MESMO setting (2 CTAs "Buy Now" = 1 `cta_label`).
+2. **Cores (CRÍTICO)** — toda cor extraída vira `color` setting E é injetada INLINE no root da section via `style="--c-x: {{ section.settings.color_x | escape }}; ..."` (NUNCA só em `:root` do stylesheet, senão o theme editor não aplica). `| escape` em TODA interpolação dentro de `style=""` — sem isso, aspas internas (`"Playfair Display", serif`) fecham o atributo e órfãm as vars seguintes. O merge respeita `style=""` existente no root.
+3. **Tokens de design → settings** — `box-shadow`/`border-radius`/`font-size`/`font-family` viram `var(--x)` + setting, com migração automática de usages hardcoded no CSS (migrados ANTES das cores — shadow com hex vira 1 setting de shadow, não setting morto).
+4. **Imagens → `image_picker`** + selects de aspect-ratio e fit, com `image_url | image_tag` responsivo.
+5. **CTA de compra → form `/cart/add` nativo** (detecção por classe/texto/href) com settings `variant_id`/`quantity`/`after_add` e fallback URL (degrada pra `<a>` quando variant vazio). Form POST dispara `cart_updated` no Shopify Web Pixel → propaga AddToCart pra Meta Pixel/CAPI/GA4/TikTok. `<a href="/cart/add?id=X">` (GET) quebra essa cascade — pixel cego.
+6. **Blocks inline com copy real por instância** — padrão repetido (cards/tiers/reviews/faq) vira block LOCAL no schema da section (`{% for block in section.blocks %}{% case block.type %}`), TODOS os itens convertidos com os defaults DAQUELE item (FAQ de 5 = 5 instâncias distintas). Irmãos fora do padrão (ex: cta-row no fim do grid) são preservados no markup.
+7. **CSS por section** — `:root/html/body` rescopados pro namespace; o `page.css` é FILTRADO pras regras que a section usa (sem N cópias do CSS no tema).
+8. **Schema names ≤ 25 chars** (section e blocks) — automático, com validação interna (`validate_shopify_schema`: types válidos, ids únicos, labels).
+9. **`<script>` removidos COM warning** listando cada um — reimplementar a interação de forma nativa (`<details>` pra FAQ) em vez de perder silenciosamente. `<svg>` grandes viram placeholder.
+
+**O que o conversor NÃO faz (passo manual do Claude quando a página precisar — nunca afirmar como automático):**
+
+- **Ícones em 3 camadas** (preset enum + `icon_custom_svg` + `none`) — SVG >500 chars vira placeholder, SVG pequeno fica inline. Se o design pede ícones editáveis, o Claude adiciona os settings à mão.
+- **`countdown_banner` / Subscribe & Save / selling plan** — não gerados. Se a oferta pede countdown, implementação manual respeitando a regra: deadline FIXO real (sale end/launch/drop), NUNCA rolling per-user nem reset evergreen (Meta detecta fake scarcity → disapproval). Subscribe & Save: `<input type="radio" name="selling_plan" value="ID">` do app de subscription.
+- **"Regra dos 4 headers" e `custom_css` por block** (`#pu-{{ block.id }}`) — não gerados; adicionar manualmente só se o membro precisar de override fino por block.
+- **Texto solto misturado com sub-árvores** (`<div>Texto <div>...</div></div>`) fica hardcoded — reestruture o HTML no design se precisar editável.
+- **Cores em `style=""` inline do HTML de origem** não são tokenizadas (só no CSS).
+- **Validação semântica de Liquid** — o schema JSON é validado por código, mas rodar `shopify-plugin:shopify-liquid` em cada arquivo continua obrigatório (ETAPA 3).
 
 ## Catálogo de Block Types
 
-Este catálogo é o **vocabulário de conteúdo** que o conversor reconhece. Realização concreta: conteúdo de instância ÚNICA (1 eyebrow, 1 heading, 1 CTA num hero) vira **section setting** (grupo Content, editável); conteúdo REPETÍVEL (vários cards/tiers/reviews/faq items) vira **block** (`{% case block.type %}`, arrastável/reordenável). Os "universais" abaixo são tipicamente settings quando aparecem 1×; os "type-specific" são tipicamente blocks (repetem por natureza).
+Este catálogo é o **vocabulário de conteúdo** pro rename semântico (ETAPA 2) — NÃO é a lista de settings que o conversor emite (ele deriva os settings do markup real de cada item; os "Settings-chave" abaixo são referência do que costuma existir, e `custom_css` é adição manual opcional, nunca automática). Realização concreta: conteúdo de instância ÚNICA (1 eyebrow, 1 heading, 1 CTA num hero) vira **section setting** (grupo Content, editável); conteúdo REPETÍVEL (vários cards/tiers/reviews/faq items) vira **block** (`{% case block.type %}`, arrastável/reordenável). O `{% case %}` gerado contém só o(s) type(s) do padrão repetido detectado — os "universais" NÃO são gerados como block types; aparecem como settings quando o conteúdo é único.
 
-**Universais (conteúdo estrutural — settings quando único, block `{% when 'X' %}` quando repetido):**
+**Universais (conteúdo estrutural — settings quando único; vocabulário de nomeação quando o padrão repetido cai numa dessas categorias):**
 
 | Block | Uso | Settings-chave |
 |---|---|---|
@@ -540,7 +656,7 @@ Este catálogo é o **vocabulário de conteúdo** que o conversor reconhece. Rea
 **Type-specific (além dos universais):**
 - Benefits → `benefit_card` (num/icon + title + body + accent)
 - Proof / social-proof → `review_card` (stars + quote + author + avatar + featured)
-- Offer → `pricing_tier` (name + price + strap + features richtext + CTA form `/cart/add` + badge + popular + image) · `countdown_banner` (limit 1)
+- Offer → `pricing_tier` (name + price + strap + features richtext + CTA form `/cart/add` + **`qty` + `variant_id`** — contrato da recipe deploy-shopify-product + badge + popular + image) · `countdown_banner` (limit 1; implementação manual — o conversor não gera)
 - Guarantee → `promise_item` (title + body + accent + icon)
 - FAQ → `faq_item` (question + answer richtext + open_by_default) — usar `<details><summary>` nativo
 - Mechanism → `mechanism_card` / `ingredient_card` / `process_step` / `science_card` (nomeie conforme o mecanismo real)
@@ -548,9 +664,9 @@ Este catálogo é o **vocabulário de conteúdo** que o conversor reconhece. Rea
 - Ingredients → `ingredient` (name + role + dosage + image)
 - How-it-works → `step` (number + title + description + image)
 
-**Regra dos 4 headers em todo block:** Content (o quê) · Style (como) · Spacing (onde) · Advanced (custom_css). Todo block emite `id="pu-{{ block.id }}"` + `<style>#pu-{{ block.id }} { {{ block.settings.custom_css }} }</style>` pra scoping.
+**Regra dos 4 headers (organização manual opcional):** Content (o quê) · Style (como) · Spacing (onde) · Advanced (custom_css com `id="pu-{{ block.id }}"` + `<style>` scoped). O conversor NÃO emite isso automaticamente — é padrão de organização pro Claude aplicar à mão quando um block precisa de controle fino.
 
-**Blocks inline no schema, NUNCA theme blocks em `/blocks/*.liquid`** com `{% content_for 'block' type: block.type %}` — o validator do Shopify bloqueia vars dinâmicas ("The 'id' argument should be a string"). O conversor gera inline.
+**Blocks inline no schema, NUNCA theme blocks em `/blocks/*.liquid`** com `{% content_for 'block' type: block.type %}` — o validator do Shopify bloqueia vars dinâmicas ("The 'id' argument should be a string"). O conversor gera inline (nenhum `blocks/*.liquid` é escrito; `--blocks-dir` é deprecado e ignorado).
 
 ## Limitações Shopify conhecidas (o conversor + validação respeitam)
 
@@ -568,7 +684,7 @@ Este catálogo é o **vocabulário de conteúdo** que o conversor reconhece. Rea
 12. Blocks inline (`{% case block.type %}`) passa; theme blocks em `/blocks/*.liquid` com `{% content_for 'block' %}` dinâmico FALHA.
 13. `inline_richtext` renderiza HTML no browser mas o preview editor pode mostrar raw — use `info` no setting.
 14. Custom Liquid em block: `type: "liquid"` (pré-renderiza no push); `type: "html"` é estático XSS-safe.
-15. Admin API: `shopify page create` não existe — o membro cria a página em Admin → Pages → Add page; a skill entrega o theme editor URL direto (`?template=page.[produto]`) que roda sem a página existir antes.
+15. `shopify page create` não existe na CLI — a criação da página é o passo 6.6 do DEPLOY (membro no admin, com handle exatamente `[produto]`, ou `pageCreate` via Admin API/MCP quando conectado). Sem a página criada, o storefront responde 404 (não é falha de push); o theme editor URL (`?template=page.[produto]`) roda mesmo sem a página existir.
 
 ## Debug — Quando validação ou push falha
 
@@ -583,8 +699,8 @@ Este catálogo é o **vocabulário de conteúdo** que o conversor reconhece. Rea
 | `The 'id' argument should be a string` | theme block dinâmico `{% content_for 'block' %}` | refatorar pra blocks inline `{% case block.type %}` |
 | `Section type 'X' does not refer to an existing section file` | template JSON referencia section não instalada | push a section antes; conferir ordem do `cp` |
 | Blocks aparecem vazios na preview | `blocks: {}` no template JSON | rodar o snippet de validação da ETAPA 4 |
-| Cor mudada no editor não aplica | CSS var hardcoded em `:root` em vez de inline no root | Padrão 1 (conversor injeta inline; se quebrou, re-COMPILE) |
-| Meta Pixel não registra AddToCart | CTA `<a href="/cart/add?id=X">` em vez de form POST | Padrão 4 (conversor gera form `/cart/add` nativo) |
+| Cor mudada no editor não aplica | CSS var hardcoded em `:root` em vez de inline no root | Padrão 2 da seção Padrões (conversor injeta inline; se quebrou, re-COMPILE) |
+| Meta Pixel não registra AddToCart | CTA `<a href="/cart/add?id=X">` em vez de form POST | Padrão 5 da seção Padrões (conversor gera form `/cart/add` nativo) |
 | Push trava esperando confirmação (tema LIVE) | falta `--allow-live` | adicionar flag |
 | `ERR_MODULE_NOT_FOUND @shopify/theme-check-common` | registry privado do plugin | `rm package-lock.json && npm install --registry=https://registry.npmjs.org/` |
 
@@ -627,8 +743,9 @@ A validação Liquid é parte do plugin Shopify AI Toolkit (`/plugin marketplace
 
 ## Referências cruzadas
 
-- **Skill anterior:** `07a-page-design` (gera o `design/page.html` aprovado + `design-tokens.json` + `07-plan.json` que esta skill consome)
-- **Conversor canônico:** `tools/design-clone/liquid-converter.py` (Modo C — flags `--html --css --type --output --blocks-dir --namespace --product-slug --emit-template-json --page-handle`)
+- **Skill anterior:** `07a-page-design` (gera o `design/page.html` aprovado + `design-tokens.json` + `page-plan.json` que esta skill consome)
+- **Conversor canônico:** `tools/design-clone/liquid-converter.py` (batch: `--batch <manifest.json> --emit-template-json`; Modo C: `--html --css --type --output --namespace --product-slug --emit-template-json --page-handle`; `--blocks-dir` é deprecado/ignorado; Modo B legacy exige `--allow-competitor-markup`)
+- **Contrato de publicação:** `manifest.storefront` (`theme_id`/`page_url`/`published_at`, gravado no 6.10) — a 07d opera no tema onde a página vive e a Skill 10 lê `page_url` como destino da campanha
 - **Próxima no fluxo:** `07c-tracking-setup` (pixel + CAPI antes dos criativos) → `07d-checkout-aov` → `08-creative-engine`
 - **Gate de launch:** `09-consistency-audit` (pré-requisito da skill 10, não do deploy da página)
-- **Camada GEO (ETAPA 4.5):** JSON-LD Schema.org (Product + Offer + AggregateRating + BreadcrumbList) de `04-offer-builder/dados.json` + `06-copy-engine/dados.json` + reviews, validado antes de injetar, mais o bloco agent-facts — pra citação por ChatGPT/Perplexity/Google AI Mode. Validação externa opcional pós-deploy: Google Rich Results Test + validator.schema.org.
+- **Camada GEO (ETAPA 4.5):** JSON-LD Schema.org (Product + Offer + AggregateRating + BreadcrumbList + FAQPage das perguntas reais) de `04-offer-builder/dados.json` + `06-copy-engine/dados.json` + reviews, validado antes de injetar, mais o bloco agent-facts — pra citação por ChatGPT/Perplexity/Google AI Mode. Validação externa opcional pós-deploy: Google Rich Results Test + validator.schema.org.

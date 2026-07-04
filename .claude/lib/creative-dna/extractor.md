@@ -2,13 +2,16 @@
 
 Usado pela Skill 08 imediatamente após gerar um briefing completo. Extrai features em formato padronizado e salva no registry.
 
-## Fluxo de invocação (a Skill 08 executa isso internamente)
+## Fluxo de invocação (a Skill 08 executa isso internamente — ETAPA 7.6)
 
 1. Depois de completar ETAPA 5 (briefings) e ETAPA 7.5 (compliance), pra cada criativo gerado:
 2. Rodar este prompt de extração abaixo
 3. Parse JSON response
-4. Salvar em `/workspace/[produto]/creative-dna/features-[creative-id].json`
-5. Invocar `python .claude/lib/creative-dna/registry.py add [creative-id] features-[creative-id].json --product [slug]`
+4. Salvar em `workspace/[produto]/creative-dna/features-[creative-id].json`
+5. Invocar (o positional `workspace/[produto]` vem PRIMEIRO; passar o caminho completo do features file):
+   ```
+   python3 .claude/lib/creative-dna/registry.py add workspace/[produto] [creative-id] workspace/[produto]/creative-dna/features-[creative-id].json --product [slug]
+   ```
 6. Silent — membro não vê
 
 ## PROMPT
@@ -18,12 +21,13 @@ Você é o Creative DNA Extractor. Leia o briefing do criativo abaixo e extraia 
 
 Schema: {conteúdo completo de feature_schema.json}
 
-Briefing do criativo: {conteúdo do 08-concept-XX.md ou script}
+Briefing do criativo: {conteúdo do concept-XX.md ou script}
 
 Contexto adicional:
 - Awareness level alvo (do market research): {awareness_dominant}
 - Funnel position (do próprio briefing): {TOF | MOF | BOF}
 - Compliance risk score (do checker.md rodado antes): {0-100}
+- Hook archetype declarado na geração (ETAPA 4.5.E da Skill 08): {id de archetypes.json}
 
 Retorne APENAS JSON neste formato (nenhum texto antes ou depois):
 
@@ -34,6 +38,7 @@ Retorne APENAS JSON neste formato (nenhum texto antes ou depois):
   "produced_at": "[ISO timestamp]",
 
   "hook_type": "[valor do enum]",
+  "hook_archetype": "[id do archetype declarado — enum de feature_schema.json]",
   "hook_duration_seconds": N,
   "hook_has_specific_number": true|false,
   "pain_agitation_position": "[enum]",
@@ -61,89 +66,31 @@ Retorne APENAS JSON neste formato (nenhum texto antes ou depois):
   "big_4_emotion_dominant": "[enum]"
 }
 
-Valores enum DEVEM vir do schema. Se impossível classificar, use "not_used" ou "none".
+Valores enum DEVEM vir do schema. Se impossível classificar, use "not_used" ou
+"none" (os enums onde isso é legítimo já contêm esses valores).
 Numerics: inferir do briefing (ex: contar números específicos, calcular cuts/s).
+avatar_age_depicted: 0 quando não há pessoa no criativo.
 ```
 
-## Integração na Skill 08 (patch a adicionar na ETAPA 7.5)
-
-Após o compliance check passar, adicionar:
+## Referência rápida da CLI do registry.py
 
 ```
-### ETAPA 7.6 — DNA Registry (silent)
-
-Pra cada criativo gerado:
-1. Ler .claude/lib/creative-dna/feature_schema.json (schema de features)
-2. Rodar extração INLINE (não invocar arquivo — Claude embute o prompt):
-   Claude olha o briefing do criativo + schema + contexto e gera JSON
-   conformante ao schema. Todos os enums DEVEM vir do schema; se Claude não
-   consegue classificar, usa 'not_used' ou 'none'.
-3. Validar JSON response contra feature_schema.json (checar enums + ranges
-   + campos obrigatórios). Se malformado, tentar 1 retry; se falhar de novo,
-   logar em /workspace/[produto]/creative-dna/extraction-errors.log e skip
-   esse criativo (não bloquear skill 08).
-4. Salvar features em /workspace/[produto]/creative-dna/features-[creative-id].json
-5. Invocar shell:
-   - test -f .claude/lib/creative-dna/schema.sql || abort
-   - python3 .claude/lib/creative-dna/registry.py init /workspace/[produto]
-     (idempotent — safe se já inicializado)
-   - python3 .claude/lib/creative-dna/registry.py add \
-       /workspace/[produto] [creative-id] \
-       /workspace/[produto]/creative-dna/features-[creative-id].json \
-       --product [produto-slug]
-
-Silent. Sem output pro membro.
-Se passo 5 falhar (schema.sql missing, DB locked, etc), logar em
-extraction-errors.log — mas não bloquear skill 08 OU avisar membro se persiste
-por 3 rodadas consecutivas.
+python3 .claude/lib/creative-dna/registry.py init workspace/[produto]
+python3 .claude/lib/creative-dna/registry.py add workspace/[produto] [creative-id] workspace/[produto]/creative-dna/features-[creative-id].json --product [slug]
+python3 .claude/lib/creative-dna/registry.py update workspace/[produto] [creative-id] workspace/[produto]/creative-dna/perf-[creative-id].json
+python3 .claude/lib/creative-dna/registry.py dna workspace/[produto] --product [slug]
+python3 .claude/lib/creative-dna/registry.py stats workspace/[produto] --product [slug]
+python3 .claude/lib/creative-dna/registry.py show workspace/[produto]
 ```
 
-## Integração na Skill 11 (patch a adicionar)
+`update` com creative_id inexistente sai com exit 1 e erro em stderr (typo de id
+nunca é no-op silencioso). `dna` com menos de 10 criativos medidos imprime
+`insufficient_data` e NÃO sobrescreve um dna-profile.json anterior válido.
 
-Quando Skill 11 roda análise de performance:
+## Integração nas Skills (já aplicada — fonte de verdade é cada skill)
 
-```
-### ETAPA X — DNA Update (silent)
+O pseudo-código de integração NÃO vive mais aqui (fonte dupla de verdade drifta):
 
-Pra cada criativo analisado:
-1. Compor performance JSON:
-   {
-     "cpa": X, "ctr": Y, "roas": Z, "spend": W,
-     "thumbstop_3s": A, "hold_15s": B,
-     "days_active": D,
-     "outcome": "winner" | "loser" | "neutral"
-   }
-2. Classificar outcome:
-   - winner: cpa < target × 0.8 E spend > $300 E decile_rank top 2
-   - loser: cpa > target × 1.5 OU killed before $100 spend
-   - neutral: tudo entre
-3. Salvar em /workspace/[produto]/creative-dna/perf-[creative-id].json
-4. Invocar registry.py update [creative-id] perf-[creative-id].json
-
-Se for a 10ª rodada (ou múltiplo de 10), rodar também:
-5. registry.py dna [slug] → atualiza dna-profile.json
-
-Silent.
-```
-
-## Integração na Skill 08 próxima rodada
-
-Antes de gerar briefings (ETAPA 3 ou 5):
-
-```
-### PRE-STEP — Carregar DNA aprendido
-
-Se existir /workspace/[produto]/creative-dna/dna-profile.json:
-1. Ler o profile
-2. Se total_creatives >= 10:
-   - Extrair top 5 features com maior delta winners vs losers
-   - Injetar como constraint no prompt de geração:
-
-   "Baseado em DNA de {N} criativos anteriores, priorizar:
-   - {feature_1}: {valor vencedor}
-   - {feature_2}: {valor vencedor}
-   - ...
-   Reservar 20% de variação pra novelty (não over-fit no DNA)."
-
-Se não existir ou total < 10: gerar normalmente sem bias.
-```
+- **Skill 08 — ETAPA 7.6 (DNA Registry Extraction)**: extração inline + validação contra o schema + `registry.py add`. Falha de extração loga em `workspace/[produto]/creative-dna/extraction-errors.log` sem bloquear a skill.
+- **Skill 11 — DNA Update**: compõe `perf-[creative-id].json`, classifica outcome (winner/loser/neutral) e roda `registry.py update`; a cada rodada com dados suficientes, `registry.py dna` atualiza o `dna-profile.json`.
+- **Skill 08 — PRE-STEP (DNA aprendido)**: se `workspace/[produto]/creative-dna/dna-profile.json` existe com `total_creatives >= 10`, injeta as top 5 features com maior delta winners vs losers como constraint de geração, reservando ~20% de variação pra novelty.

@@ -10,7 +10,7 @@ Membro tem o Refero MCP conectado E está rodando a skill **07a-page-design ETAP
 
 ## Como o membro conecta
 
-Tutorial completo nos passos do `Aura.html`/`Aura-en.html` (passo opcional na seção Aura Engine). Fluxo resumido:
+Tutorial completo nos passos do `docs/aura-setup-pt.html`/`docs/aura-setup-en.html` (passo opcional na seção Aura Engine). Fluxo resumido:
 
 **Claude Code (terminal):**
 ```bash
@@ -21,10 +21,9 @@ Opcional pra qualidade de busca:
 ```bash
 # Pra semantic search via embeddings (default cai pra BM25 keyword)
 export OPENAI_API_KEY="sk-..."
-
-# Pra Refero escrever DESIGN.md direto no workspace
-export REFERO_MCP_VAULT_DIR="$HOME/aura-engine/workspace"
 ```
+
+> **Não configure `REFERO_MCP_VAULT_DIR` apontando pra raiz de `workspace/`** — o layout canônico (`.claude/lib/workspace-index/workspace-layout.md`) não tem `DESIGN.md` solto na raiz (múltiplos produtos sobrescreveriam o mesmo arquivo, órfão do produto e invisível pro painel). A 07a consome o `designSystem` direto da tool e grava `design-signals.json` em `workspace/<slug>/07-page/`. Se o membro usar `refero_design_md` com escrita em disco, a 07a absorve o conteúdo e o arquivo vai pra `workspace/<slug>/07-page/`.
 
 Reinicie o Claude Code. Tools com prefixo `mcp__refero__` aparecem.
 

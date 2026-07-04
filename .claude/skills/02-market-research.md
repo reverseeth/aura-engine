@@ -1,6 +1,6 @@
 ---
 name: market-research
-description: Engine profundo de pesquisa de mercado que produz o Unified Research Brief — o documento mais importante do sistema. Use quando o membro disser "market research", "pesquisa de mercado", "pesquisar mercado", ou quando a fase de product research estiver completa e o membro quiser aprofundar num produto específico. Este documento alimenta TODAS as fases seguintes (offer, copy, criativos, ad strategy). Se for raso, tudo depois será raso.
+description: Engine profundo de pesquisa de mercado que produz o Unified Research Brief — o documento mais importante do sistema. Use quando o membro disser "market research", "pesquisa de mercado", "pesquisar mercado", quando a fase de product research estiver completa, ou quando o membro JÁ TEM produto definido (situações B/C/D do setup — product research não é pré-requisito pra quem já tem produto). Este documento alimenta TODAS as fases seguintes (offer, copy, criativos, ad strategy). Se for raso, tudo depois será raso.
 ---
 
 # Market Research Engine
@@ -11,7 +11,7 @@ Quando o membro tem produto definido e precisa entender profundamente o mercado,
 ## Antes de Começar
 
 1. Leia `workspace/profile.md` pra contexto do membro. Leia `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language.
-2. Se existir `workspace/[produto]/01-product-research/relatorio.md`, leia — tem dados preliminares úteis (dores, linguagem, concorrentes identificados, awareness/sophistication preliminar)
+2. Se existir `workspace/[produto]/01-product-research/product-research.md`, leia — tem dados preliminares úteis (dores, linguagem, concorrentes identificados, awareness/sophistication preliminar)
 3. **Puxe os SISTEMAS NOMEADOS da base — NUNCA use query genérica.** Para cada ETAPA abaixo, rode `search_knowledge` com a `best_query` exata de cada framework relevante listado naquela etapa (deep=true). Não busque por "market research" ou "pesquisa de mercado" solto — busque pelo NOME do sistema (ex: `Schwartz five stages of awareness unaware problem aware solution aware product aware most aware`). Aprofunde em cada método até entender o "por quê" de cada passo. Este documento é a FUNDAÇÃO de todo o sistema — se for raso, tudo que vier depois será raso.
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (`frameworks.json` + `README.md`, mapa skill→domínio no README). Esta skill cruza dois domínios: **market-research-voc** (43 sistemas) e **persuasion-psychology** (49 sistemas). Os frameworks de maior impacto estão embutidos nas ETAPAS abaixo com sua `best_query`; o restante do domínio fica disponível no índice. Quando uma etapa precisar de mais profundidade do que os frameworks listados, consulte o índice e puxe o sistema nomeado certo — nunca caia em query genérica.
@@ -21,8 +21,10 @@ Quando o membro tem produto definido e precisa entender profundamente o mercado,
 ### ETAPA 0 — Pre-flight
 
 1. Leia `workspace/profile.md`. Se ausente → aborte, mas ofereça rodar o setup inline: `"Não achei seu profile. Rode \`setup\` agora (eu conduzo) e volto pra cá."`
-2. Leia `workspace/[produto]/manifest.json` (descubra `[produto]` a partir do manifest — único `manifest.json` com `setup_complete === true`). Se ausente → aborte, mas ofereça rodar o setup inline: `"Não achei o manifest. Rode \`setup\` agora (eu conduzo) e volto pra cá."`
-3. Valide que `"01-product-research"` está em `manifest.skills_completed` E que `workspace/[produto]/01-product-research/relatorio.md` existe. Se faltar qualquer um → NÃO aborte seco; ofereça ≥2 caminhos: **(A)** rodar `product research` agora pra gerar o arquivo, OU **(B)** prosseguir com default genérico (sem dados preliminares de dores/linguagem/awareness) marcando `manifest.skipped_preflight += ["01-product-research"]` e avisando no output final que recomenda rodar `product research` e re-executar esta skill.
+2. Leia `workspace/[produto]/manifest.json` (descubra `[produto]` a partir do manifest com `setup_complete === true`). **Se houver MAIS de um** manifest com `setup_complete === true` (membro roda 2+ produtos), NÃO escolha silenciosamente: liste os `product_name` e pergunte em 1 linha qual é o produto-alvo (se o membro já nomeou o produto no trigger, use esse sem perguntar). Se ausente → aborte, mas ofereça rodar o setup inline: `"Não achei o manifest. Rode \`setup\` agora (eu conduzo) e volto pra cá."`
+3. Cheque se `"01-product-research"` está em `manifest.skills_completed` (e se `workspace/[produto]/01-product-research/product-research.md` existe). Se estiver → leia os dados preliminares. Se faltar, **ramifique pelo que o membro é**:
+   - **Membro que JÁ TEM produto** (`manifest.product_url` preenchido, OU situação B/C/D no profile): skill 01 ausente é o caminho NORMAL — ela existe pra ACHAR produto, não faz sentido pra quem já tem. Siga direto, sem `skipped_preflight`, sem warning e sem recomendar "rodar product research depois". Só não haverá dados preliminares de dores/linguagem/concorrentes (esta skill coleta tudo do zero mesmo).
+   - **Membro SEM produto definido** (situação A e/ou sem `product_url`): aí sim a 01 faz falta. NÃO aborte seco; ofereça ≥2 caminhos: **(A)** rodar `product research` agora pra escolher/validar o produto, OU **(B)** prosseguir com o produto que o membro descrever inline marcando `manifest.skipped_preflight += ["01-product-research"]` e avisando no output final que recomenda rodar `product research`.
 4. **Rejeitar slug placeholder:** se `product_slug` começa com `dev-placeholder-` → NÃO aborte seco; ofereça ≥2 caminhos: **(A)** rodar `product research` agora pra definir o `product_slug` real, OU **(B)** prosseguir com o produto que o membro descrever inline (sem validação prévia) marcando `manifest.skipped_preflight += ["product-validation"]` e avisando no output final.
 5. Use `product_slug` do manifest como `[produto]` pra todos os paths daqui pra frente.
 
@@ -36,10 +38,10 @@ Verifique `workspace/profile.md` se já tem `Link do produto principal`.
 **SE NÃO tem link de produto:**
 - Pergunte: "Me descreva o produto: o que é, o que faz, pra quem é, e o link se tiver."
 
-Depois (em qualquer um dos casos acima), pergunte:
-- "Qual o mercado geográfico principal? (US, UK, EU, global)"
+Depois (em qualquer um dos casos acima), confirme o mercado geográfico. Leia `manifest.market` primeiro (o setup grava `"US"` como default) e proponha como default em vez de perguntar do zero:
+- "Mercado geográfico principal: **[manifest.market]** — confirma, ou é outro? (US, UK, EU, global)"
 
-Salve o mercado geográfico no documento final da pesquisa — toda a análise de awareness, sofisticação, VOC, etc. deve considerar esse mercado específico. Costumes de compra, objeções culturais, e linguagem variam enormemente entre mercados. Se o membro disser "global", analise o mercado anglo-saxão (US+UK+AU+CA) como default.
+Salve o mercado geográfico no documento final da pesquisa E de volta em `manifest.market` (ver seção "Atualize o manifest.json") — toda a análise de awareness, sofisticação, VOC, etc. deve considerar esse mercado específico. Costumes de compra, objeções culturais, e linguagem variam enormemente entre mercados. Se o membro disser "global", analise o mercado anglo-saxão (US+UK+AU+CA) como default.
 
 ### ETAPA 2 — Product-Market Awareness Analysis (5 Níveis de Schwartz)
 
@@ -76,7 +78,7 @@ Pesquise (web search) sinais de cada nível de awareness:
 
 Se o membro der um palpite, mas a pesquisa web sugerir algo diferente, use **hybrid**: média entre palpite e default (marque `awareness_distribution_source = "hybrid"`).
 
-Defina onde está a **maioria** (50%+) do mercado. Este nível vai ditar TODA a estratégia de copy, página, e criativos.
+Defina o nível **DOMINANTE** — o de maior percentual na distribuição (com os defaults acima, nenhum nível chega a 50%, e tudo bem: dominante = o maior). Se dois níveis adjacentes empatarem (±5 pontos percentuais), trate como híbrido e documente os dois: grave em `dominant_awareness` o nível de **MAIOR intenção de compra** dos dois (o mais avançado no espectro Schwartz — ex: empate problem/solution → `solution_aware`) e o outro em `dominant_awareness_secondary` (campo opcional do dados.json — só existe no empate). As skills 06 e 07a leem esse campo secundário pra tratar a página/lead como híbrido. Este nível vai ditar TODA a estratégia de copy, página, e criativos.
 
 **Implicações práticas a documentar:**
 - Problem Aware → advertorial ou listicle obrigatório (educação antes do pitch). PDP direta NÃO converte.
@@ -209,9 +211,9 @@ Essas frases são ouro. Hopkins escreveu em 1923: "a boa copy fala a linguagem d
 
 1. Documente o déficit explicitamente no output: `"VOC real: N frases únicas; mínimo 35 não atingido."`
 2. Liste as fontes tentadas e as que bloquearam acesso.
-3. **Classificar severidade do déficit pra alertar skills downstream:**
-   - `voc_count >= 35` → OK, segue normal
-   - `15 <= voc_count < 35` → `voc_adequacy: "medium"`, skill 06 emite warning mas procede
+3. **Classificar severidade do déficit pra alertar skills downstream** (`voc_adequacy` e `skills_blocked` são gravados SEMPRE no `dados.json`, inclusive no caminho feliz — a skill 06 lê esses campos):
+   - `voc_count >= 35` → `voc_adequacy: "ok"`, `skills_blocked: []`, segue normal
+   - `15 <= voc_count < 35` → `voc_adequacy: "medium"`, `skills_blocked: []`, skill 06 emite warning mas procede
    - `voc_count < 15` → `voc_adequacy: "insufficient"`. Skill 06 DEVE bloquear no pré-flight — copy sem VOC real não é copy, é invenção. Salvar em `02-market-research/dados.json`: `"voc_adequacy": "insufficient", "skills_blocked": ["06-copy-engine"]`
 4. Siga com as etapas restantes (awareness, sophistication, root cause) — essas não dependem de VOC quantity.
 
@@ -320,15 +322,15 @@ Inclua seção dedicada no `.md` e no `.json`:
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
-**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer-builder/relatorio.md` → `04-offer-builder/relatorio.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
+**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `04-offer-builder/offer-builder.md` → `04-offer-builder/offer-builder.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana — use `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained, logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto), componentes aura).
 
 
 **Antes de qualquer write**, garanta: `mkdir -p workspace/[produto]/02-market-research/`.
 
 Salvar TRÊS artefatos:
 
-1. **`workspace/[produto]/02-market-research/relatorio.md`** — fonte canônica para AI das próximas skills
-2. **`workspace/[produto]/02-market-research/relatorio.html`** — visualização humana (template ou fallback inline)
+1. **`workspace/[produto]/02-market-research/market-research.md`** — fonte canônica para AI das próximas skills
+2. **`workspace/[produto]/02-market-research/market-research.html`** — visualização humana (template ou fallback inline)
 3. **`workspace/[produto]/02-market-research/dados.json`** — JSON companion estruturado:
 
 ```json
@@ -336,10 +338,19 @@ Salvar TRÊS artefatos:
   "awareness_distribution": { "unaware": 0, "problem_aware": 0, "solution_aware": 0, "product_aware": 0, "most_aware": 0 },
   "awareness_distribution_source": "default|user_estimate|hybrid|web_signals",
   "dominant_awareness": "problem_aware",
+  "dominant_awareness_secondary": "solution_aware — OPCIONAL: só quando dois níveis adjacentes empataram (±5pp). dominant_awareness leva o de MAIOR intenção de compra; este campo guarda o outro. Ausente = sem empate (downstream trata como nível único)",
   "sophistication_stage": 3,
   "sophistication_confidence": "high|medium|low",
   "voc_phrases": { "problem": ["..."], "desire": ["..."], "frustration": ["..."] },
   "voc_count": 0,
+  "voc_adequacy": "ok|medium|insufficient",
+  "skills_blocked": [],
+  "data_quality": {
+    "voc_sources": { "amazon": 0, "reddit": 0, "tiktok": 0, "trustpilot": 0, "forums": 0 },
+    "sources_blocked": [],
+    "voc_minimum_met": true,
+    "root_cause_basis": "peer_reviewed|specialist_consensus|extrapolation"
+  },
   "avatar": {
     "demographics": {},
     "psychographics": {},
@@ -376,7 +387,9 @@ Este é o DOCUMENTO MAIS IMPORTANTE. Ele alimenta:
 
 **Atualize o `manifest.json`** (fonte única de verdade):
 
+- `market` ← mercado geográfico confirmado na ETAPA 1 (`US` / `UK` / `EU` / `global`) — sem isso o manifest fica pra sempre com o default `"US"` do setup, divergindo do relatório
 - `voc_count` ← número total de frases VOC únicas coletadas
+- `voc_adequacy` ← `"ok" | "medium" | "insufficient"` (mesmo valor do dados.json)
 - `awareness_distribution` ← objeto com os 5 níveis em inteiros 0-100
 - `sophistication_stage` ← inteiro 1-5
 - `skills_completed` ← adicione `"02-market-research"` (sem duplicar)

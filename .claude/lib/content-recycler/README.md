@@ -5,10 +5,11 @@ Reaproveita o winner em 9 canais sem produção nova.
 
 ## Quando usar
 
-**Automaticamente** (quando Shadow Brain tiver rodando): quando a skill 11 já
-marcou um criativo como winner em `dados.json.winners[]`.
+**Manual** (hoje): membro invoca com `recycle [creative-id]` ou `recycle winner`
+(usa o `dados.json.winners[]` já marcado pela skill 11).
 
-**Manual**: membro invoca com `recycle [creative-id]`.
+**Automático** (futuro): disparo direto quando a skill 11 marcar um winner novo.
+Hoje o gatilho é sempre manual — a 11 recomenda, o membro invoca.
 
 ## Input
 
@@ -46,7 +47,7 @@ before/after que Meta Ads).
 
 ## Custo
 
-Zero. Só tokens Claude.
+Zero custo extra — só tokens da assinatura Claude (~40-60k por rodada).
 
 ## Roda assim
 

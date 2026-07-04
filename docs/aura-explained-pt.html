@@ -1,42 +1,14 @@
-<!--
-  AURA ENGINE — HTML Report Template (Design System Reference) · v5 "Premium / Liquid Glass"
-
-  Estilo visual padrão pra TODOS os reports HTML gerados pelas skills do Aura Engine.
-  A AI lê este arquivo como referência de design — copie a <style> completa + a
-  estrutura de componentes (e o <script> de animação), adapte apenas o conteúdo.
-
-  Estética: moderno, light, premium (Apple / Human Academy / academypass.ai). Sans
-  geométrica (Satoshi → Inter). Fundo com GLOW AMBIENTE sutil. Cards em LIQUID GLASS
-  (frosted, backdrop-blur). Títulos grandes, stats gigantes com divisores, overlines.
-  ANIMAÇÕES: reveal no scroll, count-up nos números, hover-lift nos cards. Glow leve
-  no winner e nos números. Tudo com progressive enhancement (visível sem JS).
-
-  PRESERVE os nomes de classe (skills dependem). Mantenha o <script> no fim do body.
-  Cada relatório .md em workspace/ tem um .html. Self-contained. Não altere sem aprovar o membro.
-
-  IDIOMA DO CHROME: o template é pt-BR por default. Se o membro tem report_language: "en"
-  (workspace/profile.md), adapte o chrome junto com o conteúdo: <html lang="en">,
-  toc-title "Contents", meta-bar "Product / Market / Date / Feeds". Pra pt-BR, mantenha como está.
-
-  COMPONENTES note/callout/opportunity/danger: o PRIMEIRO <strong> filho direto é o RÓTULO
-  (overline maiúsculo). Pode usar <strong> à vontade no CORPO pra ênfase — só o primeiro vira
-  rótulo; os demais ficam negrito inline e não quebram a frase (garantido por :first-of-type no CSS).
--->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<!--
-  PLACEHOLDERS: não existe pipeline de render — a AI escreve o HTML final direto.
-  Ao substituir `{{KEY}}`, escape `<`, `>` e `&` (&lt; &gt; &amp;) se o dado contiver esses
-  caracteres. `{{KEY_HTML}}` marca os pontos onde a AI pode inserir markup próprio (ex: <strong>).
--->
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com; font-src 'self' https://fonts.gstatic.com https://cdn.fontshare.com data:; script-src 'self' 'unsafe-inline';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{TITLE}} — Aura Engine</title>
+<title>O que é a Aura — Aura Engine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   /* ═══════════ AURA DESIGN SYSTEM v5 · Premium / Liquid Glass ═══════════ */
@@ -137,19 +109,15 @@
   .script-block { border-radius:var(--r-sm); padding:22px 26px; margin:16px 0; font-family:var(--mono); font-size:13.5px; color:var(--ink-2); line-height:1.62; white-space:pre-wrap; word-break:break-word; }
 
   /* === NOTE / CALLOUT / OPPORTUNITY / DANGER (cards glass + overline-label + glow leve) === */
-  /* overflow-wrap: URL/token longo em quote de VOC ou callout não estoura o card no mobile */
-  .quote, .note, .callout, .opportunity, .danger { overflow-wrap:anywhere; }
   .note, .callout, .opportunity, .danger { font-size:16.5px; line-height:1.6; padding:24px 28px; border-radius:var(--r); margin:24px 0; position:relative; }
-  /* RÓTULO = só o PRIMEIRO <strong> (filho direto) do card. Qualquer <strong> seguinte é ênfase inline no corpo — NUNCA vira rótulo (evita quebrar a frase no meio). */
-  .note > strong:first-of-type, .callout > strong:first-of-type, .opportunity > strong:first-of-type, .danger > strong:first-of-type { display:block; font-family:var(--sans); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px; }
-  .note strong, .callout strong, .opportunity strong, .danger strong { font-weight:600; }
-  .note { color:var(--muted); } .note > strong:first-of-type { color:var(--faint); }
+  .note strong, .callout strong, .opportunity strong, .danger strong { display:block; font-family:var(--sans); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px; }
+  .note { color:var(--muted); } .note strong { color:var(--faint); }
   .callout { color:var(--ink); background:linear-gradient(180deg,rgba(238,242,255,.85),rgba(238,242,255,.6)); border-color:#DDE4FF; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 10px 30px rgba(45,91,255,.10); }
-  .callout > strong:first-of-type { color:var(--accent); }
+  .callout strong { color:var(--accent); }
   .opportunity { color:#0C2A20; background:linear-gradient(180deg,rgba(233,248,241,.85),rgba(233,248,241,.6)); border-color:#CFEEE1; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 10px 30px rgba(14,159,110,.10); }
-  .opportunity > strong:first-of-type { color:#0B7A53; }
+  .opportunity strong { color:#0B7A53; }
   .danger { color:#3A1416; background:linear-gradient(180deg,rgba(253,240,240,.85),rgba(253,240,240,.6)); border-color:#F7D8D9; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 10px 30px rgba(229,72,77,.10); }
-  .danger > strong:first-of-type { color:#C9343A; }
+  .danger strong { color:#C9343A; }
 
   /* === PILLS / BADGES (liquid glass) === */
   .pill { display:inline-block; font-size:11px; font-weight:600; padding:5px 12px; border-radius:9px; letter-spacing:0.01em; text-transform:uppercase; margin-right:5px;
@@ -262,84 +230,167 @@
   </div>
 
   <!-- ═══════════════ HEADER ═══════════════ -->
-  <h1 class="page-title reveal">{{TITLE}}</h1>
-  <p class="page-subtitle reveal">{{DESCRIPTION_HTML}}</p>
+  <h1 class="page-title reveal">O que é a Aura</h1>
+  <p class="page-subtitle reveal">Um framework avançado de ecommerce, operado por IA, que executa do início ao fim. Da pesquisa ao anúncio rodando e escalando. Como funciona, por dentro.</p>
 
   <div class="meta-bar reveal">
-    <div><strong>Produto</strong> {{PRODUCT}}</div>
-    <div><strong>Mercado</strong> {{MARKET}}</div>
-    <div><strong>Data</strong> {{DATE}}</div>
-    <div><strong>Alimenta</strong> {{FEEDS}}</div>
+    <div><strong>O que é</strong> Framework avançado de ecommerce</div>
+    <div><strong>Como trabalha</strong> Cinco fases encadeadas</div>
+    <div><strong>Fundamento</strong> Métodos reais e nomeados</div>
   </div>
 
   <div class="toc reveal">
     <div class="toc-title">Sumário</div>
-    <ol><li><a href="#s1">Section 1</a></li><li><a href="#s2">Section 2</a></li></ol>
+    <ol>
+      <li><a href="#s1">A ideia</a></li>
+      <li><a href="#s2">Por que ela existe</a></li>
+      <li><a href="#s3">Como ela fundamenta as decisões</a></li>
+      <li><a href="#s4">Como o trabalho flui</a></li>
+      <li><a href="#s5">O que mantém tudo coerente</a></li>
+      <li><a href="#s6">O que ela não é</a></li>
+    </ol>
   </div>
 
-  <!-- ═══════════════ SECTION EXAMPLE (referência de todos os componentes) ═══════════════ -->
+  <!-- ═══════════════ 01 — A IDEIA ═══════════════ -->
   <div class="section" id="s1">
-    <div class="section-label reveal"><span class="num">01</span>Section Title</div>
+    <div class="section-label reveal"><span class="num">01</span>A ideia</div>
 
     <div class="subsection reveal">
-      <div class="subsection-title">Subsection</div>
-      <p>Regular paragraph text with <strong>bold</strong> words.</p>
+      <p>A Aura é um <strong>framework avançado de ecommerce</strong>, operado por inteligência artificial, que faz o trabalho de um time completo de estratégia e execução: pesquisa, oferta, loja, tráfego e retenção, de ponta a ponta.</p>
+      <p>Não é um chatbot genérico. É uma sequência de especialistas, cada um com o seu método, que passam o trabalho de um para o outro em ordem. Cada etapa entrega algo concreto para a próxima começar de onde a anterior parou. O sistema roda dentro de um ambiente de IA, no computador de quem o usa: o Claude Code.</p>
+    </div>
+
+    <div class="callout reveal"><strong>O princípio</strong> Em vez de uma ferramenta que tenta fazer tudo de forma rasa, são funções especializadas que se coordenam. Cada uma domina a sua parte a fundo, e o resultado de uma vira o ponto de partida da seguinte.</div>
+  </div>
+
+  <!-- ═══════════════ 02 — POR QUE ELA EXISTE ═══════════════ -->
+  <div class="section" id="s2">
+    <div class="section-label reveal"><span class="num">02</span>Por que ela existe</div>
+
+    <div class="subsection reveal">
+      <p>A maioria de quem ensina ecommerce global vende o efêmero. Você paga caro por uma call, ouve o que está funcionando naquela semana, e alguns meses depois aquele conteúdo já envelheceu.</p>
+      <p>O que não envelhece são os fundamentos. Os princípios de persuasão, oferta, pesquisa e mídia que funcionam há décadas e vão continuar funcionando. São a base sólida sobre a qual qualquer execução se sustenta, independente da tendência da semana.</p>
+    </div>
+
+    <div class="subsection reveal">
+      <p>A Aura parte de uma pergunta simples: se a IA executa melhor e mais rápido do que a maioria das pessoas, por que fazer alguém assistir dezenas de horas de conteúdo antes de começar? Melhor codificar os fundamentos numa base de conhecimento e deixar a IA executar com eles.</p>
+      <p>O resultado é uma combinação que dificilmente se replica.</p>
+    </div>
+
+    <div class="winner reveal">
+      <div class="winner-label">O que isso entrega</div>
+      <div class="winner-name">Qualidade de execução de alto nível, automação ponta a ponta e velocidade</div>
+      <p>Tudo no mesmo framework. A precisão de quem domina o ofício, a cobertura de um time inteiro e o ritmo de quem não precisa esperar por nenhuma das partes.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 03 — COMO ELA FUNDAMENTA AS DECISÕES ═══════════════ -->
+  <div class="section" id="s3">
+    <div class="section-label reveal"><span class="num">03</span>Como ela fundamenta as decisões</div>
+
+    <div class="subsection reveal">
+      <p>A Aura é ligada a uma base de conhecimento imensa: décadas de fundamentos de marketing direto e ecommerce, destilados em anotações detalhadas e interligados por backlinks. Uma teia onde cada conceito aponta para os relacionados.</p>
+      <p>Dos livros vem o cânone consolidado por nomes como <strong>Schwartz, Hopkins, Hormozi, Cialdini, Ogilvy, Sugarman e Caples</strong>. Da prática de operadores em atividade, o que há de mais atual em execução. Dos swipe files, os exemplos reais que já converteram.</p>
+    </div>
+
+    <div class="subsection reveal">
+      <p>A IA acessa esse backend por meio de uma conexão dedicada (MCP), faz uma busca avançada na base inteira e puxa, pelo nome, exatamente os sistemas que cada passo precisa, para seguir um workflow de <strong>19 skills</strong>.</p>
+      <p>Não é busca vaga nem memória aproximada. É a técnica certa, completa, aplicada onde importa. Por isso nada de valor fica de fora e toda recomendação rastreia até um método que existe e funciona.</p>
     </div>
 
     <div class="kpi-grid reveal">
-      <div class="kpi-card"><div class="big-num" data-count="58" data-suffix="%">58%</div><div class="big-num-label">Metric label</div></div>
-      <div class="kpi-card"><div class="big-num" data-count="34" data-suffix="%">34%</div><div class="big-num-label">Metric label</div></div>
-      <div class="kpi-card"><div class="big-num" data-count="2" data-suffix="%">2%</div><div class="big-num-label">Metric label</div></div>
+      <div class="kpi-card"><div class="big-num" data-count="541">541</div><div class="big-num-label">frameworks nomeados na base</div></div>
+      <div class="kpi-card"><div class="big-num" data-count="19">19</div><div class="big-num-label">skills no workflow</div></div>
+      <div class="kpi-card"><div class="big-num" data-count="5">5</div><div class="big-num-label">fases encadeadas</div></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 04 — COMO O TRABALHO FLUI ═══════════════ -->
+  <div class="section" id="s4">
+    <div class="section-label reveal"><span class="num">04</span>Como o trabalho flui</div>
+
+    <div class="subsection reveal">
+      <p>São cinco fases. Cada fase usa o que a anterior descobriu: a pesquisa alimenta a oferta, a oferta alimenta a copy, a copy alimenta os criativos, os criativos alimentam os anúncios. Nada começa do zero, porque tudo herda o trabalho que veio antes.</p>
     </div>
 
     <div class="table-wrap reveal">
-      <table><thead><tr><th>Col 1</th><th>Col 2</th><th>Col 3</th></tr></thead>
-      <tbody><tr><td><strong>Row 1</strong></td><td>Value</td><td><span class="pill pill-win">status</span></td></tr></tbody></table>
+      <table>
+        <thead><tr><th>Fase</th><th>O que faz</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>1 · Pesquisa</strong><br>produto → mercado → concorrência</td>
+            <td>Descobre o que vender e para quem. Valida o produto contra a demanda real e o quão saturado está o mercado. Mapeia a psicologia do cliente nas palavras dele, o que ele já acredita e suas objeções. Estuda os concorrentes ativos, seus argumentos, suas lacunas e até os anúncios que mais performam.</td>
+          </tr>
+          <tr>
+            <td><strong>2 · Estratégia</strong><br>oferta → copy</td>
+            <td>Monta a oferta irresistível: o mecanismo único (por que isto funciona e por que a alternativa de sempre falha), preço, garantia, bônus e a economia de unidade. E escreve o texto que vende, ancorado na linguagem real do cliente.</td>
+          </tr>
+          <tr>
+            <td><strong>3 · Loja</strong><br>página → tracking → checkout</td>
+            <td>Transforma isso numa página que converte, aprovada antes de ser construída. Instala a medição correta para as plataformas aprenderem. E adiciona upsells e bundles para subir o valor médio do pedido.</td>
+          </tr>
+          <tr>
+            <td><strong>4 · Tráfego</strong><br>criativos → auditoria → estratégia → análise → escala</td>
+            <td>Produz os conceitos de anúncio, hooks e roteiros. Roda uma verificação de consistência antes de gastar. Estrutura a campanha. Diagnostica a performance e decide o que matar, manter ou escalar. E escala o orçamento de forma sistemática.</td>
+          </tr>
+          <tr>
+            <td><strong>5 · Pós-venda</strong><br>retenção → bônus → reciclagem</td>
+            <td>Monta os fluxos de email e SMS, entrega os bônus, e transforma um único anúncio vencedor em várias derivações em formatos diferentes.</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="quote reveal">"Exact customer quote goes here"<span class="quote-source">Reddit r/SelfTanning</span></div>
-    <div class="note reveal"><strong>Key point</strong> informational context goes here.</div>
-    <div class="callout reveal"><strong>Recommendation</strong> strategic recommendation goes here.</div>
-    <div class="opportunity reveal"><strong>Gap identified</strong> opportunity description.</div>
-    <div class="danger reveal"><strong>Warning</strong> critical error to avoid.</div>
-
-    <div class="winner reveal">
-      <div class="winner-label">Winner</div>
-      <div class="winner-name">Mechanism Name</div>
-      <p>Explanation of why this wins.</p>
-    </div>
-
-    <div class="faq reveal"><div class="faq-q">"Question from customer?"</div><div class="faq-a">Answer that breaks the objection.</div></div>
-    <div class="check-row reveal"><span class="check-icon">1</span><div><strong>Sanity check question?</strong><br><span style="color:var(--muted);">Answer with reasoning.</span></div></div>
+    <div class="note reveal"><strong>O fio condutor</strong> Cada fase herda a evidência que a anterior produziu: a oferta nasce de pesquisa real, e os anúncios nascem de uma oferta comprovada.</div>
   </div>
 
-  <p class="footer">Aura © {{YEAR}}</p>
+  <!-- ═══════════════ 05 — O QUE MANTÉM TUDO COERENTE ═══════════════ -->
+  <div class="section" id="s5">
+    <div class="section-label reveal"><span class="num">05</span>O que mantém tudo coerente</div>
+
+    <div class="subsection reveal">
+      <p>Antes de qualquer real ser investido em anúncio, uma verificação de consistência confere que tudo conta a mesma história. O mecanismo prometido, a mensagem da página, a oferta e os criativos precisam estar alinhados, sem contradição.</p>
+      <p>É o que separa um lançamento que faz sentido de um que queima dinheiro por desencontro. Quando a página promete uma coisa e o anúncio diz outra, o cliente sente a fricção e não compra. A verificação existe para que isso nunca chegue ao ar.</p>
+    </div>
+
+    <div class="opportunity reveal"><strong>Precisão inegociável</strong> Onde errar custa caro (a construção da página, a matemática da economia de unidade), a Aura é determinística. Ela não improvisa as partes que têm que estar exatas: segue a regra, sempre do mesmo jeito, com o mesmo resultado.</div>
+  </div>
+
+  <!-- ═══════════════ 06 — O QUE ELA NÃO É ═══════════════ -->
+  <div class="section" id="s6">
+    <div class="section-label reveal"><span class="num">06</span>O que ela não é</div>
+
+    <div class="subsection reveal">
+      <p>Não é um gerador de texto solto e não é um curso.</p>
+      <p>É um operador. Leva o negócio de ecommerce da ideia ao anúncio rodando e escalando, com <strong>cada decisão fundamentada num método real</strong> e <strong>cada fase conectada à seguinte</strong>.</p>
+    </div>
+
+    <div class="callout reveal"><strong>Em uma linha</strong> Um pipeline especializado, operado por IA, que transforma uma ideia de produto numa operação rodando, fundamentado em métodos comprovados em cada passo.</div>
+  </div>
+
+  <p class="footer">Aura © 2026</p>
 
 </div>
 
 <!-- ═══════════════ ANIMAÇÃO (reveal no scroll + count-up nos números) ═══════════════ -->
 <script>
-  // Guard: sem IntersectionObserver, NADA é escondido (a classe .js nunca entra) —
-  // a página se comporta como sem-JS, tudo visível estático (progressive enhancement).
-  if ('IntersectionObserver' in window) {
-    document.documentElement.classList.add('js');
-    const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
-    const reveals = document.querySelectorAll('.reveal');
-    if (reduce) { reveals.forEach(e=>e.classList.add('in')); }
-    else {
-      const io = new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);
-        e.target.querySelectorAll && e.target.querySelectorAll('[data-count]').forEach(countUp); } })},{threshold:0.12, rootMargin:'0px 0px -6% 0px'});
-      reveals.forEach(el=>io.observe(el));
-    }
-    function countUp(el){
-      if (reduce) return;
-      const target = parseFloat(el.getAttribute('data-count')); if (isNaN(target)) return;
-      const suffix = el.getAttribute('data-suffix')||''; const prefix = el.getAttribute('data-prefix')||'';
-      const dec = (String(target).split('.')[1]||'').length; const dur = 900; const t0 = performance.now();
-      function frame(t){ const p = Math.min(1,(t-t0)/dur); const e = 1-Math.pow(1-p,3);
-        el.textContent = prefix + (target*e).toFixed(dec) + suffix; if (p<1) requestAnimationFrame(frame); else el.textContent = prefix+target.toFixed(dec)+suffix; }
-      requestAnimationFrame(frame);
-    }
+  document.documentElement.classList.add('js');
+  const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const reveals = document.querySelectorAll('.reveal');
+  if (reduce) { reveals.forEach(e=>e.classList.add('in')); }
+  else {
+    const io = new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);
+      e.target.querySelectorAll && e.target.querySelectorAll('[data-count]').forEach(countUp); } })},{threshold:0.12, rootMargin:'0px 0px -6% 0px'});
+    reveals.forEach(el=>io.observe(el));
+  }
+  function countUp(el){
+    if (reduce) return;
+    const target = parseFloat(el.getAttribute('data-count')); if (isNaN(target)) return;
+    const suffix = el.getAttribute('data-suffix')||''; const prefix = el.getAttribute('data-prefix')||'';
+    const dec = (String(target).split('.')[1]||'').length; const dur = 900; const t0 = performance.now();
+    function frame(t){ const p = Math.min(1,(t-t0)/dur); const e = 1-Math.pow(1-p,3);
+      el.textContent = prefix + (target*e).toFixed(dec) + suffix; if (p<1) requestAnimationFrame(frame); else el.textContent = prefix+target.toFixed(dec)+suffix; }
+    requestAnimationFrame(frame);
   }
 </script>
 </body>

@@ -18,31 +18,33 @@ Dois gates BLOQUEIAM qualquer deploy de página ou go-live de ad. Gate não é w
 ### Onde aplica
 
 - **Skill 06** (copy-engine) — ANTES de salvar qualquer peça final de copy
-- **Skill 07b** (page sections generation) — ANTES de compilar Liquid com copy injetada
-- **Skill 07c** (page deploy) — ANTES do push pra Shopify
+- **Skill 07b** (page-build) — ANTES de compilar Liquid com copy injetada E ANTES do push pra Shopify
 - **Skill 08** (creative-engine) — ANTES de finalizar briefing (já existe Etapa 7.5)
 - **Skill 10** (ad-strategy) — ANTES de entregar instrução "colar no Ads Manager"
 
-### Como invocar
+### Como invocar (interface canônica — usar EXATAMENTE esta)
 
-Toda skill acima DEVE rodar:
+**Skills 07b e 10 (gates mecânicos de deploy/go-live) DEVEM rodar a CLI canônica:**
 
+```bash
+python3 .claude/lib/compliance-preflight/run.py --file <path> [--vertical <enum do manifest-schema>] [--stage pre_ad|pre_page] --json
 ```
-.claude/lib/compliance-preflight/run.py --input <texto> --config .claude/lib/compliance-preflight/red_flags.json --schema .claude/lib/compliance-preflight/output-schema.json
-```
 
-OU invocar o `checker.md` prompt via Claude diretamente no contexto da skill.
+Alternativa pra texto solto (sem arquivo): `--text "<string>"` no lugar de `--file`.
+
+**Skills 06 e 08 (e 14)** rodam o gate pelo passe Claude da MESMA lib (`checker.md` + `red_flags.json` — avaliação com nuance peça a peça), que retorna JSON conforme o MESMO `output-schema.json`. Os dois passes são intercambiáveis no formato do output; a decisão de gate abaixo vale igual pros dois (ver `.claude/lib/compliance-preflight/README.md`, "Onde é invocado").
+
+O output é JSON conforme `output-schema.json`, SEMPRE incluindo `overall_verdict` (`pass|warning|critical`) e `rewrite_suggestions[]` (uma por flag encontrada). Na CLI (`run.py`), o matching é por word-boundary, case-insensitive — nunca substring pura ("secure" não casa "cure").
 
 ### Decisão de gate
 
-Parse do JSON output:
+Parse do JSON output, decisão pelo `overall_verdict`:
 
-| Severity | Ação |
-|----------|------|
-| `critical` | **BLOCK** — não salva, não publica, não faz deploy. Apresenta ao membro com `rewrite_suggestion` e pede revisão manual |
-| `high` | **BLOCK por default**. Aplicar `rewrite_suggestion` automática e **re-rodar compliance check** no texto rewriteado. Se o rewrite passar (low/medium), prosseguir. Se falhar, BLOCK até revisão manual. |
-| `medium` | **WARN** — salva, mas loga em `workspace/[produto]/compliance-warnings.json` e notifica membro no output final ("2 warnings — revise se quiser") |
-| `low` | **PASS** — salva silenciosamente |
+| `overall_verdict` | Ação |
+|-------------------|------|
+| `critical` | **BLOCK** — não salva, não publica, não faz deploy. Apresenta ao membro as flags com suas `rewrite_suggestions[]` e pede revisão manual |
+| `warning` | **BLOCK por default**. Aplicar as `rewrite_suggestions[]` automáticas e **re-rodar o compliance check** no texto rewriteado. Se o rewrite passar (`pass`), prosseguir. Se continuar `warning`/`critical`, salvar com log em `workspace/[produto]/compliance-warnings.json` e notificar o membro no output final ("N warnings — revise se quiser") — deploy/go-live só com decisão explícita dele |
+| `pass` | **PASS** — salva silenciosamente |
 
 ### Palavras ad-flag cobertas (baseline mínimo, ver `red_flags.json` pra completo)
 
@@ -62,6 +64,7 @@ Meta/TikTok ad policy (aplicam a copy pra consumidor final, incluindo landing pa
 
 - **Em dash (—)**: zero em headlines, ≤2 em copy longa (regra 8a do CLAUDE.md)
 - **Siglas/números técnicos**: text overlay em ad, não na fala (skill 08 Etapa 4.5.D)
+- **Disclosure "AI Info" (Meta)**: criativo com humano fotorrealista gerado por AI (avatar sintético, UGC gerado, talking head com lip-sync) EXIGE o label "AI Info" da Meta ao publicar. A Skill 08 grava `ai_disclosure_required: true` por concept no `08-creative-engine/dados.json` (gate I da ETAPA 4.5); antes do go-live, o gate valida que TODO concept com esse flag teve o label marcado no Ads Manager (nível do ad → marcação de conteúdo gerado por AI). Skills 08/10 marcam a exigência no briefing; a campanha não vai ao ar sem o membro confirmar que ativou o label
 
 ### Bypass emergencial
 
@@ -87,7 +90,7 @@ Pra cada promise que aparece na copy/páginas/ads, validar contra config real da
 
 | Promise detectada | Fonte na copy/ad | Validação obrigatória | Fonte da verdade |
 |-------------------|------------------|------------------------|-------------------|
-| "Free shipping" | headline, hero, bullet | Shipping zones Shopify cobrem 100% do target market com `price: 0` | `shopify theme shipping zones` via Admin API |
+| "Free shipping" | headline, hero, bullet | Shipping zones Shopify cobrem 100% do target market com `price: 0` | Admin API GraphQL `deliveryProfiles` (ou REST `/admin/api/shipping_zones.json`) |
 | "Free shipping over $X" | conditional promise | Threshold configurado corretamente + zona coberta | Admin API shipping rates |
 | "90-day money-back guarantee" | guarantee section | Policy page da loja declara 90 dias OU membro tem workflow manual pra aceitar refunds 90d | `/policies/refund-policy` content + confirmação manual |
 | "30-day money-back" | mesma regra | Declarado em policy | idem |
@@ -95,6 +98,7 @@ Pra cada promise que aparece na copy/páginas/ads, validar contra config real da
 | "Limited time — ends [date]" | eyebrow, banner | Data futura válida + schema time-bound configurado | `page.json` promo block |
 | "Ships in 24h" / "Same-day shipping" | trust row | Fulfillment center consegue cumprir (pergunta explícita ao membro) | Confirmação manual documentada |
 | "Made in [country]" | trust row | Produto realmente feito lá (regulatório) | COGS breakdown + manifest |
+| "Free [bonus] with purchase" / GWP prometido na PDP | offer stack, bonus section, banner | Fase A da Skill 05 completa: asset gerado + GWP/delivery configurado na loja + link na thank-you page; `condition` do `bonuses[]` bate com a copy da página ("FREE over $X" = `cart_threshold`; sem condição = `unconditional`) | `05-bonus-delivery/` assets + `04-offer-builder/dados.json.bonuses[]` + config GWP (app/Function) |
 | "Clinically proven [outcome]" | hero/claim | `04-offer-builder/research-foundation.json` contém evidência rastreável | Research Foundation (Skill 04 Etapa 2.5) |
 | "Rated 4.X stars by N customers" | social proof | Review app (Judge.me/Loox/Yotpo) tem esses números | Admin API da review app |
 | "As seen on [outlet]" | trust row | Prova de aparição real (link, screenshot, PR release) | Manual confirmation com artefato |
@@ -116,7 +120,7 @@ Pra cada promise que aparece na copy/páginas/ads, validar contra config real da
      "items": [
        {
          "promise": "Free shipping worldwide",
-         "source": "06-copy-engine/relatorio.md hero section",
+         "source": "06-copy-engine/copy-engine.md hero section",
          "validation": "shipping_zones",
          "status": "fail",
          "reason": "Shipping zone 'Rest of world' tem $24.99 rate; apenas US é free",

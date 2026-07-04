@@ -1,38 +1,42 @@
 {
-  "version": "1.0",
-  "updated_at": "2026-04-17",
-  "description": "Red flag words e padrões que triggeram disapproval no Meta/TikTok Ads. Organizado por categoria + vertical.",
+  "version": "1.2",
+  "updated_at": "2026-07-04",
+  "description": "Red flag words e padrões que triggeram disapproval no Meta/TikTok Ads. Organizado como núcleo universal + extras por vertical: universal_high_risk cobre as palavras da rule 8b que flagam em QUALQUER vertical; as categorias de vertical adicionam os termos que só flagam (ou flagam mais forte) naquele contexto — termos da rule 8b que aparecem em mais de um vertical (injection/filler/anti-aging) são repetidos em cada categoria relevante. Matching no run.py é word-boundary case-insensitive ('secure' não casa 'cure').",
 
   "universal_high_risk": {
     "description": "Triggers em qualquer vertical",
     "patterns": [
       {"phrase": "guaranteed", "severity": "high", "reason": "FTC requires substantiation; use '90-day money-back' instead"},
       {"phrase": "cure", "severity": "critical", "reason": "FDA/FTC medical claim; never use in cosmetic/supplement"},
+      {"phrase": "cures", "severity": "critical", "reason": "Same as cure (plural/3rd person)"},
+      {"phrase": "treat", "severity": "high", "reason": "Medical claim; use 'helps with', 'supports'"},
       {"phrase": "treats", "severity": "high", "reason": "Medical claim; use 'helps with', 'supports'"},
+      {"phrase": "botox", "severity": "critical", "reason": "Trademark + prescription drug reference (rule 8b, universal — 'natural Botox' positioning flagged em qualquer vertical); substitute: 'the appointment', 'the needle', 'injectables'"},
+      {"phrase": "lose weight", "severity": "high", "reason": "Meta restricts weight-loss content em qualquer produto body/wellness-adjacente (rule 8b); substitute: 'transformation', 'body change', 'results'"},
+      {"phrase": "weight loss", "severity": "high", "reason": "Same as lose weight"},
       {"phrase": "scientifically proven", "severity": "high", "reason": "Requires published peer-review; prefer 'research suggests'"},
       {"phrase": "100% effective", "severity": "high", "reason": "Absolute claim; FTC flag"},
       {"phrase": "risk-free", "severity": "medium", "reason": "Implies no cost; specify refund policy"},
       {"phrase": "miracle", "severity": "high", "reason": "Exaggerated claim trigger"},
       {"phrase": "breakthrough", "severity": "medium", "reason": "Unless backed by cited peer-review"},
       {"phrase": "doctors hate this", "severity": "critical", "reason": "Clickbait pattern, auto-disapproval"},
-      {"phrase": "secret", "severity": "medium", "reason": "Listicle trigger if combined with 'doctors won't tell you'"},
-      {"phrase": "clinically proven", "severity": "medium", "reason": "Requires clinical trial citation"}
+      {"phrase": "clinically proven", "severity": "medium", "reason": "Requires clinical trial citation"},
+      {"phrase": "medical-grade", "severity": "medium", "reason": "Implies FDA-regulated product em qualquer vertical (rule 8b, universal); substitute: 'cosmetic-grade', 'professional-strength'"}
     ]
   },
 
   "beauty_skincare": {
     "description": "Específicos do vertical beauty / skincare / anti-aging",
     "patterns": [
-      {"phrase": "botox", "severity": "critical", "reason": "Trademark + prescription drug reference; substitute: 'the appointment', 'the needle', 'injectables'"},
       {"phrase": "filler", "severity": "high", "reason": "Prescription product reference; substitute: 'injectables', 'the volumizing appointment'"},
+      {"phrase": "fillers", "severity": "high", "reason": "Same as filler"},
       {"phrase": "injection", "severity": "high", "reason": "Medical procedure reference; substitute: 'the needle', 'clinic route'"},
+      {"phrase": "injections", "severity": "high", "reason": "Same as injection (plural)"},
       {"phrase": "inject", "severity": "high", "reason": "Same as injection"},
-      {"phrase": "medical-grade", "severity": "medium", "reason": "Implies FDA-regulated; substitute: 'cosmetic-grade', 'professional-strength'"},
       {"phrase": "anti-aging", "severity": "medium", "reason": "Age-discrimination policy trigger in some regions; softer: 'skincare that works', 'visible skin improvement'"},
       {"phrase": "reverses aging", "severity": "critical", "reason": "Medical claim; always flagged"},
       {"phrase": "eliminates wrinkles", "severity": "high", "reason": "Absolute claim; soften: 'reduces appearance of wrinkles'"},
       {"phrase": "penetrates deep", "severity": "high", "reason": "Medical device claim; beauty products don't 'penetrate'; use 'reaches deeper layers'"},
-      {"phrase": "before and after", "severity": "medium", "reason": "In headline/hook flags; move to internal page section"},
       {"phrase": "prescription strength", "severity": "high", "reason": "Implies regulated drug; illegal in cosmetics"}
     ],
     "contextual_ok": [
@@ -44,8 +48,6 @@
   "supplements_health": {
     "description": "Vertical supplements, wellness, fitness",
     "patterns": [
-      {"phrase": "lose weight", "severity": "high", "reason": "Meta restricts weight-loss targeting; substitute: 'body transformation', 'fitness results'"},
-      {"phrase": "weight loss", "severity": "high", "reason": "Same"},
       {"phrase": "fat burner", "severity": "critical", "reason": "Health claim; auto-disapproval"},
       {"phrase": "boosts testosterone", "severity": "critical", "reason": "Medical claim"},
       {"phrase": "lowers blood sugar", "severity": "critical", "reason": "Medical claim"},
@@ -53,7 +55,13 @@
       {"phrase": "detox", "severity": "medium", "reason": "FTC-scrutinized term"},
       {"phrase": "GLP-1", "severity": "critical", "reason": "Prescription drug reference; adjacent positioning flagged"},
       {"phrase": "ozempic", "severity": "critical", "reason": "Trademarked prescription drug"},
-      {"phrase": "cures diabetes", "severity": "critical", "reason": "Never use"}
+      {"phrase": "cures diabetes", "severity": "critical", "reason": "Never use"},
+      {"phrase": "injection", "severity": "high", "reason": "Medical procedure reference (comum em posicionamento 'no injections needed' de supplement/wellness — rule 8b); substitute: 'the needle', 'clinic route', 'the appointment'"},
+      {"phrase": "injections", "severity": "high", "reason": "Same as injection (plural)"},
+      {"phrase": "inject", "severity": "high", "reason": "Same as injection"},
+      {"phrase": "filler", "severity": "high", "reason": "Prescription product reference (comparação com procedimento estético em supplement de beleza/colágeno); substitute: 'injectables', 'the volumizing appointment'"},
+      {"phrase": "fillers", "severity": "high", "reason": "Same as filler"},
+      {"phrase": "anti-aging", "severity": "medium", "reason": "Age-discrimination policy trigger in some regions (claims de longevity/beauty-from-within); softer: 'supports skin health', 'visible skin improvement'"}
     ]
   },
 
@@ -67,14 +75,16 @@
   },
 
   "pattern_triggers": {
-    "description": "Padrões além de palavras isoladas",
+    "description": "Padrões além de palavras isoladas. `informational: true` = listado só pra contexto (não soma risk_score, não gera rewrite suggestion).",
     "patterns": [
-      {"pattern": "[0-9]+% (off|discount|more|less)", "severity": "low", "reason": "OK se específico e verdadeiro"},
-      {"pattern": "(3|7|14|30|60|90) days? (to|until)", "severity": "low", "reason": "Timing promises OK se documentable"},
+      {"pattern": "[0-9]+% (off|discount|more|less)", "severity": "low", "reason": "OK se específico e verdadeiro", "informational": true},
+      {"pattern": "(3|7|14|30|60|90) days? (to|until)", "severity": "low", "reason": "Timing promises OK se documentable", "informational": true},
       {"pattern": "\\$[0-9]+\\s?(per day|daily|hour)", "severity": "high", "reason": "Income claim flag"},
-      {"pattern": "you ?['']ll (lose|gain) [0-9]+", "severity": "high", "reason": "Specific outcome promise"},
+      {"pattern": "you ?['’]ll (lose|gain) [0-9]+", "severity": "high", "reason": "Specific outcome promise"},
       {"pattern": "lose [0-9]+ (pounds?|lbs?|kg)", "severity": "critical", "reason": "Weight loss specific"},
-      {"pattern": "(doctors?|dermatologists?) (hate|wont tell|dont want)", "severity": "critical", "reason": "Clickbait pattern"}
+      {"pattern": "(doctors?|dermatologists?) (hate|won['’]?t tell|don['’]?t want)", "severity": "critical", "reason": "Clickbait pattern"},
+      {"pattern": "\\bbefore\\s*(&|and)\\s*after\\b", "severity": "medium", "reason": "Before & After literal em headline/hook flags; mover pra seção interna da página (rule 8b)"},
+      {"pattern": "\\bsecret\\b.{0,40}\\b(won['’]?t|don['’]?t)\\s+tell", "severity": "medium", "reason": "'Secret' combinado com 'won't tell' = listicle clickbait trigger"}
     ]
   },
 
@@ -84,7 +94,9 @@
       "Botox": ["the appointment", "the injectable route", "the needle", "injectables", "the derm's go-to"],
       "Filler": ["injectables", "the volumizing appointment", "the other needle route"],
       "injection": ["the needle", "the clinic route", "the appointment"],
+      "inject": ["the needle", "the clinic route", "the appointment"],
       "lose weight": ["transformation", "body change", "results"],
+      "weight loss": ["transformation", "body change", "results"],
       "medical-grade": ["cosmetic-grade", "professional-strength"],
       "cure": ["helps with", "supports"],
       "treat": ["helps with", "improves appearance of", "supports"],

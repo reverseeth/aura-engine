@@ -4,8 +4,8 @@ Sistema de memória que aprende, a cada criativo produzido e medido, **qual comb
 
 ## O que faz
 
-1. **Extract** — quando Skill 08 gera briefing, extrai 15-20 features estruturadas
-2. **Store** — salva em SQLite local (ou JSON) no workspace do produto
+1. **Extract** — quando Skill 08 gera briefing, extrai 26 features estruturadas (22 do criativo + 4 contextuais — ver `feature_schema.json`)
+2. **Store** — salva em SQLite local no workspace do produto
 3. **Update** — quando Skill 11 roda, atualiza cada criativo com performance real
 4. **Learn** — calcula correlações entre features e outcome (winner/loser)
 5. **Inject** — próxima Skill 08 recebe DNA aprendido como constraint no briefing
@@ -13,11 +13,12 @@ Sistema de memória que aprende, a cada criativo produzido e medido, **qual comb
 ## Arquitetura
 
 ```
-/workspace/[produto]/creative-dna/
-├── registry.db                  # SQLite com criativos + features + performance
-├── dna-profile.json              # Perfil DNA atualizado a cada N criativos
-├── dna-report.html               # Visualização humana (radar chart + tabela)
-└── extraction-log.json           # Log de cada extração
+workspace/[produto]/creative-dna/
+├── registry.db                    # SQLite com criativos + features + performance
+├── dna-profile.json               # Perfil DNA atualizado a cada N criativos
+├── features-[creative-id].json    # Features extraídas por criativo (Skill 08)
+├── perf-[creative-id].json        # Performance por criativo (Skill 11)
+└── extraction-errors.log          # Log de falhas de extração (não bloqueia a skill)
 ```
 
 ## Integração silenciosa com Skills
@@ -28,14 +29,21 @@ Sistema de memória que aprende, a cada criativo produzido e medido, **qual comb
 
 Silent end-to-end. Membro só vê o benefício via criativos que performam melhor.
 
-## Ver status do DNA
+## CLI (registry.py)
 
+```bash
+python3 .claude/lib/creative-dna/registry.py init workspace/[produto]
+python3 .claude/lib/creative-dna/registry.py add workspace/[produto] <creative-id> <features.json> --product <slug>
+python3 .claude/lib/creative-dna/registry.py update workspace/[produto] <creative-id> <perf.json>
+python3 .claude/lib/creative-dna/registry.py stats workspace/[produto] --product <slug>   # total, % por outcome
+python3 .claude/lib/creative-dna/registry.py dna workspace/[produto] --product <slug>     # recalcula e salva dna-profile.json
+python3 .claude/lib/creative-dna/registry.py show workspace/[produto]                     # printa dna-profile.json atual
 ```
-dna show          # printa dna-profile.json atual
-dna report        # gera dna-report.html com radar chart
-dna stats         # total de criativos, % winners, top 10 features
-dna reset         # wipe do registry (cuidado)
-```
+
+Guardrails: `update` em creative_id inexistente falha com exit 1 (nunca no-op
+silencioso); `dna` com menos de 10 criativos medidos não sobrescreve profile
+anterior. Campos de identificação (creative_id, source_file, etc.) nunca entram
+no DNA.
 
 ## Custo
 

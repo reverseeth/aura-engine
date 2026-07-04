@@ -56,7 +56,7 @@ Aura Engine atende membros em 3 estágios bem diferentes. Mesma skill precisa ad
 - `skills_completed.length > 10`
 - `batch_count 4+`
 - Champions ativos (multiple winner Post IDs)
-- Revenue tier 3+ atingido (Skill 12)
+- `12-scale-engine/dados.json.scale_phase` em `initial_scale` ou além, com as projeções 30/60/90 da Skill 12 sustentando o caixa (spend diário sustentado sem furo de cash flow)
 
 **Como skill deve se comportar**:
 - Recomendações agressivas (10-15 conceitos, batches semanais)
@@ -70,7 +70,7 @@ Aura Engine atende membros em 3 estágios bem diferentes. Mesma skill precisa ad
 
 Toda skill ANTES de executar:
 
-1. Ler `manifest.json`
+1. Ler `manifest.json` — o sinal `budget_daily` é o campo numérico CANÔNICO de budget ($/dia), gravado pela skill 00 (setup) a partir do budget declarado pelo membro (`budget_tier` é derivado dele; ver manifest-schema.json). Manifest legado sem `budget_daily`: inferir de `budget_tier` (`starter` ≈ <$50/dia) ou da linha "Budget diário" do `profile.md`.
 2. Ler `profile.md` (budget + revenue disclosed)
 3. Calcular stage via:
    - Se `stage` field explícito → usar
@@ -78,6 +78,7 @@ Toda skill ANTES de executar:
      - `skills_completed < 5` AND `budget_daily < 50` → starter
      - `batch_count 1-3` AND `target_cpa set` → validating
      - `batch_count >= 4` AND `champions.length > 0` → scaling
+     - Se NENHUMA condição casa (perfil híbrido, ex: começou com budget alto) → default `starter` (comportamento mais conservador — coerente com o princípio de default seguro do emergency-escape-paths)
 
 4. Aplicar comportamento do stage pelo resto da execução
 

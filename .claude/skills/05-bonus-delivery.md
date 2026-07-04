@@ -1,6 +1,6 @@
 ---
 name: bonus-delivery
-description: Pipeline de bônus de ECOMMERCE — gera o asset entregável (e-book/guide/checklist em PDF), configura o gift-with-purchase (GWP) na loja, e rastreia access/take-rate. NÃO é bônus de info-product. Tipos primários são os 4 que realmente movem AOV e percepção de valor num DTC: gift-with-purchase, e-book/guide rumo ao dream outcome, free complementary SKU, free gift wrapping (Q4). Use quando o membro disser "bonus delivery", "bônus", "como entregar o bônus", "configurar GWP", ou após a oferta (Skill 04) definir o stack de valor com bonuses[]. Roda PÓS-LAUNCH, junto da Skill 13 (retention).
+description: Pipeline de bônus de ECOMMERCE — gera o asset entregável (e-book/guide/checklist em PDF), configura o gift-with-purchase (GWP) na loja, e rastreia access/take-rate. NÃO é bônus de info-product. Tipos primários são os 4 que realmente movem AOV e percepção de valor num DTC: gift-with-purchase, e-book/guide rumo ao dream outcome, free complementary SKU, free gift wrapping (Q4). Use quando o membro disser "bonus delivery", "bônus", "como entregar o bônus", "configurar GWP", ou após a oferta (Skill 04) definir o stack de valor com bonuses[]. Roda em DUAS fases: Fase A (gerar assets + configurar GWP/entrega) ANTES do go-live de ads — bônus prometido na PDP no dia 1 precisa existir no dia 1; Fase B (tracking de take-rate e iteração) PÓS-LAUNCH, junto da Skill 13 (retention).
 ---
 
 # Bonus Delivery — Bônus de Ecommerce
@@ -16,7 +16,10 @@ O que justifica a 05 como skill standalone é o trabalho operacional que a 04 n�
 3. **Disparar o email de entrega** quando o bônus é digital ou condicional — coordenado com a **Skill 13 (retention)**, que é o executor de email.
 4. **Rastrear access rate / take-rate** — o KPI que diz se o bônus está agregando valor percebido ou só inflando o stack.
 
-**Posicionamento na ordem:** roda **pós-launch**, junto da 13. Bônus de ecom é alavanca de AOV e retenção, não de pré-launch. A loja já está no ar (07b), o tracking já existe (07c), o checkout/GWP já tem casa (07d). A 05 fecha o loop entregando os assets e ligando o trigger.
+**Posicionamento na ordem — DUAS fases (isso resolve o paradoxo de launch):** o offer_stack da 04 promete os bônus na PDP desde o dia 1 (a 06 imprime literal, a 07b deploya). Um comprador do dia 1 NÃO pode receber promessa de e-book que ainda não foi gerado, nem de brinde que a loja não sabe adicionar ao carrinho. Por isso:
+
+- **Fase A — Launch-readiness (ANTES do go-live de ads, logo depois da 07d):** gerar o asset digital (PDF do e-book/guide), configurar GWP/complementary/gift-wrap na loja (coordenado com a 07d), hospedar o arquivo, garantir o acesso do comprador do dia 1 (link do asset na thank-you page / order status — funciona mesmo antes do flow de email existir) e produzir o payload de email pra Skill 13. **Todo bônus visível na PDP precisa sair da Fase A antes do primeiro ad** — a Skill 09 (consistency audit) verifica isso no gate de launch (promise↔config).
+- **Fase B — Tracking e iteração (PÓS-launch, junto da 13):** a 13 ativa o flow de email de entrega; a 05 volta em D+30 pra puxar take-rate/access rate agregados (ETAPA 4) e alimentar a iteração da oferta na 04.
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (mapa skill→domínio no `README.md`, queries exatas em `frameworks.json`). O domínio desta skill é **brand-building-bonus-aov** (27 frameworks). Sempre que uma ETAPA mandar "puxar da base", rode `search_knowledge` com a `best_query` NOMEADA do framework relevante daquela fase — **nunca query genérica**.
 
@@ -42,8 +45,9 @@ Congruência visual importa: na PDP, "free" deve **aparecer** (imagem do brinde,
 
 1. Ler `workspace/profile.md` → `report_language` (default `pt-BR` se ausente). Toda doc interna desta skill é escrita nesse idioma. O asset entregável ao consumidor (PDF do e-book, email) é **sempre em inglês** (mercado US) — rule 0 do CLAUDE.md.
 2. Ler `workspace/[produto]/manifest.json` → detectar `stage` (member-stage-awareness). Influencia recomendação de tipo: **starter** → priorizar e-book/guide (custo zero de produzir) e GWP de baixo COGS; **scaling** → pode sustentar complementary SKU físico e GWP mais robusto.
-3. `04-offer-builder/dados.json` existe com `bonuses[]` preenchido. Pra cada bonus, `type` claro (não default "pdf").
-4. **Escape path (ES1):** se `04-offer-builder/dados.json` está ausente/corrompido, oferecer (A) re-rodar Skill 04 ou (B) proceder com bônus genérico marcando `manifest.skipped_preflight`. Não abortar seco.
+3. Detectar a FASE: se `manifest.skills_completed` ainda NÃO contém `"10-ad-strategy"` (ads não foram ao ar) OU existe bônus em `bonuses[]` sem asset/config gerado → rodar **Fase A** (ETAPAs 1-3 + config). Se o launch já aconteceu e os assets existem → **Fase B** (ETAPA 4, tracking).
+4. `04-offer-builder/dados.json` existe com `bonuses[]` preenchido. Pra cada bonus, `type` E `condition` claros (não default "pdf"). Se `condition` estiver ausente (oferta gerada antes do campo existir), inferir: bônus presente no offer_stack da PDP = `unconditional`; GWP com threshold definido = `cart_threshold` — e gravar a inferência de volta no `dados.json` da 04.
+5. **Escape path (ES1):** se `04-offer-builder/dados.json` está ausente/corrompido, oferecer (A) re-rodar Skill 04 ou (B) proceder com bônus genérico marcando `manifest.skipped_preflight`. Não abortar seco.
 
 Se `bonuses[]` está vazio mas o membro quer um bônus, **voltar pra 04** — é lá que se decide. A 05 não cria oferta.
 
@@ -51,7 +55,7 @@ Se `bonuses[]` está vazio mas o membro quer um bônus, **voltar pra 04** — é
 
 ### ETAPA 1 — Parse dos bonuses definidos na 04
 
-Ler `04-offer-builder/dados.json.bonuses[]`. Schema esperado (alinhado com a 04):
+Ler `04-offer-builder/dados.json.bonuses[]`. Schema esperado — este é o **enum canônico** (fonte: Output Schema da Skill 04, reproduzido idêntico lá e aqui):
 
 ```json
 {
@@ -61,9 +65,12 @@ Ler `04-offer-builder/dados.json.bonuses[]`. Schema esperado (alinhado com a 04)
   "value_anchored": 49,
   "type": "gift_with_purchase | free_complementary_sku | free_ebook | gift_wrapping | digital_guide | discount_code | workbook | checklist | community_access | video_series | consultation_call | trial_extension",
   "format_hint": "in_box | shopify_function | gift_app | pdf | notion | figma | wistia | klaviyo_email | shopify_discount | circle_invite",
+  "condition": "unconditional | cart_threshold | tier_specific",
   "delivery_trigger": "post_purchase | on_signup | day_7_post_purchase | on_first_reorder"
 }
 ```
+
+Se o `dados.json` da 04 tiver um `type` fora dessa lista, volte pra 04 e corrija LÁ (não inventar mapeamento local — o enum é único).
 
 Pra cada bonus, identificar o playbook correspondente na ETAPA 2.
 
@@ -78,7 +85,12 @@ A alavanca de AOV mais direta. Add um item de baixo COGS quando o cart subtotal 
 - **AOV Money Close + Offer Bump + Add-More-Packages** (rode `AOV money close offer bump add more packages biggest package most popular checkout`) — posiciona o threshold do GWP junto do tier "most popular".
 - **3x+ Markup Rule + $60 AOV Floor (Margin Validation for Paid-Traffic Brands)** (rode `3x markup rule 60 dollar AOV floor COGS shipping margin paid traffic CPM fixed`) — sanity check de margem: o brinde low-COGS não pode furar o piso.
 
-**1. Definir o threshold (cart subtotal):** ancorar no AOV. Ler `04-offer-builder/dados.json` (price, offer_stack) e o AOV histórico se existir (manifest ou Stripe). Regra prática: threshold ~10-20% **acima** do AOV atual, pra empurrar o cliente a adicionar 1 item a mais sem ser inalcançável. Se não houver AOV histórico, usar o preço do tier principal × 1.1 como proxy e marcar como teórico.
+**0. Ler `condition` do bonus (da 04) — define a mecânica ANTES de qualquer threshold:**
+   - `unconditional` → o brinde foi prometido na PDP a TODO comprador: **auto-add em toda compra** (app/Function SEM threshold). Colocar threshold aqui quebra a promessa da página.
+   - `cart_threshold` → seguir os passos 1-2 abaixo (threshold ancorado no AOV). A copy da página DEVE refletir a condição ("FREE over $X") — coordenar com 06/07a.
+   - `tier_specific` → o brinde destrava num tier específico (3-pack/6-pack): gatilho por produto/variant do tier, não por subtotal.
+
+**1. Definir o threshold (cart subtotal — só pra `condition: cart_threshold`):** ancorar no AOV. Ler `04-offer-builder/dados.json` (price, offer_stack) e o AOV histórico se existir (manifest ou Stripe). Regra prática: threshold ~10-20% **acima** do AOV atual, pra empurrar o cliente a adicionar 1 item a mais sem ser inalcançável. Se não houver AOV histórico, usar o preço do tier principal × 1.1 como proxy e marcar como teórico.
 
 **2. Sourcing low-COGS:** o brinde precisa ter percepção de valor alta e custo real baixo (sample size do próprio catálogo, item complementar barato, kit emocional). O `value_anchored` na PDP ancora no **varejo real** do item, nunca num "sticker price" inventado (ver Compliance abaixo).
 
@@ -89,7 +101,7 @@ A alavanca de AOV mais direta. Add um item de baixo COGS quando o cart subtotal 
 
 **4. Congruência "free" na PDP:** garantir que o brinde **apareça** visualmente (imagem do gift, badge "FREE GIFT over $X"). Coordenar com a página (07a/07b) — ícone SVG, nunca emoji (rule 7).
 
-**5. KPI = take-rate.** A métrica é quantos % escolhem o tier que destrava o GWP. Benchmark da base: full-size foi de **30% → 52%** de take-rate ao adicionar GWP, AOV +12%, profit/visitor +20%. Registrar take-rate no log (ETAPA 4) assim que houver dado.
+**5. KPI = take-rate.** A métrica é quantos % dos pedidos destravam o brinde (escolhem o tier ou cruzam o threshold). Benchmark da base: a escolha do tier full-size (o tamanho cheio, que destrava o brinde) subiu de **30% pra 52%** dos pedidos ao adicionar o GWP; AOV +12%, lucro por visitante +20%. Registrar take-rate no snapshot (ETAPA 4) assim que houver dado.
 
 #### `free_ebook` / `digital_guide` / `workbook` / `checklist` — asset digital rumo ao dream outcome
 
@@ -103,7 +115,7 @@ O e-book/guide que ajuda o cliente a **alcançar o resultado** que o produto pro
 
 **2. Produzir o PDF:** Markdown → HTML → PDF (weasyprint ou headless Chrome). Design da **marca do membro** (cores/fonte da brand, não do Aura). Conteúdo **em inglês** (consumidor US). Salvar em `workspace/[produto]/05-bonus-delivery/bonuses/[bonus-id]/[bonus-id].pdf`.
 
-**3. Entrega:** link no email post-purchase (ver ETAPA 3, executado pela 13) + opcionalmente thank-you page. Asset hospedado em Shopify Files API, S3 ou R2.
+**3. Entrega:** link na thank-you page / order status (config da Fase A — é o que garante o acesso do comprador do dia 1, antes do flow de email existir) + link no email post-purchase (ver ETAPA 3, executado pela 13). Asset hospedado em Shopify Files API, S3 ou R2.
 
 **4. KPI = access rate** (% que abre/baixa). Logar na ETAPA 4.
 
@@ -146,16 +158,20 @@ Se algum bonus da 04 caiu num desses por engano (era pra ser ecom), surface pro 
 
 **Divisão de papéis (fonte única de verdade):** a 05 **gera o ASSET do bônus** (PDF, link, config GWP) e define o `delivery_trigger`. A **Skill 13 (retention) é o ÚNICO executor de email** (Klaviyo/ESP) — ela monta o flow e entrega. A 05 **não dispara email sozinha nem duplica lógica de email**: produz o **conteúdo do email + o trigger** como um payload que a 13 consome. Toda a mecânica de flow (trigger técnico, delays, draft/ativação, HTML do email no ESP) mora na 13. Ver a tabela "Divisão de papéis pós-compra" na Skill 13.
 
-Mapear `delivery_trigger` → fluxo da 13:
+Mapear `delivery_trigger` → fluxo da 13 (espelho literal da tabela "delivery_trigger → email que entrega" da Skill 13, que é a fonte única):
 
-| `delivery_trigger` | Fluxo na Skill 13 |
+| `delivery_trigger` | Fluxo / email que entrega o bonus (Skill 13) |
 |---|---|
-| `post_purchase` | Welcome/post-purchase flow (email 1) |
-| `day_7_post_purchase` | Post-purchase flow (email atrasado day 7) |
-| `on_first_reorder` | Winback/reorder flow |
-| `on_signup` | Welcome flow (pré-compra, se aplicável) |
+| `post_purchase` | Post-Purchase Welcome — Email 1 (obrigado) |
+| `day_7_post_purchase` | Post-Purchase Welcome — Email 3 (~dia 7) |
+| `on_first_reorder` | Replenishment — Email 2/3 (no reorder) |
+| `on_signup` | Welcome Series — Email 1 (boas-vindas) |
+
+(Win-back é OUTRO flow na 13 — reativação de cliente inativo, não entrega de bônus. Nenhum `delivery_trigger` mapeia pra ele.)
 
 GWP físico e gift-wrapping geralmente **não precisam de email de entrega** (vão na caixa). E-book, discount_code, community e digital precisam.
+
+**Timing (Fase A vs Fase B):** o payload (template abaixo + trigger) é produzido na **Fase A**, antes do go-live; a 13 ativa o flow no ESP quando rodar. Enquanto o flow não existe (janela de launch), o comprador do dia 1 acessa o bônus digital pelo link na thank-you page / order status (config da Fase A) — o email reforça a entrega depois.
 
 Template base do email (gerado em inglês, repassado pra 13):
 
@@ -179,9 +195,15 @@ Questions? Just reply to this email.
 
 Compliance do email: subject < 50 chars, 1 CTA só, reply-to monitorado, unsubscribe link. Sem emoji no subject (consistência com o tom da marca; opcional, decisão do membro).
 
-### ETAPA 4 — Tracking (access rate / take-rate)
+### ETAPA 4 — Tracking (access rate / take-rate) — Fase B
 
-Registrar cada delivery em `workspace/[produto]/05-bonus-delivery/dados.json`. É um **array** de deliveries (running log), não um objeto único:
+**Não existe log por compra.** O Claude não roda a cada pedido e esta skill não configura webhook — modelar delivery por compra geraria um arquivo que nasce vazio e nunca é alimentado. A métrica nasce AGREGADA, puxada das fontes reais no re-run da skill.
+
+**No re-run (D+30 e a cada ciclo depois):**
+
+1. **Shopify Analytics / Admin API** → take-rate: pedidos elegíveis no período vs pedidos que destravaram o brinde/tier (GWP, complementary, gift-wrap, tier do bundle).
+2. **Klaviyo (via Skill 13)** → access rate: open/click do email de entrega (e-book, discount code, community).
+3. Gravar um **snapshot agregado por bônus** em `workspace/[produto]/05-bonus-delivery/dados.json` — array em **APPEND** (um item por bônus por período; o histórico mostra a evolução):
 
 ```json
 [
@@ -189,22 +211,22 @@ Registrar cada delivery em `workspace/[produto]/05-bonus-delivery/dados.json`. �
     "bonus_id": "bonus-01",
     "type": "gift_with_purchase",
     "delivery_channel": "shopify_function",
-    "delivery_trigger": "post_purchase",
+    "condition": "cart_threshold",
     "threshold": 65,
     "value_anchored": 49,
-    "customer_id": "shopify-customer-id-or-null",
-    "delivered_at": "2026-06-20T14:00:00Z",
-    "accessed_at": null,
-    "access_confirmation": "link_clicked | code_redeemed | invite_accepted | gift_added_to_cart | in_box_shipped | not_tracked",
-    "take_rate": null
+    "period": "2026-06-01..2026-06-30",
+    "orders_eligible": 420,
+    "orders_with_bonus": 219,
+    "take_rate": 0.52,
+    "access_rate": null,
+    "source": "shopify_analytics | klaviyo | manual",
+    "snapshot_at": "2026-07-01T14:00:00Z"
   }
 ]
 ```
 
-**Append**, nunca sobrescrever (cada compra adiciona um item; se o log já existe, ler e dar push).
-
 KPIs por tipo:
-- GWP / complementary SKU / gift-wrapping → **take-rate** (% que escolhe o tier/produto que destrava o brinde).
+- GWP / complementary SKU / gift-wrapping → **take-rate** (% dos pedidos elegíveis que destravam o brinde).
 - E-book / digital / community → **access rate** (% que abre/baixa/aceita).
 
 **Threshold de alarme:** access/take-rate < **30%** → o bônus não está agregando valor percebido. Surface pro membro como sinal de iteração na oferta (volta pra 04), não como falha desta skill. Benchmark de GWP saudável: take-rate sobe pra ~50%+.
@@ -239,16 +261,19 @@ KPIs por tipo:
 - **Modelar bônus de info-product** (community/video/call) pra produto físico one-time — domínio errado.
 - **GWP via draft order** — caminho errado; usar app ou Shopify Function.
 - Bônus sem `delivery_trigger` (fica em limbo, nunca entregue).
+- **Prometer bônus na PDP e deixar asset/config pra depois do launch** — a Fase A existe exatamente pra isso; comprador do dia 1 recebe o que a página prometeu.
+- **Colocar threshold num bônus `condition: unconditional`** (quebra a promessa da página) — e vice-versa: auto-add num GWP que a página anuncia como "FREE over $X".
+- Modelar log por compra (customer_id/delivered_at) — não há quem alimente; tracking é snapshot agregado (ETAPA 4).
 - Discount code sem expiração (vira promo eterna).
 - In-box gift (complementary/gift-wrap) sem coordenar com fulfillment (não vai na caixa).
 - `value_anchored` inflado em item não-vendido (frágil no FTC).
 - GWP threshold abaixo do AOV (queima margem sem empurrar AOV pra cima).
-- Sobrescrever o `05-bonus-delivery/dados.json` em vez de dar append (perde histórico).
+- Sobrescrever o `05-bonus-delivery/dados.json` em vez de dar append (perde o histórico de snapshots).
 
 ## Regras de rigor
 
 1. **Bônus real e específico** — cada entrega é tangível e útil pro avatar. Recusar gerar bônus genérico sem justificar relevância.
-2. **Promise↔Config check** — bônus prometido no stack da Skill 04 precisa ter delivery/GWP setup completo. Senão, gate bloqueia launch (`.claude/rules/pre-launch-gates.md`).
+2. **Promise↔Config check** — bônus prometido no stack da Skill 04 (visível na PDP) precisa ter asset + delivery/GWP setup completos **ANTES do go-live de ads** (Fase A). A Skill 09 (consistency audit) e a rule `.claude/rules/pre-launch-gates.md` verificam essa promessa ("Free [bonus] with purchase") no gate de launch.
 3. **Access/take-rate tracking** — sempre que possível, medir. Bônus nunca acessado/escolhido = sinal de oferta fraca, itera na 04.
 4. **Fallback graceful** — se a API de hosting/Function falha, gerar PDF como último recurso E avisar o membro pra setup manual depois (ES6).
 
@@ -257,9 +282,9 @@ KPIs por tipo:
 **Garantir diretório:** `mkdir -p workspace/[produto]/05-bonus-delivery/bonuses/` antes de salvar.
 
 1. **`workspace/[produto]/05-bonus-delivery/bonuses/[bonus-id]/`** — assets do bônus (PDF do e-book, screenshots da config GWP, instruções de fulfillment, etc — conforme type). Estes seguem o **design da marca do membro** (não do Aura) e o **consumidor-final é em inglês**.
-2. **`workspace/[produto]/05-bonus-delivery/relatorio.md`** — doc operacional pra AI ler em skills futuras: cada bônus com type, canal de entrega, trigger, threshold (GWP), path do asset, KPI esperado. Escrito no `report_language`.
-3. **`workspace/[produto]/05-bonus-delivery/relatorio.html`** — visualização humana usando `.claude/templates/aura-report-template.html` como base. **Logo SVG Aura no topo** (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por bônus, `.pill` pro type tag, `.kpi-grid` pra take-rate/access rate (quando disponível), `.callout` pro threshold de GWP.
-4. **`workspace/[produto]/05-bonus-delivery/dados.json`** — array running de deliveries + access/take-rate tracking (ETAPA 4). Append, nunca sobrescrever.
+2. **`workspace/[produto]/05-bonus-delivery/bonus-delivery.md`** — doc operacional pra AI ler em skills futuras: cada bônus com type, condition, canal de entrega, trigger, threshold (se cart_threshold), path do asset, KPI esperado, e status da Fase A (pronto pro launch?). Escrito no `report_language`.
+3. **`workspace/[produto]/05-bonus-delivery/bonus-delivery.html`** — visualização humana usando `.claude/templates/aura-report-template.html` como base. **Logo SVG Aura no topo** (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por bônus, `.pill` pro type tag, `.kpi-grid` pra take-rate/access rate (quando disponível), `.callout` pro threshold de GWP.
+4. **`workspace/[produto]/05-bonus-delivery/dados.json`** — array de snapshots agregados por bônus/período com take-rate/access rate (ETAPA 4, Fase B). Append, nunca sobrescrever.
 
 Atualizar `manifest.json.skills_completed` com `"05-bonus-delivery"`.
 
@@ -267,11 +292,11 @@ Atualizar `manifest.json.skills_completed` com `"05-bonus-delivery"`.
 
 ## Mensagem Final (framing de draft — iteration-driven-refinement)
 
-> "Primeira versão da entrega de bônus pronta pros [N] bônus da oferta:
+> "Fase A da entrega de bônus pronta pros [N] bônus da oferta:
 >
-> 1. [Bonus 1 — tipo — canal de entrega / threshold se GWP]
+> 1. [Bonus 1 — tipo — condition — canal de entrega / threshold se cart_threshold]
 > 2. [Bonus 2 — tipo — canal de entrega]
 >
-> O GWP tá configurado via [app/Function] com threshold de $[X] (ancorado no seu AOV). Os e-books/assets digitais tão em `bonuses/`. O email de entrega vai entrar no fluxo da Skill 13.
+> O GWP tá configurado via [app/Function] conforme a condição da oferta ([auto-add em toda compra / threshold de $X ancorado no seu AOV]). Os e-books/assets digitais tão em `bonuses/` e o link de acesso já aparece na thank-you page — comprador do dia 1 recebe o que a página promete. O payload do email de entrega tá pronto pro fluxo da Skill 13.
 >
-> Testa comprando 1 unidade pra validar que o brinde aparece no cart e os emails/links chegam. Me diz se o threshold tá certo ou se quer ajustar. Depois de ~30 dias com dados, eu leio o `05-bonus-delivery/dados.json` e mostro take-rate/access rate por bônus pra gente iterar a oferta."
+> Testa comprando 1 unidade pra validar que o brinde aparece no cart e o link chega. Me diz se o threshold/condição tá certo ou se quer ajustar. Depois de ~30 dias com ads no ar, roda `bonus delivery` de novo (Fase B): eu puxo os agregados do Shopify/Klaviyo, gravo o snapshot no `05-bonus-delivery/dados.json` e mostro take-rate/access rate por bônus pra gente iterar a oferta."

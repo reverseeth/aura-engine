@@ -4,11 +4,13 @@ aura_clone.py — CLI wrapper unificado do pipeline design-clone.
 
 Dois modos:
 
-  1) signals (default) — orquestra downloader → analyzer → pattern-extractor.
+  1) signals (default) — orquestra captura → pattern-extractor (o analyzer é
+     OPCIONAL nesse modo: roda só pra produzir analysis.json de contexto; o
+     pattern-extractor lê direto o computed-styles.json e não depende dele).
      Produz `patterns.json` (design_system abstrato) pra rota de brand-signals
      da 07a-page-design. NÃO copia código do concorrente.
 
-  2) clone-and-adapt — orquestra downloader → analyzer → skeleton-builder.
+  2) clone-and-adapt — orquestra captura → analyzer → skeleton-builder.
      Dada uma URL de referência, captura a ESTRUTURA de sections (ordem + tipo +
      layout) e produz um ESQUELETO HTML (`skeleton.html`) com sections vazias /
      placeholder, preservando hierarquia/layout do concorrente mas SEM nenhuma
@@ -16,24 +18,37 @@ Dois modos:
      preenche com a copy/brand/produto do membro (06-copy / 04-offer) gerando
      `design/page.html`. Herda a hierarquia de conversão validada, não o conteúdo.
 
-Robustez: se o scraping de DOM falha (anti-bot/Cloudflare/timeout), o downloader
-cai num fallback de screenshot full-page (`raw/fallback-screenshot.png`) que serve
-à rota screenshot→visão da 07a. O clone-and-adapt detecta esse caso e reporta.
+Cascade de captura (--engine=auto, default):
+
+  1. downloader.py — Playwright stealth (DOM + computed-styles + assets)
+  2. snapshot.py   — single-file-cli (HTML self-contained; vira page.html via
+                     ref.ai.html; sem computed-styles → serve pro clone-and-adapt,
+                     mas o modo signals falha honesto: sem CSS computado real
+                     não há design_system — nada de paleta inventada)
+  3. screenshot-fallback do downloader → rota screenshot→visão da 07a
+  4. MANUAL: membro salva a página com a extensão SingleFile no Chrome dele
+     (vence Cloudflare/login) e a Aura ingere via --from-file
 
 Uso:
     # Modo signals (default)
     python3 aura_clone.py <url> --output=<dir> [--product=<slug>]
+                              [--engine=auto|downloader|singlefile]
                               [--skip-images] [--pattern-only]
 
     # Modo clone-and-adapt (esqueleto HTML estrutural)
     python3 aura_clone.py clone-and-adapt <url> --output=<dir> [--product=<slug>]
+                              [--engine=auto|downloader|singlefile]
+
+    # Ingestão manual (arquivo salvo pela extensão SingleFile do membro)
+    python3 aura_clone.py [clone-and-adapt] --from-file=<path.html> --output=<dir>
 
 Output (modo signals):
     <dir>/
         raw/           (HTML, CSS, imagens, computed-styles.json)
-        analysis.json  (output do analyzer)
+        analysis.json  (output do analyzer — opcional; ausente com --pattern-only
+                        ou se o analyzer falhar, sem bloquear o patterns.json)
         patterns.json  (output do pattern-extractor)
-        manifest.json  (URL, timestamp, versão do wrapper)
+        manifest.json  (URL, timestamp, versão, engine, status de cada passo)
 
 Output (modo clone-and-adapt):
     <dir>/
@@ -41,7 +56,13 @@ Output (modo clone-and-adapt):
         analysis.json  (sections detectadas — ordem + tipo + layout)
         skeleton.html  (ESQUELETO estrutural: placeholders, zero conteúdo do concorrente)
         skeleton.json  (mesma estrutura em dados, pra a 07a/Claude consumir)
-        manifest.json  (URL, timestamp, versão, status de cada passo)
+        manifest.json  (URL, timestamp, versão, engine, status de cada passo)
+
+Robustez: se o DOM falha em todas as engines automatizadas, o wrapper reporta o
+screenshot-fallback (se houver) e o manifest ganha `"mode": "screenshot_fallback"`
+top-level. Se o screenshot capturou uma página de CHALLENGE anti-bot
+(`challenge_detected` no fallback.json), o wrapper avisa que ele NÃO serve pra
+rota visão e aponta a rota manual (--from-file).
 """
 
 from __future__ import annotations
@@ -61,9 +82,21 @@ _THIS_DIR = Path(__file__).resolve().parent
 if str(_THIS_DIR) not in sys.path:
     sys.path.insert(0, str(_THIS_DIR))
 
+# Bootstrap re-exec (mesmo padrão do fetch.py da lib web-fetch): se o python
+# atual não tem Playwright e um venv do framework existe, re-executa nele.
+# Assim `python3 aura_clone.py` direto funciona E os subprocessos do pipeline
+# (invocados com sys.executable) herdam o python do venv. Sem venv, segue —
+# a ingestão --from-file não usa browser e os passos avisam o setup.
+from _venv_bootstrap import bootstrap as _venv_bootstrap  # noqa: E402
+_venv_bootstrap("playwright")
+
 from downloader import validate_url, validate_output_path  # noqa: E402
 
-WRAPPER_VERSION = "1.0.0"
+WRAPPER_VERSION = "1.1.0"
+
+SINGLEFILE_EXTENSION_URL = (
+    "https://chromewebstore.google.com/detail/singlefile/mpiodijhokgodhhofbcjdecpffjipkle"
+)
 
 logger = logging.getLogger("design_clone.aura_clone")
 if not logger.handlers:
@@ -73,12 +106,12 @@ if not logger.handlers:
     logger.setLevel(logging.INFO)
 
 
-def _run_step(label: str, cmd: list[str]) -> int:
+def _run_step(label: str, cmd: list[str], env: Optional[dict] = None) -> int:
     """Executa subprocess com log, retorna return code."""
     print(f"\n[aura_clone] ===== {label} =====")
     print(f"[aura_clone] $ {' '.join(cmd)}")
     try:
-        result = subprocess.run(cmd, check=False)
+        result = subprocess.run(cmd, check=False, env=env)
         return result.returncode
     except FileNotFoundError as exc:
         logger.error("binário não encontrado em %s: %s", label, exc)
@@ -88,12 +121,14 @@ def _run_step(label: str, cmd: list[str]) -> int:
         return 1
 
 
-def _manifest(url: str, output_dir: Path, product: Optional[str], steps: dict) -> dict:
+def _manifest(url: str, output_dir: Path, product: Optional[str], steps: dict,
+              engine: Optional[str] = None) -> dict:
     return {
         "url": url,
         "output_dir": str(output_dir),
         "product_slug": product,
         "wrapper_version": WRAPPER_VERSION,
+        "engine": engine,
         "timestamp": _dt.datetime.now(_dt.timezone.utc).isoformat(),
         "steps": steps,
     }
@@ -123,6 +158,173 @@ def _move_pattern_output(raw_dir: Path, patterns_path: Path) -> bool:
     except OSError as exc:
         logger.warning("falha ao copiar patterns.json: %s", exc)
         return False
+
+
+def _clear_stale_run_state(raw_dir: Path) -> None:
+    """Remove outputs derivados de runs anteriores no mesmo --output.
+
+    Sem isso, um retry após bloqueio herda `fallback.json`/`sections.json`
+    velhos: retry bem-sucedido era tratado como fallback (skeleton nunca saía)
+    e um sections.json de OUTRA página podia alimentar o pattern-extractor.
+    """
+    for name in ("fallback.json", "fallback-screenshot.png", "sections.json", "patterns.json"):
+        f = raw_dir / name
+        try:
+            if f.exists():
+                f.unlink()
+        except OSError as exc:
+            logger.warning("não consegui limpar %s: %s", f, exc)
+
+
+def _fallback_state(raw_dir: Path) -> dict:
+    """Lê o estado de fallback gravado pelo downloader (se houver)."""
+    state = {
+        "fallback_only": (raw_dir / "fallback.json").exists(),
+        "has_dom": (raw_dir / "page.html").exists(),
+        "challenge": False,
+        "screenshot": None,
+    }
+    fb = raw_dir / "fallback.json"
+    if fb.exists():
+        try:
+            data = json.loads(fb.read_text(encoding="utf-8"))
+            state["challenge"] = bool(data.get("challenge_detected"))
+        except (OSError, json.JSONDecodeError):
+            pass
+    shot = raw_dir / "fallback-screenshot.png"
+    if shot.exists():
+        state["screenshot"] = shot
+    return state
+
+
+def _run_snapshot(source: str, raw_dir: Path, python_exe: str, steps_status: dict) -> bool:
+    """Roda snapshot.py e promove ref.ai.html → raw/page.html pro analyzer."""
+    rc = _run_step(
+        "snapshot (single-file-cli)",
+        [python_exe, str(_THIS_DIR / "snapshot.py"), source, "--output", str(raw_dir)],
+    )
+    steps_status["snapshot"] = {"returncode": rc, "ok": rc == 0}
+    if rc != 0:
+        return False
+    ai_html = raw_dir / "ref.ai.html"
+    if not ai_html.exists():
+        steps_status["snapshot"]["ok"] = False
+        return False
+    try:
+        (raw_dir / "page.html").write_text(
+            ai_html.read_text(encoding="utf-8"), encoding="utf-8"
+        )
+        (raw_dir / "meta.json").write_text(
+            json.dumps(
+                {"url": source, "fetched_at": _dt.datetime.now(_dt.timezone.utc).isoformat()},
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+    except OSError as exc:
+        logger.error("falha promovendo ref.ai.html → page.html: %s", exc)
+        steps_status["snapshot"]["ok"] = False
+        return False
+    return True
+
+
+def _acquire(url: Optional[str], raw_dir: Path, args, python_exe: str,
+             env: dict, steps_status: dict) -> dict:
+    """Cascade de captura. Retorna {"dom_ready": bool, "engine": str|None}."""
+    if args.from_file:
+        src = str(Path(args.from_file).expanduser().resolve())
+        ok = _run_snapshot(src, raw_dir, python_exe, steps_status)
+        if not ok:
+            print(
+                f"[aura_clone] ingestão de {src} falhou — o arquivo está legível/completo? "
+                "Re-salve a página com a extensão SingleFile e tente de novo.",
+                file=sys.stderr,
+            )
+        return {"dom_ready": ok, "engine": "from-file" if ok else None}
+
+    if args.engine == "singlefile":
+        ok = _run_snapshot(url, raw_dir, python_exe, steps_status)
+        return {"dom_ready": ok, "engine": "singlefile" if ok else None}
+
+    # auto | downloader: Playwright stealth primeiro (único que extrai
+    # computed-styles — melhor fidelidade pro design_system).
+    rc = _run_step(
+        "downloader",
+        [python_exe, str(_THIS_DIR / "downloader.py"), url, str(raw_dir)],
+        env=env,
+    )
+    steps_status["downloader"] = {"returncode": rc, "ok": rc == 0}
+    state = _fallback_state(raw_dir)
+    if rc == 0 and state["has_dom"] and not state["fallback_only"]:
+        return {"dom_ready": True, "engine": "downloader"}
+
+    if args.engine == "auto":
+        print(
+            "[aura_clone] DOM via downloader falhou — tentando snapshot single-file-cli...",
+            file=sys.stderr,
+        )
+        if _run_snapshot(url, raw_dir, python_exe, steps_status):
+            return {"dom_ready": True, "engine": "singlefile"}
+
+    return {"dom_ready": False, "engine": None}
+
+
+def _abort_screenshot_fallback(
+    mode: str,
+    url: str,
+    output_dir: Path,
+    raw_dir: Path,
+    product: Optional[str],
+    steps_status: dict,
+    manifest_path: Path,
+) -> int:
+    """Saída padronizada quando nenhuma engine automatizada conseguiu DOM."""
+    state = _fallback_state(raw_dir)
+    steps_status["mode"] = "screenshot_fallback"
+    manifest = {
+        **_manifest(url, output_dir, product, steps_status, engine=None),
+        "mode": "screenshot_fallback",
+        "clone_mode": mode,
+        "challenge_detected": state["challenge"],
+        "fallback_screenshot": (
+            "raw/fallback-screenshot.png" if state["screenshot"] else None
+        ),
+    }
+    if mode == "clone-and-adapt":
+        manifest["skeleton"] = None
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+    print(f"\n[aura_clone] ===== {mode.upper()} (FALLBACK) =====", file=sys.stderr)
+    print(
+        "[aura_clone] scraping de DOM falhou em todas as engines automatizadas "
+        "(anti-bot/Cloudflare/timeout).",
+        file=sys.stderr,
+    )
+    if state["screenshot"] and state["challenge"]:
+        print(
+            "[aura_clone] ATENÇÃO: o screenshot capturado é a PÁGINA DE CHALLENGE "
+            "anti-bot, não a página real — NÃO use na rota screenshot→visão.",
+            file=sys.stderr,
+        )
+    elif state["screenshot"]:
+        print(
+            f"[aura_clone] screenshot full-page disponível: {state['screenshot']}",
+            file=sys.stderr,
+        )
+        print(
+            "[aura_clone] → siga pela rota screenshot→visão da 07a "
+            "(Claude lê a imagem e reconstrói a estrutura).",
+            file=sys.stderr,
+        )
+    print(
+        "[aura_clone] Rota manual (vence Cloudflare/login): membro instala a extensão "
+        f"SingleFile ({SINGLEFILE_EXTENSION_URL}), salva a página no Chrome dele e a Aura "
+        "ingere com: aura_clone.py "
+        + ("clone-and-adapt " if mode == "clone-and-adapt" else "")
+        + "--from-file=<arquivo.html> --output=<dir>",
+        file=sys.stderr,
+    )
+    return 2
 
 
 # --------------------------- skeleton builder (clone-and-adapt) ------------- #
@@ -283,60 +485,27 @@ def build_skeleton(analysis: dict, url: str, product: Optional[str]) -> tuple[st
 
 
 def _run_clone_and_adapt(
-    url: str, output_dir: Path, raw_dir: Path, product: Optional[str], python_exe: str
+    url: str,
+    output_dir: Path,
+    raw_dir: Path,
+    args,
+    python_exe: str,
+    env: dict,
 ) -> int:
-    """Orquestra o modo clone-and-adapt: download → analyzer → skeleton."""
+    """Orquestra o modo clone-and-adapt: captura (cascade) → analyzer → skeleton."""
     steps_status: dict = {}
     analysis_path = output_dir / "analysis.json"
     skeleton_html_path = output_dir / "skeleton.html"
     skeleton_json_path = output_dir / "skeleton.json"
     manifest_path = output_dir / "manifest.json"
 
-    # Passo 1: downloader (com fallback de screenshot embutido nele)
-    downloader_cmd = [python_exe, str(_THIS_DIR / "downloader.py"), url, str(raw_dir)]
-    rc = _run_step("downloader", downloader_cmd)
-    steps_status["downloader"] = {"returncode": rc, "ok": rc == 0}
-
-    fallback_only = (raw_dir / "fallback.json").exists()
-    has_dom = (raw_dir / "page.html").exists()
-
-    if rc != 0 or fallback_only or not has_dom:
-        # DOM scraping falhou → só temos (talvez) o screenshot full-page.
-        steps_status["mode"] = "screenshot_fallback"
-        manifest_path.write_text(
-            json.dumps(
-                {
-                    **_manifest(url, output_dir, product, steps_status),
-                    "clone_mode": "clone-and-adapt",
-                    "skeleton": None,
-                    "fallback_screenshot": (
-                        "raw/fallback-screenshot.png"
-                        if (raw_dir / "fallback-screenshot.png").exists()
-                        else None
-                    ),
-                },
-                indent=2,
-            ),
-            encoding="utf-8",
+    # Passo 1: captura via cascade (downloader → singlefile → screenshot)
+    acq = _acquire(url, raw_dir, args, python_exe, env, steps_status)
+    if not acq["dom_ready"]:
+        return _abort_screenshot_fallback(
+            "clone-and-adapt", url, output_dir, raw_dir, args.product,
+            steps_status, manifest_path,
         )
-        print("\n[aura_clone] ===== CLONE-AND-ADAPT (FALLBACK) =====", file=sys.stderr)
-        print(
-            "[aura_clone] scraping de DOM falhou (anti-bot/Cloudflare/timeout). "
-            "Sem esqueleto estrutural.",
-            file=sys.stderr,
-        )
-        if (raw_dir / "fallback-screenshot.png").exists():
-            print(
-                f"[aura_clone] screenshot full-page disponível: "
-                f"{raw_dir / 'fallback-screenshot.png'}",
-                file=sys.stderr,
-            )
-            print(
-                "[aura_clone] → siga pela rota screenshot→visão da 07a "
-                "(Claude lê a imagem e reconstrói a estrutura).",
-                file=sys.stderr,
-            )
-        return 2
 
     # Passo 2: analyzer
     analyzer_cmd = [python_exe, str(_THIS_DIR / "analyzer.py"), str(raw_dir)]
@@ -348,7 +517,10 @@ def _run_clone_and_adapt(
             file=sys.stderr,
         )
         manifest_path.write_text(
-            json.dumps(_manifest(url, output_dir, product, steps_status), indent=2),
+            json.dumps(
+                _manifest(url, output_dir, args.product, steps_status, engine=acq["engine"]),
+                indent=2,
+            ),
             encoding="utf-8",
         )
         return 2
@@ -359,7 +531,7 @@ def _run_clone_and_adapt(
     print("\n[aura_clone] ===== skeleton-builder =====")
     try:
         analysis = json.loads((raw_dir / "sections.json").read_text(encoding="utf-8"))
-        skeleton_html, skeleton_data = build_skeleton(analysis, url, product)
+        skeleton_html, skeleton_data = build_skeleton(analysis, url, args.product)
         skeleton_html_path.write_text(skeleton_html, encoding="utf-8")
         skeleton_json_path.write_text(
             json.dumps(skeleton_data, indent=2, ensure_ascii=False), encoding="utf-8"
@@ -377,7 +549,7 @@ def _run_clone_and_adapt(
     manifest_path.write_text(
         json.dumps(
             {
-                **_manifest(url, output_dir, product, steps_status),
+                **_manifest(url, output_dir, args.product, steps_status, engine=acq["engine"]),
                 "clone_mode": "clone-and-adapt",
                 "skeleton": "skeleton.html" if skeleton_ok else None,
             },
@@ -388,6 +560,7 @@ def _run_clone_and_adapt(
 
     print("\n[aura_clone] ===== CLONE-AND-ADAPT SUMMARY =====")
     print(f"[aura_clone] url:          {url}")
+    print(f"[aura_clone] engine:       {acq['engine']}")
     print(f"[aura_clone] output_dir:   {output_dir}")
     print(f"[aura_clone] analysis:     {analysis_path}")
     print(
@@ -420,12 +593,38 @@ def main(argv: Optional[list[str]] = None) -> int:
         description=(
             "Aura Engine design-clone pipeline wrapper. "
             "Modo 'signals' (default): design_system abstrato. "
-            "Modo 'clone-and-adapt': esqueleto HTML estrutural pra 07a preencher."
+            "Modo 'clone-and-adapt': esqueleto HTML estrutural pra 07a preencher. "
+            "Captura em cascade: downloader (Playwright stealth) → snapshot "
+            "(single-file-cli) → screenshot-fallback → --from-file (manual)."
         ),
     )
-    parser.add_argument("url", help="URL do site a clonar")
+    parser.add_argument(
+        "url", nargs="?", default=None,
+        help="URL do site a clonar (dispensável com --from-file)",
+    )
     parser.add_argument("--output", required=True, help="Diretório de saída")
     parser.add_argument("--product", default=None, help="Slug do produto (opcional)")
+    parser.add_argument(
+        "--engine",
+        choices=("auto", "downloader", "singlefile"),
+        default="auto",
+        help=(
+            "Engine de captura. auto (default): downloader com fallback pra "
+            "single-file-cli; downloader: só Playwright; singlefile: só "
+            "single-file-cli (sem computed-styles — serve pro clone-and-adapt; "
+            "no modo signals não gera patterns.json)"
+        ),
+    )
+    parser.add_argument(
+        "--from-file",
+        default=None,
+        metavar="PATH",
+        help=(
+            "Ingere um .html local já salvo (ex: pela extensão SingleFile no "
+            "Chrome do membro — rota manual que vence Cloudflare/login). "
+            "Dispensa a URL."
+        ),
+    )
     parser.add_argument(
         "--skip-images",
         action="store_true",
@@ -434,16 +633,37 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser.add_argument(
         "--pattern-only",
         action="store_true",
-        help="Após download, rodar apenas pattern-extractor (pula analyzer)",
+        help=(
+            "Pula o analyzer e gera só o patterns.json (o pattern-extractor "
+            "lê direto o computed-styles.json — não requer sections.json)"
+        ),
     )
     args = parser.parse_args(raw_argv)
 
-    # Validação
-    try:
-        url = validate_url(args.url)
-    except ValueError as exc:
-        print(f"ERRO: URL inválida: {exc}", file=sys.stderr)
-        return 1
+    # Validação de input
+    url: Optional[str] = None
+    if args.from_file:
+        from_path = Path(args.from_file).expanduser()
+        if not from_path.is_file():
+            print(f"ERRO: --from-file não existe: {from_path}", file=sys.stderr)
+            return 1
+        if args.url:
+            print(
+                "ERRO: use URL OU --from-file, não os dois "
+                "(--from-file ingere um arquivo já salvo).",
+                file=sys.stderr,
+            )
+            return 1
+        url = f"file://{from_path.resolve()}"
+    else:
+        if not args.url:
+            print("ERRO: informe a URL (ou --from-file=<path.html>).", file=sys.stderr)
+            return 1
+        try:
+            url = validate_url(args.url)
+        except ValueError as exc:
+            print(f"ERRO: URL inválida: {exc}", file=sys.stderr)
+            return 1
     try:
         output_dir = validate_output_path(args.output)
     except ValueError as exc:
@@ -457,83 +677,111 @@ def main(argv: Optional[list[str]] = None) -> int:
     patterns_path = output_dir / "patterns.json"
     manifest_path = output_dir / "manifest.json"
 
+    # Estado limpo: outputs derivados de runs anteriores no mesmo --output são
+    # removidos (retry pós-bloqueio não pode herdar fallback.json/sections.json
+    # velhos).
+    _clear_stale_run_state(raw_dir)
+
     python_exe = sys.executable or "python3"
-
-    # Modo clone-and-adapt: download → analyzer → skeleton estrutural.
-    if mode == "clone-and-adapt":
-        return _run_clone_and_adapt(url, output_dir, raw_dir, args.product, python_exe)
-
-    # Modo signals (default): download → analyzer → pattern-extractor.
-    steps_status: dict = {}
-
-    # Passo 1: downloader
     env = os.environ.copy()
     if args.skip_images:
         env["AURA_SKIP_IMAGES"] = "1"
-    downloader_cmd = [python_exe, str(_THIS_DIR / "downloader.py"), url, str(raw_dir)]
-    rc = _run_step("downloader", downloader_cmd)
-    steps_status["downloader"] = {"returncode": rc, "ok": rc == 0}
-    if rc != 0:
-        print("[aura_clone] downloader falhou — abortando pipeline.", file=sys.stderr)
+
+    # Modo clone-and-adapt: captura → analyzer → skeleton estrutural.
+    if mode == "clone-and-adapt":
+        return _run_clone_and_adapt(url, output_dir, raw_dir, args, python_exe, env)
+
+    # Modo signals (default): captura → analyzer → pattern-extractor.
+    steps_status: dict = {}
+
+    # Passo 1: captura via cascade
+    acq = _acquire(url, raw_dir, args, python_exe, env, steps_status)
+    if not acq["dom_ready"]:
+        return _abort_screenshot_fallback(
+            "signals", url, output_dir, raw_dir, args.product, steps_status, manifest_path
+        )
+
+    # O modo signals precisa de computed-styles REAIS (anti-alucinação: o
+    # pattern-extractor recusa gerar design_system sem eles). Engines
+    # singlefile/from-file não extraem CSS computado — falha honesta e cedo.
+    if not (raw_dir / "computed-styles.json").exists():
+        print(
+            f"[aura_clone] engine '{acq['engine']}' não extrai computed-styles — o modo "
+            "signals exige eles pra sinais reais (nada de paleta inventada). "
+            "Use --engine=downloader (ou o default auto com o site acessível), "
+            "ou a rota screenshot→visão da 07a. Esta captura continua útil pro "
+            "modo clone-and-adapt (estrutura).",
+            file=sys.stderr,
+        )
+        steps_status["pattern_extractor"] = {
+            "ok": False,
+            "skipped": "sem computed-styles.json (engine não extrai CSS computado)",
+        }
         manifest_path.write_text(
-            json.dumps(_manifest(url, output_dir, args.product, steps_status), indent=2),
+            json.dumps(
+                _manifest(url, output_dir, args.product, steps_status, engine=acq["engine"]),
+                indent=2,
+            ),
             encoding="utf-8",
         )
-        return rc
+        return 2
 
-    # Passo 2: analyzer (opcional se --pattern-only)
+    # Passo 2: analyzer — OPCIONAL no modo signals. O pattern-extractor lê
+    # direto o computed-styles.json (não requer sections.json); o analyzer só
+    # agrega o analysis.json de contexto. Com --pattern-only, pula inteiro;
+    # se rodar e falhar, avisa e segue — nunca bloqueia o patterns.json.
     analyzer_ok = False
-    if not args.pattern_only:
+    if args.pattern_only:
+        steps_status["analyzer"] = {
+            "ok": False,
+            "skipped": "--pattern-only (pattern-extractor não requer o analyzer)",
+        }
+    else:
         analyzer_cmd = [python_exe, str(_THIS_DIR / "analyzer.py"), str(raw_dir)]
-        rc = _run_step("analyzer", analyzer_cmd)
+        rc = _run_step("analyzer (opcional)", analyzer_cmd)
         steps_status["analyzer"] = {"returncode": rc, "ok": rc == 0}
         if rc == 0:
             analyzer_ok = _move_analyzer_output(raw_dir, analysis_path)
         else:
             logger.warning(
-                "analyzer falhou (rc=%s) — continuando com pattern-extractor mesmo assim", rc
+                "analyzer falhou (rc=%s) — seguindo sem analysis.json "
+                "(o pattern-extractor não depende dele)", rc
             )
-    else:
-        # Em pattern-only, ainda precisamos rodar o analyzer pra gerar sections.json
-        # que o pattern-extractor consome. Mas não falhamos se der erro.
-        analyzer_cmd = [python_exe, str(_THIS_DIR / "analyzer.py"), str(raw_dir)]
-        rc = _run_step("analyzer (pré-requisito)", analyzer_cmd)
-        steps_status["analyzer"] = {"returncode": rc, "ok": rc == 0, "mode": "prerequisite"}
-        if rc == 0:
-            analyzer_ok = _move_analyzer_output(raw_dir, analysis_path)
 
     # Passo 3: pattern-extractor
-    if not (raw_dir / "sections.json").exists():
-        logger.warning(
-            "sections.json ausente — pattern-extractor pode falhar. Tentando mesmo assim."
-        )
     pattern_cmd = [python_exe, str(_THIS_DIR / "pattern-extractor.py"), str(raw_dir)]
     rc = _run_step("pattern-extractor", pattern_cmd)
-    steps_status["pattern_extractor"] = {"returncode": rc, "ok": rc == 0}
     pattern_ok = False
     if rc == 0:
         pattern_ok = _move_pattern_output(raw_dir, patterns_path)
     else:
         logger.warning("pattern-extractor falhou (rc=%s)", rc)
+    # "ok" reflete o ARQUIVO copiado, não só o rc do subprocess.
+    steps_status["pattern_extractor"] = {"returncode": rc, "ok": pattern_ok}
 
     # Manifest final
     manifest_path.write_text(
-        json.dumps(_manifest(url, output_dir, args.product, steps_status), indent=2),
+        json.dumps(
+            _manifest(url, output_dir, args.product, steps_status, engine=acq["engine"]),
+            indent=2,
+        ),
         encoding="utf-8",
     )
 
     print("\n[aura_clone] ===== SUMMARY =====")
     print(f"[aura_clone] url:          {url}")
+    print(f"[aura_clone] engine:       {acq['engine']}")
     print(f"[aura_clone] output_dir:   {output_dir}")
     print(f"[aura_clone] raw/:         {raw_dir}")
-    print(f"[aura_clone] analysis:     {'OK' if analyzer_ok else 'MISSING'}")
+    analysis_label = "OK" if analyzer_ok else (
+        "SKIPPED (--pattern-only)" if args.pattern_only else "MISSING (opcional)"
+    )
+    print(f"[aura_clone] analysis:     {analysis_label}")
     print(f"[aura_clone] patterns:     {'OK' if pattern_ok else 'MISSING'}")
     print(f"[aura_clone] manifest:     {manifest_path}")
 
-    # Return 0 se pelo menos downloader + pattern passaram
-    if steps_status["downloader"]["ok"] and steps_status.get("pattern_extractor", {}).get("ok"):
-        return 0
-    return 2
+    # Return 0 só se o patterns.json realmente existe no root
+    return 0 if pattern_ok else 2
 
 
 if __name__ == "__main__":
@@ -542,6 +790,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\n[aura_clone] interrompido pelo usuário", file=sys.stderr)
         sys.exit(130)
-    except Exception as exc:  # noqa: BLE001 — CLI surface
-        logger.error("falha inesperada: %s", exc)
-        sys.exit(1)

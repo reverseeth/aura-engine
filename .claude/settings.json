@@ -19,7 +19,16 @@
       "Bash(mkdir:*)",
       "Bash(ls:*)",
       "Bash(cat:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(curl:*)",
+      "Bash(chmod:*)",
+      "Bash(grep:*)"
+    ],
+    "deny": [
+      "Bash(git add -f:*)",
+      "Bash(git add --force:*)",
+      "Read(./.env)",
+      "Read(./.env.*)"
     ]
   },
   "hooks": {
@@ -29,7 +38,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/post-start.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-start.sh\""
           }
         ]
       }

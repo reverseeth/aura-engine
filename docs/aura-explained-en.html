@@ -1,42 +1,14 @@
-<!--
-  AURA ENGINE — HTML Report Template (Design System Reference) · v5 "Premium / Liquid Glass"
-
-  Estilo visual padrão pra TODOS os reports HTML gerados pelas skills do Aura Engine.
-  A AI lê este arquivo como referência de design — copie a <style> completa + a
-  estrutura de componentes (e o <script> de animação), adapte apenas o conteúdo.
-
-  Estética: moderno, light, premium (Apple / Human Academy / academypass.ai). Sans
-  geométrica (Satoshi → Inter). Fundo com GLOW AMBIENTE sutil. Cards em LIQUID GLASS
-  (frosted, backdrop-blur). Títulos grandes, stats gigantes com divisores, overlines.
-  ANIMAÇÕES: reveal no scroll, count-up nos números, hover-lift nos cards. Glow leve
-  no winner e nos números. Tudo com progressive enhancement (visível sem JS).
-
-  PRESERVE os nomes de classe (skills dependem). Mantenha o <script> no fim do body.
-  Cada relatório .md em workspace/ tem um .html. Self-contained. Não altere sem aprovar o membro.
-
-  IDIOMA DO CHROME: o template é pt-BR por default. Se o membro tem report_language: "en"
-  (workspace/profile.md), adapte o chrome junto com o conteúdo: <html lang="en">,
-  toc-title "Contents", meta-bar "Product / Market / Date / Feeds". Pra pt-BR, mantenha como está.
-
-  COMPONENTES note/callout/opportunity/danger: o PRIMEIRO <strong> filho direto é o RÓTULO
-  (overline maiúsculo). Pode usar <strong> à vontade no CORPO pra ênfase — só o primeiro vira
-  rótulo; os demais ficam negrito inline e não quebram a frase (garantido por :first-of-type no CSS).
--->
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<!--
-  PLACEHOLDERS: não existe pipeline de render — a AI escreve o HTML final direto.
-  Ao substituir `{{KEY}}`, escape `<`, `>` e `&` (&lt; &gt; &amp;) se o dado contiver esses
-  caracteres. `{{KEY_HTML}}` marca os pontos onde a AI pode inserir markup próprio (ex: <strong>).
--->
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com; font-src 'self' https://fonts.gstatic.com https://cdn.fontshare.com data:; script-src 'self' 'unsafe-inline';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{TITLE}} — Aura Engine</title>
+<title>What Aura Is — Aura Engine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   /* ═══════════ AURA DESIGN SYSTEM v5 · Premium / Liquid Glass ═══════════ */
@@ -137,19 +109,15 @@
   .script-block { border-radius:var(--r-sm); padding:22px 26px; margin:16px 0; font-family:var(--mono); font-size:13.5px; color:var(--ink-2); line-height:1.62; white-space:pre-wrap; word-break:break-word; }
 
   /* === NOTE / CALLOUT / OPPORTUNITY / DANGER (cards glass + overline-label + glow leve) === */
-  /* overflow-wrap: URL/token longo em quote de VOC ou callout não estoura o card no mobile */
-  .quote, .note, .callout, .opportunity, .danger { overflow-wrap:anywhere; }
   .note, .callout, .opportunity, .danger { font-size:16.5px; line-height:1.6; padding:24px 28px; border-radius:var(--r); margin:24px 0; position:relative; }
-  /* RÓTULO = só o PRIMEIRO <strong> (filho direto) do card. Qualquer <strong> seguinte é ênfase inline no corpo — NUNCA vira rótulo (evita quebrar a frase no meio). */
-  .note > strong:first-of-type, .callout > strong:first-of-type, .opportunity > strong:first-of-type, .danger > strong:first-of-type { display:block; font-family:var(--sans); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px; }
-  .note strong, .callout strong, .opportunity strong, .danger strong { font-weight:600; }
-  .note { color:var(--muted); } .note > strong:first-of-type { color:var(--faint); }
+  .note strong, .callout strong, .opportunity strong, .danger strong { display:block; font-family:var(--sans); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px; }
+  .note { color:var(--muted); } .note strong { color:var(--faint); }
   .callout { color:var(--ink); background:linear-gradient(180deg,rgba(238,242,255,.85),rgba(238,242,255,.6)); border-color:#DDE4FF; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 10px 30px rgba(45,91,255,.10); }
-  .callout > strong:first-of-type { color:var(--accent); }
+  .callout strong { color:var(--accent); }
   .opportunity { color:#0C2A20; background:linear-gradient(180deg,rgba(233,248,241,.85),rgba(233,248,241,.6)); border-color:#CFEEE1; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 10px 30px rgba(14,159,110,.10); }
-  .opportunity > strong:first-of-type { color:#0B7A53; }
+  .opportunity strong { color:#0B7A53; }
   .danger { color:#3A1416; background:linear-gradient(180deg,rgba(253,240,240,.85),rgba(253,240,240,.6)); border-color:#F7D8D9; box-shadow:0 1px 2px rgba(20,22,29,.04), 0 10px 30px rgba(229,72,77,.10); }
-  .danger > strong:first-of-type { color:#C9343A; }
+  .danger strong { color:#C9343A; }
 
   /* === PILLS / BADGES (liquid glass) === */
   .pill { display:inline-block; font-size:11px; font-weight:600; padding:5px 12px; border-radius:9px; letter-spacing:0.01em; text-transform:uppercase; margin-right:5px;
@@ -262,84 +230,167 @@
   </div>
 
   <!-- ═══════════════ HEADER ═══════════════ -->
-  <h1 class="page-title reveal">{{TITLE}}</h1>
-  <p class="page-subtitle reveal">{{DESCRIPTION_HTML}}</p>
+  <h1 class="page-title reveal">What Aura Is</h1>
+  <p class="page-subtitle reveal">An advanced, AI-operated ecommerce framework that runs the work end to end, from research all the way to ads that are live and scaling. Here is how it works, from the inside.</p>
 
   <div class="meta-bar reveal">
-    <div><strong>Produto</strong> {{PRODUCT}}</div>
-    <div><strong>Mercado</strong> {{MARKET}}</div>
-    <div><strong>Data</strong> {{DATE}}</div>
-    <div><strong>Alimenta</strong> {{FEEDS}}</div>
+    <div><strong>What it is</strong> Advanced ecommerce framework</div>
+    <div><strong>How it works</strong> Five chained phases</div>
+    <div><strong>Foundation</strong> Real, named methods</div>
   </div>
 
   <div class="toc reveal">
-    <div class="toc-title">Sumário</div>
-    <ol><li><a href="#s1">Section 1</a></li><li><a href="#s2">Section 2</a></li></ol>
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#s1">The idea</a></li>
+      <li><a href="#s2">Why it exists</a></li>
+      <li><a href="#s3">How it grounds its decisions</a></li>
+      <li><a href="#s4">How the work flows</a></li>
+      <li><a href="#s5">What keeps it all coherent</a></li>
+      <li><a href="#s6">What it is not</a></li>
+    </ol>
   </div>
 
-  <!-- ═══════════════ SECTION EXAMPLE (referência de todos os componentes) ═══════════════ -->
+  <!-- ═══════════════ 01 — THE IDEA ═══════════════ -->
   <div class="section" id="s1">
-    <div class="section-label reveal"><span class="num">01</span>Section Title</div>
+    <div class="section-label reveal"><span class="num">01</span>The idea</div>
 
     <div class="subsection reveal">
-      <div class="subsection-title">Subsection</div>
-      <p>Regular paragraph text with <strong>bold</strong> words.</p>
+      <p>Aura is an <strong>advanced ecommerce framework</strong>, operated by artificial intelligence, that does the job of a full strategy and execution team: research, offer, storefront, traffic, and retention, end to end.</p>
+      <p>It is not a generic chatbot. It is a sequence of specialists, each one with its own method, that hand the work from one to the next in order. Each step delivers something concrete so the next one can start where the last one stopped. The whole thing runs inside an AI environment on the user's own machine: Claude Code.</p>
+    </div>
+
+    <div class="callout reveal"><strong>The principle</strong> Instead of one tool that tries to do everything shallowly, these are specialized functions that coordinate with each other. Each one masters its own part in depth, and the output of one becomes the starting point of the next.</div>
+  </div>
+
+  <!-- ═══════════════ 02 — WHY IT EXISTS ═══════════════ -->
+  <div class="section" id="s2">
+    <div class="section-label reveal"><span class="num">02</span>Why it exists</div>
+
+    <div class="subsection reveal">
+      <p>Most of what gets taught about global ecommerce sells the ephemeral. You pay a premium for a call, you hear what is working that particular week, and a few months later that content has already aged out.</p>
+      <p>What does not age out are the fundamentals: the principles of persuasion, offer, research, and media that have worked for decades and will keep working. They are the solid base any execution stands on, whatever the trend of the week.</p>
+    </div>
+
+    <div class="subsection reveal">
+      <p>Aura starts from a simple question. If AI executes better and faster than most people, why make someone sit through dozens of hours of content before they can begin? It is better to encode the fundamentals into a knowledge base and let the AI execute with them.</p>
+      <p>The result is a combination that is hard to replicate.</p>
+    </div>
+
+    <div class="winner reveal">
+      <div class="winner-label">What this delivers</div>
+      <div class="winner-name">Top-tier execution quality, end-to-end automation, and speed</div>
+      <p>All in the same framework. The precision of someone who has mastered the craft, the coverage of a full team, and the pace of never having to wait on any of the parts.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 03 — HOW IT GROUNDS ITS DECISIONS ═══════════════ -->
+  <div class="section" id="s3">
+    <div class="section-label reveal"><span class="num">03</span>How it grounds its decisions</div>
+
+    <div class="subsection reveal">
+      <p>Aura is wired to a very large knowledge base: decades of direct-response and ecommerce fundamentals, distilled into detailed notes and interlinked through backlinks. A web where each concept points to the ones related to it.</p>
+      <p>From the books comes the settled canon shaped by names like <strong>Schwartz, Hopkins, Hormozi, Cialdini, Ogilvy, Sugarman, and Caples</strong>. From working operators comes the most current state of execution. From the swipe files come the real examples that have already converted.</p>
+    </div>
+
+    <div class="subsection reveal">
+      <p>The AI reaches this backend through a dedicated connection (MCP), runs an advanced search across the entire base, and pulls, by name, exactly the systems each step needs, so it can follow a workflow of <strong>19 skills</strong>.</p>
+      <p>This is not vague search or approximate memory. It is the right technique, complete, applied where it matters. That is why nothing of value gets left out, and every recommendation traces back to a method that exists and works.</p>
     </div>
 
     <div class="kpi-grid reveal">
-      <div class="kpi-card"><div class="big-num" data-count="58" data-suffix="%">58%</div><div class="big-num-label">Metric label</div></div>
-      <div class="kpi-card"><div class="big-num" data-count="34" data-suffix="%">34%</div><div class="big-num-label">Metric label</div></div>
-      <div class="kpi-card"><div class="big-num" data-count="2" data-suffix="%">2%</div><div class="big-num-label">Metric label</div></div>
+      <div class="kpi-card"><div class="big-num" data-count="541">541</div><div class="big-num-label">named frameworks in the base</div></div>
+      <div class="kpi-card"><div class="big-num" data-count="19">19</div><div class="big-num-label">skills in the workflow</div></div>
+      <div class="kpi-card"><div class="big-num" data-count="5">5</div><div class="big-num-label">chained phases</div></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 04 — HOW THE WORK FLOWS ═══════════════ -->
+  <div class="section" id="s4">
+    <div class="section-label reveal"><span class="num">04</span>How the work flows</div>
+
+    <div class="subsection reveal">
+      <p>The work moves through five phases. Each phase uses what the one before it discovered: research feeds the offer, the offer feeds the copy, the copy feeds the creatives, the creatives feed the ads. Nothing starts from scratch, because everything inherits the work that came before.</p>
     </div>
 
     <div class="table-wrap reveal">
-      <table><thead><tr><th>Col 1</th><th>Col 2</th><th>Col 3</th></tr></thead>
-      <tbody><tr><td><strong>Row 1</strong></td><td>Value</td><td><span class="pill pill-win">status</span></td></tr></tbody></table>
+      <table>
+        <thead><tr><th>Phase</th><th>What happens</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Research</strong><br><span style="color:var(--faint);">product → market → competition</span></td>
+            <td>Figures out what to sell and to whom. It validates the product against real demand and how saturated the market is, maps the customer's psychology in their own words (what they already believe, and their objections), and studies the active competitors, their arguments, their gaps, and even the ads performing best.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Strategy</strong><br><span style="color:var(--faint);">offer → copy</span></td>
+            <td>Builds the irresistible offer: the unique mechanism (why this works and why the usual alternative fails), price, guarantee, bonuses, and the unit economics. Then it writes the copy that sells, anchored in the customer's real language.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Storefront</strong><br><span style="color:var(--faint);">page → tracking → checkout</span></td>
+            <td>Turns all of it into a page that converts, approved before it is ever built. It installs correct measurement so the platforms can learn, and adds upsells and bundles to raise the average order value.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Traffic</strong><br><span style="color:var(--faint);">creatives → audit → strategy → analysis → scale</span></td>
+            <td>Produces the ad concepts, hooks, and scripts. It runs a consistency check before any money is spent, structures the campaign, diagnoses performance and decides what to kill, keep, or scale, then scales the budget systematically.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Post-purchase</strong><br><span style="color:var(--faint);">retention → bonuses → recycling</span></td>
+            <td>Builds the email and SMS flows, delivers the bonuses, and turns a single winning ad into several derivations across different formats.</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="quote reveal">"Exact customer quote goes here"<span class="quote-source">Reddit r/SelfTanning</span></div>
-    <div class="note reveal"><strong>Key point</strong> informational context goes here.</div>
-    <div class="callout reveal"><strong>Recommendation</strong> strategic recommendation goes here.</div>
-    <div class="opportunity reveal"><strong>Gap identified</strong> opportunity description.</div>
-    <div class="danger reveal"><strong>Warning</strong> critical error to avoid.</div>
-
-    <div class="winner reveal">
-      <div class="winner-label">Winner</div>
-      <div class="winner-name">Mechanism Name</div>
-      <p>Explanation of why this wins.</p>
-    </div>
-
-    <div class="faq reveal"><div class="faq-q">"Question from customer?"</div><div class="faq-a">Answer that breaks the objection.</div></div>
-    <div class="check-row reveal"><span class="check-icon">1</span><div><strong>Sanity check question?</strong><br><span style="color:var(--muted);">Answer with reasoning.</span></div></div>
+    <div class="note reveal"><strong>The through-line</strong> Every phase inherits the evidence the previous one produced: the offer is built on real research, and the ads are built on a proven offer.</div>
   </div>
 
-  <p class="footer">Aura © {{YEAR}}</p>
+  <!-- ═══════════════ 05 — WHAT KEEPS IT ALL COHERENT ═══════════════ -->
+  <div class="section" id="s5">
+    <div class="section-label reveal"><span class="num">05</span>What keeps it all coherent</div>
+
+    <div class="subsection reveal">
+      <p>Before a single dollar goes into an ad, a consistency check confirms that everything tells the same story. The promised mechanism, the message on the page, the offer, and the creatives all have to line up, with no contradiction.</p>
+      <p>That is what separates a launch that makes sense from one that burns money on a mismatch. When the page promises one thing and the ad says another, the customer feels the friction and does not buy. The check exists so that never goes live.</p>
+    </div>
+
+    <div class="opportunity reveal"><strong>Non-negotiable precision</strong> Where a mistake is expensive (building the page, the unit-economics math), Aura is deterministic. It does not improvise the parts that have to be exact: it follows the rule, the same way, with the same result, every time.</div>
+  </div>
+
+  <!-- ═══════════════ 06 — WHAT IT IS NOT ═══════════════ -->
+  <div class="section" id="s6">
+    <div class="section-label reveal"><span class="num">06</span>What it is not</div>
+
+    <div class="subsection reveal">
+      <p>It is not a loose text generator, and it is not a course.</p>
+      <p>It is an operator. It takes an ecommerce business from idea to ads that are live and scaling, with <strong>every decision grounded in a real method</strong> and <strong>every phase connected to the next.</strong></p>
+    </div>
+
+    <div class="callout reveal"><strong>In one line</strong> A specialized, AI-run pipeline that turns a product idea into a running operation, grounded in proven methods at every step.</div>
+  </div>
+
+  <p class="footer">Aura © 2026</p>
 
 </div>
 
 <!-- ═══════════════ ANIMAÇÃO (reveal no scroll + count-up nos números) ═══════════════ -->
 <script>
-  // Guard: sem IntersectionObserver, NADA é escondido (a classe .js nunca entra) —
-  // a página se comporta como sem-JS, tudo visível estático (progressive enhancement).
-  if ('IntersectionObserver' in window) {
-    document.documentElement.classList.add('js');
-    const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
-    const reveals = document.querySelectorAll('.reveal');
-    if (reduce) { reveals.forEach(e=>e.classList.add('in')); }
-    else {
-      const io = new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);
-        e.target.querySelectorAll && e.target.querySelectorAll('[data-count]').forEach(countUp); } })},{threshold:0.12, rootMargin:'0px 0px -6% 0px'});
-      reveals.forEach(el=>io.observe(el));
-    }
-    function countUp(el){
-      if (reduce) return;
-      const target = parseFloat(el.getAttribute('data-count')); if (isNaN(target)) return;
-      const suffix = el.getAttribute('data-suffix')||''; const prefix = el.getAttribute('data-prefix')||'';
-      const dec = (String(target).split('.')[1]||'').length; const dur = 900; const t0 = performance.now();
-      function frame(t){ const p = Math.min(1,(t-t0)/dur); const e = 1-Math.pow(1-p,3);
-        el.textContent = prefix + (target*e).toFixed(dec) + suffix; if (p<1) requestAnimationFrame(frame); else el.textContent = prefix+target.toFixed(dec)+suffix; }
-      requestAnimationFrame(frame);
-    }
+  document.documentElement.classList.add('js');
+  const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const reveals = document.querySelectorAll('.reveal');
+  if (reduce) { reveals.forEach(e=>e.classList.add('in')); }
+  else {
+    const io = new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);
+      e.target.querySelectorAll && e.target.querySelectorAll('[data-count]').forEach(countUp); } })},{threshold:0.12, rootMargin:'0px 0px -6% 0px'});
+    reveals.forEach(el=>io.observe(el));
+  }
+  function countUp(el){
+    if (reduce) return;
+    const target = parseFloat(el.getAttribute('data-count')); if (isNaN(target)) return;
+    const suffix = el.getAttribute('data-suffix')||''; const prefix = el.getAttribute('data-prefix')||'';
+    const dec = (String(target).split('.')[1]||'').length; const dur = 900; const t0 = performance.now();
+    function frame(t){ const p = Math.min(1,(t-t0)/dur); const e = 1-Math.pow(1-p,3);
+      el.textContent = prefix + (target*e).toFixed(dec) + suffix; if (p<1) requestAnimationFrame(frame); else el.textContent = prefix+target.toFixed(dec)+suffix; }
+    requestAnimationFrame(frame);
   }
 </script>
 </body>

@@ -1,40 +1,40 @@
 #!/usr/bin/env python3
 """
-liquid-converter.py — Aura Engine design-clone pipeline (step 3 of 3) · v2
+liquid-converter.py — Aura Engine design-clone pipeline (conversor canônico da 07b) · v3
 
-Recebe uma seção (HTML+CSS) identificada pelo analyzer.py e converte em Shopify
-Liquid section editável via theme editor. Substitui textos fixos por
-{{ section.settings.* }}, imagens por image_picker settings, cores por CSS
-custom properties, e padrões repetíveis por blocks separados.
+Recebe uma seção (HTML+CSS) e converte em Shopify Liquid section editável via
+theme editor. Substitui textos fixos por {{ section.settings.* }}, imagens por
+image_picker settings, cores/tokens por CSS custom properties, e padrões
+repetíveis (cards/tiers/reviews/faq) por BLOCKS LOCAIS inline no schema da
+section ({% for block in section.blocks %} + {% case block.type %}) — NUNCA
+theme blocks em blocks/*.liquid (o validator do Shopify bloqueia
+{% content_for 'block' %} com type dinâmico).
 
-v2 melhorias:
-- Strip de artefatos Shopify: <link> tags CDN, web components (product-info,
-  media-gallery, use-animate, etc), data-* attributes específicos do tema
-- Detecção de blocks corrigida (acontecia ANTES do namespace, agora corretamente)
-- Dedup de settings quando texto default é idêntico
-- Naming semântico (heading_1, paragraph_2, button_label_3) ao invés de slugs
-  baseados em texto completo
-- SVGs grandes substituídos por placeholder
-- Remoção de scripts, noscript, iframe, style tags externos
+v3 melhorias (auditoria 2026-07):
+- Blocks locais inline: schema.blocks com {type, name, settings} completos,
+  markup com {{ block.settings.* }} + {{ block.shopify_attributes }}
+- Copy REAL de cada item repetido preservada (uma instância por item, com os
+  defaults daquele item — presets e templates/page.json pré-populados)
+- Irmãos que NÃO fazem parte do padrão repetido são preservados no markup
+- Defaults de richtext/inline_richtext preservam HTML intencional (<p>, <em>)
+- Schema names limitados a 25 chars (regra ValidSchemaName do theme-check)
+- CSS da página filtrado por section (sem N cópias do page.css no tema)
+- :root/html/body rescopados pro root da section (custom properties resolvem)
+- Tokens migrados ANTES das cores (shadow com hex não vira setting morto)
 
-Uso (Modo C — HTML fresh do frontend-design, padrão da skill 06):
+Uso (Modo C — HTML fresh aprovado na 07a, padrão da skill 07b-page-build):
     python3 liquid-converter.py \\
         --html /tmp/fresh-<produto>/<tipo>.html \\
         --css /tmp/fresh-<produto>/<tipo>.css \\
         --type hero \\
         --output <path.liquid> \\
-        --blocks-dir <path> \\
         --namespace page-<produto>-<tipo> \\
         --product-slug <produto>
 
 Uso (Modo B legacy — clone direto do HTML do concorrente via sections.json):
-    python3 liquid-converter.py \\
-        --sections-json <path> \\
-        --section-index <N> \\
-        --output <path.liquid> \\
-        --blocks-dir <path> \\
-        --namespace page-<produto> \\
-        --product-slug <produto>
+    REQUER --allow-competitor-markup. Este modo injeta copy/markup do
+    concorrente no tema — viola o princípio "zero código do concorrente no
+    output final". Use apenas pra clonar página SUA de outra loja sua.
 
 Dependências:
     pip install beautifulsoup4
@@ -47,6 +47,16 @@ import logging
 import re
 import sys
 from pathlib import Path
+
+# Bootstrap re-exec (mesmo padrão do fetch.py da lib web-fetch): se o python
+# atual não tem bs4 e um venv do framework existe, re-executa nele —
+# `python3 liquid-converter.py` direto funciona desde que o venv exista.
+try:
+    from _venv_bootstrap import bootstrap as _venv_bootstrap
+except ImportError:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _venv_bootstrap import bootstrap as _venv_bootstrap
+_venv_bootstrap("bs4")
 
 try:
     from bs4 import BeautifulSoup, NavigableString, Tag
@@ -81,19 +91,41 @@ VALID_SCHEMA_TYPES = {
 }
 SCHEMA_TYPES_WITHOUT_LABEL = {"header", "paragraph"}
 
+# Shopify/theme-check (ValidSchemaName) limita o `name` de sections e blocks a 25 chars.
+SCHEMA_NAME_MAX = 25
 
-def escape_liquid_default(text: str) -> str:
+# Placeholder textual inserido no lugar do padrão repetido; substituído pelo
+# {% for block in section.blocks %} DEPOIS da serialização (pra não re-namespacear
+# o markup do block).
+BLOCKS_LOOP_TOKEN = "__AURA_BLOCKS_LOOP__"
+
+
+def escape_liquid_default(text: str, preserve_html: bool = False) -> str:
     """Escapa texto pra uso seguro como `default` no schema Shopify.
 
-    - HTML-escape (`<`, `>`, `&`, `"`, `'`) evita XSS ao renderizar.
-    - Escapa `{{` / `}}` pra não quebrar parsing Liquid downstream.
+    - preserve_html=False (text/textarea): HTML-escape completo (`<`, `>`, `&`, `"`, `'`).
+    - preserve_html=True (richtext/inline_richtext): mantém as tags HTML INTENCIONAIS
+      (<p>, <em>, <strong> — o Shopify exige richtext envolto em <p>) e escapa apenas
+      os delimitadores Liquid.
     """
     if text is None:
         return ""
-    escaped = html_lib.escape(str(text), quote=True)
+    if preserve_html:
+        escaped = str(text)
+    else:
+        escaped = html_lib.escape(str(text), quote=True)
     escaped = escaped.replace("{{", "&#123;&#123;").replace("}}", "&#125;&#125;")
     escaped = escaped.replace("{%", "&#123;&#37;").replace("%}", "&#37;&#125;")
     return escaped
+
+
+def schema_display_name(text: str, max_len: int = SCHEMA_NAME_MAX) -> str:
+    """Nome de display pro schema, respeitando o limite de 25 chars do Shopify."""
+    clean = re.sub(r"[\s_-]+", " ", str(text or "")).strip()
+    if not clean:
+        clean = "Section"
+    clean = clean[0].upper() + clean[1:]
+    return clean[:max_len].rstrip() or "Section"
 
 
 def validate_shopify_schema(schema: dict) -> list[str]:
@@ -101,6 +133,13 @@ def validate_shopify_schema(schema: dict) -> list[str]:
     errors: list[str] = []
     if not isinstance(schema, dict):
         return ["schema deve ser dict"]
+
+    def _check_name(name, scope_label: str) -> None:
+        if isinstance(name, str) and len(name) > SCHEMA_NAME_MAX:
+            errors.append(
+                f"{scope_label}: name {name!r} excede {SCHEMA_NAME_MAX} caracteres "
+                f"(regra ValidSchemaName do Shopify)"
+            )
 
     def _check_settings(settings, scope_label: str) -> None:
         if not isinstance(settings, list):
@@ -130,20 +169,23 @@ def validate_shopify_schema(schema: dict) -> list[str]:
                 else:
                     ids_seen.add(sid)
 
+    _check_name(schema.get("name"), "schema")
     _check_settings(schema.get("settings", []), "settings")
     for block in schema.get("blocks", []) or []:
-        if isinstance(block, dict) and "settings" in block:
-            _check_settings(block.get("settings", []), f"block[{block.get('type', '?')}].settings")
+        if not isinstance(block, dict):
+            continue
+        b_label = f"block[{block.get('type', '?')}]"
+        if not block.get("type"):
+            errors.append(f"{b_label}: campo 'type' obrigatório")
+        if "settings" in block:
+            # Block local (inline no schema da section) exige name.
+            if not block.get("name"):
+                errors.append(f"{b_label}: campo 'name' obrigatório em block local")
+            _check_name(block.get("name"), b_label)
+            _check_settings(block.get("settings", []), f"{b_label}.settings")
     return errors
 
 
-# Tags cujo texto direto vira setting
-TEXT_TAGS = {
-    "h1", "h2", "h3", "h4", "h5", "h6",
-    "p", "span", "a", "button", "li",
-    "blockquote", "em", "strong", "small", "label",
-    "dt", "dd", "summary", "figcaption", "cite",
-}
 # Inline tags aceitas dentro de texto misto — convertido como inline_richtext
 INLINE_TAGS = {"em", "strong", "span", "i", "b", "small", "br", "sup", "sub", "mark", "u"}
 LONG_TEXT_THRESHOLD = 80  # chars — acima disso usa richtext
@@ -201,9 +243,6 @@ def slugify(text, max_len=40):
     return s[:max_len] or "field"
 
 
-HEX_COLOR_RE_VALIDATE = re.compile(r"^[0-9a-fA-F]{3,8}$")
-CSS_CLASS_SELECTOR_RE = re.compile(r"\.([a-zA-Z_][\w-]*)")
-CSS_ID_SELECTOR_RE = re.compile(r"#([a-zA-Z_][\w-]*)")
 CSS_COLOR_RE = re.compile(r"#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b")
 
 
@@ -277,6 +316,123 @@ def replace_colors_with_vars(css, color_map):
     return "".join(out)
 
 
+# As vars de cor/token são injetadas INLINE no elemento root da section — invisíveis
+# pro :root real do documento. Sem rescopar, um `:root { --ink: #14161d }` viraria
+# `--ink: var(--color_1)` com --color_1 inalcançável (todo var(--ink) colapsa).
+_ROOT_SCOPE_RE = re.compile(r"(?<![\w.#\[-])(?::root|html|body)\b")
+
+
+def rescope_root_selectors(css: str, target: str, max_depth: int = 5) -> str:
+    """Reescreve seletores :root/html/body pro(s) seletor(es) em `target`.
+
+    `target` deve incluir a classe wrapper do schema (.{ns}) E a classe do root do
+    markup (ex: '.{ns}, .{ns}__hero') — as vars inline vivem no root do MARKUP
+    (filho do wrapper que o Shopify gera), então custom properties tipo --ink só
+    resolvem se a regra também casar com esse elemento."""
+    if not css or not target or max_depth <= 0:
+        return css
+    out: list[str] = []
+    i, n = 0, len(css)
+    while i < n:
+        brace = css.find("{", i)
+        if brace == -1:
+            out.append(css[i:])
+            break
+        selector_part = css[i:brace]
+        stripped = selector_part.lstrip()
+        depth = 1
+        j = brace + 1
+        while j < n and depth > 0:
+            c = css[j]
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+            j += 1
+        block_content = css[brace + 1:j - 1]
+        if stripped.startswith("@"):
+            m = re.match(r"@[\w-]+", stripped)
+            at_name = m.group(0).lower() if m else ""
+            out.append(selector_part + "{")
+            if at_name in ("@media", "@supports", "@container", "@document"):
+                out.append(rescope_root_selectors(block_content, target, max_depth - 1))
+            else:
+                out.append(block_content)
+        else:
+            out.append(_ROOT_SCOPE_RE.sub(target, selector_part) + "{")
+            out.append(block_content)
+        out.append("}")
+        i = j
+    return "".join(out)
+
+
+def filter_css_for_markup(css: str, markup: str, extra_classes=(), max_depth: int = 5) -> str:
+    """Mantém só as regras cujo selector referencia classes/ids presentes no markup
+    da section (+ a classe wrapper do schema).
+
+    Sem o filtro, o page.css INTEIRO seria embutido em cada section (~N cópias no
+    tema) e cada section ganharia settings de cor/token da página inteira. Regras
+    sem classe/id (element/universal) são mantidas; @keyframes/@font-face também;
+    @media/@supports são filtrados recursivamente."""
+    if not css:
+        return css
+    used_classes = set(extra_classes or ())
+    for attr in re.findall(r'class="([^"]*)"', markup):
+        used_classes.update(attr.split())
+    # Classes dentro de params Liquid (ex: image_tag class: '...')
+    for attr in re.findall(r"class:\s*'([^']*)'", markup):
+        used_classes.update(attr.split())
+    used_ids = set(re.findall(r'id="([^"]*)"', markup))
+
+    # Comentários atrapalham o brace-walk (podem conter chaves)
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.DOTALL)
+
+    def _keep(selector_list: str) -> bool:
+        for sel in selector_list.split(","):
+            classes = re.findall(r"\.([A-Za-z_][\w-]*)", sel)
+            ids = re.findall(r"#([A-Za-z_][\w-]*)", sel)
+            if not classes and not ids:
+                return True  # element/universal — global à section, barato
+            if any(c in used_classes for c in classes) or any(i in used_ids for i in ids):
+                return True
+        return False
+
+    def _filter(text: str, depth: int) -> str:
+        if depth <= 0:
+            return text
+        out: list[str] = []
+        i, n = 0, len(text)
+        while i < n:
+            brace = text.find("{", i)
+            if brace == -1:
+                out.append(text[i:])
+                break
+            selector_part = text[i:brace]
+            stripped = selector_part.lstrip()
+            depth_b = 1
+            j = brace + 1
+            while j < n and depth_b > 0:
+                c = text[j]
+                if c == "{":
+                    depth_b += 1
+                elif c == "}":
+                    depth_b -= 1
+                j += 1
+            body = text[brace + 1:j - 1]
+            if stripped.startswith(("@media", "@supports", "@container")):
+                inner = _filter(body, depth - 1)
+                if inner.strip():
+                    out.append(selector_part + "{" + inner + "}")
+            elif stripped.startswith("@"):
+                out.append(selector_part + "{" + body + "}")  # keyframes/font-face: mantém
+            elif _keep(selector_part):
+                out.append(selector_part + "{" + body + "}")
+            i = j
+        return "".join(out)
+
+    return _filter(css, max_depth)
+
+
 # ── GAP-D: tokens de design (shadow/radius/font-size/font-family) → var + setting ──
 # Cada token vira (regex de valor, prefixo de setting id, schema type, label, info opcional).
 # A migração varre o CSS, coleta valores hardcoded e os substitui por var(--<id>),
@@ -332,7 +488,8 @@ def replace_tokens_with_vars(css, tokens):
     """Substitui cada valor hardcoded de token por var(--<id>) em TODAS as ocorrências.
 
     Migração everything-editable: usages hardcoded no CSS passam a ler a custom property,
-    que é injetada inline no root + exposta como setting."""
+    que é injetada inline no root + exposta como setting. O pattern usa \\s+ entre as
+    partes do valor pra casar valores multi-linha (o default foi normalizado)."""
     if not tokens:
         return css
     prop_by_prefix = {
@@ -348,9 +505,10 @@ def replace_tokens_with_vars(css, tokens):
         if not prop:
             continue
         raw = tok["default"]
-        # Substitui `prop: <raw>` → `prop: var(--id)`, preservando o resto da declaração.
+        # Whitespace flexível: o valor no CSS original pode ter quebras de linha.
+        value_pattern = r"\s+".join(re.escape(part) for part in raw.split())
         pattern = re.compile(
-            re.escape(prop) + r"(\s*:\s*)" + re.escape(raw) + r"(\s*(?=;|}))",
+            re.escape(prop) + r"(\s*:\s*)" + value_pattern + r"(\s*(?=;|}))",
             re.IGNORECASE,
         )
         out = pattern.sub(lambda m, _v=tok["var"]: f"{prop}{m.group(1)}var({_v}){m.group(2)}", out)
@@ -407,9 +565,21 @@ def strip_shopify_artifacts(soup):
     for tag in soup.find_all("style"):
         tag.decompose()
 
-    # Remove scripts, noscript, iframe
+    # Remove scripts, noscript, iframe — COM WARNING listando o que foi removido,
+    # pra 07b poder reimplementar a interação (ex: <details> nativo) em vez de
+    # perder silenciosamente algo aprovado pelo membro na 07a.
+    removed_scripts = []
     for tag in soup.find_all(["script", "noscript", "iframe"]):
+        if tag.name == "script":
+            snippet = (tag.get("src") or tag.get_text() or "").strip().replace("\n", " ")[:80]
+            removed_scripts.append(snippet or "<script inline vazio>")
         tag.decompose()
+    if removed_scripts:
+        logger.warning(
+            "%d <script> removido(s) do markup (sections não levam o JS do design "
+            "aprovado — reimplemente a interação via Liquid/CSS/<details>): %s",
+            len(removed_scripts), " | ".join(removed_scripts),
+        )
 
     # Desembrulha web components Shopify (mantém filhos, remove o wrapper customElement)
     for tag in soup.find_all(True):
@@ -505,6 +675,7 @@ class LiquidBuilder:
         self.used_ids = set()
         self.counter = 0
         self.built_schema = None  # preenchido por build_section_file (GAP-B POPULATE)
+        self._blocks_loops = []  # liquid dos {% for block %} a injetar pós-serialização
 
     def unique_id(self, base):
         candidate = base
@@ -517,9 +688,13 @@ class LiquidBuilder:
 
     def add_setting(self, s_id, s_type, label, default=None, info=None):
         # XSS/Liquid-injection guard: escapa defaults textuais antes de persistir.
+        # richtext/inline_richtext preservam o HTML intencional (<p>, <em>, <strong>);
+        # só os delimitadores Liquid são escapados neles.
         safe_default = default
         if default is not None and s_type in ("text", "richtext", "inline_richtext", "textarea"):
-            safe_default = escape_liquid_default(default)
+            safe_default = escape_liquid_default(
+                default, preserve_html=s_type in ("richtext", "inline_richtext"),
+            )
 
         # Dedup: se mesmo texto já existe como setting do mesmo tipo, reutiliza ID
         if safe_default and s_type in ("text", "richtext", "inline_richtext"):
@@ -548,10 +723,15 @@ class LiquidBuilder:
         label = derive_setting_label(el, namespace=self.namespace)
         base_id = derive_setting_id(el, self.counter)
         s_id = self.unique_id(base_id)
-        default = text if s_type == "text" else f"<p>{text}</p>"
+        # richtext: o valor do Shopify JÁ vem envolto em <p> — o texto interno é
+        # escapado aqui, o wrapper é preservado por add_setting (preserve_html).
+        default = text if s_type == "text" else f"<p>{html_lib.escape(text)}</p>"
         real_id = self.add_setting(s_id, s_type, label, default=default)
 
-        new_tag = BeautifulSoup("", "html.parser").new_tag(el.name)
+        # richtext renderiza o próprio <p> — manter o placeholder dentro do <p>
+        # original geraria <p><p> aninhado (inválido; browser fecha o externo).
+        wrapper_name = "div" if s_type == "richtext" else el.name
+        new_tag = BeautifulSoup("", "html.parser").new_tag(wrapper_name)
         new_tag.attrs = dict(el.attrs)
         placeholder = "{{ section.settings." + real_id + " }}"
         new_tag.append(BeautifulSoup(placeholder, "html.parser"))
@@ -642,15 +822,17 @@ class LiquidBuilder:
         self.counter += 1
         label_id = self.unique_id(f"link_label_{self.counter}")
         url_id = self.unique_id(f"link_url_{self.counter}")
-        self.add_setting(label_id, "text", "Link label", default=text or "Click here")
+        # O dedup de add_setting pode devolver um id EXISTENTE (texto repetido) —
+        # o markup TEM que usar o id retornado, senão referencia setting inexistente.
+        real_label_id = self.add_setting(label_id, "text", "Link label", default=text or "Click here")
         # Shopify url settings only accept absolute URLs or paths starting with "/". Anchors/relative fail push validation. Omit default when invalid.
         url_default = href if href.startswith(("http://", "https://", "/")) else None
-        self.add_setting(url_id, "url", "Link URL", default=url_default)
+        real_url_id = self.add_setting(url_id, "url", "Link URL", default=url_default)
         new_a = BeautifulSoup("", "html.parser").new_tag("a")
-        new_a["href"] = "{{ section.settings." + url_id + " }}"
+        new_a["href"] = "{{ section.settings." + real_url_id + " }}"
         if el.has_attr("class"):
             new_a["class"] = el["class"]
-        new_a.append(BeautifulSoup("{{ section.settings." + label_id + " }}", "html.parser"))
+        new_a.append(BeautifulSoup("{{ section.settings." + real_label_id + " }}", "html.parser"))
         el.replace_with(new_a)
 
     def is_cart_cta(self, el):
@@ -679,7 +861,9 @@ class LiquidBuilder:
         after_id = self.unique_id(f"cta_after_add_{n}")
         fallback_id = self.unique_id(f"cta_fallback_url_{n}")
 
-        self.add_setting(label_id, "text", "CTA label", default=text)
+        # Dedup-aware: usa o id RETORNADO (CTA duplicado — sticky + pricing — é o
+        # caso comum; sem isso o botão renderizaria sem texto).
+        real_label_id = self.add_setting(label_id, "text", "CTA label", default=text)
         self.settings.append({
             "type": "text", "id": variant_id, "label": "Variant ID",
             "info": "Shopify line-item/variant ID added to cart. Leave empty to use fallback link.",
@@ -696,8 +880,8 @@ class LiquidBuilder:
             ],
             "default": "checkout",
         })
-        self.add_setting(fallback_id, "url", "CTA fallback URL",
-                         info="Used when no Variant ID is set.")
+        real_fallback_id = self.add_setting(fallback_id, "url", "CTA fallback URL",
+                                            info="Used when no Variant ID is set.")
 
         btn_class = " ".join(el.get("class", []) or [])
         s = "section.settings."
@@ -709,25 +893,28 @@ class LiquidBuilder:
             "{% if " + s + after_id + " == 'checkout' %}"
             '<input type="hidden" name="checkout" value="1">'
             "{% endif %}"
-            '<button type="submit" class="' + btn_class + '">{{ ' + s + label_id + " }}</button>"
+            '<button type="submit" class="' + btn_class + '">{{ ' + s + real_label_id + " }}</button>"
             "</form>"
             "{% else %}"
-            '<a href="{{ ' + s + fallback_id + " | default: '/cart' }}\" class=\"" + btn_class + "\">"
-            "{{ " + s + label_id + " }}</a>"
+            '<a href="{{ ' + s + real_fallback_id + " | default: '/cart' }}\" class=\"" + btn_class + "\">"
+            "{{ " + s + real_label_id + " }}</a>"
             "{% endif %}"
         )
         el.replace_with(BeautifulSoup(liquid, "html.parser"))
 
-    def process(self, section_dict):
+    def process(self, section_dict, asset_type="section"):
         html = section_dict["html"]
         soup = BeautifulSoup(html, "html.parser")
+        self._blocks_loops = []
 
         # Step 1: limpa artefatos Shopify ANTES do namespacing (pra classes/tags originais ainda existirem)
         strip_shopify_artifacts(soup)
 
-        # Step 2: extrai block template SE houver padrão repetitivo (usa classes originais pré-namespace)
+        # Step 2: extrai block local SE houver padrão repetitivo (usa classes originais
+        # pré-namespace). Em asset_type=block não há section.blocks — itens repetidos
+        # ficam como settings normais.
         repeating = section_dict.get("repeating_pattern", {})
-        if repeating.get("detected") and repeating.get("count", 0) >= 2:
+        if asset_type != "block" and repeating.get("detected") and repeating.get("count", 0) >= 2:
             self._extract_block_from_repeating(soup, repeating, section_dict.get("semantic_type", "item"))
 
         # Step 3: namespace classes (após extrair blocks)
@@ -737,57 +924,112 @@ class LiquidBuilder:
         # Step 4: converte texto, imagens, links
         self._convert_element_recursive(soup, self)
 
-        return str(soup)
+        # Step 5: injeta o(s) {% for block %} DEPOIS da serialização — o markup do
+        # block já está namespaceado/convertido e não pode passar de novo pelos steps 3-4.
+        markup = str(soup)
+        for loop_liquid in self._blocks_loops:
+            markup = markup.replace(BLOCKS_LOOP_TOKEN, loop_liquid, 1)
+        return markup
 
     def _extract_block_from_repeating(self, soup, repeating, semantic_hint):
-        """Encontra o primeiro elemento do padrão repetitivo e usa como template de block."""
+        """Extrai o padrão repetido como BLOCK LOCAL (inline no schema da section).
+
+        - TODOS os itens são convertidos: o item 1 vira o markup-template do block e
+          a copy REAL de cada item vira uma instância (defaults próprios) que alimenta
+          presets + templates/page.json — nunca N clones do item 1.
+        - Só os itens que casam com o padrão saem do markup; irmãos diferentes
+          (ex: uma cta-row no fim do grid) são preservados.
+        - O markup do block usa o MESMO namespace da section (o CSS reescrito continua
+          casando) e referencia {{ block.settings.* }} + {{ block.shopify_attributes }}.
+        """
         child_tag = repeating.get("child_tag")
         child_classes = set(repeating.get("child_classes") or [])
 
-        first_match = None
+        matches = []
         container = None
-        for el in soup.find_all(child_tag):
-            el_classes = set(el.get("class", []) or [])
-            if child_classes and child_classes.issubset(el_classes):
-                first_match = el
-                container = el.parent
-                break
+        if child_classes:
+            for el in soup.find_all(child_tag):
+                el_classes = set(el.get("class", []) or [])
+                if child_classes.issubset(el_classes):
+                    if container is None:
+                        container = el.parent
+                    if el.parent is container:
+                        matches.append(el)
 
-        # Fallback: se não achou por classes, usa o primeiro child_tag dentro do container mais provável
-        if first_match is None:
+        # Fallback: se não achou por classes, usa os filhos diretos repetidos do
+        # primeiro container plausível
+        if not matches:
             for potential_container in soup.find_all(True):
-                kids = [k for k in potential_container.find_all(child_tag, recursive=False)]
+                kids = potential_container.find_all(child_tag, recursive=False)
                 if len(kids) >= 2:
-                    first_match = kids[0]
+                    matches = list(kids)
                     container = potential_container
                     break
 
-        if first_match is None or container is None:
+        if len(matches) < 2 or container is None:
             return
 
         block_type = slugify(semantic_hint) or "item"
 
-        # Constrói o block a partir do primeiro match (HTML copiado antes do namespacing)
-        block_html = str(first_match)
-        block_soup = BeautifulSoup(block_html, "html.parser")
-        strip_shopify_artifacts(block_soup)
-        namespace_classes(block_soup, f"{self.namespace}-{block_type}")
-        clean_inline_styles(block_soup)
+        # Converte CADA item (não só o primeiro) pra capturar a copy real por instância.
+        instance_builders = []
+        for el in matches:
+            item_soup = BeautifulSoup(str(el), "html.parser")
+            strip_shopify_artifacts(item_soup)
+            namespace_classes(item_soup, self.namespace)
+            clean_inline_styles(item_soup)
+            b = LiquidBuilder(self.namespace, self.product_slug)
+            b._convert_element_recursive(item_soup, b)
+            instance_builders.append((b, item_soup))
 
-        block_builder = LiquidBuilder(f"{self.namespace}-{block_type}", self.product_slug)
-        block_builder._convert_element_recursive(block_soup, block_builder)
-        block_markup = str(block_soup)
+        template_builder, template_soup = instance_builders[0]
+        block_markup = str(template_soup).replace("section.settings.", "block.settings.")
+        # shopify_attributes no root do block (theme editor highlight/reorder)
+        block_markup = re.sub(
+            r"(<[a-zA-Z][^>]*?)(/?>)",
+            r"\1 {{ block.shopify_attributes }}\2",
+            block_markup,
+            count=1,
+        )
+
+        template_defaults = _settings_defaults(template_builder.settings)
+        instances = []
+        for idx, (b, _) in enumerate(instance_builders):
+            item_defaults = _settings_defaults(b.settings)
+            if idx > 0 and set(item_defaults) != set(template_defaults):
+                logger.warning(
+                    "block '%s': item %d tem estrutura diferente do item 1 — settings sem "
+                    "correspondência mantêm o default do item 1",
+                    block_type, idx + 1,
+                )
+            inst = dict(template_defaults)
+            for sid in inst:
+                if sid in item_defaults:
+                    inst[sid] = item_defaults[sid]
+            instances.append(inst)
 
         self.blocks_schemas[block_type] = {
             "markup": block_markup,
-            "settings": block_builder.settings,
+            "settings": template_builder.settings,
+            "instances": instances,
+            "name": schema_display_name(f"{semantic_hint} item"),
         }
 
-        # Substitui todos os filhos repetidos no container principal por {% content_for 'blocks' %}
-        siblings_to_remove = list(container.find_all(child_tag, recursive=False))
-        for s in siblings_to_remove:
-            s.decompose()
-        container.append(BeautifulSoup("{% content_for 'blocks' %}", "html.parser"))
+        loop_liquid = (
+            "{% for block in section.blocks %}"
+            "{% case block.type %}"
+            f"{{% when '{block_type}' %}}"
+            f"{block_markup}"
+            "{% endcase %}"
+            "{% endfor %}"
+        )
+        self._blocks_loops.append(loop_liquid)
+
+        # Remove APENAS os itens do padrão; o token marca a posição do primeiro item
+        # (o loop entra ali, não no fim do container).
+        matches[0].insert_before(NavigableString(BLOCKS_LOOP_TOKEN))
+        for el in matches:
+            el.decompose()
 
     def _convert_element_recursive(self, root, builder):
         if not isinstance(root, Tag):
@@ -799,6 +1041,8 @@ class LiquidBuilder:
             if child.name in ("script", "style", "noscript", "iframe", "link"):
                 child.decompose()
                 continue
+            if child.name == "svg":
+                continue  # texto interno de SVG não vira setting
             if child.name == "img":
                 builder.convert_image(child)
                 continue
@@ -819,56 +1063,61 @@ class LiquidBuilder:
                 if has_only_text:
                     builder.convert_link(child)
                     continue
+            if BLOCKS_LOOP_TOKEN in child.get_text():
+                # container do padrão repetido — só recursão (o token não vira setting)
+                builder._convert_element_recursive(child, builder)
+                continue
             text_children = [c for c in child.children if isinstance(c, NavigableString) and c.strip()]
             tag_children = [c for c in child.children if isinstance(c, Tag)]
-            if child.name in TEXT_TAGS and text_children and not tag_children:
+            # Everything-editable: QUALQUER tag folha com texto direto vira setting
+            # (inclui <div class="price">$49</div>, eyebrows em div, etc).
+            if text_children and not tag_children:
                 builder.convert_text_node(child)
                 continue
-            if child.name in TEXT_TAGS and text_children and tag_children and all(c.name in INLINE_TAGS for c in tag_children):
+            if text_children and tag_children and all(c.name in INLINE_TAGS for c in tag_children):
                 builder.convert_mixed_text_node(child)
                 continue
             builder._convert_element_recursive(child, builder)
 
-    def build_block_file(self, block_type, block_data):
-        schema = {
-            "name": f"{self.product_slug}-{block_type} item",
-            "settings": block_data["settings"],
-        }
-        schema_errors = validate_shopify_schema(schema)
-        if schema_errors:
-            raise ValueError(
-                "Schema inválido para block '"
-                + str(block_type)
-                + "': "
-                + "; ".join(schema_errors)
-            )
-        content = (
-            f"<div class=\"{self.namespace}-{block_type}\">\n"
-            f"{block_data['markup']}\n"
-            f"</div>\n\n"
-            f"{{% stylesheet %}}\n"
-            f".{self.namespace}-{block_type} {{ /* block-scoped styles */ }}\n"
-            f"{{% endstylesheet %}}\n\n"
-            f"{{% schema %}}\n"
-            f"{json.dumps(schema, indent=2)}\n"
-            f"{{% endschema %}}\n"
-        )
-        return content
-
     def build_section_file(self, markup, section_name, section_tag_class, base_stylesheet="", asset_type="section"):
         scope = "block" if asset_type == "block" else "section"
 
-        # GAP-A + GAP-D: extrai cores E tokens (shadow/radius/font-size/font-family) do CSS,
-        # transforma cada um em setting + custom property, e injeta TODAS as vars INLINE no root
-        # da section (com | escape em cada interpolação). Sem inline-no-root, o theme editor não
-        # aplica os valores; sem | escape, abre injection no atributo style.
-        color_map = extract_colors_from_css(base_stylesheet)
-        tokens = extract_tokens_from_css(base_stylesheet)
-        prepend_settings = []
-        inline_pairs = []  # (var_id_sem_hifen, setting_id) → vira "--id: {{ scope.settings.id | escape }}"
+        # 1) Rescopa :root/html/body pro wrapper do schema (.{ns}) E pro root do
+        #    markup — as vars inline ficam no root do markup (filho do wrapper),
+        #    então custom properties do design (tokens tipo --ink) só resolvem se
+        #    a regra rescopada casar com esse elemento também.
+        rescope_target = f".{self.namespace}"
+        root_class_m = re.search(
+            r'<(?:section|div|article|aside|main|header|footer)\b[^>]*?class="([^"]+)"',
+            markup,
+        )
+        if root_class_m:
+            first_cls = root_class_m.group(1).split()[0]
+            if first_cls and first_cls != self.namespace:
+                rescope_target += f", .{first_cls}"
+        base_stylesheet = rescope_root_selectors(base_stylesheet, rescope_target)
+        # 2) Filtra o CSS da página pras regras que ESTA section usa (o page.css inteiro
+        #    em cada section = N cópias no tema + settings de outras sections aqui).
+        base_stylesheet = filter_css_for_markup(
+            base_stylesheet, markup, extra_classes=(section_tag_class or "").split(),
+        )
 
+        # GAP-A + GAP-D: extrai tokens E cores do CSS, transforma cada um em setting +
+        # custom property, e injeta TODAS as vars INLINE no root da section (com
+        # | escape em cada interpolação). Tokens ANTES de cores: um box-shadow com hex
+        # migra inteiro pro setting de shadow; se cores rodassem primeiro, o valor
+        # tokenizado nunca casaria (setting morto).
+        tokens = extract_tokens_from_css(base_stylesheet)
+        if tokens:
+            base_stylesheet = replace_tokens_with_vars(base_stylesheet, tokens)
+        color_map = extract_colors_from_css(base_stylesheet)
         if color_map:
             base_stylesheet = replace_colors_with_vars(base_stylesheet, color_map)
+
+        prepend_settings = []
+        inline_pairs = []  # setting_id → vira "--id: {{ scope.settings.id | escape }}"
+
+        if color_map:
             prepend_settings.append({"type": "header", "content": "Colors"})
             for hex_color, s_id in color_map.items():
                 prepend_settings.append({
@@ -880,7 +1129,6 @@ class LiquidBuilder:
                 inline_pairs.append(s_id)
 
         if tokens:
-            base_stylesheet = replace_tokens_with_vars(base_stylesheet, tokens)
             prepend_settings.append({"type": "header", "content": "Design tokens"})
             for tok in tokens:
                 entry = {"type": tok["type"], "id": tok["id"], "label": tok["label"], "default": tok["default"]}
@@ -898,14 +1146,28 @@ class LiquidBuilder:
                 for s_id in inline_pairs
             )
             extra = ' {{ block.shopify_attributes }}' if asset_type == "block" else ""
-            # Injeta no PRIMEIRO elemento de abertura do markup (root da section), não só <section>.
+
+            def _inject_vars(m: re.Match) -> str:
+                open_tag, close = m.group(1), m.group(2)
+                if "style=" not in open_tag:
+                    return f'{open_tag} style="{inline_vars}"{extra}{close}'
+                # Merge DENTRO do atributo style existente (nunca na última aspa do
+                # tag — que pode pertencer a class/qualquer outro atributo).
+                merged = re.sub(
+                    r'(style\s*=\s*")([^"]*)(")',
+                    lambda s: s.group(1)
+                    + ((s.group(2).rstrip("; ").strip() + "; ") if s.group(2).strip() else "")
+                    + inline_vars
+                    + s.group(3),
+                    open_tag,
+                    count=1,
+                )
+                return f"{merged}{extra}{close}"
+
+            # Injeta no PRIMEIRO elemento de abertura do markup (root da section).
             injected = re.subn(
                 r"(<(?:section|div|article|aside|main)\b[^>]*?)(>)",
-                lambda m: (
-                    f'{m.group(1)} style="{inline_vars}"{extra}{m.group(2)}'
-                    if "style=" not in m.group(1)
-                    else f'{re.sub(chr(34) + r"$", "; " + inline_vars + chr(34), m.group(1), count=1)}{extra}{m.group(2)}'
-                ),
+                _inject_vars,
                 markup,
                 count=1,
             )
@@ -930,7 +1192,6 @@ class LiquidBuilder:
         # do markup final (cobre styles vindos de convert_image, inline-vars e edge cases).
         markup = escape_style_interpolations(markup)
 
-        block_types = list(self.blocks_schemas.keys())
         if asset_type == "block":
             schema = {
                 "name": section_name,
@@ -939,15 +1200,26 @@ class LiquidBuilder:
                 "presets": [{"name": section_name}],
             }
         else:
+            # Blocks LOCAIS inline no schema (com name+settings) — nunca theme blocks.
+            blocks_defs = []
+            preset_blocks = []
+            for t, data in self.blocks_schemas.items():
+                blocks_defs.append({
+                    "type": t,
+                    "name": data.get("name") or schema_display_name(t),
+                    "settings": data["settings"],
+                })
+                for inst in data.get("instances") or []:
+                    preset_blocks.append({"type": t, "settings": dict(inst)})
             schema = {
                 "name": section_name,
                 "tag": "section",
                 "class": section_tag_class,
                 "settings": self.settings,
-                "blocks": [{"type": t} for t in block_types],
+                "blocks": blocks_defs,
                 "presets": [{
                     "name": section_name,
-                    "blocks": ([{"type": t} for t in block_types] * 3) if block_types else [],
+                    "blocks": preset_blocks,
                 }],
             }
 
@@ -1004,13 +1276,13 @@ def _settings_defaults(settings_list) -> dict:
     return out
 
 
-def build_template_section_node(builder, section_id, block_instances=3):
+def build_template_section_node(builder, section_id):
     """GAP-B: monta o node de UMA section pro templates/page.json a partir do schema construído.
 
     - settings: defaults reais da copy injetada (section-level).
-    - blocks{} / block_order[]: uma instância por block type detectado, com defaults reais.
-      Instâncias inseridas em ORDEM REVERSA (rule reverse-order-insertion) pra que o
-      block_order final reflita a ordem visual correta no theme editor.
+    - blocks{} / block_order[]: UMA instância por item REAL detectado no HTML, com os
+      defaults daquele item (copy própria preservada — nunca N clones do item 1).
+      block_order segue a ordem visual dos itens.
     """
     schema = builder.built_schema or {}
     node = {
@@ -1018,25 +1290,21 @@ def build_template_section_node(builder, section_id, block_instances=3):
         "settings": _settings_defaults(schema.get("settings", [])),
     }
 
-    block_types = list(builder.blocks_schemas.keys())
-    if block_types:
+    if builder.blocks_schemas:
         blocks = {}
         block_order = []
-        # Insere em ordem reversa: monta a lista na ordem visual, depois popula reverso.
-        instances = []
-        for t in block_types:
-            defaults = _settings_defaults(builder.blocks_schemas[t].get("settings", []))
-            for n in range(block_instances):
-                instances.append((f"{t}_{n + 1}", t, defaults))
-        for inst_id, t, defaults in reversed(instances):
-            blocks[inst_id] = {"type": t, "settings": dict(defaults)}
-        block_order = [inst_id for inst_id, _, _ in instances]
+        for t, data in builder.blocks_schemas.items():
+            instances = data.get("instances") or [_settings_defaults(data.get("settings", []))]
+            for n, inst in enumerate(instances):
+                inst_id = f"{t}_{n + 1}"
+                blocks[inst_id] = {"type": t, "settings": dict(inst)}
+                block_order.append(inst_id)
         node["blocks"] = blocks
         node["block_order"] = block_order
     return node
 
 
-def emit_template_json(path: Path, page_handle: str, section_nodes: list[tuple[str, dict]]):
+def emit_template_json(path: Path, section_nodes: list[tuple[str, dict]]):
     """GAP-B: escreve templates/page.[handle].json com sections{} + order[] populados.
 
     section_nodes: lista de (section_id, node) na ordem de exibição da página."""
@@ -1051,12 +1319,14 @@ def emit_template_json(path: Path, page_handle: str, section_nodes: list[tuple[s
     return template
 
 
-def _convert_one_section(section, namespace, product_slug, output_path, blocks_dir, asset_type, semantic_type):
-    """Converte uma única section (dict) → escreve .liquid + blocks, retorna (builder, section_id)."""
-    builder = LiquidBuilder(namespace, product_slug)
-    converted_markup = builder.process(section)
+def _convert_one_section(section, namespace, product_slug, output_path, asset_type, semantic_type):
+    """Converte uma única section (dict) → escreve o .liquid, retorna (builder, section_id).
 
-    section_name = f"Page {product_slug} — {semantic_type}"
+    Blocks são inline no schema da section — nenhum arquivo blocks/*.liquid é gerado."""
+    builder = LiquidBuilder(namespace, product_slug)
+    converted_markup = builder.process(section, asset_type=asset_type)
+
+    section_name = schema_display_name(semantic_type)
     section_tag_class = f"{namespace} {namespace}--{slugify(semantic_type)}"
     file_content = builder.build_section_file(
         converted_markup, section_name, section_tag_class,
@@ -1065,16 +1335,12 @@ def _convert_one_section(section, namespace, product_slug, output_path, blocks_d
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(file_content, encoding="utf-8")
-    print(f"[liquid-converter v2] section salva em {output_path}")
-    print(f"[liquid-converter v2] stats: {len(builder.settings)} settings · {len(builder.blocks_schemas)} block type(s)")
-
-    if builder.blocks_schemas:
-        blocks_dir.mkdir(parents=True, exist_ok=True)
-        for block_type, block_data in builder.blocks_schemas.items():
-            block_content = builder.build_block_file(block_type, block_data)
-            block_file = blocks_dir / f"{namespace}-{block_type}.liquid"
-            block_file.write_text(block_content, encoding="utf-8")
-            print(f"[liquid-converter v2] block salvo em {block_file}")
+    n_instances = sum(len(d.get("instances") or []) for d in builder.blocks_schemas.values())
+    print(f"[liquid-converter v3] section salva em {output_path}")
+    print(
+        f"[liquid-converter v3] stats: {len(builder.settings)} settings · "
+        f"{len(builder.blocks_schemas)} block type(s) inline · {n_instances} instância(s) com copy real"
+    )
 
     # section_id = nome do arquivo .liquid sem extensão (= o que vai em sections{}/order[])
     section_id = output_path.stem
@@ -1123,7 +1389,7 @@ def run_batch(args):
       "asset_type": "section",
       "sections": [
         {"html": "...|path", "css": "...|path", "type": "hero", "namespace": "page-produto-hero",
-         "output": "<staging>/sections/page-produto-hero.liquid", "blocks_dir": "<staging>/blocks"}
+         "output": "<staging>/sections/page-produto-hero.liquid"}
       ]
     }
     html/css aceitam tanto conteúdo inline quanto path (resolve path se o arquivo existir).
@@ -1149,24 +1415,30 @@ def run_batch(args):
         print("ERRO: batch manifest sem 'sections'", file=sys.stderr)
         sys.exit(1)
 
-    def _resolve(val):
-        """Aceita conteúdo inline OU path. Se for path existente, lê o arquivo."""
+    def _resolve(val, field):
+        """Aceita conteúdo inline OU path. Se for path existente, lê o arquivo.
+        Path aparente (termina em .html/.css) que NÃO existe = erro explícito —
+        nunca seguir silenciosamente sem o conteúdo."""
         if not val:
             return ""
-        p = Path(str(val)).expanduser()
-        if len(str(val)) < 4096 and p.exists() and p.is_file():
-            return p.read_text(encoding="utf-8")
+        sval = str(val)
+        if len(sval) < 4096 and "\n" not in sval:
+            p = Path(sval).expanduser()
+            if p.exists() and p.is_file():
+                return p.read_text(encoding="utf-8")
+            if sval.lower().endswith((".html", ".htm", ".css")):
+                print(f"ERRO: '{field}' aponta pra arquivo inexistente: {p}", file=sys.stderr)
+                sys.exit(1)
         return val
 
     section_nodes = []
     for spec in section_specs:
         namespace = spec["namespace"]
         semantic_type = spec.get("type", "section")
-        html_content = _resolve(spec.get("html"))
-        css_raw = _resolve(spec.get("css"))
+        html_content = _resolve(spec.get("html"), f"sections[{semantic_type}].html")
+        css_raw = _resolve(spec.get("css"), f"sections[{semantic_type}].css")
         base_css = rewrite_css_for_namespace(css_raw, namespace) if css_raw else ""
         output_path = Path(spec["output"]).expanduser().resolve()
-        blocks_dir = Path(spec.get("blocks_dir", output_path.parent.parent / "blocks")).expanduser().resolve()
         section = {
             "html": html_content,
             "semantic_type": semantic_type,
@@ -1176,7 +1448,7 @@ def run_batch(args):
         }
         try:
             builder, section_id = _convert_one_section(
-                section, namespace, product_slug, output_path, blocks_dir, asset_type, semantic_type,
+                section, namespace, product_slug, output_path, asset_type, semantic_type,
             )
         except ValueError as exc:
             print(f"ERRO ao converter section '{semantic_type}': {exc}", file=sys.stderr)
@@ -1190,21 +1462,25 @@ def run_batch(args):
         if args.emit_template_json
         else manifest_path.parent / f"page.{page_handle}.json"
     )
-    emit_template_json(tpl_path, page_handle, section_nodes)
-    print(f"[liquid-converter v2] POPULATE → template emitido em {tpl_path} ({len(section_nodes)} sections)")
-    print("[liquid-converter v2] ATENÇÃO: valide cada .liquid com a skill `shopify-plugin:shopify-liquid` antes de instalar.")
+    emit_template_json(tpl_path, section_nodes)
+    print(f"[liquid-converter v3] POPULATE → template emitido em {tpl_path} ({len(section_nodes)} sections)")
+    print("[liquid-converter v3] ATENÇÃO: valide cada .liquid com a skill `shopify-plugin:shopify-liquid` antes de instalar.")
 
 
 def main():
     parser = argparse.ArgumentParser()
     # Dois modos de input: sections.json (legacy, do analyzer) ou HTML/CSS fresh (Modo C)
-    parser.add_argument("--sections-json", help="(Modo B legacy) Path to sections.json from analyzer")
+    parser.add_argument("--sections-json", help="(Modo B legacy) Path to sections.json from analyzer — REQUER --allow-competitor-markup")
     parser.add_argument("--section-index", type=int, help="(Modo B legacy) 1-based index of section to convert")
+    parser.add_argument("--allow-competitor-markup", action="store_true",
+                        help="(Modo B) Confirma que você ENTENDE que copy/markup do HTML de origem "
+                             "(concorrente) entrará no tema como defaults — só use com página própria")
     parser.add_argument("--html", help="(Modo C) Path to fresh HTML file from frontend-design")
     parser.add_argument("--css", help="(Modo C) Path to fresh CSS file (injected into the stylesheet block)")
     parser.add_argument("--type", help="(Modo C) Semantic type of the section (hero/features/faq/etc)")
     parser.add_argument("--output", help="Path to output .liquid file (single-section mode)")
-    parser.add_argument("--blocks-dir", help="Directory where blocks/*.liquid files go (single-section mode)")
+    parser.add_argument("--blocks-dir", help="(DEPRECADO — blocks agora são inline no schema da section; "
+                                             "flag aceita e ignorada por compatibilidade)")
     parser.add_argument("--namespace", help="CSS namespace (e.g. page-[produto]-hero)")
     parser.add_argument("--product-slug", help="Product slug (e.g. [produto])")
     parser.add_argument("--asset-type", choices=["section", "block"], default="section",
@@ -1215,19 +1491,21 @@ def main():
     parser.add_argument("--page-handle", help="(GAP-B POPULATE) Handle da página Shopify (default: product-slug)")
     args = parser.parse_args()
 
+    if args.blocks_dir:
+        logger.info("--blocks-dir é deprecado e foi ignorado: blocks são inline no schema da section (nenhum blocks/*.liquid é gerado)")
+
     # GAP-E: modo batch — converte todas as sections + emite o template JSON numa só invocação.
     if args.batch:
         run_batch(args)
         return
 
     # Single-section: os campos abaixo são obrigatórios fora do batch.
-    missing = [f for f in ("output", "blocks_dir", "namespace", "product_slug") if not getattr(args, f)]
+    missing = [f for f in ("output", "namespace", "product_slug") if not getattr(args, f)]
     if missing:
         parser.error("argumentos obrigatórios faltando (fora do modo --batch): "
                      + ", ".join("--" + m.replace("_", "-") for m in missing))
 
     output_path = Path(args.output).expanduser().resolve()
-    blocks_dir = Path(args.blocks_dir).expanduser().resolve()
 
     # Decide modo pelo input fornecido
     if args.html:
@@ -1240,17 +1518,31 @@ def main():
         base_css = ""
         if args.css:
             css_path = Path(args.css).expanduser().resolve()
-            if css_path.exists():
-                base_css = rewrite_css_for_namespace(css_path.read_text(encoding="utf-8"), args.namespace)
+            if not css_path.exists():
+                # Falha explícita: seguir sem CSS deployaria a section SEM estilo.
+                print(f"ERRO: --css {css_path} não encontrado", file=sys.stderr)
+                sys.exit(1)
+            base_css = rewrite_css_for_namespace(css_path.read_text(encoding="utf-8"), args.namespace)
         section = {
             "html": html_content,
             "semantic_type": args.type or "section",
             "repeating_pattern": detect_repeating_pattern(html_content),
             "images": [],
         }
-        print(f"[liquid-converter v2] Modo C — convertendo HTML fresh ({args.type or 'section'})")
+        print(f"[liquid-converter v3] Modo C — convertendo HTML fresh ({args.type or 'section'})")
     elif args.sections_json and args.section_index:
-        # Modo B legacy — sections.json do analyzer
+        # Modo B legacy — sections.json do analyzer (HTML bruto da página de origem)
+        if not args.allow_competitor_markup:
+            print(
+                "ERRO: o Modo B converte HTML BRUTO da página de origem — copy e markup "
+                "do concorrente virariam defaults do SEU tema.\n"
+                "Isso viola o princípio 'zero código do concorrente no output final'.\n"
+                "Use o Modo C (--html/--css com o design próprio aprovado na 07a).\n"
+                "Se a página de origem é SUA (ex: migração entre lojas próprias), re-rode "
+                "com --allow-competitor-markup.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
         sections_json = Path(args.sections_json).expanduser().resolve()
         if not sections_json.exists():
             print(f"ERRO: {sections_json} não encontrado", file=sys.stderr)
@@ -1272,16 +1564,17 @@ def main():
             sys.exit(1)
         section = sections[args.section_index - 1]
         base_css = ""
-        print(f"[liquid-converter v2] Modo B — convertendo seção {args.section_index}: {section.get('semantic_type')}")
+        print(f"[liquid-converter v3] Modo B — convertendo seção {args.section_index}: {section.get('semantic_type')}")
     else:
         print("ERRO: forneça --html (Modo C) ou --sections-json + --section-index (Modo B legacy)", file=sys.stderr)
         sys.exit(1)
 
     builder = LiquidBuilder(args.namespace, args.product_slug)
-    converted_markup = builder.process(section)
+    converted_markup = builder.process(section, asset_type=args.asset_type)
 
-    section_name = f"Page {args.product_slug} — {section.get('semantic_type', 'section')}"
-    section_tag_class = f"{args.namespace} {args.namespace}--{slugify(section.get('semantic_type', 'section'))}"
+    semantic_type = section.get("semantic_type", "section")
+    section_name = schema_display_name(semantic_type)
+    section_tag_class = f"{args.namespace} {args.namespace}--{slugify(semantic_type)}"
     try:
         file_content = builder.build_section_file(
             converted_markup,
@@ -1297,49 +1590,47 @@ def main():
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(file_content, encoding="utf-8")
 
-    print(f"[liquid-converter v2] section salva em {output_path}")
-    print(f"[liquid-converter v2] stats: {len(builder.settings)} settings · {len(builder.blocks_schemas)} block type(s)")
+    n_instances = sum(len(d.get("instances") or []) for d in builder.blocks_schemas.values())
+    print(f"[liquid-converter v3] section salva em {output_path}")
+    print(
+        f"[liquid-converter v3] stats: {len(builder.settings)} settings · "
+        f"{len(builder.blocks_schemas)} block type(s) inline · {n_instances} instância(s) com copy real"
+    )
 
-    if builder.blocks_schemas:
-        blocks_dir.mkdir(parents=True, exist_ok=True)
-        for block_type, block_data in builder.blocks_schemas.items():
-            try:
-                block_content = builder.build_block_file(block_type, block_data)
-            except ValueError as exc:
-                print(f"ERRO: {exc}", file=sys.stderr)
-                sys.exit(1)
-            block_file = blocks_dir / f"{args.namespace}-{block_type}.liquid"
-            block_file.write_text(block_content, encoding="utf-8")
-            print(f"[liquid-converter v2] block salvo em {block_file}")
-
-    # GAP-B: POPULATE single-section — emite (ou cria) o template JSON com este section node.
+    # GAP-B: POPULATE single-section — emite (ou atualiza) o template JSON com este section node.
     # Útil pra converter section a section; pra página inteira prefira --batch.
     if args.emit_template_json:
-        page_handle = args.page_handle or args.product_slug
         section_id = output_path.stem
         node = build_template_section_node(builder, section_id)
         tpl_path = Path(args.emit_template_json).expanduser().resolve()
-        # Se o template já existe, faz merge aditivo (preserva sections já emitidas).
-        existing_nodes = []
+        # Merge aditivo preservando a POSIÇÃO no order[]: re-compilar só o hero não
+        # pode mandá-lo pro fim da página.
+        merged_nodes: list[tuple[str, dict]] = []
+        replaced = False
         if tpl_path.exists():
             try:
                 existing = json.loads(tpl_path.read_text(encoding="utf-8"))
                 for sid in existing.get("order", []):
-                    if sid != section_id and sid in existing.get("sections", {}):
-                        existing_nodes.append((sid, existing["sections"][sid]))
+                    if sid == section_id:
+                        merged_nodes.append((sid, node))
+                        replaced = True
+                    elif sid in existing.get("sections", {}):
+                        merged_nodes.append((sid, existing["sections"][sid]))
             except (json.JSONDecodeError, OSError):
                 pass
-        emit_template_json(tpl_path, page_handle, existing_nodes + [(section_id, node)])
-        print(f"[liquid-converter v2] POPULATE → template atualizado em {tpl_path}")
+        if not replaced:
+            merged_nodes.append((section_id, node))
+        emit_template_json(tpl_path, merged_nodes)
+        print(f"[liquid-converter v3] POPULATE → template atualizado em {tpl_path}")
 
-    print("[liquid-converter v2] ATENÇÃO: sempre valide o arquivo gerado com a skill `shopify-plugin:shopify-liquid` antes de instalar no tema. Edge cases podem precisar ajuste manual.")
+    print("[liquid-converter v3] ATENÇÃO: sempre valide o arquivo gerado com a skill `shopify-plugin:shopify-liquid` antes de instalar no tema. Edge cases podem precisar ajuste manual.")
 
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n[liquid-converter v2] interrompido pelo usuário", file=sys.stderr)
+        print("\n[liquid-converter v3] interrompido pelo usuário", file=sys.stderr)
         sys.exit(130)
     except Exception as exc:  # noqa: BLE001 — CLI surface
         logger.error("falha inesperada: %s", exc)
