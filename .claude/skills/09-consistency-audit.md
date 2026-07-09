@@ -1,6 +1,6 @@
 ---
 name: consistency-audit
-description: Auditoria cross-phase que valida consistência entre os artefatos gerados nas skills 01-08, incluindo a página (07a — page-plan.json/design-tokens) e o checkout (07d). Detecta drift (mecanismo muda entre offer, copy e página, VOC phrase não aparece em nenhum hook, claim sem research foundation, promessa sem config de loja, bonus removido da oferta mas ainda anunciado, etc). Use quando o membro disser "audit", "consistência", "review", "verificar coerência" ou antes de launch oficial. Roda smoke checks em minutos, retorna report com severity-ranked issues e fix paths.
+description: Auditoria cross-phase que valida consistência entre os artefatos gerados nas skills 01-08, incluindo a página (07a — page-plan.json/design-tokens), o checkout (07d) e os artefatos pré-launch da 05 (Fase A — assets de bônus) e da 13 (Fase A — flows de recuperação). Detecta drift (mecanismo muda entre offer, copy e página, VOC phrase não aparece em nenhum hook, claim sem research foundation, promessa sem config de loja, bonus removido da oferta mas ainda anunciado, placeholder não-resolvido em copy deployada, etc). Use quando o membro disser "audit", "consistência", "review", "verificar coerência" ou antes de launch oficial. Roda smoke checks em minutos, retorna report com severity-ranked issues e fix paths.
 ---
 
 # Cross-Phase Consistency Audit
@@ -9,7 +9,7 @@ description: Auditoria cross-phase que valida consistência entre os artefatos g
 
 ## Quando Usar
 
-Antes de launch oficial (ads go-live + page em produção), rodar esta skill pra pegar incoerências acumuladas ao longo das skills 01-08. Exemplos reais de drift:
+Antes de launch oficial (ads go-live + page em produção), rodar esta skill pra pegar incoerências acumuladas ao longo das skills 01-08 — incluindo os artefatos pré-launch da 05 (Fase A) e da 13 (Fase A), que na ordem canônica já existem neste ponto. Exemplos reais de drift:
 
 - Mecanismo único nomeado "X" na skill 04 virou "X-alt" nas variações de hook da skill 08
 - VOC phrase repetida 12x no market research NÃO aparece em nenhum hook do ad batch
@@ -48,6 +48,7 @@ Ler todos os artefatos disponíveis (só os que existem):
 - `07-page/design-tokens.json` (gerado por 07a, qualquer rota) → tokens extraídos da variação aprovada (alimenta M6)
 - `07d-checkout-aov/dados.json` **(if exists)** → extract config aplicada de bump/upsell/free-shipping threshold (alimenta o C4: promessa de checkout vs config real)
 - `08-creative-engine/dados.json` → extract hooks, primary_texts, headlines per concept + `hooks_bank[]` top-level
+- `13-retention-engine/[fluxo]/email-N.html` + `flow-metadata.json` **(if exists — a Fase A da 13 roda pré-launch na ordem canônica: abandoned cart + post-purchase)** → alimenta o M7 (placeholders tipo `{{BONUS_LINK}}` ainda não preenchidos) e dá contexto ao gate (flows de recuperação prontos antes do go-live)
 - `10-ad-strategy/dados.json` **(if exists)** — no modo pré-launch ainda não existe (a 10 roda depois da 09); só lê se presente, nunca bloqueia por ausência.
 - `11-ad-analysis/dados.json` **(if exists)** → extract `psm_real`, `winners[]`, `recommended_action` — só existe na re-execução pós-iteração, nunca no pré-launch.
 - `manifest.json.agentic` **(if exists)** → `{ready, channel_enabled, score, checked_at}` escrito pela 07e — **contexto INFORMATIVO no gate de launch, NUNCA bloqueante** (agentic readiness é canal incremental, não pré-requisito de ads). Se presente com `ready: false` ou itens `blocked_pending` em `07e-agentic-readiness/dados.json`, mencione no output como nota informativa: esses itens apontam pras mesmas superfícies que o C4 (promise↔config) já confere (JSON-LD/agent-facts vs config real da loja) — se o C4 achou drift nessas superfícies, o dado da 07e ajuda a localizar. Ausente → silêncio (a 07e pode não ter rodado; não é finding).
@@ -165,6 +166,11 @@ Ler todos os artefatos disponíveis (só os que existem):
 - Paleta e tipografia de `07-page/design-tokens.json` (variação aprovada) devem bater com o documentado em `07-page/design-system.md`.
 - Divergência (hex do accent diferente, font-family trocada) → `severity: medium`, `fix: regenerar o design system a partir dos tokens da variação aprovada (07a)`. Artefatos ausentes → `"skipped"`.
 
+**M7. Placeholders não-resolvidos em template/copy deployada**
+- Varrer os artefatos consumidor-final que já existem — `06-copy-engine/copy-engine.md` (copy final), `07-page/design/page.html` (design aprovado com a copy real inserida), o template JSON/sections populados pela 07b, e os emails da 13 Fase A (`13-retention-engine/[fluxo]/email-N.html`) — procurando tokens de placeholder que deveriam ter sido substituídos por conteúdo real: `{{ALGO_EM_CAPS}}` (ex: `{{BONUS_LINK}}`, `{{MECHANISM_NAME}}`), stand-ins entre colchetes (`[HEADLINE]`, `[PLACEHOLDER]`, `[TBD]`), números de mentira (`XX%`, `$XX`) e "lorem ipsum".
+- **Exceções (não são finding):** tags Liquid legítimas de objeto (`{{ product.title }}`, `{{ shop.* }}`, `{% ... %}`) e merge tags de ESP (`{{ first_name }}` do Klaviyo) — o alvo são stand-ins de CONTEÚDO em caixa alta ou colchetes, não a sintaxe do template.
+- Placeholder achado → `severity: medium` (caso clássico: `{{BONUS_LINK}}` num email ainda em draft aguardando o asset da 05 — fix: "colar o link do asset da 05 antes de ativar o flow"). **Escalar pra `severity: high` se o placeholder está numa superfície JÁ PUBLICADA** (PDP/landing no ar) — consumidor vendo `{{...}}` na página quebra a confiança na hora.
+
 ### ETAPA 3 — Output (dual output — rule 6b do CLAUDE.md)
 
 **Garantir diretório:** `mkdir -p workspace/[produto]/09-consistency-audit/` antes de salvar.
@@ -193,7 +199,7 @@ Schema do JSON:
   "audited_at": "ISO",
   "artefacts_loaded": ["01-product-research", "..."],
   "artefacts_missing": [],
-  "checks_run": 19,
+  "checks_run": 20,
   "issues_critical": 2,
   "issues_high": 3,
   "issues_medium": 4,
@@ -221,7 +227,7 @@ Markdown com o mesmo conteúdo em formato humano (componentes `.danger` pra crit
 - `issues_critical > 0` → `launch_recommendation: "BLOCK"` (mostrar ao membro como **BLOQUEAR**) → mensagem pro membro: "BLOQUEADO. [N] issues críticas. Corrige antes de lançar."
 - `issues_high > 0 E critical == 0` → `CAUTION` (mostrar ao membro como **CUIDADO**) → "CUIDADO. Dá pra lançar, mas [N] issues high — fix recomendado."
 - `artefacts_missing` inclui `06-copy-engine` E `08-creative-engine` (input parcial) → força no mínimo `CAUTION`, nunca `GO`, mesmo sem critical/high — não dá pra atestar coerência de copy/ad que ainda não existe.
-- Tudo limpo E nenhum artefato essencial faltando → `GO` (mostrar ao membro como **PODE LANÇAR**) → "PODE LANÇAR. Auditoria passou. Pode lançar."
+- Tudo limpo E nenhum artefato essencial faltando → `GO` (mostrar ao membro como **PODE LANÇAR**) → "PODE LANÇAR. Auditoria passou. Próximo passo: diga **'ad strategy'** pra montar a campanha."
 
 ## Mensagem Final
 
@@ -233,4 +239,5 @@ Markdown com o mesmo conteúdo em formato humano (componentes `.danger` pra crit
 
 Report salvo em `workspace/[produto]/09-consistency-audit/consistency-audit.html`. Abre no browser pra revisar cada issue com fix sugerido.
 
-Depois de corrigir, rode `consistency-audit` de novo pra re-validar."
+[Se BLOQUEAR/CUIDADO:] Depois de corrigir, rode `consistency-audit` de novo pra re-validar.
+[Se PODE LANÇAR:] **GO → próximo passo: diga 'ad strategy'** (Skill 10) pra montar a campanha de teste."

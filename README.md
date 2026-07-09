@@ -25,7 +25,7 @@ Orchestrates the full product-to-ads-to-retention workflow through 19 skills (15
 | 10 | ad strategy | 1-ad-set Advantage+ campaign structure + analytics |
 | 11 | ad analysis | 4Pi diagnostic + next batch ideas |
 | 12 | scale engine | scaling plan (vertical + horizontal) |
-| 13 | retention engine | Klaviyo/ESP lifecycle flows (post-launch) |
+| 13 | retention engine | Klaviyo/ESP lifecycle flows (Phase A pre-launch: abandoned cart + post-purchase recovery flows; Phase B post-launch: win-back/replenishment, ≥50 orders) |
 | 14 | content recycler | 9 derivatives from 1 winning creative (post-winner) |
 
 Plus an intelligence layer (`.claude/lib/`) providing:

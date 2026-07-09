@@ -14,8 +14,12 @@ Dois modos:
      Dada uma URL de referência, captura a ESTRUTURA de sections (ordem + tipo +
      layout) e produz um ESQUELETO HTML (`skeleton.html`) com sections vazias /
      placeholder, preservando hierarquia/layout do concorrente mas SEM nenhuma
-     copy/imagem/marca dele. A 07a entrega esse esqueleto ao Claude, que o
-     preenche com a copy/brand/produto do membro (06-copy / 04-offer) gerando
+     copy/imagem/marca dele. Quando a captura veio do downloader (computed-styles
+     disponíveis), cada section do `skeleton.json` carrega também um bloco
+     `hierarchy` com sinais NUMÉRICOS de hierarquia visual (proporção heading/
+     body, padding-block real, densidade, alinhamento dominante, proporção de
+     área de mídia). A 07a entrega esse esqueleto ao Claude, que o preenche com
+     a copy/brand/produto do membro (06-copy / 04-offer) gerando
      `design/page.html`. Herda a hierarquia de conversão validada, não o conteúdo.
 
 Cascade de captura (--engine=auto, default):
@@ -53,9 +57,10 @@ Output (modo signals):
 Output (modo clone-and-adapt):
     <dir>/
         raw/           (HTML/CSS/screenshot do concorrente — referência LOCAL, não vai pro tema)
-        analysis.json  (sections detectadas — ordem + tipo + layout)
+        analysis.json  (sections detectadas — ordem + tipo + layout + hierarchy)
         skeleton.html  (ESQUELETO estrutural: placeholders, zero conteúdo do concorrente)
-        skeleton.json  (mesma estrutura em dados, pra a 07a/Claude consumir)
+        skeleton.json  (mesma estrutura em dados + sinais de hierarquia visual
+                        por section, pra a 07a/Claude consumir)
         manifest.json  (URL, timestamp, versão, engine, status de cada passo)
 
 Robustez: se o DOM falha em todas as engines automatizadas, o wrapper reporta o
@@ -92,7 +97,7 @@ _venv_bootstrap("playwright")
 
 from downloader import validate_url, validate_output_path  # noqa: E402
 
-WRAPPER_VERSION = "1.1.0"
+WRAPPER_VERSION = "1.2.0"
 
 SINGLEFILE_EXTENSION_URL = (
     "https://chromewebstore.google.com/detail/singlefile/mpiodijhokgodhhofbcjdecpffjipkle"
@@ -337,7 +342,13 @@ _SKELETON_ROLE = {
     "trust-bar": "Trust bar — logos / 'as seen in' / selos",
     "features": "Features / benefícios — blocos do mecanismo",
     "stats": "Stats / números de prova",
-    "steps": "Como funciona — passos / processo",
+    "steps": "Passos / processo / timeline",
+    "how-it-works": "Como funciona — mecanismo em passos",
+    "ingredients": "Ingredientes / fórmula — o que tem dentro e por quê",
+    "before-after": "Antes/depois — prova visual de transformação",
+    "comparison-table": "Tabela comparativa — nós vs. alternativas",
+    "guarantee": "Garantia / reversão de risco — selo + termos",
+    "founder-story": "História do fundador / da marca — conexão e razão de existir",
     "gallery": "Galeria / carrossel de imagens do produto",
     "testimonials": "Depoimentos / reviews",
     "pricing": "Oferta / pricing / bundle",
@@ -358,16 +369,21 @@ def _layout_hint(section: dict) -> dict:
     rp = section.get("repeating_pattern", {}) or {}
     count = rp.get("count", 0) if rp.get("detected") else 0
     sem = section.get("semantic_type", "unknown") or "unknown"
+    img_count = len(section.get("images", []) or [])
     # FAQ/steps são listas verticais (accordion/timeline), não grids multi-coluna.
     _list_types = {"faq", "steps"}
-    if count >= 2 and sem in _list_types:
+    if sem == "comparison-table":
+        # Linhas repetíveis de tabela comparativa não são cards de grid.
+        layout = "table"
+    elif sem == "before-after" and (count == 2 or img_count >= 2):
+        layout = "split-2col"
+    elif count >= 2 and sem in _list_types:
         layout = "list"
     elif count >= 2:
         cols = min(count, 4)  # clamp visual; a 07a decide o número final
         layout = f"grid-{cols}col" if cols >= 2 else "stack"
     else:
         layout = "stack"
-    img_count = len(section.get("images", []) or [])
     return {
         "layout": layout,
         "repeat_items": count,
@@ -385,6 +401,36 @@ def _esc(text: str) -> str:
     )
 
 
+def _hierarchy_comment(hierarchy: Optional[dict]) -> str:
+    """Comentário compacto de hierarquia visual pro skeleton.html (se houver).
+
+    Direção de ênfase/espaçamento pra quem preenche — nunca CSS literal.
+    """
+    if not hierarchy:
+        return ""
+    bits: list[str] = []
+    fs = hierarchy.get("font_scale") or {}
+    if fs.get("heading_to_body"):
+        bits.append(f"heading/body {fs['heading_to_body']}x")
+    pad = hierarchy.get("padding_block_px") or {}
+    if pad.get("top") is not None and pad.get("bottom") is not None:
+        bits.append(f"padding-block {int(pad['top'])}/{int(pad['bottom'])}px")
+    dens = hierarchy.get("density") or {}
+    if dens.get("label"):
+        bits.append(f"densidade {dens['label']}")
+    if hierarchy.get("dominant_alignment"):
+        bits.append(f"alinhamento {hierarchy['dominant_alignment']}")
+    mtb = hierarchy.get("media_text_balance") or {}
+    if mtb.get("media_area_ratio") is not None:
+        bits.append(f"mídia {int(round(mtb['media_area_ratio'] * 100))}% da área")
+    if not bits:
+        return ""
+    return (
+        f"\n      <!-- Hierarquia da referência: {'; '.join(bits)}. "
+        "Usar como DIREÇÃO de ênfase/espaçamento ao preencher, não como CSS literal. -->"
+    )
+
+
 def build_skeleton(analysis: dict, url: str, product: Optional[str]) -> tuple[str, dict]:
     """Constrói o esqueleto HTML + a estrutura em dados a partir do analysis.json.
 
@@ -392,6 +438,12 @@ def build_skeleton(analysis: dict, url: str, product: Optional[str]) -> tuple[st
     section é um PLACEHOLDER vazio: zero copy, zero imagem, zero marca do
     concorrente. Comentários e data-attributes guiam o Claude a preencher com o
     conteúdo do membro (06-copy / 04-offer).
+
+    Quando o analyzer extraiu `hierarchy` (computed-styles disponíveis), cada
+    section do skeleton.json carrega os sinais de hierarquia visual da
+    referência (proporção heading/body, padding-block, densidade, alinhamento,
+    proporção de mídia) — a 07a usa isso como direção ao preencher, pra não
+    achatar a hierarquia que fazia a página converter.
     """
     sections_in = analysis.get("sections", []) or []
     skel_sections: list[dict] = []
@@ -401,6 +453,7 @@ def build_skeleton(analysis: dict, url: str, product: Optional[str]) -> tuple[st
         sem = sec.get("semantic_type", "unknown") or "unknown"
         role = _SKELETON_ROLE.get(sem, _SKELETON_ROLE["unknown"])
         hint = _layout_hint(sec)
+        hierarchy = sec.get("hierarchy") or None
         slug = f"section-{i:02d}-{sem}"
 
         skel_sections.append(
@@ -413,6 +466,7 @@ def build_skeleton(analysis: dict, url: str, product: Optional[str]) -> tuple[st
                 "media": hint["media"],
                 "media_slots": hint["media_slots"],
                 "tag": sec.get("tag"),
+                "hierarchy": hierarchy,
             }
         )
 
@@ -441,7 +495,8 @@ def build_skeleton(analysis: dict, url: str, product: Optional[str]) -> tuple[st
             f'    <section class="{slug}" data-semantic="{sem}" '
             f'data-layout="{hint["layout"]}">\n'
             f"      <!-- {role}. Layout: {hint['layout']}. "
-            f"PREENCHER com copy/brand/imagens do MEMBRO — NÃO usar conteúdo do concorrente. -->\n"
+            f"PREENCHER com copy/brand/imagens do MEMBRO — NÃO usar conteúdo do concorrente. -->"
+            f"{_hierarchy_comment(hierarchy)}\n"
             f'      <div class="placeholder-heading"><!-- headline/subhead --></div>\n'
             f'      <div class="placeholder-body"><!-- corpo da copy --></div>'
             f"{media_html}{items_html}\n"
@@ -449,6 +504,7 @@ def build_skeleton(analysis: dict, url: str, product: Optional[str]) -> tuple[st
             f"    </section>"
         )
 
+    hierarchy_count = sum(1 for s in skel_sections if s.get("hierarchy"))
     skeleton_data = {
         "kind": "clone-and-adapt-skeleton",
         "source_url": url,
@@ -456,10 +512,15 @@ def build_skeleton(analysis: dict, url: str, product: Optional[str]) -> tuple[st
         "wrapper_version": WRAPPER_VERSION,
         "generated_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
         "total_sections": len(skel_sections),
+        "hierarchy_sections": hierarchy_count,
+        "hierarchy_available": hierarchy_count > 0,
         "sections": skel_sections,
         "notice": (
             "Esqueleto ESTRUTURAL apenas. Nenhuma copy/imagem/marca do concorrente. "
             "A 07a preenche cada placeholder com o conteúdo do membro (06-copy / 04-offer). "
+            "O bloco `hierarchy` de cada section (quando presente) traz sinais NUMÉRICOS "
+            "de hierarquia visual da referência (proporções, espaçamento, densidade) — "
+            "direção de ênfase pro preenchimento, nunca CSS/conteúdo do concorrente. "
             "Adaptar estrutura + trocar todo o conteúdo é defensável; copiar 1:1 não."
         ),
     }
@@ -567,6 +628,16 @@ def _run_clone_and_adapt(
         f"[aura_clone] skeleton:     "
         f"{'OK (' + str(skeleton_data['total_sections']) + ' sections)' if skeleton_ok else 'MISSING'}"
     )
+    if skeleton_ok:
+        hc = skeleton_data.get("hierarchy_sections", 0)
+        print(
+            f"[aura_clone] hierarchy:    "
+            + (
+                f"{hc}/{skeleton_data['total_sections']} sections com sinais de hierarquia visual"
+                if hc
+                else "ausente (captura sem computed-styles — engine singlefile/--from-file)"
+            )
+        )
     print(f"[aura_clone] manifest:     {manifest_path}")
     print(
         "[aura_clone] NOTA: esqueleto é ESTRUTURA apenas. A 07a preenche com a "

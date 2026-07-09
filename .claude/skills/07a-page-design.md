@@ -1,6 +1,6 @@
 ---
 name: page-design
-description: Primeira skill da fase STOREFRONT. Planeja a página (page_type por awareness, menu de sections, hero_type, strategy block completo no page-plan.json), roda brand signals (lê brand.md primeiro e só pergunta o que faltar; cascade Refero → screenshot→visão → design-clone opcional → manual/presets, todos convergindo pra design-signals.json) e apresenta ao MEMBRO um MENU DE ROTAS DE DESIGN (clone-and-adapt, Claude Design handoff, AIDesigner MCP opcional, frontend-design fallback, AI site-builders externos se o membro usa) pra ele escolher — todas convergindo pra design/page.html, a PÁGINA INTEIRA aprovada com a copy real de 06 inserida e os signals aplicados. O membro aprova esse HTML ANTES de qualquer Liquid existir — ele é a FONTE ÚNICA DE VERDADE visual. Gera design-tokens.json. Use quando o membro disser "page", "página", "design da página", logo após ter copy pronta. Depois rode 07b-page-build pra compilar e deployar.
+description: Primeira skill da fase STOREFRONT. Planeja a página (page_type por awareness, menu de sections, hero_type, strategy block completo no page-plan.json), mapeia os ASSETS DE IMAGEM por section (inventário do que o membro tem + rota AI foto-real-primeiro pra lifestyle; placeholder só EXPLÍCITO com plano registrado), roda brand signals (lê brand.md primeiro e só pergunta o que faltar; cascade Refero → screenshot→visão → design-clone opcional → manual/presets de .claude/lib/design-presets/, todos convergindo pra design-signals.json) e apresenta ao MEMBRO um MENU DE ROTAS DE DESIGN (clone-and-adapt, Claude Design handoff, AIDesigner MCP opcional, frontend-design fallback, AI site-builders externos se o membro usa) pra ele escolher — todas convergindo pra design/page.html, a PÁGINA INTEIRA aprovada com a copy real de 06 inserida, os signals aplicados e as imagens reais nos slots. Antes do checkpoint roda SELF-REVIEW VISUAL obrigatório (screenshot desktop+mobile lido por visão, auto-correção). O membro aprova esse HTML ANTES de qualquer Liquid existir — ele é a FONTE ÚNICA DE VERDADE visual. Gera design-tokens.json. Use quando o membro disser "page", "página", "design da página", logo após ter copy pronta. Depois rode 07b-page-build pra compilar e deployar.
 ---
 
 # 07a — Page Design (PLAN + BRAND SIGNALS + MENU DE ROTAS DE DESIGN)
@@ -16,14 +16,16 @@ Decisão de design: a 07a NÃO escolhe sozinha COMO o design nasce. Ela **aprese
 **O que esta skill faz:**
 
 1. Pré-flight + PLAN — detecta produto, lê copy/offer/research, escolhe `page_type` pelo awareness, monta o plano de sections, escolhe `hero_type`, persiste o bloco `strategy` completo em `page-plan.json` + eyebrows criativos.
-2. BRAND SIGNALS — lê `workspace/[produto]/brand.md` PRIMEIRO (só pergunta o que faltar), depois cascade (Refero MCP → screenshot→visão → design-clone opcional pra hex exato → manual/presets), tudo convergindo pro mesmo `design-signals.json`.
-3. MENU DE ROTAS DE DESIGN — apresenta as rotas viáveis (detectadas em runtime), o membro escolhe; a rota gera a PÁGINA INTEIRA em `design/page.html` com a copy real inserida e os signals aplicados. Member aprova. Gera `design-tokens.json`.
-4. Dual output dos relatórios (.md + .html, logo SVG) + framing de draft + atualiza manifest.
+2. ASSETS DE IMAGEM — inventário do que o membro tem (fotos de fornecedor/próprias/UGC), mapa de necessidade de mídia POR SECTION (o `hero_type` amarra o requisito do hero), rota de geração AI pra lifestyle (doutrina foto-real-primeiro da skill 08 — NUNCA gerar rótulo/embalagem por texto). Tudo registrado em `sections_plan[].media`.
+3. BRAND SIGNALS — lê `workspace/[produto]/brand.md` PRIMEIRO (só pergunta o que faltar), depois cascade (Refero MCP → screenshot→visão → design-clone opcional pra hex exato → manual/presets de `.claude/lib/design-presets/presets.json`), tudo convergindo pro mesmo `design-signals.json`.
+4. MENU DE ROTAS DE DESIGN — apresenta as rotas viáveis (detectadas em runtime), o membro escolhe; a rota gera a PÁGINA INTEIRA em `design/page.html` com a copy real inserida, os signals aplicados e as imagens reais nos slots. SELF-REVIEW VISUAL obrigatório (Playwright + visão) antes do checkpoint; member aprova. Gera `design-tokens.json`.
+5. Dual output dos relatórios (.md + .html, logo SVG) + framing de draft + atualiza manifest.
 
 **Outputs gravados em `workspace/[produto]/07-page/`:**
-- `page-plan.json` — plano machine-readable + bloco `strategy` completo (consumido pela 07b e pela skill 09)
+- `page-plan.json` — plano machine-readable + bloco `strategy` completo + mapa de mídia por section (consumido pela 07b e pela skill 09)
 - `design-system.md` + `design-system.html` — design system humanizado
 - `design/page.html` — **a página inteira aprovada (FONTE ÚNICA DE VERDADE visual)**
+- `design/assets/` — imagens reais da página (inventário/geração da ETAPA 1.6)
 - `design-tokens.json` — tokens consolidados da variação escolhida (consumido pela 07b)
 - `design-signals.json` — signals de marca (heading_font, body_font, palette role-tagged, radius, shadow, density)
 
@@ -107,6 +109,20 @@ O `page_type` é decidido pelo **awareness level** lido de `02-market-research/d
 
 A 07b usa `destination_ref` pra linkar o soft CTA. Sem destino definido, o advertorial vai ao ar mandando tráfego pago pra uma página sem copy nem oferta — NÃO pule esta decisão.
 
+**Se `page_type = advertorial` — mapa canônico copy→sections (estrutura Zakaria):** a skill 06 grava a copy do advertorial com 7 seções canônicas de heading fixo. O `sections_plan` de um advertorial NÃO usa o menu genérico da 1.2 cru — a espinha é este mapa 1:1 (não improvise ids; a 07b splita por eles):
+
+| Seção canônica da copy (06) | `sections_plan[].id` | Papel na página |
+|---|---|---|
+| `## Advertorial Headline` | `hero` | headline editorial + dek — **sem CTA no topo** (é editorial, não landing) |
+| `## Lead` | `lead` | abertura da história (relato em primeira pessoa / cena que fisga) |
+| `## Background Story` | `background-story` | contexto do protagonista, a luta antes da descoberta |
+| `## Root Cause` | `root-cause` | a causa raiz do problema que ninguém contou pro leitor |
+| `## Mechanism Reveal` | `mechanism-reveal` | a virada: o mecanismo que ataca a causa raiz |
+| `## Product Build-Up` | `product-buildup` | do mecanismo ao produto — prova, credibilidade, especificidade |
+| `## Reveal + Close` | `reveal-close` | revelação do produto + **soft CTA apontando pro `destination_ref`** |
+
+Sections opcionais podem entrar DEPOIS da espinha (ex: `social-proof` se a copy tem depoimentos, `faq` se há objeções mapeadas) — nunca no meio da narrativa, que quebra o ritmo editorial. Se alguma das 7 seções não existir no `copy-engine.md` do produto, PARE e avise o membro: o advertorial da 06 está incompleto — rode a 06 de novo antes de desenhar a página (não invente a seção faltante).
+
 **Frameworks que sustentam essa decisão** (puxe os nomeados, não query genérica):
 - **Schwartz awareness levels** (rode `product market awareness Schwartz levels`) + **Bond sophistication stages** (rode `market sophistication stages`) — confirme que o awareness lido de `02` casa com o lead type de `06`.
 - Se `page_type = advertorial`: **Advertorial / Editorial-Look Principle** (rode `advertorial editorial look principle 5x readership Halbert Kennedy native ad`) + **Listicle Advertorials (2 Types)** (rode `listicle advertorial product-focused education-focused types awareness bridge`) pra escolher product-focused vs education-focused, e **PCPO body copy** (rode `PCPO problem cure proof offer body copy framework web page`) pra estruturar o corpo editorial (Problem → Cure → Proof → Offer).
@@ -177,6 +193,28 @@ Aguarde confirmação ou ajuste. Só então siga.
 
 Regras pra eyebrows: 2-5 palavras, específico do produto ("The pH Difference" > "The Science"), **em inglês** (copy pública), nunca rotule o framework, pode pular (trust-bar/hero/cta-final podem não precisar). Se o copy tem um Big Idea, USE ("It's Not the Fragrance. It's the pH." — sem travessão: rule 8a vale pra eyebrow também). Esses eyebrows vão pro `page-plan.json` (`sections_plan[].eyebrow`) e são inseridos no HTML na ETAPA 3.
 
+### 1.6 — Assets de imagem (inventário + mapa de mídia por section)
+
+Página de conversão sem imagem real é wireframe, não página. Causa recorrente de "design aprovado bonito, página no ar feia": o HTML foi aprovado com caixas cinza/stock genérico e ninguém planejou de onde as imagens REAIS viriam. Esta sub-etapa fecha esse furo ANTES do design nascer.
+
+**1. Inventário do que o membro TEM.** Pergunte em uma mensagem só: fotos do fornecedor (AliExpress/Alibaba — packshots, rótulo, embalagem)? Fotos próprias do produto? UGC/lifestyle (cliente usando, contexto real)? Logos/selos (certificações, mídia)? Peça os arquivos/paths e salve os utilizáveis em `workspace/[produto]/07-page/design/assets/` (nomeie por uso: `hero-lifestyle.jpg`, `packshot-front.png`).
+
+**2. Mapa de necessidade POR SECTION.** Pra cada section do `sections_plan`, decida o que ela precisa de mídia — e registre no campo `media` (schema na 4.1). O `hero_type` amarra o requisito do hero:
+
+| `hero_type` | Imagem que o hero exige |
+|---|---|
+| value-prop | packshot limpo do produto (fundo neutro) ou produto em contexto |
+| dreamstate | lifestyle do RESULTADO (pessoa no estado desejado, produto presente) |
+| problem | cena da dor/frustração (sem o produto como herói) |
+| segment | pessoa reconhecível do avatar usando/segurando o produto |
+| campaign | key visual da campanha (produto + elemento da Big Idea) |
+
+Demais sections: `before-after` exige pares reais; `social-proof` pede rostos/fotos de review quando existirem; `mechanism`/`ingredients` aceitam diagrama/close do ingrediente; `benefits`/`faq`/`guarantee` normalmente vivem de ícone SVG (`media.required: false`).
+
+**3. Rota de geração AI (só pra LIFESTYLE, com a doutrina foto-real-primeiro da skill 08).** Quando falta imagem lifestyle/contexto, gere por AI — mas SEMPRE ancorado na foto REAL do produto (composição image-to-image com o packshot real como referência). **NUNCA gere rótulo/embalagem por prompt de texto puro** — o modelo alucina texto e embalagem, e página com rótulo inventado destrói confiança (e é a mesma regra da 08 pra vídeo). Packshot não se gera do zero: vem do fornecedor ou de foto própria; se o membro não tem NENHUMA foto real do produto, isso é bloqueio de inventário (peça a foto — é pré-requisito de qualquer rota).
+
+**4. Gate de aprovação (vale pro checkpoint da ETAPA 3).** O `design/page.html` só é apresentado/aprovado com as imagens REAIS nos slots — OU com placeholder **EXPLÍCITO** (bloco visivelmente marcado, ex: caixa cinza com o texto "PLACEHOLDER: hero lifestyle") + plano de obtenção registrado em `sections_plan[].media.acquisition_plan` no `page-plan.json`. Placeholder implícito é PROIBIDO: stock aleatório que parece final, `{{IMAGE}}` invisível, imagem do concorrente esquecida no slot. A 07b bloqueia o deploy de qualquer section com imagem vazia/placeholder — resolver aqui é mais barato.
+
 ---
 
 ## ETAPA 2 — BRAND SIGNALS (cascade unificada → `design-signals.json`)
@@ -188,7 +226,7 @@ Os 4 caminhos convergem TODOS pro MESMO arquivo `workspace/[produto]/07-page/des
 ```json
 {
   "source": "refero | screenshot_vision | design_clone | manual",
-  "source_detail": "Linear (via Refero) | print da loja X | hex extraído de competitor.com | estilo Atelier Document",
+  "source_detail": "Linear (via Refero) | print da loja X | hex extraído de competitor.com | preset Atelier Document",
   "heading_font": "'Fraunces', Georgia, serif",
   "body_font": "'Inter', -apple-system, sans-serif",
   "palette": {
@@ -249,7 +287,7 @@ Leia o bloco `design_system` de `/tmp/ref-[produto]/patterns.json` e **cheque o 
 
 Quando Refero não tem match E o membro não tem print/URL:
 - Peça descrição livre da vibe ("editorial sério, low-pressure, italic em keywords"), OU
-- Ofereça 8 presets (Modern Clean, Bold Editorial, Premium Minimal, Warm Lifestyle, Tech Sharp, Atelier Document, Apothecary Calm, Luxe Magazine) — membro escolhe um, signals saem dos defaults do preset.
+- Ofereça os 8 presets (Modern Clean, Bold Editorial, Premium Minimal, Warm Lifestyle, Tech Sharp, Atelier Document, Apothecary Calm, Luxe Magazine) — membro escolhe um, e os tokens saem **LITERAIS de `.claude/lib/design-presets/presets.json`** (paleta role-tagged, heading/body font, radius, shadow, density — completos e fixos por preset; o `vibe`/`use_when` de cada entrada ajuda a recomendar). Leia o arquivo e copie os campos pro `design-signals.json` com `source: "manual"`, `source_detail: "preset [Nome]"`. **NUNCA invente/ajuste tokens de preset em runtime** — preset é promessa de consistência (mesmo nome = mesmos tokens em qualquer run). Se o membro pedir ajuste, aplique e registre como `"preset [Nome] (customizado)"`.
 
 Se o membro passou nomes de cor por extenso (ex: "sage green"), valide via regex de hex `^#([0-9A-Fa-f]{3,8})$` ou converta por nome (sage green `#9CAF88`, dusty rose `#D4A5A5`, off-white `#FDFAF4`, navy `#14213D`, terracotta `#C66B3D`, olive `#6B7040`, etc). Se a cor não for reconhecível, peça o hex.
 
@@ -334,7 +372,7 @@ O membro indica 1 URL de concorrente. A Aura captura a **ESTRUTURA** dessa pági
      ```
      O browser real do membro é imune a anti-bot — esse degrau resolve o que os automáticos não conseguem. O .html salvo é material de trabalho (referência de concorrente): vive em `/tmp`/workspace, JAMAIS é commitado (rule 11).
 3. **Reconcilie com o plano da ETAPA 1.** O esqueleto do concorrente é referência de layout, mas a verdade estratégica é o seu `sections_plan` (que veio do awareness/sophistication do SEU produto). Onde o concorrente tem sections que o seu plano não pede (ex: gift-guide irrelevante), descarte. Onde o seu plano pede sections que o concorrente não tem (ex: `mechanism` porque você tem mecanismo único real), adicione. O layout do concorrente informa hierarquia e ritmo; o conteúdo e a seleção de sections são seus.
-4. **Gere `design/page.html`** aplicando: a estrutura reconciliada, a copy REAL de `06`, a oferta de `04`, os `design-signals` da ETAPA 2 (paleta/tipografia/radius/density). Uma única variação fiel ao layout-base é suficiente aqui (o membro já escolheu a referência); ofereça iterar se quiser ajustar densidade/paleta.
+4. **Gere `design/page.html`** aplicando: a estrutura reconciliada, a copy REAL de `06`, a oferta de `04`, os `design-signals` da ETAPA 2 (paleta/tipografia/radius/density) e as **imagens do mapa de mídia da 1.6** (`design/assets/` — jamais as imagens do concorrente). Uma única variação fiel ao layout-base é suficiente aqui (o membro já escolheu a referência); ofereça iterar se quiser ajustar densidade/paleta.
 
 ### 3.4 Rota 2 — Claude Design (handoff)
 
@@ -343,7 +381,7 @@ O membro desenha a página no canvas visual e entrega o HTML pronto.
 1. Instrua exatamente:
    > "Abre o `claude.ai/design`, desenha/itera a página lá no canvas. Quando estiver boa, exporta com **'Export as standalone HTML'** (ou 'Download .zip' / 'Handoff to Claude Code'). Depois cola o HTML aqui, ou me dá o caminho do arquivo/zip que você baixou."
 2. Pra dirigir o trabalho dele no canvas, forneça antes: o `section_order` + `sections_plan` da ETAPA 1, os eyebrows criativos, a copy de `06` por section, e os `design-signals` da ETAPA 2 — pra ele não desenhar no escuro.
-3. Quando o membro colar/apontar o arquivo, leia-o (Read no path, ou descompacte o .zip), normalize pro shape de `page.html` (HTML+CSS self-contained), confira que a copy real está dentro (não placeholder do canvas), e salve como `design/page.html`.
+3. Quando o membro colar/apontar o arquivo, leia-o (Read no path, ou descompacte o .zip), rode a **normalização da §3.6c** (Tailwind→CSS plano, remoção de JS de runtime, validação self-contained), confira que a copy real está dentro (não placeholder do canvas), e salve como `design/page.html`.
    > **NOTA:** o `/design-sync` / DesignSync é só pra design-**SYSTEM** (componentes isolados), NÃO pra puxar página inteira. O caminho de página é sempre o export HTML / handoff manual descrito aqui.
 
 ### 3.5 Rota 3 — AIDesigner MCP (se `mcp__aidesigner__` presente)
@@ -365,16 +403,26 @@ Use quando o membro não tem referência (sem URL de concorrente, sem canvas). D
 - **(b)** uma **referência concreta**: peça ao membro um screenshot de inspiração (qualquer página cujo visual ele curta) e leia-o com visão nativa (Read no PNG) pra extrair direção. Se ele não tiver nenhum, use um dos 8 presets da ETAPA 2 como âncora visual nomeada.
 - **(c)** **direção de design explícita**: estilo nomeado (ex: "minimalist editorial"), do/don't, e um anti-genérico (o que NÃO fazer pra não sair "cara de template AI").
 
-Demais inputs idênticos às outras rotas: a copy REAL de `06` já inserida (nada de lorem ipsum), a estrutura do `sections_plan` + `section_order` da ETAPA 1, `page_type` e `hero_type` respeitados. Gere **2-3 variações da PÁGINA INTEIRA** (não 4 só do hero) — tratamentos visuais diferentes do mesmo layout/sections (tipografia editorial vs utilitária, paleta warm vs cool, densidade alta vs respiro, hierarquia de proof diferente) num único HTML navegável com tabs/anchors pra alternar A / B / C. Salve em `design/page.html`.
+Demais inputs idênticos às outras rotas: a copy REAL de `06` já inserida (nada de lorem ipsum), as imagens do mapa de mídia da 1.6 (`design/assets/`), a estrutura do `sections_plan` + `section_order` da ETAPA 1, `page_type` e `hero_type` respeitados. Gere **2-3 variações da PÁGINA INTEIRA** (não 4 só do hero) — tratamentos visuais diferentes do mesmo layout/sections (tipografia editorial vs utilitária, paleta warm vs cool, densidade alta vs respiro, hierarquia de proof diferente) num único HTML navegável com tabs/anchors pra alternar A / B / C. Salve em `design/page.html`.
 
 ### 3.6b Rota 5 — AI site-builders (externa; consumo igual à rota 2)
 
 Só quando o membro mencionou que usa v0/Lovable/Manus. O design acontece no app externo; o lado da Aura é fornecer o material e consumir o HTML:
 
 1. Forneça ao membro o mesmo pacote da rota 2: `section_order` + `sections_plan` da ETAPA 1, eyebrows criativos, copy de `06` por section, e os `design-signals` da ETAPA 2 — pra ele não descrever a página no escuro.
-2. Quando ele trouxer o HTML exportado, siga o passo 3 da §3.4: leia o arquivo, normalize pro shape self-contained de `page.html`, confira que a copy real de `06` está dentro (não placeholder do gerador), injete os markers `data-aura-section` e salve como `design/page.html`.
+2. Quando ele trouxer o HTML exportado, leia o arquivo e rode a **normalização da §3.6c** (obrigatória aqui — v0/Lovable/Manus exportam Tailwind + JS de framework): utilities inlined em CSS plano, JS de runtime removido, self-contained validado. Confira que a copy real de `06` está dentro (não placeholder do gerador), injete os markers `data-aura-section` e salve como `design/page.html`.
 3. Lembre o membro do runtime: se o destino for o tema Shopify, a 07b compila esse HTML em Liquid normalmente; se ele preferir hospedar no runtime do gerador (landing externa), o deploy sai do fluxo 07b e o tracking (07c) precisa ser configurado lá.
 4. Registre `design_route: "site-builder"` no `page-plan.json` e siga pra 3.7.
+
+### 3.6c Normalização de HTML externo (rotas 2 e 5 — procedimento real, não "normalize" vago)
+
+HTML de canvas/site-builders vem com Tailwind (classes utilitárias + CDN/build) e JS de framework (React/Vue hydration). O `design/page.html` precisa ser **HTML+CSS plano e self-contained** — é o contrato que o SPLIT/COMPILE da 07b assume. Procedimento:
+
+1. **Tailwind/utilities → CSS plano via render computado.** Renderize o HTML original no Playwright (`file://` ou server local, com o CSS do Tailwind ainda ativo). Pra cada elemento estrutural (sections, headings, parágrafos, botões, cards, grids), leia os **computed styles** (`getComputedStyle`) e materialize as propriedades relevantes (display/grid/flex, spacing, tipografia, cor, radius, shadow, breakpoints via re-render em 390px e 1440px) em **classes semânticas próprias** (`.hero`, `.hero-title`, `.tier-card`...) num `<style>` único no `<head>`. Troque as classes utilitárias pelas semânticas no markup e remova o `<script src="...tailwind...">`/`<link>` do framework CSS. (Página pequena com poucas utilities? Traduzir manualmente as classes usadas é aceitável — mesmo resultado.)
+2. **JS de runtime → fora.** Remova bundles/hydration de framework (`<script>` de React/Next/Vue, chunks). O HTML final é estático; interações (accordion/tabs/FAQ) são reimplementadas com `<details><summary>`/CSS puro — mesma regra que a 07b aplica no compile.
+3. **Assets → locais ou estáveis.** Baixe as imagens referenciadas pra `design/assets/` e reescreva os `src` (self-contained de verdade), ou mantenha URL absoluta só se for CDN estável do próprio membro. Nunca deixe `src` apontando pro sandbox temporário do gerador (expira e a página aprova com imagem que vai sumir).
+4. **Validação de self-contained (obrigatória):** abra o HTML normalizado no Playwright com requests externos bloqueados (exceto Google Fonts) e confirme por screenshot que renderiza igual ao original nos dois breakpoints; console sem erros; `grep -c '<script'` no arquivo = 0 (zero JS de runtime).
+5. Injete os markers `data-aura-section` e siga pra 3.7.
 
 ---
 
@@ -386,6 +434,8 @@ Independente da rota, `design/page.html` precisa passar nas mesmas ground rules 
 - **Ícones SVG inline** (Lucide/Heroicons/Phosphor), NUNCA emojis na UI da página (rule 7).
 - **Copy ad-safe:** minimizar travessão (rule 8a, zero em headlines); zero ad-flag words na copy pública (rule 8b — Botox/Filler/Injection/Cure/Medical-grade/Anti-aging/etc reformulados).
 - **Tipografia/layout:** type scale modular (1.25 ou 1.333); fluid type `clamp()` em headings; spacing generoso (padding-block 5-8rem em hero/oferta); WCAG AA contraste; focus-visible; `prefers-reduced-motion`; touch targets ≥44px; responsivo real, mobile-first.
+- **Performance (budget de página):** imagens comprimidas (WebP/AVIF quando possível) e `loading="lazy"` abaixo da dobra; a imagem do hero SEM lazy (é o LCP) e COM `width`/`height` explícitos (zero layout shift); ZERO JavaScript de runtime (interação = `<details>`/CSS). Proxy simples: HTML+CSS ≤ ~150KB, página total com imagens ≤ ~1.5MB — o alvo real é LCP mobile < 2.5s. A 07b re-valida isso como gate (GATE 3) antes do deploy; estourar aqui = retrabalho lá.
+- **Imagens do mapa de mídia (ETAPA 1.6):** toda section com `media.required` tem a imagem REAL no slot, ou placeholder EXPLÍCITO (visivelmente marcado) com `acquisition_plan` registrado no `page-plan.json`. Nunca stock aleatório fingindo ser final, nunca `src` de sandbox de gerador, nunca imagem/foto do concorrente (rota 1).
 - **CTAs como call-to-VALUE** ("Start My 30-Day Glow", não "Buy Now"). Fundamente em **CTAs / Calls to Value** (rode `CTAs buttons friction anxiety calls to value lizard brain first person mirror headline`) e decida direto vs stepping-stone com **Direct vs Transitional CTA** (rode `direct vs transitional CTA Miller buy now download guide stepping stone`).
 - **Serve as 4 modalities ao mesmo tempo** — antes do checkpoint, confira que o `page.html` atende **4 Decision Making Modalities** (rode `4 decision making modalities spontaneous competitive humanistic methodical web copy`): Spontaneous (CTA rápido acima da dobra), Competitive (comparison/diferenciação), Humanistic (prova social, rostos, histórias), Methodical (specs, garantia, FAQ). Falta de uma = furo de conversão.
 - **Congruência ad→page:** o topo da página tem que ecoar a promessa do ad que traz o tráfego — valide com **Congruence Principle** (rode `congruence principle message match ad to landing page scent Kennedy consistency rule`).
@@ -393,12 +443,21 @@ Independente da rota, `design/page.html` precisa passar nas mesmas ground rules 
 
 Se a rota entregou HTML que viola alguma dessas (comum no handoff do canvas e em clone-and-adapt), **corrija inline** antes de salvar — não devolva ao membro pra ele consertar.
 
+### Self-review visual (OBRIGATÓRIO antes do checkpoint — o membro nunca vê defeito óbvio)
+
+Ler o HTML como texto NÃO é ver a página. Antes de apresentar QUALQUER draft ao membro, você olha a página renderizada com os próprios olhos:
+
+1. **Renderize** `design/page.html` no Playwright via `file://` (skill `webapp-testing`) e capture screenshot **full-page** em DUAS larguras: desktop (1440px) e mobile (390px).
+2. **LEIA os dois screenshots por visão** e caçe defeitos: hierarquia frouxa (headline que não domina a dobra), contraste insuficiente na prática (texto sobre imagem/surface), spacing quebrado (sections coladas ou buracos gigantes), imagem estourada/distorcida/com overflow, texto cortado ou colidindo em mobile, CTA invisível, placeholder implícito parecendo final, tipografia que caiu pra fallback (serif genérica onde devia ter a heading font).
+3. **Auto-corrija inline** o que encontrar (post-task-self-audit: silent fix) e re-screenshote. Repita até os dois screenshots passarem.
+4. Só então apresente o draft ao membro no checkpoint abaixo. Nas rotas com iteração (todas), repita este self-review a cada versão nova (`page-v2.html`...) antes de devolver ao membro.
+
 ### Checkpoint de aprovação (iteration-driven-refinement)
 
 Apresente como **draft navegável**, não como "pronto". Adapte a pergunta à rota:
 > "Página montada (rota [escolhida]). Abre `design/page.html` no browser e me diz o que ajustar. Pergunta granular: o tom tá certo (mais editorial ou mais direto)? O hero puxa atenção? A hierarquia de proof convence? [Se rota 4: qual das variações A/B/C, ou um mix tipo 'A no hero, C na proof'?] Itero até você dizer 'tá bom'."
 
-**Este HTML é a FONTE ÚNICA DE VERDADE visual.** O membro aprova AQUI, antes de qualquer Liquid existir. Não avance pra 07b sem aprovação.
+**Este HTML é a FONTE ÚNICA DE VERDADE visual.** O membro aprova AQUI, antes de qualquer Liquid existir. Não avance pra 07b sem aprovação. E não declare aprovado com slot de imagem pendente: cada section com `media.required` tem a imagem REAL, ou o placeholder EXPLÍCITO da ETAPA 1.6 com `acquisition_plan` registrado no `page-plan.json` (avise o membro que a 07b bloqueia o deploy enquanto o placeholder existir).
 
 - Cada iteração salva versão nova (`design/page-v2.html`, `-v3`), não sobrescreve. Log em `workspace/[produto]/07-page/iterations-log.json`.
 - Max 3 iterações sem progresso → escalate. Na rota 4, peça referência descritiva em vez de draft-reativo; nas rotas 1/2/3/5, ofereça trocar de rota (ex: "clone-and-adapt não está saindo bom — quer desenhar no canvas (rota 2) ou me dar outra referência?"; na rota 5, iterar exige voltar ao gerador externo — se o loop ficar caro, ofereça migrar pra rota 1 ou 2).
@@ -461,8 +520,10 @@ Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não 
     "hybrid": false
   },
   "sections_plan": [
-    {"id": "hero", "eyebrow": "[eyebrow criativo ou null]", "blocks": ["eyebrow","heading","paragraph","button_row","stats_bar","tag"]},
-    {"id": "mechanism", "eyebrow": "The pH Difference", "blocks": ["eyebrow","heading","paragraph","mechanism_card"]}
+    {"id": "hero", "eyebrow": "[eyebrow criativo ou null]", "blocks": ["eyebrow","heading","paragraph","button_row","stats_bar","tag"],
+     "media": {"required": true, "kind": "lifestyle", "source": "ai_lifestyle", "status": "ready", "asset": "design/assets/hero-lifestyle.jpg", "acquisition_plan": null}},
+    {"id": "mechanism", "eyebrow": "The pH Difference", "blocks": ["eyebrow","heading","paragraph","mechanism_card"],
+     "media": {"required": false, "kind": "icon_svg", "source": "none", "status": "ready", "asset": null, "acquisition_plan": null}}
   ],
   "section_order": ["hero","mechanism","benefits","social-proof","offer","guarantee","faq","cta-final"],
   "brand_discovery": {
@@ -484,6 +545,7 @@ Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não 
 
 > `mechanism_name` é o nome **LITERAL** de `04-offer-builder/dados.json` — não invente, não parafraseie. A skill 09 (consistency audit) compara esse campo cross-fase; drift aqui falha o gate.
 > `page_type` aparece tanto no top-level quanto dentro de `strategy` (downstream lê de ambos) — mantenha idênticos.
+> **Campo `media` (ETAPA 1.6) é obrigatório em toda entry de `sections_plan`**: `required` (bool), `kind` (`lifestyle | packshot | before_after_pair | review_faces | diagram | icon_svg | none`), `source` (`member_photo | supplier_photo | ugc | ai_lifestyle | none`), `status` (`ready | placeholder`), `asset` (path em `design/assets/` ou null), `acquisition_plan` (null quando `ready`; **obrigatório e específico** quando `placeholder` — ex: "foto lifestyle com modelo, membro fotografa até sexta"). A 07b bloqueia deploy enquanto houver `status: "placeholder"`.
 
 ### 4.2 Relatórios (dual output — rule 6b)
 
@@ -508,10 +570,12 @@ Atualize `workspace/[produto]/manifest.json` adicionando `07a-page-design` ao ar
 
 ## Self-audit silencioso (rule post-task-self-audit)
 
-Antes de declarar concluído, rode os 5 gates internos e corrija inline (sem mencionar): `mechanism_name` em `page-plan.json` bate LITERAL com `04-offer-builder/dados.json`; `page_type` é coerente com o awareness de `02` e com o `lead_type` de `06`; se `page_type=advertorial`, `destination_ref` está definido (não null); eyebrows são criativos (não rótulos de framework); a copy inserida em `design/page.html` veio de `06` (não inventada); `design-tokens.json` e `design-signals.json` existem e parseiam; `section_order` e `sections_plan` consistentes entre si; `design_route` registrado no plan; markers `data-aura-section` presentes em todas as sections (qualquer rota, inclusive handoff do canvas e clone-and-adapt); regras de qualidade comuns da 3.7 passaram (SVG, ad-safe, contraste); logo SVG presente nos `.html` internos. **Se a rota foi clone-and-adapt: confirme que NENHUMA copy, imagem, logo, claim ou nome de marca do concorrente vazou pra `design/page.html` — só o esqueleto de layout.** Surface só o que exige decisão do membro (ex: conflito de nome de mecanismo entre 02 e 04, ou rota escolhida que ficou inviável a meio caminho).
+Antes de declarar concluído, rode os 5 gates internos e corrija inline (sem mencionar): `mechanism_name` em `page-plan.json` bate LITERAL com `04-offer-builder/dados.json`; `page_type` é coerente com o awareness de `02` e com o `lead_type` de `06`; se `page_type=advertorial`, `destination_ref` está definido (não null) E o `sections_plan` segue o mapa canônico Zakaria da 1.1 (as 7 seções da copy de 06 mapeadas 1:1, nada inventado); eyebrows são criativos (não rótulos de framework); a copy inserida em `design/page.html` veio de `06` (não inventada); **todo `sections_plan[]` tem o campo `media` preenchido (ETAPA 1.6) — nenhum placeholder implícito, todo `status: "placeholder"` tem `acquisition_plan` específico, e nenhum lifestyle gerado por AI nasceu de prompt de texto puro com rótulo/embalagem em quadro**; **o self-review visual rodou (screenshots desktop 1440 + mobile 390 lidos por visão) e os defeitos achados foram corrigidos ANTES do checkpoint**; se o Caminho 4 foi usado, os tokens vieram LITERAIS de `.claude/lib/design-presets/presets.json` (não inventados); `design-tokens.json` e `design-signals.json` existem e parseiam; `section_order` e `sections_plan` consistentes entre si; `design_route` registrado no plan; nas rotas 2/5, a normalização da 3.6c rodou de verdade (zero `<script>` no `page.html`, CSS plano, assets locais/estáveis); markers `data-aura-section` presentes em todas as sections (qualquer rota, inclusive handoff do canvas e clone-and-adapt); regras de qualidade comuns da 3.7 passaram (SVG, ad-safe, contraste, performance budget); logo SVG presente nos `.html` internos. **Se a rota foi clone-and-adapt: confirme que NENHUMA copy, imagem, logo, claim ou nome de marca do concorrente vazou pra `design/page.html` — só o esqueleto de layout.** Surface só o que exige decisão do membro (ex: conflito de nome de mecanismo entre 02 e 04, ou rota escolhida que ficou inviável a meio caminho).
 
 ## Referências cruzadas
 
 - **Próxima skill:** `07b-page-build` (compila `design/page.html` em Liquid + deploya)
 - **Conversor canônico (usado pela 07b):** `tools/design-clone/liquid-converter.py` (Modo C)
+- **Presets de design (Caminho 4):** `.claude/lib/design-presets/presets.json` (tokens completos e fixos dos 8 presets + README)
+- **Doutrina de imagem AI (ETAPA 1.6):** skill `08-creative-engine` ETAPA 1.0 (foto-real-primeiro — produto/rótulo nunca nasce de prompt de texto)
 - **Skill que audita o output:** `09-consistency-audit` (lê `page-plan.json` strategy + `design-tokens.json`)

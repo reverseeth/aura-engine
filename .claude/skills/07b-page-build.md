@@ -14,12 +14,12 @@ Princípio: **conversão determinística mata as traduções lossy e o drift.** 
 1. Pré-flight — exige `design/page.html` aprovado + `design-tokens.json` + `page-plan.json`.
 2. SPLIT — separa o HTML aprovado em fragmentos por section (via marcadores `data-aura-section`) + o CSS.
 3. COMPILE+POPULATE — roda `liquid-converter.py` numa invocação só (preferir `--batch`; ou Modo C por section com `--emit-template-json`). O template `page.[produto].json` sai populado com blocks/block_order/settings e a copy real.
-4. RENAME semântico — o Claude renomeia os block types genéricos pros type-specific (editando `.liquid` E template JSON juntos), SÓ DEPOIS do compile (nunca re-rode o conversor por cima de renames).
-5. VALIDATE — cada `.liquid` passa por `shopify-plugin:shopify-liquid` (3 retries) + snippet de validação cruzada do template JSON.
+4. RENAME semântico — o Claude renomeia os block types genéricos pros type-specific (editando `.liquid` E template JSON juntos), SÓ DEPOIS do compile (nunca re-rode o conversor por cima de renames) — mais a RESTAURAÇÃO dos SVGs grandes que o conversor substituiu por placeholder (inventário + reinjeção do original).
+5. VALIDATE — cada `.liquid` passa por `shopify-plugin:shopify-liquid` (3 retries) + snippet de validação cruzada do template JSON + **check bloqueante de imagens/placeholders** (nenhuma section com imagem vazia/placeholder do mapa de mídia da 07a; zero `{{PLACEHOLDER}}` residual).
 5.5. GEO / Schema (agent-readability) — gera o JSON-LD Schema.org (Product + Offer + AggregateRating + BreadcrumbList + FAQPage das perguntas reais da section faq) de `04-offer-builder/dados.json` + `06-copy-engine/dados.json` + reviews, valida, e injeta no template como bloco `custom_liquid` + um bloco "agent-readable facts" (specs, envio/retorno, disponibilidade, garantia) em texto limpo separado da copy persuasiva.
-6. GATES (blocking) — GATE 1 compliance (ad-flag, CLI canônica) + GATE 2 promise↔config, ANTES do deploy.
-7. DEPLOY — shopify-theme-safety integral (duplicate → pull --nodelete → push --nodelete + marker `data-aura-build` + criação da página + smoke test).
-8. PUBLISH — com aprovação explícita do membro: backup do live → `shopify theme publish` → grava `manifest.storefront` (theme_id, page_url, published_at) que a 07d e a 10 leem.
+6. GATES (blocking) — GATE 1 compliance (ad-flag, CLI canônica) + GATE 2 promise↔config + GATE 3 performance budget, ANTES do deploy.
+7. DEPLOY — shopify-theme-safety integral (duplicate → pull --nodelete → **provisionamento de web fonts** → push --nodelete + marker `data-aura-build` + criação da página + smoke test).
+8. PUBLISH — com aprovação explícita do membro: backup do live → `shopify theme publish` → grava `manifest.storefront` (theme_id, page_url, published_at) que a 07d e a 10 leem → **fidelity check por visão** (screenshot da página no ar vs `design/page.html` aprovado; divergiu = corrige antes de encerrar).
 9. Dual output (.md + .html, logo SVG) + iteration loop.
 
 **Outputs em `workspace/[produto]/07-page/`:** `staging/html/*.html` + `staging/html/page.css` (fragmentos do SPLIT), `staging/sections/page-[produto]-*.liquid`, `staging/templates/page.[produto].json`, `staging/geo/product-schema.json` (JSON-LD), `staging/geo/agent-facts.html`, `page-report.md` + `page-report.html`, `deploy-report.json`. (O conversor NÃO gera `blocks/*.liquid` — blocks são inline no schema da section.)
@@ -36,7 +36,7 @@ Princípio: **conversão determinística mata as traduções lossy e o drift.** 
 3. Valide os inputs (sob `workspace/[produto]/07-page/`):
    - [ ] `design/page.html` existe (HTML aprovado da 07a — **sem ele, PARE e direcione pra 07a**; não existe modo "gera Liquid direto")
    - [ ] `design-tokens.json` existe e parseia
-   - [ ] `page-plan.json` existe com bloco `strategy` + `sections_plan` + `section_order`
+   - [ ] `page-plan.json` existe com bloco `strategy` + `sections_plan` + `section_order` (plans novos trazem `sections_plan[].media` — o mapa de mídia que o check bloqueante da ETAPA 4 usa; plan legado sem `media` é tolerado, o check degrada pro mínimo)
    - [ ] `manifest.json` tem `07a-page-design` em `skills_completed`
    - [ ] Plugin `shopify-plugin:shopify-liquid` disponível (se falhar, instrua `/plugin install shopify-plugin@shopify-plugin`)
 4. Dirs de staging: `workspace/[produto]/07-page/staging/{html,sections,templates,geo}/` (criar com `mkdir -p`).
@@ -128,6 +128,16 @@ O conversor dá nomes genéricos aos block types (derivados do `--type`/classes)
 
 Também confira que interações removidas pelo conversor (`<script>` sai com warning listando cada um) foram reimplementadas de forma nativa (`<details><summary>` pra FAQ/accordion, CSS puro pra tabs simples) — nunca perder interação silenciosamente.
 
+### Restauração de SVGs grandes (OBRIGATÓRIA pós-compile)
+
+O conversor substitui todo `<svg>` com mais de 500 chars por `<span class="icon-placeholder">` (padrão 9). Ilustração de mecanismo, selo de garantia, logo de mídia — tudo isso some silenciosamente se você não restaurar. Protocolo:
+
+1. **Inventário:** `grep -n 'icon-placeholder' ${STAGING_DIR}/sections/*.liquid` — cada match é um SVG substituído. Cruze com o fragmento fonte (`${STAGING_DIR}/html/<section>.html`) pra identificar QUAL SVG original ocupava aquele lugar (posição no markup + contexto).
+2. **Reinjeção:** substitua cada `<span class="icon-placeholder">` pelo SVG ORIGINAL do fragmento fonte — inline no markup do `.liquid` (default), ou como setting `html`/`icon_custom_svg` se o membro precisar editá-lo no theme editor.
+3. **Verificação:** re-rode o grep — **zero `icon-placeholder` residual** nos `.liquid` antes da ETAPA 3. Página deployada com ícone/ilustração faltando é drift visual que o fidelity check (6.11) pegaria caro lá na frente — mate aqui.
+
+(Como o rename semântico: se re-COMPILAR uma section, a restauração daquela section precisa ser re-aplicada.)
+
 ---
 
 ## ETAPA 3 — VALIDATE (shopify-plugin:shopify-liquid, 3 retries)
@@ -203,6 +213,22 @@ print(f"Template JSON valido: {len(data['sections'])} sections, order OK.")
 ```
 
 Se qualquer erro → **ABORTE o push**, corrija (adicione o block type faltante no `.liquid` via re-COMPILE, ou corrija o template JSON).
+
+### Check bloqueante — imagens e placeholders residuais (roda junto da validação acima)
+
+Dois vazamentos históricos que esta validação mata antes do deploy: página no ar com slot de imagem vazio, e placeholder de template (`{{TESTIMONIAL_1}}`, `{{IMAGE_URL}}`) renderizando literal pro consumidor.
+
+**1. Imagens do mapa de mídia (bloqueante).** Leia `page-plan.json.sections_plan[].media`:
+- Qualquer section com `media.status: "placeholder"` → **BLOCK**: o plano de obtenção da 07a não foi cumprido. Fix paths (ES1-style): **(A)** membro fornece a imagem agora (salvar em `design/assets/`, atualizar o HTML aprovado + re-COMPILE da section, ou subir via admin → Files e apontar a setting), ou **(B)** voltar à 07a ETAPA 1.6 pra redecidir a mídia daquela section (ex: rebaixar pra `required: false` se a section vive de ícone). Não existe path (C) "deploya assim mesmo".
+- Pra toda section com `media.required: true` e `status: "ready"`: confira que a setting de imagem correspondente no template JSON não está vazia (valor `shopify://shop_images/...` ou asset real). Setting `image_picker` vazia numa section que exige imagem = **BLOCK** com os mesmos fix paths. (Plano legado sem campo `media`: aplique o check no mínimo ao hero — hero sem imagem em landing/pdp é sempre erro.)
+
+**2. Placeholders textuais residuais (bloqueante).** Liquid legítimo usa minúsculas com namespace (`{{ section.settings.x }}`); placeholder de template usa MAIÚSCULAS (`{{TESTIMONIAL_1}}`). Grep obrigatório:
+
+```bash
+grep -rnE '\{\{ ?[A-Z][A-Z0-9_]* ?\}\}' "${STAGING_DIR}/sections" "${STAGING_DIR}/templates" && echo "BLOCK: placeholder residual"
+```
+
+Qualquer match → **BLOCK**: substitua pelo conteúdo real da 06 (testimonial/copy de verdade) ou remova o elemento se o conteúdo não existe (nunca inventar um depoimento pra preencher). Zero matches = prossegue.
 
 ---
 
@@ -387,7 +413,7 @@ Starter ($300–1000/mês, primeira loja): entregue o Schema completo mesmo assi
 
 ## ETAPA 5 — GATES de launch (blocking, ANTES do deploy)
 
-Os dois gates da rule `pre-launch-gates.md` rodam sobre a copy injetada ANTES do push. **Inclua o bloco agent-facts (ETAPA 4.5.4) na varredura do GATE 1** (é consumer-facing) e confira que o JSON-LD (ETAPA 4.5.1) não contradiz a config real no GATE 2 (envio/retorno/garantia/rating/preço são a mesma verdade da página).
+Os dois gates da rule `pre-launch-gates.md` rodam sobre a copy injetada ANTES do push, mais o GATE 3 (performance budget) desta skill. **Inclua o bloco agent-facts (ETAPA 4.5.4) na varredura do GATE 1** (é consumer-facing) e confira que o JSON-LD (ETAPA 4.5.1) não contradiz a config real no GATE 2 (envio/retorno/garantia/rating/preço são a mesma verdade da página).
 
 ### GATE 1 — Ad-flag compliance
 
@@ -425,6 +451,23 @@ Sem método disponível pra um item → o item fica `warn` com nota "não-verifi
 O **JSON-LD e o bloco agent-facts (ETAPA 4.5)** são superfícies de promise adicionais: confira que `merchantReturnDays`/`returnFees`, `shippingDetails`, `availability`, `priceValidUntil`, `price` e `aggregateRating` do Schema batem com a config real e com `promise-check.json`. Schema divergente da config = structured-data fraudulento (manual action no Google) → trate como `fail` no gate.
 
 > Sem bypass automático. Se o membro insistir em override, registre em `manifest.compliance_override` com `risk_acknowledged: true` (ES3 — exige o membro digitar "EU ACEITO O RISCO").
+
+### GATE 3 — Performance budget (a página aprovada tem que ser rápida no 4G do consumidor)
+
+Página lenta mata o CPA antes do criativo ter chance: cada segundo de LCP a mais derruba conversão de tráfego pago mobile. O alvo real é **LCP mobile < 2.5s**; o gate usa proxies simples e verificáveis.
+
+**Checks estáticos (pré-push, sobre os `.liquid` + template JSON):**
+- [ ] Toda imagem renderiza via `image_url | image_tag` com `width:` adequada (o CDN da Shopify serve WebP/AVIF e redimensiona — nunca a original de 4000px) e `loading: 'lazy'` nas sections abaixo da dobra.
+- [ ] A imagem do hero SEM lazy (é o candidato a LCP) e COM `width`/`height` no `<img>` (o `image_tag` já emite — confira que ninguém removeu).
+- [ ] Zero `<script>` de runtime nos `.liquid` das sections (grep; única exceção: `application/ld+json` da ETAPA 4.5 — não é runtime).
+- [ ] CSS filtrado por section (padrão 7 do conversor) — sem N cópias do `page.css` no tema.
+
+**Check de peso (pós-push, junto do smoke test 6.8):**
+```bash
+curl -s -o /dev/null -w '%{size_download}\n' "https://$STORE/pages/$PRODUTO?preview_theme_id=$NEW_THEME_ID&view=$PRODUTO"   # HTML: alvo ≤ ~200KB
+# peso das imagens above-the-fold (hero): curl -sI em cada src do hero e some content-length — alvo ≤ ~300KB
+```
+Página total (HTML + CSS + imagens) alvo ≤ ~1.5MB. **Estouro grosseiro (ex: imagem multi-MB no hero) = BLOCK do publish** até corrigir (reduzir `width:` do `image_url`, recomprimir o asset); desvio pequeno = warning com fix aplicado na hora. Registre o resultado em `deploy-report.json.gates.performance`.
 
 ---
 
@@ -474,6 +517,25 @@ HASH8=$(shasum -a 256 "$THEME_DIR/sections/page-${PRODUTO}-hero.liquid" | cut -c
 ```
 
 O atributo é inerte, identifica o build, e **fica no arquivo** (não há re-push de limpeza; a cada re-compile do hero, recalcule o hash). É o mesmo mecanismo da `shopify-theme-safety.md` Regras 4/5.
+
+### 6.4b Provisionar web fonts (a tipografia aprovada TEM que carregar de verdade)
+
+O CSS das sections declara `font-family` — mas declarar não carrega a fonte. Se `heading_font`/`body_font` de `design-tokens.json` são web fonts e o tema não as serve, a tipografia aprovada no `design/page.html` **cai silenciosamente pro fallback do sistema** (Georgia onde devia ser Fraunces) e ninguém percebe até a página estar no ar. Protocolo:
+
+1. Leia `heading_font` e `body_font` de `design-tokens.json`. Fontes de sistema (`-apple-system`, Georgia, Arial, `system-ui`...) → nada a fazer, pule.
+2. Pra cada web font (o caminho padrão dos presets/signals é Google Fonts): confira se o tema clonado JÁ carrega a família — `grep -ri 'fonts.googleapis\|@font-face' "$THEME_DIR"/layout/theme.liquid "$THEME_DIR"/assets/*.css | grep -i "<família>"`. Já carrega → pule.
+3. **Não carrega → provisione por um dos dois caminhos:**
+   - **Caminho A — Google Fonts (default):** injete no `<head>` do `$THEME_DIR/layout/theme.liquid` (antes do primeiro `<link rel="stylesheet">`):
+     ```html
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Inter:wght@400;500;600&display=swap">
+     ```
+     Só as famílias e SÓ OS PESOS que a página usa (se o preset veio de `.claude/lib/design-presets/presets.json`, o campo `google_fonts` lista exatamente isso — cada peso extra é KB no LCP). `display=swap` obrigatório.
+   - **Caminho B — self-host:** baixe os `.woff2` das famílias/pesos, suba em `assets/` do tema, e declare `@font-face` no CSS da(s) section(s) (ou num snippet incluído pelo theme.liquid). Use quando o membro não quer dependência do Google ou o tema tem CSP restritiva.
+4. **Validação (obrigatória):** no smoke test (6.8), `curl -s` a preview e confirme que o `<link>` do Google Fonts (ou o `@font-face`) da família está presente no HTML servido; no fidelity check (6.11), o screenshot confirma visualmente que o heading NÃO caiu pra fallback. Sem os dois checks, este passo é teatro.
+
+> `theme.liquid` é template crítico (afeta a loja inteira) — o backup do 6.2 já cobre; a edição é aditiva (só `<link>` no `<head>`), nunca remova nada do arquivo.
 
 ### 6.5 Push (Regra 3 — `--nodelete`; `--allow-live` só no tema live)
 
@@ -545,6 +607,16 @@ Se o membro NÃO quiser publicar ainda (loja em construção), tudo bem — mas 
 
 > Aviso anti-drift: depois de publicado, NÃO edite as sections da Aura via Sidekick/AI do theme editor — isso cria drift silencioso entre o design aprovado e o que está no ar. Ajustes passam pelo iteration loop desta skill.
 
+### 6.11 Fidelidade visual (screenshot da página no ar vs design aprovado — antes de encerrar)
+
+"Compilou e passou nos gates" não é "ficou igual ao que o membro aprovou". O último check é olhar a página REAL com os próprios olhos, contra a fonte única de verdade:
+
+1. **Screenshot full-page da página no ar** via Playwright (skill `webapp-testing`), em desktop (1440px) e mobile (390px). Publicou → use a URL pública (`manifest.storefront.page_url`); não publicou → rode sobre a preview URL (6.9) mesmo assim — o check não é opcional.
+2. **Screenshot do `design/page.html` aprovado** (file://) nas MESMAS larguras (reuse os screenshots do self-review da 07a se ainda refletirem a versão aprovada).
+3. **Compare os pares POR VISÃO**, ponto a ponto: ordem e presença das sections; tipografia (heading caiu pra serif/sans genérica? → o 6.4b falhou, volte lá); cores/tokens (CTA na cor errada = setting não populada); imagens (slot vazio, placeholder vazado, imagem esticada/cortada); spacing/hierarquia (section colada, padding sumido); FAQ/accordion funcionando (`<details>` renderizado).
+4. **Divergência real → corrigir ANTES de encerrar a skill** (via iteration loop: ajuste no HTML aprovado + re-COMPILE da section, ou fix pontual no `.liquid`/template JSON + re-push + re-screenshot). Diferença trivial de rendering (anti-aliasing, scrollbar, fonte com hinting levemente diferente) não conta. **Nunca declare "no ar" com a página divergente do design que o membro aprovou.**
+5. Registre no `deploy-report.json`: `"fidelity_check": {"passed": true, "compared_at": "<ISO>", "divergences_fixed": ["..."]}`.
+
 ---
 
 ## ETAPA 7 — Reports (dual output — rule 6b) + iteration loop
@@ -553,7 +625,7 @@ Se o membro NÃO quiser publicar ainda (loja em construção), tudo bem — mas 
 
 Salve `page-report.md` (fonte pra AI) + `page-report.html` (humano) + `deploy-report.json`. O `.html` usa `.claude/templates/aura-report-template.html` (CSS inline, self-contained) e **abre com o bloco SVG da logo copiado LITERAL de `.claude/templates/aura-logo-snippet.html`** (rule 6b — NUNCA texto; o 07c/deploy antigo não tinha logo, agora tem). Componentes Aura, responsivo mobile.
 
-Conteúdo do `.md`/`.html`: plano de sections + justificativa (de `page-plan.json`), brand signals usados (source), design system, variante aprovada, lista de arquivos com paths absolutos, settings expostos por section (resumo), **resumo da camada GEO** (nós Schema.org gerados + fatos do bloco agent-facts + o que ganha: discovery/citação por AI search, não venda-no-chat — seja honesto com o membro), preview links, resultado dos gates (compliance + promise-check), issues conhecidas, histórico de iterações.
+Conteúdo do `.md`/`.html`: plano de sections + justificativa (de `page-plan.json`), brand signals usados (source), design system, variante aprovada, lista de arquivos com paths absolutos, settings expostos por section (resumo), **resumo da camada GEO** (nós Schema.org gerados + fatos do bloco agent-facts + o que ganha: discovery/citação por AI search, não venda-no-chat — seja honesto com o membro), fontes provisionadas (6.4b), preview links, resultado dos gates (compliance + promise-check + performance) e do fidelity check (6.11), issues conhecidas, histórico de iterações.
 
 `deploy-report.json`:
 ```json
@@ -565,9 +637,11 @@ Conteúdo do `.md`/`.html`: plano de sections + justificativa (de `page-plan.jso
   "preview_url_storefront": "https://<STORE>/pages/<produto>?preview_theme_id=<NEW_THEME_ID>&view=<produto>",
   "sections_deployed": [{"id": "hero", "type": "page-<produto>-hero", "blocks_count": 0}, {"id": "benefits", "type": "page-<produto>-benefits", "blocks_count": 4}],
   "geo": {"jsonld_types": ["Product", "Offer", "AggregateRating", "BreadcrumbList", "FAQPage"], "jsonld_validated": true, "agent_facts_block": true, "schema_path": "workspace/<produto>/07-page/staging/geo/product-schema.json"},
-  "gates": {"compliance": "pass", "promise_check": "pass"},
+  "gates": {"compliance": "pass", "promise_check": "pass", "performance": "pass"},
+  "fonts_provisioned": {"method": "google_fonts | font_face | none_needed", "families": ["Fraunces", "Inter"], "verified_in_html": true},
   "validation_passed": true, "validation_errors": [], "push_warnings": [],
   "marker_verified": true, "smoke_test_passed": true,
+  "fidelity_check": {"passed": true, "compared_at": "2026-MM-DDTHH:MM:SSZ", "divergences_fixed": []},
   "published": false, "page_url": null,
   "staging_dir": "workspace/<produto>/07-page/staging",
   "deployed_at": "2026-MM-DDTHH:MM:SSZ"
@@ -585,7 +659,7 @@ Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.p
 Pra ajustes:
 - **Spacing/layout/cor** → ajuste o HTML aprovado (`design/page.html`) e re-rode SPLIT→COMPILE só da section afetada (Modo C single-section — o merge do `--emit-template-json` preserva a posição no `order[]`), OU edite o `{% stylesheet %}`/template JSON direto → revalide → re-push.
 - **Estrutural** (novos blocks/sections) → re-COMPILE (uma invocação, com `--emit-template-json`) → validação de blocks (ETAPA 4) → push.
-- **Re-compile apaga renames**: o conversor regenera o `.liquid` do zero — depois de qualquer re-COMPILE, re-aplique o rename semântico daquela section (ETAPA 2) e recalcule o hash do `data-aura-build` se foi o hero.
+- **Re-compile apaga renames E restaurações**: o conversor regenera o `.liquid` do zero — depois de qualquer re-COMPILE, re-aplique o rename semântico daquela section (ETAPA 2), re-rode a restauração de SVGs grandes dela (grep `icon-placeholder`), e recalcule o hash do `data-aura-build` se foi o hero.
 - **Preço/rating/política mudou** → regenere o `product-schema.json` e o bloco agent-facts (ETAPA 4.5), revalide o JSON-LD, e confira que ainda bate com a config (Gate 2) antes do re-push. Schema e config nunca podem divergir.
 - **FAQ mudou (pergunta adicionada/removida/reescrita na section faq)** → regenere o nó FAQPage do `product-schema.json` e revalide — as Q&A do Schema têm que continuar idênticas às da página.
 - **SEMPRE pull antes de re-push** (Regra 1) pra preservar settings que o membro mexeu no editor.
@@ -594,13 +668,13 @@ Pra ajustes:
 
 ### Mensagem final
 
-> "Page-build completo. [Se publicou: 'Página no ar em `<page_url>`.' / Se não: 'Página no preview — publica quando você aprovar; sem publicar, a campanha da Skill 10 não tem URL de destino.'] Próximo passo: 'tracking' (07c-tracking-setup — pixel + CAPI antes dos criativos), depois 'checkout' (07d-checkout-aov), depois 'creatives' (skill 08)."
+> "Page-build completo. [Se publicou: 'Página no ar em `<page_url>`.' / Se não: 'Página no preview — publica quando você aprovar; sem publicar, a campanha da Skill 10 não tem URL de destino.'] Próximo passo: 'tracking' (07c-tracking-setup — pixel + CAPI antes dos criativos), depois 'checkout' (07d-checkout-aov). Na sequência vêm o bônus Fase A (skill 05, se a sua oferta tem bônus) e a retention Fase A (skill 13 — flows de recuperação: abandoned cart + post-purchase, infraestrutura que se arma ANTES de ligar tráfego), e só então 'creatives' (skill 08)."
 
 ---
 
 ## Self-audit silencioso (rule post-task-self-audit) — deep audit (skill peso crítico)
 
-Antes de declarar concluído, rode os 5 gates expandidos e corrija inline (sem mencionar): cada section do `section_order` virou um `.liquid` validado; template JSON tem `blocks{}` + `block_order[]` não-vazios em toda section **block-based** (schema define blocks) — sections monolíticas legitimamente ficam com `blocks: {}` (NÃO "corrija" injetando blocks fantasma); copy injetada veio de `06` (não inventada); cores das section settings batem com `design-tokens.json`; blocks `pricing_tier` expõem `qty` + `variant_id` (contrato da recipe deploy-shopify-product); **JSON-LD da ETAPA 4.5 valida (Product + BreadcrumbList no mínimo), todo campo vem de fonte real (nenhum rating/preço inventado — nó omitido se sem dado), e Schema + agent-facts + config são a MESMA verdade (envio/retorno/garantia/rating/preço)**; GATE 1 e GATE 2 passaram (sem override silencioso), incluindo o bloco agent-facts na varredura de compliance; marker `data-aura-build` verificado (hash atual) + smoke test OK antes de declarar "no ar"; se publicou, `manifest.storefront` gravado com theme_id/page_url/published_at; logo SVG presente no `page-report.html`. Surface só o que exige decisão (gate `critical` sem rewrite seguro, promise `fail` que precisa escolha copy-vs-config, rating do Schema que diverge da review app e precisa escolha de qual fonte vale, publicar ou não o tema).
+Antes de declarar concluído, rode os 5 gates expandidos e corrija inline (sem mencionar): cada section do `section_order` virou um `.liquid` validado; template JSON tem `blocks{}` + `block_order[]` não-vazios em toda section **block-based** (schema define blocks) — sections monolíticas legitimamente ficam com `blocks: {}` (NÃO "corrija" injetando blocks fantasma); copy injetada veio de `06` (não inventada); **zero `icon-placeholder` residual nos `.liquid` (restauração de SVGs grandes da ETAPA 2 rodou) e zero placeholder `{{MAIÚSCULA}}` nas sections/template (check bloqueante da ETAPA 4)**; **nenhuma section com `media.required` sem imagem e nenhum `media.status: "placeholder"` sobrevivente do `page-plan.json`**; cores das section settings batem com `design-tokens.json`; **web fonts provisionadas (6.4b) e confirmadas no HTML servido — a tipografia aprovada não caiu pra fallback**; blocks `pricing_tier` expõem `qty` + `variant_id` (contrato da recipe deploy-shopify-product); **JSON-LD da ETAPA 4.5 valida (Product + BreadcrumbList no mínimo), todo campo vem de fonte real (nenhum rating/preço inventado — nó omitido se sem dado), e Schema + agent-facts + config são a MESMA verdade (envio/retorno/garantia/rating/preço)**; GATE 1, GATE 2 e GATE 3 (performance budget) passaram (sem override silencioso), incluindo o bloco agent-facts na varredura de compliance; marker `data-aura-build` verificado (hash atual) + smoke test OK antes de declarar "no ar"; **fidelity check do 6.11 rodou (screenshots por visão, live/preview vs design aprovado) e divergências reais foram corrigidas**; se publicou, `manifest.storefront` gravado com theme_id/page_url/published_at; logo SVG presente no `page-report.html`. Surface só o que exige decisão (gate `critical` sem rewrite seguro, promise `fail` que precisa escolha copy-vs-config, rating do Schema que diverge da review app e precisa escolha de qual fonte vale, publicar ou não o tema, placeholder de imagem que só o membro pode resolver).
 
 ---
 
@@ -737,7 +811,7 @@ Validação: Lighthouse Accessibility ≥ 95; navegação só-teclado; VoiceOver
 |---|---|
 | **Validação Liquid** (crítico) | `shopify-plugin:shopify-liquid` |
 | Geração/ajuste de HTML (07a; iteration) | `frontend-design` |
-| Captura de screenshot (signals 07a) | `webapp-testing` |
+| Captura de screenshot (signals 07a; fidelity check 6.11) | `webapp-testing` |
 
 A validação Liquid é parte do plugin Shopify AI Toolkit (`/plugin marketplace add Shopify/shopify-ai-toolkit` + `/plugin install shopify-plugin@shopify-plugin`). Sem ele, instrua a instalar antes.
 
@@ -746,6 +820,6 @@ A validação Liquid é parte do plugin Shopify AI Toolkit (`/plugin marketplace
 - **Skill anterior:** `07a-page-design` (gera o `design/page.html` aprovado + `design-tokens.json` + `page-plan.json` que esta skill consome)
 - **Conversor canônico:** `tools/design-clone/liquid-converter.py` (batch: `--batch <manifest.json> --emit-template-json`; Modo C: `--html --css --type --output --namespace --product-slug --emit-template-json --page-handle`; `--blocks-dir` é deprecado/ignorado; Modo B legacy exige `--allow-competitor-markup`)
 - **Contrato de publicação:** `manifest.storefront` (`theme_id`/`page_url`/`published_at`, gravado no 6.10) — a 07d opera no tema onde a página vive e a Skill 10 lê `page_url` como destino da campanha
-- **Próxima no fluxo:** `07c-tracking-setup` (pixel + CAPI antes dos criativos) → `07d-checkout-aov` → `08-creative-engine`
+- **Próxima no fluxo:** `07c-tracking-setup` (pixel + CAPI antes dos criativos) → `07d-checkout-aov` → `05-bonus-delivery` Fase A (se a oferta tem bônus) → `13-retention-engine` Fase A (flows de recuperação: abandoned cart + post-purchase) → `08-creative-engine`
 - **Gate de launch:** `09-consistency-audit` (pré-requisito da skill 10, não do deploy da página)
 - **Camada GEO (ETAPA 4.5):** JSON-LD Schema.org (Product + Offer + AggregateRating + BreadcrumbList + FAQPage das perguntas reais) de `04-offer-builder/dados.json` + `06-copy-engine/dados.json` + reviews, validado antes de injetar, mais o bloco agent-facts — pra citação por ChatGPT/Perplexity/Google AI Mode. Validação externa opcional pós-deploy: Google Rich Results Test + validator.schema.org.

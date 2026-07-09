@@ -8,8 +8,8 @@ description: Engine de escrita de copy completo baseado em market research, comp
 ### Pré-flight (OBRIGATÓRIO)
 - [ ] `workspace/[produto]/manifest.json` existe
 - [ ] `product_slug` do manifest NÃO começa com `dev-placeholder-` (senão, pare: "rode product research primeiro")
-- [ ] `02-market-research/dados.json` existe → extrair `awareness_distribution`, `sophistication_stage`, `voc_phrases`, `voc_count`, `voc_adequacy`
-  - `voc_phrases` é o objeto `{problem:[], desire:[], frustration:[]}` da Skill 02 — **achate os 3 pools** num único array antes de usar (não assuma array plano). `voc_count` = total de frases únicas somando os 3 pools.
+- [ ] `02-market-research/dados.json` existe → extrair `awareness_distribution`, `sophistication_stage`, `voc_top20` (se presente), `voc_phrases`, `voc_count`, `voc_adequacy`
+  - `voc_top20` é o ranking curado da Skill 02 (20 frases com `rank` + `count` + `category`) — é a fonte primária do `voc_checklist` (Input Extraction). `voc_phrases` é o objeto `{problem:[], desire:[], frustration:[]}` — se precisar usar (fallback legado), **achate os 3 pools** num único array antes (não assuma array plano). `voc_count` = total de frases únicas somando os 3 pools.
 - [ ] **VOC adequacy check:** se `voc_adequacy == "insufficient"` OU `voc_count < 15` → PARE com mensagem:
   > ⚠️  VOC atual: {N} frases únicas. Mínimo pra copy direta: 15.
   >     Copy sem VOC real é invenção — vai soar genérica e não converter.
@@ -47,7 +47,7 @@ Quando o membro tem market research, competitor analysis e oferta prontos, e pre
 Antes de gerar copy, carregue:
 1. `dominant_awareness` = ler DIRETO o campo `dominant_awareness` de `02-market-research/dados.json` (a Skill 02 já grava esse campo decidido, com nuance de fonte). Só recompute a partir de `awareness_distribution` (stage com maior %) como FALLBACK se o campo faltar (produto legado) — recomputar quando o campo existe abre porta pra drift em distribuições apertadas. Se `dominant_awareness_secondary` presente (empate ±5pp na 02), trate como híbrido: escolha um lead que sirva os DOIS níveis (ex: empate problem/solution → lead de mecanismo com abertura de problema), não só o primário
 2. `sophistication` = `sophistication_stage` (1-5)
-3. `voc_checklist` = array das 20 VOC phrases mais repetidas (achate os 3 pools de `voc_phrases` — `{problem, desire, frustration}` — num único array antes do substring matching). VOC permanece SEMPRE no inglês original do consumidor.
+3. `voc_checklist` = ler DIRETO o campo `voc_top20` de `02-market-research/dados.json` (a Skill 02 já grava as 20 frases curadas com rank + contagem de menções — use na ordem do rank, a frequência real vale mais que re-curadoria). FALLBACK (produto legado sem `voc_top20`): achate os 3 pools de `voc_phrases` — `{problem, desire, frustration}` — num único array e selecione as 20 mais repetidas antes do substring matching. VOC permanece SEMPRE no inglês original do consumidor.
 4. `mechanism` = objeto do `04-offer-builder/dados.json` (use `mechanism.name` pro nome; não tratar como string)
 5. `guarantee` + `offer_stack` = do `04-offer-builder/dados.json`
 Use ESTAS variáveis ao gerar — sem placeholders hardcoded.
@@ -369,6 +369,8 @@ Se o tipo de página definido é Advertorial, siga a **estrutura de 7 seções**
 
 Tom editorial (não vendedor). Use parágrafos curtos (2-4 linhas). Inclua imagens/quotes entre parágrafos.
 
+No arquivo final (`copy-engine.md`), estas 7 seções entram com os nomes canônicos H2 do Output Schema (`## Advertorial Headline` → `## Reveal + Close`) — ver a seção "Output Schema" abaixo. É por esses nomes exatos que a 07a mapeia o advertorial pro design da página.
+
 ### ETAPA 6 — Auto-Revisão (7 sweeps Aura + gate de compliance)
 
 Antes de entregar, faça os **7 sweeps Aura** abaixo (1–7) — são os sweeps de revisão DESTA skill, não os "7 sweeps" clássicos de copywriting. O **Compliance Pre-flight (sweep 8)** roda em seguida como gate de bloqueio separado, fora da contagem dos 7.
@@ -445,6 +447,8 @@ Documente a hipótese por trás de cada variação. As variações de hero e CTA
 
 O markdown DEVE ter as seções NOMEADAS ASSIM (case-sensitive, H2). Cada seção contém texto pronto pra colar, SEM comentários de instrução no output final.
 
+**PDP / Landing Page (ETAPA 4):**
+
 ```
 ## Hero
 ### Headlines (ranked)
@@ -461,6 +465,23 @@ O markdown DEVE ter as seções NOMEADAS ASSIM (case-sensitive, H2). Cada seçã
 ## Urgency/Scarcity
 ## Email Follow-up Hooks
 ```
+
+**ADVERTORIAL (ETAPA 5):** o corpo da página usa estas seções canônicas no LUGAR do bloco `## Hero`→`## FAQ` acima — EXATAMENTE estes nomes, case-sensitive (a 07a localiza o advertorial por eles):
+
+```
+## Advertorial Headline
+## Lead
+## Background Story
+## Root Cause
+## Mechanism Reveal
+## Product Build-Up
+## Reveal + Close
+
+## Urgency/Scarcity
+## Email Follow-up Hooks
+```
+
+As 7 seções mapeiam 1:1 pro blueprint da ETAPA 5 (Irresistible Headline → `## Advertorial Headline`; Root Cause Explanation → `## Root Cause`; Unique Mechanism Reveal → `## Mechanism Reveal`; Product Reveal + Close → `## Reveal + Close`). `## Urgency/Scarcity` e `## Email Follow-up Hooks` continuam obrigatórias no fim do relatório em qualquer tipo de página — a urgência do advertorial vive dentro de `## Reveal + Close` E é extraída pra seção canônica, como a ETAPA 5 já define.
 
 ## JSON Companion Obrigatório — `06-copy-engine/dados.json`
 
@@ -523,4 +544,4 @@ Também salvar `workspace/[produto]/06-copy-engine/dados.json` no schema acima.
 
 "Copy completa pro [tipo de página]. Big Idea: [big idea]. Mecanismo aplicado: [nome]. VOC integrado, objeções quebradas, 3 variações de headline pra teste. [Se houver warnings residuais de compliance: N warnings — revise se quiser.]
 
-Próximo passo: diga **'page'** pro design da página (skill 07a — você escolhe a rota de design e aprova o HTML navegável, com essa copy dentro, ANTES de qualquer código existir); depois **'build page'** pra compilar e subir no Shopify (07b). Só depois da página no ar é que fazemos os criativos — não adianta criar ads pra uma página que ainda não existe."
+Próximo passo: diga **'page'** pro design da página (skill 07a — você escolhe a rota de design e aprova o HTML navegável, com essa copy dentro, ANTES de qualquer código existir); depois **'build page'** pra compilar e subir no Shopify (07b), **'tracking'** (07c) e **'checkout'** (07d). Com a loja pronta, armamos a infraestrutura de launch — **'bônus'** (05 Fase A, se a oferta tem bônus) e **'retention'** (13 Fase A: flows de recuperação, abandoned cart + post-purchase) — e só então os criativos. Não adianta criar ads pra uma página que ainda não existe."

@@ -148,11 +148,11 @@ O membro pode acionar qualquer skill por nome:
 - "ad strategy" → skill 10 (estrutura 1 campanha → 1 ad set Advantage+ → N criativos, criada em PAUSED via Meta MCP pro membro revisar e ativar; a escolha do analytics stack é da 07c)
 - "ad analysis" → skill 11
 - "scale" → skill 12
-- "retention" ou "email flows" ou "klaviyo" → skill 13 (pós-launch)
-- "bonus delivery" ou "bônus" → skill 05 (geração de asset de bônus de ecom + delivery; roda em DUAS fases: Fase A pré-launch, entre a 07d e a 09 — gera os assets e configura GWP/entrega, porque todo bônus prometido na PDP precisa existir antes do primeiro ad; Fase B pós-launch, junto da 13 — tracking de take-rate/access rate)
+- "retention" ou "email flows" ou "klaviyo" → skill 13 (roda em DUAS fases: **Fase A pré-launch**, depois da 07d/05 e antes dos criativos — flows de recuperação (abandoned cart + post-purchase), infraestrutura de cash flow que todo operador de elite arma ANTES de ligar tráfego pago: é a receita mais barata que existe e custa zero no free tier do ESP; **Fase B pós-launch**, com ≥50 compras — win-back, replenishment e segmentação. Campanhas/newsletters de email continuam sempre pós-launch)
+- "bonus delivery" ou "bônus" → skill 05 (geração de asset de bônus de ecom + delivery; roda em DUAS fases: Fase A pré-launch, logo depois da 07d e só se a oferta tem bônus — gera os assets e configura GWP/entrega, porque todo bônus prometido na PDP precisa existir antes do primeiro ad; Fase B pós-launch, junto da Fase B da 13 — tracking de take-rate/access rate)
 - "content recycler" ou "recycle" → skill 14 (1 winner → 9 derivadas em formatos diferentes)
 
-ORDEM LÓGICA DE EXECUÇÃO: setup → product research → market research → competitor analysis → offer → copy → **STOREFRONT: page-design (07a) → page-build/deploy (07b) → tracking-setup (07c) → checkout-aov (07d)** → **bonus delivery — Fase A (05: assets + config de GWP, pré-launch)** → creatives → **agentic readiness (07e)** → **consistency audit** (09, GATE de launch) → ad strategy → ad analysis → scale → **PÓS-LAUNCH: retention (13) + bonus delivery — Fase B (05: tracking de take-rate)** → content recycler (pós-winner).
+ORDEM LÓGICA DE EXECUÇÃO: setup → product research → market research → competitor analysis → offer → copy → **STOREFRONT: page-design (07a) → page-build/deploy (07b) → tracking-setup (07c) → checkout-aov (07d)** → **bonus delivery — Fase A (05: assets + config de GWP — só se a oferta tem bônus)** → **retention — Fase A (13: flows de recuperação — abandoned cart + post-purchase; infraestrutura de launch, não campanhas de email)** → creatives → **agentic readiness (07e)** → **consistency audit** (09, GATE de launch) → ad strategy → ad analysis → scale → **PÓS-LAUNCH: retention — Fase B (13: win-back/replenishment, ≥50 compras) + bonus delivery — Fase B (05: tracking de take-rate)** → content recycler (pós-winner).
 
 Ou pode simplesmente descrever o que precisa e você identifica qual skill usar.
 

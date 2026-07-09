@@ -92,7 +92,7 @@ A Base de Conhecimento Aura **não** está nesta árvore — é um servidor MCP 
 
 ## 4. As skills (em detalhe)
 
-Cada skill é um arquivo `.md` com frontmatter (nome + descrição) e corpo estruturado em ETAPAs numeradas. Skills estão listadas abaixo na ordem em que o membro roda em uma sessão normal. A fase de página virou a fase **storefront** (07a→07b→07c→07d), a bonus delivery (05) roda em duas fases (Fase A pré-launch, Fase B pós-launch) e a agentic readiness (07e) roda depois dos criativos, antes do gate de launch (09).
+Cada skill é um arquivo `.md` com frontmatter (nome + descrição) e corpo estruturado em ETAPAs numeradas. Skills estão listadas abaixo em ordem numérica (o número é o ID fixo de cada skill), com uma exceção: a 07e aparece depois da 08 porque é ali que ela roda. A ordem canônica exata de uma sessão está no §13. A fase de página virou a fase **storefront** (07a→07b→07c→07d), a bonus delivery (05) e a retention (13) rodam em duas fases (Fase A pré-launch, Fase B pós-launch) e a agentic readiness (07e) roda depois dos criativos, antes do gate de launch (09).
 
 ### Skill 00 — Setup
 **Trigger:** `"setup"`
@@ -130,7 +130,7 @@ Constrói mecanismo único (UMP/UMS — a razão pela qual o produto resolve o p
 
 ### Skill 05 — Bonus Delivery (DUAS fases: A pré-launch, B pós-launch)
 **Trigger:** `"bonus delivery"` / `"bônus"`
-Geração do asset de bônus de ecom + delivery. A DEFINIÇÃO do bônus continua na skill 04; a 05 gera o ASSET (PDF/e-book/checklist) e rastreia access rate. Tipos primários de ecom: gift-with-purchase (GWP, threshold de cart subtotal vindo do AOV, take-rate como KPI), free e-book/guide toward dream outcome, free complementary SKU, free gift wrapping (Q4). A entrega do email integra com a skill 13 (via `delivery_trigger`); a config de GWP integra com a 07d-checkout-aov (é config de loja). **Fase A (pré-launch, entre a 07d e a 09):** gerar assets + configurar GWP/entrega — todo bônus prometido na PDP precisa existir antes do primeiro ad (a 09 verifica no gate). **Fase B (pós-launch, junto da 13):** tracking de take-rate/access rate.
+Geração do asset de bônus de ecom + delivery. A DEFINIÇÃO do bônus continua na skill 04; a 05 gera o ASSET (PDF/e-book/checklist) e rastreia access rate. Tipos primários de ecom: gift-with-purchase (GWP, threshold de cart subtotal vindo do AOV, take-rate como KPI), free e-book/guide toward dream outcome, free complementary SKU, free gift wrapping (Q4). A entrega do email integra com a skill 13 (via `delivery_trigger`); a config de GWP integra com a 07d-checkout-aov (é config de loja). **Fase A (pré-launch, logo após a 07d, antes da retenção Fase A — só se a oferta tem bônus):** gerar assets + configurar GWP/entrega — todo bônus prometido na PDP precisa existir antes do primeiro ad (a 09 verifica no gate). **Fase B (pós-launch, junto da Fase B da 13):** tracking de take-rate/access rate.
 **Output:** `05-bonus-delivery/bonus-delivery.md` + `bonus-delivery.html` + `dados.json` (log de entrega) + `bonuses/[bonus-id]/`
 
 ### Skill 06 — Copy Engine
@@ -180,10 +180,10 @@ Pre-flight pra Pixel/CAPI/produto live/criativos prontos. One Campaign Method: 1
 Vertical scaling (PGS 5% rule). Horizontal scaling. Champion promotion. Diversification por stage.
 **Output:** `12-scale-engine/scale-engine.md` + `scale-engine.html` + `dados.json` + `scale-directives.md`
 
-### Skill 13 — Retention Engine
+### Skill 13 — Retention Engine (DUAS fases: A pré-launch, B pós-launch)
 **Trigger:** `"retention"` / `"email flows"` / `"klaviyo"`
-ESP identificado, ≥50 compras. Fluxos base: welcome series, abandoned cart, post-purchase, win-back, replenishment.
-**GATE skill 09** no pre-flight.
+ESP identificado. Fluxos base: welcome series, abandoned cart, post-purchase, win-back, replenishment. **Fase A (pré-launch, depois da 07d/05 e antes dos criativos):** flows de recuperação — abandoned cart + post-purchase. É infraestrutura de cash flow do launch, não campanha de email: operador de elite nunca liga tráfego pago sem abandoned cart flow (a receita mais barata que existe, custa zero no free tier do ESP). **Fase B (pós-launch, ≥50 compras):** win-back, replenishment e segmentação. Campanhas/newsletters continuam sempre pós-launch.
+**GATE skill 09** no pre-flight da Fase B (a Fase A roda antes de a 09 existir).
 **Setup pipeline:** Klaviyo MCP oficial (`mcp__klaviyo__`) cria os flows direto, SEMPRE em draft → fallback assets HTML + setup-guide (único caminho pra Omnisend/MailerLite/Shopify Email). Ver §12.4.
 **Enrichment opcional:** `analyze_shop_emails` (TrendTrack) calibra timing dos fluxos.
 **Output:** `13-retention-engine/retention-engine.md` + `retention-engine.html` + `dados.json` + `[fluxo]/`
@@ -290,7 +290,7 @@ Cada fase mora numa subpasta própria `0X-<stem>/`. Dentro: `<stem>.html` (o que
 ├── 02-market-research/    → market-research.md / .html + dados.json
 ├── 03-competitor-analysis/ → competitor-analysis.md / .html + dados.json + creative-patterns.json + creatives-inbox/
 ├── 04-offer-builder/      → offer-builder.md / .html + dados.json + research-foundation.json
-├── 05-bonus-delivery/     → bonus-delivery.md / .html + dados.json + bonuses/[bonus-id]/   (pós-launch)
+├── 05-bonus-delivery/     → bonus-delivery.md / .html + dados.json + bonuses/[bonus-id]/   (2 fases: A pré-launch, B pós-launch)
 ├── 06-copy-engine/        → copy-engine.md / .html + dados.json + compliance-log.json
 ├── 07-page/               ← storefront (07a design + 07b build)
 │   ├── design-system.md / .html · page-plan.json (bloco strategy)
@@ -306,7 +306,7 @@ Cada fase mora numa subpasta própria `0X-<stem>/`. Dentro: `<stem>.html` (o que
 ├── 10-ad-strategy/        → ad-strategy.md / .html + dados.json
 ├── 11-ad-analysis/        → ad-analysis.md / .html + dados.json + [YYYYMMDD]-analysis.md/html
 ├── 12-scale-engine/       → scale-engine.md / .html + dados.json + scale-directives.md
-├── 13-retention-engine/   → retention-engine.md / .html + dados.json + [fluxo]/   (pós-launch)
+├── 13-retention-engine/   → retention-engine.md / .html + dados.json + [fluxo]/   (2 fases: A pré-launch, B pós-launch)
 └── 14-content-recycler/   → content-recycler.md / .html (índice) + [source-id]/   (pós-winner)
 ```
 
@@ -485,16 +485,17 @@ Ordem canônica pra um produto novo:
 5. **offer** — mecanismo, pricing, stack, garantia, unit economics
 6. **copy** — copy completa pra cada section
 7. **storefront** — 07a (page design HTML-first) → 07b (build + deploy) → 07c (tracking setup) → 07d (checkout AOV)
-8. **bonus delivery — Fase A** (05) — assets + config de GWP/entrega (todo bônus da PDP existe antes do primeiro ad)
-9. **creatives** — 6-15 conceitos com briefings
-10. **agentic readiness** (07e) — checklist de descoberta por agentes de AI na loja viva
-11. **consistency audit** — cross-phase drift check (gate de launch)
-12. **ad strategy** — estrutura de campanha, naming, PGS
-13. **— LAUNCH —**
-14. **ad analysis** (depois de 3-7 dias) — 4Pi, diagnóstico, decisões
-15. **scale** (depois que winners emergem) — vertical + horizontal
-16. **retention** (≥50 compras) — fluxos Klaviyo + **bonus delivery — Fase B** (tracking de take-rate)
-17. **content recycler** (depois de winner consolidado) — 9 derivadas
+8. **bonus delivery — Fase A** (05, se a oferta tem bônus) — assets + config de GWP/entrega (todo bônus da PDP existe antes do primeiro ad)
+9. **retention — Fase A** (13) — flows de recuperação: abandoned cart + post-purchase (infraestrutura de cash flow do launch, custa zero no free tier)
+10. **creatives** — 6-15 conceitos com briefings
+11. **agentic readiness** (07e) — checklist de descoberta por agentes de AI na loja viva
+12. **consistency audit** — cross-phase drift check (gate de launch)
+13. **ad strategy** — estrutura de campanha, naming, PGS
+14. **— LAUNCH —**
+15. **ad analysis** (depois de 3-7 dias) — 4Pi, diagnóstico, decisões
+16. **scale** (depois que winners emergem) — vertical + horizontal
+17. **retention — Fase B** (≥50 compras) — win-back, replenishment, segmentação + **bonus delivery — Fase B** (tracking de take-rate)
+18. **content recycler** (depois de winner consolidado) — 9 derivadas
 
 Cada skill faz pre-flight da anterior. Se algum artefato falta, oferece fallback (rule `emergency-escape-paths` — ES1).
 
@@ -529,3 +530,4 @@ Os números das skills refletem a numeração da época de cada mudança.
 | 2026-06-20 | **Skill 13 sem cookie.** Caminho de session-cookie/internal-API do Klaviyo DELETADO (risco de segurança: cookie dava acesso full à conta). Cascade da 13 vira: **Klaviyo MCP oficial** (`mcp__klaviyo__`, flows sempre em draft) → assets HTML + setup-guide. Papéis pós-compra consolidados: 05 produz asset de bônus, 13 é o executor único de email, 14 gera só variação de nutrição derivada de winner. |
 | 2026-06-22 | **Coleta resiliente da web.** Nova lib `web-fetch` (fetcher Playwright headless + stealth: `--mode text\|reddit\|reviews`, Reddit via redlib) + rule `resilient-fetch` (NON-NEGOTIABLE): cascade WebSearch → WebFetch → fetcher; bloqueio é tratado, nunca preenchido com texto inventado. Resolve os bloqueios de fetch (403/Cloudflare/CAPTCHA soft) nas skills de research. |
 | 2026-07-03 | **Skill 07e — Agentic Readiness (AEO).** Skill nova (19ª): checklist pós-deploy/pré-launch de descoberta por agentes de compra com AI — canal Agentic Storefronts + policies, Knowledge Base app, dados estruturados da PDP (audita a camada GEO da 07b), specs legíveis por agente, robots.txt (OAI-SearchBot/ChatGPT-User/PerplexityBot/ClaudeBot/Google-Extended), llms.txt, Perplexity Merchant Program, feed do Merchant Center, score de AI visibility. Não usa a base Aura (fontes: docs oficiais + verificação na loja viva). Bonus delivery (05) formalizada em DUAS fases (Fase A pré-launch: assets + GWP; Fase B pós-launch: tracking). Recipes novas registradas: `creative-loop.md` e `create-fixed-bundles.md`; `sync-campaign-from-meta.md` vira receita única com cascade interna. |
+| 2026-07-09 | **Retention (13) em DUAS fases.** Fase A pré-launch (flows de recuperação: abandoned cart + post-purchase) entra na ordem canônica entre a 05 Fase A e os criativos — infraestrutura de cash flow do launch, não campanha de email (win-back/replenishment e campanhas continuam pós-launch na Fase B, ≥50 compras). Painel `ABRIR-AQUI.html` ganha tag "2 fases" nos cards da 05/13, próximo-passo condicional (07d concluída → cobra 05 Fase A se a oferta tem bônus, depois 13 Fase A) e linha fixa explicando que os cards seguem a ordem de execução (o número é o ID fixo da skill). |

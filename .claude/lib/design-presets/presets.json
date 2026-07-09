@@ -1,0 +1,197 @@
+{
+  "version": 1,
+  "note": "Tokens COMPLETOS e FIXOS dos 8 presets de design da 07a (Caminho 4 dos brand signals). A skill LÊ este arquivo e mapeia o preset escolhido pro shape do design-signals.json — NUNCA inventa tokens de preset por run. Todas as fontes são Google Fonts (a 07b provisiona o carregamento via preconnect+link ou @font-face). Palette é role-tagged: background/surface/foreground/primary/on_primary/accent/muted/border.",
+  "presets": {
+    "modern-clean": {
+      "name": "Modern Clean",
+      "vibe": "DTC contemporâneo, neutro e confiável. Muito branco, um azul firme de CTA, tipografia geométrica sem drama. O default seguro quando a marca ainda não tem personalidade visual definida.",
+      "use_when": "Produto de categoria ampla, marca nova sem identidade forte, membro quer 'limpo e profissional' sem arriscar.",
+      "heading_font": "'Sora', -apple-system, sans-serif",
+      "body_font": "'Inter', -apple-system, sans-serif",
+      "google_fonts": [
+        { "family": "Sora", "weights": [600, 700] },
+        { "family": "Inter", "weights": [400, 500, 600] }
+      ],
+      "palette": {
+        "background": "#FFFFFF",
+        "surface": "#F5F6F8",
+        "foreground": "#101318",
+        "primary": "#2563EB",
+        "on_primary": "#FFFFFF",
+        "accent": "#0E9F8A",
+        "muted": "#6B7280",
+        "border": "#E5E8ED"
+      },
+      "radius": { "base_px": 10, "pill_px": 1000 },
+      "shadow": "subtle",
+      "density": "medium"
+    },
+    "bold-editorial": {
+      "name": "Bold Editorial",
+      "vibe": "Capa de revista em alto contraste: preto quase absoluto, display pesado gritando a headline, um vermelho-tijolo de punch. Cantos retos, zero sombra, densidade compacta.",
+      "use_when": "Advertorial ou landing com Big Idea forte; marca com opinião; público jovem-adulto que responde a atitude.",
+      "heading_font": "'Archivo Black', 'Archivo', sans-serif",
+      "body_font": "'Archivo', -apple-system, sans-serif",
+      "google_fonts": [
+        { "family": "Archivo Black", "weights": [400] },
+        { "family": "Archivo", "weights": [400, 500, 600] }
+      ],
+      "palette": {
+        "background": "#FFFFFF",
+        "surface": "#F4F1EA",
+        "foreground": "#0B0B0C",
+        "primary": "#C8431C",
+        "on_primary": "#FFFFFF",
+        "accent": "#F2C14E",
+        "muted": "#6E6A63",
+        "border": "#E4E0D7"
+      },
+      "radius": { "base_px": 2, "pill_px": 1000 },
+      "shadow": "none",
+      "density": "compact"
+    },
+    "premium-minimal": {
+      "name": "Premium Minimal",
+      "vibe": "Luxo silencioso quase monocromático: off-white quente, tinta grafite, CTA preto sólido. Serif clássica leve nos títulos, sans humanista no corpo, muito respiro, nada brilha.",
+      "use_when": "Produto premium com preço ancorado alto (skincare clean, home, acessórios); a página vende contenção, não urgência.",
+      "heading_font": "'Cormorant Garamond', Georgia, serif",
+      "body_font": "'Manrope', -apple-system, sans-serif",
+      "google_fonts": [
+        { "family": "Cormorant Garamond", "weights": [500, 600] },
+        { "family": "Manrope", "weights": [400, 500, 600] }
+      ],
+      "palette": {
+        "background": "#FAFAF7",
+        "surface": "#F0EFEA",
+        "foreground": "#1B1B16",
+        "primary": "#1B1B16",
+        "on_primary": "#FFFFFF",
+        "accent": "#9C927E",
+        "muted": "#8C887D",
+        "border": "#E6E4DC"
+      },
+      "radius": { "base_px": 4, "pill_px": 1000 },
+      "shadow": "none",
+      "density": "airy"
+    },
+    "warm-lifestyle": {
+      "name": "Warm Lifestyle",
+      "vibe": "Wellness acolhedor: fundos cor de linho, terracota nos CTAs, verde-sálvia de apoio. Serif expressiva com personalidade nos títulos, corpo arredondado e amigável, cantos generosos.",
+      "use_when": "Supplements, gut health, self-care, food — produto que vive em cozinha/banheiro de casa e vende rotina, conforto e transformação gentil.",
+      "heading_font": "'Fraunces', Georgia, serif",
+      "body_font": "'Nunito Sans', -apple-system, sans-serif",
+      "google_fonts": [
+        { "family": "Fraunces", "weights": [400, 600] },
+        { "family": "Nunito Sans", "weights": [400, 600, 700] }
+      ],
+      "palette": {
+        "background": "#FDF8F1",
+        "surface": "#F7ECDF",
+        "foreground": "#3B2F26",
+        "primary": "#A6522F",
+        "on_primary": "#FFF8F1",
+        "accent": "#7C9A6D",
+        "muted": "#A08D7C",
+        "border": "#EBDCCB"
+      },
+      "radius": { "base_px": 16, "pill_px": 1000 },
+      "shadow": "subtle",
+      "density": "airy"
+    },
+    "tech-sharp": {
+      "name": "Tech Sharp",
+      "vibe": "Dark mode técnico e preciso: fundo grafite-azulado profundo, azul elétrico de CTA, teal de dado/prova. Grotesk geométrica nos títulos, densidade compacta, sombras com presença.",
+      "use_when": "Gadget, performance gear, produto com specs/engenharia como diferencial; público masculino/tech-forward que confia em números.",
+      "heading_font": "'Space Grotesk', -apple-system, sans-serif",
+      "body_font": "'Inter', -apple-system, sans-serif",
+      "google_fonts": [
+        { "family": "Space Grotesk", "weights": [500, 700] },
+        { "family": "Inter", "weights": [400, 500] }
+      ],
+      "palette": {
+        "background": "#0D1117",
+        "surface": "#161C24",
+        "foreground": "#E9EEF4",
+        "primary": "#4C8DFF",
+        "on_primary": "#071018",
+        "accent": "#2DD4BF",
+        "muted": "#8593A3",
+        "border": "#242E3A"
+      },
+      "radius": { "base_px": 8, "pill_px": 1000 },
+      "shadow": "medium",
+      "density": "compact"
+    },
+    "atelier-document": {
+      "name": "Atelier Document",
+      "vibe": "Documento editorial sério em papel: fundo cor de papel envelhecido, tinta quase-preta, oxblood discreto nos links/CTAs, itálico da própria serif marcando keywords. Low-pressure, lê-se como ensaio, não como anúncio.",
+      "use_when": "Advertorial education-focused, mecanismo com ciência de verdade pra contar, público cético 45+ que desconfia de página 'vendedora'.",
+      "heading_font": "'Newsreader', Georgia, serif",
+      "body_font": "'Newsreader', Georgia, serif",
+      "google_fonts": [
+        { "family": "Newsreader", "weights": [400, 500, 600], "italics": true }
+      ],
+      "palette": {
+        "background": "#F7F3E9",
+        "surface": "#F0EADB",
+        "foreground": "#262119",
+        "primary": "#8C3A2B",
+        "on_primary": "#F7F3E9",
+        "accent": "#5B6650",
+        "muted": "#96907F",
+        "border": "#E2DAC6"
+      },
+      "radius": { "base_px": 2, "pill_px": 1000 },
+      "shadow": "none",
+      "density": "airy"
+    },
+    "apothecary-calm": {
+      "name": "Apothecary Calm",
+      "vibe": "Botânico-clínico: fundo verde-névoa clarissimo, verde profundo de farmácia antiga nos CTAs, dourado seco de herbário como acento. Garamond nos títulos (credibilidade de rótulo), sans limpa no corpo.",
+      "use_when": "Skincare com ativos, herbal/adaptógenos, clean beauty — produto que precisa parecer formulado por gente séria, entre o spa e o laboratório.",
+      "heading_font": "'EB Garamond', Georgia, serif",
+      "body_font": "'Karla', -apple-system, sans-serif",
+      "google_fonts": [
+        { "family": "EB Garamond", "weights": [500, 600] },
+        { "family": "Karla", "weights": [400, 500, 700] }
+      ],
+      "palette": {
+        "background": "#F4F6F2",
+        "surface": "#E9EEE6",
+        "foreground": "#22312A",
+        "primary": "#2F5D4E",
+        "on_primary": "#F4F6F2",
+        "accent": "#C2A878",
+        "muted": "#7C8A80",
+        "border": "#DAE2D8"
+      },
+      "radius": { "base_px": 6, "pill_px": 1000 },
+      "shadow": "subtle",
+      "density": "medium"
+    },
+    "luxe-magazine": {
+      "name": "Luxe Magazine",
+      "vibe": "Editorial de moda/luxo: branco absoluto, preto de tinta, dourado envelhecido como único acento. Serif de alta-costura nos títulos, cantos totalmente retos, whitespace como declaração de status.",
+      "use_when": "Beleza premium, joias, moda, fragrância — categoria onde a estética É a prova e desconto agressivo destruiria a marca.",
+      "heading_font": "'Playfair Display', Georgia, serif",
+      "body_font": "'DM Sans', -apple-system, sans-serif",
+      "google_fonts": [
+        { "family": "Playfair Display", "weights": [500, 600], "italics": true },
+        { "family": "DM Sans", "weights": [400, 500] }
+      ],
+      "palette": {
+        "background": "#FFFFFF",
+        "surface": "#F6F4F0",
+        "foreground": "#121212",
+        "primary": "#121212",
+        "on_primary": "#FFFFFF",
+        "accent": "#B08D4A",
+        "muted": "#7A756C",
+        "border": "#E8E5DF"
+      },
+      "radius": { "base_px": 0, "pill_px": 1000 },
+      "shadow": "none",
+      "density": "airy"
+    }
+  }
+}

@@ -43,7 +43,7 @@ Se algum arquivo de pré-flight faltar, não aborte seco (rule `emergency-escape
 
 ### Breakeven é a âncora de tudo
 
-Toda a matemática de escala desta skill ancora no **CPA de breakeven** e no **CPA máximo** (`max_cpa` = breakeven menos a margem de lucro desejada — é o setpoint do cost cap/bid cap, **distinto** dos `target_cpa_primary_2x/3x` da Skill 04, que são alvos de múltiplo de ROAS; o `max_cpa` é dirigido pelo lucro que o membro quer por pedido). **Fonte canônica do breakeven CPA (a MESMA das Skills 10 e 11):** `04-offer-builder/dados.json.unit_economics.weighted_margin_per_order`. Use esse campo direto, não re-derive. A performance real vem do `11-ad-analysis/dados.json`. Não invente — leia. Se faltar, pegue na ETAPA 1.
+Toda a matemática de escala desta skill ancora no **CPA de breakeven** e no **CPA máximo** (`max_cpa` = breakeven menos a margem de lucro desejada — é o setpoint do cost cap/bid cap, **distinto** dos `target_cpa_primary_2x/3x` da Skill 04, que são alvos de múltiplo de ROAS; o `max_cpa` é dirigido pelo lucro que o membro quer por pedido). **Fonte canônica do breakeven CPA (a MESMA das Skills 10 e 11):** `04-offer-builder/dados.json.unit_economics.weighted_margin_per_order`. Use esse campo direto, não re-derive. **Pós-07d:** se `manifest.target_cpa`/`manifest.breakeven_roas` existirem, eles carregam o recálculo mais recente (a 04 grava; a 07d atualiza quando as alavancas de checkout aplicadas mudaram a economics) — prevalecem sobre os valores do `dados.json` do 04, mesma precedência que a Skill 10 aplica. A performance real vem do `11-ad-analysis/dados.json`. Não invente — leia. Se faltar, pegue na ETAPA 1.
 
 ### PSM real (vs teórico) — LER, não recalcular
 
@@ -223,6 +223,8 @@ Escalar budget joga tráfego mais frio na loja. Se a loja não parece confiável
 
 Ads cobram **diário**; o payout do Shopify chega em **3-5 dias** (Stripe ~2 dias). Quando você escala, esse descasamento vira um buraco de caixa que cresce com o budget. Escalar sem cobrir o gap é a forma mais comum de quebrar uma marca que estava lucrando.
 
+**Payout hold / rolling reserve (cenário obrigatório pra loja nova):** os 3-5 dias são o lag NOMINAL — processadores seguram mais quando a conta é nova ou o volume dá spike (exatamente o que a escala provoca). Shopify Payments/Stripe podem aplicar **rolling reserve** (reter uma % de cada payout por semanas) ou **hold temporário** de dias a semanas enquanto revisam o risco da conta. Pra loja com **menos de ~90 dias de processamento** (ou no primeiro spike grande de volume), use `payout_lag_days` conservador de **7-14 dias** no check de float abaixo — não os 3-5 nominais — e confirme no dashboard do processador se há reserve ativa antes de autorizar qualquer escala agressiva. Escalar assumindo payout de 3 dias com uma reserve de 30% ativa é o furo de caixa clássico da loja nova.
+
 **Frameworks de cash flow e teto de risco (rode antes de autorizar escala agressiva):**
 - **Total Loss Investment Concept** (rode `total loss investment concept aggression ceiling zero additional revenue acceptable loss`) — define o teto de agressividade: quanto você aceita perder se o gasto extra trouxer zero receita nova. É o limite duro do surf da Escola A e do doubling rápido da Escola C.
 - **Fractional Banking** (rode `fractional banking borrow against future revenue rolling repeat purchase cash flow scale negative CPA`) — como financiar escala emprestando contra receita futura/repeat purchase quando o cash gira mais devagar que o spend. Pré-condição: LTV/repeat real provado (não chute).
@@ -272,7 +274,7 @@ Impacto: escala atrasa ~1 mês, mas sem queimar cash flow.
 | 4   | $300         | $750          | -$300         | +$500 (payout do Dia 1) | $300-500          |
 | ...  | ...          | ...           | ...           | ...                     | ...               |
 
-(Com payout +3d, a receita do Dia 1 só vira caixa no Dia 4 — os dias 1-3 são cobertos 100% pelo float. Esse é exatamente o descasamento que a tabela existe pra mostrar.)
+(Com payout +3d, a receita do Dia 1 só vira caixa no Dia 4 — os dias 1-3 são cobertos 100% pelo float. Esse é exatamente o descasamento que a tabela existe pra mostrar. Use o payout_lag REAL do membro: loja nova com hold/rolling reserve → montar a tabela com 7-14 dias, não +3d — ver o cenário na ETAPA 6.)
 
 Alerte se `cash_float_needed_peak > cash_disponivel × 0.7`.
 

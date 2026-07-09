@@ -3,7 +3,7 @@
 **Status:** ferramenta auxiliar usada pela 07a-page-design em **dois cenários distintos**:
 
 1. **Brand signals (caminho 3, opcional):** extrair sinais de paleta/tipografia de um site de referência quando o membro quer **hex exato** e passa um link na **07a-page-design ETAPA 2 (Brand Signals)**. Os signals alimentam o `frontend-design` via `design-signals.json`.
-2. **Clone-and-adapt (rota de design recomendada por velocidade):** quando o membro indica uma PDP/landing de concorrente que acha bonita, a 07a captura a **ESTRUTURA** dela (ordem + tipo + layout de cada section) e gera um **esqueleto HTML** vazio que o Claude preenche com a copy/brand/produto do **MEMBRO** (06-copy / 04-offer). Herda a hierarquia de conversão validada, não o conteúdo.
+2. **Clone-and-adapt (rota de design recomendada por velocidade):** quando o membro indica uma PDP/landing de concorrente que acha bonita, a 07a captura a **ESTRUTURA** dela (ordem + tipo + layout de cada section, mais sinais numéricos de hierarquia visual quando há computed-styles) e gera um **esqueleto HTML** vazio que o Claude preenche com a copy/brand/produto do **MEMBRO** (06-copy / 04-offer). Herda a hierarquia de conversão validada, não o conteúdo.
 
 **Em ambos os cenários, nenhum código/copy/imagem/marca do concorrente vai pro tema.** O cenário 1 só extrai signals agregados; o cenário 2 só extrai estrutura (placeholders vazios). Adaptar estrutura + trocar todo o conteúdo é defensável; copiar 1:1 não.
 
@@ -84,7 +84,7 @@ Esse bloco vira input pro `frontend-design` da 07a (signals de cor/tipografia/vi
 |---|---|
 | `downloader.py` | Renderiza página com Playwright **stealth**, salva HTML/CSS/fontes/imagens + `computed-styles.json` + `meta.json`. Recupera stylesheets cross-origin via fetch do próprio contexto do browser. |
 | `snapshot.py` | Snapshot fiel via `single-file-cli` (subprocess — AGPL, nunca vendorizado) OU ingestão de .html salvo pela extensão SingleFile. Gera `ref.full.html` + `ref.ai.html`. |
-| `analyzer.py` | Detecta sections semanticamente (atravessa o wrapper `<main>` de temas Shopify; match de hints por token, não substring) — input obrigatório do skeleton-builder (clone-and-adapt); no modo signals é opcional (só agrega o `analysis.json` de contexto) |
+| `analyzer.py` | Detecta sections semanticamente (atravessa o wrapper `<main>` de temas Shopify; match de hints por token, não substring). Taxonomia cobre as genéricas de landing (hero, features, testimonials, faq, pricing…) **e as típicas de PDP/landing DTC**: `guarantee`, `before-after`, `comparison-table`, `ingredients`, `how-it-works`, `founder-story` (heurísticas de classe + conteúdo + estrutura, ex: `<table>` com check/cross = comparison-table). Se `computed-styles.json` existe, extrai também os **sinais de hierarquia visual por section** (ver schema abaixo). Input obrigatório do skeleton-builder (clone-and-adapt); no modo signals é opcional (só agrega o `analysis.json` de contexto) |
 | `pattern-extractor.py` | **Core do caminho de signals.** Produz `design_system` abstrato (cores, fontes, radius, shadow, density). Input único: o `computed-styles.json` do downloader — não requer o analyzer |
 | `liquid-converter.py` | Conversor canônico HTML→Liquid. **NÃO é usado pela 07a** (que só extrai signals); é o conversor obrigatório da **07b-page-build** (compile determinístico). Detalhes no fluxo da 07b. |
 | `preview.py` | Renderiza `.liquid` como HTML standalone pra debug |
@@ -176,7 +176,7 @@ O arquivo salvo é referência de concorrente = material de trabalho do membro �
 
 ## Modo `clone-and-adapt` (esqueleto estrutural pra 07a)
 
-Captura a **ESTRUTURA** de uma URL de referência (ordem + tipo semântico + layout de cada section) e produz um **esqueleto HTML** com sections vazias/placeholder. Esse esqueleto é o ponto de partida da rota *Clone-and-adapt* da 07a-page-design (ETAPA 3): o Claude preenche cada placeholder com a copy/brand/imagens do **membro** (06-copy / 04-offer), gerando `design/page.html`. **Zero copy/imagem/marca do concorrente entra no esqueleto** — só a hierarquia/layout.
+Captura a **ESTRUTURA** de uma URL de referência (ordem + tipo semântico + layout de cada section, mais o bloco `hierarchy` com os sinais de hierarquia visual quando a captura veio do downloader) e produz um **esqueleto HTML** com sections vazias/placeholder. Esse esqueleto é o ponto de partida da rota *Clone-and-adapt* da 07a-page-design (ETAPA 3): o Claude preenche cada placeholder com a copy/brand/imagens do **membro** (06-copy / 04-offer), gerando `design/page.html`. **Zero copy/imagem/marca do concorrente entra no esqueleto** — só a hierarquia/layout.
 
 ```bash
 python3 aura_clone.py clone-and-adapt <url> --output=<dir> [--product=<slug>]
@@ -192,13 +192,63 @@ Estrutura de output:
 ```
 <dir>/
     raw/            HTML/CSS/screenshot do concorrente (referência LOCAL, não vai pro tema)
-    analysis.json   Sections detectadas (ordem + tipo + layout)
+    analysis.json   Sections detectadas (ordem + tipo + layout + hierarchy)
     skeleton.html   ESQUELETO estrutural: placeholders comentados, zero conteúdo do concorrente
-    skeleton.json   Mesma estrutura em dados (a 07a/Claude consome este pra preencher)
+    skeleton.json   Mesma estrutura em dados + sinais de hierarquia visual (a 07a/Claude consome este pra preencher)
     manifest.json   URL, timestamp, versão, engine, status de cada passo, clone_mode
 ```
 
-Cada section do esqueleto vira um `<section class="section-NN-<tipo>" data-semantic data-layout>` com `placeholder-heading`, `placeholder-body`, `placeholder-media` (N slots) e `placeholder-grid` (N cards repetíveis) conforme o layout detectado. O layout coarse é derivado só dos campos estruturais do analyzer (`repeating_pattern` → grid de N colunas; FAQ/steps viram lista vertical) — **nenhum hex, fonte ou texto do concorrente** entra no esqueleto.
+Cada section do esqueleto vira um `<section class="section-NN-<tipo>" data-semantic data-layout>` com `placeholder-heading`, `placeholder-body`, `placeholder-media` (N slots) e `placeholder-grid` (N cards repetíveis) conforme o layout detectado. O layout coarse é derivado só dos campos estruturais do analyzer (`repeating_pattern` → grid de N colunas; FAQ/steps viram lista vertical; `comparison-table` → `table`; `before-after` com 2 mídias → `split-2col`) — **nenhum hex, fonte ou texto do concorrente** entra no esqueleto.
+
+### Schema do `skeleton.json` (o que a 07a consome)
+
+```json
+{
+  "kind": "clone-and-adapt-skeleton",
+  "source_url": "https://...",
+  "total_sections": 12,
+  "hierarchy_available": true,
+  "hierarchy_sections": 10,
+  "sections": [
+    {
+      "order": 1,
+      "semantic_type": "hero",
+      "role": "Hero — promessa principal + CTA primário",
+      "layout": "stack",
+      "repeat_items": 0,
+      "media": "image",
+      "media_slots": 1,
+      "tag": "section",
+      "hierarchy": {
+        "source": "computed-styles",
+        "section_height_px": 700,
+        "font_scale": {
+          "h1_px": 56.0, "h2_px": null, "body_px": 17.0,
+          "h1_to_body": 3.29, "h2_to_body": null, "heading_to_body": 3.29
+        },
+        "padding_block_px": { "top": 120.0, "bottom": 120.0 },
+        "density": { "content_elements": 4, "per_1000px": 5.7, "label": "airy" },
+        "dominant_alignment": "center",
+        "media_text_balance": {
+          "media_area_ratio": 0.18, "text_elements": 3, "media_elements": 1
+        }
+      }
+    }
+  ]
+}
+```
+
+O bloco **`hierarchy`** é o que impede o clone-and-adapt de achatar a hierarquia visual que fazia a página converter (um hero com H1 3.3x o body e 120px de respiro não é o mesmo hero com H1 1.4x e 24px). Semântica de cada campo:
+
+| Campo | O que diz pra 07a |
+|---|---|
+| `font_scale` | Proporções de font-size da referência (`h1_to_body`, `h2_to_body`, `heading_to_body` = maior heading da section ÷ mediana do body). Use as PROPORÇÕES ao preencher — os px absolutos são só contexto. |
+| `padding_block_px` | Respiro vertical real da section (padding-top/bottom computado). Direção de espaçamento, não valor obrigatório. |
+| `density` | Nº de elementos de conteúdo (headings + texto + mídia) por 1000px de altura + label `airy`/`medium`/`dense`. Diz se a section respira ou compacta. |
+| `dominant_alignment` | Alinhamento de texto dominante (`left`/`center`/`right`/`justify`). |
+| `media_text_balance` | `media_area_ratio` = fração da área da section coberta por mídia (0-1) + contagens. Diz se a section é image-led ou copy-led. |
+
+**Todos os valores são numéricos/categóricos agregados** — proporções e medidas espaciais, zero copy/hex/fonte do concorrente (paleta e tipografia continuam vindo da cascade de brand signals da 07a, nunca daqui). `hierarchy` fica **null** quando a captura não veio do downloader (engines `singlefile`/`--from-file` não extraem computed-styles) ou quando a section não pôde ser casada com o computed-styles — nesses casos a 07a preenche com a hierarquia default do tipo semântico. O `skeleton.html` repete os sinais como comentário compacto por section (`<!-- Hierarquia da referência: ... -->`).
 
 ## Fallbacks (anti-bot/Cloudflare)
 

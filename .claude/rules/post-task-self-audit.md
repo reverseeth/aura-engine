@@ -103,7 +103,16 @@ Cross-check rápido contra rules que se aplicam:
 - `member-stage-awareness.md` — tom/recomendação adaptou ao stage (starter/validating/scaling)?
 - `emergency-escape-paths.md` (se falhou algo) — ofereci ≥2 paths adiante, não abortei?
 
-**Desalinhamento → corrigir inline.** Adicionar marker, ajustar tom pro stage, oferecer paths. Sem mencionar.
+**Se uma skill nova entrou no pipeline OU uma skill mudou de posição/fase na ordem canônica**, TODOS estes lugares precisam refletir a ordem nova — checklist explícita, conferir um a um (é exatamente o tipo de drift que passa batido):
+
+1. `.claude/CLAUDE.md` — linha "ORDEM LÓGICA DE EXECUÇÃO" **e** a lista de triggers ("COMO AS SKILLS FUNCIONAM")
+2. `.claude/OVERVIEW.md` **e** `.claude/OVERVIEW.html` — §4 (skills em detalhe), §9 (estrutura do workspace), §13 (ordem canônica da sessão) e o changelog do §14
+3. `README.md` — tabela de skills (se a skill/fase é citada lá)
+4. `.claude/lib/workspace-index/build_index.py` — lista `PHASES` (ordem dos cards, tags e a lógica de próximo-passo do painel)
+5. `docs/aura-explained-pt.html` **e** `docs/aura-explained-en.html` — narrativa das 5 fases (manter paridade pt↔en)
+6. Skills vizinhas — os closings/"próximo passo" das skills imediatamente ANTES e DEPOIS da posição nova (e da posição antiga, se mudou de lugar)
+
+**Desalinhamento → corrigir inline.** Adicionar marker, ajustar tom pro stage, oferecer paths, atualizar os lugares da checklist acima. Sem mencionar.
 
 ## Quando surface (não corrige silencioso)
 
