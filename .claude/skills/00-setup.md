@@ -159,13 +159,13 @@ Logo depois da escolha de idioma e ANTES das 4 perguntas, dê ao membro um resum
 >
 > 1. **Pesquisa** (produto → mercado → concorrência): o que vender, pra quem, e o que os concorrentes deixam na mesa.
 > 2. **Estratégia** (oferta → copy): a oferta irresistível e o texto que vende.
-> 3. **Loja** (página → tracking → checkout): tudo numa página que converte, com medição certa.
-> 4. **Tráfego** (criativos → auditoria → ads → análise → escala): os anúncios, a checagem de coerência, subir e escalar.
-> 5. **Pós-venda** (retenção → bônus → reciclagem): email/SMS, brindes, e 1 anúncio vencedor virando vários.
+> 3. **Loja** (página → tracking → checkout → bônus → flows de recuperação): tudo numa página que converte, com medição certa, os bônus prometidos já prontos, e os emails de carrinho abandonado e pós-compra armados antes do primeiro anúncio.
+> 4. **Tráfego** (criativos → visibilidade pra agentes de AI → auditoria → ads → análise → escala): os anúncios, a loja visível pros assistentes de compra com AI (ChatGPT, Perplexity), a checagem de coerência, subir e escalar.
+> 5. **Pós-venda** (retenção completa → medição dos bônus → reciclagem): win-back e reposição por email/SMS, medição dos brindes, e 1 anúncio vencedor virando vários.
 >
 > Você dispara qualquer fase só falando o nome dela. Eu sempre te digo qual é o próximo passo. E cada produto ganha um painel — o **ABRIR-AQUI.html** — que mostra o que já está pronto e o que abrir.
 
-**Se `en`:** mesma estrutura, traduzida naturalmente (Research → Strategy → Store → Traffic → Post-purchase; "every product gets a dashboard — **ABRIR-AQUI.html** — showing what's done and what to open").
+**Se `en`:** mesma estrutura, traduzida naturalmente (Research → Strategy → Store (page → tracking → checkout → bonuses → recovery flows) → Traffic (creatives → AI-agent visibility → audit → ads → analysis → scale) → Post-purchase; "every product gets a dashboard — **ABRIR-AQUI.html** — showing what's done and what to open").
 
 Se NÃO for primeira vez (membro refazendo setup), pule esta etapa.
 
@@ -385,8 +385,8 @@ Próximo passo: **'scale'**. Monto um plano baseado nos seus números — PGS pr
 
 Depois da mensagem específica, adicione SEMPRE:
 
-"Você pode dizer o nome de qualquer fase a qualquer momento:
-`product research` · `market research` · `competitor analysis` · `offer` · `bonus delivery` · `copy` · `page` · `build page` (ou `deploy`) · `tracking` (ou `pixel` / `capi`) · `checkout` (ou `upsell` / `aov`) · `creatives` · `agentic readiness` (ou `ai visibility`) · `consistency audit` (ou `audit`) · `ad strategy` · `ad analysis` · `scale` · `retention` (ou `email flows` / `klaviyo`) · `content recycler` (ou `recycle`)
+"Você pode dizer o nome de qualquer fase a qualquer momento (a lista abaixo segue a ordem em que elas rodam):
+`product research` · `market research` · `competitor analysis` · `offer` · `copy` · `page` · `build page` (ou `deploy`) · `tracking` (ou `pixel` / `capi`) · `checkout` (ou `upsell` / `aov`) · `bonus delivery` (ou `bônus`) · `retention` (ou `email flows` / `klaviyo`) · `creatives` · `agentic readiness` (ou `ai visibility`) · `consistency audit` (ou `audit`) · `ad strategy` · `ad analysis` · `scale` · `content recycler` (ou `recycle`)
 
 Cada fase lê o que as anteriores produziram em workspace/[produto]/ — você nunca precisa repetir informação.
 

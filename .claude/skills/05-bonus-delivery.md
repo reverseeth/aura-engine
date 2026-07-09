@@ -1,6 +1,6 @@
 ---
 name: bonus-delivery
-description: Pipeline de bônus de ECOMMERCE — gera o asset entregável (e-book/guide/checklist em PDF), configura o gift-with-purchase (GWP) na loja, e rastreia access/take-rate. NÃO é bônus de info-product. Tipos primários são os 4 que realmente movem AOV e percepção de valor num DTC: gift-with-purchase, e-book/guide rumo ao dream outcome, free complementary SKU, free gift wrapping (Q4). Use quando o membro disser "bonus delivery", "bônus", "como entregar o bônus", "configurar GWP", ou após a oferta (Skill 04) definir o stack de valor com bonuses[]. Roda em DUAS fases: Fase A (gerar assets + configurar GWP/entrega) ANTES do go-live de ads — bônus prometido na PDP no dia 1 precisa existir no dia 1; Fase B (tracking de take-rate e iteração) PÓS-LAUNCH, junto da Skill 13 (retention).
+description: Pipeline de bônus de ECOMMERCE — gera o asset entregável (e-book/guide/checklist em PDF), configura o gift-with-purchase (GWP) na loja, e rastreia access/take-rate. NÃO é bônus de info-product. Tipos primários são os 4 que realmente movem AOV e percepção de valor num DTC: gift-with-purchase, e-book/guide rumo ao dream outcome, free complementary SKU, free gift wrapping (Q4). Use quando o membro disser "bonus delivery", "bônus", "como entregar o bônus", "configurar GWP", ou após a oferta (Skill 04) definir o stack de valor com bonuses[]. Roda em DUAS fases: Fase A (gerar assets + configurar GWP/entrega) ANTES do go-live de ads — bônus prometido na PDP no dia 1 precisa existir no dia 1; Fase B (tracking de take-rate e iteração) PÓS-LAUNCH, junto da Fase B da 13 — e só com campanha de fato ATIVA e pedidos existindo (skill 10 completa ≠ ads no ar).
 ---
 
 # Bonus Delivery — Bônus de Ecommerce
@@ -19,7 +19,7 @@ O que justifica a 05 como skill standalone é o trabalho operacional que a 04 n�
 **Posicionamento na ordem — DUAS fases (isso resolve o paradoxo de launch):** o offer_stack da 04 promete os bônus na PDP desde o dia 1 (a 06 imprime literal, a 07b deploya). Um comprador do dia 1 NÃO pode receber promessa de e-book que ainda não foi gerado, nem de brinde que a loja não sabe adicionar ao carrinho. Por isso:
 
 - **Fase A — Launch-readiness (ANTES do go-live de ads, logo depois da 07d):** gerar o asset digital (PDF do e-book/guide), configurar GWP/complementary/gift-wrap na loja (coordenado com a 07d), hospedar o arquivo, garantir o acesso do comprador do dia 1 (link do asset na thank-you page / order status — funciona mesmo antes do flow de email existir) e produzir o payload de email pra Skill 13. **Todo bônus visível na PDP precisa sair da Fase A antes do primeiro ad** — a Skill 09 (consistency audit) verifica isso no gate de launch (promise↔config).
-- **Fase B — Tracking e iteração (PÓS-launch, junto da 13):** a 13 ativa o flow de email de entrega; a 05 volta em D+30 pra puxar take-rate/access rate agregados (ETAPA 4) e alimentar a iteração da oferta na 04.
+- **Fase B — Tracking e iteração (PÓS-launch, junto da Fase B da 13):** com a campanha ATIVA e pedidos acontecendo (dupla condição do pré-flight), a 05 volta em D+30 pra puxar take-rate/access rate agregados (ETAPA 4) e alimentar a iteração da oferta na 04. (O flow de email de entrega em si já nasce na Fase A da 13, que roda pré-launch — o que é pós-launch aqui é o TRACKING.)
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (mapa skill→domínio no `README.md`, queries exatas em `frameworks.json`). O domínio desta skill é **brand-building-bonus-aov** (27 frameworks). Sempre que uma ETAPA mandar "puxar da base", rode `search_knowledge` com a `best_query` NOMEADA do framework relevante daquela fase — **nunca query genérica**.
 
@@ -45,7 +45,11 @@ Congruência visual importa: na PDP, "free" deve **aparecer** (imagem do brinde,
 
 1. Ler `workspace/profile.md` → `report_language` (default `pt-BR` se ausente). Toda doc interna desta skill é escrita nesse idioma. O asset entregável ao consumidor (PDF do e-book, email) é **sempre em inglês** (mercado US) — rule 0 do CLAUDE.md.
 2. Ler `workspace/[produto]/manifest.json` → detectar `stage` (member-stage-awareness). Influencia recomendação de tipo: **starter** → priorizar e-book/guide (custo zero de produzir) e GWP de baixo COGS; **scaling** → pode sustentar complementary SKU físico e GWP mais robusto.
-3. Detectar a FASE: se `manifest.skills_completed` ainda NÃO contém `"10-ad-strategy"` (ads não foram ao ar) OU existe bônus em `bonuses[]` sem asset/config gerado → rodar **Fase A** (ETAPAs 1-3 + config). Se o launch já aconteceu e os assets existem → **Fase B** (ETAPA 4, tracking).
+3. Detectar a FASE — a **Fase B exige DUPLA condição** (skill completa ≠ ads no ar: a 10 cria a campanha em PAUSED):
+   - **(1)** `manifest.skills_completed` contém `"10-ad-strategy"`, **E**
+   - **(2)** a campanha está de fato ATIVA / há pedidos no período — evidência: o membro confirma que ativou, `11-ad-analysis/dados.json` existe com spend registrado, ou há pedidos no Shopify desde o launch.
+
+   As duas valem E os assets/config de todos os `bonuses[]` existem → **Fase B** (ETAPA 4, tracking). Qualquer outra combinação (10 ausente, campanha ainda em PAUSED, ou bônus sem asset/config) → **Fase A** (ETAPAs 1-3 + config).
 4. `04-offer-builder/dados.json` existe com `bonuses[]` preenchido. Pra cada bonus, `type` E `condition` claros (não default "pdf"). Se `condition` estiver ausente (oferta gerada antes do campo existir), inferir: bônus presente no offer_stack da PDP = `unconditional`; GWP com threshold definido = `cart_threshold` — e gravar a inferência de volta no `dados.json` da 04.
 5. **Escape path (ES1):** se `04-offer-builder/dados.json` está ausente/corrompido, oferecer (A) re-rodar Skill 04 ou (B) proceder com bônus genérico marcando `manifest.skipped_preflight`. Não abortar seco.
 
@@ -171,7 +175,7 @@ Mapear `delivery_trigger` → fluxo da 13 (espelho literal da tabela "delivery_t
 
 GWP físico e gift-wrapping geralmente **não precisam de email de entrega** (vão na caixa). E-book, discount_code, community e digital precisam.
 
-**Timing (Fase A vs Fase B):** o payload (template abaixo + trigger) é produzido na **Fase A**, antes do go-live; a 13 ativa o flow no ESP quando rodar. Enquanto o flow não existe (janela de launch), o comprador do dia 1 acessa o bônus digital pelo link na thank-you page / order status (config da Fase A) — o email reforça a entrega depois.
+**Timing (Fase A vs Fase B):** o payload (template abaixo + trigger) é produzido na **Fase A da 05**, antes do go-live — e a **Fase A da 13 roda logo em seguida na ordem canônica** (flows de recuperação pré-launch), montando o flow post-purchase que carrega este email já com o `{{BONUS_LINK}}` preenchido. O link na thank-you page / order status (config da Fase A) segue como rede de segurança: garante o acesso do comprador do dia 1 mesmo se o membro ainda não ativou o flow no ESP.
 
 Template base do email (gerado em inglês, repassado pra 13):
 
@@ -299,4 +303,6 @@ Atualizar `manifest.json.skills_completed` com `"05-bonus-delivery"`.
 >
 > O GWP tá configurado via [app/Function] conforme a condição da oferta ([auto-add em toda compra / threshold de $X ancorado no seu AOV]). Os e-books/assets digitais tão em `bonuses/` e o link de acesso já aparece na thank-you page — comprador do dia 1 recebe o que a página promete. O payload do email de entrega tá pronto pro fluxo da Skill 13.
 >
-> Testa comprando 1 unidade pra validar que o brinde aparece no cart e o link chega. Me diz se o threshold/condição tá certo ou se quer ajustar. Depois de ~30 dias com ads no ar, roda `bonus delivery` de novo (Fase B): eu puxo os agregados do Shopify/Klaviyo, gravo o snapshot no `05-bonus-delivery/dados.json` e mostro take-rate/access rate por bônus pra gente iterar a oferta."
+> Testa comprando 1 unidade pra validar que o brinde aparece no cart e o link chega. Me diz se o threshold/condição tá certo ou se quer ajustar.
+>
+> Próximo passo na ordem de launch: diga **'retention'** (Skill 13 Fase A — flows de recuperação: abandoned cart + post-purchase; o payload do email de bônus que preparei entra direto no flow post-purchase de lá). Depois de ~30 dias com ads ATIVOS (campanha rodando, não só criada), roda `bonus delivery` de novo (Fase B): eu puxo os agregados do Shopify/Klaviyo, gravo o snapshot no `05-bonus-delivery/dados.json` e mostro take-rate/access rate por bônus pra gente iterar a oferta."

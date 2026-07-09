@@ -214,7 +214,12 @@ Se o **Foreplay MCP** estiver conectado (tools `mcp__foreplay__*` — ver ETAPA 
 2. **Uploads de vídeo/imagem** diretamente pro workspace (salvar em `workspace/[produto]/03-competitor-analysis/creatives-inbox/`)
 3. **CSV/planilha** com lista de criativos + métricas se disponível (spend, days live, impressions estimadas)
 
-Critério de curadoria do membro: só criativos que ESCALARAM (proxy: 90+ dias ativos **E** com variações novas lançadas semanalmente — a variação contínua, não o tempo sozinho, é o sinal de spend; ver Regra crítica 1 da ETAPA 3 — OU métricas diretas de plataforma de inteligência mostrando alto spend/impressões). Ads recém-lançados NÃO servem pra essa análise — a ideia é extrair padrões do que o mercado já VALIDOU.
+Critério de curadoria do membro — **proxy de escalado (critério 2026)**: só criativos que ESCALARAM, por qualquer um destes 3 sinais:
+- **(a) Evergreen** — 90+ dias ativos (criativo que segue rodando meses só sobrevive pagando a conta);
+- **(b) Ângulo iterado** — o mesmo ângulo repetido em **3+ gerações de criativos num período de 4-8 semanas** (a marca re-lança variações novas do mesmo ângulo — a iteração contínua, não o tempo sozinho, é o sinal de spend mais confiável em ciclo curto; ver Regra crítica 1 da ETAPA 3);
+- **(c) Métricas diretas** — plataforma de inteligência mostrando alto spend/impressões.
+
+Ads recém-lançados sem nenhum dos 3 sinais NÃO servem pra essa análise — a ideia é extrair padrões do que o mercado já VALIDOU.
 
 **Pipeline de análise profunda:**
 
@@ -499,7 +504,7 @@ Baseado em toda a análise, a recomendação estratégica:
 
 Criar mecanismo do zero é mais caro e arriscado do que recombinar o que o mercado já validou — a validação de mercado é o ATIVO desta análise. Consolide num bloco estruturado tudo que tem evidência real de veiculação/escala:
 
-- **Mecanismos validados**: cada mecanismo nomeado encontrado nas PDPs (ETAPA 2) e nos ads (ETAPAs 3/3C), com: nome, concorrente, Mechanization Stage (name/describe/feature), estágio de sofisticação que ele representa, o ângulo com que roda, e a evidência de validação — tempo de veiculação, nº de criativos rodando no mesmo ângulo, aparições no top 10 (a métrica de escala da ETAPA 3), sinal de escala consolidado (high/medium/low).
+- **Mecanismos validados**: cada mecanismo nomeado encontrado nas PDPs (ETAPA 2) e nos ads (ETAPAs 3/3C), com: nome, concorrente, Mechanization Stage (name/describe/feature), estágio de sofisticação que ele representa, o ângulo com que roda, e a evidência de validação — tempo de veiculação, nº de criativos rodando no mesmo ângulo, aparições no top 10 (a métrica de escala da ETAPA 3), sinal de escala consolidado (high/medium/low). O sinal `high` segue o critério 2026 da ETAPA 3C: evergreen 90+ dias OU 3+ gerações do mesmo ângulo em 4-8 semanas OU métrica direta de spend.
 - **Ângulos validados**: cada ângulo dos top criativos (ETAPA 3) com nº de criativos, total de aparições, posição de funil e sinal de escala.
 
 A Skill 04 (ETAPA 2A — Rota A) usa esse bloco pra APRIMORAR um mecanismo validado (mantendo o ângulo) ou CRUZAR mecanismo validado × ângulo validado de outra marca/vertical. Sem validated_library preenchida, a 04 cai na Rota B (criação original) — mais cara e arriscada. Preencha mesmo com poucos itens: 2 mecanismos com evidência real valem mais que 10 sem.

@@ -258,7 +258,8 @@ Pricing psychology adjacente (Coherent Arbitrariness, Zero Price Effect, Mental 
 - **Value-anchored**: Preço = (Dream Outcome × Perceived Likelihood) / (Time Delay × Effort)  [Hormozi Value Equation]
 - **Competitor-anchored**: Mediana dos top 3 concorrentes × modificador (1.1-1.3 se diferenciação alta; 0.8-0.95 se entrada competitiva)
 - **Economics-anchored**: COGS × 4 a 6 (ecommerce direct-response padrão para viabilizar paid acquisition)
-Se as 3 ancoras divergirem > 40%, revisitar offer antes de prosseguir.
+
+**Régua objetiva de divergência das âncoras:** `divergência = (âncora_máx − âncora_mín) / âncora_mediana`. Se **> 0.40**, revisitar a oferta antes de prosseguir. Exemplo: âncoras $49 / $62 / $97 → (97 − 49) / 62 = **0.77** → divergem demais, revisar (provavelmente o value-anchored está inflado ou o economics-anchored expõe COGS alto). Divergência ≤ 0.40 = as três contam a mesma história; escolha a âncora primária e siga.
 
 **Bundles (estrutura clássica):**
 
@@ -273,6 +274,20 @@ Regra prática (pode ajustar):
 - 6-pack: ~40-50% savings vs 6× solo
 
 Marcar **Popular** no 3-pack (visualmente destacado — driver de AOV). Best Value no 6-pack (pra clientes que compram em volume alto (whales)).
+
+**Arquitetura de assinatura (decisão OBRIGATÓRIA pra produto consumível):**
+
+Se o produto é consumível (acaba e precisa recomprar: supplement, skincare, café, etc), decida AQUI a arquitetura de assinatura — ela muda o LTV, o PSM e o que a 07b (selling plan na PDP), a 07d (superfícies de checkout) e a 13 (flow de replenishment) implementam. Três arquiteturas possíveis:
+
+| Arquitetura | O que é | Quando escolher | Impacto no LTV/PSM |
+|---|---|---|---|
+| `subscription_first` | Subscribe & Save como opção destacada na PDP (10-15% off), one-time como alternativa | Janela de consumo curta (≤ 45 dias), categoria acostumada com assinatura (supplements, café), margem que aguenta o desconto | LTV 2-4× o do one-time; PSM sobe porque o LTV real substitui o proxy de AOV nas ETAPAs 5/7; churn de assinatura vira a métrica a vigiar |
+| `onetime_plus_sub_no_reorder` | PDP vende one-time; a assinatura é oferecida no momento do REORDER (flow de replenishment da 13) e no pós-compra | Produto novo sem prova de consumo, avatar cético de assinatura, ou preço de entrada alto que a assinatura assustaria | LTV cresce mais devagar, mas sem custo de conversão na 1ª compra; a 13 carrega a conversão pra assinatura no timing certo |
+| `no_subscription` | Sem selling plan; volume via bundle 3/6-pack | Produto não-consumível, consumível com janela > 90 dias, ou operação sem app de subscription | LTV depende de reorder manual; o 6-pack "Best Value" faz o papel do supply longo |
+
+Critérios de decisão: janela de consumo (≤ 45 dias favorece `subscription_first`), familiaridade do avatar com assinatura na categoria (market research), margem (o desconto de 10-15% precisa caber no piso de margem da ETAPA 1), e stage (starter sem app de subscription instalado → começar `onetime_plus_sub_no_reorder` e migrar quando o consumo estiver provado). Produto não-consumível → `no_subscription` sem cerimônia.
+
+**Registrar em `04-offer-builder/dados.json` → `subscription_architecture`** (campo top-level, enum acima) + `sub_discount_pct` se houver assinatura — a 07b lê pra decidir se a PDP tem selling plan (Subscribe & Save), a 07d pra superfícies de checkout, e a 13 pro flow de replenishment (na arquitetura 2, o Email 2 do replenishment é ONDE a assinatura é oferecida). Se escolheu `subscription_first`, refaça o PSM da ETAPA 7 com o LTV de assinatura (não só o AOV projetado) — é exatamente o cenário em que o LTV real diverge do proxy.
 
 **Gate de Complementaridade (OBRIGATÓRIO pra TODO componente de AOV — bump, upsell, bundle-mate, GWP):**
 
@@ -498,7 +513,7 @@ Antes de salvar, responda HONESTAMENTE:
 3. **As economics permitem escalar?** (PSM > 1.1 — escala estável; CPA target viável com budget do membro)
 4. **O stack de valor é convincente SEM inflar?** (cada bonus é real, útil, entregável)
 5. **A garantia quebra a objeção de risco identificada no market research?** (não é genérica — ataca o medo específico do avatar)
-6. **Pricing triangulado (as 3 ancoras convergem < 40% de diferença)?**
+6. **Pricing triangulado (as 3 âncoras convergem — `(máx−mín)/mediana ≤ 0.40`, régua da ETAPA 3)?**
 7. **COGS breakdown completo (produto + frete + pick&pack + gateway + taxas), sem valor agregado?**
 8. **Margem $ ≥ $20 em pelo menos uma variação?** (senão CPA viável inviabiliza ads)
 9. **Bundle structure aumenta AOV sem canibalizar margem?** (rode o guardrail de net AOV da ETAPA 6: desconto que sobe AOV bruto mas derruba a margem de contribuição líquida reprova)
@@ -531,6 +546,8 @@ O markdown é humano; o JSON é para as skills 06/07/10/11/12. Estrutura obrigat
     "aov_expected": 118.00,
     "currency": "USD"
   },
+  "subscription_architecture": "subscription_first | onetime_plus_sub_no_reorder | no_subscription",
+  "sub_discount_pct": 15,
   "cogs_breakdown": {...},
   "unit_economics": {
     "margin_per_unit": 58.50,
@@ -570,6 +587,8 @@ O markdown é humano; o JSON é para as skills 06/07/10/11/12. Estrutura obrigat
 }
 ```
 
+> **Os números do exemplo acima são ILUSTRATIVOS e independentes entre si** — servem pra mostrar o formato de cada campo, não pra compor um caso econômico coerente único. Não re-derive um campo a partir de outro usando os valores do exemplo; as fórmulas canônicas estão na "Nota sobre nomenclatura" abaixo e nas ETAPAs 5-7. (`sub_discount_pct` só existe quando `subscription_architecture` ≠ `no_subscription`.)
+
 Atualizar `manifest.json`: adicionar `target_cpa`, `breakeven_roas`, `psm_theoretical`, adicionar skill em `skills_completed`.
 
 Depois de atualizar o manifest, regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug` — atualiza o `ABRIR-AQUI.html`).
@@ -597,7 +616,7 @@ No exemplo acima: weighted_margin_per_order 72 → breakeven_cpa 72, target_2x 3
 `workspace/[produto]/04-offer-builder/offer-builder.md` contendo:
 1. Mecanismo único recomendado (com scoring das 5-7 opções geradas) + 3 versões (1 frase / 1 parágrafo / 2-3 parágrafos)
 2. **Research Foundation** (Etapa 2.5) — evidências que sustentam o mecanismo, com fontes rastreáveis
-3. Estrutura de oferta completa (produto principal, bundles, bump, upsell, stack de valor)
+3. Estrutura de oferta completa (produto principal, bundles, arquitetura de assinatura se consumível, bump, upsell, stack de valor)
 4. Garantia recomendada + copy
 5. Tabela de unit economics (Etapa 5)
 6. AOV projetado (Etapa 6)

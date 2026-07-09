@@ -71,8 +71,10 @@ Pesquise (web search) sinais de cada nível de awareness:
 | Bucket | unaware | problem_aware | solution_aware | product_aware | most_aware |
 |---|---|---|---|---|---|
 | Nicho novo | 45 | 35 | 13 | 6 | 1 |
-| Nicho maduro | 15 | 32 | 35 | 15 | 3 |
+| Nicho maduro | 15 | 30 | 38 | 14 | 3 |
 | Commodity saturado | 8 | 25 | 40 | 22 | 5 |
+
+> **Racional do 30/38 no nicho maduro:** os dois níveis do meio ficam a 8pp de distância de propósito — assim o DEFAULT nunca cai sozinho na regra de empate (±5pp) descrita abaixo. Híbrido tem que nascer de sinal REAL da pesquisa (palpite do membro + web signals apertados), nunca do default.
 
 > **Nota Schwartz:** o grosso do mercado vive quase sempre em **problem_aware** ou **solution_aware** — é onde estão a maioria dos compradores que ainda não escolheram marca. `product_aware` é tipicamente 5-15% (já conhece a categoria) e `most_aware` é tipicamente só 1-5% (já conhece sua marca específica). Desconfie de qualquer distribuição que jogue 10%+ em `most_aware` num produto que ainda não tem brand reconhecida — isso quase nunca é real e infla a expectativa de quem chega pronto pra comprar.
 
@@ -94,7 +96,9 @@ Defina o nível **DOMINANTE** — o de maior percentual na distribuição (com o
 - **Market Sophistication Headline Templates (by stage)** (rode `market sophistication headline templates by stage markets retrace insight cigarette cycle`) — ancora os claims comuns/saturados de cada estágio
 - **Schwartz Deadly Sincerity & The Turn** (rode `Schwartz deadly sincerity damaging admission product flaw the turn transition believability`) — recurso pra estágio saturado onde claims diretos morreram
 
-Analise o mercado através dos claims dos concorrentes identificados no product research:
+Analise o mercado através dos claims dos concorrentes identificados no product research.
+
+**Fallback quando a Skill 01 não rodou (caminho NORMAL pra quem já tem produto — ver ETAPA 0):** não existe lista prévia de claims. Colete AGORA: use a tool `WebSearch` pra identificar os 5-10 concorrentes ativos do nicho (buscas por categoria de produto, marcas citadas na VOC, "best [categoria]" em listicles) e a **Meta Ad Library pública** (`https://www.facebook.com/ads/library/`) pra extrair os claims dos ads ATIVOS de cada um — via `WebFetch`, e se barrar (JS/rate-limit), o fetcher Playwright: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode text` (rule `resilient-fetch.md`). 10-15 claims reais bastam pra classificar o estágio. Essa coleta NÃO é retrabalho: a ETAPA 7 (Competitive Landscape) reaproveita os MESMOS concorrentes e claims — colete uma vez, use duas.
 
 - **Quantos produtos/soluções similares já existem?** (contagem de marcas ativas com ads escalados)
 - **Quais claims já foram feitos?** Liste os 10-15 principais claims do mercado
@@ -207,6 +211,8 @@ Das pesquisas da etapa 4, extraia e organize SEPARADAMENTE. **NUNCA PARAFRASEAR*
 
 Essas frases são ouro. Hopkins escreveu em 1923: "a boa copy fala a linguagem do consumidor". Esse é o raw material.
 
+**Curadoria top 20 (obrigatória):** das frases coletadas, monte o ranking das **20 mais fortes** — critério primário: frequência de menção na base de pesquisa; desempate: força emocional/especificidade. Cada entrada leva `rank`, `count` (quantas vezes a frase ou variação próxima apareceu) e `category` (problem/desire/frustration). Grave o ranking em **`voc_top20`** no `dados.json` (schema abaixo). **A Skill 06 lê exatamente esse campo** pro checklist de VOC da copy — sem ele, a 06 tem que re-curar do zero e a informação de frequência se perde. Se coletou menos de 20 frases, grave as que tem (o `voc_adequacy` já sinaliza o déficit).
+
 **Fallback quando < 35 frases reais foram coletadas**: **NUNCA** gere frases artificiais/sintéticas/plausíveis. Em vez disso:
 
 1. Documente o déficit explicitamente no output: `"VOC real: N frases únicas; mínimo 35 não atingido."`
@@ -274,7 +280,7 @@ Consolide tudo num documento **estruturado, navegável, acionável**:
 - **O desejo mais profundo** (the real want behind the want)
 
 **4. Voice of Customer — Quotes Curadas**
-- Top 10 frases mais poderosas que vão direto pra copy (problemas + desejos + frustrações misturadas)
+- Top 10 frases mais poderosas que vão direto pra copy (as 10 primeiras do ranking `voc_top20` — problemas + desejos + frustrações misturadas, com a contagem de menções de cada uma)
 
 **5. Objeções & Como Quebrar**
 - Top 5 objeções priorizadas, cada uma com estratégia de quebra específica
@@ -299,6 +305,7 @@ Consolide tudo num documento **estruturado, navegável, acionável**:
 
 Antes de salvar, valide:
 - [ ] Voice of Customer tem mínimo 35 frases EXATAS (não parafraseadas)
+- [ ] `voc_top20` gravado no dados.json com rank + count + category (a Skill 06 lê esse campo direto)
 - [ ] Awareness distribution é numérica (não "a maioria é problem aware" — mas "45% problem aware, 30% solution aware")
 - [ ] Sophistication stage tem claims saturados LISTADOS
 - [ ] Cada objeção tem estratégia de quebra específica (não genérica)
@@ -338,10 +345,15 @@ Salvar TRÊS artefatos:
   "awareness_distribution": { "unaware": 0, "problem_aware": 0, "solution_aware": 0, "product_aware": 0, "most_aware": 0 },
   "awareness_distribution_source": "default|user_estimate|hybrid|web_signals",
   "dominant_awareness": "problem_aware",
-  "dominant_awareness_secondary": "solution_aware — OPCIONAL: só quando dois níveis adjacentes empataram (±5pp). dominant_awareness leva o de MAIOR intenção de compra; este campo guarda o outro. Ausente = sem empate (downstream trata como nível único)",
+  "dominant_awareness_secondary": "solution_aware",
+  "_comment_dominant_awareness_secondary": "campo OPCIONAL — só existe quando dois níveis adjacentes empataram (±5pp). dominant_awareness leva o de MAIOR intenção de compra; este campo guarda o outro. Ausente = sem empate (downstream trata como nível único)",
   "sophistication_stage": 3,
   "sophistication_confidence": "high|medium|low",
   "voc_phrases": { "problem": ["..."], "desire": ["..."], "frustration": ["..."] },
+  "voc_top20": [
+    { "rank": 1, "phrase": "frase exata em inglês US", "count": 8, "category": "problem|desire|frustration" }
+  ],
+  "_comment_voc_top20": "as 20 frases mais fortes ranqueadas por frequência de menção (curadoria da ETAPA 5) — a Skill 06 lê ESTE campo pro voc_checklist da copy",
   "voc_count": 0,
   "voc_adequacy": "ok|medium|insufficient",
   "skills_blocked": [],

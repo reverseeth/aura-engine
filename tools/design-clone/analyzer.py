@@ -2,11 +2,20 @@
 """
 analyzer.py — Aura Engine design-clone pipeline (passo 2)
 
-Lê o output do downloader.py e identifica as seções semanticamente (hero,
-features, benefits, testimonials, faq, pricing, footer, etc). Retorna
+Lê o output do downloader.py e identifica as seções semanticamente — tanto as
+genéricas de landing (hero, features, testimonials, faq, pricing, footer) quanto
+as sections típicas de PDP/landing DTC (guarantee, before-after,
+comparison-table, ingredients, how-it-works, founder-story). Retorna
 sections.json, consumido pelos dois caminhos do aura_clone.py:
 o pattern-extractor.py (modo signals) e o skeleton-builder in-process
 (modo clone-and-adapt).
+
+Se `computed-styles.json` existe no clone_dir (captura via downloader.py),
+cada section ganha também um bloco `hierarchy` com sinais NUMÉRICOS de
+hierarquia visual (proporção heading/body, padding-block real, densidade,
+alinhamento dominante, proporção de área de mídia) — é o que preserva a
+hierarquia de conversão da referência no modo clone-and-adapt. Sem
+computed-styles (engine singlefile/--from-file), `hierarchy` fica null.
 
 Uso:
     python3 analyzer.py <clone_dir>
@@ -23,6 +32,7 @@ Dependências:
 
 import json
 import re
+import statistics
 import sys
 from pathlib import Path
 from urllib.parse import urljoin
@@ -49,9 +59,22 @@ except ImportError:
 # (case-insensitive) — nunca substring crua, senão classes hasheadas de
 # styled-components/CSS-modules ("sc-qaVxK" contém "qa", "navy" contém "nav")
 # viram sections falsas.
+#
+# ORDEM IMPORTA: em empate de score, vence o tipo que aparece PRIMEIRO no dict
+# — por isso os tipos DTC específicos (guarantee, before-after, comparison-table,
+# ingredients, how-it-works, founder-story) vêm antes dos genéricos (features,
+# pricing), que têm hints mais largas.
 SEMANTIC_HINTS = {
     "hero": ["hero", "banner", "jumbotron", "masthead", "above-fold", "page-header", "intro"],
-    "features": ["features", "benefits", "why", "how-it-works", "how-works", "advantages", "highlights", "perks"],
+    # ---- sections típicas de PDP/landing DTC (específicas primeiro) ----
+    "guarantee": ["guarantee", "guaranteed", "money-back", "moneyback", "risk-free", "refund-policy", "warranty"],
+    "before-after": ["before-after", "beforeafter", "before-and-after", "ba-slider", "transformation", "results-slider"],
+    "comparison-table": ["comparison", "compare", "versus", "us-vs-them", "vs-table", "comparison-table", "comparison-chart"],
+    "ingredients": ["ingredients", "ingredient", "formula", "actives", "whats-inside", "supplement-facts", "nutrition"],
+    "how-it-works": ["how-it-works", "how-works", "how-to-use", "usage", "routine"],
+    "founder-story": ["founder", "founder-story", "our-story", "brand-story", "about-us", "our-mission", "mission"],
+    # ---- genéricas de landing ----
+    "features": ["features", "benefits", "why", "advantages", "highlights", "perks"],
     "testimonials": ["testimonials", "reviews", "social-proof", "customer-say", "what-say", "reviews-grid", "user-say"],
     "faq": ["faq", "frequently-asked", "questions", "accordion", "qa"],
     "pricing": ["pricing", "plans", "tiers", "pack", "bundle", "offer", "price-table"],
@@ -103,8 +126,19 @@ def _hint_matches(hint, tokens, normed):
     return any(pat.search(s) for s in normed)
 
 
-def score_semantic_type(tag, classes, section_id, aria_label, text_sample):
-    """Retorna (tipo, confiança 0-1) baseado em heurísticas."""
+# Marcas de check/cross que tabelas comparativas DTC ("us vs them") usam.
+_CHECKMARK_CHARS = ("✓", "✔", "✗", "✖", "×", "❌", "✅")
+
+
+def score_semantic_type(tag, classes, section_id, aria_label, text_sample, el=None):
+    """Retorna (tipo, confiança 0-1) baseado em heurísticas.
+
+    Além dos hints de class/id/tag/aria, aplica boosts de CONTEÚDO (frases
+    marcadoras no text_sample) e de ESTRUTURA (quando `el` é passado — ex:
+    <table> com check/cross = comparison-table; <table> com supplement facts
+    = ingredients). Sections DTC raramente têm class semântica limpa em tema
+    customizado, então o conteúdo é o sinal que sobra.
+    """
     tokens, normed = _tokenize(tag, *(classes or []), section_id, aria_label)
     scores = {}
     for sem_type, hints in SEMANTIC_HINTS.items():
@@ -112,13 +146,54 @@ def score_semantic_type(tag, classes, section_id, aria_label, text_sample):
         if s > 0:
             scores[sem_type] = s
 
+    def _boost(sem_type, pts):
+        scores[sem_type] = scores.get(sem_type, 0) + pts
+
     text_lower = (text_sample or "")[:200].lower()
     if "frequently asked" in text_lower or "perguntas frequentes" in text_lower:
-        scores["faq"] = scores.get("faq", 0) + 2
+        _boost("faq", 2)
     if "testimonial" in text_lower or "customers say" in text_lower or "reviews" in text_lower:
-        scores["testimonials"] = scores.get("testimonials", 0) + 1
+        _boost("testimonials", 1)
     if "pricing" in text_lower or "plans" in text_lower or "$" in text_lower[:50]:
-        scores["pricing"] = scores.get("pricing", 0) + 1
+        _boost("pricing", 1)
+
+    # Boosts de conteúdo pros tipos DTC (usa o text_sample inteiro — o marcador
+    # costuma estar no heading da section, mas nem sempre nos primeiros 200 chars).
+    tl_full = (text_sample or "").lower()
+    if (
+        "money-back" in tl_full or "money back" in tl_full
+        or "risk-free" in tl_full or "risk free" in tl_full
+        or re.search(r"\d+[- ]day guarantee", tl_full)
+    ):
+        _boost("guarantee", 2)
+    if re.search(r"\bbefore\b", tl_full) and re.search(r"\bafter\b", tl_full):
+        _boost("before-after", 2)
+    if "how it works" in tl_full:
+        _boost("how-it-works", 2)
+    if "ingredients" in tl_full or "supplement facts" in tl_full:
+        _boost("ingredients", 2)
+    if (
+        "founder" in tl_full or "our story" in tl_full
+        or "we started" in tl_full or "my name is" in tl_full
+    ):
+        _boost("founder-story", 2)
+
+    # Boost estrutural: <table> dentro da section.
+    if el is not None:
+        table = el.find("table")
+        if table is not None:
+            table_text = table.get_text(" ", strip=True).lower()
+            if "supplement facts" in table_text or "ingredient" in table_text:
+                _boost("ingredients", 2)
+            elif (
+                any(mark in table_text for mark in _CHECKMARK_CHARS)
+                or re.search(r"\bvs\.?\b", table_text)
+                or "other brands" in table_text
+                or "them" in table_text.split()[:12]
+            ):
+                _boost("comparison-table", 2)
+            else:
+                _boost("comparison-table", 1)
 
     if not scores:
         return ("unknown", 0.0)
@@ -279,6 +354,217 @@ def describe_section(sem_type, el, text_sample):
     return " · ".join(bits) if bits else "seção genérica"
 
 
+# --------------------- hierarquia visual (computed-styles) ------------------ #
+#
+# O skeleton do clone-and-adapt preservava só ordem + tipo + grid coarse — e
+# perdia a hierarquia visual que fazia a página converter (um hero com H1 3.2x
+# o body e 120px de respiro não é o mesmo hero com H1 1.4x e 24px). Estes
+# helpers extraem, POR SECTION, sinais numéricos de hierarquia a partir do
+# computed-styles.json do downloader. São PROPORÇÕES e medidas espaciais —
+# nenhum hex, nenhuma fonte, nenhum texto do concorrente.
+
+_HEADING_TAGS = {"h1", "h2", "h3", "h4", "h5", "h6"}
+_TEXT_TAGS = {"p", "li", "blockquote", "a", "span", "button", "label", "figcaption", "td", "th"}
+_MEDIA_TAGS = {"img", "picture", "video", "svg", "iframe"}
+
+# Tags que o matcher por tag-solto aceita (sections sem id nem classe).
+_BARE_SECTION_TAGS = ("header", "footer", "main", "section", "article", "aside")
+
+_PX_RE = re.compile(r"(-?\d+(?:\.\d+)?)px")
+
+
+def _parse_px(value):
+    """'64px' → 64.0; None se não parseável."""
+    if not value:
+        return None
+    m = _PX_RE.match(str(value).strip())
+    return float(m.group(1)) if m else None
+
+
+def _parse_padding_block(padding_shorthand):
+    """Computed 'padding' shorthand → (top_px, bottom_px). Ex: '64px 20px' → (64, 64)."""
+    if not padding_shorthand:
+        return (None, None)
+    parts = [_parse_px(p) for p in str(padding_shorthand).split()]
+    if not parts or any(p is None for p in parts):
+        return (None, None)
+    if len(parts) <= 2:
+        return (parts[0], parts[0])
+    # 3 ou 4 valores: top é o 1º, bottom é o 3º
+    return (parts[0], parts[2])
+
+
+def _norm_align(value):
+    v = (value or "").strip().lower()
+    if v in ("start",):
+        return "left"
+    if v in ("end",):
+        return "right"
+    if v in ("left", "right", "center", "justify"):
+        return v
+    return None
+
+
+def _load_computed_styles(clone_dir: Path):
+    """Lê computed-styles.json (só existe quando a captura veio do downloader)."""
+    p = clone_dir / "computed-styles.json"
+    if not p.exists():
+        return None
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return data if isinstance(data, list) and data else None
+
+
+def _match_section_to_computed(el, computed, used, min_index):
+    """Encontra a entrada do computed-styles que corresponde ao `el` do soup.
+
+    Precedência: (tag, id) → (tag, classes exatas) → tag solto (só pra tags
+    estruturais bare tipo <footer>). Greedy em ordem de documento: prefere o
+    primeiro candidato não-usado com index > min_index (as sections do soup e
+    as entradas do computed estão ambas em ordem de documento).
+    """
+    tag = el.name
+    el_id = el.get("id") or None
+    classes = tuple(sorted(el.get("class", []) or []))
+
+    def _first_free(pred):
+        return [c for c in computed if c.get("index") not in used and pred(c)]
+
+    cands = []
+    if el_id:
+        cands = _first_free(lambda c: c.get("tag") == tag and (c.get("id") or None) == el_id)
+    if not cands and classes:
+        cands = _first_free(
+            lambda c: c.get("tag") == tag and tuple(sorted(c.get("classes") or [])) == classes
+        )
+    if not cands and not classes and tag in _BARE_SECTION_TAGS:
+        cands = _first_free(lambda c: c.get("tag") == tag and not (c.get("classes") or []))
+    if not cands:
+        return None
+    after = [c for c in cands if c.get("index", -1) > min_index]
+    return after[0] if after else cands[0]
+
+
+def extract_hierarchy_signals(el, computed, used, min_index):
+    """Sinais de hierarquia visual da section, agregados do computed-styles.
+
+    Retorna (dict|None, novo_min_index). Todos os valores são numéricos/
+    categóricos agregados (proporções, px de espaçamento, densidade) —
+    zero conteúdo do concorrente.
+    """
+    cand = _match_section_to_computed(el, computed, used, min_index)
+    if cand is None:
+        return None, min_index
+    idx = cand.get("index", min_index)
+    used.add(idx)
+
+    rect = cand.get("rect") or {}
+    top = float(rect.get("top") or 0)
+    height = float(rect.get("height") or 0)
+    width = float(rect.get("width") or 0)
+    if height <= 1:
+        return None, idx
+    bottom = top + height
+
+    # Pool = descendentes visuais: entradas DEPOIS da section em ordem de
+    # documento cujo topo cai dentro da faixa vertical dela.
+    pool = []
+    for c in computed:
+        if c.get("index", -1) <= idx:
+            continue
+        r = c.get("rect") or {}
+        c_top = r.get("top")
+        if c_top is None:
+            continue
+        if top - 2 <= float(c_top) < bottom - 1:
+            pool.append(c)
+
+    heading_px: dict = {}
+    body_sizes: list = []
+    align_counts: dict = {}
+    media_area = 0.0
+    text_count = 0
+    media_count = 0
+    content_count = 0
+
+    for c in pool:
+        tag = c.get("tag") or ""
+        styles = c.get("styles") or {}
+        r = c.get("rect") or {}
+        fs = _parse_px(styles.get("font-size"))
+        if tag in _HEADING_TAGS:
+            content_count += 1
+            text_count += 1
+            if fs:
+                heading_px[tag] = max(heading_px.get(tag, 0.0), fs)
+        elif tag in _TEXT_TAGS:
+            content_count += 1
+            text_count += 1
+            if fs:
+                body_sizes.append(fs)
+        elif tag in _MEDIA_TAGS:
+            content_count += 1
+            media_count += 1
+            media_area += float(r.get("width") or 0) * float(r.get("height") or 0)
+        else:
+            continue
+        ta = _norm_align(styles.get("text-align"))
+        if ta and tag not in _MEDIA_TAGS:
+            align_counts[ta] = align_counts.get(ta, 0) + 1
+
+    body_px = round(statistics.median(body_sizes), 1) if body_sizes else None
+    h1_px = heading_px.get("h1")
+    h2_px = heading_px.get("h2")
+    max_heading_px = max(heading_px.values()) if heading_px else None
+
+    def _ratio(a, b):
+        return round(a / b, 2) if a and b else None
+
+    pad_top, pad_bottom = _parse_padding_block((cand.get("styles") or {}).get("padding"))
+
+    density_val = round(content_count / height * 1000, 1)
+    if density_val < 8:
+        density_label = "airy"
+    elif density_val <= 20:
+        density_label = "medium"
+    else:
+        density_label = "dense"
+
+    section_area = width * height
+    media_ratio = (
+        round(min(1.0, media_area / section_area), 2) if section_area > 0 else None
+    )
+
+    return {
+        "source": "computed-styles",
+        "section_height_px": round(height),
+        "font_scale": {
+            "h1_px": h1_px,
+            "h2_px": h2_px,
+            "body_px": body_px,
+            "h1_to_body": _ratio(h1_px, body_px),
+            "h2_to_body": _ratio(h2_px, body_px),
+            "heading_to_body": _ratio(max_heading_px, body_px),
+        },
+        "padding_block_px": {"top": pad_top, "bottom": pad_bottom},
+        "density": {
+            "content_elements": content_count,
+            "per_1000px": density_val,
+            "label": density_label,
+        },
+        "dominant_alignment": (
+            max(align_counts.items(), key=lambda kv: kv[1])[0] if align_counts else None
+        ),
+        "media_text_balance": {
+            "media_area_ratio": media_ratio,
+            "text_elements": text_count,
+            "media_elements": media_count,
+        },
+    }, idx
+
+
 def _load_source_url(clone_dir: Path):
     """URL de origem gravada pelo downloader (meta.json) — normaliza srcs relativos."""
     meta_path = clone_dir / "meta.json"
@@ -311,9 +597,17 @@ def main():
     images_map = json.loads(images_json_path.read_text(encoding="utf-8")) if images_json_path.exists() else {}
     source_url = _load_source_url(clone_dir)
 
+    computed_styles = _load_computed_styles(clone_dir)
+    if computed_styles:
+        print(f"[analyzer] computed-styles.json: {len(computed_styles)} elementos — extraindo hierarquia por section")
+    else:
+        print("[analyzer] sem computed-styles.json (engine singlefile/--from-file) — hierarchy=null")
+
     body = soup.body or soup
     sections = []
     seen_ids = set()
+    matched_computed: set = set()
+    last_computed_index = -1
 
     for el in body.find_all(True, recursive=True):
         if not is_sectionable(el):
@@ -341,6 +635,7 @@ def main():
             el.get("id"),
             el.get("aria-label"),
             text_sample,
+            el=el,
         )
         images = extract_images_in_section(el)
         for img in images:
@@ -355,6 +650,12 @@ def main():
                     img["local_path"] = images_map[key]
                     break
         repeating = extract_repeating_pattern(el)
+
+        hierarchy = None
+        if computed_styles:
+            hierarchy, last_computed_index = extract_hierarchy_signals(
+                el, computed_styles, matched_computed, last_computed_index
+            )
 
         sections.append({
             "index": len(sections) + 1,
@@ -372,6 +673,7 @@ def main():
                 "child_tag": repeating[0].name if repeating else None,
                 "child_classes": repeating[0].get("class", []) if repeating else [],
             },
+            "hierarchy": hierarchy,
             "description": describe_section(sem_type, el, text_sample),
         })
 
@@ -382,6 +684,8 @@ def main():
         "sections": sections,
         "stylesheet_length": len(css_text),
         "images_count": len(images_map),
+        "computed_styles_available": bool(computed_styles),
+        "hierarchy_sections": sum(1 for s in sections if s.get("hierarchy")),
     }
     out_path = clone_dir / "sections.json"
     out_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
@@ -389,6 +693,8 @@ def main():
     print(f"[analyzer] {len(sections)} seções identificadas")
     for s in sections:
         print(f"  {s['index']}. {s['semantic_type']} (conf {s['confidence']}) — {s['description']}")
+    if computed_styles:
+        print(f"[analyzer] hierarquia visual extraída em {output['hierarchy_sections']}/{len(sections)} sections")
     print(f"[analyzer] sections.json salvo em {out_path}")
 
 

@@ -1,13 +1,22 @@
 ---
 name: retention-engine
-description: Setup automático de fluxos de retenção/lifecycle email via ESP (Klaviyo primário; Omnisend/MailerLite/Shopify Email via assets + setup-guide). Gera sequências (welcome, abandoned-cart, post-purchase, win-back, replenishment) e cria os flows via Klaviyo MCP oficial quando disponível, com fallback pra assets HTML + setup-guide que o membro importa. Use quando o membro disser "retention", "email flows", "automation", "lifecycle", "Klaviyo", ou após launch da primeira campanha de ads com tráfego rodando.
+description: Setup automático de fluxos de retenção/lifecycle email via ESP (Klaviyo primário; Omnisend/MailerLite/Shopify Email via assets + setup-guide), em DUAS fases. Fase A (PRÉ-LAUNCH, depois da 07d/05 e antes dos criativos) = flows de RECUPERAÇÃO disparados por evento — abandoned cart + post-purchase welcome — infraestrutura de cash flow que se arma ANTES de ligar tráfego pago (receita mais barata que existe, custa zero no free tier), SEM segmentação; NÃO é email marketing. Fase B (PÓS-LAUNCH, ≥50 compras) = win-back, replenishment, cadência/segmentação + ops básicas (chargeback, refund da garantia, CS). Cria os flows via Klaviyo MCP oficial quando disponível, com fallback pra assets HTML + setup-guide que o membro importa. Use quando o membro disser "retention", "email flows", "automation", "lifecycle", "Klaviyo" — a fase certa é detectada no pré-flight.
 ---
 
 # Retention Engine
 
-## Quando Usar
+## Quando Usar — DUAS fases
 
-Depois que a campanha de ads está rodando e o membro tem tráfego chegando (≥ 50 compras no ESP). Sem dados mínimos, não há o que segmentar — retenção prematura vira noise.
+Esta skill roda em dois momentos diferentes do pipeline, com escopos diferentes. O framing importa: **a Fase A é infraestrutura de cash flow, não email marketing** — campanhas/newsletters de email continuam sempre pós-launch.
+
+**Fase A — Flows de recuperação (PRÉ-LAUNCH, na ordem canônica: depois da 07d/05 Fase A, antes dos criativos da 08):** operador de elite nunca liga tráfego pago sem o abandoned cart flow armado — é a receita mais barata que existe (recupera parte dos ~70% de carrinhos abandonados) e custa zero (free tier do ESP). A Fase A monta APENAS os flows disparados por evento que recuperam dinheiro do tráfego do launch:
+- **Abandoned Cart** (fluxo 2) — o coração da fase
+- **Post-Purchase Welcome** (fluxo 3) — mata buyer's remorse, reduz refund, pede a primeira review
+- **Welcome Series Email 1** SÓ SE a página promete welcome offer / há bonus com `delivery_trigger: on_signup` (promessa da página precisa existir no dia 1 — mesmo princípio da Fase A da 05)
+
+**SEM segmentação na Fase A** — não há base pra segmentar (zero ou quase zero compradores), e não precisa: são flows por evento, funcionam com o primeiro visitante.
+
+**Fase B — Retenção completa (PÓS-LAUNCH, ≥ 50 compras no ESP):** com dados mínimos existe o que segmentar. Entram: Welcome Series completo (emails 2-4), Win-Back, Replenishment, cadência/coordenação de lista, e as ops pós-launch (chargeback, refund da garantia, CS básico — seção própria). Antes de 50 compras, segmentação é noise — por isso ela espera.
 
 ## Base de conhecimento (NUNCA query genérica)
 
@@ -17,14 +26,25 @@ Esta skill puxa SISTEMAS NOMEADOS de email lifecycle e psicologia de persuasão 
 
 **Idioma (report_language).** Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). Todo output interno (`13-retention-engine/retention-engine.md`/`.html`, `flow-metadata.json` descritivo, mensagens e perguntas ao membro) usa esse idioma. **A copy dos emails em si (subject, preview, body, CTA) permanece SEMPRE em inglês US**, independente do report_language — é consumidor-final do mercado US.
 
-### Gate de consistência (Skill 09)
-Antes das checagens abaixo, ler `workspace/[produto]/09-consistency-audit/dados.json` se existir:
-- Se `launch_recommendation == "BLOCK"` → os fluxos de email vão herdar o drift detectado (mecanismo divergente, VOC sem rastreio, oferta diferente da página) e propagar inconsistência pra base de subscribers. Oferecer ≥2 caminhos: **(A)** rodar a skill 09 agora pra corrigir o drift, OU **(B)** prosseguir mesmo assim marcando `manifest.skipped_preflight += ["09-consistency-audit"]` e avisando no output final que recomenda re-executar após corrigir.
-- Se `CAUTION` → exibir warnings e pedir OK do membro antes de gerar fluxos.
-- Se `GO` ou arquivo não existe → prosseguir.
+### Detecção de FASE (primeiro passo)
 
-- [ ] `workspace/[produto]/manifest.json` com `10-ad-strategy` em `skills_completed`
-- [ ] **ESP identificado.** Ler `manifest.esp` (e `profile.md` → `esp: "klaviyo" | "omnisend" | "mailerlite" | "shopify_email" | "none"` — enum exato do manifest-schema, `shopify_email` com underscore). Se o campo estiver **ausente** (membro nunca rodou setup completo), PERGUNTAR inline ao membro qual ESP ele usa e gravar a resposta em `manifest.esp`. Se `esp: "shopify_email"`, **não abortar** — seguir direto pro Caminho 2 (assets + setup-guide adaptado ao editor do Shopify Email); ver a nota de limitações na seção do Caminho 2. Se `esp: "none"` (membro não tem ESP), **não abortar** — recomendar Klaviyo (free tier até 250 contatos + Shopify integration nativa), e se o membro topar, gravar `manifest.esp = "klaviyo"` e seguir; se ele preferir decidir depois, gerar os fluxos no fallback HTML + setup-guide (seção abaixo) pra ele importar quando escolher.
+Ler `manifest.retention` (se existir) + `manifest.skills_completed`:
+
+- **Fase A** se: `manifest.retention.phase_a_done != true` E o storefront existe (`07b-page-build` em `skills_completed` — sem loja no ar, não há evento de cart/purchase pra disparar flow). É o caminho normal pré-launch: `10-ad-strategy` AINDA NÃO rodou, e está tudo bem — a Fase A vem ANTES dela na ordem canônica.
+- **Fase B** se: `manifest.retention.phase_a_done == true` E a campanha está ativa E há **≥ 50 compras** no ESP/Shopify (perguntar ao membro se não houver dado). Se o membro pedir "retention" com < 50 compras e Fase A já feita, explicar que win-back/segmentação prematuros viram noise e oferecer: revisar/otimizar os flows da Fase A com os dados que já existem, ou esperar o volume.
+- Membro pediu explicitamente um flow específico → respeitar, mas avisar se está fora da fase (ex: win-back com 10 compras).
+
+### Gate de consistência (Skill 09) — phase-aware
+Ler `workspace/[produto]/09-consistency-audit/dados.json` **se existir**:
+- **Na Fase A, arquivo ausente é o NORMAL** — a 13 Fase A roda ANTES da 09 na ordem canônica (a 09 audita inclusive os emails da Fase A, via check M7). Prosseguir sem cerimônia.
+- Se existir com `launch_recommendation == "BLOCK"` → os fluxos de email vão herdar o drift detectado (mecanismo divergente, VOC sem rastreio, oferta diferente da página) e propagar inconsistência pra base de subscribers. Oferecer ≥2 caminhos: **(A)** rodar a skill 09 agora pra corrigir o drift, OU **(B)** prosseguir mesmo assim marcando `manifest.skipped_preflight += ["09-consistency-audit"]` e avisando no output final que recomenda re-executar após corrigir.
+- Se `CAUTION` → exibir warnings e pedir OK do membro antes de gerar fluxos.
+- Se `GO` → prosseguir.
+
+### Checagens por fase
+
+- [ ] **Fase A:** `07b-page-build` em `skills_completed` (loja no ar). **Fase B:** `10-ad-strategy` em `skills_completed` + campanha ativa + ≥ 50 compras (detecção acima).
+- [ ] **ESP identificado (as duas fases).** Ler `manifest.esp` (e `profile.md` → `esp: "klaviyo" | "omnisend" | "mailerlite" | "shopify_email" | "none"` — enum exato do manifest-schema, `shopify_email` com underscore). Se o campo estiver **ausente** (membro nunca rodou setup completo), PERGUNTAR inline ao membro qual ESP ele usa e gravar a resposta em `manifest.esp`. Se `esp: "shopify_email"`, **não abortar** — seguir direto pro Caminho 2 (assets + setup-guide adaptado ao editor do Shopify Email); ver a nota de limitações na seção do Caminho 2. Se `esp: "none"` (membro não tem ESP), **não abortar** — recomendar Klaviyo (free tier até 250 contatos + Shopify integration nativa — o custo zero é parte do argumento da Fase A), e se o membro topar, gravar `manifest.esp = "klaviyo"` e seguir; se ele preferir decidir depois, gerar os fluxos no fallback HTML + setup-guide (seção abaixo) pra ele importar quando escolher.
 - [ ] `04-offer-builder/offer-builder.md` (ou o legado `relatorio.md` — mesmo fallback vale pras outras fases) + `04-offer-builder/dados.json` carregados (pra saber a janela de reorder, guarantee period, e os `bonuses[]` com seus `delivery_trigger`)
 - [ ] `02-market-research/market-research.md` carregado (objeções = hooks de win-back; dores = hooks de abandoned cart)
 - [ ] `06-copy-engine/dados.json` carregado **(if exists)** → campo `email_hooks[]` (3-5 hooks de follow-up que a 06 gera na ETAPA 7, derivados das top-5 headlines + Big Idea + objeções — inglês US; também na seção canônica `## Email Follow-up Hooks` de `copy-engine.md`). É o seed dos subject lines/aberturas dos flows — ver nota em "Fluxos base". Ausente (copy legada, gerada antes do contrato) → derivar os hooks das headlines de `copy-engine.md` direto.
@@ -65,6 +85,16 @@ Incluir o asset/link do bonus (PDF, Circle invite, código de acesso — produzi
 
 ## Fluxos base (templates — adaptam ao produto)
 
+**Mapa fluxo → fase:**
+
+| Fluxo | Fase | Por quê |
+|---|---|---|
+| 2. Abandoned Cart | **A (pré-launch)** | Recupera dinheiro do primeiro dia de tráfego — a razão de existir da Fase A |
+| 3. Post-Purchase Welcome | **A (pré-launch)** | Comprador do dia 1 recebe reassurance + entrega de bônus + review request |
+| 1. Welcome Series | **A só o Email 1, SE há welcome offer/bonus `on_signup`** (promessa da página existe no dia 1); série completa (emails 2-4) = **B** | Sem oferta prometida no opt-in, nurturing é assunto pós-launch |
+| 4. Win-Back | **B (≥ 50 compras)** | Precisa de base com inativos — não existe pré-launch |
+| 5. Replenishment | **B (≥ 50 compras)** | Precisa da janela de consumo real validada |
+
 **Frameworks de governança que valem pra TODOS os fluxos** (puxe uma vez, aplique em todos):
 - **The Rule of 1** — cada email tem UM objetivo, UM job por elemento, UM leitor; escrever o CTA primeiro (rode `Rule of 1 email one goal one job per element one reader write CTA first`)
 - **3-to-1 Value-to-Sales Rule** — equilíbrio de cadência entre emails de valor e de venda, pra não queimar a lista (rode `3 to 1 rule value emails sales email balance newsletter cadence`)
@@ -74,7 +104,7 @@ Incluir o asset/link do bonus (PDF, Circle invite, código de acesso — produzi
 **Seed de subject lines — `06-copy-engine/dados.json.email_hooks[]`:** os 3-5 hooks que a 06 gerou são o ponto de partida dos subject lines e das primeiras linhas dos flows de maior volume (welcome, abandoned cart, post-purchase) — eles já carregam a Big Idea, o mecanismo nomeado e as objeções reais do mercado, então usar eles garante message match entre o que o subscriber viu no ad/página e o que chega no inbox. Adapte cada hook ao contexto do flow (o mesmo hook vira curiosity no welcome e urgency no abandoned cart), não copie 1:1 nos 5 flows. Hooks são consumidor-final: **sempre inglês US**, ad-safe (rule 8b).
 
 
-### 1. Welcome Series (novo subscriber, sem compra ainda)
+### 1. Welcome Series (novo subscriber, sem compra ainda) — Fase A só o Email 1 (condicional); série completa na Fase B
 
 **Frameworks a puxar (rode a query de cada um antes de escrever):**
 - **5-Step Welcome Sequence Process** — welcome = lead-nurturing, não "bem-vindo" genérico (rode `welcome sequence lead nurturing 5 step process VOC research plan automate not a template`)
@@ -88,7 +118,7 @@ Incluir o asset/link do bonus (PDF, Circle invite, código de acesso — produzi
 - Email 3 (dia 4): social proof stack + trust reinforcement
 - Email 4 (dia 7): urgency layer + hard CTA. **Branch obrigatório:** se existe welcome code, a urgência é a expiração real do code (cross-check com o Promise↔Config gate — regra de rigor 4). Se NÃO existe welcome offer, NUNCA inventar deadline — usar urgência legítima alternativa: estoque real, prova social acumulada ("2.400 já compraram"), ou recap do mecanismo + custo de adiar o resultado.
 
-### 2. Abandoned Cart (viewed product, added to cart, didn't checkout)
+### 2. Abandoned Cart (viewed product, added to cart, didn't checkout) — FASE A (pré-launch)
 
 **Frameworks a puxar (rode a query de cada um antes de escrever):**
 - **Abandoned-Cart Decay Curve + Two Sequence Styles** — quando disparar (curva de decaimento, Baymard 69.8%) e escolher entre estilo Discount-focused vs Emotion-focused conforme margem (rode `abandoned cart decay curve Baymard 69.8% discount-focused emotion-focused sequence escalating discount day 0 6 hours`)
@@ -101,7 +131,7 @@ Incluir o asset/link do bonus (PDF, Circle invite, código de acesso — produzi
 - Email 3 (72h): urgência (stock/time) + discount code se margem permite
 - Email 4 (7d, opcional): "last call" + reforço de garantia
 
-### 3. Post-Purchase Welcome (comprou pela primeira vez)
+### 3. Post-Purchase Welcome (comprou pela primeira vez) — FASE A (pré-launch)
 
 **Frameworks a puxar (rode a query de cada um antes de escrever):**
 - **Kennedy's Post-Purchase Reassurance Letter** — pós-compra como profit center: matar buyer's remorse no Email 1 (rode `Kennedy post-purchase reassurance letter buyer remorse profit center order confirmation`)
@@ -114,7 +144,7 @@ Incluir o asset/link do bonus (PDF, Circle invite, código de acesso — produzi
 - Email 3 (dia 7-10): request review (com incentivo)
 - Email 4 (dia 21-30): cross-sell ou replenishment trigger (se consumível)
 
-### 4. Win-Back (60+ dias sem purchase, subscriber ativo)
+### 4. Win-Back (60+ dias sem purchase, subscriber ativo) — FASE B (pós-launch, ≥ 50 compras)
 
 **Frameworks a puxar (rode a query de cada um antes de escrever):**
 - **Hormozi's 9-Word Email** — reativação curta ("are you still interested in [resultado]?") como abertura mais barata e de maior reply (rode `Hormozi 9-word email are you still interested reactivation dormant leads $100M Leads`)
@@ -126,7 +156,7 @@ Incluir o asset/link do bonus (PDF, Circle invite, código de acesso — produzi
 - Email 2 (7 dias depois): oferta especial com código de win-back
 - Email 3 (14 dias depois): final call + feedback survey pra entender porque churn
 
-### 5. Replenishment (consumíveis — trigger baseado na janela de reorder)
+### 5. Replenishment (consumíveis — trigger baseado na janela de reorder) — FASE B (pós-launch)
 
 **Frameworks a puxar (rode a query de cada um antes de escrever):**
 - **Day Zero Triggered-Email Method** — replenishment é behavior-triggered mini-funnel (dispara pelo timing real de consumo), não drip por tempo fixo (rode `Day Zero behavior-triggered email mini-funnel outperforms time-based drip cap day 4 Copy School`)
@@ -143,6 +173,30 @@ A janela de reorder não vem pronta do `04-offer-builder/dados.json` (ele não p
 - Email 2 (perto do fim): subscription option com desconto
 - Email 3 (pós-acabar): "hora de reabastecer"
 
+**Arquitetura de assinatura (ler `04-offer-builder/dados.json.subscription_architecture`):**
+- `onetime_plus_sub_no_reorder` → o **Email 2 deste fluxo é O momento canônico** de oferecer a assinatura (a PDP vendeu one-time de propósito; a conversão pra assinatura foi delegada pra cá). Usar o `sub_discount_pct` da 04 no framing.
+- `subscription_first` → o fluxo mira só quem comprou one-time (assinante já tem reorder automático — mandar replenishment pra assinante é ruído); filtrar por não-assinante no trigger.
+- `no_subscription` (ou campo ausente) → Email 2 oferece o 2-pack/bundle no lugar da assinatura.
+
+## OPS pós-launch (Fase B — seção compacta, junto dos flows de retenção)
+
+Retenção não é só email: com pedidos rodando, três rotinas operacionais protegem a conta de pagamento e a margem. Entregar como checklist curto no relatório da Fase B (não é skill separada — é higiene):
+
+**1. Chargeback (alvo: taxa < 1% dos pedidos):**
+- **Responder TODA disputa com evidência** — tracking com entrega confirmada, screenshot da PDP com a promessa exata, log do email de confirmação, histórico de contato. Disputa não-respondida é derrota automática.
+- **Refund proativo > disputa perdida:** cliente irritado ameaçando chargeback → reembolsar ANTES da disputa abrir. Chargeback custa a taxa + o produto + o strike na conta; refund custa só o pedido. Acima de ~1% de taxa, o processador aplica reserve/hold — exatamente o cenário que trava a escala (ver Skill 12, ETAPA 6).
+- Sinais que previnem: descriptor de cartão reconhecível (nome da marca, não LLC genérica), email de confirmação imediato, tracking enviado assim que existe.
+
+**2. Refund da garantia (macro de processo — a promessa da 04 sendo honrada):**
+- A garantia definida na 04 e prometida na página é operação, não copy: definir o passo-a-passo UMA vez (macro) — pedido chega → conferir elegibilidade (janela/condição da garantia) → reembolsar sem fricção → registrar o motivo.
+- Refund da garantia SEM interrogatório: garantia "sem perguntas" que na prática exige 5 emails vira chargeback + review negativa. O motivo registrado alimenta a iteração da oferta na 04 (padrão de motivo = sinal de produto/promessa desalinhados).
+- Se a garantia é Level-2 (keep-the-premium, da 05/04): o cliente fica com o bônus — a macro lembra de NÃO pedir devolução dele.
+
+**3. CS básico (o mínimo que segura a nota):**
+- Caixa de suporte monitorada (o reply-to dos flows aponta pra ela) com resposta em < 24h úteis — atraso de resposta é o maior gerador de disputa "item not received".
+- 5 macros prontas: onde está meu pedido (tracking + prazo), quero reembolso (macro da garantia acima), produto chegou danificado (reenvio direto, foto opcional), como usar (link do how-to do post-purchase), cancelar assinatura (se houver — sem fricção, com oferta de pausa).
+- Comentários dos ads NÃO são CS — são gestão de comentários (rotina da Skill 10 ETAPA 2), mas reclamação real que aparece lá entra no funil de CS.
+
 ## Setup Pipeline — Klaviyo
 
 Cascade resiliente (detecção de prefixo conforme `.claude/lib/mcp-detect/README.md`), **dois caminhos só**: **Klaviyo MCP oficial → HTML + setup-guide**. Não há caminho de session-cookie/internal-API — foi removido por risco de segurança (cookie dava acesso full à conta) e fragilidade (endpoints sem contrato público). Automação confiável = MCP oficial; sem MCP, fallback é assets + guia que o membro importa.
@@ -158,7 +212,7 @@ klaviyo_mcp_available = existe ao menos 1 tool com prefixo `mcp__klaviyo__` na s
 Se **disponível**, CRIE os flows direto via MCP (com contrato estável, sem scraping):
 
 1. Gerar o HTML de cada email adaptando ao produto (usa `06-copy-engine/copy-engine.md` pra copy + `02-market-research/market-research.md` pra VOC + `04-offer-builder/offer-builder.md` pra mecanismo), mesma geração do caminho de assets.
-2. Criar cada flow (welcome series, abandoned-cart, post-purchase, win-back, replenishment) via as tools `mcp__klaviyo__*` de flow creation/configuration: trigger, filtros, ações (email/delay/branch), subject + preview + conteúdo HTML.
+2. Criar cada flow **da FASE ativa** (Fase A: abandoned cart + post-purchase welcome, + Welcome Email 1 se condicional; Fase B: welcome series completo, win-back, replenishment) via as tools `mcp__klaviyo__*` de flow creation/configuration: trigger, filtros, ações (email/delay/branch), subject + preview + conteúdo HTML.
 3. **Flows criados SEMPRE em draft/manual** — nunca ativar automaticamente (regra "NUNCA ativar automaticamente" abaixo vale igual aqui: risco de spam se um email tiver bug). Membro revisa no Klaviyo UI e ativa.
 4. Logar `source: "klaviyo_mcp"` no `13-retention-engine/dados.json` e no `automation-log.jsonl`.
 5. Salvar os assets (HTML + flow-metadata.json) em paralelo, pra o membro ter material mesmo que queira ajustar fora do MCP.
@@ -205,11 +259,23 @@ Salvar:
 2. **`workspace/[produto]/13-retention-engine/[fluxo]/flow-metadata.json`** — metadata de cada email (subject, preview, trigger, delay)
 3. **`workspace/[produto]/13-retention-engine/retention-engine.md`** — relatório operacional do setup pra AI ler em skills futuras (resumo dos fluxos criados, triggers, status)
 4. **`workspace/[produto]/13-retention-engine/retention-engine.html`** — visualização humana (AI report) usando `.claude/templates/aura-report-template.html` como base. Logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por fluxo, `.pill` pra status (DRAFT/ACTIVE), `.callout` pra avisos de compliance.
-5. **`workspace/[produto]/13-retention-engine/dados.json`** — log de flows criados + timestamps + status + delivery results
+5. **`workspace/[produto]/13-retention-engine/dados.json`** — log de flows criados + timestamps + status + delivery results + `phase` (`"A" | "B"`) por flow
 
 **Distinção importante:** os emails em si (item 1) são HTML de email marketing (table-based, inline styles pra ESP compatibility) — NÃO usam o design-system Aura, NÃO têm logo Aura. Já os relatórios internos (itens 3-4) seguem a rule 6b do CLAUDE.md normalmente.
 
-Atualizar `manifest.json.skills_completed` com `"13-retention-engine"`.
+Atualizar o `manifest.json`:
+- `skills_completed` ← adicionar `"13-retention-engine"` (na primeira fase concluída; sem duplicar).
+- **Bloco `retention` (contrato de fase — é o que a Skill 10 lê no checklist de credibilidade e o que a detecção de fase desta skill usa):**
+
+```json
+"retention": {
+  "phase_a_done": true,
+  "phase_a_flows": ["abandoned_cart", "post_purchase"],
+  "phase_b_done": false
+}
+```
+
+(`phase_a_flows` inclui `"welcome_email_1"` quando o condicional se aplicou; a Fase B atualiza `phase_b_done: true` e adiciona os flows dela.)
 
 - Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (atualiza ABRIR-AQUI.html), onde `<slug>` é o `product_slug`.
 
@@ -223,7 +289,19 @@ Atualizar `manifest.json.skills_completed` com `"13-retention-engine"`.
 
 ## Mensagem Final
 
-"Fluxo [X] configurado no [ESP] em DRAFT. [N] emails gerados. Próximos passos:
+**Fase A:**
+
+"Flows de recuperação prontos no [ESP] em DRAFT — abandoned cart ([N] emails) + post-purchase ([N] emails)[+ welcome Email 1, se aplicou]. Isso é a infraestrutura de cash flow do launch: recupera parte dos carrinhos abandonados desde o primeiro dia de tráfego, a custo zero. Próximos passos:
+
+1. Abre o dashboard do [ESP]
+2. Revisa cada email (subject + preview + body)
+3. **Ativa os flows ANTES de ligar a campanha** — flow em draft não recupera nada
+
+Próximo passo na ordem de launch: diga **'creatives'** (Skill 08). Win-back, replenishment e segmentação ficam pra Fase B — quando você tiver ~50 compras, me chama com 'retention' de novo."
+
+**Fase B:**
+
+"Fluxo [X] configurado no [ESP] em DRAFT. [N] emails gerados. [+ checklist de OPS pós-launch no relatório: chargeback, refund da garantia, macros de CS.] Próximos passos:
 
 1. Abre o dashboard do [ESP]
 2. Revisa cada email (subject + preview + body)

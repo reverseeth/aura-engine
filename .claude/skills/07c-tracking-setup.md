@@ -1,13 +1,13 @@
 ---
 name: tracking-setup
-description: Engine de instalação e validação de tracking pré-launch. Instala o Meta Pixel + Conversions API (CAPI) na loja, valida o Event Match Quality (EMQ) ≥ 6.0 na escala 0-10 do Events Manager, e escolhe o analytics stack correto por member-stage (Meta App / Wetracked / Triple Whale / Aimerce). Grava o bloco manifest.tracking que destrava os pré-flights da 08 e da 10. Roda DEPOIS do deploy da página (07b) e ANTES dos criativos (08). Use quando o membro disser "tracking", "pixel", "capi", "analytics setup", "configurar tracking", ou após a página estar no ar.
+description: Engine de instalação e validação de tracking pré-launch. Instala o Meta Pixel + Conversions API (CAPI) na loja, valida o Event Match Quality (EMQ) ≥ 6.0 na escala 0-10 do Events Manager (com o caminho pending_traffic pra loja pré-launch sem volume: instalação verificada + pedido-teste validando o Purchase destravam o launch com emq_pending), e escolhe o analytics stack correto por member-stage (Meta App / Wetracked / Triple Whale / Aimerce). Grava o bloco manifest.tracking que destrava os pré-flights da 08 e da 10. Roda DEPOIS do deploy da página (07b) e ANTES dos criativos (08). Use quando o membro disser "tracking", "pixel", "capi", "analytics setup", "configurar tracking", ou após a página estar no ar.
 ---
 
 # Tracking Setup — Pixel + CAPI + Analytics Stack
 
 ## Quando Usar
 
-Quando a página já está deployada na loja (Skill 07b) e o membro precisa garantir que cada visita e compra seja medida ANTES de gastar dinheiro com ads. As Skills 08 (creatives) e 10 (ad-strategy) exigem no pré-flight `manifest.tracking.tracking_ready == true` (Pixel + CAPI validados, EMQ ≥ 6.0) — esta é a skill que constrói, valida e grava esse contrato.
+Quando a página já está deployada na loja (Skill 07b) e o membro precisa garantir que cada visita e compra seja medida ANTES de gastar dinheiro com ads. As Skills 08 (creatives) e 10 (ad-strategy) exigem no pré-flight `manifest.tracking.tracking_ready == true` (Pixel + CAPI validados, EMQ ≥ 6.0 — ou o caminho `pending_traffic` da ETAPA 3 pra loja pré-launch sem volume) — esta é a skill que constrói, valida e grava esse contrato.
 
 É uma skill **operacional** (passo a passo pra executar no Shopify + Events Manager), não conceitual. Sem ela, os criativos da 08 e a campanha da 10 viram dinheiro queimado por falta de sinal de conversão.
 
@@ -73,7 +73,7 @@ CAPI envia os mesmos eventos pelo servidor (server-side), redundante ao browser,
 
 ### ETAPA 3 — Validar o Event Match Quality: EMQ ≥ 6.0 (gate técnico)
 
-Este é o **gate que destrava 08 e 10**. O Event Match Quality (EMQ) é um **escore de 0 a 10 por evento** no Events Manager (com faixas Poor/OK/Good/Great) — NÃO existe "match quality em %"; nunca peça porcentagem ao membro. O gate canônico do framework é **EMQ ≥ 6.0** no evento Purchase (é o que `manifest.tracking.tracking_ready` atesta e o que 08/10 verificam).
+Este é o **gate que destrava 08 e 10**. O Event Match Quality (EMQ) é um **escore de 0 a 10 por evento** no Events Manager (com faixas Poor/OK/Good/Great) — NÃO existe "match quality em %"; nunca peça porcentagem ao membro. O gate canônico do framework é **EMQ ≥ 6.0** no evento Purchase (é o que `manifest.tracking.tracking_ready` atesta e o que 08/10 verificam) — **com uma exceção estrutural:** loja pré-launch sem tráfego não tem como ter escore (o EMQ só calcula com eventos reais); pra esse caso existe o caminho `pending_traffic` na tabela abaixo, que destrava o launch com instalação verificada + pedido-teste, sem esperar um número que só o próprio tráfego produz.
 
 **Caminho 1/2 (MCP oficial/Pipeboard):** ler o EMQ do dataset via tool de insights de dataset. Capturar o escore numérico (0-10) do Purchase (e do AddToCart como secundário).
 
@@ -86,12 +86,13 @@ Este é o **gate que destrava 08 e 10**. O Event Match Quality (EMQ) é um **esc
 |---|---|
 | **≥ 8.0** (Great) | PASS. `tracking_ready: true`. Seguir pra ETAPA 4. |
 | **6.0–7.9** (Good/OK) | PASS com recomendação. Tracking destravado, mas sub-ótimo: recomendar Advanced Matching completo (email + phone + nome + endereço no checkout) e re-medir em 24-48h (precisa de tráfego pra recalcular). `tracking_ready: true` com `emq_warn: true`. |
-| **< 6.0 ou sem dados** | BLOCK. Pixel ou CAPI mal configurado, OU ainda sem volume de eventos. **Escape (ES1):** ofereça **(A)** rodar o diagnóstico abaixo e re-medir, OU **(B)** prosseguir marcando `manifest.skipped_preflight += ["emq_gate"]` e avisando que 08/10 vão herdar tracking fraco (`tracking_ready: false`, membro aceitou o risco). |
+| **Sem dados por falta de tráfego** (loja pré-launch: Pixel + CAPI instalados corretamente E os 5 eventos do funil confirmados no Test Events, mas dataset sem volume pro escore calcular) | **PASS condicional (`pending_traffic`)** — não é falha de configuração, é ausência de tráfego: o EMQ só existe com eventos reais, e exigir escore antes do primeiro ad criaria um impasse (sem tracking_ready a 10 não roda tráfego; sem tráfego o EMQ nunca calcula). Gravar `emq.status: "pending_traffic"`, `emq.score: null`, e no manifest `tracking_ready: true` + `emq_pending: true`. **Obrigatório antes de fechar:** validar o Purchase de ponta a ponta com um **pedido-teste real** — Bogus Gateway num tema de preview (sem cobrança) OU pedido real de ~$1 + refund — e confirmar o evento Purchase chegando com a dupla-coluna (Browser + Server) no Events Manager. A Skill 11 re-lê o EMQ no dia 3 de tráfego; EMQ < 6.0 pós-tráfego = ação corretiva (voltar a esta skill). |
+| **< 6.0 COM volume de eventos** | BLOCK. Pixel ou CAPI mal configurado (o escore existe e está baixo — é config, não falta de dados). **Escape (ES1):** ofereça **(A)** rodar o diagnóstico abaixo e re-medir, OU **(B)** prosseguir marcando `manifest.skipped_preflight += ["emq_gate"]` e avisando que 08/10 vão herdar tracking fraco (`tracking_ready: false`, membro aceitou o risco). |
 
 **Diagnóstico de EMQ baixo** (rodar antes de qualquer "prosseguir mesmo assim"):
 - CAPI OFF ou sem Advanced Matching (Data sharing abaixo de Maximum) → ETAPAS 1-2.
 - Data sharing em "Optimized" pausou o envio (loja sem tráfego) → ETAPA 1 passo 3 ("Always on").
-- Sem volume: dataset novo precisa de ~algumas dezenas de eventos pra calcular o escore. Se a loja não teve tráfego ainda, o número pode estar vazio — não é erro, é falta de dados. Nesse caso, marcar `emq.status: "pending_traffic"` e seguir (o primeiro tráfego de ad vai popular).
+- Sem volume: dataset novo precisa de ~algumas dezenas de eventos pra calcular o escore. Se a loja não teve tráfego ainda, o número pode estar vazio — não é erro, é falta de dados → caminho **`pending_traffic`** da tabela acima (exige o pedido-teste validando o Purchase).
 - Pixel duplicado (hardcoded + nativo, ou CAPI 1-clique por cima da nativa) → dedup quebrada → ETAPAS 1-2.
 
 ### ETAPA 4 — Analytics Stack (decision tree por member-stage)
@@ -138,7 +139,7 @@ Antes de declarar pronto, confirmar a checklist (responde 08/10):
 - [ ] Data sharing do pixel em **"Always on"** (não "Optimized")
 - [ ] 5 eventos do funil disparando (PageView, ViewContent, AddToCart, InitiateCheckout, Purchase)
 - [ ] CAPI ON (Data sharing = Maximum) + Advanced Matching ON (dupla-coluna Browser + Server), sem fonte server-side duplicada (CAPI 1-clique)
-- [ ] EMQ ≥ 6.0 no Purchase (ou `emq_warn` documentado / `pending_traffic`)
+- [ ] EMQ ≥ 6.0 no Purchase (ou `emq_warn` documentado; ou `pending_traffic` com Purchase validado por pedido-teste e `emq_pending: true` no manifest)
 - [ ] Analytics stack escolhido e instalado/confirmado
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
@@ -198,12 +199,13 @@ Após salvar, atualizar `workspace/[produto]/manifest.json`:
   "pixel_installed": true,
   "capi_active": true,
   "emq_score": 7.2,
+  "emq_pending": false,
   "analytics_stack": "meta_app",
   "tracking_ready": true
 }
 ```
 
-- `emq_score`: 0-10 (ou `null` se `pending_traffic`). `tracking_ready`: `true` só com EMQ ≥ 6.0 (ou risco aceito explicitamente via escape ES1). As Skills 08 e 10 leem `manifest.tracking.tracking_ready` no pré-flight sem pedir screenshot de novo; a 10 e a 11 leem `manifest.tracking.analytics_stack` pra orientar leitura de dados.
+- `emq_score`: 0-10 (ou `null` se `pending_traffic`). `tracking_ready`: `true` com EMQ ≥ 6.0 medido, **OU** no caminho `pending_traffic` (Pixel + CAPI instalados, 5 eventos confirmados, Purchase validado por pedido-teste) — nesse caso gravar também `emq_pending: true` (a 10 aceita esse estado com aviso, e a 11 re-lê o EMQ no dia 3 de tráfego). Risco aceito via escape ES1 (config errada, membro seguiu mesmo assim) continua `tracking_ready: false`. As Skills 08 e 10 leem `manifest.tracking.tracking_ready` no pré-flight sem pedir screenshot de novo; a 10 e a 11 leem `manifest.tracking.analytics_stack` pra orientar leitura de dados.
 - Registrar `tracking_id`
 - Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` é o `product_slug`; atualiza ABRIR-AQUI.html)
 
@@ -213,14 +215,14 @@ Após salvar, atualizar `workspace/[produto]/manifest.json`:
 
 (idioma = `report_language`)
 
-> "Tracking pronto. Pixel `[Dataset ID]` conectado (data sharing 'Always on'), CAPI ON com Advanced Matching, e os 5 eventos do funil disparando. Event Match Quality em **[X]/10** (`[pass/warn]`). Analytics stack: **[stack escolhido]** (escolhido pelo seu stage `[stage]` + budget).
+> "Tracking pronto. Pixel `[Dataset ID]` conectado (data sharing 'Always on'), CAPI ON com Advanced Matching, e os 5 eventos do funil disparando. Event Match Quality em **[X]/10** (`[pass/warn]`) [SE `pending_traffic`: "Event Match Quality ainda **sem escore** — normal em loja pré-launch, o EMQ só calcula com tráfego real. Validei o Purchase de ponta a ponta com o pedido-teste, então o launch está destravado (`emq_pending`); no dia 3 de tráfego a análise re-lê o escore e corrige se vier abaixo de 6"]. Analytics stack: **[stack escolhido]** (escolhido pelo seu stage `[stage]` + budget).
 >
 > Isso destrava os criativos e a campanha — eles exigem exatamente esse pixel + CAPI com EMQ ≥ 6/10 que a gente acabou de validar.
 >
-> Próximo passo: diga **'checkout'** pra configurar upsell/bump/bundle (Skill 07d — ela ajusta o AOV e o CPA que o briefing de ad usa, então vem ANTES dos criativos). Se preferir pular direto, **'creatives'** (Skill 08) também já herda `tracking_ready: true` do manifest.
+> Próximo passo: diga **'checkout'** pra configurar upsell/bump/bundle (Skill 07d — ela ajusta o AOV e o CPA que o briefing de ad usa, então vem ANTES dos criativos). Depois dela, a ordem de launch segue: **'bonus delivery'** (05 Fase A, se a oferta tem bônus) → **'retention'** (13 Fase A — flows de recuperação: abandoned cart + post-purchase, a infraestrutura que se arma ANTES de ligar tráfego) → **'creatives'** (08).
 >
 > Primeira versão dos próximos passos como referência — se quiser ajustar a stack de tracking ou re-medir o EMQ depois de rodar tráfego, é só me chamar."
 
 ---
 
-> **Self-audit silencioso (rule 9 + `.claude/rules/post-task-self-audit.md`):** antes de declarar pronto, confirmar inline e sem mostrar bloco: (1) `manifest.tracking.tracking_ready` reflete o status REAL do EMQ (não gravar `true` com escore < 6.0 sem o membro ter aceitado o risco); (2) `manifest.tracking.analytics_stack` é uma das 4 opções canônicas e bate com o stage; (3) `07c-tracking-setup/dados.json` + `tracking-setup.md` + `tracking-setup.html` salvos, `.html` com logo SVG, `emq.score` na escala 0-10; (4) Dataset ID do pixel é consistente com o ad account que a Skill 10 vai usar; (5) manifest atualizado (`skills_completed`, bloco aninhado `tracking` completo — `pixel_installed`/`capi_active`/`emq_score`/`analytics_stack`/`tracking_ready` —, `updated_at`); (6) data sharing do pixel confirmado em "Always on" e sem fonte CAPI duplicada. Issue dentro do escopo → fix inline. Conflito que exige decisão do membro (ex: dois pixels ativos, qual manter) → surface curto.
+> **Self-audit silencioso (rule 9 + `.claude/rules/post-task-self-audit.md`):** antes de declarar pronto, confirmar inline e sem mostrar bloco: (1) `manifest.tracking.tracking_ready` reflete o status REAL do EMQ (não gravar `true` com escore < 6.0 MEDIDO sem o membro ter aceitado o risco; o caminho `pending_traffic` só grava `true` com os 5 eventos confirmados + Purchase validado por pedido-teste + `emq_pending: true`); (2) `manifest.tracking.analytics_stack` é uma das 4 opções canônicas e bate com o stage; (3) `07c-tracking-setup/dados.json` + `tracking-setup.md` + `tracking-setup.html` salvos, `.html` com logo SVG, `emq.score` na escala 0-10; (4) Dataset ID do pixel é consistente com o ad account que a Skill 10 vai usar; (5) manifest atualizado (`skills_completed`, bloco aninhado `tracking` completo — `pixel_installed`/`capi_active`/`emq_score`/`analytics_stack`/`tracking_ready` —, `updated_at`); (6) data sharing do pixel confirmado em "Always on" e sem fonte CAPI duplicada. Issue dentro do escopo → fix inline. Conflito que exige decisão do membro (ex: dois pixels ativos, qual manter) → surface curto.

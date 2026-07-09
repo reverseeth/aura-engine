@@ -204,6 +204,8 @@ Use o archetype pra influenciar FORMATO e SCRIPT dos conceitos:
 
 > **Por que não despejar 20 criativos num ad set:** acima de ~12 o budget se espalha fino demais e nenhum criativo junta dados suficientes pra decisão de kill (Skill 11). Quando há volume além do teto do ad set, abrir um segundo ad set / segunda conta (regra da Skill 12), não inflar um só.
 
+> **Reconciliação com a rule `member-stage-awareness`:** a rule cita contagens de conceitos por stage (3-4 / 6-8 / 10-15) que vêm da estrutura antiga de 1 ad set por conceito. Com a estrutura atual (1 ad set → N criativos, cada conceito = 3 criativos), **a TABELA ACIMA é a fonte canônica de contagem** — em qualquer divergência, vale esta tabela. O espírito da rule (conservador pra starter, agressivo pra scaling) permanece; só os números absolutos mudaram.
+
 **Champions (conceitos já validados):** se há winners rodando, eles ocupam slots do ad set de teste OU foram isolados em campanha própria de escala (Skill 12). Conceitos novos preenchem os slots restantes até o teto.
 
 Mostre ao membro (sem pedir confirmação) — a mensagem depende de N×3 vs o teto de ~12 do ad set:
@@ -655,7 +657,8 @@ Em `workspace/[produto]/08-creative-engine/prompts/prompts-index.json`:
     {
       "concept_id": "c-01",
       "video_prompt_file": "prompt-c01-video.txt",
-      "video_prompt_folder": "c01-slug/ (quando multi-shot; senão null)",
+      "video_prompt_folder": "c01-slug/|null",
+      "_comment_video_prompt_folder": "preenchida só quando multi-shot (Higgsfield estourando o limite); senão null",
       "video_shots": [
         { "file": "shot-1.txt", "phase": "hook", "duration_sec": 4, "product_ref": false },
         { "file": "shot-2.txt", "phase": "body", "duration_sec": 14, "product_ref": true }
@@ -776,11 +779,12 @@ Antes de finalizar os briefings e hooks bank, rodar compliance check em TODA pe�
    - Headlines (2 por conceito)
    - Text overlays (todos os beats)
    - Hooks Bank (10 alternativos)
-3. Parse da resposta JSON:
-   - `severity == critical`: PARAR, reportar ao membro, aplicar `rewrite_suggestion` ou pedir revisão manual
-   - `severity == high`: aplicar `rewrite_suggestion` automaticamente, logar em `workspace/[produto]/08-creative-engine/compliance-log.json`
-   - `severity == medium`: manter original, logar warning
-   - `severity == low`: salvar silenciosamente
+3. Parse da resposta JSON — decisão pelo **`overall_verdict`** (protocolo canônico do GATE 1 de `pre-launch-gates.md`, mesma tabela da Skill 06; mapeamento severity→verdict: low → `pass`, medium → `warning`, high/critical → `critical`):
+   - `critical` → **BLOCK**: se algum trigger tem `severity: "critical"`, PARAR e apresentar os triggers ao membro com as `rewrite_suggestions[]`, pedindo revisão manual (rota ES3 se launch urgente). Se o verdict veio só de triggers `high`, aplicar o `rewrite_suggestion` (reescrita completa da peça) e **RE-RODAR o check no texto reescrito**; se persistir `critical`, PARAR e apresentar ao membro — a peça não entra no batch sem passar.
+   - `warning` → aplicar as `rewrite_suggestions[]` automáticas e **RE-RODAR o check** (NUNCA "manter original"). Se virar `pass`, prosseguir. Se persistir `warning`, salvar a peça MAS logar em `workspace/[produto]/compliance-warnings.json` (path canônico do gate) e citar os warnings na Mensagem Final ("N warnings de compliance — revise se quiser").
+   - `pass` → salvar silenciosamente.
+
+   Além do log de warnings acima, manter o log consolidado de TODOS os checks (qualquer verdict) em `workspace/[produto]/08-creative-engine/compliance-log.json`.
 4. Sanity pass final: zero termos ad-flag (Botox, filler, injection, cure, treat) em qualquer peça pública. Travessão (—) zero em headlines, ≤2 em copy longa. Todo conceito com humano fotorrealista gerado por AI está marcado `ai_disclosure_required: true` (gate I da ETAPA 4.5).
 
 Output log em `workspace/[produto]/08-creative-engine/compliance-log.json`:
@@ -849,9 +853,42 @@ Crie um resumo operacional pro membro executar. As linhas variam conforme a rota
 ### Isolar winners no ad set único (estrutura 1-ad-set-N-criativos)
 
 Na estrutura da Skill 10 (1 campanha → 1 ad set Advantage+ → N criativos), cada criativo entra como um **ad individual** no ad set, então o Ads Manager dá breakdown por criativo nativamente (CPA/spend por ad). Para reforçar a leitura e cruzar com Shopify:
-- Adicionar UTM `utm_content=[concept-id]-[creative-n]` único por criativo no link
+- UTMs seguem o **schema canônico da Skill 10** (fonte única — NÃO inventar formato próprio aqui): `utm_content=[concept-id]-[creative-n]` identifica o CRIATIVO (ex: `rootcause-2` — as 3 execuções do pack 3-2-2 nunca dividem o mesmo `utm_content`), e as macros dinâmicas `utm_id={{ad.id}}` + `utm_term={{adset.id}}` dão os identificadores de máquina no breakdown
 - Pós-compra, cruzar com Shopify analytics por UTM (o que o Ads Manager mede como purchase nem sempre bate 1:1 com a venda real)
 - O Flexible Ads Format do Meta (combinar variações dentro de UM ad) foi **descontinuado em março/2026** — não existe mais como opção no Ads Manager. O parente vivo mais próximo é o toggle **"Flexible media"** do Advantage+ creative (deixa o Meta remixar as mídias entre placements) — sofre da MESMA limitação de breakdown opaco; manter desligado durante teste pra não perder a leitura por criativo. A estrutura é sempre **1 criativo = 1 ad dentro do ad set**, com breakdown nativo por criativo.
+
+### ETAPA 9 — Checklist final antes de entregar o batch (consolidação de TODOS os gates)
+
+A skill tem ~10 gates espalhados pelas ETAPAs. Antes de declarar o batch entregue, percorra esta lista COMPLETA — é a consolidação verificável de tudo (mesmo padrão da Validação Final da 04 e dos sweeps da 06). Item falhou → volte à ETAPA indicada e corrija ANTES de entregar (silent fix first, rule `post-task-self-audit`). O membro só vê o batch com a lista inteira passando.
+
+**Estrutura e volume:**
+- [ ] N de conceitos segue a tabela da ETAPA 2 (canônica) pro budget/stage do membro; N×3 ≤ 12 por ad set (ou split em 2+ ad sets anunciado)
+- [ ] Cada conceito respeita as 4 hard rules do 3-2-2 (ETAPA 4.5.A.0): MESMO conceito, MESMO formato, MESMO awareness, MESMO intent — os 3 criativos variam SÓ hook/abertura/visual inicial
+- [ ] `awareness_level` travado por conceito e validado contra `awareness_distribution` da 02 (warning emitido se peso <10%)
+- [ ] Todo criativo em 9:16 (1080×1920) como versão primária (ETAPA 4.5.A); crop 1:1/4:5 documentado quando aplicável
+- [ ] Plataforma primária calibrada (ETAPA 4.5.B); se roda em Meta E TikTok, briefing tem as 2 versões de script
+
+**Copy e script:**
+- [ ] Word count do spoken script dentro do range 2.8-3.0 palavras/s pra duração alvo (ETAPA 4.5.C); `word_count_within_limit: true` em todos
+- [ ] Siglas, números técnicos, compostos químicos e claims regulatórios SÓ em text overlay, nunca na fala (ETAPA 4.5.D)
+- [ ] Todo hook (dos conceitos E do Hooks Bank) com `emotion_dominant` (1 das 4 Hook Emotions) + hook archetype declarados (ETAPA 4.5.E)
+- [ ] Todo hook/primary text/headline com `voc_source` rastreável à 02 OU marcado `requires_manual_review: true` e listado pro membro (ETAPA 4.5.F) — zero frase de avatar inventada
+- [ ] `hook_swap_viable` declarado por conceito (ETAPA 4.5.G)
+- [ ] Primary texts meaningfully different (estrutura+ângulo+hook, não cosmético); headlines com frames distintos (ETAPA 5)
+
+**Compliance:**
+- [ ] Soft check da geração passou (ETAPA 4.5.H): zero travessão em headlines (≤2 em copy longa), zero ad-flag words em peça pública
+- [ ] Compliance Pre-flight (ETAPA 7.5) rodado em TODA peça consumidor-final; decisão pelo `overall_verdict` (critical bloqueado/reescrito+re-rodado, warning reescrito+re-rodado); `compliance-log.json` salvo e warnings residuais em `compliance-warnings.json`
+- [ ] Todo conceito com humano fotorrealista de AI marcado `ai_disclosure_required: true` e listado no resumo de produção (ETAPA 4.5.I)
+
+**Entregáveis e handoff:**
+- [ ] Entregável de produção por conceito conforme a rota (ETAPA 5.7): Rota A = prompts em `prompts/` + `prompts-index.json` (+ `renders/` se MCP rendeu); Rota B = `concept-XX-edl.md` com tabela timecode + bloco de usage rights; Mix = cada conceito no seu ramo
+- [ ] LP congruency documentada por conceito (ETAPA 6): destino + message/visual/promise match
+- [ ] Hooks Bank com 10 hooks categorizados no `.md` E no array top-level `hooks_bank[]` do dados.json (ETAPA 7 — contrato com os checks H1/M3 da Skill 09)
+- [ ] `dados.json` completo no schema: `emotion_dominant`/`archetype`/`awareness_level` no NÍVEL do concept (contrato com o gate H4 da 09), `compliance_summary` preenchido, `production_route`/`ai_video_model` gravados
+- [ ] DNA extraction rodada por criativo (ETAPA 7.6) ou erro logado em `extraction-errors.log` (não bloqueia)
+- [ ] Instrução de UTM usa o schema canônico da Skill 10 (`utm_content=[concept-id]-[creative-n]` + macros `{{ad.id}}`/`{{adset.id}}`) — nenhum formato próprio inventado
+- [ ] Dual output: todo relatório `.md` com `.html` companion + logo SVG literal (isenções: `concept-NN-edl.md`, `prompts/*`, `renders/*`, `dados.json`); `manifest.json` atualizado + `build_index.py` rodado
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
@@ -898,7 +935,8 @@ Outputs em `workspace/[produto]/08-creative-engine/` (nomenclatura normalizada):
       "format": "video_ugc|video_demo|static_image|carousel|motion_graphic",
       "ai_disclosure_required": false,
       "duration_target_seconds": 22,
-      "edl_file": "concept-01-edl.md | null (só rota edl)",
+      "edl_file": "concept-01-edl.md|null",
+      "_comment_edl_file": "preenchido só pra conceitos production_route=edl; null na rota ai (o entregável vira production_prompts)",
       "video_generation_mode": "split_takes|continuous|single_take|null",
       "word_count_spoken": 55,
       "word_count_within_limit": true,
@@ -918,12 +956,13 @@ Outputs em `workspace/[produto]/08-creative-engine/` (nomenclatura normalizada):
       "production_prompts": {
         "_comment": "preenchido só pra conceitos production_route=ai; pra route=edl, production_prompts=null e o entregável é edl_file",
         "video": {
+          "_comment": "director continuous-script = modelo de geração contínua (Veo/Sora/Kling); rendered_file preenchido só quando o Higgsfield MCP rendeu in-session (ETAPA 0.7), senão null",
           "file": "prompts/prompt-c01-video.txt",
-          "director": "marketing-studio-director|continuous-script (modelo longo)",
+          "director": "marketing-studio-director|continuous-script",
           "model": "higgsfield|veo_3.1|sora_2|kling",
           "preset": "UGC|Tutorial|Unboxing|Hyper Motion|Product Review|TV Spot|Wild Card|UGC Virtual Try On|Pro Virtual Try On",
           "tool_url": "https://higgsfield.ai/marketing-studio",
-          "rendered_file": "renders/c01.mp4 | null (preenchido só quando o Higgsfield MCP rendeu in-session)"
+          "rendered_file": "renders/c01.mp4|null"
         },
         "image": {
           "file": "prompts/prompt-c01-image.txt",
@@ -965,7 +1004,7 @@ Após salvar, atualizar `workspace/[produto]/manifest.json`:
 
 ## Mensagem Final
 
-A mensagem se adapta à rota escolhida (ETAPA 1.0). Apresente como **draft** convidando iteração (rule iteration-driven-refinement), não como "pronto pra lançar".
+A mensagem se adapta à rota escolhida (ETAPA 1.0). Apresente como **draft** convidando iteração (rule iteration-driven-refinement), não como "pronto pra lançar". Se a ETAPA 7.5 deixou warnings residuais de compliance, cite na mensagem ("N warnings de compliance — revise se quiser").
 
 **Se Rota A (IA):**
 
@@ -977,7 +1016,7 @@ A mensagem se adapta à rota escolhida (ETAPA 1.0). Apresente como **draft** con
 - **Edição**: junte vídeo + voiceover + text overlays no CapCut/Submagic/Captions
 - **Label "AI Info"**: os conceitos [lista] têm humano fotorrealista gerado por AI — no upload, marque o conteúdo como gerado por AI no Ads Manager (com o label correto não há penalidade; sem ele, o Meta reduz a entrega ou remove o ad)
 
-Revisa e me diz o que ajustar (tom, ângulo, hook) antes de você gerar tudo. Quando os criativos estiverem prontos, diga 'ad strategy' pra montar a campanha no Meta."
+Revisa e me diz o que ajustar (tom, ângulo, hook) antes de você gerar tudo. Quando os criativos estiverem prontos: diga **'agentic readiness'** (07e) e depois **'consistency audit'** (09 — o GATE de launch); com o audit verde, **'ad strategy'** monta a campanha no Meta."
 
 **Se Rota B (montagem/EDL):**
 
@@ -987,6 +1026,6 @@ Revisa e me diz o que ajustar (tom, ângulo, hook) antes de você gerar tudo. Qu
 - **Footage**: use SÓ material licenciado (leia o bloco de usage rights em cada EDL). Onde falta footage, o EDL marca `[FALTA FOOTAGE]` com as opções (Billo/Insense, stock pago, próprio)
 - **Voiceovers** (se conceito tem): gere no ElevenLabs e coloque por cima da montagem
 
-Revisa os EDLs e me diz se o ritmo/estrutura tão certos antes de você montar. Quando os criativos estiverem prontos, diga 'ad strategy' pra montar a campanha no Meta."
+Revisa os EDLs e me diz se o ritmo/estrutura tão certos antes de você montar. Quando os criativos estiverem prontos: diga **'agentic readiness'** (07e) e depois **'consistency audit'** (09 — o GATE de launch); com o audit verde, **'ad strategy'** monta a campanha no Meta."
 
 **Se Rota C (Mix):** combine as duas mensagens — liste os conceitos `ai` apontando pros prompts e os conceitos `edl` apontando pros arquivos de montagem."
