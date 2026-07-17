@@ -84,6 +84,7 @@ Perguntas que a AI faz a si mesma:
 Output escrito passa em:
 
 - Rigor de idioma (regra 0 do CLAUDE.md) — português claro, sem jargão não-explicado, sem inglês forçado
+- Linguagem simples (regra 0, bloco de prioridade máxima) — nenhuma sigla sem explicação imediata (CAGR/RCT/etc. → palavras), zero frase de analista comprimida, números estatísticos em palavras, VOC em inglês com "tradução livre" ao lado — teste: "alguém de fora do setor entende de primeira?"
 - Frases completas, lógica encadeada (não bullets genéricos vazios)
 - Especificidade (Hopkins) — "47% de redução em 14 dias" > "resultados rápidos"
 - Zero travessão em headlines (rule 8a) — em copy longa, ≤2

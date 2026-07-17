@@ -12,11 +12,15 @@ Pra qualquer dado que precise vir da web (VOC, PDP, ads, reviews):
 
 3. **Se barrado (403/429/Cloudflare/login-soft/conteúdo só-JS) → o fetcher Playwright da Aura:**
    ```bash
-   python3 .claude/lib/web-fetch/fetch.py "<url>" --mode text|reddit|reviews [--json]
+   python3 .claude/lib/web-fetch/fetch.py "<url|termo>" --mode text|reddit|reviews|trends|adlib [--json]
    ```
    - **Reddit** → sempre `--mode reddit`. Cascade interna do modo: (1) front-ends redlib (com fallback entre instâncias); (2) se todos os redlib caírem → **API do Arctic Shift** (arquivo público de posts/comments do Reddit, sem key e sem login — cobre thread inteira por ID/URL). Reddit bloqueia fetch direto por IP, por isso nunca bater em reddit.com direto.
-   - **Páginas de review (Amazon/Trustpilot/Loox/Yotpo)** → `--mode reviews` (rola pra carregar os widgets lazy).
-   - **PDP com Cloudflare / Meta Ad Library** → `--mode text`.
+   - **Google Trends** → sempre `--mode trends` (aceita o termo direto ou a URL do explore; defaults US/5 anos). NUNCA tentar renderizar o site do Trends com `--mode text` — ele recusa navegador automatizado. O modo consulta a API de dados JSON do próprio Trends (HTTP puro → mesma API por dentro do Chromium) e devolve a série + classificação QUEDA/FLAT/SUBINDO/SPIKE pronta pra ETAPA 3 do product research. Degrau final se falhar: screenshot do membro.
+   - **Meta Ad Library** → `--mode adlib` (espera + rolagem até os cartões de anúncio carregarem). Fallback: MCP TrendTrack (indexa os mesmos anúncios).
+   - **Páginas de review (Amazon/Trustpilot/Loox/Yotpo)** → `--mode reviews` (rola pra carregar os widgets lazy). Amazon: URL de `/product-reviews/` é reescrita automaticamente pra página do produto (`/dp/`), que mostra os principais reviews sem login — pra volume, some fontes redundantes (Trustpilot, Target, iHerb).
+   - **PDP com Cloudflare** → `--mode text`.
+   - **Estudos científicos atrás de paywall/403 (ScienceDirect, journals)** → NÃO declarar bloqueado antes de tentar o espelho público: `WebSearch "PMC <título do estudo>"` → pmc.ncbi.nlm.nih.gov costuma ter o texto integral; o mínimo garantido é o resumo no PubMed. Só depois disso registrar o gap.
+   - **USPTO / uspto.report (Cloudflare Turnstile)** → não insistir no site: dados de marca registrada saem por snippets do WebSearch + espelhos públicos (Justia, Trademarkia).
    - Exit code 2 = bloqueio irrecuperável; 3 = Playwright não instalado (rode o setup do README da lib).
 
 4. **Se AINDA barrar (hard-CAPTCHA: Walmart/PerimeterX, Cloudflare Turnstile) →** caia pra: (a) MCP conectado (`mcp__trendtrack__*` pra competitor/ads, etc.), OU (b) **pedir o paste/screenshot ao membro**. **NUNCA fabricar a frase/claim que faltou.**
