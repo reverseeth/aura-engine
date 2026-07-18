@@ -187,7 +187,7 @@ Formato da mensagem a enviar:
 >
 > **2. Budget diário pra ads** (em dólares — ex: `100`)
 >
-> **3. Ferramentas que você tem acesso** (marca as que se aplicam): SpyBox/Kalodata · Shopify · ElevenLabs · Meta Ads Manager
+> **3. Ferramentas que você tem acesso** (marca as que se aplicam): TrendTrack · SpyBox · Higgsfield
 >
 > **3b. Plataforma de email (ESP)** que você usa — escolha uma:
 > - A) Klaviyo
@@ -200,10 +200,10 @@ Formato da mensagem a enviar:
 Depois que o membro responder, parseie a resposta e extraia:
 - `SITUACAO` → A, B, C ou D
 - `BUDGET` → número em dólares
-- `TOOLS` → lista das ferramentas mencionadas (SpyBox/Kalodata, Shopify, ElevenLabs, Meta Ads Manager)
+- `TOOLS` → lista das ferramentas mencionadas (TrendTrack, SpyBox, Higgsfield)
 - `ESP` → plataforma de email escolhida na 3b: `klaviyo` (A), `omnisend` / `mailerlite` / `shopify_email` conforme o que o membro citar (B), ou `none` (C) — tokens EXATOS do enum do manifest-schema (`shopify_email` com underscore, nunca hífen)
 - `LINK` → URL do produto principal (se SITUACAO ≠ A)
-- `SHOPIFY_LINK` → URL da loja Shopify (se TOOLS contém Shopify)
+- `SHOPIFY_LINK` → URL da loja Shopify (se o membro informar a loja na pergunta 4)
 
 Se o membro esquecer alguma resposta essencial, pergunte APENAS o que faltou — não re-apresente tudo.
 
@@ -259,10 +259,10 @@ Budget diário: $[X]
 Data do setup: [YYYY-MM-DD]
 
 ## Ferramentas
-- SpyBox/Kalodata: [sim/não]
-- Shopify: [sim + link / não]
-- ElevenLabs: [sim/não]
-- Meta Ads Manager: [sim + conta ativa / não]
+- TrendTrack: [sim/não]
+- SpyBox: [sim/não]
+- Higgsfield: [sim/não]
+- Shopify: [sim + link / não — vem da pergunta 4]
 - ESP (plataforma de email): [klaviyo / omnisend / mailerlite / shopify_email / none]
 
 ## Produto (se aplicável)
