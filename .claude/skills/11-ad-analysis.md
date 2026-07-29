@@ -14,6 +14,8 @@ A base Aura tem a TEORIA da leitura (4Pi, PSM). Este playbook é a camada de EXE
 
 > Os números de breakeven CPA vêm de `04-offer-builder/dados.json` (`unit_economics.weighted_margin_per_order`). Toda regra abaixo é relativa a ESSE breakeven, não a um valor fixo.
 
+> Se existe `03-competitor-analysis/dados.json` com `monitoring_radar[]` (ETAPA 3E da Skill 03), releia a cada análise: cheque se algum `trigger_signal` disparou (concorrente escalando ângulo novo, entrante no formato, rede de afiliado acelerando) e, se sim, informe o membro com a `action_if_triggered` correspondente.
+
 **1. Regra de KILL de criativo (CPA manda, não CTR):**
 - Criativo que **gastou 1-2× o breakeven CPA SEM nenhuma venda → pausa.** Esse é o gatilho operacional padrão.
 - **CTR alto sem venda não salva o criativo.** Um criativo pode ter scroll-stop ótimo, CTR alto, e mesmo assim não converter — se não vende dentro de 1-2× breakeven CPA, morre. O que paga a conta é a compra, não o clique.
