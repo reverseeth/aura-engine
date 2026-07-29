@@ -10,7 +10,7 @@ Membro tem TrendTrack pago E conectou via MCP. Detecção automática: se tools 
 
 ## Como o membro conecta
 
-Tutorial completo em `docs/aura-setup-pt.html`/`docs/aura-setup-en.html` (passo opcional na seção Aura Engine). Fluxo:
+Tutorial completo em `docs/aura-setup-pt.html` (passo opcional na seção Aura Engine). Fluxo:
 
 1. Claude Desktop ou Code → Settings → Connectors → Add custom connector
 2. URL: `https://api.trendtrack.io/v1/mcp`

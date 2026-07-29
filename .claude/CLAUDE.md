@@ -122,7 +122,7 @@ REGRAS FUNDAMENTAIS:
     **FRAMEWORK (vai pro GitHub público `github.com/reverseeth/aura-engine`):**
     - `.claude/` (skills, rules, hooks, libs, templates, CLAUDE.md, OVERVIEW)
     - `tools/`
-    - `docs/` (material de onboarding do framework — aura-explained, aura-setup; nunca contém dado de marca)
+    - `docs/` (material de onboarding do framework — aura-setup; nunca contém dado de marca)
     - `README.md`, `.gitignore`, `LICENSE`
 
     **WORKSPACE (LOCAL-ONLY, JAMAIS commitar/pushar):**

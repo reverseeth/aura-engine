@@ -33,7 +33,7 @@ Conexão acontece uma vez por dispositivo, e fica permanente até o membro remov
 - **Claude Desktop:** Settings → Integrations → Add Custom Integration → Nome *Aura* → URL `https://aura-mcp-production.up.railway.app/mcp` → Add
 - **Claude Code (terminal):** `claude mcp add --transport http aura https://aura-mcp-production.up.railway.app/mcp`
 
-Instruções completas com screenshots ficam em `docs/aura-setup-pt.html` (português) e `docs/aura-setup-en.html` (inglês).
+Instruções completas com screenshots ficam em `docs/aura-setup-pt.html`.
 
 ### O que tem dentro
 
