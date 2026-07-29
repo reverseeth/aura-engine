@@ -4,12 +4,13 @@ AI-powered operating system for DTC ecommerce brands. Runs inside Claude Code.
 
 ## What it does
 
-Orchestrates the full product-to-ads-to-retention workflow through 19 skills (15 numbered phases, 00–14; phase 07 splits into 07a–07e):
+Orchestrates the full product-to-ads-to-retention workflow through 20 skills (phases 00–14 plus optional 01b sourcing; phase 07 splits into 07a–07e):
 
 | # | Skill | Output |
 |---|---|---|
 | 00 | setup | profile + first manifest + dashboard |
 | 01 | product research | product validation + score |
+| 01b | sourcing (optional) | supplier analysis + quote message + logistics route (DDP → 3PL) + real COGS for skill 04 |
 | 02 | market research | VOC, awareness, sophistication, root cause |
 | 03 | competitor analysis | claims, gaps, creative patterns (Whisper transcription) |
 | 04 | offer builder | mechanism, research foundation, pricing, guarantee |

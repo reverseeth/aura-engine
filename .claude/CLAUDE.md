@@ -146,6 +146,7 @@ COMO AS SKILLS FUNCIONAM:
 O membro pode acionar qualquer skill por nome:
 - "setup" → skill 00
 - "product research" → skill 01
+- "sourcing" / "fornecedor" / "cotação" → skill 01b (opcional, roda em paralelo às fases 02-03: explica a operação em linguagem simples — MOQ, OEM, DDP, 3PL —, analisa fornecedores, monta a mensagem de cotação em inglês, aciona os agentes parceiros da Aura e entrega o custo real pro COGS da skill 04)
 - "market research" → skill 02
 - "competitor analysis" → skill 03 (inclui análise profunda de criativos escalados dos concorrentes via transcrição de vídeo, cascade Groq API → Whisper local — ETAPA 3C)
 - "offer" → skill 04 (inclui Research Foundation obrigatória — ETAPA 2.5)
@@ -163,7 +164,7 @@ O membro pode acionar qualquer skill por nome:
 - "bonus delivery" ou "bônus" → skill 05 (geração de asset de bônus de ecom + delivery; roda em DUAS fases: Fase A pré-launch, logo depois da 07d e só se a oferta tem bônus — gera os assets e configura GWP/entrega, porque todo bônus prometido na PDP precisa existir antes do primeiro ad; Fase B pós-launch, junto da Fase B da 13 — tracking de take-rate/access rate)
 - "content recycler" ou "recycle" → skill 14 (1 winner → 9 derivadas em formatos diferentes)
 
-ORDEM LÓGICA DE EXECUÇÃO: setup → product research → market research → competitor analysis → offer → copy → **STOREFRONT: page-design (07a) → page-build/deploy (07b) → tracking-setup (07c) → checkout-aov (07d)** → **bonus delivery — Fase A (05: assets + config de GWP — só se a oferta tem bônus)** → **retention — Fase A (13: flows de recuperação — abandoned cart + post-purchase; infraestrutura de launch, não campanhas de email)** → creatives → **agentic readiness (07e)** → **consistency audit** (09, GATE de launch) → ad strategy → ad analysis → scale → **PÓS-LAUNCH: retention — Fase B (13: win-back/replenishment, ≥50 compras) + bonus delivery — Fase B (05: tracking de take-rate)** → content recycler (pós-winner).
+ORDEM LÓGICA DE EXECUÇÃO: setup → product research → **(sourcing 01b, opcional — roda em paralelo às fases 02-03 e fecha o custo real antes da oferta)** → market research → competitor analysis → offer → copy → **STOREFRONT: page-design (07a) → page-build/deploy (07b) → tracking-setup (07c) → checkout-aov (07d)** → **bonus delivery — Fase A (05: assets + config de GWP — só se a oferta tem bônus)** → **retention — Fase A (13: flows de recuperação — abandoned cart + post-purchase; infraestrutura de launch, não campanhas de email)** → creatives → **agentic readiness (07e)** → **consistency audit** (09, GATE de launch) → ad strategy → ad analysis → scale → **PÓS-LAUNCH: retention — Fase B (13: win-back/replenishment, ≥50 compras) + bonus delivery — Fase B (05: tracking de take-rate)** → content recycler (pós-winner).
 
 Ou pode simplesmente descrever o que precisa e você identifica qual skill usar.
 
@@ -185,6 +186,7 @@ Quando precisar buscar na base, use queries como:
 - Bonus delivery: "offer stack bonus types digital community physical", "post-purchase delivery tracking access rate"
 - Content recycler: a estrutura "1 winner → 9 formatos" vem da lib `.claude/lib/content-recycler/` (formats.json), NÃO da base — na base puxe só frameworks de copy nomeados, ex: "Caples four U's hierarchy unique useful urgent ultra-specific headlines", "creative essence extraction reusable"
 - Agentic readiness (07e): NÃO usa a base (não há domínio de AEO lá) — fontes são docs oficiais Shopify/Perplexity/Google + verificação direta na loja. Não invente query pra base nessa skill.
+- Sourcing (01b): NÃO usa a base (não há domínio de sourcing/fornecedor lá) — fontes são os anúncios/cotações dos fornecedores, o profile do membro e os agentes parceiros. Não invente query pra base nessa skill.
 
 Faça buscas com deep=true para resultados mais completos.
 

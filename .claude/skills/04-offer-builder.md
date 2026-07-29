@@ -37,7 +37,9 @@ Quando o membro tem produto definido, market research pronto, e precisa construi
 
 Antes de perguntar, extraia o máximo automaticamente da página do produto (dado salvo no profile pela Skill 00 ou puxando via web fetch agora se o link estiver no profile). Features, ingredientes, claims, preço atual de mercado — tudo que conseguir.
 
-**Faça APENAS estas 3 perguntas, na ordem:**
+**Antes das perguntas, cheque `workspace/[produto]/sourcing/dados.json` (Skill 01b).** Se existir com `status: "closed"`, o COGS real já está lá (`landed_cost_per_unit`, `three_pl.pick_pack_per_order`, `logistics_route`) — use esses números direto, não pergunte custo ao membro e não marque `cogs_estimated`. Se existir com qualquer `status` diferente de `"closed"` (`quoting` ou `samples` — cotação/amostra ainda aberta), rode com estimativa conservadora + `cogs_estimated: true` e avise que os números refrescam quando a cotação fechar.
+
+**Faça APENAS estas 3 perguntas, na ordem (pulando o que o sourcing já respondeu):**
 
 **1. Custos (COGS breakdown — NÃO aceite agregado):**
 

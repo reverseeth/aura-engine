@@ -105,6 +105,11 @@ Valida produtos contra critérios (mass desire, mass urgency, mass uniqueness), 
 **Enrichment opcional:** quando MCP TrendTrack conectado, ETAPA 0.5 usa `find_winning_products` + `search_shops` + `creative_inspiration_pack`.
 **Output:** `01-product-research/product-research.md` + `product-research.html`
 
+### Skill 01b — Sourcing (opcional)
+**Trigger:** `"sourcing"` / `"fornecedor"`
+Fornecedor, cotação e logística do produto físico. Explica a operação em linguagem simples (MOQ, OEM/ODM, DDP, 3PL, FBA), analisa anúncios/fornecedores (começar vs escalar), monta a mensagem de cotação em inglês (7 blocos), oferece os agentes de sourcing parceiros da Aura (contato WhatsApp), compara cotações e entrega o custo real pro COGS da Skill 04. Roda em paralelo às fases 02-03.
+**Output:** `sourcing/sourcing.md` + `sourcing.html` + `dados.json`
+
 ### Skill 02 — Market Research
 **Trigger:** `"market research"`
 Coleta de Voice of Customer em Reddit, fóruns, reviews, comentários do TikTok. Identifica frases exatas dos clientes, mapeia awareness distribution, drivers psicográficos, objeções ranqueadas.
@@ -287,6 +292,7 @@ Cada fase mora numa subpasta própria `0X-<stem>/`. Dentro: `<stem>.html` (o que
 ├── promise-check.json · compliance-warnings.json   ← infra compartilhada
 ├── creative-dna/                      ← infra compartilhada (08 + 11)
 ├── 01-product-research/   → product-research.md / .html
+├── sourcing/              → sourcing.md / .html + dados.json   (01b, opcional — fornecedor, cotação, logística)
 ├── 02-market-research/    → market-research.md / .html + dados.json
 ├── 03-competitor-analysis/ → competitor-analysis.md / .html + dados.json + creative-patterns.json + creatives-inbox/
 ├── 04-offer-builder/      → offer-builder.md / .html + dados.json + research-foundation.json
@@ -480,6 +486,7 @@ Ordem canônica pra um produto novo:
 
 1. **setup** — cria workspace, profile, manifest
 2. **product research** — valida o produto, define vertical
+   - **sourcing** (01b, opcional) — fornecedor, cotação e logística; roda em paralelo aos passos 3-4 e fecha o custo real antes da oferta
 3. **market research** — VOC, awareness, drivers
 4. **competitor analysis** — 5-10 concorrentes, padrões, gaps
 5. **offer** — mecanismo, pricing, stack, garantia, unit economics
@@ -531,3 +538,4 @@ Os números das skills refletem a numeração da época de cada mudança.
 | 2026-06-22 | **Coleta resiliente da web.** Nova lib `web-fetch` (fetcher Playwright headless + stealth: `--mode text\|reddit\|reviews`, Reddit via redlib) + rule `resilient-fetch` (NON-NEGOTIABLE): cascade WebSearch → WebFetch → fetcher; bloqueio é tratado, nunca preenchido com texto inventado. Resolve os bloqueios de fetch (403/Cloudflare/CAPTCHA soft) nas skills de research. |
 | 2026-07-03 | **Skill 07e — Agentic Readiness (AEO).** Skill nova (19ª): checklist pós-deploy/pré-launch de descoberta por agentes de compra com AI — canal Agentic Storefronts + policies, Knowledge Base app, dados estruturados da PDP (audita a camada GEO da 07b), specs legíveis por agente, robots.txt (OAI-SearchBot/ChatGPT-User/PerplexityBot/ClaudeBot/Google-Extended), llms.txt, Perplexity Merchant Program, feed do Merchant Center, score de AI visibility. Não usa a base Aura (fontes: docs oficiais + verificação na loja viva). Bonus delivery (05) formalizada em DUAS fases (Fase A pré-launch: assets + GWP; Fase B pós-launch: tracking). Recipes novas registradas: `creative-loop.md` e `create-fixed-bundles.md`; `sync-campaign-from-meta.md` vira receita única com cascade interna. |
 | 2026-07-09 | **Retention (13) em DUAS fases.** Fase A pré-launch (flows de recuperação: abandoned cart + post-purchase) entra na ordem canônica entre a 05 Fase A e os criativos — infraestrutura de cash flow do launch, não campanha de email (win-back/replenishment e campanhas continuam pós-launch na Fase B, ≥50 compras). Painel `ABRIR-AQUI.html` ganha tag "2 fases" nos cards da 05/13, próximo-passo condicional (07d concluída → cobra 05 Fase A se a oferta tem bônus, depois 13 Fase A) e linha fixa explicando que os cards seguem a ordem de execução (o número é o ID fixo da skill). |
+| 2026-07-29 | **Skill 01b — Sourcing (opcional).** Fornecedor, cotação e logística: a operação explicada em linguagem simples (MOQ, OEM/ODM, DDP, 3PL, FBA, dropship — tabela de trade-offs), análise de fornecedores (começar vs escalar), mensagem de cotação em inglês (7 blocos), agentes de sourcing parceiros da Aura (WhatsApp), comparação de cotações e contrato com a 04 (ETAPA 1 lê `sourcing/dados.json` fechado e usa COGS real em vez de estimar). Painel ganha tag "Opcional" (nunca vira sugestão de próximo passo). Docs de onboarding aura-explained (pt/en) e aura-setup-en removidos — `docs/aura-setup-pt.html` é o único guia. |
