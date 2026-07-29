@@ -321,6 +321,23 @@ Quando esta etapa rodar até o fim, grave no JSON companion `creative_deep_analy
 
 **Se membro NÃO enviar criativos**: pular essa etapa e prosseguir, gravando `creative_deep_analysis.status: "skipped"`. A skill 08 roda em modo "cold" (sem patterns de referência) — funciona, mas com menos sinal de mercado.
 
+### ETAPA 3D — Análise de FORMATO dos Criativos Escalados
+
+O formato é um elemento validado tão valioso quanto o ângulo — dois criativos com a mesma mensagem performam diferente conforme a estrutura. Pra cada criativo do top 10 da ETAPA 3 (e os transcritos na 3C), disseque o FORMATO como objeto próprio:
+
+- **Tipo estrutural**: UGC diário/depoimento · VSL curto/longo · lista invertida ("N razões...") · estático de texto longo (story) · demonstração de produto · future-pacing · comparação
+- **Duração** (vídeo): segundos exatos + onde o hook termina e o pitch começa
+- **Padrão de iteração do concorrente**: o que ele CONGELA e o que ele TROCA entre variações do mesmo winner (ex: copy congelada + hook do vídeo trocado; estático idêntico + headline nova) — esse padrão revela onde o concorrente acredita que está o valor do criativo
+- **Evidência de escala do formato**: aparições/duplicatas/dias rodando (mesma régua da ETAPA 3)
+
+Consolide em `dados.json` → `ad_formats[]`: `{ "format": "", "competitor": "", "duration_s": 0, "structure_notes": "", "iteration_pattern": "", "scale_evidence": "", "scale_signal": "high|medium|low" }`. A Skill 08 lê esse bloco pra montar o batch com formatos JÁ validados por escala — nunca só com ângulos.
+
+### ETAPA 3E — Páginas de Destino com Tráfego + Radar de Monitoramento
+
+**Páginas de destino (traffic landings):** pra cada concorrente ativo, capture PRA ONDE os ads apontam — a URL literal de destino dos criativos escalados (da Meta Ad Library) e, se disponível (TrendTrack/SimilarWeb), quais páginas do domínio mais recebem tráfego. O membro precisa dos LINKS pra abrir e estudar a página que está convertendo agora. Registre em `dados.json` → `traffic_landings[]`: `{ "competitor": "", "url": "", "page_type": "advertorial|landing|pdp|quiz|listicle", "evidence": "destino de N ads escalados / página top de tráfego", "source": "" }`. No `.md`, tabela com os links clicáveis.
+
+**Radar de monitoramento:** liste o que vale vigiar DEPOIS do launch — concorrentes/movimentos que podem mudar o jogo (ex: concorrente testando agora um ângulo novo; rede de afiliado acelerando; marca adjacente entrando no formato). Cada item: o que observar + onde (link) + qual sinal dispara ação. Registre em `dados.json` → `monitoring_radar[]`: `{ "what": "", "where": "", "trigger_signal": "", "action_if_triggered": "" }`. A Skill 11 relê esse bloco nas análises de ads.
+
 ### ETAPA 4 — Claims Compilation Completa
 
 **Frameworks a puxar da base ANTES de classificar (rode cada `best_query`):**
@@ -509,6 +526,10 @@ Criar mecanismo do zero é mais caro e arriscado do que recombinar o que o merca
 
 A Skill 04 (ETAPA 2A — Rota A) usa esse bloco pra APRIMORAR um mecanismo validado (mantendo o ângulo) ou CRUZAR mecanismo validado × ângulo validado de outra marca/vertical. Sem validated_library preenchida, a 04 cai na Rota B (criação original) — mais cara e arriscada. Preencha mesmo com poucos itens: 2 mecanismos com evidência real valem mais que 10 sem.
 
+**7. Resumo e Conclusão (fecha o `.md`)**
+
+Última seção do relatório: o que a análise inteira significa, em texto corrido e detalhado — não bullets soltos. Cobre: (a) o retrato do mercado em 1-2 parágrafos (quem escala, com quê, e o que isso prova); (b) as lacunas que NINGUÉM ocupa e por que estão abertas; (c) a jogada recomendada com a lógica encadeada (por que ESTA combinação de mecanismo + ângulo + formato vence, ancorada na evidência das etapas anteriores); (d) os riscos e o que vigiar (amarra com o radar de monitoramento). É a seção que o membro relê antes de cada decisão grande — precisa se sustentar sozinha.
+
 ### Data Source Audit (antes de salvar)
 
 Seção obrigatória no output (md + json):
@@ -552,6 +573,15 @@ Salvar os seguintes artefatos:
   "top_creatives": [
     { "creative_id": "", "competitor": "", "angle": "", "hook_literal": "", "appearances": 0, "funnel_position": "TOF|MOF|BOF" }
   ],
+  "ad_formats": [
+    { "format": "", "competitor": "", "duration_s": 0, "structure_notes": "", "iteration_pattern": "", "scale_evidence": "", "scale_signal": "high|medium|low" }
+  ],
+  "traffic_landings": [
+    { "competitor": "", "url": "", "page_type": "advertorial|landing|pdp|quiz|listicle", "evidence": "", "source": "" }
+  ],
+  "monitoring_radar": [
+    { "what": "", "where": "", "trigger_signal": "", "action_if_triggered": "" }
+  ],
   "alternative_solutions": [
     { "category": "", "price_range": "", "why_abandoned": "" }
   ],
@@ -576,11 +606,16 @@ Estrutura do `.md`:
 2. PDP analysis por concorrente (Etapa 2)
 3. Meta Ad Library findings + top creatives transcritos (Etapa 3)
 4. Classificação de posição de funil + CAVEAT especulativo (Etapa 3B)
-5. Claims compilation table + Claims Saturation matrix (Etapa 4)
-6. Alternative solutions map (Etapa 5)
-7. Gap analysis (Etapa 6)
-8. Síntese estratégica — posicionamento + swipe file com "COMO adaptar" + validated library (Etapa 7)
-9. Data Source Audit
+5. Análise de formato dos criativos escalados (Etapa 3D)
+6. Páginas de destino com tráfego (tabela com links) + radar de monitoramento (Etapa 3E)
+7. Claims compilation table + Claims Saturation matrix (Etapa 4)
+8. Alternative solutions map (Etapa 5)
+9. Gap analysis (Etapa 6)
+10. Síntese estratégica — posicionamento + swipe file com "COMO adaptar" + validated library (Etapa 7)
+11. Resumo e Conclusão (Etapa 7, item 7 — texto corrido, fecha o relatório)
+12. Data Source Audit
+
+Regras de escrita do `.md`/`.html`: texto INTEGRAL sempre — NUNCA truncar conteúdo em tabelas ou cards (posicionamentos, claims, hooks cortados com "..." perdem exatamente a parte que importa); posicionamento de concorrente é a frase de COMO ELE SE VENDE (entendível sozinha), nunca resumo interno de analista — a leitura estratégica vai em campo/parágrafo separado.
 
 **Atualize o `manifest.json`**:
 

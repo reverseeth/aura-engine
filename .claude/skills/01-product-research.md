@@ -450,6 +450,15 @@ Conteúdo de ambos:
 5. Preserve todos os campos preenchidos no setup (`budget_tier`, `product_url`, etc.)
 6. Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` = `product_slug` do vencedor — atualiza o `ABRIR-AQUI.html`).
 
+**Naming da marca — nome chiclete (antes de criar o brand.md):**
+
+As marcas que mais vendem têm nome chiclete: criativo, que gruda na primeira vez que a pessoa ouve, e amarrado ao conceito central do produto (o problema, o momento, o mecanismo, a tribo). Frameworks da base pra fundamentar (puxar por nome): **Bencivenga's Benefit-Embedded Naming** (rode `Bencivenga benefit embedded naming product name headline miniature`), **Ries & Trout Naming as Positioning** (rode `positioning Ries Trout naming most powerful positioning tool`), **Gum Names** (rode `big idea gum names sticky nickname mechanism`).
+
+- Gere 3-5 candidatos e recomende 1, com a lógica de cada um. O melhor candidato é o que gera VOCABULÁRIO próprio: rende verbo de campanha, status de cliente, apelido de mecanismo — um nome que só nomeia é fraco; um nome que cria linguagem carrega a marca inteira.
+- **O que É gate**: colisão direta na MESMA categoria com marca ativa vendendo (confusão real de consumidor).
+- **O que NÃO é gate no estágio de teste**: domínio exato ocupado (variação de domínio resolve); registro de marca ainda não feito (o custo de registro vem DEPOIS da validação com vendas, não antes); marca parecida em outra categoria que não fala do mesmo conceito. O check de trademark da ETAPA 4 informa o risco — não veta um nome genial pré-validação.
+- O membro decide. Grave o nome escolhido (e o vocabulário que ele gera) no `brand.md`.
+
 **Crie o `brand.md` do vencedor** (se ainda não existir `workspace/[produto]/brand.md` — membros de situação B/C/D já ganharam o deles no setup):
 
 - Copie `.claude/templates/brand.md.template` pra `workspace/[produto]/brand.md`.
