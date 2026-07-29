@@ -10,7 +10,7 @@ Membro tem o Refero MCP conectado E está rodando a skill **07a-page-design ETAP
 
 ## Como o membro conecta
 
-Tutorial completo nos passos do `docs/aura-setup-pt.html`/`docs/aura-setup-en.html` (passo opcional na seção Aura Engine). Fluxo resumido:
+Tutorial completo nos passos do `docs/aura-setup-pt.html` (passo opcional na seção Aura Engine). Fluxo resumido:
 
 **Claude Code (terminal):**
 ```bash
