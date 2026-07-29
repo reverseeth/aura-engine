@@ -476,7 +476,7 @@ Se houver produto TESTAR no ranking:
 
 Plano preliminar salvo em `workspace/[produto]/01-product-research/product-research.md`. Alinhamento com budget: [starter/standard/escala-inicial/escala-avançada] — viável.
 
-Próximo passo: diga **'market research'** pra aprofundar a pesquisa e montar o Unified Research Brief."
+Próximo passo: diga **'market research'** pra aprofundar a pesquisa e montar o Unified Research Brief. Se o produto é físico e você ainda não tem fornecedor, diga **'sourcing'** — a cotação roda em paralelo à pesquisa e fecha o custo real antes da oferta."
 
 Se NENHUM produto passou (todos TALVEZ ou DESCARTAR):
 

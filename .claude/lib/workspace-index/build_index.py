@@ -26,6 +26,7 @@ from pathlib import Path
 PHASES = [
     ("00", "00-setup",              {"pt-BR": "Setup",                 "en": "Setup"},                  None, None),
     ("01", "01-product-research",   {"pt-BR": "Pesquisa de produto",   "en": "Product research"},       "product research", None),
+    ("01b","sourcing",              {"pt-BR": "Fornecedor (sourcing)", "en": "Sourcing"},               "sourcing", "opt"),
     ("02", "02-market-research",    {"pt-BR": "Pesquisa de mercado",   "en": "Market research"},        "market research", None),
     ("03", "03-competitor-analysis",{"pt-BR": "Análise de concorrência","en": "Competitor analysis"},   "competitor analysis", None),
     ("04", "04-offer-builder",      {"pt-BR": "Oferta",                "en": "Offer"},                  "offer", None),
@@ -55,6 +56,12 @@ ALT_REPORT = {
     "07-page":  ["07-page/page-report.html", "07-page/07-page.html"],
 }
 
+# Fases cujo done vem SÓ do manifest (skills_completed), nunca da existência do relatório:
+# a 01b salva sourcing.html já no checkpoint de cotação enviada (status "quoting"), mas a
+# fase só fecha quando a cotação fecha (status "closed" → manifest). O link "Abrir
+# relatório" continua aparecendo; só o badge Concluído espera o manifest.
+MANIFEST_ONLY = {"sourcing"}
+
 LOGO_SVG = ('<svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
             '<path d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77'
             'v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z" fill="#14161A"/></svg>')
@@ -67,6 +74,7 @@ T = {
                 run='Diga <code>{cmd}</code> pra rodar.', progress="{d} de {t} fases concluídas",
                 alldone="Tudo pronto. Sua máquina está montada.", post="Pós-launch",
                 two_phase="2 fases",
+                optional="Opcional",
                 order_note="As fases aparecem na ordem em que rodam — o número é o ID fixo de cada skill.",
                 bonus_a="Entrega de bônus — Fase A (assets + GWP)",
                 retention_a="Retenção — Fase A (flows de recuperação)"),
@@ -77,6 +85,7 @@ T = {
                 run='Say <code>{cmd}</code> to run it.', progress="{d} of {t} phases done",
                 alldone="All set. Your machine is built.", post="Post-launch",
                 two_phase="2 phases",
+                optional="Optional",
                 order_note="Phases appear in the order they run — the number is each skill's fixed ID.",
                 bonus_a="Bonus delivery — Phase A (assets + GWP)",
                 retention_a="Retention — Phase A (recovery flows)"),
@@ -137,19 +146,21 @@ def build(slug):
         # collision (a bare startswith(sid) would let 07c mark the 07-page phase done).
         # fase 07 (folder 07-page) é construída pela 07b: marca done quando 07b consta
         # (a 07a só desenha; tracking/checkout 07c/07d são fases próprias e não contam aqui).
-        is_done = (link is not None
+        is_done = ((link is not None and folder not in MANIFEST_ONLY)
                    or any(s == folder or s.startswith(sid + "-") for s in completed)
                    or (sid == "07" and "07b-page-build" in completed))
         done_by_sid[sid] = is_done
         if is_done: done_count += 1
         elif next_phase is None and tag is None and cmd:
             next_phase = (names[lang], cmd)
-        elif post_next is None and tag and cmd:
+        elif post_next is None and tag and tag != "opt" and cmd:
+            # fases "opt" (opcionais, ex: sourcing) nunca viram sugestão de próximo passo
             post_next = (names[lang], cmd)
         name = html.escape(names[lang])
         badge = (f'<span class="b-done">{tr["done"]}</span>' if is_done else f'<span class="b-pending">{tr["pending"]}</span>')
         post_tag = (f'<span class="b-two">{tr["two_phase"]}</span>' if tag == "two"
-                    else (f'<span class="b-post">{tr["post"]}</span>' if tag == "post" else ''))
+                    else (f'<span class="b-post">{tr["post"]}</span>' if tag == "post"
+                          else (f'<span class="b-two">{tr["optional"]}</span>' if tag == "opt" else '')))
         # fase concluída via manifest mas sem HTML: sem call-to-action (mostrar "diga X
         # pra rodar" junto do badge Concluído seria contraditório pro membro)
         action = (f'<a class="open" href="{html.escape(link)}">{tr["open"]}<span aria-hidden="true">→</span></a>' if link

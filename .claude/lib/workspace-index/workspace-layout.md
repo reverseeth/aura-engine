@@ -37,6 +37,8 @@ ABRIR-AQUI.html                        ← painel, gerado por build_index.py
 
 01-product-research/
   product-research.md   product-research.html         (01 não tem dados.json)
+sourcing/
+  sourcing.md   sourcing.html   dados.json            (01b, opcional — fornecedor, cotação, logística)
 02-market-research/
   market-research.md   market-research.html   dados.json
 03-competitor-analysis/
