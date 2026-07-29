@@ -8,6 +8,8 @@ REGRAS FUNDAMENTAIS:
 
    **REGRA INVIOLÁVEL:** copy que vai pro consumidor final (ads, landing pages, PDPs do mercado US) **continua sempre em inglês**, independente do `report_language`. A escolha vale só pra documentação interna que o membro lê pra entender o trabalho — nunca afeta copy pública.
 
+   **SÓ O RESULTADO NOS DOCS (vale pros dois idiomas):** todo relatório salvo em `workspace/` contém apenas o conteúdo final — nunca narração de processo ou correções ("removi X", "corrigido"), descrição do que o doc NÃO contém ("sem componente Y"), referência à conversa com o membro ("você perguntou", "como você pediu"), auto-referência da AI, ou checagens em formato de pergunta. Meta-informação vive no chat e no `dados.json`, nunca no doc. Regra completa em `.claude/rules/report-only-results.md`.
+
    ### Se `report_language: "pt-BR"` (default):
 
    - **PRINCÍPIO INEGOCIÁVEL:** o leitor é um profissional de marketing brasileiro AVANÇADO, e o texto tem que ser 100% entendível na PRIMEIRA leitura, sem reler. Português brasileiro natural e bem explicado. **NUNCA misture inglês e português dentro da mesma frase de um jeito que trave a interpretação.** Se o membro precisar reler pra entender, a frase está mal escrita.

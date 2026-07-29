@@ -12,7 +12,7 @@ Valide antes de prosseguir:
 - [ ] `workspace/[produto]/manifest.json` existe
 - [ ] `02-market-research/dados.json` existe (awareness_distribution, sophistication_stage) E `02-market-research/market-research.md` existe (narrativa: pain points, desires, objeções; se não existir, procure o legado `relatorio.md` — mesmo fallback vale pras outras fases)
 - [ ] `03-competitor-analysis/competitor-analysis.md` E `03-competitor-analysis/dados.json` existem
-- [ ] Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language. As 3 versões do mecanismo (version_short/medium/long) são copy pública — permanecem em inglês se o mercado for US.
+- [ ] Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language. Nesta skill, copy pública é só `offer_stack`, a `copy` do bump e a promise da garantia — a LÓGICA do mecanismo (ump/ums) é documentação interna e vai no report_language; quem escreve a copy do mecanismo é a Skill 06.
 
 Se faltar qualquer arquivo de fase anterior (02/03), em vez de abortar seco, ofereça ao membro 2 caminhos (escape-path ES1):
 - **(A)** Rodar a skill faltante agora pra gerar o arquivo real, OU
@@ -160,13 +160,15 @@ Score final = soma / 5.
 
 Recomende o mecanismo com maior score total, com justificativa explícita por que esse vence os outros. Registre o `validation_source` do vencedor em `dados.json` → `mechanism.validation_source`.
 
-**2D — Escrever 3 Versões do Mecanismo (pra uso em copy/ads):**
+**2D — Documentar a LÓGICA do Mecanismo (sem escrever copy):**
 
-Para o mecanismo recomendado, escreva:
+A oferta define a estratégia do mecanismo; a copy nasce na Skill 06. **NUNCA escreva versões prontas de copy do mecanismo aqui (headline, parágrafo de PDP, expansão de advertorial)** — copy pré-escrita na oferta enviesa a Skill 06, que deve reler todo o research e decidir os ângulos sozinha. Documente, no report_language:
 
-- **Versão de 1 frase** (pra headlines, hooks, ads): ex: "Nossa fórmula ativa o [Mechanism Name] em 48 horas." (produto-agnóstico — adaptar ao vertical: skincare, supplement, fitness, gadget, etc)
-- **Versão de 1 parágrafo** (pra PDP e body de ads): explica como funciona + por que é diferente, em ~3-4 frases.
-- **Versão de 2-3 parágrafos** (pra landing page dedicada ou advertorial — expansão completa): inclui causa raiz do problema + como o mecanismo a endereça + por que os outros mecanismos não funcionam + evidência (ingredient research, estudos, se disponível).
+- **UMP (o problema):** nome próprio + a lógica de por que as soluções atuais falham, com os estudos/evidências citados (claim_ids da ETAPA 2.5).
+- **UMS (a solução):** nome próprio + a lógica de por que a nossa entrega funciona, com os estudos citados.
+- **Externalização de culpa:** de quem/do que é a culpa pela falha das soluções anteriores (nunca do avatar).
+
+É essa lógica (nomes + causa + evidência) que a Skill 06 expande em copy nas versões que ELA decidir (headline, parágrafo, expansão longa) conforme awareness e formato de página.
 
 ### ETAPA 2.5 — Research Foundation (OBRIGATÓRIO — Lastro de Evidência)
 
@@ -483,6 +485,8 @@ Reavalie o PSM com o **AOV projetado da ETAPA 6** (pós bump/upsell) como LTV-pr
 - **PSM 1.1–1.3**: escala estável, +5% por ciclo
 - **PSM > 1.3**: escala agressiva viável
 
+**No relatório (.md/.html), explique LTV e PSM como conceitos separados, em linguagem simples** — o membro confunde os dois. LTV é um valor em dinheiro (quanto um cliente rende ao longo do tempo; sem histórico, o proxy é o AOV projetado). PSM é uma razão: LTV dividido pelo custo de trazer e entregar o cliente (CPA + COGS) — acima de 1,0 o cliente rende mais do que custa; acima de 1,3 dá pra escalar forte. Mostre os dois números lado a lado (o LTV que alimenta o cálculo e o PSM resultante), nos cenários sem recompra e com recompra.
+
 Se PSM projetado < 1.1 — oferta **não sustenta escala lucrativa** com economics atuais. Sugira em ordem:
 1. **Aumentar AOV** (primeira opção, sem arriscar volume):
    - Bundle (ex: 3-pack desconto 15%)
@@ -493,16 +497,23 @@ Se PSM projetado < 1.1 — oferta **não sustenta escala lucrativa** com economi
 4. **Pivotar oferta** — mudar mecanismo ou público-alvo
 NUNCA "reduzir target CPA mágica"; CPA é output de eficácia, não input.
 
-### ETAPA 8 — Viabilidade com Budget do Membro
+### ETAPA 8 — Simulação de Budget (2 níveis)
 
-Cruze unit economics com budget diário do membro (do profile):
+Simule a operação em DOIS níveis: o budget diário declarado do membro (do profile) E o dobro dele. O membro decide budget olhando cenários lado a lado, não um número isolado. Pra cada nível, com o CPA de referência (mediano da categoria, ou o CPA-alvo se o membro declarou um):
 
-- Com target CPA de $X, quantas vendas/dia o budget do membro viabiliza?
-- Ex: budget $100/dia, CPA target $30 → ~3 vendas/dia
-- AOV projetado × 3 vendas/dia = ~$Y/dia em receita
-- Margem total projetada = $Z/dia
+| Métrica | Budget declarado | 2× o budget |
+|---|---|---|
+| Clientes por dia (budget ÷ CPA) | ... | ... |
+| Lucro por dia (clientes × margem de contribuição − nada além disso) | ... | ... |
+| Investimento no mês (budget × 30) | ... | ... |
+| Clientes no mês | ... | ... |
+| Lucro no mês | ... | ... |
 
-É viável? Cruze com as projeções 30/60/90 com cash flow da Skill 12 — em qual patamar de receita mensal essa oferta coloca o membro em 30, 60 e 90 dias?
+**Duas ressalvas obrigatórias junto da tabela** (senão a simulação engana): (1) o lucro simulado conta só a primeira compra — recompra soma por cima; (2) CPA tende a subir conforme o investimento cresce, então o nível 2× é estimativa de mesma eficiência, não promessa.
+
+Registre em `dados.json` → `budget_viability.scenarios[]` (um objeto por nível: `daily_budget`, `orders_per_day`, `profit_per_day`, `monthly_spend`, `orders_per_month`, `profit_per_month`) + `caveats` + `verdict`.
+
+Cruze com as projeções 30/60/90 com cash flow da Skill 12 — em qual patamar de receita mensal essa oferta coloca o membro em 30, 60 e 90 dias?
 
 ### ETAPA 9 — Validação Final (Sanity Checks)
 
@@ -522,6 +533,8 @@ Antes de salvar, responda HONESTAMENTE:
 
 Registre o resultado em `04-offer-builder/dados.json` → `sanity_checks` como `{ "total": 11, "passed": N, "failed": [<números dos checks que falharam>] }` (NÃO um inteiro hard-coded). Se alguma resposta for "não", **itere antes de salvar**. Uma oferta fraca que passa adiante vira ad ruim, copy genérica, e membro frustrado em 30 dias.
 
+**No relatório (.md/.html), as checagens aparecem como AFIRMAÇÕES do que está validado, com a evidência em 1 frase — nunca em formato de pergunta** (o formato de pergunta acima é ferramenta interna da skill; ver `.claude/rules/report-only-results.md`). Ex: "Margem sustenta tráfego pago. X% por pedido; CPA de empate acima do mediano da categoria."
+
 **Bloqueio de save (checks críticos):** se QUALQUER um dos checks críticos falhar — check 3 (economics/PSM viável), check 8 (margem $ ≥ $20 em ao menos uma variação), ou check 11 (`04-offer-builder/research-foundation.json` cobre os claims centrais) — NÃO salve o `04-offer-builder/dados.json` final. Itere até passar, ou aplique o escape-path correspondente (ES1 pra foundation faltante; ETAPA 7 pra economics; ETAPA 1 sanity de margem). Os demais checks que falharem entram em `failed[]` como aviso, mas não bloqueiam.
 
 ### Output Schema — `04-offer-builder/offer-builder.md` + `04-offer-builder/dados.json`
@@ -535,11 +548,11 @@ O markdown é humano; o JSON é para as skills 06/07/10/11/12. Estrutura obrigat
   "product_slug": "<do manifest>",
   "mechanism": {
     "name": "...",
-    "version_short": "1 frase (inglês US se mercado for US)",
-    "version_medium": "1 parágrafo (inglês US se mercado for US)",
-    "version_long": "2-3 parágrafos (inglês US se mercado for US)",
+    "ump": { "name": "nome próprio do mecanismo do problema", "logic": "por que as soluções atuais falham (report_language; cita claim_ids da research foundation)" },
+    "ums": { "name": "nome próprio do mecanismo da solução", "logic": "por que a nossa entrega funciona (report_language; cita claim_ids)" },
     "sin_score": { "simplicity": 9, "intuitiveness": 8, "novelty": 7 },
-    "validation_source": "improved_validated|crossed_validated|original"
+    "validation_source": "improved_validated|crossed_validated|original",
+    "copy_left_to_skill_06": true
   },
   "pricing": {
     "main_sku_price": 97.00,
@@ -583,6 +596,15 @@ O markdown é humano; o JSON é para as skills 06/07/10/11/12. Estrutura obrigat
       "delivery_trigger": "post_purchase | on_signup | day_7_post_purchase | on_first_reorder"
     }
   ],
+  "budget_viability": {
+    "cpa_ref": 45.00,
+    "scenarios": [
+      { "daily_budget": 50, "orders_per_day": 1.1, "profit_per_day": 12.00, "monthly_spend": 1500, "orders_per_month": 33, "profit_per_month": 360 },
+      { "daily_budget": 100, "orders_per_day": 2.2, "profit_per_day": 24.00, "monthly_spend": 3000, "orders_per_month": 66, "profit_per_month": 720 }
+    ],
+    "caveats": "lucro conta só a 1ª compra; CPA tende a subir com o investimento (2× = estimativa de mesma eficiência)",
+    "verdict": "..."
+  },
   "sanity_checks": { "total": 11, "passed": 11, "failed": [] }
 }
 ```
@@ -600,7 +622,7 @@ Depois de atualizar o manifest, regenera o painel do produto: `python3 .claude/l
 - `breakeven_roas` = `aov_expected / weighted_margin_per_order`
 - Sanidade: `target_cpa_primary_2x` < `breakeven_cpa` SEMPRE.
 
-No exemplo acima: weighted_margin_per_order 72 → breakeven_cpa 72, target_2x 36 (72/2), target_3x 24 (72/3), breakeven_roas 1.64 (118/72), psm_theoretical 1.44 (118/(36+46), COGS = somatório do breakdown). A Skill 11 (ad-analysis) lê por esses nomes "primary"/"weighted" e assume esse denominador único. Os campos legacy (`margin_per_unit`, `target_cpa_for_2x/3x`) são emitidos em paralelo só por compat. `weighted_margin_per_order` = margem média ponderada por AOV (considera bumps + upsells); `margin_per_unit` é a margem unitária do SKU principal. Se a oferta não tem bump/upsell, os dois valores são iguais — mas os derivados de CPA sempre referenciam `weighted_margin_per_order`. `offer_stack` é a string pré-montada que a Skill 06 consome literal em copy de página/ad — é copy pública: SEMPRE inglês US, mesma regra das versions do mechanism.
+No exemplo acima: weighted_margin_per_order 72 → breakeven_cpa 72, target_2x 36 (72/2), target_3x 24 (72/3), breakeven_roas 1.64 (118/72), psm_theoretical 1.44 (118/(36+46), COGS = somatório do breakdown). A Skill 11 (ad-analysis) lê por esses nomes "primary"/"weighted" e assume esse denominador único. Os campos legacy (`margin_per_unit`, `target_cpa_for_2x/3x`) são emitidos em paralelo só por compat. `weighted_margin_per_order` = margem média ponderada por AOV (considera bumps + upsells); `margin_per_unit` é a margem unitária do SKU principal. Se a oferta não tem bump/upsell, os dois valores são iguais — mas os derivados de CPA sempre referenciam `weighted_margin_per_order`. `offer_stack` é a string pré-montada que a Skill 06 consome literal em copy de página/ad — é copy pública: SEMPRE inglês US (é estrutura de oferta com valores, não copy de mecanismo — a copy do mecanismo nasce inteira na Skill 06 a partir de `ump`/`ums`).
 
 **Enum canônico de `bonuses[]`:** os valores de `type`, `format_hint`, `condition` e `delivery_trigger` do schema acima são o enum ÚNICO do framework — reproduzidos idênticos na ETAPA 3 desta skill e no pré-flight da Skill 05. Não criar valores fora dessa lista.
 
@@ -614,15 +636,17 @@ No exemplo acima: weighted_margin_per_order 72 → breakeven_cpa 72, target_2x 3
 
 
 `workspace/[produto]/04-offer-builder/offer-builder.md` contendo:
-1. Mecanismo único recomendado (com scoring das 5-7 opções geradas) + 3 versões (1 frase / 1 parágrafo / 2-3 parágrafos)
+1. Mecanismo único recomendado — a LÓGICA de UMP e UMS com nomes e estudos citados (Etapa 2D; sem versões de copy)
 2. **Research Foundation** (Etapa 2.5) — evidências que sustentam o mecanismo, com fontes rastreáveis
 3. Estrutura de oferta completa (produto principal, bundles, arquitetura de assinatura se consumível, bump, upsell, stack de valor)
 4. Garantia recomendada + copy
 5. Tabela de unit economics (Etapa 5)
 6. AOV projetado (Etapa 6)
-7. PSM projetado (Etapa 7)
-8. Viabilidade com budget (Etapa 8)
-9. Respostas aos sanity checks (Etapa 9)
+7. LTV e PSM explicados como conceitos separados + PSM projetado (Etapa 7)
+8. Simulação de budget em 2 níveis (Etapa 8)
+9. Checagens de sanidade como afirmações do que está validado (Etapa 9)
+
+O doc segue `.claude/rules/report-only-results.md`: só o resultado — sem narração de processo, sem descrição de ausências, sem referência à conversa.
 
 Também salvar companion `04-offer-builder/research-foundation.json` conforme schema da Etapa 2.5.
 

@@ -83,6 +83,7 @@ Perguntas que a AI faz a si mesma:
 
 Output escrito passa em:
 
+- **Só o resultado no doc** (`report-only-results.md`) — zero narração de processo/correções ("removi X", "corrigido"), zero descrição de ausências ("sem componente Y", "como não há X..."), zero referência à conversa ("você perguntou", "como você pediu"), zero auto-referência da AI, checagens como afirmações (nunca perguntas). Teste por frase: informa o NEGÓCIO ou a EXECUÇÃO do doc? Execução → deletar/mover pro chat
 - Rigor de idioma (regra 0 do CLAUDE.md) — português claro, sem jargão não-explicado, sem inglês forçado
 - Linguagem simples (regra 0, bloco de prioridade máxima) — nenhuma sigla sem explicação imediata (CAGR/RCT/etc. → palavras), zero frase de analista comprimida, números estatísticos em palavras, VOC em inglês com "tradução livre" ao lado — teste: "alguém de fora do setor entende de primeira?"
 - Frases completas, lógica encadeada (não bullets genéricos vazios)
