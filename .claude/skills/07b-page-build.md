@@ -575,6 +575,7 @@ curl -sI "https://$STORE/cart.js"   # esperar 200
 ```
 - 404 aqui = página não criada no admin (6.6) — instrução ao membro, NÃO rollback.
 - 500/`Liquid error` no corpo, ou `cart.js` fora do ar → falha real: rollback pro backup duplicado (Regra 6) e reporte antes de tentar de novo (ES4 oferece paths alternativos).
+- Cobertura ampliada numa rodada só: `python3 .claude/lib/theme-verify/verify_page.py` checa overflow horizontal, presença das seções e erros de console em desktop+mobile de uma vez.
 
 ### 6.9 Preview links + aprovação do membro
 
@@ -615,7 +616,8 @@ Se o membro NÃO quiser publicar ainda (loja em construção), tudo bem — mas 
 2. **Screenshot do `design/page.html` aprovado** (file://) nas MESMAS larguras (reuse os screenshots do self-review da 07a se ainda refletirem a versão aprovada).
 3. **Compare os pares POR VISÃO**, ponto a ponto: ordem e presença das sections; tipografia (heading caiu pra serif/sans genérica? → o 6.4b falhou, volte lá); cores/tokens (CTA na cor errada = setting não populada); imagens (slot vazio, placeholder vazado, imagem esticada/cortada); spacing/hierarquia (section colada, padding sumido); FAQ/accordion funcionando (`<details>` renderizado).
 4. **Divergência real → corrigir ANTES de encerrar a skill** (via iteration loop: ajuste no HTML aprovado + re-COMPILE da section, ou fix pontual no `.liquid`/template JSON + re-push + re-screenshot). Diferença trivial de rendering (anti-aliasing, scrollbar, fonte com hinting levemente diferente) não conta. **Nunca declare "no ar" com a página divergente do design que o membro aprovou.**
-5. Registre no `deploy-report.json`: `"fidelity_check": {"passed": true, "compared_at": "<ISO>", "divergences_fixed": ["..."]}`.
+5. Se a página usa fonte custom, rode `python3 .claude/lib/theme-verify/font_census.py` — censo da fonte COMPUTADA elemento a elemento (declarar a família não é carregar); se tem seção animada (marquee/carrossel), rode `motion_check.py` com `--throttle` — bug de animação em mobile real só aparece com rede lenta + cache frio.
+6. Registre no `deploy-report.json`: `"fidelity_check": {"passed": true, "compared_at": "<ISO>", "divergences_fixed": ["..."]}`.
 
 ---
 
@@ -657,8 +659,8 @@ Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.p
 > "Página compilada, validada, gates passados e deployada (preview acima). Como o Liquid foi gerado deterministicamente do HTML que você aprovou, o theme editor é pixel-idêntico ao que você viu. Quer ajustar? Pode pedir 'hero mais apertado', 'cores mais escuras', 'features em 2 colunas', 'adicionar countdown na oferta'. Refino sem regenerar do zero."
 
 Pra ajustes:
-- **Spacing/layout/cor** → ajuste o HTML aprovado (`design/page.html`) e re-rode SPLIT→COMPILE só da section afetada (Modo C single-section — o merge do `--emit-template-json` preserva a posição no `order[]`), OU edite o `{% stylesheet %}`/template JSON direto → revalide → re-push.
-- **Estrutural** (novos blocks/sections) → re-COMPILE (uma invocação, com `--emit-template-json`) → validação de blocks (ETAPA 4) → push.
+- **Só markup/schema/CSS de section** (spacing, layout, cor, texto, blocks novos dentro de section existente) → ajuste o HTML aprovado (`design/page.html`), re-rode SPLIT→COMPILE só da section afetada (Modo C single-section) OU edite o `{% stylesheet %}` direto → revalide → push APENAS das sections alteradas com `--only "sections/<arquivo>.liquid"`. O template JSON no ar não entra nesse push — as fotos, os textos e a ordem que o membro configurou no theme editor ficam intactos.
+- **Estrutural** (section nova, remoção ou reordenação — mexe no template JSON) → NUNCA regenerar o template por cima do que está no ar: regenerar do preset apaga em silêncio as fotos e os textos que o membro configurou no editor. Fluxo da Regra 6b da `shopify-theme-safety.md`: `shopify theme pull --only` do template no ar → `python3 tools/theme-template-merge.py` (`--add`/`--remove`/`--move`) → push do template mergeado. A section nova em si compila e valida como sempre (validação de blocks — ETAPA 4) e sobe com `--only`.
 - **Re-compile apaga renames E restaurações**: o conversor regenera o `.liquid` do zero — depois de qualquer re-COMPILE, re-aplique o rename semântico daquela section (ETAPA 2), re-rode a restauração de SVGs grandes dela (grep `icon-placeholder`), e recalcule o hash do `data-aura-build` se foi o hero.
 - **Preço/rating/política mudou** → regenere o `product-schema.json` e o bloco agent-facts (ETAPA 4.5), revalide o JSON-LD, e confira que ainda bate com a config (Gate 2) antes do re-push. Schema e config nunca podem divergir.
 - **FAQ mudou (pergunta adicionada/removida/reescrita na section faq)** → regenere o nó FAQPage do `product-schema.json` e revalide — as Q&A do Schema têm que continuar idênticas às da página.
@@ -759,6 +761,9 @@ Este catálogo é o **vocabulário de conteúdo** pro rename semântico (ETAPA 2
 13. `inline_richtext` renderiza HTML no browser mas o preview editor pode mostrar raw — use `info` no setting.
 14. Custom Liquid em block: `type: "liquid"` (pré-renderiza no push); `type: "html"` é estático XSS-safe.
 15. `shopify page create` não existe na CLI — a criação da página é o passo 6.6 do DEPLOY (membro no admin, com handle exatamente `[produto]`, ou `pageCreate` via Admin API/MCP quando conectado). Sem a página criada, o storefront responde 404 (não é falha de push); o theme editor URL (`?template=page.[produto]`) roda mesmo sem a página existir.
+16. **Default de `richtext`/`inline_richtext` sem `<p>` = arquivo inteiro rejeitado em silêncio.** O valor default de um setting `richtext` no schema (e o valor correspondente em template JSON) PRECISA ser `"<p>...</p>"` — texto puro faz o Shopify rejeitar O ARQUIVO INTEIRO em silêncio: o push reporta ok, o servidor mantém a versão velha, e nenhum erro de validação aparece. Mesmo sintoma pra setting `text` com default `""` (use ausência de default). Diagnóstico: bisection de settings — remova metade dos defaults, pushe, confira o marker `data-aura-build`; repita até isolar o campo culpado.
+17. **Filtro encadeado DENTRO de argumento nomeado quebra o Liquid em runtime.** `style: 'x' | append: var | append: 'y'` dentro de `image_tag` (ou qualquer filtro com argumentos nomeados) estoura `wrong number of arguments (given 3, expected 2)` SÓ em runtime — a página quebra com o setting preenchido e funciona com ele vazio (o sintoma parece "a imagem sumiu"). Regra: assign-first SEMPRE — monte a string completa num `{%- assign -%}` e passe a variável pronta como valor do argumento.
+18. **`image_picker` não aceita default de imagem arbitrária** — só datasource `shopify://shop_images/...`. Section que exige imagem trata a ausência com placeholder explícito no Liquid, nunca com default no schema.
 
 ## Debug — Quando validação ou push falha
 
@@ -801,6 +806,7 @@ Validação: Lighthouse Accessibility ≥ 95; navegação só-teclado; VoiceOver
 - Importar libraries JS/CSS externas; jQuery/React/Vue/Tailwind no output final (vanilla CSS em `{% stylesheet %}`).
 - Salvar um `.liquid` sem validar com `shopify-plugin:shopify-liquid`.
 - Pushar no live sem backup + `--allow-live` + `--nodelete`.
+- Pushar snippet/asset de paleta em lote genérico quando há mais de um tema ativo com paletas diferentes — arquivo de identidade é POR-TEMA (rule `shopify-theme-safety`, disciplina multi-tema).
 - Pull depois de push não-verificado (marker ausente) — sobrescreve trabalho local.
 - Criar sections que "só funcionam no Horizon" — sempre theme-agnostic, self-contained.
 - Gerar Liquid por reasoning manual em vez de rodar o `liquid-converter.py` — a conversão é determinística por design.
