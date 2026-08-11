@@ -225,6 +225,14 @@ Se for vídeo, transcreva pelo menos o hook + 2-3 frases do corpo do script.
 
 **Sinal de validação forte:** se múltiplos concorrentes (3+) têm 20+ ads ativos cada no mesmo produto, é porque tem tração real. Se todo mundo tem ≤5 ads, ou não há tração, ou o nicho está morto, ou é muito novo.
 
+**Registro de elementos validados (por candidato):** além dos criativos em si, anote o que os ads escalados PROVAM que já funciona nesse mercado — porque isso muda a decisão de escolha do produto. Três tipos de elemento, sempre com a evidência de escala ao lado (aparições/duplicatas, tempo no ar):
+
+- **Mecanismo validado** — todo mecanismo nomeado (ou descrito) que aparece nos criativos escalados. Ex: "liberação de 8 horas" com 18 aparições há 200+ dias.
+- **Ângulo validado** — a razão de compra que os winners usam (problema, custo acumulado, comparação com a alternativa, identidade). Ex: "o ângulo de custo anual da alternativa sustenta 5 criativos escalados".
+- **Formato validado** — o tipo de criativo que domina os escalados (imagem estática de mecanismo, vídeo de demonstração, depoimento).
+
+Grave essa lista curta por candidato no relatório (3-8 itens). Ela é a semente da `validated_library` que a Skill 03 constrói em profundidade — e, mais importante aqui, é INSUMO DE ESCOLHA: um produto cujo mercado já validou mecanismos e ângulos fortes permite construir por recombinação (rota barata e de risco baixo da Skill 04); um produto sem nenhum elemento validado exige criar tudo do zero (rota cara e arriscada).
+
 ### ETAPA 6 — Review Mining (Voice of Customer Preliminar)
 
 Pra cada produto ainda na lista, pesquise (descoberta via `WebSearch`; aprofundamento via `WebFetch` — se barrado, fetcher Playwright: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode reviews|reddit|text`, conforme rule `.claude/rules/resilient-fetch.md`; só então fallback manual de paste/screenshot):
@@ -318,6 +326,14 @@ Aplique o filtro S.I.N. (Simple / Intuitive / New — o mesmo da Skill 04 e do k
 
 Consigo criar um mecanismo proprietário baseado em algo REAL do produto (ingrediente, feature, processo, combinação única)? Dê 1-2 exemplos preliminares (detalhe completo na Skill 04).
 
+**Avalie também POR QUAL ROTA esse mecanismo nasceria** — usando os elementos validados registrados na ETAPA 5. São as mesmas rotas que a Skill 04 executa depois (Rota A/B da ETAPA 2A dela); aqui a pergunta é se o candidato DÁ matéria-prima pra rota barata:
+
+- **Aprimorar mecanismo validado (mantendo o ângulo):** existe mecanismo já escalado por concorrente que dá pra levar pro próximo nível — mais específico, mais crível, com um elemento novo — mantendo o ângulo que o mercado já compra? (validação pré-existente nas duas pontas; a rota mais barata)
+- **Mesmo mecanismo com OUTRO ângulo validado:** existe mecanismo validado que dá pra cruzar com um ângulo validado de outra marca ou vertical adjacente? (combinação única, porém pré-validada nas duas pontas)
+- **Criação original:** nenhum elemento validado aproveitável — o mecanismo teria que nascer do zero. É legítimo (e às vezes é a jogada, ex: mercado em estágio 5 de sofisticação), mas custa mais teste e mais risco.
+
+Produto que sustenta as duas primeiras rotas vale mais no ranking do que produto que obriga a terceira — outras marcas já pagaram o custo de validar as peças.
+
 **5. Oportunidade de Avatar Underserved**:
 
 Dos concorrentes analisados, todos falam com o mesmo público? Existe segmento ignorado (ex: todos falam com mulheres 25-35, ninguém fala com 45+; todos focam em iniciantes, ninguém foca em avançados; todos falam com o problema funcional, ninguém fala com a identidade por trás)?
@@ -352,7 +368,7 @@ Formula:
 - **Magnitude** (do desejo, ETAPA 8.1): FRACO = 2-3 · MÉDIO = 5-7 · FORTE = 8-10.
 - **Sophistication** = FACILIDADE de diferenciação dado o estágio (sentido INVERTIDO do stage: quanto mais cedo o mercado, mais fácil diferenciar, maior o score). Stage 1-2 = 9-10 · Stage 3 = 6-7 · Stage 4 = 4-5 · Stage 5 = 2-3.
 - **AwarenessFit** = quão bem o funil/copy viável bate com a distribuição de awareness dominante (ETAPA 8.2) e o budget do membro: distribuição majoritária em Most/Product Aware (PDP direta, conversão barata) = 8-10 · Solution Aware (landing com mecanismo) = 6-7 · Problem Aware (advertorial/listicle, conversão mais cara mas TAM maior) = 4-6 · majoritariamente Unaware = 2-3.
-- **UMPotential** = score do filtro S.I.N. da ETAPA 8.4 — média dos 3 componentes **Simple / Intuitive / New** (simplicity/intuitiveness/novelty, como no `sin_score` da Skill 04) do mecanismo possível, 1-10 cada.
+- **UMPotential** = score do filtro S.I.N. da ETAPA 8.4 — média dos 3 componentes **Simple / Intuitive / New** (simplicity/intuitiveness/novelty, como no `sin_score` da Skill 04) do mecanismo possível, 1-10 cada — **ajustado pela rota de origem** (avaliação de rota da mesma ETAPA 8.4): mecanismo que nasce aprimorando um validado ou cruzando validado × ângulo validado fica no topo da faixa que o S.I.N. deu; mecanismo que só existe por criação original fica na metade de baixo da faixa. Elementos já validados por outras marcas reduzem o risco do teste — o score precisa refletir isso.
 - **AvatarFit** = força do avatar underserved da ETAPA 8.5 (segmento ignorado claro e alcançável = alto; todos os concorrentes já falam com o mesmo público sem brecha = baixo).
 - **OfferPotential** = potencial de stack/bundle/bump e AOV projetado da ETAPA 8.6.
 - **CreativePotential** = ângulos não-usados + demonstrabilidade visual + viabilidade de UGC da ETAPA 8.7.
@@ -452,7 +468,7 @@ Conteúdo de ambos:
 
 **Naming da marca — nome chiclete (antes de criar o brand.md):**
 
-As marcas que mais vendem têm nome chiclete: criativo, que gruda na primeira vez que a pessoa ouve, e amarrado ao conceito central do produto (o problema, o momento, o mecanismo, a tribo). Frameworks da base pra fundamentar (puxar por nome): **Bencivenga's Benefit-Embedded Naming** (rode `Bencivenga benefit embedded naming product name headline miniature`), **Ries & Trout Naming as Positioning** (rode `positioning Ries Trout naming most powerful positioning tool`), **Gum Names** (rode `big idea gum names sticky nickname mechanism`).
+As marcas que mais vendem têm nome chiclete: criativo, que gruda na primeira vez que a pessoa ouve, e amarrado ao conceito central do produto (o problema, o momento, o mecanismo, a tribo). Frameworks da base pra fundamentar (puxar por nome, com a best_query exata do kb-index): **Ries & Trout Naming as Positioning** (rode `Ries Trout name is the position own a word mind works by ear line extension`) — o nome é a ferramenta de posicionamento mais forte: dono de UMA palavra na cabeça do consumidor, funciona de ouvido; **Hopkins Naming Strategy Hierarchy** (rode `Hopkins naming hierarchy coined personal names substitution warning frivolous`) — hierarquia de tipos de nome (benefício/história > pessoal > cunhado) e o alerta contra nome frívolo em produto sério; **Proprietary Mechanism Naming (Gum Name)** (rode `proprietary mechanism gum name nickname ritual hack effect`) e **Big Idea (Paradoxical Question / Gum Name / Conspiracy Story)** (rode `Big Idea paradoxical question gum name conspiracy story`) — como cunhar o apelido que gruda e vira o embrulho emocional da marca.
 
 - Gere 3-5 candidatos e recomende 1, com a lógica de cada um. O melhor candidato é o que gera VOCABULÁRIO próprio: rende verbo de campanha, status de cliente, apelido de mecanismo — um nome que só nomeia é fraco; um nome que cria linguagem carrega a marca inteira.
 - **O que É gate**: colisão direta na MESMA categoria com marca ativa vendendo (confusão real de consumidor).
