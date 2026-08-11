@@ -108,7 +108,7 @@ Em ambos os casos, o duplicado fica como rollback point.
 
 ```bash
 shopify theme pull --theme "$ID" --store "$STORE" --path "$DIR" --nodelete --only "templates/index.json"
-python3 tools/theme-template-merge.py "$DIR/templates/index.json" --add club:page-3am-club --after research
+python3 tools/theme-template-merge.py "$DIR/templates/index.json" --add faq:page-produto-faq --after hero
 shopify theme push --theme "$ID" --store "$STORE" --path "$DIR" --nodelete --only "templates/index.json"
 ```
 
@@ -118,7 +118,7 @@ O merge preserva byte a byte as sections existentes e mexe só no pedido. Mudan�
 
 ## Regra 6c — Temas paralelos com paletas diferentes (arquivo de identidade é POR-TEMA)
 
-Quando a loja mantém 2 ou mais temas com identidades visuais diferentes (A/B test de paleta, tema de campanha sazonal), o snippet ou asset que carrega os tokens de cor é DIFERENTE em cada tema **mesmo tendo o MESMO nome de arquivo**. Exemplo: `snippets/sec-tokens.liquid` define `--sec-bg: rgb(240, 240, 238)` (areia) no tema A e um fundo grafite no tema B — mesmo path, conteúdo divergente por design.
+Quando a loja mantém 2 ou mais temas com identidades visuais diferentes (A/B test de paleta, tema de campanha sazonal), o snippet ou asset que carrega os tokens de cor é DIFERENTE em cada tema **mesmo tendo o MESMO nome de arquivo**. Exemplo: `snippets/sec-tokens.liquid` define `--sec-bg: rgb(246, 245, 241)` (areia) no tema A e um fundo grafite no tema B — mesmo path, conteúdo divergente por design.
 
 **O erro que esta regra previne:** um push em lote genérico manda o arquivo de identidade do tema A por cima do tema B. Como esse arquivo alimenta a paleta da página inteira, o tema PUBLICADO muda de identidade completa num único push, e o membro descobre pela loja no ar.
 
