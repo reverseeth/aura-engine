@@ -361,7 +361,9 @@ Pra cada WINNER, extraia learnings aplicando o framework:
 
 - **O que funcionou?** (hook específico, ângulo, formato, CTA, LP)
 - **Por que funcionou?** (hipótese causal — ex: "hook de curiosity pattern interrupt em audience Problem Aware onde concorrentes usam authority-first")
+- **QUAL variável explica?** — nomeie a hipótese usando o mapa "As Variáveis de um Ad" da Skill 08 (persona/micro-persona, avatar, formato, conceito/big idea, tema, ângulo, benefício vs consequência, senso estético, estrutura invisível). "O criativo ganhou" não é learning; "a MICRO-PERSONA da mãe insone ganhou do avatar genérico, com o mesmo conceito" é. Compare o winner com os losers do MESMO batch: em quais variáveis eles diferem? A variável que separa winner de loser é a candidata a causa.
 - **Como replicar?** (quais elementos isolar pra usar em próximos batches — ex: "o hook 'POV: você acorda com X' pode ser template pra outros conceitos")
+- **Como iterar o winner:** a iteração de maior alavancagem mantém TUDO que o winner provou e muda **UMA variável por vez** (ex: mesmo conceito/estrutura pra outra persona; mesmo criativo com outro avatar; mesma estrutura com o par benefício→consequência invertido). Duas variáveis mudadas ao mesmo tempo = aprendizado zero sobre o porquê. Registre a variável escolhida no NEXT_BATCH_IDEAS.md.
 
 Learnings vão alimentar Skill 08 (creatives) no próximo batch — escreva de forma utilizável.
 
@@ -400,7 +402,7 @@ Aplique as 12 perguntas aos dados (checklist próprio desta skill — no cenári
 
 1. Qual ad (criativo) teve maior ROAS e por quê?
 2. Qual teve menor ROAS e por quê?
-3. Qual elemento específico dentro dos winners tá puxando mais (hook, formato, ângulo)?
+3. Qual variável específica dentro dos winners tá puxando mais (persona, avatar, formato, ângulo, tema, benefício vs consequência, senso estético — o mapa da Skill 08)?
 4. Houve variação significativa de performance por primary text?
 5. Alguma headline se destacou?
 6. Algum placement (Threads, Audience Network) está comendo spend com CPM baixo sem converter? (breakdown do Pi 4)
@@ -533,6 +535,7 @@ Antes de gerar ideias novas:
 
 Conteúdo (quando gerar):
 - **Ângulos a testar no próximo batch de creatives** (2-3 bullets específicos)
+- **Variável a testar na iteração de cada winner** (1 bullet por winner: qual variável única muda mantendo o resto — ex: "winner c-03: mesma estrutura, testar a micro-persona X no lugar da Y")
 - **Ângulos a EVITAR** (identificados como saturados ou já losers)
 - **VOC phrases não usadas ainda** que aparecem em learning de review mining
 - **Formatos a priorizar** (UGC vs studio vs static vs video — baseado em performance)

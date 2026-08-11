@@ -213,6 +213,29 @@ Mostre ao membro (sem pedir confirmação) — a mensagem depende de N×3 vs o t
 - **Se N×3 ≤ 12:** "Com seu budget de $[X]/dia (stage [Y]), vou gerar **[N] conceitos novos** pra este batch. Cada conceito é um pack 3-2-2 (3 execuções do mesmo ângulo + 2 primary texts + 2 headlines), e todos entram como criativos do mesmo ad set Advantage+ pra o Facebook otimizar. Isso dá ~[N×3] criativos no ad set."
 - **Se N×3 > 12:** "Com seu budget de $[X]/dia (stage [Y]), vou gerar **[N] conceitos novos** (~[N×3] criativos). Como o teto saudável é ~12 criativos por ad set, o batch será distribuído em 2+ ad sets/contas (regra da Skill 12), com ~5-12 criativos em cada."
 
+### AS VARIÁVEIS DE UM AD (mapa de composição — fundamento das ETAPAS 3, 4.5 e 5)
+
+Todo anúncio é uma combinação de **9 variáveis controláveis** + um conjunto de **variáveis invisíveis** que ninguém controla. Este mapa serve pra 4 coisas: (a) compor conceitos com intenção na ideação (ETAPA 3); (b) briefar sem ambiguidade (ETAPA 5 — o briefing declara cada variável); (c) testar com disciplina (o 3-2-2 da ETAPA 4.5 é exatamente "congelar todas, variar uma"); (d) diagnosticar depois — a Skill 11 pergunta QUAL variável explica o winner, e a iteração seguinte muda UMA por vez.
+
+**As 9 variáveis controláveis:**
+
+1. **Persona (ou Micro-persona)** — PRA QUEM a comunicação da copy é direcionada. **É a variável mestre: ela impacta diretamente todas as outras.** Mudou a persona, mudam avatar, tema, ângulo, benefício, estética — tudo. Vem dos sub-avatares da Skill 02 (e do avatar underserved da 01). Micro-persona é o recorte fino dentro do avatar: não "mulheres 45+ com sono ruim", mas "a mãe que acorda às 3h e não volta a dormir porque a cabeça liga".
+2. **Avatar** — QUEM grava o ad ou fala nele (a pessoa que aparece). Impacta a PERCEPÇÃO do ad: a mesma copy dita por alguém da idade e do mundo da persona tem outra credibilidade que dita por um apresentador genérico. No pipeline atual isso vive no creator archetype (ETAPA 1) e na rota avatar fixo + lip-sync (ETAPA 1.0) — aqui ele vira variável declarada do conceito.
+3. **Formato** — a organização visual e o padrão de narrativa (ex: UGC selfie, demonstração, imagem estática de mecanismo, carrossel, motion graphics). Já formalizado no enum `format` + archetype.
+4. **Conceito / Big Idea** — a ideia que norteia o anúncio. **Ela impacta a percepção de todas as outras variáveis** (e de grande parte das invisíveis): o mesmo tema com outra big idea vira outro ad. É o "conceito" do 3-2-2.
+5. **Tema** — o ASSUNTO abordado na copy (ex: o despertar às 3h, o custo anual acumulado das alternativas, a dependência do remédio). Dois ads com o mesmo ângulo podem atacar temas diferentes — e temas diferentes fatigam em ritmos diferentes.
+6. **Ângulo** — COMO se fala / como se abordam as variáveis da copy: a razão de compra e a porta de entrada nela. Já formalizado no enum `angle` (problem/result/curiosity/social/authority/comparison/controversy/identification).
+7. **Benefício ou Consequência** — a escolha deliberada entre prometer o **benefício** (o ganho que o prospect deseja) ou mostrar a **consequência** (o efeito negativo que CONTINUA na vida dele se não resolver o problema). Liga direto na emoção dominante da ETAPA 4.5-E: delight/curiosity pedem benefício; fear/urgency pedem consequência.
+8. **Senso Estético** — a percepção de design gráfico e edição: organização visual, fontes de texto, padrão de movimentos durante o vídeo e A CADA QUANTOS SEGUNDOS algo muda na tela (ritmo de cortes). "Ugly ad" caseiro vs peça polida é uma DECISÃO desta variável, não acidente — e o mesmo conceito com estética errada pra persona morre no primeiro segundo.
+9. **Estrutura Invisível** — a arquitetura por baixo do ad, em 4 dimensões que o espectador não vê mas sente: **psicológica** (a sequência de crenças e objeções que a copy derruba — Objection → Claim → Proof → Benefit), **emocional** (a curva de emoção do primeiro ao último segundo — as 4 Hook Emotions e o que segura depois delas), **visual** (o que aparece em cada beat, onde estão os pattern interrupts) e **comunicativa** (Hook-Bridge-Hold-CTA, o que é falado vs o que é overlay).
+
+**Variáveis Invisíveis (impactam o ad, mas não dá pra controlar nem setar):** o contexto em que o prospect consome o ad — na carona de um carro em movimento ou sentado no sofá, com som ou no mudo, o humor do momento, o ad que veio antes no feed, a notícia do dia. Duas consequências práticas inegociáveis:
+
+- **Nunca julgue um criativo por poucas impressões.** As variáveis invisíveis só se diluem em volume — por isso a janela mínima de leitura das Skills 10/11 (3 dias sem tocar) existe. Com pouco volume, você está medindo o contexto dos espectadores, não o criativo.
+- **Desenhe pro pior contexto, não pro ideal:** hook que funciona SEM som, texto de overlay legível em tela pequena, primeiro frame que para o dedo com atenção parcial. Isso neutraliza a invisível mais comum de todas: ninguém está prestando atenção inteira.
+
+**Disciplina de teste (a ponte com o 3-2-2 e as Skills 10/11):** dentro de um 3-2-2, TODAS as variáveis ficam congeladas e só a abertura (hook/visual de entrada) varia. Entre conceitos diferentes do mesmo batch, a diversidade genuína vem de variar as variáveis GRANDES (persona, big idea, formato, ângulo) — não detalhes de execução. E quando um winner emerge, a iteração de maior alavancagem é: manter tudo que ele provou e mudar UMA variável (ex: mesmo conceito/estrutura pra OUTRA persona; mesmo conceito com OUTRO avatar). Variável dupla mudada = aprendizado zero sobre o porquê.
+
 ### ETAPA 3 — Gerar Ângulos (3 Verticais da Vault)
 
 **Puxe os SISTEMAS NOMEADOS de ideação de ângulo da base (rode a `best_query` exata de cada um — NUNCA query genérica):**
@@ -265,12 +288,13 @@ Das 9-15 opções de ângulo, selecione os **N conceitos mais fortes** (N vem da
 - Cobrir posições diferentes do funil (TOF + MOF + BOF — não todos no mesmo awareness)
 - Cobrir ângulos das 3 verticais (não concentrar em uma só)
 - Priorizar ângulos DE GAPS (ninguém faz) sobre ângulos de posição já ocupada
+- **Diversidade nas variáveis grandes:** o batch precisa variar entre conceitos as variáveis que ensinam algo (persona, big idea, formato, ângulo — mapa "As Variáveis de um Ad" acima). N conceitos com a mesma persona e o mesmo formato respondem 1 pergunta, não N.
 
 Apresente ao membro em formato compacto:
 
 "Esses são os [N] conceitos que recomendo testar:
 
-1. [Conceito] — [ângulo em 1 frase] (vertical: [competitiva/consumidor/interna], posição: [TOF/MOF/BOF])
+1. [Conceito] — [ângulo em 1 frase] (persona: [micro-persona em 3-6 palavras], vertical: [competitiva/consumidor/interna], posição: [TOF/MOF/BOF])
 2. ...
 
 Quer ajustar algum antes de eu gerar os briefings completos?"
@@ -451,13 +475,18 @@ Para CADA conceito aprovado, gere o briefing completo aplicando os frameworks. *
 
 # BRIEFING DE CONCEITO #[N]
 
-**Conceito:** [nome/descrição curta do conceito]
-**Ângulo:** [razão de compra que estamos comunicando]
+**Conceito / Big Idea:** [nome do conceito + a ideia unificadora em 1 frase]
+**Persona / Micro-persona:** [pra quem a copy fala — o recorte fino, não o avatar genérico. Ex: "a mãe que acorda às 3h e não volta a dormir porque a cabeça liga"]
+**Avatar:** [quem grava/aparece/fala no ad — e por que ESSA pessoa é crível pra ESSA persona. Ex: "mulher 50s, aparência real (não modelo), tom de amiga que passou por isso"]
+**Tema:** [o assunto que a copy ataca. Ex: "o custo anual acumulado das alternativas"]
+**Ângulo:** [razão de compra que estamos comunicando + a porta de entrada]
+**Benefício ou Consequência:** [qual dos dois o ad vende, declarado. Ex: "consequência — mais um ano de noites cortadas se nada mudar"]
 **Vertical:** [competitiva / consumidor / interna]
 **Awareness Level:** [Unaware / Problem Aware / Solution Aware / Product Aware / Most Aware]
 **Posição no Funil:** [TOF / MOF / BOF]
 **Formato Principal:** [UGC vídeo / demo vídeo / static / carrossel / motion graphics]
-**Big Idea:** [a ideia unificadora em 1 frase]
+**Senso Estético:** [referência de design/edição: caseiro vs polido, fontes, ritmo de cortes (a cada quantos segundos algo muda), paleta]
+**Estrutura Invisível:** [1 linha por dimensão — psicológica (sequência de objeções que derruba), emocional (curva: qual emoção abre e o que segura), visual (onde estão os pattern interrupts), comunicativa (o que é falado vs overlay)]
 
 ---
 
@@ -926,6 +955,11 @@ Outputs em `workspace/[produto]/08-creative-engine/` (nomenclatura normalizada):
       "name": "...",
       "production_route": "ai|edl",
       "angle": "problem|result|curiosity|social|authority|comparison|controversy|identification",
+      "persona": "recorte fino de pra quem a copy fala (micro-persona), em 1 frase",
+      "avatar_who": "quem grava/aparece no ad (ex: mulher 50s aparência real; sem pessoa = null)",
+      "theme": "assunto que a copy ataca, em poucas palavras",
+      "benefit_or_consequence": "benefit|consequence",
+      "aesthetic_ref": "referência de senso estético em 1 linha (caseiro|polido + ritmo de cortes)",
       "vertical": "competitive|consumer|internal",
       "awareness_level": "unaware|problem_aware|solution_aware|product_aware|most_aware",
       "emotion_dominant": "curiosity|urgency|fear|delight",
