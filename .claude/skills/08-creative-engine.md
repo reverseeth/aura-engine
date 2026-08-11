@@ -87,7 +87,7 @@ Verifique se há tools com prefixo `mcp__foreplay__` disponíveis (ad spy — 20
 
 ### ETAPA 0.7 — Higgsfield MCP (opcional, se conectado — muda o ENTREGÁVEL da Rota A)
 
-Verifique se há tools com prefixo `mcp__higgsfield__` disponíveis (MCP oficial da Higgsfield — 30+ modelos incluindo Kling 3.x, Veo 3.1 e Sora 2; OAuth via browser, créditos do plano do membro, sem API key). Se SIM, a ETAPA 5.7 (Ramo A) pode, além de salvar os prompts, **renderizar os vídeos in-session**: a skill gera o prompt, chama a tool de geração e salva o asset pronto no workspace. Confirme com o membro antes de gastar créditos ("Higgsfield conectado — quer que eu já renderize os [N] vídeos ou prefere só os prompts?"). Se NÃO estiver disponível, entregue os prompts como sempre — nada muda no fluxo atual.
+Verifique se há tools com prefixo `mcp__higgsfield__` disponíveis (MCP oficial da Higgsfield — 30+ modelos incluindo Kling 3.x, Veo 3.1 e Sora 2; OAuth via browser, créditos do plano do membro, sem API key). Se SIM, a ETAPA 5.7 (Ramo A) pode, além de salvar os prompts, **renderizar os vídeos in-session**: a skill gera o prompt, chama a tool de geração e salva o asset pronto no workspace — e roda `bash tools/strip-metadata.sh <pasta-dos-assets>` logo depois (todo asset gerado por IA sobe limpo de metadados de proveniência — EXIF/XMP/C2PA, IDs de job do gerador; o script preserva os pixels e o perfil de cor, e NÃO substitui o label "AI Info" da Meta). Confirme com o membro antes de gastar créditos ("Higgsfield conectado — quer que eu já renderize os [N] vídeos ou prefere só os prompts?"). Se NÃO estiver disponível, entregue os prompts como sempre — nada muda no fluxo atual.
 
 ### ETAPA 1.0 — Rota de Produção (Pergunta 0 — ANTES de tudo)
 
@@ -509,6 +509,8 @@ Estrutura: Hook → Bridge → Hold → CTA (framework)
 - **13+ Winning Static Ad Templates (named breakdowns)** (rode `13 winning static ad templates avatar callout nutella meme breakdown why it works`) — templates nomeados (avatar callout, meme, etc).
 - **Show Don't Tell / 'ugly ads convert'** (rode `show don't tell behavioral change when telling aren't selling spoken language video`) — quando o "ugly ad" cru bate o product shot polido.
 
+**Se a imagem tem PESSOA fotorrealista** (review de PDP, "closer look", UGC estático, pessoa aplicando/segurando o produto): as regras de `.claude/lib/prompt-directors/real-people-imagery.md` são OBRIGATÓRIAS no prompt — pessoa crível (nunca modelo), públicos distribuídos por pesquisa (nunca lote homogêneo), zero pele exposta, embalagem real por referência anexada, specs de câmera/luz, contexto imperfeito, ratio pelo destino — mais o pós-processo (strip de metadados + disclosure "AI Info" + review do lote).
+
 - **Descrição visual principal**: [o que aparece — produto + contexto + modelo se houver]
 - **Texto overlay principal** (hook): "[texto grande]"
 - **Textos secundários**: "[subheadline ou benefits]"
@@ -612,7 +614,7 @@ Antes de compor o prompt de vídeo, leia `08-creative-engine/dados.json → ai_v
 1. Identificar quais formatos o conceito tem (vídeo? imagem? ambos? — vem da Etapa 5 do briefing)
 2. Para cada formato presente, carregar o director correspondente:
    - Vídeo → ler `.claude/lib/prompt-directors/marketing-studio-director.md`
-   - Imagem → ler `.claude/lib/prompt-directors/gpt-image-2-director.md`
+   - Imagem → ler `.claude/lib/prompt-directors/gpt-image-2-director.md`; se a imagem tem pessoa fotorrealista, aplicar POR CIMA as regras obrigatórias de `.claude/lib/prompt-directors/real-people-imagery.md` (pessoa crível, lote distribuído por pesquisa, zero pele exposta, embalagem por referência, câmera/luz, contexto imperfeito)
 3. Compor input pro director extraindo do briefing:
    - **Pra Higgsfield (vídeo)**: hook completo + bridge + hold + CTA + visual descriptions de cada beat + duração + creator archetype + plataforma primária + product/avatar attached (se houver)
    - **Pra GPT Image 2.0 (imagem)**: descrição visual principal + texto overlay + estilo + proof elements + estrutura de layout (se denso) ou cena cinematográfica (se single-frame)
