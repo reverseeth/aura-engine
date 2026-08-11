@@ -197,11 +197,13 @@ COLETA RESILIENTE DA WEB: quando uma skill precisar de dados da web (VOC, PDPs d
 
 AUTO-UPDATE DO FRAMEWORK (protegido contra perda de dados locais):
 
-O update automático é DETERMINÍSTICO: o hook `.claude/hooks/post-start.sh` roda 1x por dia por clone e, se o repo está em `main`, com working tree limpo e atrás de `origin/main`, faz `git merge --ff-only origin/main` sozinho. Opt-out: arquivo `.claude/.no-auto-update` ou env `AURA_AUTO_UPDATE=0`. Você (o modelo) NÃO repete essa rotina a cada sessão — só age nos casos de exceção abaixo:
+O update automático é DETERMINÍSTICO: o hook `.claude/hooks/post-start.sh` roda 1x por dia por clone e, se o repo está em `main`, com working tree limpo e atrás de `origin/main`, faz `git merge --ff-only origin/main` sozinho. Quando existe versão nova mas algo bloqueia o update, o hook AVISA com o motivo (nunca silêncio) e instrui o membro a pedir **"aura, resolve o update"**. Opt-out: arquivo `.claude/.no-auto-update` ou env `AURA_AUTO_UPDATE=0`. Você (o modelo) NÃO repete essa rotina a cada sessão — só age quando vê um aviso `[aura]` de update na sessão OU quando o membro pede ("resolve o update", "atualiza a aura", etc.). Protocolo por caso:
 
-1. O hook imprimiu "[aura] seu clone divergiu do origin/main" OU o membro pediu update manual → rode `git status --porcelain` primeiro. Se houver QUALQUER mudança local não-commitada, PARE o update (silencioso — não mencione ao membro).
-2. Se limpo → `git fetch origin main && git merge --ff-only origin/main`. Sucesso ou "já atualizado" = silêncio total.
-3. Se o merge falhar ("Not possible to fast-forward" / "unrelated histories") → o histórico divergiu de verdade. **O workspace/ vive DENTRO de `~/aura-engine` — NUNCA rode `rm -rf ~/aura-engine` sem tirar o workspace antes.** Explique ao membro que precisa re-sincronizar o repo e, com a confirmação explícita dele, rode nesta ordem:
+1. **Aviso de mudanças locais em arquivos do framework** ("há mudanças locais em arquivos do framework") → rode `git status --porcelain --untracked-files=no` e `git diff --stat`. Mostre ao membro em linguagem simples O QUE está modificado e pergunte se ele quer manter (aí você guarda com `git stash push -m "aura-local-<data>"` e reaplica depois do update, resolvendo conflito se houver) ou descartar (só com confirmação explícita: `git checkout -- <arquivos>`). Depois: `git merge --ff-only origin/main`. NUNCA descarte sem confirmação.
+2. **Aviso de branch errada** ("seu clone está na branch 'X' em vez de 'main'") → `git status --porcelain` primeiro. Se limpo: `git checkout main && git merge --ff-only origin/main` (a branch antiga fica preservada, não delete). Se sujo: trate como caso 1 antes de trocar de branch.
+3. **Membro pediu update manual e não há aviso** → rode `git status --porcelain` primeiro. Se houver mudança local não-commitada, trate como caso 1. Se limpo → `git fetch origin main && git merge --ff-only origin/main`. Sucesso ou "já atualizado" = responda em 1 linha ("Aura atualizada" / "já está na última versão").
+4. **Aviso "git fetch falhou"** (com internet funcionando) → diagnostique: `git remote get-url origin` (URL certa? `https://github.com/reverseeth/aura-engine.git`), depois `git fetch origin main` e leia o erro real. Corrija a causa (URL errada → `git remote set-url`; problema de credencial → oriente o membro). Não invente causa: reporte o erro literal se não conseguir resolver.
+5. Se o merge falhar ("Not possible to fast-forward" / "unrelated histories") → o histórico divergiu de verdade. **O workspace/ vive DENTRO de `~/aura-engine` — NUNCA rode `rm -rf ~/aura-engine` sem tirar o workspace antes.** Explique ao membro que precisa re-sincronizar o repo e, com a confirmação explícita dele, rode nesta ordem:
 
        mv ~/aura-engine/workspace ~/aura-workspace-backup
        rm -rf ~/aura-engine
@@ -214,4 +216,5 @@ Regras invioláveis:
 - NUNCA rode `git pull` sem verificar `git status` primeiro (pode perder trabalho).
 - NUNCA rode `git reset --hard`, `git clean -f` ou merge não-fast-forward automaticamente.
 - NUNCA rode `rm -rf ~/aura-engine` com o `workspace/` ainda dentro da pasta.
-- NUNCA mostre output normal de git pro membro (só a conversa do caso 3).
+- NUNCA mostre output cru de git pro membro — os casos 1, 2, 4 e 5 são conversa em linguagem simples ("tem uma versão nova da Aura; posso guardar suas mudanças locais e atualizar?"), nunca despejo de terminal.
+- Membro com clone ANTIGO (de antes do auto-update existir) não tem este mecanismo: se o membro relatar que está desatualizado e o hook nunca imprime nada, o caminho é o update manual do caso 3 — uma vez atualizado, o mecanismo passa a existir pra ele.
