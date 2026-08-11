@@ -9,7 +9,7 @@ Fluxo correto ao adicionar/remover uma section:
 
     shopify theme pull --theme <id> --store <loja> --path <dir> --nodelete --only "templates/index.json"
     python3 tools/theme-template-merge.py <dir>/templates/index.json \
-        --add nova-section:page-3am-nova --after research
+        --add nova-section:page-produto-nova --after hero
     shopify theme push --theme <id> --store <loja> --path <dir> --nodelete --only "templates/index.json"
 
 O que o merge faz: preserva byte a byte todas as sections existentes (settings e blocks),
@@ -32,7 +32,7 @@ def salvar(p: Path, cabecalho: str, dados: dict):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("template", type=Path)
-    ap.add_argument("--add", help="id:type da section a adicionar (ex: club:page-3am-club)")
+    ap.add_argument("--add", help="id:type da section a adicionar (ex: faq:page-produto-faq)")
     ap.add_argument("--after", help="id da section que deve vir antes da nova")
     ap.add_argument("--remove", help="id da section a remover")
     ap.add_argument("--move", help="id:posicao (ex: club:7) para reordenar")

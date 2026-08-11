@@ -19,7 +19,7 @@ Todos os padrões assumem que a paleta da página vive num snippet base (renderi
 
 ```css
 :root {
-  --sec-bg: 240, 240, 238;      /* areia clara */
+  --sec-bg: 246, 245, 241;      /* areia clara */
   --sec-ink: 28, 28, 30;        /* grafite */
   --sec-accent: 40, 40, 46;
   --sec-line: 214, 214, 210;
