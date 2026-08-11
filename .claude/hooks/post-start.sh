@@ -124,13 +124,18 @@ setup_alias() {
 }
 
 # Auto-update do framework — mantém o membro na última versão sem gesto manual.
-# Só age quando TODAS as condições valem:
+# Só APLICA o update quando TODAS as condições valem:
 #   - repo git com remote `origin` e branch atual == main
 #   - working tree limpo (arquivos RASTREADOS — workspace/ é gitignored e nunca é tocado)
 #   - atrás do origin/main e fast-forwardable
 # NUNCA: merge não-ff, stash, reset, tocar em workspace/.
 # Opt-out: arquivo .claude/.no-auto-update OU env AURA_AUTO_UPDATE=0.
-# Falha de rede = silêncio total (não bloqueia a sessão).
+#
+# TRANSPARÊNCIA (essencial): quando há update disponível mas alguma condição
+# bloqueia, o membro é AVISADO com o motivo específico — nunca silêncio.
+# O agente da sessão vê o aviso e resolve com segurança (protocolo no CLAUDE.md,
+# seção AUTO-UPDATE). Silêncio total só em: já atualizado, opt-out, ou rede
+# indisponível (aí tenta de novo no dia seguinte).
 auto_update() {
   [ -f "$AURA_HOME/.claude/.no-auto-update" ] && return 0
   [ "${AURA_AUTO_UPDATE:-1}" = "0" ] && return 0
@@ -138,25 +143,49 @@ auto_update() {
   git -C "$AURA_HOME" rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 0
   git -C "$AURA_HOME" remote get-url origin >/dev/null 2>&1 || return 0
 
-  local branch
-  branch="$(git -C "$AURA_HOME" symbolic-ref --short -q HEAD 2>/dev/null)" || return 0
-  [ "$branch" = "main" ] || return 0
+  # O fetch roda ANTES dos gates locais: mesmo com o clone "travado" (branch
+  # errada, arquivos mexidos), o membro fica sabendo que existe versão nova.
+  local fetch_err
+  fetch_err="$(git -C "$AURA_HOME" fetch --quiet origin main 2>&1)" || {
+    # Sem rede/DNS = silêncio (tenta amanhã). Qualquer outra falha = aviso,
+    # porque é um clone que NUNCA vai se atualizar sozinho até alguém agir.
+    if printf '%s' "$fetch_err" | grep -qiE 'could not resolve|unable to access|timed out|network'; then
+      return 0
+    fi
+    echo "[aura] Aviso: não consegui verificar atualizações (git fetch falhou)."
+    echo "[aura] Peça na sessão: \"aura, resolve o update\" — o agente diagnostica e corrige."
+    return 0
+  }
 
-  # Working tree limpo? (só arquivos rastreados; untracked como workspace/ não bloqueia)
-  [ -z "$(git -C "$AURA_HOME" status --porcelain --untracked-files=no 2>/dev/null)" ] || return 0
-
-  git -C "$AURA_HOME" fetch --quiet origin main 2>/dev/null || return 0
-
-  local behind
+  local behind pl
   behind="$(git -C "$AURA_HOME" rev-list --count HEAD..origin/main 2>/dev/null)" || return 0
   [ "${behind:-0}" -gt 0 ] || return 0
+  pl=""; [ "$behind" -gt 1 ] && pl="s"
+
+  local branch
+  branch="$(git -C "$AURA_HOME" symbolic-ref --short -q HEAD 2>/dev/null)" || branch=""
+  if [ "$branch" != "main" ]; then
+    echo "[aura] Atualização disponível ($behind commit$pl novo$pl), mas seu clone está na branch '${branch:-desconhecida}' em vez de 'main'."
+    echo "[aura] Peça na sessão: \"aura, resolve o update\" — o agente volta pra main com segurança."
+    return 0
+  fi
+
+  # Working tree limpo? (só arquivos rastreados; untracked como workspace/ não bloqueia)
+  local sujo
+  sujo="$(git -C "$AURA_HOME" status --porcelain --untracked-files=no 2>/dev/null)"
+  if [ -n "$sujo" ]; then
+    echo "[aura] Atualização disponível ($behind commit$pl novo$pl), mas há mudanças locais em arquivos do framework:"
+    printf '%s\n' "$sujo" | head -3 | sed 's/^/[aura]   /'
+    echo "[aura] Peça na sessão: \"aura, resolve o update\" — o agente guarda ou descarta com você e atualiza."
+    return 0
+  fi
 
   if git -C "$AURA_HOME" merge --ff-only origin/main >/dev/null 2>&1; then
-    echo "[aura] Aura atualizada ($behind commits novos)"
+    echo "[aura] Aura atualizada ($behind commit$pl novo$pl)"
   else
     # Divergiu do origin (commits locais ou histórico reescrito) — nunca forçar.
     echo "[aura] Aviso: seu clone divergiu do origin/main — update automático pausado."
-    echo "[aura] Veja a seção Updates do README pra re-sincronizar sem perder o workspace/."
+    echo "[aura] Peça na sessão: \"aura, resolve o update\" — re-sincroniza sem perder o workspace/."
   fi
 }
 
