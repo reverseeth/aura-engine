@@ -291,6 +291,14 @@ Quando Refero não tem match E o membro não tem print/URL:
 
 Se o membro passou nomes de cor por extenso (ex: "sage green"), valide via regex de hex `^#([0-9A-Fa-f]{3,8})$` ou converta por nome (sage green `#9CAF88`, dusty rose `#D4A5A5`, off-white `#FDFAF4`, navy `#14213D`, terracotta `#C66B3D`, olive `#6B7040`, etc). Se a cor não for reconhecível, peça o hex.
 
+### Prova de paletas na página real (quando há 2-4 candidatas)
+
+Paleta não se escolhe por swatch (a amostra de cor isolada). Quando a cascade deixou mais de uma candidata viva, ou o membro pediu comparação, gere uma página comparadora self-contained: a MESMA página (ou as 2-3 seções mais representativas: hero, oferta e uma seção escura) renderizada em CADA paleta candidata, com navegação por abas ou âncoras, pro membro decidir VENDO a cor aplicada no contexto real.
+
+A implementação usa o sistema de tokens por snippet: todo valor de cor entra como trio R,G,B (ex: `--tk-bg: 240,240,238` pra um fundo areia, `--tk-ink: 34,34,36` pra um grafite) e é consumido como `rgb(var(--tk-bg))` ou `rgba(var(--tk-bg), .5)`. Trocar a paleta inteira significa trocar 1 bloco de tokens, e o formato em trio dá transparência (alpha) sem duplicar a paleta. A paleta vencedora vira o `design-signals.json`/`design-tokens.json` normalmente.
+
+**Dois temas, duas paletas:** quando o membro mantém 2 ou mais temas com paletas diferentes (teste A/B de identidade visual), o snippet de tokens é POR-TEMA — as sections são as mesmas, muda só o snippet de paleta de cada tema. A disciplina de push por-tema está na rule `shopify-theme-safety.md`: nunca pushar snippet de paleta em lote genérico (um push amplo leva a paleta de um tema pro outro sem ninguém perceber), conferir o tema alvo antes de cada push, e `--allow-live` exige atenção redobrada porque o tema publicado é a loja no ar.
+
 ### Output da ETAPA 2
 
 Salve `design-signals.json` e mostre ao membro um resumo curto:
@@ -373,6 +381,15 @@ O membro indica 1 URL de concorrente. A Aura captura a **ESTRUTURA** dessa pági
      O browser real do membro é imune a anti-bot — esse degrau resolve o que os automáticos não conseguem. O .html salvo é material de trabalho (referência de concorrente): vive em `/tmp`/workspace, JAMAIS é commitado (rule 11).
 3. **Reconcilie com o plano da ETAPA 1.** O esqueleto do concorrente é referência de layout, mas a verdade estratégica é o seu `sections_plan` (que veio do awareness/sophistication do SEU produto). Onde o concorrente tem sections que o seu plano não pede (ex: gift-guide irrelevante), descarte. Onde o seu plano pede sections que o concorrente não tem (ex: `mechanism` porque você tem mecanismo único real), adicione. O layout do concorrente informa hierarquia e ritmo; o conteúdo e a seleção de sections são seus.
 4. **Gere `design/page.html`** aplicando: a estrutura reconciliada, a copy REAL de `06`, a oferta de `04`, os `design-signals` da ETAPA 2 (paleta/tipografia/radius/density) e as **imagens do mapa de mídia da 1.6** (`design/assets/` — jamais as imagens do concorrente). Uma única variação fiel ao layout-base é suficiente aqui (o membro já escolheu a referência); ofereça iterar se quiser ajustar densidade/paleta.
+
+**Variante — clone fiel seção a seção (página inteira como sections editáveis):** quando o membro tem o snapshot completo da página de referência (o arquivo .html salvo com a extensão SingleFile — degrau 4 da cascade) e quer a ESTRUTURA INTEIRA reproduzida como sections OS 2.0 (o formato de tema do Shopify em que cada section é editável no theme editor), não só o esqueleto, o trabalho segue 4 passos:
+
+1. **Serializar o DOM por seção**, com estilos computados em desktop E mobile + screenshot de cada seção. O par geometria+imagem é o contrato de fidelidade: os estilos computados dão as medidas exatas, o screenshot mostra como a seção deve ficar — a conversão só está certa quando os dois batem.
+2. **Converter seção a seção** — trabalho paralelizável (1 agente por seção). Cada seção vira uma section Liquid com schema completo: todo texto vira setting, toda imagem vira `image_picker`, listas repetíveis viram blocks, e o preset carrega valores de exemplo genéricos ("Your headline here", "[garantia]"). As classes CSS de cada section levam o prefixo `sec` (de section), ex: `.sec-hero-title`, pra o estilo de uma section nunca vazar pra outra.
+3. **Montar o template** a partir dos presets das sections e popular com o conteúdo real.
+4. **Verificar end-to-end:** renderização desktop+mobile comparada com os screenshots do passo 1, e comércio real funcionando (variantes, add-to-cart, cupom).
+
+A MESMA regra legal e ética acima vale integralmente nesta variante: estrutura/layout sim; copy, imagens, marca e paleta do concorrente NUNCA — o clone nasce com o conteúdo do PRÓPRIO membro injetado (copy de `06`, oferta de `04`, imagens da 1.6, paleta dos signals da ETAPA 2). Os padrões de seção endurecidos (marquee/faixa rolante, sticky add-to-cart, gradiente, badges, drawer, fonte universal) vivem em `.claude/lib/shopify-section-patterns/` — consulte antes de reinventar qualquer um deles.
 
 ### 3.4 Rota 2 — Claude Design (handoff)
 

@@ -71,6 +71,7 @@ Push silenciosamente rejeitado é cenário comum. Checklist de diagnóstico:
 | `data-aura-build` aparece mas CSS/JS quebrado | Compile error silencioso | `shopify theme check` local antes de re-push |
 | `data-aura-build` aparece intermitentemente | CDN propagation (raro, mas acontece) | Esperar 120s e re-verificar |
 | `data-aura-build` aparece mas com hash ANTIGO | Push subiu versão stale (arquivo local errado) | Recompilar a section e re-push |
+| Push ok mas UM arquivo específico continua na versão antiga (marker/mudança ausente só nele) | Conteúdo do arquivo rejeitado por validação silenciosa no servidor da Shopify — casos conhecidos: setting `richtext` com default sem `<p>…</p>`, setting `text` com default vazio `""` | Bisection de settings (cortar pela metade até isolar): remova metade dos defaults, pushe, confira; repita até isolar o campo; corrija o default (richtext SEMPRE `<p>…</p>`) e re-pushe |
 | Push retorna warning "live theme" sem confirmar | Faltou `--allow-live` | Re-push com flag correto |
 | Deploy que funcionava quebra com "command not found" / flag inválida | **Auto-upgrade do Shopify CLI 4.x** (ver nota abaixo) | Checar `shopify version` + changelog do CLI antes de debugar o tema |
 
@@ -96,6 +97,44 @@ shopify theme push --unpublished --path=<tmp-backup-dir> --theme "BACKUP-<data>-
 **Caminho B — manual:** Admin → Themes → ⋯ → Duplicate. Nomear como `BACKUP-<data>-pre-edit`.
 
 Em ambos os casos, o duplicado fica como rollback point.
+
+## Regra 6b — NUNCA regenerar template JSON por cima do que está no ar
+
+`templates/*.json` guarda **o que o membro configurou no theme editor**: fotos escolhidas em `image_picker`, textos editados, ordem dos blocks, variant IDs preenchidos. Regenerar esse arquivo a partir dos presets das sections e pushar **apaga tudo isso em silêncio** — a página volta pros defaults e o membro descobre pelas fotos que sumiram.
+
+**Proibido:** montar `templates/index.json` do zero (a partir de `presets`) e pushar por cima.
+
+**Fluxo correto** ao adicionar, remover ou reordenar section:
+
+```bash
+shopify theme pull --theme "$ID" --store "$STORE" --path "$DIR" --nodelete --only "templates/index.json"
+python3 tools/theme-template-merge.py "$DIR/templates/index.json" --add club:page-3am-club --after research
+shopify theme push --theme "$ID" --store "$STORE" --path "$DIR" --nodelete --only "templates/index.json"
+```
+
+O merge preserva byte a byte as sections existentes e mexe só no pedido. Mudança apenas em markup/schema de section (`sections/*.liquid`) ou em assets **não exige tocar no template** — pushe só os arquivos alterados com `--only`.
+
+**Regra prática:** antes de qualquer push que inclua um template JSON, rode o merge a partir do pull mais recente. Se o push não precisa do template, não inclua o template.
+
+## Regra 6c — Temas paralelos com paletas diferentes (arquivo de identidade é POR-TEMA)
+
+Quando a loja mantém 2 ou mais temas com identidades visuais diferentes (A/B test de paleta, tema de campanha sazonal), o snippet ou asset que carrega os tokens de cor é DIFERENTE em cada tema **mesmo tendo o MESMO nome de arquivo**. Exemplo: `snippets/sec-tokens.liquid` define `--sec-bg: rgb(240, 240, 238)` (areia) no tema A e um fundo grafite no tema B — mesmo path, conteúdo divergente por design.
+
+**O erro que esta regra previne:** um push em lote genérico manda o arquivo de identidade do tema A por cima do tema B. Como esse arquivo alimenta a paleta da página inteira, o tema PUBLICADO muda de identidade completa num único push, e o membro descobre pela loja no ar.
+
+**Protocolo:**
+
+a) Antes de qualquer push que inclua o arquivo de identidade, declarar explicitamente QUAL paleta pertence ao tema alvo.
+
+b) Fluxo de atualização em par: regenerar o arquivo com a paleta do tema B → push SÓ desse arquivo pro tema B (`--allow-live` se for o publicado) → restaurar a versão do tema A no diretório de trabalho local antes de continuar:
+
+```bash
+shopify theme push --theme "$ID_B" --store "$STORE" --path "$DIR" --nodelete --only "snippets/sec-tokens.liquid"
+```
+
+c) Push em lote (`--only` com vários arquivos, ou push sem `--only`) NUNCA inclui o arquivo de identidade quando há 2+ temas divergentes — ele sai do lote e vai em push próprio por tema.
+
+d) Em caso de troca acidental: re-push imediato da paleta correta. O arquivo local certo é a fonte; se ele se perdeu, `shopify theme pull` do tema certo ANTES de qualquer novo push.
 
 ## Regra 7 — Após deploy, smoke test obrigatório
 
