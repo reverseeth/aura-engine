@@ -38,6 +38,8 @@ A tabela abaixo lista as tools que o TrendTrack expõe HOJE (referência, não c
 | `creative_inspiration_pack` | **Discover → inspiração criativa** | Hooks, landing pages, ângulos, media benchmarks por vertical |
 | `brief_competitor` | **Brief → concorrente completo** | Análise competitiva completa (ads + email patterns + opportunities) |
 | `scan_ad` | **Brief → decompor 1 ad** | Decompõe 1 Meta ad: hook, ângulo, reach, scaling assessment |
+| `search_ads` | **Discover → ads em lote** | Busca Meta ads por domínio/marca/copy com ordenações de escala (mais duplicatas, alcance, mais tempo no ar) — motor da ETAPA 3F da skill 03 |
+| `get_brandtracker_scaling_ads` | **Brief → ads escalando (marca trackada)** | Tabela de ads da marca trackada com movimento de Ad Rank (7d/14d/30d) |
 | `analyze_tracked_brand` | **Brief → marca trackada** | Deep-dive de marca trackada (ads, hooks, LPs, format splits) |
 | `analyze_shop_emails` | **Brief → emails da loja** | Padrões de envio + subject lines + content categories de emails |
 | `daily_radar` | **Monitor → mudanças** | Mudanças nas marcas trackadas (novos ads, launches, partnerships) |
@@ -53,7 +55,7 @@ Cada skill tem ETAPA conditional que detecta TrendTrack em runtime e casa a tool
 | Skill | Intenção de tool usada | O que melhora |
 |-------|--------------|---------------|
 | **01 product research** | *Discover → produtos winning*, *Discover → lojas* | TrendTrack é o motor de DESCOBERTA automático (revenue estimado de forma legítima/programática). Substitui a leva manual do Kalodata. **SpyBox/Kalodata/SimilarWeb continuam validação manual** — a AI nunca finge acessar essas ferramentas pagas; pede o dado colado. SimilarWeb revenue é SEMPRE colado (sem API). |
-| **03 competitor analysis** | *Brief → concorrente completo*, *Brief → decompor 1 ad*, *Discover → lojas*, *Discover → lojas similares* | ETAPA 1 (identificar concorrentes) + ETAPA 2 (PDPs) + ETAPA 3 (ads no Meta Ad Library) viram 1-2 chamadas de tool com dados refinados, em vez de scraping + cloaker fallbacks |
+| **03 competitor analysis** | *Brief → concorrente completo*, *Brief → decompor 1 ad*, *Discover → lojas*, *Discover → lojas similares*, *Discover → ads em lote* | ETAPA 1 (identificar concorrentes) + ETAPA 2 (PDPs) + ETAPA 3 (ads no Meta Ad Library) viram 1-2 chamadas de tool com dados refinados, em vez de scraping + cloaker fallbacks. A ETAPA 3F (levantamento de ads escalados com link da Ad Library) usa a intenção *Discover → ads em lote*: busca por domínio (fallback: nome da marca), 3 ordenações (duplicatas · alcance · tempo no ar), dedup por ad/collation, link montado com o id real de cada ad. Regra de leitura: alcance publicado pela Meta só existe pra ads veiculados na UE — ad só-EUA/Canadá aparece com alcance 0 sem significar gasto zero (escala se lê por duplicatas + dias no ar) |
 | **08 creative engine** | *Discover → inspiração criativa*, *Brief → decompor 1 ad* | ETAPA 3 (ângulos das 3 verticais) + Hooks Bank ganham dataset real de hooks vencedores no nicho |
 | **11 ad-analysis** | *Brief → decompor 1 ad*, *Monitor → mudanças* | Decompor winners do membro com lente do mercado (comparar com benchmarks); a tool de monitor viabiliza loop de monitoramento contínuo |
 | **13 retention** | *Brief → emails da loja* | Email flows ganham referência de padrões reais de cadência/subject/content da concorrência (em vez de só `02-market-research` + `04-offer`) |
