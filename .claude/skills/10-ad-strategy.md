@@ -132,7 +132,7 @@ A estrutura de teste do Aura é **enxuta de propósito**. O aprendizado acontece
 
 **Criativos (5-12 no mesmo ad set):**
 - Carregar **todos os criativos da Skill 08 como ads separados dentro deste único ad set**. Sweet spot **~5-8**; teto **12**. Abaixo de 5, pouco material pro Facebook escolher; acima de 12, dilui demais o budget de teste.
-- **Diversidade GENUÍNA entre os criativos:** no sistema de entrega pós-Andromeda/GEM, criativos muito similares são tratados como praticamente a mesma entidade — subir 8 variações do mesmo visual conta como ~1 criativo pro algoritmo (e pro teste). Os 5-12 precisam ser conceitos/ângulos realmente diferentes; o gate de diversidade da Skill 08 já força isso — não dilua na hora de subir.
+- **Diversidade GENUÍNA entre os criativos:** no sistema de entrega pós-Andromeda/GEM, criativos muito similares são tratados como praticamente a mesma entidade — subir 8 variações do mesmo visual conta como ~1 criativo pro algoritmo (e pro teste). Diversidade genuína = os conceitos diferem nas **variáveis GRANDES do ad** (persona, conceito/big idea, formato, ângulo — o mapa "As Variáveis de um Ad" da Skill 08), não em detalhes de execução como cor de fundo ou ordem de cena. O gate de diversidade da Skill 08 já força isso — não dilua na hora de subir.
 - O Facebook distribui o budget entre os criativos. **Onde ele começa a concentrar gasto é onde tem escala** — esse é o sinal que a Skill 11 vai ler.
 - **Ad Name** (cada um): `[concept_id]_[YYYYMMDD]` (ex: `RootCauseAngle_20260620`) — preserva o handoff 08→10→11.
 - **CTA Button**: "Shop Now" (PDP direta) ou "Learn More" (advertorial/landing).
@@ -172,6 +172,8 @@ Conta de anúncio recém-criada precisa "esquentar" antes da campanha real — o
 ### ETAPA 5 — Cadência de Teste e Janela de Decisão
 
 **Não mexer por 3 dias.** Depois de ativar, **deixar 3 dias rodando sem otimizar** (leilão e demanda variam dia a dia; mexer cedo destrói o sinal). Nada de pausar criativo, mudar budget ou trocar audiência nesse período.
+
+> **Por que 3 dias (as variáveis invisíveis):** além da variação de leilão, todo ad é consumido sob condições que ninguém controla nem seta — o prospect vê na carona do carro ou no sofá, com som ou no mudo, depois de um ad bom ou ruim, num dia calmo ou caótico (mapa "As Variáveis de um Ad" da Skill 08). Com poucas impressões, o resultado mede o CONTEXTO dos espectadores, não o criativo. Essas variáveis só se diluem em volume — a janela de 3 dias existe pra isso.
 
 **Cadência de teste de PRODUTO (preview — quem decreta o kill é a Skill 11):**
 - **Lançar quarta-feira**, deixar até **domingo** (segunda/terça/quarta são dias mais fracos pra teste novo; quarta→domingo pega os dias fortes).
