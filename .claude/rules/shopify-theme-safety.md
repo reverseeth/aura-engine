@@ -97,6 +97,24 @@ shopify theme push --unpublished --path=<tmp-backup-dir> --theme "BACKUP-<data>-
 
 Em ambos os casos, o duplicado fica como rollback point.
 
+## Regra 6b — NUNCA regenerar template JSON por cima do que está no ar
+
+`templates/*.json` guarda **o que o membro configurou no theme editor**: fotos escolhidas em `image_picker`, textos editados, ordem dos blocks, variant IDs preenchidos. Regenerar esse arquivo a partir dos presets das sections e pushar **apaga tudo isso em silêncio** — a página volta pros defaults e o membro descobre pelas fotos que sumiram.
+
+**Proibido:** montar `templates/index.json` do zero (a partir de `presets`) e pushar por cima.
+
+**Fluxo correto** ao adicionar, remover ou reordenar section:
+
+```bash
+shopify theme pull --theme "$ID" --store "$STORE" --path "$DIR" --nodelete --only "templates/index.json"
+python3 tools/theme-template-merge.py "$DIR/templates/index.json" --add club:page-3am-club --after research
+shopify theme push --theme "$ID" --store "$STORE" --path "$DIR" --nodelete --only "templates/index.json"
+```
+
+O merge preserva byte a byte as sections existentes e mexe só no pedido. Mudança apenas em markup/schema de section (`sections/*.liquid`) ou em assets **não exige tocar no template** — pushe só os arquivos alterados com `--only`.
+
+**Regra prática:** antes de qualquer push que inclua um template JSON, rode o merge a partir do pull mais recente. Se o push não precisa do template, não inclua o template.
+
 ## Regra 7 — Após deploy, smoke test obrigatório
 
 Depois de push bem-sucedido, rodar smoke test automático antes de notificar membro "tá no ar":
