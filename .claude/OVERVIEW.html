@@ -295,10 +295,9 @@
 
     <div class="subsection reveal">
       <div class="subsection-title">Como o membro conecta</div>
-      <p>Conexão acontece uma vez por dispositivo, e fica permanente até o membro remover.</p>
       <ul>
-        <li><strong>Claude Desktop:</strong> Settings → Integrations → Add Custom Integration → Nome <em>Aura</em> → URL <code>https://aura-mcp-production.up.railway.app/mcp</code> → Add</li>
-        <li><strong>Claude Code (terminal):</strong> <code>claude mcp add --transport http aura https://aura-mcp-production.up.railway.app/mcp</code></li>
+        <li><strong>Claude Code:</strong> automático — o repo traz um <code>.mcp.json</code> que registra o servidor <code>aura</code>; na primeira abertura do Claude Code na pasta, o membro só aprova o aviso de novo servidor. Chave de acesso (quando distribuída) entra via variável de ambiente <code>AURA_KEY</code> no <code>~/.zshrc</code>, antes de abrir o Claude Code.</li>
+        <li><strong>Claude Desktop:</strong> Settings → Integrations → Add Custom Integration → Nome <em>Aura</em> → URL <code>https://aura-mcp-production.up.railway.app/mcp</code> → Add (uma vez por dispositivo, permanente até o membro remover)</li>
       </ul>
       <p>Instruções completas com screenshots ficam em <code>docs/aura-setup-pt.html</code>.</p>
     </div>

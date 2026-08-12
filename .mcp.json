@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "aura": {
+      "type": "http",
+      "url": "https://aura-mcp-production.up.railway.app/mcp?key=${AURA_KEY:-}"
+    }
+  }
+}
