@@ -105,13 +105,17 @@ search_knowledge("market sophistication stages")
 
 Verifique que a resposta retorna conteúdo real (não vazio, não erro). Se funcionar, mostre ✅ "Aura conectada e respondendo." (sem inventar números — a tool não retorna contagem de conteúdo). Se não:
 
-"Rode no terminal, FORA do Claude Code (troque `SUA_CHAVE` pela chave de acesso que veio com o seu acesso Aura; se você não recebeu chave, use a URL sem o `?key=`):
+O acesso à base já vem registrado no próprio Aura Engine (arquivo `.mcp.json` na raiz do repo) — na primeira abertura do Claude Code nesta pasta o Claude pede aprovação do servidor `aura`. Quando o teste falha, diagnostique nesta ordem:
+
+1. **Aprovação recusada** (causa mais comum): instrua o membro a rodar no terminal, FORA do Claude Code: `claude mcp reset-project-choices` — depois reiniciar o Claude Code (digitar `aura`), aprovar o servidor quando perguntar, e digitar 'setup' de novo.
+2. **Chave de acesso não configurada**: se o membro recebeu uma chave junto com o acesso Aura, ela precisa estar no ambiente ANTES de abrir o Claude Code. Instrua a adicionar ao `~/.zshrc`: `export AURA_KEY="SUA_CHAVE"` — depois abrir um terminal novo e reiniciar o Claude Code. (Sem chave distribuída, o acesso sem chave continua funcionando — pule este passo.)
+3. **Fallback manual** (se 1 e 2 não resolverem): registrar direto, no terminal FORA do Claude Code (troque `SUA_CHAVE` pela chave; sem chave, use a URL sem o `?key=`):
 
 ```
 claude mcp add aura --transport http "https://aura-mcp-production.up.railway.app/mcp?key=SUA_CHAVE"
 ```
 
-Depois reinicie o Claude Code e digite 'setup' novamente."
+Depois reiniciar o Claude Code e digitar 'setup' novamente.
 
 NÃO prossiga sem o MCP funcionando.
 
