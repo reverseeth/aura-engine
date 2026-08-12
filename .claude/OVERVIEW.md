@@ -28,8 +28,8 @@ A Base de Conhecimento é a camada de expertise profunda que sustenta o raciocí
 
 ### Como o membro conecta
 
-- **Claude Code:** automático — o repo traz um `.mcp.json` que registra o servidor `aura`; na primeira abertura do Claude Code na pasta, o membro só aprova o aviso de novo servidor. Chave de acesso (quando distribuída) entra via variável de ambiente `AURA_KEY` no `~/.zshrc`, antes de abrir o Claude Code.
-- **Claude Desktop:** Settings → Integrations → Add Custom Integration → Nome *Aura* → URL `https://aura-mcp-production.up.railway.app/mcp` → Add (uma vez por dispositivo, permanente até o membro remover)
+- **Claude Code:** automático — o repo traz um `.mcp.json` que registra o servidor `aura`; na primeira abertura do Claude Code na pasta, o membro só aprova o aviso de novo servidor. A chave de acesso (obrigatória — está no guia `docs/aura-setup-pt.html`) entra via variável de ambiente `AURA_KEY` no `~/.zshrc`, antes de abrir o Claude Code.
+- **Claude Desktop:** Settings → Integrations → Add Custom Integration → Nome *Aura* → URL `https://aura-mcp-production.up.railway.app/mcp?key=CHAVE` (chave no guia de setup) → Add (uma vez por dispositivo, permanente até o membro remover)
 
 Instruções completas com screenshots ficam em `docs/aura-setup-pt.html`.
 

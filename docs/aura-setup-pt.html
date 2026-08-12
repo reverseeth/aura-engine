@@ -691,15 +691,16 @@ Add-Content $PROFILE &#x27;function aura { Set-Location &quot;$HOME\aura-engine&
 <div class="subsection reveal"><div class="subsection-title">O que fundamenta as recomendações.</div>
 <p>A base de conhecimento reúne centenas de frameworks de marketing, copy e mídia paga prontos pra consulta. É ela que sustenta as decisões da Aura em cada fase.</p></div>
 <div class="subsection reveal" style="margin-top:34px"><div class="subsection-title" style="font-size:clamp(20px,2.2vw,26px)">No Claude Code (automático)</div>
-<p>Não precisa rodar nada: o próprio Aura Engine já vem com a base registrada. Na primeira vez que você abrir o Claude Code na pasta (comando <code>aura</code>), vai aparecer um aviso perguntando se aprova o servidor <strong>aura</strong> — aprove, e está conectado.</p>
-<p>Se você recebeu uma <strong>chave de acesso</strong> na área de membros, adicione ao seu <code>~/.zshrc</code> antes de abrir o Claude Code: <code>export AURA_KEY="SUA_CHAVE"</code>. Sem chave, a conexão funciona do mesmo jeito enquanto o acesso sem chave estiver ativo.</p>
-<p>Recusou o aviso sem querer? Rode fora de uma sessão do Claude (outra aba do terminal, ou Ctrl+C duas vezes pra sair) e abra o Claude Code de novo pra aprovar:</p></div>
+<p>O próprio Aura Engine já vem com a base registrada — falta só guardar a sua chave de acesso. Rode uma vez no terminal, fora de uma sessão do Claude (outra aba, ou Ctrl+C duas vezes pra sair):</p></div>
+<div class="codebox reveal"><div class="cb-head"><span class="cb-label">guardar a chave de acesso · roda uma vez</span><button class="cb-copy" type="button">Copiar</button></div><pre>echo 'export AURA_KEY="AURADTCACCESS"' &gt;&gt; ~/.zshrc</pre></div>
+<div class="subsection reveal"><p>Depois abra um terminal <strong>novo</strong> e entre no Claude Code (comando <code>aura</code>). Na primeira vez vai aparecer um aviso perguntando se você aprova o servidor <strong>aura</strong> — aprove, e está conectado.</p>
+<p>Recusou o aviso sem querer? Rode fora de uma sessão do Claude e abra o Claude Code de novo pra aprovar:</p></div>
 <div class="codebox reveal"><div class="cb-head"><span class="cb-label">reexibir o aviso de aprovação · claude code</span><button class="cb-copy" type="button">Copiar</button></div><pre>claude mcp reset-project-choices</pre></div>
 <div class="subsection reveal" style="margin-top:34px"><div class="subsection-title" style="font-size:clamp(20px,2.2vw,26px)">No aplicativo Claude Desktop</div></div>
 <ol class="steps reveal">
 <li>Abra <strong>Settings</strong> → <strong>Connectors</strong> (em versões antigas, "Integrations").</li>
 <li>Clique em <strong>Add custom connector</strong>.</li>
-<li>Cole a URL: <code>https://aura-mcp-production.up.railway.app/mcp</code></li>
+<li>Cole a URL: <code>https://aura-mcp-production.up.railway.app/mcp?key=AURADTCACCESS</code></li>
 <li>Salve. A base aparece como <strong>Aura</strong> na lista de conectores.</li>
 </ol>
 <div class="callout reveal"><strong>Como saber se conectou</strong> Você não precisa testar nada na mão: o <code>setup</code> (próxima seção) testa a conexão sozinho e avisa se algo estiver errado.</div>

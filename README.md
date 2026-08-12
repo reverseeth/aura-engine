@@ -78,15 +78,13 @@ setup
 Follow the prompts (budget, market, tools available). Setup creates `/workspace/` with your product subfolder and a manifest.
 
 ### 4. Connect Aura knowledge base
-Claude Code connects automatically: the repo ships a `.mcp.json` that registers the knowledge base, so the first time you open Claude Code in this folder it asks permission to use the `aura` server — approve it and you're connected. If you received a personal access key with your Aura access, export it before opening Claude Code (e.g. in `~/.zshrc`):
+Claude Code connects automatically: the repo ships a `.mcp.json` that registers the knowledge base, so the first time you open Claude Code in this folder it asks permission to use the `aura` server — approve it and you're connected. An access key is required — it's in the setup guide distributed with your Aura access (`docs/aura-setup-pt.html`). Export it before opening Claude Code (e.g. in `~/.zshrc`):
 
 ```bash
 export AURA_KEY="YOUR_MEMBER_KEY"
 ```
 
-While keyless access remains enabled, everything works without the key.
-
-Manual setup (Claude Desktop, or as a terminal fallback — replace `YOUR_MEMBER_KEY` with the key from the member area, or drop the `?key=` suffix if you have no key):
+Manual setup (Claude Desktop, or as a terminal fallback — replace `YOUR_MEMBER_KEY` with the key from the setup guide):
 - Desktop: Settings → Integrations → Add Custom Integration → URL `https://aura-mcp-production.up.railway.app/mcp?key=YOUR_MEMBER_KEY`
 - Terminal: `claude mcp add --transport http aura "https://aura-mcp-production.up.railway.app/mcp?key=YOUR_MEMBER_KEY"`
 
