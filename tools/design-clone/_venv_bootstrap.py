@@ -31,8 +31,9 @@ def bootstrap(*modules: str) -> None:
     if all(importlib.util.find_spec(m) is not None for m in modules):
         return
     tried = set(filter(None, os.environ.get(_ENV_VAR, "").split(":")))
-    for cand in [REPO / "tools/design-clone/.venv/bin/python",
-                 REPO / ".claude/lib/web-fetch/.venv/bin/python"]:
+    subdir, exe = ("Scripts", "python.exe") if os.name == "nt" else ("bin", "python")
+    for cand in [REPO / f"tools/design-clone/.venv/{subdir}/{exe}",
+                 REPO / f".claude/lib/web-fetch/.venv/{subdir}/{exe}"]:
         if str(cand) in tried or not cand.exists():
             continue
         env = {**os.environ, _ENV_VAR: ":".join(sorted(tried | {str(cand)}))}
