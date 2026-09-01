@@ -5,7 +5,7 @@
 <!--
   ═══════════════════════════════════════════════════════════════════════════
   AURA REPORT TEMPLATE — "Editorial Intelligence" (light)
-  Design system padrão de TODOS os relatórios .html da Aura (skills 00-14).
+  Design system padrão de TODOS os relatórios .html da Aura (skills 00-20).
   Uma skill COPIA este <style> inteiro + a estrutura de componentes do <body>,
   troca só o conteúdo. NÃO invente classes novas — use as daqui.
 
@@ -603,9 +603,9 @@
 <div class="subsection reveal"><div class="subsection-title">Um sistema que roda dentro do Claude Code.</div>
 <p>A Aura é um sistema de construção de marcas de ecommerce que roda dentro do Claude Code. Tecnicamente, ela é três coisas:</p></div>
 <ul class="lead-list reveal">
-<li><strong>Skills.</strong> Fases executáveis que cobrem o negócio inteiro: pesquisa de produto, mercado e concorrentes, oferta, copy, página, criativos, tráfego pago e retenção. Você dispara cada fase digitando o nome dela.</li>
+<li><strong>Skills.</strong> Fases executáveis que cobrem o negócio inteiro, de ponta a ponta: pesquisa de produto, mercado e concorrentes, fornecedor, oferta, copy, página, criativos, tráfego pago, retenção — e as consultas que você chama quando precisa: finanças e projeções, creators e embaixadores, promoções e Black Friday, contratação de time, operação e risco, expansão pra Amazon e TikTok Shop. Você dispara cada fase digitando o nome dela.</li>
 <li><strong>Regras.</strong> Instruções permanentes de como a inteligência artificial trabalha: padrões de qualidade, checagens automáticas antes de qualquer lançamento e proteções pros seus dados.</li>
-<li><strong>Uma base de conhecimento conectada.</strong> Centenas de frameworks de marketing, copy e mídia paga catalogados (Schwartz, Hopkins, Cialdini, Hormozi). Antes das decisões importantes, a Aura consulta essa base. É o que fundamenta as recomendações em método, não em improviso.</li>
+<li><strong>Uma base de conhecimento conectada.</strong> Mais de 1.300 sistemas de marketing, copy e mídia paga catalogados com nome e endereço (Schwartz, Hopkins, Cialdini, Hormozi e o método completo de construção de marca que sustenta a Aura). Antes das decisões importantes, a Aura consulta essa base — e consulta tudo que existe sobre o assunto, não uma amostra. É o que fundamenta as recomendações em método, não em improviso.</li>
 </ul>
 <div class="note reveal"><strong>Como as fases se conectam</strong> Cada fase salva o que descobriu na pasta <code>workspace/</code> e a seguinte lê esses arquivos antes de começar. A pesquisa alimenta a oferta, a oferta alimenta a copy, a copy alimenta a página. Nada se perde e você nunca repete informação.</div>
 <div class="anim-flow reveal" role="img" aria-label="A Aura: um núcleo com três camadas em órbita (skills, regras e base de conhecimento) e as fases rodando em sequência">
@@ -719,6 +719,7 @@ Add-Content $PROFILE &#x27;function aura { Set-Location &quot;$HOME\aura-engine&
     <div class="ps ps6"><strong>Retenção</strong><em>email e SMS depois do lançamento (retention)</em></div>
   </div>
 </div>
+<div class="note reveal"><strong>Fora da sequência, as consultas laterais</strong> Além das fases em ordem, existem skills que você chama a qualquer momento, pelo nome, quando a necessidade aparece: <code>finance</code> (números, projeções e quanto dá pra gastar em ads), <code>sourcing</code> (fornecedor, cotação e custo real do produto), <code>creators</code> (UGC, seeding e embaixadores), <code>promo</code> (Black Friday, Q4 e qualquer promoção, com a conta refeita antes de ligar campanha), <code>time</code> (quando e como contratar), <code>ops</code> (backups de conta e plano B — vale desde o primeiro dia) e <code>marketplace</code> (expandir pra Amazon e TikTok Shop na hora certa). A Aura também indica cada uma sozinha, no momento em que faz sentido.</div>
 <div class="subsection reveal" style="margin-top:44px"><div class="subsection-title" style="font-size:clamp(22px,2.6vw,30px)">O que aparece no seu computador</div>
 <p>Cada produto vira uma pasta dentro de <code>workspace/</code>. As fases salvam os relatórios ali, e a Aura mantém na raiz do produto um arquivo chamado <strong>ABRIR-AQUI.html</strong>: o painel do produto. Abra no navegador pra ver o que está pronto, o que falta, o próximo passo e o link de cada relatório.</p></div>
 <div class="folders reveal" role="img" aria-label="As pastas que a Aura cria no seu computador, com o painel ABRIR-AQUI.html em destaque">

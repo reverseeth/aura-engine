@@ -13,7 +13,9 @@ Quando o membro ainda não tem produto ou quer validar/encontrar um novo produto
 0. **Idioma do relatório (rule 0 — INVIOLÁVEL)**: leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language`.
 1. Leia `workspace/profile.md` pra entender o contexto do membro (budget, ferramentas disponíveis, se tem SpyBox)
 
-> **Índice completo dos frameworks desta skill: `.claude/lib/kb-index/` (mapa skill→domínio no README; catálogo machine-readable em `frameworks.json`).** Skill 01 puxa do domínio `product-research` (29 sistemas nomeados). Nas ETAPAS abaixo, onde a skill pede "puxe os SISTEMAS NOMEADOS", rode `search_knowledge` com a `best_query` EXATA de cada framework relevante — nunca query genérica tipo "product research" ou "market sophistication".
+> **Índice completo dos frameworks desta skill: `.claude/lib/kb-index/` (mapa skill→domínio no README; catálogo machine-readable em `frameworks.json`).** Skill 01 puxa do domínio `product-research` — o tamanho do domínio é o que o `frameworks.json` disser (fonte da verdade), não um número decorado aqui. Nas ETAPAS abaixo, onde a skill pede "puxe os SISTEMAS NOMEADOS", rode `search_knowledge` com a `best_query` EXATA de cada framework relevante — nunca query genérica tipo "product research" ou "market sophistication".
+>
+> **Contrato de cobertura (regra 2026-09 do kb-index):** a puxada é COBERTURA do tópico, não amostra. No início de cada ETAPA que consulta a base, abra o domínio `product-research` inteiro no `frameworks.json` e enumere TODAS as entradas cujo `use_in_skill` inclui esta skill. As queries embutidas nas ETAPAs são o núcleo mínimo garantido daquela fase, **nunca o teto**: entrada relevante pra fase que não está embutida é pra puxar do mesmo jeito (critério por FASE: "esta entrada informa a decisão desta etapa?" — se "talvez", puxa). Não repita framework já puxado na mesma sessão. Antes de fechar cada ETAPA, releia a lista enumerada e confirme que nenhuma entrada relevante ficou sem puxar.
 
 2. **Puxe os SISTEMAS NOMEADOS da base — não query genérica.** Antes da análise, rode `search_knowledge` com a `best_query` de cada framework que esta skill aplica abaixo (estão embutidos por NOME nas ETAPAS 2, 8 e 10). A lista completa do domínio `product-research` está em `.claude/lib/kb-index/` (`frameworks.json` / README). Puxe os SISTEMAS COMPLETOS (ex: os 5 estágios de sophistication de Schwartz com claims e respostas estratégicas, não "sophistication"), aprofunde em cada sub-conceito que aparecer, e aplique os thresholds/critérios LITERALMENTE nas etapas seguintes.
 3. Internalize os frameworks ANTES de começar a análise. Não é pra "mencionar" — é pra APLICAR na escolha de cada produto.
@@ -101,6 +103,8 @@ Se TrendTrack NÃO estiver disponível, pule a parte AUTO desta etapa e siga pra
 Esta etapa só roda quando a descoberta automática (TrendTrack) NÃO está disponível, OU pra complementar a leva auto com dados que só a ferramenta paga mostra. **A AI não abre o Kalodata/SpyBox — esses são pagos e sem API que a AI consiga ler.** Ela diz exatamente o que olhar e recebe o dado colado pelo membro, tratando-o como input manual.
 
 Verifique em `workspace/profile.md` se o membro tem SpyBox disponível.
+
+**Sistema a puxar nesta etapa (rode a `best_query` exata):** **Filtros Kalodata refinados (versão atual)** (rode `filtros kalodata last 30 days revenue 100k 500k growth rate positivo unit price 60`) — o conjunto ATUAL de filtros do Kalodata (janela de 30 dias, faixa de receita, growth rate positivo, corte de preço unitário) que isola os produtos em ascensão. Instrua o membro com os valores que a base devolver; se divergirem dos números do exemplo abaixo, **a base vence**.
 
 **SE tem SpyBox / Kalodata:**
 
@@ -252,6 +256,8 @@ Extraia e organize:
 
 ### ETAPA 7 — Validação de Eficácia (Gimmick Check)
 
+**Sistema a puxar nesta etapa (rode a `best_query` exata):** **Conviction Test (o produto realmente funciona?)** (rode `conviction test claude gpt chin slimmer placebo body shaper funciona refund rate`) — o teste de convicção que separa produto que entrega de placebo (os casos do chin slimmer e do body shaper), inclusive perguntando a modelos de AI. Produto que não funciona volta em forma de refund rate. Aplique junto dos checks abaixo.
+
 Pra cada produto, pesquise (web search):
 
 - O produto realmente funciona como promete?
@@ -279,6 +285,7 @@ Não venda placebo, não venda fraude. Mesmo que tenha demanda, o long-term é i
 - **Schwartz 5 Stages of Market Sophistication** (rode `Schwartz market sophistication 5 stages mechanism claims`) → sub-passo 3 (estágio + resposta estratégica certa).
 - **Two Forms of Differentiation (Mechanism vs Avatar Innovation)** (rode `two forms of differentiation mechanism innovation avatar innovation overlooked avatar`) → sub-passos 4 e 5 (UMP e avatar underserved são as duas formas).
 - **Ries & Trout: Cherchez le Creneau (8 Holes in the Mind)** (rode `Ries Trout cherchez le creneau eight holes in the mind size price age`) → sub-passo 5 (achar a brecha de posicionamento/avatar livre).
+- **Auditoria de Produto / 8-Figure Blueprint (o produto como multiplicador)** (rode `auditoria de produto fraquezas forcas unico so contam forcas que o mercado valoriza`) → enquadra os sub-passos 4-7: mapear forças, fraquezas e o que o produto tem de único, contando SÓ as forças que o mercado de fato valoriza — o próprio produto é multiplicador do resultado de marketing, não detalhe.
 
 **1. Magnitude do Desejo** (Schwartz / Breakthrough Advertising):
 - **FRACO**: desejos superficiais (organizar mesa, gerenciar cabos) → preço baixo, volume alto, persuasão muito pesada pra justificar ads pagos. Geralmente inviável.
@@ -383,6 +390,8 @@ Score final = média ponderada documentada acima. Apresente o cálculo numericam
 
 > **Cross-check do ranking com o sistema de validação final** (rode `final validation Gemini GPT Perplexity Kimi rank products scale potential unique mechanism`): a base traz o protocolo **AI Final-Validation Ranking** que cruza scale potential × mecanismo único — use os critérios dele pra sanity-check do Top 3 antes de cravar o veredicto, garantindo que o produto #1 tem escala E diferenciação, não só um ou outro.
 
+> **Segundo cross-check — template de go/no-go** (rode `avaliar produto magnitude de desejo awareness 1 a 5 competition 1 a 5 go no go`): a base traz o **Product Evaluation Framework (Desire × Awareness × Sophistication + Selection Template)** — os mesmos três eixos da ETAPA 8 em notas de 1 a 5, fechando num go/no-go pelo template de seleção. Rode o template pro Top 3 e confirme que o veredicto TESTAR/TALVEZ/DESCARTAR bate com o go/no-go do sistema; se divergir, re-examine o score antes de cravar.
+
 **Validação de mínimo (bloqueadora)**: se NENHUM produto atingiu score ≥ 6.0, **NÃO** declare "research completo". Em vez disso:
 
 1. Liste por que cada candidato falhou (o filtro ou score dominante).
@@ -402,6 +411,8 @@ Veredito:
 - **TESTAR**: score ≥ 7.5, zero DESCARTA em nenhum filtro, alinha com budget do membro
 - **TALVEZ**: score 6.0-7.4, tem flags mas viável com ajustes
 - **DESCARTAR**: score < 6.0 OU falhou em filtro crítico
+
+> **Demanda real sem estoque (sistema a puxar — rode a `best_query` exata):** pra de-riskar um TESTAR antes de comprar estoque, ou pra desempatar um TALVEZ com dado real em vez de score, puxe **Validação de demanda sem estoque (teste com refund)** (rode `testar demanda em mercado novo uma semana e reembolsar tudo pre order 50 off 60 dias`) — abrir pré-venda por uma semana (50% off, prazo de 60 dias) sem ter estoque e reembolsar todos os pedidos no fim: o volume vendido mede a demanda real. Ofereça ao membro como passo opcional de validação antes do compromisso com fornecedor.
 
 ### ETAPA 10 — Plano Preliminar pro Produto #1
 

@@ -21,7 +21,9 @@ O que justifica a 05 como skill standalone é o trabalho operacional que a 04 n�
 - **Fase A — Launch-readiness (ANTES do go-live de ads, logo depois da 07d):** gerar o asset digital (PDF do e-book/guide), configurar GWP/complementary/gift-wrap na loja (coordenado com a 07d), hospedar o arquivo, garantir o acesso do comprador do dia 1 (link do asset na thank-you page / order status — funciona mesmo antes do flow de email existir) e produzir o payload de email pra Skill 13. **Todo bônus visível na PDP precisa sair da Fase A antes do primeiro ad** — a Skill 09 (consistency audit) verifica isso no gate de launch (promise↔config).
 - **Fase B — Tracking e iteração (PÓS-launch, junto da Fase B da 13):** com a campanha ATIVA e pedidos acontecendo (dupla condição do pré-flight), a 05 volta em D+30 pra puxar take-rate/access rate agregados (ETAPA 4) e alimentar a iteração da oferta na 04. (O flow de email de entrega em si já nasce na Fase A da 13, que roda pré-launch — o que é pós-launch aqui é o TRACKING.)
 
-> **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (mapa skill→domínio no `README.md`, queries exatas em `frameworks.json`). O domínio desta skill é **brand-building-bonus-aov** (27 frameworks). Sempre que uma ETAPA mandar "puxar da base", rode `search_knowledge` com a `best_query` NOMEADA do framework relevante daquela fase — **nunca query genérica**.
+> **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (mapa skill→domínio no `README.md`, queries exatas em `frameworks.json`). O domínio desta skill é **brand-building-bonus-aov** — o tamanho do domínio é o que o `frameworks.json` disser (fonte da verdade), não um número fixo aqui. Sempre que uma ETAPA mandar "puxar da base", rode `search_knowledge` com a `best_query` NOMEADA do framework relevante daquela fase — **nunca query genérica**.
+>
+> **Contrato de cobertura (regra 2026-09 do kb-index):** a puxada é cobertura, não amostra. No início de cada ETAPA que consulta a base, enumere no `frameworks.json` TODAS as entradas do domínio cujo `use_in_skill` inclui esta skill; as queries embutidas abaixo são o núcleo mínimo garantido, **nunca o teto** — entrada relevante não-embutida é pra puxar do mesmo jeito ("talvez informa esta etapa?" = puxa). Não repita framework já puxado na sessão. Antes de fechar a ETAPA, confira a lista enumerada: nada relevante fica sem puxar.
 
 ## Tipos de bônus
 
@@ -43,7 +45,7 @@ Congruência visual importa: na PDP, "free" deve **aparecer** (imagem do brinde,
 
 ## Pré-flight
 
-1. Ler `workspace/profile.md` → `report_language` (default `pt-BR` se ausente). Toda doc interna desta skill é escrita nesse idioma. O asset entregável ao consumidor (PDF do e-book, email) é **sempre em inglês** (mercado US) — rule 0 do CLAUDE.md.
+1. Ler `workspace/profile.md` → `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). Toda doc interna desta skill (.md/.html/.json descritivo) E toda conversa com o membro usam esse idioma. O asset entregável ao consumidor (PDF do e-book, email) é **sempre em inglês** (mercado US), independente do `report_language` — rule 0 do CLAUDE.md.
 2. Ler `workspace/[produto]/manifest.json` → detectar `stage` (member-stage-awareness). Influencia recomendação de tipo: **starter** → priorizar e-book/guide (custo zero de produzir) e GWP de baixo COGS; **scaling** → pode sustentar complementary SKU físico e GWP mais robusto.
 3. Detectar a FASE — a **Fase B exige DUPLA condição** (skill completa ≠ ads no ar: a 10 cria a campanha em PAUSED):
    - **(1)** `manifest.skills_completed` contém `"10-ad-strategy"`, **E**
@@ -112,7 +114,7 @@ A alavanca de AOV mais direta. Add um item de baixo COGS quando o cart subtotal 
 O e-book/guide que ajuda o cliente a **alcançar o resultado** que o produto promete (não um PDF genérico). Razor-blade fit: o asset faz o cliente ter mais sucesso com o produto → mais retenção e reorder.
 
 **Puxe os SISTEMAS NOMEADOS pra ancorar o asset no dream outcome** (rode a `best_query`):
-- **Hormozi Value Equation (Dream Outcome × Perceived Likelihood / Time Delay × Effort & Sacrifice)** (rode `Hormozi grand slam offer value equation dream outcome perceived likelihood time delay effort`) — o e-book deve mover ≥1 das 4 variáveis (tipicamente reduzir Time Delay e Effort pra chegar no resultado).
+- **Hormozi Value Equation (Dream Outcome × Perceived Likelihood / Time Delay × Effort & Sacrifice)** (rode `Hormozi value equation dream outcome perceived likelihood time delay effort sacrifice`) — o e-book deve mover ≥1 das 4 variáveis (tipicamente reduzir Time Delay e Effort pra chegar no resultado).
 - **Razor-Blade vs Handle (Bonus Fit Principle)** (rode `razor blade vs handle bonus fit natural complement to product`) — o asset só vale se faz o cliente extrair mais do produto principal, não como "PDF qualquer".
 
 **1. Gerar o conteúdo** alinhado ao dream outcome (ler `02-market-research/dados.json` pra VOC e desire, `04-offer-builder/dados.json` pro mecanismo). O e-book é REAL e específico do avatar, não "10 daily tips". Exemplo bom: skincare 45-65 → "The 14-Day Glow Protocol: exactly when to apply, what to pair, what to avoid".

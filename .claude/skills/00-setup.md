@@ -15,7 +15,11 @@ Esta skill roda quando o membro digita "setup" ou quando é a primeira vez usand
 
 ## Antes de Começar
 
-Consulte a base Aura extensivamente sobre fundamentos operacionais, o estado atual do marketing DTC, e como cada fase do sistema alimenta a próxima. Aprofunde em tudo que encontrar sobre entry points de membros em estágios diferentes (sem produto, com produto, vendendo, escalando) e o que cada estágio precisa priorizar. Essa base vai informar o roteamento no final.
+> **Índice permanente + contrato de cobertura (kb-index):** esta skill NÃO usa query genérica ("fundamentos DTC", "onboarding"). Ela puxa SISTEMAS NOMEADOS pelo índice `.claude/lib/kb-index/` (`frameworks.json` + README), e a puxada é **cobertura, não amostra**: antes de cada etapa que consulta a base, enumere no `frameworks.json` TODAS as entradas cujo `use_in_skill` inclui `00` — elas vivem espalhadas por vários domínios (o mapa do README aponta os principais; o filtro que vale é o campo `use_in_skill`, e a contagem é o que o `frameworks.json` disser) — e rode a `best_query` EXATA das relevantes com `deep=true`. As queries embutidas nas etapas abaixo são o núcleo mínimo garantido, **nunca o teto**: entrada relevante que não está embutida é pra puxar do mesmo jeito ("talvez informa esta etapa?" = puxa). Framework já puxado na sessão não se puxa de novo. Antes de fechar cada etapa que consultou a base, releia a lista enumerada e confirme que nada relevante ficou sem puxar.
+
+**Núcleo mínimo do roteamento (rode a `best_query` exata):**
+
+- **ECommerce Bootstrapping (101-Test Log, 9-in-10-Fail Sine Wave, The Crash, $10K/Hour)** (rode `ecommerce bootstrapping zero to multi 7 figures 101 testing log crash 10000 hour framework`) — o que cada estágio de membro (sem produto, com produto, vendendo, escalando) precisa priorizar e onde cada um quebra. Informa a classificação da ETAPA 3 e o roteamento da ETAPA 6.
 
 ## Fluxo da Skill
 
@@ -165,7 +169,7 @@ Logo depois da escolha de idioma e ANTES das 4 perguntas, dê ao membro um resum
 > 2. **Estratégia** (oferta → copy): a oferta irresistível e o texto que vende.
 > 3. **Loja** (página → tracking → checkout → bônus → flows de recuperação): tudo numa página que converte, com medição certa, os bônus prometidos já prontos, e os emails de carrinho abandonado e pós-compra armados antes do primeiro anúncio.
 > 4. **Tráfego** (criativos → visibilidade pra agentes de AI → auditoria → ads → análise → escala): os anúncios, a loja visível pros assistentes de compra com AI (ChatGPT, Perplexity), a checagem de coerência, subir e escalar.
-> 5. **Pós-venda** (retenção completa → medição dos bônus → reciclagem): win-back e reposição por email/SMS, medição dos brindes, e 1 anúncio vencedor virando vários.
+> 5. **Pós-venda** (retenção completa → medição dos bônus → reciclagem): win-back e reposição por email/SMS, medição dos brindes, e o anúncio que provou escalar rendendo o máximo que ele ainda pode dar.
 >
 > Você dispara qualquer fase só falando o nome dela. Eu sempre te digo qual é o próximo passo. E cada produto ganha um painel — o **ABRIR-AQUI.html** — que mostra o que já está pronto e o que abrir.
 
@@ -295,6 +299,8 @@ Se SITUACAO ≠ A (membro já tem produto), copie `.claude/templates/brand.md.te
 - Fontes: preencha com as font-families (heading e body) extraídas na ETAPA 4
 - Logo path: `workspace/[produto]/brand/logo.svg` (criar diretório; membro upa depois)
 
+**Voz da marca (sistema a puxar — rode a `best_query` exata):** ao preencher os campos de tom/editorial do `brand.md`, puxe **Brand Voice Measurement — Vocabulary / Tone / Cadence** (rode `brand voice measurement vocabulary tone cadence nine voice types grade level`) e capture a voz atual da marca nos três medidores do sistema (vocabulário, tom, cadência) a partir da copy extraída da página na ETAPA 4. É o registro que a skill 02 refina depois e a 06 usa pra escrever no tom da marca.
+
 Fields que NÃO conseguiu extrair (página bloqueada, hex/fontes não detectados) ficam como placeholders `[preencher]`. Avise ao membro:
 
 > "Criei `workspace/[produto]/brand.md` com o que consegui extrair da sua loja. Abre e completa o que ficou como `[preencher]` antes de rodar `page` — isso é single-source-of-truth pra identidade visual e editorial."
@@ -355,6 +361,19 @@ Exemplo:
 }
 ```
 
+### ETAPA 5C — Blindagem da operação Meta (anti-ban + marca)
+
+**Risco de ban é exatamente a fase que esta skill cobre:** a conta se protege na MONTAGEM da operação (business managers, conta de anúncio, página, marca) — antes do primeiro anúncio, não depois do primeiro banimento. A montagem é daqui; quem volta nesse assunto depois é a skill 19 (ops-engine), que audita o status dos backups e usa a proteção de marca em operação — mas ela audita o que ESTA etapa criou. Se a proteção não sair daqui, o membro descobre o problema no ban.
+
+Puxe os SISTEMAS NOMEADOS (rode a `best_query` exata de cada um) e condense num checklist curto de proteção (3-5 bullets, no idioma do `report_language`), entregue junto da mensagem final da ETAPA 6:
+
+- **Estrutura de Assets Anti-Ban (2–3 BMs + regra dos 3 admins)** (rode `três business managers pixel BM holding ad account BM 3 admins perfis reais`) — como distribuir pixel, holding e conta de anúncio em 2-3 business managers, com 3 admins de perfis reais em cada, pra reduzir a exposição a banimento.
+- **Protocolo de aquecimento de conta de anúncio** (rode `aquecer ad account campanha de curtidas $5 por dia 3 dias 50 ads aprovados`) — conta de anúncio nova não recebe campanha de venda no dia 1: aquece primeiro, acumulando aprovações.
+- **Trademark + Facebook Brand Rights Protection** (rode `trademark registrado brand rights protection fake DMCA derrubou 300 ads`) — a defesa contra DMCA falso (do tipo que já derrubou 300 anúncios de uma vez): registrar a marca e ativar o Brand Rights Protection.
+- **Meta Invoicing Float Stack** (rode `Meta parou de aceitar cartão de crédito invoicing wire ACH Melio Bill.com Plastiq net 105`) — aqui é SÓ o aviso operacional de que o pagamento da Meta virou invoicing (wire/ACH), pra o membro montar o billing certo desde o começo. A matemática do float/caixa é da **skill 15 (finance-engine)** — ponteiro, não aprofundamento.
+
+Adapte a profundidade ao estágio (ETAPA 3): membro A/B (ainda sem ads) recebe como "arme isso antes do primeiro ad"; membro C/D (já rodando) recebe como auditoria do que falta na operação atual.
+
 ### ETAPA 6 — Confirmação + Roteamento Inteligente
 
 Comece com uma confirmação clara: `✓ Setup completo!`
@@ -385,7 +404,7 @@ Começa por **'ad analysis'**. Cole os dados do Ads Manager que eu rodo 4Pi comp
 
 "Setup completo. Modo otimização.
 
-Próximo passo: **'scale'**. Monto um plano baseado nos seus números — PGS pra escala vertical sistemática, análise de PSM pra garantir margem de crescimento, roadmap de canais horizontais (Google Search, TikTok, Amazon) quando fizer sentido, e ritmo de criativos/offers alinhado à faixa de faturamento que você tá operando."
+Próximo passo: **'scale'**. Monto um plano baseado nos seus números — o Scaling Protocol pra escala vertical (sobe 20% depois de 48-72h acima da meta e continua a cada 24h enquanto segurar; desce 20% se cair abaixo do ponto de equilíbrio; e o budget de cada dia volta pra ~metade do que você REALMENTE gastou, não do número que ficou na tela), análise de PSM pra garantir margem de crescimento, roadmap de canais horizontais (Google Search, TikTok, Amazon) quando fizer sentido, e ritmo de criativos/offers alinhado à faixa de faturamento que você tá operando."
 
 Depois da mensagem específica, adicione SEMPRE:
 

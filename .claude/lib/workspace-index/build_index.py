@@ -20,29 +20,51 @@ from pathlib import Path
 # <stem>.html, onde stem = nome da pasta sem o prefixo numérico (ex: 02-market-research/
 # market-research.html), com fallback legado relatorio.html (produtos antigos).
 # Último campo = tag do card: None (core), "post" (pós-launch), "two" (skill de 2 fases:
-# Fase A pré-launch + Fase B pós-launch — 05 bônus e 13 retenção). As skills "two" mantêm
-# a posição do card aqui; a Fase A delas entra como próximo passo pela lógica condicional
-# no build() (depois da 07d), não pela posição na lista.
+# Fase A pré-launch + Fase B pós-launch — 05 bônus e 13 retenção), "opt" (opcional, ex: 01b
+# sourcing) e "side" (consulta lateral: não é etapa da sequência, roda quando o membro
+# precisa — 15 finanças, 16 creators, 17 promoções, 18 time, 19 operação, 20 canais de
+# venda). As skills "two" mantêm a posição do card aqui; a Fase A delas
+# entra como próximo passo pela lógica condicional no build() (depois da 07d), não pela
+# posição na lista.
+# A fase 15 (finanças) aparece logo depois da 04 porque é ali que ela é consultada pela
+# primeira vez ("a oferta fecha a conta do negócio inteiro, com o custo fixo dentro?"), mas
+# NÃO é etapa da sequência: como a 01b, nunca vira sugestão de próximo passo (ver NO_SUGGEST).
+# As laterais 16-20 seguem o mesmo princípio de posição (o card fica onde a consulta é
+# natural pela primeira vez): a 19 (operação) vem logo depois do setup — o checklist de
+# backups vale desde o começo, porque conta nova é a mais frágil; a 16 (creators) fica junto
+# da 08 — a Fase A de seeding roda em paralelo aos criativos, e a Fase B só abre
+# pós-breakthrough; a 17 (promoções, sazonal) e a 18 (time, estágio scaling) vêm depois da
+# 12; a 20 (canais de venda, estágio scaling) fecha a lista — canal secundário é agenda de
+# quem já provou o primário. Como a 01b/15, nenhuma vira sugestão de próximo passo.
+# A fase 14 cobre as DUAS trilhas da skill: Trilha 1 (amplificação do breakthrough — o
+# default, que é o que de fato escala a conta) e Trilha 2 (as 9 derivadas de canal, sob
+# pedido). Por isso o card se chama "Amplificação e reciclagem", não só "reciclagem".
 PHASES = [
     ("00", "00-setup",              {"pt-BR": "Setup",                 "en": "Setup"},                  None, None),
+    ("19", "19-ops-engine",         {"pt-BR": "Operação (continuidade e risco)","en": "Ops (continuity & risk)"}, "operação", "side"),
     ("01", "01-product-research",   {"pt-BR": "Pesquisa de produto",   "en": "Product research"},       "product research", None),
     ("01b","sourcing",              {"pt-BR": "Fornecedor (sourcing)", "en": "Sourcing"},               "sourcing", "opt"),
     ("02", "02-market-research",    {"pt-BR": "Pesquisa de mercado",   "en": "Market research"},        "market research", None),
     ("03", "03-competitor-analysis",{"pt-BR": "Análise de concorrência","en": "Competitor analysis"},   "competitor analysis", None),
     ("04", "04-offer-builder",      {"pt-BR": "Oferta",                "en": "Offer"},                  "offer", None),
+    ("15", "15-finance-engine",     {"pt-BR": "Finanças (modelo do negócio)","en": "Finance (business model)"}, "finance", "side"),
     ("06", "06-copy-engine",        {"pt-BR": "Copy",                  "en": "Copy"},                   "copy", None),
     ("07", "07-page",               {"pt-BR": "Página (loja)",         "en": "Page (storefront)"},      "page", None),
     ("07c","07c-tracking-setup",    {"pt-BR": "Tracking (pixel + CAPI)","en": "Tracking (pixel + CAPI)"},"tracking", None),
     ("07d","07d-checkout-aov",      {"pt-BR": "Checkout & AOV",        "en": "Checkout & AOV"},         "checkout", None),
     ("08", "08-creative-engine",    {"pt-BR": "Criativos",             "en": "Creatives"},              "creatives", None),
+    ("16", "16-creator-engine",     {"pt-BR": "Creators (conteúdo humano)","en": "Creators (human content)"}, "creators", "side"),
     ("07e","07e-agentic-readiness", {"pt-BR": "Visibilidade pra agentes de AI","en": "Agentic readiness (AI visibility)"}, "agentic readiness", None),
     ("09", "09-consistency-audit",  {"pt-BR": "Auditoria de consistência","en": "Consistency audit"},   "audit", None),
     ("10", "10-ad-strategy",        {"pt-BR": "Estratégia de ads",     "en": "Ad strategy"},            "ad strategy", None),
     ("11", "11-ad-analysis",        {"pt-BR": "Análise de ads",        "en": "Ad analysis"},            "ad analysis", None),
     ("12", "12-scale-engine",       {"pt-BR": "Escala",                "en": "Scale"},                  "scale", None),
+    ("17", "17-promo-engine",       {"pt-BR": "Promoções (janelas sazonais)","en": "Promos (seasonal windows)"}, "promo", "side"),
+    ("18", "18-team-engine",        {"pt-BR": "Time (contratação e gestão)","en": "Team (hiring & management)"}, "contratar", "side"),
     ("13", "13-retention-engine",   {"pt-BR": "Retenção (email/SMS)",  "en": "Retention (email/SMS)"},  "retention", "two"),
     ("05", "05-bonus-delivery",     {"pt-BR": "Entrega de bônus",      "en": "Bonus delivery"},         "bonus delivery", "two"),
-    ("14", "14-content-recycler",   {"pt-BR": "Reciclagem de conteúdo","en": "Content recycler"},       "recycle", "post"),
+    ("14", "14-content-recycler",   {"pt-BR": "Amplificação e reciclagem","en": "Amplification & recycling"}, "recycle", "post"),
+    ("20", "20-marketplace-engine", {"pt-BR": "Canais de venda (marketplace)","en": "Sales channels (marketplace)"}, "marketplace", "side"),
 ]
 
 # Relatório alternativo: só a fase 07 difere do padrão <folder>/<stem>.html — a página
@@ -62,6 +84,14 @@ ALT_REPORT = {
 # relatório" continua aparecendo; só o badge Concluído espera o manifest.
 MANIFEST_ONLY = {"sourcing"}
 
+# Badge do card por tag: (classe CSS, chave de tradução em T). Tag ausente = sem badge.
+TAG_BADGE = {"two": ("b-two", "two_phase"), "post": ("b-post", "post"),
+             "opt": ("b-two", "optional"), "side": ("b-two", "side")}
+
+# Tags que NUNCA viram sugestão de próximo passo: a fase é opcional ("opt", ex: sourcing) ou
+# é consulta lateral fora da sequência ("side", ex: finanças) — o membro chama quando precisa.
+NO_SUGGEST = {"opt", "side"}
+
 LOGO_SVG = ('<svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
             '<path d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77'
             'v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z" fill="#14161A"/></svg>')
@@ -75,6 +105,7 @@ T = {
                 alldone="Tudo pronto. Sua máquina está montada.", post="Pós-launch",
                 two_phase="2 fases",
                 optional="Opcional",
+                side="Consulta",
                 order_note="As fases aparecem na ordem em que rodam — o número é o ID fixo de cada skill.",
                 bonus_a="Entrega de bônus — Fase A (assets + GWP)",
                 retention_a="Retenção — Fase A (flows de recuperação)"),
@@ -86,6 +117,7 @@ T = {
                 alldone="All set. Your machine is built.", post="Post-launch",
                 two_phase="2 phases",
                 optional="Optional",
+                side="On demand",
                 order_note="Phases appear in the order they run — the number is each skill's fixed ID.",
                 bonus_a="Bonus delivery — Phase A (assets + GWP)",
                 retention_a="Retention — Phase A (recovery flows)"),
@@ -153,14 +185,12 @@ def build(slug):
         if is_done: done_count += 1
         elif next_phase is None and tag is None and cmd:
             next_phase = (names[lang], cmd)
-        elif post_next is None and tag and tag != "opt" and cmd:
-            # fases "opt" (opcionais, ex: sourcing) nunca viram sugestão de próximo passo
+        elif post_next is None and tag and tag not in NO_SUGGEST and cmd:
             post_next = (names[lang], cmd)
         name = html.escape(names[lang])
         badge = (f'<span class="b-done">{tr["done"]}</span>' if is_done else f'<span class="b-pending">{tr["pending"]}</span>')
-        post_tag = (f'<span class="b-two">{tr["two_phase"]}</span>' if tag == "two"
-                    else (f'<span class="b-post">{tr["post"]}</span>' if tag == "post"
-                          else (f'<span class="b-two">{tr["optional"]}</span>' if tag == "opt" else '')))
+        badge_cls, badge_key = TAG_BADGE.get(tag, (None, None))
+        post_tag = f'<span class="{badge_cls}">{tr[badge_key]}</span>' if badge_cls else ''
         # fase concluída via manifest mas sem HTML: sem call-to-action (mostrar "diga X
         # pra rodar" junto do badge Concluído seria contraditório pro membro)
         action = (f'<a class="open" href="{html.escape(link)}">{tr["open"]}<span aria-hidden="true">→</span></a>' if link

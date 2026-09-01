@@ -2,7 +2,7 @@
 
 Puxa estado completo de uma campanha Meta Ads e salva estruturado pra Skill 11 processar sem print. Receita ÚNICA com cascade interno: tenta o **MCP oficial da Meta** (`mcp.facebook.com/ads`, open beta desde 2026-04-29, rollout gradual sem GA), cai pro **Pipeboard MCP** (3rd party) automaticamente, e devolve pro caller pedir dados manuais se nenhum MCP responder.
 
-Os dois degraus produzem o MESMO shape de output e usam a MESMA matemática de métricas/outcome (blocos únicos abaixo — steps 5-6). O que muda por degrau: as tools chamadas (steps 1-4) e os blocos `dataset_health` + `market_context`, exclusivos do oficial.
+Os dois degraus produzem o MESMO shape de output e usam a MESMA matemática de métricas e a MESMA pré-classificação (blocos únicos abaixo — steps 5-6). O que muda por degrau: as tools chamadas (steps 1-4) e os blocos `dataset_health` + `market_context`, exclusivos do oficial.
 
 ## Triggers (linguagem natural)
 - "sync campanha [nome]"
@@ -31,8 +31,8 @@ Motivos canônicos de `fallback_reason`: `account_disabled_in_official_beta` | `
 
 ## Pre-flight
 - [ ] Ao menos um dos dois MCPs Meta conectado (ver cascade)
-- [ ] `10-ad-strategy/dados.json` existe (referência do que deveria estar rodando + `pgs_*`/target)
-- [ ] `manifest.target_cpa` disponível (gravado pela Skill 04) — necessário pro classify_outcome
+- [ ] `10-ad-strategy/dados.json` existe (referência do que deveria estar rodando: `campaign.daily_budget` no CBO, a lista `ad_sets[]` — 1 por conceito — e `test_capacity`). `pgs_enabled` é campo legado fixo em `false` (cânone `.claude/lib/ad-taxonomy/README.md` §6): nunca ler como permissão de escala automática
+- [ ] `manifest.target_cpa` disponível (gravado pela Skill 04) — usado na régua de negativo forte do Step 6
 
 ## Steps
 
@@ -201,7 +201,7 @@ Esses 4 endpoints **não existem** no Pipeboard. Skill 11 ganha:
 - Opportunity score da Meta → reforça vs contradiz o 4Pi diagnostic (higiene, nunca comando — ver Skill 11)
 - Anomaly signal → pode disparar análise antes do membro pedir
 
-> **Guardrail do Opportunity Score:** o score (0-100) mede aderência ao playbook da Meta, NÃO performance. Nunca aplicar as recomendações dele em lote pra "subir o score" — em particular, IGNORAR a sugestão de ligar CBO/Advantage+ campaign budget durante o teste 1-1-N (budget no ad set é variável de controle da Skill 10). Texto completo do guardrail na Skill 11 ETAPA 1.
+> **Guardrail do Opportunity Score:** o score (0-100) mede aderência ao playbook da Meta, NÃO performance. Nunca aplicar as recomendações dele em lote pra "subir o score". Na estrutura vigente o CBO **já está ligado por desenho** (budget na campanha, 1 ad set por conceito — Skill 10 ETAPA 3.3), então a sugestão a IGNORAR mudou: é qualquer recomendação que destrua a leitura por conceito durante o teste — fundir/consolidar ad sets, adicionar detailed targeting, esticar budget acima do teto de ~3× target CPA por ad set (cânone `.claude/lib/ad-taxonomy/README.md` §1), ou migrar pra Advantage+ Sales antes da hora (graduação pra ASC é decisão da Skill 12). Texto completo do guardrail na Skill 11 ETAPA 1.
 
 No caminho 2, gravar `dataset_health: null` e `market_context: null` no JSON (a Skill 11 trata a ausência).
 
@@ -211,6 +211,7 @@ Pra cada ad + ad set, calcular em Python:
 
 ```python
 def derive_metrics(insights, created_time):
+    """Mesma função pro ad e pro ad set (o ad set = 1 conceito)."""
     days_running = (now - created_time).days + 1
     spend = insights.spend
     conversions = extract_purchases(insights.actions)
@@ -235,33 +236,96 @@ def derive_metrics(insights, created_time):
     }
 ```
 
-### 6. Detectar outcome (bloco ÚNICO — pra Creative DNA)
-
-Pré-classificação pro registry. **A decisão operacional (kill/pause/scale) é da Skill 11** — os critérios canônicos vivem no bloco Decision Thresholds dela; aqui é o mesmo racional em versão resumida, alinhado à estrutura 1-1-N:
+E, da campanha (Step 2), o **KPI de referência** que o Step 6 precisa — sem ele nenhum ad pode ser classificado:
 
 ```python
-def classify_outcome(metrics, target_cpa, fair_share, adset_delivery_healthy, min_spend=100):
-    """target_cpa: do manifest (gravado pela Skill 04).
-    fair_share: spend total do ad set ÷ N ads ativos (régua canônica da Skill 11 —
-    NUNCA usar '% fixo do spend total': com 10-12 ads, 10% do total É o fair share).
-    adset_delivery_healthy: o ad set como um todo está gastando (se NADA gastou,
-    o problema é review/policy/conta — não é loser individual)."""
-    if metrics.conversions == 0 and metrics.spend >= target_cpa * 1.5:
-        return "zero_conversions"   # gastou 1.5× o target sem venda — negativo forte
-    if (metrics.days_running >= 3 and adset_delivery_healthy
-            and metrics.spend < fair_share * 0.5):
-        return "loser"              # sub-entrega: Meta não está confiante no criativo
-    if metrics.spend < min_spend:
-        return "insufficient_data"
-    if metrics.cpa is None:
-        return "zero_conversions"
-    if metrics.cpa < target_cpa * 0.8 and metrics.spend > 300:
-        return "winner"
-    if metrics.cpa > target_cpa * 2 and metrics.days_running >= 7:
-        return "loser"              # CPA > 2× target SUSTENTADO após 7 dias (régua canônica da Skill 11;
-                                    # entre 1× e 2× = needs optimization → aqui fica "neutral")
-    return "neutral"
+def derive_campaign_kpi(campaign_insights):
+    spend     = campaign_insights.spend
+    purchases = extract_purchases(campaign_insights.actions)
+    return {
+        "cpa": spend / purchases if purchases > 0 else None,
+        "roas": campaign_insights.purchase_roas or 0,
+        "purchases": purchases,
+        "account_spend_7d": spend,   # 1 campanha por produto na estrutura da Skill 10;
+                                     # com ABO paralelo da Skill 12 no ar, usar o total da conta
+        "kpi_stable": purchases >= 50
+    }
 ```
+
+### 6. Pré-classificar `ad_class` (bloco ÚNICO — pra Creative DNA)
+
+Pré-classificação pro registry, no vocabulário canônico das **4 classes** do cânone `.claude/lib/ad-taxonomy/README.md` §2: `breakthrough` · `spend_winner` · `kpi_winner` · `loser`. **A classificação que vale, e toda decisão operacional (kill/pause/scale), é da Skill 11** — os critérios vivem no bloco Decision Thresholds dela; aqui é o mesmo racional em versão resumida, alinhado à estrutura vigente (1 campanha com CBO → N ad sets, 1 = 1 conceito → 3 ads cada).
+
+**O que separa breakthrough de ilusão é a comparação com o KPI da CAMPANHA, não com um alvo estático.** "CPA abaixo do target" sozinho classifica como winner exatamente o que o cânone chama de `kpi_winner` — ad que bateu um alvo fixo numa amostra pequena, que não escala (Skill 12) nem recicla (Skill 14). Por isso esta receita **nunca** emite rótulo positivo sem `campaign_cpa` na mesa.
+
+**Quando falta dado, o rótulo é `unclassified` — nunca um palpite.** Indeterminado é resultado legítimo: a Skill 11 classifica depois, com a análise completa. Rótulo chutado aqui vira falso positivo que se propaga pro DNA Registry e pro cross-product learning.
+
+```python
+LEGACY_OUTCOME = {              # o registry só aceita este enum (.claude/lib/creative-dna/schema.sql)
+    "breakthrough":  "winner",  # mapeamento fixo, idêntico ao da Skill 11 ETAPA 11
+    "spend_winner":  "neutral",
+    "kpi_winner":    "neutral",
+    "loser":         "loser",
+    "unclassified":  "insufficient_data",
+}
+
+def classify_ad_class(metrics, campaign_kpi, account_spend_7d, target_cpa,
+                      date_preset, adset_delivery_healthy, min_spend=100):
+    """Retorna uma das 4 classes do cânone §2, OU "unclassified" (indeterminado).
+
+    campaign_kpi:      saída de derive_campaign_kpi() — a métrica de REFERÊNCIA.
+    account_spend_7d:  denominador do spend_share_7d. Default = campaign_kpi["account_spend_7d"]
+                       (na estrutura da Skill 10 há 1 campanha por produto); se a Skill 12 já
+                       criou campanhas ABO paralelas, o caller passa o total da CONTA.
+    target_cpa:        do manifest (Skill 04). Só entra na régua de negativo forte (§3),
+                       NUNCA como definição de winner.
+    adset_delivery_healthy: a campanha/ad set está entregando (se NADA gastou, o problema
+                       é review/policy/conta — não é sinal do criativo).
+    """
+    # --- Portões de indeterminação: sem estes dados, qualquer rótulo é falso positivo ---
+    if date_preset != "last_7d":
+        return "unclassified"       # as réguas do §2 são de janela de 7 dias
+    if campaign_kpi is None or campaign_kpi.cpa is None:
+        return "unclassified"       # sem KPI de campanha não existe comparação — a 11 resolve
+    if campaign_kpi.purchases < 50:
+        return "unclassified"       # learning phase: campaign_cpa instável (Skill 11)
+    if not account_spend_7d:
+        return "unclassified"
+    if not adset_delivery_healthy:
+        return "unclassified"
+    if metrics.days_running < 7 or metrics.spend < min_spend:
+        return "unclassified"       # EM APRENDIZADO — nunca gravar classe nesse estado
+
+    # spend sem KPI (§2) — só afirma o negativo na régua do §3 (8× target CPA sem purchase).
+    # Abaixo disso é ruído: a 1× CPA há ~37% de chance de zero vendas por puro acaso.
+    if metrics.conversions == 0:
+        return "loser" if metrics.spend >= target_cpa * 8 else "unclassified"
+
+    spend_share_7d     = metrics.spend / account_spend_7d
+    ad_kpi_vs_campaign = (metrics.cpa is not None and metrics.cpa <= campaign_kpi.cpa)
+    # desempate quando o AOV varia entre ads: metrics.roas >= campaign_kpi.roas
+
+    # limiar de "puxa spend" pro breakthrough (§2, via Skill 11)
+    pull_threshold = 0.30 if (account_spend_7d / 7) < 3000 else 0.10
+
+    if ad_kpi_vs_campaign and spend_share_7d >= pull_threshold:
+        return "breakthrough"
+    if spend_share_7d <= 0.02:
+        return "loser"              # ≤2% do spend da conta em 7 dias (§2)
+    if not ad_kpi_vs_campaign and spend_share_7d >= 0.10:
+        return "spend_winner"
+    if ad_kpi_vs_campaign and spend_share_7d < 0.10:
+        return "kpi_winner"
+    return "unclassified"           # zona intermediária (NEEDS OPTIMIZATION) — quem lê é a 11
+
+def to_legacy_outcome(ad_class, metrics):
+    """Campo de compatibilidade pro registry. NÃO é a classificação."""
+    if ad_class == "loser" and metrics.conversions == 0:
+        return "zero_conversions"   # negativo mais forte do enum legado
+    return LEGACY_OUTCOME[ad_class]
+```
+
+> **O que saiu e por quê:** (a) o rótulo `winner` por `cpa < 0.8 × target_cpa` — é a definição que produzia o falso positivo, porque premia amostra pequena contra alvo fixo; (b) a régua de sub-entrega (`spend < fair_share × 0.5` → `loser`) — na Skill 11 o `fair_share` virou leitura de **entrega** (Pi 1) e não classifica mais ninguém sozinho; quem classifica é o `spend_share_7d` cruzado com o KPI da campanha; (c) `zero_conversions` a 1.5× target — trocado pela régua do cânone §3 (8× target CPA sem purchase), porque 1.5× ainda é ruído.
 
 ### 7. Salvar pull estruturado
 
@@ -277,13 +341,23 @@ def classify_outcome(metrics, target_cpa, fair_share, adset_delivery_healthy, mi
     "id": "<Meta campaign ID>",
     "name": "<campaign_name do manifest>",
     "status": "<ACTIVE|PAUSED>",
-    "daily_budget": "<cents>",
-    "insights": { "spend": "...", "roas": "...", "cpm": "...", "...": "..." }
+    "budget_level": "campaign_cbo",
+    "daily_budget": "<cents — o budget vive AQUI na estrutura da Skill 10>",
+    "insights": { "spend": "...", "roas": "...", "cpm": "...", "...": "..." },
+    "derived": {
+      "_comment": "KPI de REFERÊNCIA da pré-classificação do Step 6",
+      "campaign_cpa": "<null quando a campanha não tem purchases suficientes>",
+      "campaign_roas": "...",
+      "purchases_7d": "<int>",
+      "account_spend_7d": "<denominador do spend_share_7d>",
+      "kpi_stable": "<false quando purchases_7d < 50 — força ad_class 'unclassified' em todos os ads>"
+    }
   },
   "ad_sets": [
     {
+      "_comment": "1 ad set = 1 conceito (pack 3-2-2). Sob CBO o ad set não carrega budget próprio; daily_budget vem null e daily_max_spending_limit é o teto de proteção",
       "id": "<Meta ad set ID>",
-      "name": "<ad set name da strategy>",
+      "name": "<ad set name da strategy — carrega o concept_id>",
       "status": "<ACTIVE|PAUSED>",
       "days_running": "<int>",
       "insights": { "...": "..." },
@@ -298,9 +372,12 @@ def classify_outcome(metrics, target_cpa, fair_share, adset_delivery_healthy, mi
           "insights": { "...": "..." },
           "derived": {
             "cpa": "...", "ctr": "...", "thumbstop_3s": "...",
-            "hold_15s": "...", "roas": "..."
+            "hold_15s": "...", "roas": "...",
+            "spend_share_7d": "<ad_spend ÷ account_spend_7d — é ele que classifica, não o fair_share>",
+            "ad_kpi_vs_campaign": "<true|false|null quando não há campaign_cpa>"
           },
-          "outcome": "<winner|loser|neutral|zero_conversions|insufficient_data>",
+          "ad_class": "<breakthrough|spend_winner|kpi_winner|loser|unclassified>",
+          "outcome": "<campo LEGADO pro registry: winner|neutral|loser|zero_conversions|insufficient_data>",
           "creative_hash": "abc123def"
         }
       ]
@@ -333,7 +410,7 @@ def classify_outcome(metrics, target_cpa, fair_share, adset_delivery_healthy, mi
 
 ### 8. Notificar Creative DNA Registry (silent)
 
-Pra cada ad com `outcome != "insufficient_data"` (**`zero_conversions` ENTRA no registry** — é o negativo mais forte que existe; cross-product learning precisa dele tanto quanto dos winners):
+Pra cada ad com `ad_class != "unclassified"` (**`zero_conversions` ENTRA no registry** — é o negativo mais forte que existe; cross-product learning precisa dele tanto quanto dos breakthroughs). Ad indeterminado **não entra**: gravar palpite envenena as correlações de feature do `dna-profile.json`, que é exatamente o falso positivo que a pré-classificação nova elimina.
 
 ```
 registry_update = {
@@ -344,7 +421,8 @@ registry_update = {
     "roas": ad.derived.roas,
     "spend": ad.derived.spend,
     "days_active": ad.days_running,
-    "outcome": ad.outcome
+    "ad_class": ad.ad_class,   # canônico (cânone §2)
+    "outcome": ad.outcome      # legado — é o único que o enum do schema.sql aceita
 }
 if source == "meta_mcp_official" and market_context:
     registry_update["market_context_at_pull"] = {
@@ -368,8 +446,10 @@ O `market_context_at_pull` (só oficial) permite cross-product learning ponderar
   "source": "meta_mcp_official | meta_mcp_pipeboard",
   "fallback_reason": "<null no oficial | motivo do fallback>",
   "campaign_id": "<Meta ID>",
+  "ad_sets_synced": "<N — 1 por conceito>",
   "ads_synced": "<N>",
-  "outcomes": {"winner": "<N>", "neutral": "<N>", "loser": "<N>", "zero_conversions": "<N>", "insufficient_data": "<N>"},
+  "campaign_kpi_stable": "<true|false — false força todos os ads em 'unclassified'>",
+  "ad_classes": {"breakthrough": "<N>", "spend_winner": "<N>", "kpi_winner": "<N>", "loser": "<N>", "unclassified": "<N>"},
   "dna_registry_updated": "<N>",
   "market_context_pulled": "<true só no oficial>",
   "output_file": "/workspace/[produto]/11-ad-analysis/raw-pull-<timestamp>.json"
@@ -380,10 +460,12 @@ O `market_context_at_pull` (só oficial) permite cross-product learning ponderar
 
 Skill 11 recebe o path do JSON e lê direto. No caminho oficial, os blocos `dataset_health` e `market_context` são processados em sub-passes adicionais da ETAPA 2 (4Pi analysis ganha contexto de mercado real). No caminho Pipeboard, esses blocos vêm `null` e a análise segue sem eles.
 
+O `ad_class` do pull é **pré-classificação, não veredito**: a Skill 11 recalcula com a análise completa (4Pi, hook/hold, funil, saúde da conta, réguas de kill) e o valor dela prevalece. Ad marcado `unclassified` aqui é o caso normal de um teste ainda jovem — a 11 classifica quando houver base, e o membro nunca vê o rótulo do pull.
+
 ## Output esperado
 
 - `raw-pull-[timestamp].json` salvo (shape único, source declarado)
-- DNA Registry atualizado com outcomes (+ market context quando oficial)
+- DNA Registry atualizado com `ad_class` + o `outcome` legado (+ market context quando oficial); ads `unclassified` ficam de fora
 - automation-log.jsonl apenda entrada
 - Nenhuma mensagem pro membro (silent backend)
 
@@ -399,8 +481,22 @@ Skill 11 recebe o path do JSON e lê direto. No caminho oficial, os blocos `data
 
 ## Performance e rate limit
 
-- Oficial: ~20-40s pra campanha 1 ad set × 9 ads (~35-45 chamadas, incluindo dataset health + market context). **Rate limit: a Meta não publicou tetos na beta — hipótese de trabalho = herança da Marketing API (~200 calls/hora/ad account); ver troubleshooting do `setup-mcps.md`.** Com ~35-45 calls por sync, manter ≤4 syncs/hora por ad account.
-- Pipeboard: ~15-30s (~30 chamadas — sem os blocos exclusivos). Rate limit documentado: 200/hora + 100k/48h em dev.
+O custo do sync escala com o **número de ad sets**, não com um número fixo de ads: a estrutura da Skill 10 é 1 campanha com CBO → **N ad sets (1 por conceito) → 3 ads cada**, e N vem da capacidade de teste do cânone `.claude/lib/ad-taxonomy/README.md` §1 (teto de 5 ad sets de teste abaixo de US$ 1k/dia). Contando os Steps 1-4.5 com `include_creative_hashes: true`:
+
+```
+chamadas_oficial   ≈ 12 + 9 × N     (N = ad sets; inclui dataset health + market context)
+chamadas_pipeboard ≈  3 + 9 × N     (sem os blocos exclusivos do oficial)
+```
+
+| N (conceitos no ar) | Ads | Chamadas — oficial | Chamadas — Pipeboard |
+|---|---|---|---|
+| 1 | 3 | ~21 | ~12 |
+| 3 | 9 | ~39 | ~30 |
+| 5 (teto do cânone §1) | 15 | ~57 | ~48 |
+
+- **Oficial:** a faixa medida de ~20-40s corresponde a ~35-45 chamadas — na estrutura nova, isso é um teste de ~3 conceitos. O tempo acompanha o volume de chamadas nos dois sentidos: 1 conceito sai mais rápido, 5 conceitos custam mais. **Rate limit: a Meta não publicou tetos na beta — hipótese de trabalho = herança da Marketing API (~200 calls/hora/ad account); ver troubleshooting do `setup-mcps.md`.** Régua prática: `syncs/hora ≤ 200 ÷ chamadas_por_sync` — com 3 conceitos, ~5 syncs/hora; no teto de 5 ad sets, **≤3 syncs/hora**.
+- **Pipeboard:** rate limit documentado: 200/hora + 100k/48h em dev. Mesma régua de divisão.
+- **A cota é por AD ACCOUNT, não por campanha.** Quando a Skill 12 já abriu campanhas ABO paralelas pros breakthroughs (cânone §5), os syncs delas dividem a mesma cota — some as chamadas de todas antes de definir a frequência.
 
 ## Custo
 

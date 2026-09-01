@@ -26,7 +26,7 @@ Não é só "typo". É revisão crítica de qualidade. Procura tudo que pode est
 
 ## Quando dispara (automático)
 
-- Ao completar qualquer skill (00-14)
+- Ao completar qualquer skill (00-20 — todas, incluindo 01b e a família 07a-07e)
 - Após deploy de código ou asset em produção (Shopify push, Klaviyo flow, ad campaign)
 - Após geração de artefato consumidor-final (copy, briefing, PDP, ad)
 - Após análise/diagnóstico que vai informar decisão ($ em jogo)

@@ -6,7 +6,7 @@
 - "escala o winner"
 
 ## Input
-- `winner_creative_id` — ad que tá performando (top decile CPA)
+- `winner_creative_id` — criativo classificado como `breakthrough` pela Skill 11 (gate no pre-flight abaixo)
 - `n_variations` — default 3
 
 ## Cascade (Meta — ver `.claude/lib/mcp-detect/README.md`)
@@ -14,7 +14,8 @@
 Esta receita não chama o Meta diretamente: o único toque na plataforma é o **upload das variações**, delegado a `upload-creative-to-meta.md`, que carrega o próprio cascade (caminho 1 oficial `mcp__meta__ads_*` pra resolver ad set / caminho 2 Pipeboard `mcp__meta-ads__*` pro upload do binário — o upload força Pipeboard porque o oficial é remoto e não lê arquivo local). Logo a posição no cascade é herdada da receita de upload; aqui nada muda.
 
 ## Pre-flight
-- [ ] Winner tem CPA < target × 0.8 E spend > $300 E age > 5 days
+- [ ] **Gate de rotação — só `breakthrough` rotaciona (cânone `.claude/lib/ad-taxonomy/README.md` §2):** o `winner_creative_id` tem `class == "breakthrough"` em `manifest.ad_classification[]` (gravado pela Skill 11) — equivalente: o id está em `manifest.breakthroughs[]` ou em `11-ad-analysis/dados.json.breakthroughs[]`. `kpi_winner` NÃO rotaciona: bate o KPI sem puxar spend e o cânone o trata como loser para decisão — gerar variações dele multiplica um resultado de amostra pequena. `spend_winner` também não entra: o destino dele é iteração (Skill 14, Movimento 1), não rotação.
+- [ ] **Fallback legado** — produto sem `ad_classification[]`/`breakthroughs[]` no manifest (análise antiga ou Skill 11 nunca rodada): aplicar o gate antigo (CPA < target × 0.8 E spend > $300 E age > 5 days) e AVISAR o membro antes de prosseguir: "esse produto ainda não tem a classificação canônica da Skill 11; usei o gate legado, que não distingue breakthrough de KPI winner — recomendo rodar `ad analysis` antes de ativar as variações". `manifest.winners[]` legado existe em dois shapes (ids string — alias de `breakthroughs[]` — ou objetos com métricas, em produto antigo); aceite ambos pra LOCALIZAR o criativo, mas presença em `winners[]` sozinha nunca substitui o gate — o array antigo pode carregar `kpi_winner` disfarçado de winner.
 - [ ] Skill 08 disponível pra gerar variations
 - [ ] MCP de upload disponível (Pipeboard `mcp__meta-ads__*` ou Playwright — herda de `upload-creative-to-meta.md`)
 
@@ -55,11 +56,14 @@ for variation in new_variations:
   "action": "rotate_winner",
   "source": "<meta_mcp_pipeboard | playwright — herdado da receita de upload>",
   "parent_creative": "<creative-id>",
+  "parent_class": "<breakthrough | legacy_gate — qual gate liberou a rotação>",
   "variations_generated": ["<creative-id>-v2", "<creative-id>-v3", "<creative-id>-v4"],
   "all_paused": true,
   "dna_compliance": "preserved (+80% overlap)"
 }
 ```
+
+**Ad log (cânone `.claude/lib/ad-log/README.md`):** as criações na conta acontecem — e são registradas no ad-log — pela sub-receita `upload-creative-to-meta.md`, na mesma execução, uma linha por variação subida (motivo: "variação de rotação do [winner_creative_id]"). Esta receita não duplica essas linhas.
 
 Mensagem:
 ```

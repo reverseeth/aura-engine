@@ -2,8 +2,8 @@
 
 Tudo que existe no ecossistema Aura: o que cada peça faz, como se conectam, e como uma sessão flui do início ao fim.
 
-**Versão:** julho 2026
-**Skills:** 19 (numeradas 00-14, com o slot 07 expandido em 07a/07b/07c/07d — sub-cadeia storefront — + 07e agentic readiness)
+**Versão:** setembro 2026
+**Skills:** 26 (numeradas 00-20, incluindo a 01b opcional e o slot 07 expandido em 07a/07b/07c/07d — sub-cadeia storefront — + 07e agentic readiness)
 **Plataforma:** Claude Code (CLI da Anthropic)
 **Raiz de output:** `workspace/[product-slug]/`
 
@@ -14,7 +14,7 @@ Tudo que existe no ecossistema Aura: o que cada peça faz, como se conectam, e c
 A Aura é um sistema de duas partes pra construir e escalar marcas de ecommerce dentro do **Claude Code**, a CLI da Anthropic:
 
 - **Base de Conhecimento Aura** — um servidor MCP remoto (ferramenta `search_knowledge`) que guarda os frameworks especialistas em que o raciocínio da Aura é construído (Schwartz, Hopkins, Hormozi, Cialdini, Sugarman, Ogilvy, Caples, mais metodologia original sobre construção de oferta, Meta Ads científico e produção de criativos). Conectada uma vez via Settings do Claude; consultada silenciosamente dentro de toda skill que precisa fundamentar uma decisão.
-- **Aura Engine** — um projeto (clonado em `~/aura-engine`) contendo 19 skills, libs de suporte, rules, hooks e templates. Skills se ativam por contexto: o membro descreve o que precisa, a Aura identifica em qual fase está, e a skill apropriada roda.
+- **Aura Engine** — um projeto (clonado em `~/aura-engine`) contendo 26 skills, libs de suporte, rules, hooks e templates. Skills se ativam por contexto: o membro descreve o que precisa, a Aura identifica em qual fase está, e a skill apropriada roda.
 
 **Princípio central:** cada fase produz artefatos versionados em `/workspace/[product-slug]/` que alimentam a próxima. Nada é jogado fora — a copy se apoia na pesquisa, os criativos se apoiam na copy, os ads se apoiam nos criativos, a retenção se apoia na venda.
 
@@ -40,15 +40,15 @@ A base agrega a literatura fundacional de direct-response e ecommerce mais metod
 | Domínio | Queries representativas |
 |---|---|
 | Pesquisa de produto | `product research criteria validation`, `market desires mass desire`, `market sophistication stages` |
-| Pesquisa de mercado | `unified research document process`, `psychographic research drivers`, `voice of customer review mining`, `product market awareness Schwartz levels` |
+| Pesquisa de mercado | `unified research document process`, `psychographic research drivers`, `voice of customer review mining`, `Schwartz five stages of awareness unaware problem aware solution aware product aware most aware` |
 | Análise de concorrente | `competitor research extracting claims`, `market sophistication saturation` |
 | Construção de oferta | `unique mechanism UMP UMS theory`, `offer stack pricing guarantee`, `Hormozi value equation dream outcome perceived likelihood time delay effort sacrifice` |
 | Copywriting | `headlines formulas process 100 lines`, `Schwartz lead desire identification belief dimension awareness lead selection`, `hero sections types selection`, `PDP structure reviews above fold how it works section ecommerce product detail page`, `CTA psychology call to action` |
 | Produção de criativo | `ad angles concepts variations`, `ad formats roadmap creative`, `hooks video ads`, `funnel creative playbook` |
-| Meta Ads | `scientific method meta ads control variable`, `one campaign method AndroMeta`, `4Pi analysis spend frequency CPM`, `budget scaling methods 5% rule`, `performance gate scaling PGS` |
-| Escala | `scaling strategy vertical horizontal`, `creative diversity scaling mechanism` |
+| Meta Ads | `scientific method meta ads control variable`, `one campaign method AndroMeta`, `4Pi analysis spend frequency CPM`, `budget scaling methods 5% rule`, `automations obrigatórias spend 5x em 24h pausar URL diferente do site desligar` (automação é só proteção — regra com condição de performance é impossível em campanha com CBO, o Meta recusa; cânone ad-taxonomy §6) |
+| Escala | `scaling strategy vertical horizontal`, `creative diversity scaling mechanism`, `scaling protocol 48-72 hours above target KPI scale every 24 hours decision tree new reason promo` |
 | Retenção | `email lifecycle welcome abandoned cart post-purchase winback`, `30-60-90 day LTV email SMS flow second purchase window replenishment` |
-| Reciclagem de conteúdo | A estrutura "1 winner → 9 formatos" vem da lib `.claude/lib/content-recycler/` (formats.json), não da base. Na base a skill 14 puxa só frameworks de copy nomeados, ex: `Caples four U's hierarchy unique useful urgent ultra-specific headlines`, `gap theory of curiosity hooks counterintuitive open loop slippery slope` |
+| Reciclagem de conteúdo | Nenhuma das duas trilhas da skill 14 vem da base: a Trilha 1 (amplificação) sai do cânone `.claude/lib/ad-taxonomy/README.md` (§2 classes, §5 escala, §7 Sniper) e a estrutura "1 criativo → 9 formatos" da Trilha 2 sai da lib `.claude/lib/content-recycler/` (formats.json). Na base a skill 14 puxa só frameworks de copy nomeados, ex: `Caples four U's hierarchy unique useful urgent ultra-specific headlines`, `gap theory of curiosity hooks counterintuitive open loop slippery slope` |
 
 Toda busca roda com `deep=true` pra resultados completos. Múltiplas buscas por tópico são normais.
 
@@ -69,7 +69,7 @@ Toda busca roda com `deep=true` pra resultados completos. Múltiplas buscas por 
 ├── .claude/
 │   ├── CLAUDE.md          ← instruções fundamentais (idioma, copy rules, dual output, MCP)
 │   ├── OVERVIEW.md / .html ← companion interno deste documento
-│   ├── skills/            ← skills 00-14, com sub-cadeia storefront 07a/07b/07c/07d + 07e (agentic readiness)
+│   ├── skills/            ← skills 00-20, com sub-cadeia storefront 07a/07b/07c/07d + 07e (agentic readiness)
 │   ├── lib/               ← libs reutilizáveis chamadas pelas skills
 │   ├── rules/             ← diretrizes auto-carregadas por contexto
 │   ├── hooks/             ← scripts que rodam em eventos do Claude Code
@@ -81,7 +81,7 @@ Toda busca roda com `deep=true` pra resultados completos. Múltiplas buscas por 
     ├── profile.md         ← contexto do membro (budget, ESP, tools, mercado, idioma)
     └── [product-slug]/
         ├── manifest.json  ← single source of truth do estado do produto
-        └── 01..14         ← artefatos versionados produzidos por cada skill
+        └── 01..20         ← artefatos versionados produzidos por cada skill
 ```
 
 A Base de Conhecimento Aura **não** está nesta árvore — é um servidor MCP remoto conectado separadamente. Engine e Base de Conhecimento são independentes.
@@ -90,7 +90,7 @@ A Base de Conhecimento Aura **não** está nesta árvore — é um servidor MCP 
 
 ## 4. As skills (em detalhe)
 
-Cada skill é um arquivo `.md` com frontmatter (nome + descrição) e corpo estruturado em ETAPAs numeradas. Skills estão listadas abaixo em ordem numérica (o número é o ID fixo de cada skill), com uma exceção: a 07e aparece depois da 08 porque é ali que ela roda. A ordem canônica exata de uma sessão está no §13. A fase de página virou a fase **storefront** (07a→07b→07c→07d), a bonus delivery (05) e a retention (13) rodam em duas fases (Fase A pré-launch, Fase B pós-launch) e a agentic readiness (07e) roda depois dos criativos, antes do gate de launch (09).
+Cada skill é um arquivo `.md` com frontmatter (nome + descrição) e corpo estruturado em ETAPAs numeradas. Skills estão listadas abaixo em ordem numérica (o número é o ID fixo de cada skill), com três exceções: a 07e aparece depois da 08 porque é ali que ela roda, a 15 aparece logo depois da 04 porque é ali que ela é consultada pela primeira vez, e as engines laterais 16-20 aparecem juntas no fim, depois da 14, porque não são etapas da sequência. A ordem canônica exata de uma sessão está no §13. A fase de página virou a fase **storefront** (07a→07b→07c→07d), a bonus delivery (05) e a retention (13) rodam em duas fases (Fase A pré-launch, Fase B pós-launch), a agentic readiness (07e) roda depois dos criativos, antes do gate de launch (09), e a finance engine (15) não é etapa da sequência — é consulta lateral, acionada quando o membro precisa de uma decisão financeira. As engines 16 (creators), 17 (promo), 18 (time), 19 (ops) e 20 (marketplace) são laterais como a 15, cada uma com sua posição natural (detalhe no §13).
 
 ### Skill 00 — Setup
 **Trigger:** `"setup"`
@@ -123,13 +123,27 @@ Identifica 5-10 concorrentes ativos via Meta Ad Library + Similarweb. Analisa PD
 
 ### Skill 04 — Offer Builder
 **Trigger:** `"offer"`
-Constrói mecanismo único (UMP/UMS — a razão pela qual o produto resolve o problema, e por que a alternativa do mercado falha). ETAPA 2.5 obrigatória — Research Foundation. Pricing triangulado, bonus stack, garantia, unit economics, 11 sanity checks.
+Constrói mecanismo único (UMP/UMS — a razão pela qual o produto resolve o problema, e por que a alternativa do mercado falha). ETAPA 2.5 obrigatória — Research Foundation. Pricing triangulado, bonus stack, garantia, unit economics, 12 sanity checks (4 deles bloqueiam o save).
+**Economia unitária pelo cânone `.claude/lib/unit-economics/README.md`:** stack de custos variáveis item a item (nunca agregado), margem de contribuição rotulada corretamente (nunca "Lucro" sobre um número que não subtraiu os fixos), CAC ≠ CPA e o piso de CAC (US$ 15-25) como gate.
 **Outputs críticos pras skills downstream:**
 - `bonuses[]` array → lido pela skill 05
 - `offer_stack` string → lido pela skill 06
-- `unit_economics.weighted_margin_per_order` + `target_cpa_primary_2x/3x` → lidos pela skill 11
+- `unit_economics.weighted_margin_per_order` (breakeven CPA) + `target_cpa_primary_2x/3x` (target CPA — o divisor da capacidade de teste) → lidos pelas skills 10, 11 e 12
+- `budget_viability.fixed_costs_monthly` → lido pela 11 antes de qualquer recomendação de cortar spend
 
 **Output:** `04-offer-builder/offer-builder.md` + `offer-builder.html` + `dados.json` + `research-foundation.json`
+
+### Skill 15 — Finance Engine (consulta lateral, não é etapa da sequência)
+**Trigger:** `"finance"` / `"finanças"` / `"projeção"` / `"cohort"` / `"fluxo de caixa"` / `"quanto posso gastar em ads"` / `"payback"` / `"runway"`
+Dona do modelo financeiro completo declarado no cânone `.claude/lib/unit-economics/README.md` §5 (4 alavancas, cohorts, ciclo de caixa). **Não é fase do pipeline** — roda quando o membro precisa de uma decisão financeira, tipicamente logo depois da 04 e depois a cada mês fechado. Recorrente por natureza: banking sheet semanal, calibragem de cohort mensal, revisão de LTV semestral.
+**Dois modos, decididos pelos dados — sem pergunta extra:**
+- **Modo A — Planejar** (nenhum mês fechado com ad spend *e* clientes novos do Shopify): monthly model linha a linha com o custo fixo dentro, margem de contribuição e ponto de cobertura do fixo, `gross_margin_needed_to_exist` (o lucro bruto que a operação precisa gerar todo mês só pra existir), piso de CAC, necessidade de caixa pra 90 dias, runway e benchmarks DTC.
+- **Modo B — Medir** (≥1 mês fechado): as 4 alavancas (AOV, CAC, ad spend, % de recorrentes) simuladas uma por vez e ranqueadas, cohorts de 12 meses com decay factor e LTV medido, payback de 90 dias e first-order profitability, taxa de aumento do CAC e teto de escala, ciclo de conversão de caixa (o stack de float ≈ 105 dias) e banking sheet semanal. Com 1-2 meses fechados o cohort roda **não calibrado** (payback modelado com 30 dias de folga); com 3+ ele estabiliza.
+
+**A ETAPA 5 é a razão principal de a skill existir:** ela transforma a espiral do ROAS (cânone §4) em número e publica `roas_spiral.breakeven_roas_with_fixed`, `spend_to_breakeven_with_fixed` e `cut_spend_recommendation_allowed`. Com os fixos desconhecidos, `cut_spend_recommendation_allowed` é `false` e a recomendação vira pergunta, não instrução.
+**As regras que não se negociam:** nunca chamar de "lucro" um número que não subtraiu custo fixo (`operating_income` é `null` enquanto os fixos forem `null`); CAC vem do Shopify (`new customer = TRUE`), nunca do CPA de plataforma; e **três campos nunca se estima** — custo fixo mensal, CAC real e contagem de clientes novos. Faltando qualquer um, o campo fica `null`, entra em `pending_inputs[]` e o bloco derivado dele fica marcado como não calculável.
+**Contrato de leitura (aditivo — sem o arquivo, cada skill mantém o comportamento atual):** a **11** lê o breakeven com fixo e a permissão de corte; a **12** lê caixa, float, runway, fixos e teto de escala; a **04** fecha `budget_viability.result_after_fixed_monthly`; a **13** mira o mês real de cruzamento do cohort e o pico de churn; a **10** checa o CPA-alvo contra o piso físico de CAC.
+**Output:** `15-finance-engine/finance-engine.md` + `finance-engine.html` + `dados.json` + `banking-sheet.csv` (só no Modo B) + `manifest.fixed_costs_monthly` e bloco `manifest.finance`
 
 ### Skill 05 — Bonus Delivery (DUAS fases: A pré-launch, B pós-launch)
 **Trigger:** `"bonus delivery"` / `"bônus"`
@@ -138,7 +152,9 @@ Geração do asset de bônus de ecom + delivery. A DEFINIÇÃO do bônus continu
 
 ### Skill 06 — Copy Engine
 **Trigger:** `"copy"`
-Headlines ("Process of 100" de Caples). Lead types por awareness stage. Hero sections, bullets, social proof, FAQ, urgency, email hooks. 8 sweeps de revisão.
+Headlines ("Process of 100" de Caples). Lead types por awareness stage. Hero sections, bullets, social proof, FAQ, urgency, email hooks.
+**ETAPA 2.5 obrigatória — Swipe Modeling:** antes de escrever, a skill escolhe **1 espécime primário** (opcionalmente 1 secundário) no catálogo `.claude/lib/swipe-models/specimens.json` cruzando `page_type` × awareness × sophistication × vertical, puxa a anatomia da peça na base pela `best_query` do espécime, e monta o `specimen_block_map` — a sequência de blocos que a copy vai seguir. Regra inegociável: modela-se **estrutura e mecânica, nunca conteúdo** (copiar frase, claim ou nome de mecanismo é plágio e, no vertical de suplementos, risco de compliance).
+**Revisão:** 7 sweeps Aura (1-7) + **sweep 8** (Compliance Pre-flight, gate de bloqueio, fora da contagem dos 7) + **sweep 9** (markup audit — auditoria estrutural em 5 camadas a partir do nó `auditoria` do mesmo JSON: estrutura + 4 U's, 4 emoções, lead de 4 passos, psicologia, oferta/preço, com o loop `Objection → Claim → Proof → Benefit` rastreado parágrafo a parágrafo e a folha de 12 defeitos. Headline que reprova em 3 dos 4 U's e falha em ideal prospect ou big promise = reescrever o lead antes de auditar o corpo).
 **Output:** `06-copy-engine/copy-engine.md` + `copy-engine.html` + `dados.json` + `compliance-log.json`
 
 ### Skill 07 — Storefront (cadeia 07a → 07b → 07c → 07d)
@@ -151,9 +167,11 @@ A fase storefront monta a loja inteira: página, deploy, tracking e AOV. Arquite
 
 ### Skill 08 — Creative Engine
 **Trigger:** `"creatives"`
-Pipeline completo. Por conceito: 3 format variants (Real Cuts / Hyper Motion / AI UGC). ETAPAs: detecção de material, quantidade por stage, ângulos das 3 verticais, regras estruturais, briefings, prompts production-ready (Higgsfield), LP congruency mapping, hooks bank, DNA registry load/extract, compliance pre-flight.
-**Enrichment opcional:** quando MCP TrendTrack conectado, Hooks Bank ganha archetypes vencedores reais.
-**Output:** `08-creative-engine/creative-engine.md` + `creative-engine.html` + `dados.json` + 1 briefing por conceito (`concept-NN.md/html`)
+Pipeline completo de briefing. Começa perguntando a **rota de produção** (A: gerar com IA · B: modelar concorrente e montar clipes · C: mix) e gera conceitos a partir das 3 verticais de pesquisa (competitiva, consumidor, interna). Cada conceito sai como um **pack 3-2-2** (3 criativos + 2 primary texts + 2 headlines) e ocupa 1 ad set próprio na estrutura da 10.
+**O tamanho do batch vem da capacidade de teste, não do stage do membro** — `max_assets = budget diário ÷ target CPA` (cânone `.claude/lib/ad-taxonomy/README.md` §1, lido de `10-ad-strategy/dados.json.test_capacity` quando existe). Cada conceito declara o método de teste do §7 (Marksman = 3 ângulos distintos dentro do pack; Sniper = 1 ângulo em 3 execuções; toda iteração é Sniper), o **ângulo como frase de razão de compra** (a embalagem fica separada no `concept_type`) e a zona emocional em Valence × Intensity.
+ETAPAs: detecção de material, ideação nas 3 verticais, regras estruturais, briefings com script segundo a segundo, entregáveis ramificados (prompts de IA por clipe na rota A / EDL de montagem na rota B), LP congruency mapping, hooks bank, DNA registry load/extract, compliance pre-flight + gate de disclosure "AI Info" (humano fotorrealista gerado por AI exige o label da Meta no upload).
+**Enrichment opcional:** quando MCP TrendTrack conectado, Hooks Bank ganha archetypes vencedores reais; quando o MCP da Higgsfield está conectado, a skill pode renderizar os vídeos in-session (sempre confirmando antes de gastar créditos).
+**Output:** `08-creative-engine/creative-engine.md` + `creative-engine.html` + `dados.json` + 1 briefing por conceito (`concept-NN.md/html`) + `prompts/` (rota A) ou `concept-NN-edl.md` (rota B) + `hooks-bank.md`
 
 ### Skill 07e — Agentic Readiness (AEO / AI visibility)
 **Trigger:** `"agentic readiness"` / `"aeo"` / `"ai visibility"`
@@ -168,19 +186,28 @@ Cross-phase drift detection: mecanismo, awareness stage, VOC, oferta concordam e
 
 ### Skill 10 — Ad Strategy
 **Trigger:** `"ad strategy"`
-Pre-flight pra Pixel/CAPI/produto live/criativos prontos. One Campaign Method: 1 campanha → 1 ad set (Advantage+/broad) → 5-12 criativos, criada em PAUSED via Meta MCP (o membro revisa e ativa). Naming convention, warmup de conta, Automated Rule de PGS opcional (nasce desativada). Confirma o analytics stack gravado pela 07c em `manifest.tracking` (a escolha da stack é da 07c, não desta).
+Pre-flight pra Pixel/CAPI/produto live/criativos prontos. One Campaign Method na forma vigente: **1 campanha com CBO → N ad sets broad/Advantage+ (1 ad set = 1 conceito) → 3 criativos + 2 primary texts + 2 headlines cada**, criada em PAUSED via Meta MCP (o membro revisa e ativa).
+**Quantos ad sets sobem é conta, não preferência** (cânone `.claude/lib/ad-taxonomy/README.md` §1): `max_assets = budget diário ÷ target CPA` e `max_adsets = budget diário ÷ (3 × target CPA)`, com piso operacional de US$ 100-150/dia, teto de ~3× target CPA por ad set e máximo de 5 ad sets de teste abaixo de US$ 1k/dia. O batch da 08 pode trazer mais conceitos do que o budget consegue ler — o excedente vai pra fila do batch seguinte, nunca dilui o teste.
+Método de teste Marksman ou Sniper (§7 — Marksman acontece DENTRO de um ad set, com 3 ângulos no mesmo pack, não entre ad sets). Naming convention, UTM schema, warmup de conta nova, cadência quarta→domingo, 3 dias sem mexer.
+**Proteções (§6):** Automated Rule com condição de performance é recusada pelo Meta em campanha com CBO — não existe PGS aqui. O que entra: `ad set spending limit → daily maximum` (~3× target CPA) criado junto do ad set, mais as **duas automações de proteção obrigatórias** — (a) spend 5× em 24h → pausar; (b) URL de destino ≠ domínio da loja → desligar — que **nascem desativadas** pro membro ativar. Kill e escala continuam sendo leitura das skills 11 e 12, nunca regra automática.
+Confirma o analytics stack gravado pela 07c em `manifest.tracking` (a escolha da stack é da 07c, não desta).
 **GATE skill 09** roda no pre-flight.
-**Output:** `10-ad-strategy/ad-strategy.md` + `ad-strategy.html` + `dados.json` + manifest `10_campaign_name`
+**Output:** `10-ad-strategy/ad-strategy.md` + `ad-strategy.html` + `dados.json` (com `test_capacity` inteiro e auditável, `ad_sets[]` e `protections`) + manifest `10_campaign_name` / `10_campaign_id` / `10_ad_set_ids` (um por conceito — a 11 puxa insights por ID)
 
 ### Skill 11 — Ad Analysis
 **Trigger:** `"ad analysis"`
-4Pi (Spend, Frequency, CPM, Cost per Result). LOSER detection dinâmico (lê unit_economics da skill 04). 19-Point Loser Diagnostic. Identifica WINNERs.
-**Enrichment opcional:** quando MCP TrendTrack conectado, `scan_ad` faz benchmark dos winners e `daily_radar` monitora concorrentes.
+Lê a estrutura da 10 em DOIS níveis: por **conceito** (o ad set — onde o CBO concentra gasto é o sinal) e por **criativo** (o ad). 4Pi (Spend, Frequency, CPM, Cost per Result). 19-Point Loser Diagnostic.
+**Classifica cada criativo nas 4 classes do cânone `.claude/lib/ad-taxonomy/README.md` §2** — `loser` · `kpi_winner` · `spend_winner` · `breakthrough`. Só `breakthrough` (KPI do AD melhor que o KPI da CAMPANHA **e** puxando spend) libera escala e reciclagem; `kpi_winner` bate o KPI sem puxar spend e é tratado como **loser para decisão**. Réguas de kill do §3 (conta madura: ad set após 7 dias sem spend e sem KPI; conta nova: 8× target CPA sem purchase; ad novo overspendando: 24-48h de carência) e Hook rate / Hold rate do §4 pra dizer ONDE o criativo falhou.
+**Gate de unit economics:** nenhuma recomendação de cortar spend por queda de ROAS sai sem aplicar `.claude/lib/unit-economics/README.md` §4 com os custos fixos na mesa — sem eles, a saída é a pergunta ("quanto você tem de custo fixo por mês?"), não a instrução de corte.
+**Enrichment opcional:** quando MCP TrendTrack conectado, `scan_ad` faz benchmark dos breakthroughs e `daily_radar` monitora concorrentes.
 **Output:** `11-ad-analysis/ad-analysis.md` + `ad-analysis.html` + `dados.json` (última análise) + `[YYYYMMDD]-analysis.md/html` (histórico)
 
 ### Skill 12 — Scale Engine
 **Trigger:** `"scale"`
-Vertical scaling (PGS 5% rule). Horizontal scaling. Champion promotion. Diversification por stage.
+Escala vertical governada pelo **Scaling Protocol** do cânone `.claude/lib/ad-taxonomy/README.md` §5 — a espinha única de toda subida e descida: dois gates cumulativos pra subir (48-72h acima do target **e** ≥60% das purchases em 7-day click), passo de **+20%** repetível a cada 24h enquanto os gates seguram, **−20%** abaixo do breakeven, e a **regra de reset da meia-noite** (o budget do dia seguinte é ~50% do que foi REALMENTE gasto, nunca do nominal — sem isso o Meta faz pacing pro nominal inteiro e a escala vira queima de caixa).
+As 3 escolas de gestores de tráfego (A cost-cap duplication + surf, B bid cap, C budget-doubling) são **variantes de intensidade dentro do protocolo**, recomendadas por member-stage — nenhuma dispensa os gates.
+Escala só abre com **breakthrough** (§2): `kpi_winner` não conta. A promoção é o **ABO paralelo** — cada breakthrough ganha 1 ad set próprio em campanha ABO a ~10% do budget diário da campanha principal, mantendo o ad original rodando no CBO; o **champions ad set foi aposentado** em favor dessa rota (`champions[]` permanece só como campo de compatibilidade).
+Horizontal scaling por diversidade de criativo (+ referral de agentes de AI como fonte incremental quando a 07e marcou a loja como pronta). Graduação pra Advantage+ Sales acima de US$ 1k/dia sustentado. Cash flow e projeções 30/60/90. PSM como diagnóstico (lê `manifest.psm_real`, não recomputa). Antes de qualquer corte de spend por queda de ROAS, aplica `.claude/lib/unit-economics/README.md` §4. Fecha ciclo de volta pra 08 quando o gargalo é criativo.
 **Output:** `12-scale-engine/scale-engine.md` + `scale-engine.html` + `dados.json` + `scale-directives.md`
 
 ### Skill 13 — Retention Engine (DUAS fases: A pré-launch, B pós-launch)
@@ -192,9 +219,42 @@ ESP identificado. Fluxos base: welcome series, abandoned cart, post-purchase, wi
 **Output:** `13-retention-engine/retention-engine.md` + `retention-engine.html` + `dados.json` + `[fluxo]/`
 
 ### Skill 14 — Content Recycler
-**Trigger:** `"content recycler"` / `"recycle [id]"` / `"recycle winner"`
-Lê 1 criativo winner (auto-detect via `11-ad-analysis/dados.json.winners[]`). Extrai essência. Gera 9 derivadas: advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad. Engine e specs dos formatos vivem na lib `.claude/lib/content-recycler/` (`recycler.md` + `formats.json`).
-**Output:** `14-content-recycler/content-recycler.md` + `content-recycler.html` (índice) + `[source-id]/` com 9 `.md` + 9 `.html`
+**Trigger:** `"content recycler"` / `"recycle [id]"` / `"recycle breakthrough"`
+**O gatilho é `breakthrough`, não "winner" genérico.** Lê a classificação que a skill 11 gravou (`breakthroughs[]`, espelhado em `manifest.breakthroughs[]`) e nunca a recomputa. `kpi_winner` **não entra** — o cânone `.claude/lib/ad-taxonomy/README.md` §2 o trata como loser para decisão (bateu o KPI com pouco spend, não provou nada em escala). `spend_winner` entra pela porta estreita: só o Movimento 1 (iteração), porque o cânone manda iterar, não escalar.
+Extrai a essência e — acima dela — o **framework que viaja** (`framework_template` + `psychological_mechanism`): o padrão por trás do script, não o script.
+**Trilha 1 — Amplificação (default, roda primeiro):** 6 movimentos pra extrair mais spend lucrativo do que já provou escalar — (1) iterar pelos 4 elementos (ângulo, mecanismo, autoridade, avatar), (2) portar o ângulo pra outros formatos, (3) LP/prelander dedicada, (4) portar pra Axon/AppLovin e TikTok (9:16 + end card, régua de US$ 250-1.000/dia por 60-90 dias), (5) duplicar em ad set ABO próprio a ~10% do budget da campanha principal, (6) devolver como creator report. A skill **especifica**; quem executa é a 08 (criativo), a 07a/06 (página e copy) e a 12 (escala).
+**Trilha 2 — Derivadas de formato (sob pedido):** as 9 peças de canal próprio (advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad), agora enquadradas como jogada de **marca e LTV**, não de performance — quem escala a conta é a Trilha 1. Engine e specs dos formatos vivem na lib `.claude/lib/content-recycler/` (`recycler.md` + `formats.json`).
+**Output:** `14-content-recycler/content-recycler.md` + `content-recycler.html` (índice) + `[source-id]/` com `essence.json`, `amplification-plan.md/.html`, `creator-report.md/.html` e — se a Trilha 2 rodou — 9 `.md` + 9 `.html` + `compliance-log.json`
+
+### Skill 16 — Creator Engine (consulta lateral, DUAS fases)
+**Trigger:** `"creators"` / `"ugc"` / `"seeding"` / `"whitelisting"` / `"ambassador"`
+A operação completa de conteúdo humano — content é o arquivo bruto, creative é o content editado, e sem abundância de conteúdo não há volume de teste. **Fase A — Content Engine (paralela à 08, pode começar antes do launch):** product seeding (enviar produto de graça em troca de conteúdo, em plataforma tipo Insense ou por outreach manual), casting com diversidade de creator amarrada aos sub-avatares da 02, framework de brief (nunca script fechado), B-roll de referência, follow-up e coleta, corte de cada vídeo em 3 hooks e o pipeline TikTok Shop como fábrica de volume. O objetivo da Fase A é encontrar **um brand ambassador**, não um winning ad de primeira (isso é bônus). **Fase B — Performance Program (SÓ depois de breakthrough confirmado pela 11):** o creator vencedor sobe de degrau — contrato recorrente, escada de embaixador com comissão em degraus, whitelisting (rodar ads do perfil do creator — só de quem já tem breakthrough com a marca, e só com os ads DELE), partnership ads, raw content campaign, creator farming e recrutamento pago de afiliados.
+**Fronteiras:** a 08 continua dona do QUE dizer (conceitos, roteiros, produção IA); esta skill é dona de QUEM grava e da relação com quem grava. Não cria campanha nem mexe em budget (10/12), não classifica criativo (11), não recicla breakthrough (14). Material voltado ao creator (brief, mensagem, contrato, report) sai sempre em inglês US; números de remuneração nunca se inventam.
+**Output:** `16-creator-engine/creator-engine.md` + `creator-engine.html` + `dados.json` + `briefs/` + `outreach/messages.md` + `contracts/` + `roster.csv` + bloco `creator` no manifest
+
+### Skill 17 — Promo Engine (consulta lateral, sazonal)
+**Trigger:** `"black friday"` / `"bfcm"` / `"promo"` / `"sale"` / `"q4"` / `"flash sale"`
+Dona da janela promocional de ponta a ponta (Q4/BFCM, datas sazonais, flash sales) — dispara por época ou pedido, uma rodada por janela. Calendário da janela (começar cedo é a tese central), preparação (momentum do evergreen, decisão de lead-gen VIP pelo critério de returning customers, estoque via 01b, backups via 19), oferta da promo (hierarquia de ofertas BFCM, store credit, stacking e linguagem) e o **gate inegociável**: recalcular o breakeven ROAS e o CPA-alvo com a margem promocional ANTES de ligar qualquer campanha — sem os números recalculados, a skill PARA (é o erro nº 1 da temporada: oferta melhor com o mesmo ROAS-alvo de antes = mais receita, menos lucro).
+**Execução:** Promo Campaign (Broad/WARM60/HOT90) em paralelo ao evergreen intocado, criativos "best ad + banner" via handoff pra 08, calendário de email/SMS que a 13 transforma em assets (flow nunca desliga durante campanha — se adapta), surf scaling e reset da meia-noite pelo cânone ad-taxonomy §5 (promo com data-fim é a exceção (a) do protocolo: entra direto no budget planejado), tudo logado no ad-log. **Aterrissagem:** regra de fim por horário, volta pro evergreen, leitura pós-promo com a 11 e a 15, cofre sazonal de winners pro revival no ano seguinte. Os números da janela vivem em `manifest.promo` e morrem com ela — nunca sobrescrevem o `target_cpa`/`breakeven_roas` do evergreen.
+**Output:** `17-promo-engine/promo-engine.md` + `promo-engine.html` + `dados.json` + bloco `promo` no manifest
+
+### Skill 18 — Team Engine (consulta lateral)
+**Trigger:** `"contratar"` / `"time"` / `"equipe"` / `"hiring"` / `"quem contratar"`
+Decide QUANDO contratar (pela restrição real do negócio, nunca por desespero — contrata-se porque QUER, nunca porque PRECISA; bad hire custa ~15× o salário anual da vaga), COMO contratar (scorecard antes da vaga, funil de 9 etapas, teste prático cronometrado, headhunting) e COMO rodar o time depois (onboarding de 8 semanas, KPIs por função com hit rate por editor, reviews com 9-box e PIP, incentivos, org design em engines e pods, frameworks de decisão DAI/RAPID/AAR). Desenhada pro membro em estágio scaling — pra starter/validating a resposta mais valiosa costuma ser **"ainda não — sua restrição hoje é X"**, entregue com o porquê e o sinal que reabre a conversa.
+**Réguas:** nenhuma vaga sem gargalo nomeado; sucesso definido ANTES da vaga aberta (scorecard); salário, caixa e KPI real de pessoa nunca se inventam — quando a pergunta é "a folha cabe no caixa?", o número vem da 15 ou do membro. Creator ≠ funcionário: creator, afiliado e embaixador são território da 16. Consumidora do maior bloco órfão da base (o domínio `team-hiring-ops` inteiro do kb-index).
+**Output:** `18-team-engine/team-engine.md` + `team-engine.html` + `dados.json` + bloco `team` no manifest
+
+### Skill 19 — Ops Engine (consulta lateral — backups valem desde cedo)
+**Trigger:** `"backup de conta"` / `"risco"` / `"constraint"` / `"operação"` / `"continuidade"` / `"exit"`
+A skill que pergunta **"o que mata esse negócio nos próximos 12 meses?"** e arma a resposta antes. Três frentes: **(1) Constraint dos próximos 12 meses** — o ÚNICO gargalo que limita o ano (estoque, caixa, plataforma ou pessoa-chave) e as prioridades organizadas em torno de removê-lo; **(2) Continuidade** — checklist de backups com status confirmado pelo membro, nunca deduzido: conta e Business Manager reserva com campanhas pré-montadas desligadas, processadora de pagamento redundante, banco e domínio reserva, pre-order pronto pra ligar como válvula de estoque e caixa, risco de pessoa-chave medido em "dores de cabeça por dólar"; **(3) Negócio como ativo** — memos de decisão (WAFM: sem memo, não há reunião de decisão), teste de moat de produto e operação exit-ready (o que um comprador auditaria). A parte de backups vale DESDE O COMEÇO — logo depois da 00 e antes do primeiro ad, porque conta nova é a mais frágil da vida do negócio; o resto revisita por trimestre e antes de decisões grandes (escala agressiva, Q4).
+**Fronteiras:** não monta a estrutura anti-ban (00), não calcula caixa/runway/float (15), não escolhe fornecedor nem define recompra (01b), não mexe em campanha (10/11/12) — audita o status e aponta.
+**Output:** `19-ops-engine/ops-engine.md` + `ops-engine.html` + `dados.json` + `memos/` + bloco `ops` no manifest
+
+### Skill 20 — Marketplace Engine (consulta lateral, estágio scaling)
+**Trigger:** `"amazon"` / `"tiktok shop"` / `"marketplace"` / `"afiliados"` / `"expandir canal"`
+Expansão de CANAL DE VENDA além do site próprio — decide quando (e se) a marca abre Amazon, TikTok Shop e programa de afiliados, e acompanha cada canal aberto. Roda um **GATE antes de qualquer tática**: Meta + site provados primeiro (breakthrough na 11, conta fechando na 15) e sinal de demanda transbordando (busca de marca subindo, cliente procurando a marca na Amazon, revendedor aparecendo na listagem) — porque canal novo não conserta oferta quebrada. Sem prova, a skill roda mesmo assim, mas o veredito só pode sair `not_yet` ou `blocked_pending_proof` — a resposta honesta "ainda não, e falta X" é output válido.
+**Os canais:** Amazon como captura da demanda que o ad já criou (SEO da listagem, defesa de marca, lances baixos, preço riscado, custom link, TACOS); TikTok Shop como canal de venda operado por afiliados (comissão orgânica vs de ads, samples, GMV — o conteúdo em si é da 16); afiliados via tráfego pago (funil "apply to be brand ambassador", comissão decrescente por faixa) e clientes virando afiliados automaticamente. **Fronteiras:** recrutar/gerenciar creators é da 16; portar campanha paga pra AppLovin/Axon/TikTok Ads é da 14 (Movimento 4); a conta financeira por canal (margem com comissão e fee dentro) é da 15. Fees reais, busca de marca e GMV nunca se estimam — o membro cola o que vê no painel.
+**Output:** `20-marketplace-engine/marketplace-engine.md` + `marketplace-engine.html` + `dados.json` + bloco `marketplace` no manifest
 
 ---
 
@@ -204,11 +264,16 @@ Libs reutilizáveis em `.claude/lib/`.
 
 | Lib | Função | Usada por |
 |---|---|---|
+| **ad-taxonomy** | **Cânone de classificação e capacidade de teste.** Capacidade (`assets = budget diário ÷ target CPA`, piso US$ 100-150/dia, teto ~3× target CPA por ad set, máx. 5 ad sets abaixo de US$ 1k/dia) + estrutura CBO com 1 ad set = 1 conceito; as 4 classes de resultado (loser · KPI winner · spend winner · breakthrough); réguas de kill; Hook/Hold rate; Scaling Protocol + ABO paralelo (champions ad set aposentado); o que pode e não pode ser automatizado (condição de performance é recusada em CBO; 2 automações de proteção obrigatórias); métodos Marksman/Sniper/Shotgun e a distinção ângulo ≠ conceito. Nenhuma skill redefine isso localmente. | 08, 10, 11, 12, 14, 17 + rules `member-stage-awareness`/`troubleshooting-patterns` + receitas de automação |
+| **unit-economics** | **Cânone de margem, CAC e decisão de spend.** Stack completo de custos variáveis e a regra de nomenclatura (nunca chamar de "Lucro" o que não subtraiu custos fixos); first order vs repeat order; CAC ≠ CPA (CAC vem do Shopify, `new customer = TRUE`); a **espiral do ROAS** — cortar spend por queda de ROAS pode aumentar o prejuízo, então nenhuma recomendação de corte sai sem os custos fixos na mesa. O §5 declara a **skill 15** como dona do modelo completo (4 alavancas, cohorts, ciclo de caixa). | 04, 11, 12, 15 |
+| **ad-log** | **Cânone do registro de mudanças na conta.** `workspace/[produto]/ad-log.md`, **append-only**, uma linha por mudança executada (entidade, mudança com valores antes → depois, executor, motivo curto) — separa o que foi FEITO do que foi lido (as análises datadas da 11 registram leituras). Escrito no momento da execução; mudança executada e não logada é bug de processo. | Escrevem: 10, 12, 14, 17 + receitas de automação. Leem: 11 (SEMPRE, no início da análise) e 12 (antes de escalar — o gate de 24h entre degraus é verificado ali) |
+| **swipe-models** | **Camada de modelagem por espécime.** `specimens.json` cataloga 12 espécimes estruturais de swipe files reais, cada um com seletor (`page_type` × awareness × sophistication × vertical), `best_query`, `regra_diagnostica`, `blocos_chave` e `base_empirica`. A skill 06 escolhe 1 primário (+1 secundário opcional) na ETAPA 2.5 e modela a ESTRUTURA — nunca o conteúdo. O nó `auditoria` vira o sweep 9 (markup audit: 4 U's, 4 emoções, lead de 4 passos, loop Objection→Claim→Proof→Benefit, folha de 12 defeitos). | 06 (dono), 04 e 11 (diagnóstico) |
 | **compliance-preflight** | Detecta palavras ad-flag que disparam disapproval no Meta/TikTok. Output: JSON com `severity` + `rewrite_suggestion`. | 06, 07b, 08, 14 |
-| **content-recycler** | Engine prompt-driven pra skill 14. Arquivos: `recycler.md` + `formats.json`. | 14 |
+| **content-recycler** | Engine prompt-driven da **Trilha 2** da skill 14 (as 9 derivadas de formato). Arquivos: `recycler.md` + `formats.json`. A Trilha 1 (amplificação) não vem daqui — vem do cânone `ad-taxonomy`. | 14 |
 | **creative-dna** | Cross-product DNA registry. Skill 08 salva padrões abstratos; próxima execução em outro produto carrega e adapta. | 08 |
+| **design-presets** | Fonte única dos 8 presets de design da 07a (`presets.json` com os tokens completos e fixos). Existe pra que o mesmo preset devolva sempre os mesmos tokens — a skill lê o arquivo, nunca gera de cabeça. Caminho 4 (último) da cascade de brand signals. | 07a, 07b |
 | **hook-taxonomy** | Taxonomia de hooks (Problema / Resultado / Curiosidade / Prova Social). | 08 |
-| **kb-index** | Índice permanente das 541 entradas de frameworks nomeados da base (~520 sistemas únicos; `frameworks.json` + `README.md`), por domínio, com a `best_query` exata de cada um. Skills puxam sistemas por nome via esse índice, nunca por query genérica. | Todas as skills que consultam a base |
+| **kb-index** | Índice permanente das 1.309 entradas de frameworks nomeados da base, em 19 domínios (alguns sistemas aparecem em mais de um domínio quando servem a skills diferentes; `frameworks.json` + `README.md`), com a `best_query` exata de cada um. Skills puxam sistemas por nome via esse índice, nunca por query genérica — a fonte da verdade do tamanho de cada domínio é o próprio `frameworks.json`. | Todas as skills que consultam a base |
 | **mcp-detect** | Fonte única de verdade dos prefixos de tool MCP detectáveis (`mcp__trendtrack__`, `mcp__meta__ads_*`, `mcp__meta-ads__`, `mcp__refero__`, `mcp__klaviyo__`, `mcp__shopify_dev__`, `mcp__stripe__`) + convenção de log `source`. | 07c, 10, 11, 13 + receitas de automação |
 | **prompt-directors** | Directors de prompt pra ferramentas externas (Higgsfield Marketing Studio). | 08 (ETAPA 5.7) |
 | **shopify-section-patterns** | 6 padrões de section Liquid endurecidos em produção (marquee infinito por JS em pixels, sticky add-to-cart com IntersectionObserver, gradiente de hero com easing, badges sobre imagem, drawer enriquecido via `::part`, fonte universal incluindo drawer) + o sistema de tokens de paleta em trios R,G,B. Formato: problema → solução → código de referência → armadilhas. | 07a (clone fiel), 07b |
@@ -236,6 +301,7 @@ Diretrizes em `.claude/rules/` auto-carregadas pelo Claude Code conforme context
 | `emergency-escape-paths` | ES1-ES7 cobrem pre-flights travados, workspace corrompido, etc. |
 | `troubleshooting-patterns` | Quando skill não entrega. Árvore de diagnóstico estruturada. |
 | `post-task-self-audit` | Toda skill peso médio/alto. 5 gates silenciosos antes de declarar "completo". Fixes inline silenciosos. |
+| `report-only-results` | **NON-NEGOTIABLE.** Todo relatório salvo em `workspace/` (.md e .html). O doc contém só o resultado final — zero narração de processo/correções, zero descrição de ausências, zero referência à conversa, zero auto-referência da AI. Meta-informação vive no chat e no `dados.json`. |
 | `resilient-fetch` | **NON-NEGOTIABLE.** Toda skill que busca dados na web. Cascade WebSearch → WebFetch → fetcher Playwright (`lib/web-fetch`); nunca inventar VOC/claim quando a fonte bloqueia. |
 | `reverse-order-insertion` | Multi-insert safety: em arrays posicionais (`order[]`, `block_order`), inserir em ordem reversa; em edits por anchor de texto, planejar anchors únicos e disjuntos. |
 
@@ -313,7 +379,14 @@ Cada fase mora numa subpasta própria `0X-<stem>/`. Dentro: `<stem>.html` (o que
 ├── 11-ad-analysis/        → ad-analysis.md / .html + dados.json + [YYYYMMDD]-analysis.md/html
 ├── 12-scale-engine/       → scale-engine.md / .html + dados.json + scale-directives.md
 ├── 13-retention-engine/   → retention-engine.md / .html + dados.json + [fluxo]/   (2 fases: A pré-launch, B pós-launch)
-└── 14-content-recycler/   → content-recycler.md / .html (índice) + [source-id]/   (pós-winner)
+├── 14-content-recycler/   → content-recycler.md / .html (índice) + [source-id]/   (só depois de um breakthrough)
+├── 15-finance-engine/     → finance-engine.md / .html + dados.json + banking-sheet.csv   (consulta lateral; o .csv só no Modo B)
+├── 16-creator-engine/     → creator-engine.md / .html + dados.json + briefs/ + outreach/ + contracts/ + roster.csv   (lateral, 2 fases: A seeding/conteúdo, B performance)
+├── 17-promo-engine/       → promo-engine.md / .html + dados.json   (lateral/sazonal — uma rodada por janela)
+├── 18-team-engine/        → team-engine.md / .html + dados.json   (lateral — org, vagas, pipeline de candidatos)
+├── 19-ops-engine/         → ops-engine.md / .html + dados.json + memos/   (lateral — backups valem desde o começo)
+├── 20-marketplace-engine/ → marketplace-engine.md / .html + dados.json   (lateral — canais de venda além do site)
+└── ad-log.md              ← registro append-only de toda mudança executada na conta (cânone ad-log; escrito por 10/12/14/17/receitas)
 ```
 
 `/workspace/profile.md` (fora de qualquer produto) guarda dados do membro: budget, ESP, tools, mercado, idioma. Escrito pela skill 00, lido por todas. O **`ABRIR-AQUI.html`** de cada produto é a porta de entrada: lista cada fase, o que já foi feito e o próximo passo — toda skill o regenera ao terminar.
@@ -397,7 +470,7 @@ Passo 2 — Pipeboard fallback (recomendado em paralelo): token long-lived do Ma
 |---|---|---|
 | 11 ad analysis (ETAPA 1) | Cascade via `sync-campaign-from-meta.md` (receita única: oficial → Pipeboard → manual) | Auto-pull + market context (industry benchmark, auction ranking, opportunity score, anomalies). Compara membro vs vertical p50. |
 | 10 ad strategy (pre-flight) | `ads_get_dataset_quality` | Gate de EMQ ≥ 6/10 (Event Match Quality) antes do launch |
-| `pause-ad-set.md` | `ads_update_entity` (cascade) | PGS guard sem interação manual |
+| `pause-ad-set.md` | `ads_update_entity` (cascade) | Executa a pausa que o membro decidiu — o gatilho é humano (leitura das réguas de kill do cânone §3 pela Skill 11), nunca uma regra de performance |
 | `upload-creative-to-meta.md` | Continua via Pipeboard/Playwright | MCP oficial não aceita arquivos locais |
 
 **Por que o cascade importa:** o MCP oficial está em rollout gradual. Pipeboard como fallback automático significa que a Skill 11 nunca trava.
@@ -494,15 +567,24 @@ Ordem canônica pra um produto novo:
 7. **storefront** — 07a (page design HTML-first) → 07b (build + deploy) → 07c (tracking setup) → 07d (checkout AOV)
 8. **bonus delivery — Fase A** (05, se a oferta tem bônus) — assets + config de GWP/entrega (todo bônus da PDP existe antes do primeiro ad)
 9. **retention — Fase A** (13) — flows de recuperação: abandoned cart + post-purchase (infraestrutura de cash flow do launch, custa zero no free tier)
-10. **creatives** — 6-15 conceitos com briefings
+10. **creatives** — conceitos com briefings, em pack 3-2-2; o número sai da capacidade de teste, não do stage
 11. **agentic readiness** (07e) — checklist de descoberta por agentes de AI na loja viva
 12. **consistency audit** — cross-phase drift check (gate de launch)
-13. **ad strategy** — estrutura de campanha, naming, PGS
+13. **ad strategy** — capacidade de teste, estrutura (1 campanha com CBO → N ad sets, 1 = 1 conceito), naming, UTM, proteções
 14. **— LAUNCH —**
-15. **ad analysis** (depois de 3-7 dias) — 4Pi, diagnóstico, decisões
-16. **scale** (depois que winners emergem) — vertical + horizontal
+15. **ad analysis** (depois de 3-7 dias) — 4Pi, classificação nas 4 classes, diagnóstico, decisões
+16. **scale** (depois que aparece um breakthrough) — Scaling Protocol vertical + horizontal
 17. **retention — Fase B** (≥50 compras) — win-back, replenishment, segmentação + **bonus delivery — Fase B** (tracking de take-rate)
-18. **content recycler** (depois de winner consolidado) — 9 derivadas
+18. **content recycler** (só com breakthrough) — Trilha 1 amplificação; Trilha 2 (9 derivadas) sob pedido
+
+**Fora desta sequência — a finance engine (15) como consulta lateral.** Ela não ocupa um passo: roda quando o membro precisa de uma decisão financeira. Dois momentos naturais — logo depois do passo 5 (**offer**), pra checar se a oferta fecha a conta do negócio inteiro com o custo fixo dentro (Modo A), e a cada mês fechado depois do LAUNCH, pra medir alavancas, cohorts, payback e caixa (Modo B). As skills **04** (oferta), **10** (ad strategy), **11** (ad analysis), **12** (escala) e **13** (retenção) leem o output dela quando ele existe — sem o arquivo, cada uma mantém o comportamento atual.
+
+**As outras cinco laterais (16-20) seguem o mesmo princípio — nenhuma ocupa um passo, e cada uma tem sua posição natural:**
+
+- **Creator engine (16)** — DUAS fases com posições diferentes. A **Fase A** (seeding + conteúdo humano) pode rodar em paralelo desde cedo: junto do passo 10 (**creatives**) e antes do LAUNCH, a partir do momento em que existe produto com preço definido (a plataforma de seeding prefere a loja no ar; o outreach manual anda antes). Começar cedo importa — do contrato de um creator externo até o conteúdo virar ad passam ~26 dias na média. A **Fase B** (contrato recorrente, whitelisting, partnership ads) só abre depois de um breakthrough confirmado pela **11**.
+- **Promo engine (17)** — sazonal: dispara por época ou pedido (setembro-outubro pra montar o Q4; as outras datas pelo calendário sazonal de desejos), uma rodada por janela. Sempre com o gate de números: breakeven ROAS e CPA recalculados com a margem promocional antes de ligar qualquer campanha. O evergreen segue intocado em paralelo.
+- **Team engine (18)** e **marketplace engine (20)** — consultas de estágio scaling: time quando o membro vira o gargalo (ou a vaga/gestão aparecem), canal secundário só depois de breakthrough na 11 e conta fechando na 15. Pra starter/validating, a resposta honesta das duas costuma ser "ainda não", com o motivo e o sinal que reabre a conversa.
+- **Ops engine (19)** — a parte de backups (checklist de continuidade) vale desde o começo, logo depois do passo 1 (**setup**) e antes do primeiro ad: conta nova é a mais frágil da vida do negócio, e a redundância é mais barata de armar cedo. O resto (constraint do ano, negócio como ativo) revisita por trimestre e antes de decisões grandes — escala agressiva e Q4.
 
 Cada skill faz pre-flight da anterior. Se algum artefato falta, oferece fallback (rule `emergency-escape-paths` — ES1).
 
@@ -540,3 +622,9 @@ Os números das skills refletem a numeração da época de cada mudança.
 | 2026-07-09 | **Retention (13) em DUAS fases.** Fase A pré-launch (flows de recuperação: abandoned cart + post-purchase) entra na ordem canônica entre a 05 Fase A e os criativos — infraestrutura de cash flow do launch, não campanha de email (win-back/replenishment e campanhas continuam pós-launch na Fase B, ≥50 compras). Painel `ABRIR-AQUI.html` ganha tag "2 fases" nos cards da 05/13, próximo-passo condicional (07d concluída → cobra 05 Fase A se a oferta tem bônus, depois 13 Fase A) e linha fixa explicando que os cards seguem a ordem de execução (o número é o ID fixo da skill). |
 | 2026-07-29 | **Skill 01b — Sourcing (opcional).** Fornecedor, cotação e logística: a operação explicada em linguagem simples (MOQ, OEM/ODM, DDP, 3PL, FBA, dropship — tabela de trade-offs), análise de fornecedores (começar vs escalar), mensagem de cotação em inglês (7 blocos), agentes de sourcing parceiros da Aura (WhatsApp), comparação de cotações e contrato com a 04 (ETAPA 1 lê `sourcing/dados.json` fechado e usa COGS real em vez de estimar). Painel ganha tag "Opcional" (nunca vira sugestão de próximo passo). Docs de onboarding aura-explained (pt/en) e aura-setup-en removidos — `docs/aura-setup-pt.html` é o único guia. |
 | 2026-08-11 | **Storefront endurecido em produção.** Libs novas `shopify-section-patterns` (6 padrões de section com problema/solução/código/armadilhas + sistema de tokens de paleta por snippet) e `theme-verify` (gate Playwright: overflow/seções, censo de fonte computada, continuidade de animação com rede lenta emulada). 07a ganha a variante clone fiel seção a seção (snapshot SingleFile → sections OS 2.0 editáveis) + prova de paletas na página real; 07b ganha 3 limitações Shopify novas (richtext default sem `<p>` = rejeição silenciosa do arquivo; assign-first em argumento nomeado; `image_picker` sem default) e o iteration loop alinhado à Regra 6b. Rule `shopify-theme-safety`: Regra 6b (nunca regenerar template JSON por cima do ar + `tools/theme-template-merge.py`) e 6c (arquivo de identidade é por-tema em lojas com 2+ paletas). |
+| 2026-09-01 | **Cânone de ads reescrito (ad-taxonomy + unit-economics).** Duas libs novas viram fonte única e as skills 08/10/11/12/14 passam a ler delas em vez de redefinir régua local. **Estrutura de campanha:** 1 campanha com CBO → **N ad sets, 1 ad set = 1 conceito** (3 criativos + 2 primary texts + 2 headlines), com o número de ad sets vindo da **capacidade de teste** (`assets = budget diário ÷ target CPA`, piso US$ 100-150/dia, teto ~3× target CPA por ad set, máx. 5 ad sets abaixo de US$ 1k/dia) — substitui o "1 ad set → 5-12 criativos". **Classificação:** 4 classes (loser · KPI winner · spend winner · breakthrough); só `breakthrough` libera escala e reciclagem, `kpi_winner` é tratado como loser para decisão. **PGS saiu:** Automated Rule com condição de performance é recusada pelo Meta em CBO — o substituto é `ad set spending limit → daily maximum` + as duas automações de proteção obrigatórias (spend 5× em 24h; URL ≠ domínio), que nascem desativadas. O ritmo de escala é o **Scaling Protocol** manual (+20% após 48-72h acima do target, depois a cada 24h; −20% abaixo do breakeven; gate click-based ≥60%; reset da meia-noite sobre o gasto REAL), e o champions ad set foi aposentado em favor do **ABO paralelo** (~10% do budget da campanha principal). **Unit economics:** nenhuma recomendação de cortar spend por queda de ROAS sai sem os custos fixos na mesa (a espiral do ROAS). |
+| 2026-09-01 | **Skill 14 em duas trilhas + gatilho `breakthrough`.** O gatilho deixa de ser "winner" genérico: só criativo classificado como `breakthrough` pela 11 entra (`kpi_winner` nunca; `spend_winner` só no Movimento 1). **Trilha 1 — Amplificação** vira o default e roda primeiro (6 movimentos: iterar pelos 4 elementos, portar o ângulo, LP/prelander dedicada, portar pra Axon/AppLovin e TikTok, duplicar em ABO próprio, creator report), com handoff explícito pra 08/07a/12. As **9 derivadas de formato viram Trilha 2**, sob pedido, reenquadradas como jogada de marca e LTV. Novo output: `essence.json` com `framework_template` + `psychological_mechanism`, `amplification-plan.md/.html` e `creator-report.md/.html`. |
+| 2026-09-01 | **Skill 06 ganha modelagem por espécime (`swipe-models`).** Lib nova com `specimens.json` (12 espécimes estruturais de swipe files reais, seletor `page_type` × awareness × sophistication × vertical). **ETAPA 2.5 obrigatória:** escolher 1 espécime primário (+1 secundário opcional), puxar a anatomia pela `best_query` e montar o `specimen_block_map` antes de escrever — modelando estrutura e mecânica, nunca conteúdo. **Sweep 9 (markup audit)** fecha a revisão em 5 camadas a partir do nó `auditoria` do mesmo JSON; `specimen_primary`/`specimen_block_map`/`markup_audit` entram no `dados.json` e a 11 os usa pra diagnosticar página que converte mal. |
+| 2026-09-01 | **Índice de frameworks expandido (append incremental).** O `kb-index` sai de **541 para 1.309 entradas** e de **14 para 19 domínios** (em duas ondas na mesma data: o append incremental e, na criação das skills 16-20, o retag geral + 19 entradas novas), com `name` e `best_query` das entradas antigas preservados byte a byte (centenas dessas queries estão copiadas literalmente dentro das skills — reescrevê-las quebraria as buscas em silêncio). Os 5 domínios novos incluem `supply-chain-sourcing` (consumido pela 01b) e `finance-projections` (consumido pela 15). Três domínios entraram **órfãos**, indexados sem skill consumidora (`team-hiring-ops`, `ops-scale-risk`, `affiliate-creator-channels`) — todos ganharam consumidora na 2ª onda (skills 18/19/20 + 16). |
+| 2026-09-01 | **Skill 15 — Finance Engine (20ª skill).** Dona do modelo financeiro completo declarado no cânone `unit-economics` §5, e consumidora do domínio `finance-projections` do kb-index (22 sistemas, incluindo os 4 que estavam dormentes: Float Stack, Função Financeira em 3 Camadas, Triângulo de Forecasts e Banking Sheet). **Não é etapa da sequência — é consulta lateral**, acionada quando o membro precisa de decisão financeira. **Dois modos decididos pelos dados:** A (planejar, sem mês fechado — monthly model com custo fixo dentro, margem de contribuição, piso de CAC, caixa pra 90 dias, benchmarks DTC) e B (medir, com ≥1 mês fechado — 4 alavancas, cohorts com decay e LTV medido, payback de 90 dias, teto de escala, ciclo de caixa ≈105 dias de float, banking sheet semanal). A ETAPA 5 fecha o buraco que a arquitetura tinha: a decisão de spend passa a ter camada de custo fixo, com `roas_spiral.breakeven_roas_with_fixed` e `cut_spend_recommendation_allowed` publicados pra 11 e 12 lerem antes de recomendar qualquer corte. Leitura aditiva nas skills 04/10/11/12/13 — sem o `dados.json` da 15, cada uma mantém o comportamento atual. |
+| 2026-09-01 | **Skills 16-20 — as cinco engines laterais (o framework fecha em 26 skills).** **16-creator-engine** (a operação de conteúdo humano em DUAS fases: seeding, casting amarrado aos sub-avatares da 02, framework de brief e pipeline TikTok Shop rodando em paralelo à 08 desde cedo; whitelisting, escada de embaixador e partnership ads SÓ depois de breakthrough confirmado pela 11 — a 08 segue dona do QUE dizer, a 16 vira dona de QUEM grava). **17-promo-engine** (a janela promocional de ponta a ponta — Q4/BFCM, sazonais, flash sales — com o gate inegociável de recalcular breakeven ROAS/CPA com a margem promocional antes de ligar campanha; Promo Campaign Broad/WARM60/HOT90 em paralelo ao evergreen intocado, surf + reset da meia-noite pelo cânone §5, aterrissagem com rule de fim por horário). **18-team-engine** (quando/como contratar e como rodar o time — consumidora do maior bloco órfão da base, o domínio `team-hiring-ops` inteiro). **19-ops-engine** (constraint dos 12 meses, checklist de backups com status confirmado pelo membro — que vale desde o começo, porque conta nova é a mais frágil — e negócio como ativo). **20-marketplace-engine** (gate de expansão de canal + Amazon, TikTok Shop e afiliados como canais secundários). Junto com elas: **cânone novo `ad-log`** (registro append-only de toda mudança executada na conta — escrito por 10/12/14/17 e receitas no momento da execução, lido pela 11 sempre e pela 12 antes de escalar), o **contrato de cobertura do índice** em todas as skills consumidoras (enumerar TODAS as entradas do domínio com `use_in_skill` da skill e puxar cada uma pela `best_query` com deep=true — a puxada deixa de ser amostra e vira cobertura), os **contratos entre skills fechados** (cada engine nova declara em tabela a divisão explícita com as vizinhas — quem é dona de quê, o que entrega e o que nunca faz) e o **kb-index em 1.309 entradas / 19 domínios**, com os três domínios órfãos ganhando consumidora (restam 5 entradas dormant, todas em `ops-scale-risk`). |

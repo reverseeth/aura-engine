@@ -5,7 +5,17 @@ description: Auditoria cross-phase que valida consistência entre os artefatos g
 
 # Cross-Phase Consistency Audit
 
-> **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (frameworks.json / README.md — mapa skill→domínio no README). Esta skill audita coerência cross-phase; quando precisar JULGAR qualidade de um claim, proof, ou alinhamento (não só comparar strings), puxe os SISTEMAS NOMEADOS da base via `search_knowledge` com a `best_query` de cada framework relevante pra ETAPA. NUNCA use query genérica.
+## Base de conhecimento (contrato de cobertura — NUNCA query genérica)
+
+Esta skill audita coerência cross-phase; quando precisar JULGAR qualidade de um claim, proof, ou alinhamento (não só comparar strings), puxe SISTEMAS NOMEADOS da base via `search_knowledge` — nunca query genérica tipo "audit checklist" ou "landing page review". E a puxada é **cobertura do tópico, não amostra** (contrato completo: `.claude/lib/kb-index/README.md`):
+
+1. **Abra a seção inteira dos domínios, sempre.** No início da ETAPA 2 (check battery), abra `.claude/lib/kb-index/frameworks.json` e enumere TODAS as entradas dos domínios **`copy-proof-persuasion-structure`** e **`page-landing-cro`** cujo `use_in_skill` inclui a 09 — não só as embutidas nos checks. As queries embutidas abaixo são o **núcleo mínimo garantido de cada check, nunca o teto**: entrada relevante ao julgamento de um check que não está embutida É PARA SER PUXADA do mesmo jeito.
+2. **Rode a `best_query` exata de cada entrada relevante, com `deep=true`**, puxando o sistema completo (as 10 categorias de proof de Schwab, não "tipos de prova").
+3. **Relevância é por CHECK, não por preguiça:** a pergunta é "esta entrada muda o veredito deste check?" — se a resposta for "talvez", puxa. Só se descarta o que claramente pertence a outra skill (escrita é da 06, design é da 07a — aqui é julgamento de auditoria).
+4. **Não repita busca de framework já puxado na mesma sessão** — entradas duplicadas entre os dois domínios apontam pro MESMO conteúdo; reuse o resultado.
+5. **Encerramento:** antes de fechar a ETAPA 2, releia a lista enumerada do passo 1 e confirme que nenhuma entrada relevante ficou sem puxar.
+
+A contagem de entradas por domínio **vem sempre do próprio `frameworks.json`** (fonte da verdade) — nunca de número fixo escrito no texto desta skill. Mapa skill→domínio no README do kb-index.
 
 ## Quando Usar
 
@@ -23,7 +33,7 @@ Antes de launch oficial (ads go-live + page em produção), rodar esta skill pra
 - [ ] `workspace/[produto]/manifest.json` existe com `setup_complete: true`
 - [ ] Pelo menos 3 skills completed em `skills_completed[]` (senão não há o que comparar)
 
-**report_language:** leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language.
+**report_language:** leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo — inclusive `issue` e `fix_suggested` dos findings) e toda conversa com o membro usam esse idioma, seguindo o padrão de linguagem simples da regra 0 do `.claude/CLAUDE.md` (nenhuma sigla sem explicação imediata, zero frase de analista comprimida, números estatísticos em palavras). **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language — o trecho auditado é citado no original, o veredito sobre ele vai no idioma do report.
 
 **Input parcial (safeguard):** se `06-copy-engine/{copy-engine.md,dados.json}` E `08-creative-engine/dados.json` estiverem AMBOS ausentes, não há copy nem ad pra cruzar — force `launch_recommendation: "CAUTION"` (nunca `GO`), registre cada artefato faltante em `artefacts_missing[]`, e marque os checks que dependem deles como `"skipped"` (nunca `"pass"`). Não aborte: rode os checks que forem possíveis com o que existe e avise no output final que recomenda re-executar após gerar copy/criativos.
 
@@ -84,14 +94,22 @@ Ler todos os artefatos disponíveis (só os que existem):
   - **Hopkins' Specificity Principle (Reason-Why)** (rode `Hopkins specificity principle reason-why platitudes generalities specific claims transformation`) — claim vago/genérico (sem número, sem mecanismo, sem reason-why) é fraco mesmo "com evidence". Flag claim que é platitude.
   - **Schwab's Ten Categories of Proof** (rode `Schwab ten categories of proof taxonomy five principles presenting proof testimonials`) — classifica o TIPO de proof disponível em `04-offer-builder/research-foundation.json`; se o claim exige proof tipo X mas só existe tipo Y, é gap real.
   - **Made to Stick — Audience-Testable Credibility + Sinatra Test** (rode `Made to Stick three wellsprings credibility external internal audience-testable Heath` e `Sinatra Test one example so impressive establishes credibility case study`) — se um único caso/demo carrega o claim sozinho, marca como forte; se nem isso existe, agrava o finding.
+  - **Puffery (hipérbole como bypass de substanciação)** (rode `puffery hiperbole evitar sustentar claim biggest no-brainer OMG that was easy`) — separa claim que EXIGE lastro de hipérbole reconhecível que dispensa substanciação ("best decision ever"); evita finding falso em cima de puffery legítima — e pega o inverso: número ou promessa concreta tentando passar por puffery.
+  - **Auditoria de prova — vocabulário de Kyle Milligan + o "Imagery Hack"** (rode `auditoria de prova numere as provas 3 to 6 examples mais fraca no meio fracao vence porcentagem`) — julga a APRESENTAÇÃO do proof que existe: provas numeradas, 3 a 6 exemplos, a mais fraca no meio, fração vencendo porcentagem. Evidence presente mas mal apresentada é finding de fix barato (medium, não critical).
+  - **Auditoria de especificidade** (rode `auditoria de especificidade claims especificos 21 a 53% mais criveis timeline do processo`) — régua medida pro julgamento do Hopkins acima: claim específico é 21 a 53% mais crível; claim sem número, timeline ou detalhe de processo perde essa margem mesmo "com evidence".
+  - **Os 4 Erros de Conversão que o Critique caça (Kyle Milligan)** (rode `selling from your heels, pinte a imagem antes de oferecer o dinheiro de volta, mostre o resultado não o processo`) — lente de erro de conversão sobre os mesmos claims: vender na defensiva (claim hedged demais mesmo com lastro), mostrar o processo em vez do resultado, e oferecer o dinheiro de volta antes de pintar a imagem — este último alimenta também o C3.
+  - **Greek Sweep (Ethos / Logos / Pathos)** (rode `greek sweep ethos logos pathos passada de edicao prova e emocao long copy`) — mapeia onde a peça concentra prova vs emoção; trecho todo pathos carregando claim forte sem nenhum logos por perto é exatamente onde este check mais acha gap.
+  - **Empty vs Performance Testimonial (Settle) + os 3 formatos de elite** (rode `empty vs performance testimonial criterio de descarte retrato demografico asset nomeado`) — quando o "evidence" do claim é depoimento/review: depoimento vazio ("love it!") não sustenta claim de performance; aplicar o critério de descarte antes de aceitar o match.
 
 **C3. Guarantee copy divergente**
 - `04-offer-builder/dados.json.guarantee.duration_days` vs texto em `06-copy-engine/copy-engine.md` guarantee section vs `08-creative-engine/dados.json` primary_texts
 - Divergência (30 vs 60 vs 90 dias) → `severity: critical`
+- **Não é só duração — julgue também a POSIÇÃO da garantia.** O sistema **Os 4 Erros de Conversão** (mesma puxada do C2 — não repita a busca) marca como erro oferecer o dinheiro de volta ANTES de pintar a imagem do resultado: garantia aparecendo antes do value build na página/copy → `severity: medium` no mesmo `check_id` (a divergência de duração continua `critical`).
 
 **C4. Promessa sem config**
 - Trigger o Promise↔Config gate (`.claude/rules/pre-launch-gates.md`)
 - Inclui o checkout (se `07d-checkout-aov/dados.json` existe): threshold de free-shipping prometido na barra/copy vs threshold configurado; desconto prometido no bump/upsell vs desconto realmente aplicado na config — promessa não-cumprida no checkout é onde nasce chargeback
+- **Urgência/escassez também é promessa.** Puxe **Urgency / Scarcity / FOMO como três alavancas distintas** (rode `urgency scarcity FOMO tres alavancas distintas hot sauce seeds of regret why 500`) — toda urgência/escassez em página/copy/ad precisa de mecânica REAL por trás: deadline que existe de verdade, estoque verdadeiro, limite com "Why?" respondível. Alavanca anunciada sem lastro na config/realidade da loja → mesmo tratamento de promessa sem config (`fail`).
 - Qualquer `fail` → `severity: critical`
 
 **C5. Ad-flag compliance drift**
@@ -108,6 +126,8 @@ Ler todos os artefatos disponíveis (só os que existem):
 - **Não conte só presença — julgue se a frase exata do cliente foi PRESERVADA ou diluída pra jargão de marketer.** Calibre com:
   - **Collier's Mental Conversation / Enter the Conversation** (rode `Collier six essentials sales letter mental conversation enter conversation in customer's mind word pictures`) — a copy entra na conversa que JÁ acontece na cabeça do cliente? VOC parafraseada pra linguagem corporativa perde isso, mesmo "cobrindo" o tema.
   - **Cashvertising — PVAs + VAKOG Mental Movies** (rode `Cashvertising extreme specificity PVAs powerful visual adjectives VAKOG mental movies five senses`) — VOC forte é palpável/sensorial; se a copy abstraiu a dor concreta do cliente, flag mesmo com coverage alto.
+  - **Mona Lisa Frame** (rode `Mona Lisa Frame show dont tell placa embaixo do quadro half the words double the examples`) — VOC forte MOSTRA a cena; se a frase que o cliente descreveu virou afirmação abstrata na copy, é telling: o tema foi coberto, mas a frase morreu no caminho.
+  - **Voz como Bloco Estrutural + auditoria de "Us" Language** (rode `character bloco funcional regular guy humble paint the picture not much us language`) — mede quanto a copy fala de si ("we/our formula") em vez de entrar na conversa do cliente; excesso de us-language derruba o espírito deste check mesmo com o coverage numérico ok.
 
 **H2. Awareness alignment**
 - Awareness dominante em `02-market-research/dados.json` deve alinhar com o tipo de lead escolhido pela 06 — leia o campo **top-level `lead_type` de `06-copy-engine/dados.json`** (enum: `story|big_idea|problem_agitation|mechanism|secret|proclamation|offer|direct`, gravado na ETAPA 2 da 06). Só caia pra inferir da prosa de `copy-engine.md` se o campo não existir (dados.json legado, gerado antes do contrato).
@@ -117,6 +137,7 @@ Ler todos os artefatos disponíveis (só os que existem):
 - **Pra julgar SE o lead realmente serve o awareness level (não só "qual tipo é"), puxe:**
   - **Bencivenga's IF...THEN + I=B+C + Shake-Me-Awake Test** (rode `Bencivenga IF THEN construction I equals B plus C interest benefit curiosity shake me awake test`) — lead pra audiência menos aware precisa de mais Curiosity no I=B+C; lead direto pra audiência aware pode liderar com Benefit. Confira o balanço da abertura contra o awareness.
   - **Brunson's Epiphany Bridge + Three False Beliefs** (rode `Brunson big domino three false beliefs vehicle internal external epiphany bridge story expert secrets`) — pra Unaware/Problem Aware, o Story/Secret Lead tem que carregar a epiphany bridge e quebrar as crenças falsas; se a copy pula direto pro produto, o mismatch é mais grave que só "tipo de lead errado".
+  - **Grade de Auditoria de Long-Form (Kyle Milligan — 4 grades + 7 críticas)** (rode `quatro grades auditoria 4 U's lead Makepeace checklist desejabilidade Beats body copy formula`) — a régua MEDIDA pro lead e pra ordem da peça: lead de 4 passos com `[END LEAD]` demarcado, a oferta abrindo entre 48% e 70% da peça, credibilidade entrando DEPOIS da prova. Lead do tipo certo pro awareness mas abrindo a oferta cedo demais é finding deste mesmo check.
 
 **H3. Sophistication vs mechanism match**
 - Stage 3 → mercado cansou das promessas: exige um **mecanismo novo featured no headline** (o "como funciona" diferente vira o gancho principal).
@@ -127,11 +148,16 @@ Ler todos os artefatos disponíveis (só os que existem):
   - **Schwartz's 38 Verbalization Techniques** (rode `Schwartz 38 verbalization techniques strengthen headline measure compare metaphorize paradox three functions`) — em Stage 3/4 o headline tem que intensificar o mecanismo (measure, compare, metaphorize); headline morno que só NOMEIA o mecanismo é fraco mesmo "alinhado".
   - **Reeves' USP + Vampire Claims** (rode `Reeves USP burning glass vampire claims mosaic structure single proposition unrelated claims`) — em mercado saturado, claims não-relacionados drenam a única proposição; flag headline/hook que dilui o mecanismo único com promessas paralelas.
   - **Caples' Three Classes of Headlines** (rode `Caples three classes headlines self-interest news curiosity six first-paragraph formulas shocker preview`) — Stage 3 (mecanismo novo) pede classe News/Curiosity; Stage 4 (elaborar) pede Self-Interest reforçado. Confira a classe do headline contra o stage.
+  - **NESB em modo diagnóstico + "Selling From Your Heels"** (rode `NESB modo diagnostico auditoria de landing page selling from your heels paint the picture`) — scorecard de desejabilidade (New/Easy/Safe/Big) aplicado ao headline/hero: em Stage 3/4 o "New" tem que estar carregado pelo MECANISMO, não por adjetivo; headline na defensiva (heels) em mercado saturado é fraqueza mesmo com o mecanismo presente.
+  - **3 Checks de Copy (Visualize / Falsify / Only You)** (rode `3 checks visualize falsify only you filtro de copy antes de publicar`) — o competitor-swap test operacionaliza o Reeves acima: ponha o produto do maior concorrente no headline/hook — se a peça continua fazendo sentido, o mecanismo não está carregando a proposição (finding deste mesmo check).
 
 **H4. Ad angles diversification**
 - **Dim 1 — emotion:** `emotion_dominant` vive em `08-creative-engine/dados.json.concepts[].emotion_dominant` (nível do concept; também dentro de `concepts[].hooks[]`). O batch deve cobrir ≥ 2 emotions distintas das 4 Hook Emotions que a 08 grava: **curiosity, urgency, fear, delight** (é o enum literal do campo — não usar nenhuma outra lista).
-- **Dim 2 — angle:** `08-creative-engine/dados.json.concepts[].angle` deve cobrir ≥ 3 angles distintos dos 8 possíveis (ou ≥ 3 verticais distintas se o schema usar `vertical`).
-- Se concentrado em 1 emotion OU < 3 angles/verticais → `severity: high`, `fix: gerar concept complementar com emotion/angle ausente`.
+- **Dim 2 — embalagem:** ler **`08-creative-engine/dados.json.concepts[].concept_type`** — é o campo com cardinalidade fixa (o enum de 8 que antes se chamava `angle`). Deve cobrir ≥ 3 valores distintos (ou ≥ 3 verticais distintas se o schema usar `vertical`). **Fallback legado:** produto antigo em que `concepts[].angle` ainda é um dos 8 valores do enum → conte por ali.
+- **Dim 2b — ângulo (só quando `testing_method == "marksman"`):** `concepts[].angle` agora é **frase livre** (a razão de compra, ex.: "para de virar de um lado pro outro a noite toda"), não enum — contar valores distintos ali não mede mais diversificação de embalagem. Num conceito Marksman, exija **3 frases de ângulo distintas lendo `concepts[].angles[]`** — o array que a 08 grava exatamente pra isso (itens `{creative_n, angle, sub_avatar_id}`, um por criativo; obrigatório quando `testing_method: "marksman"`, `null` em sniper): as 3 strings `angles[].angle` do conceito devem ser distintas entre si. **`concepts[].angle` NÃO serve pra essa contagem** — no marksman ele carrega só o ângulo do criativo #1 (alias do item `creative_n: 1`). **Fallback legado:** dados.json gerado antes do contrato (conceito marksman sem `angles[]`) → conferir os 3 ângulos listados no briefing do conceito (`concept-NN`, que os lista um por criativo); se nem o briefing os trouxer, contar frases distintas de `concepts[].angle` através do pack e registrar no finding que a leitura é parcial (só o ângulo #1 de cada conceito). Num pack Sniper, o ângulo único é a premissa do método e **não é finding**. Cânone: `.claude/lib/ad-taxonomy/README.md` §7.
+- Se concentrado em 1 emotion OU < 3 `concept_type`/verticais → `severity: high`, `fix: gerar concept complementar com emotion/embalagem ausente`.
+
+> **Dim 1 continua válida:** `emotion_dominant` foi preservado pela 08 como campo **derivado** de `valence`/`intensity` (justamente para não quebrar este gate), e mantém os 4 valores literais.
 
 **H5. Bonus drift (promessa fantasma)**
 - Toda menção a bonus em hooks/primary_texts/headlines de `08-creative-engine/dados.json` e no hero/offer stack de `06-copy-engine/copy-engine.md` deve ter entry correspondente em `04-offer-builder/dados.json.bonuses[]` (o campo que a Skill 05 consome).
@@ -147,6 +173,7 @@ Ler todos os artefatos disponíveis (só os que existem):
 - **Exceção que rebaixa o finding:** um claim saturado pode ser legítimo SE a copy o reapresenta com diferenciação. Puxe pra avaliar:
   - **Hopkins' Preemptive Claim (Schlitz Beer)** (rode `Hopkins preemptive claim Schlitz beer first to make common claims specific Road 3`) — se a copy é a PRIMEIRA a tornar o claim comum específico/concreto, ela "rouba" o claim saturado; nesse caso rebaixe pra pass/note, não medium.
   - **Inoculation Theory (McGuire)** (rode `Inoculation theory McGuire weakened attack vaccination strengthen attitudes competitor argument`) — se a copy antecipa o ceticismo ("você já ouviu isso de todo mundo, mas...") antes de fazer o claim saturado, é uso forte, não fraco.
+  - **Defeito Reatribuído como Prova (Uncle Jim's Hail-Marked Apples)** (rode `macas marcadas por granizo prova de altitude menos pedidos de reembolso defeito reatribuido`) — terceiro caminho de rebaixamento: se a copy pega o elemento saturado ou negativo e o reatribui como evidência de qualidade (a marca do granizo virando prova de altitude), é uso forte — rebaixe pra pass/note.
 
 **M2. Gap não explorado**
 - `03-competitor-analysis/dados.json.gaps` é o objeto `{audience, messaging, format, offer, mechanism}` — achate as 5 dimensões numa lista única antes de cruzar (mesma situação do `voc_phrases` no H1; iterar como array direto falha).
@@ -161,6 +188,12 @@ Ler todos os artefatos disponíveis (só os que existem):
 **M5. Page type vs awareness**
 - `07-page/page-plan.json.page_type` deve ser coerente com o awareness dominante de `02-market-research/dados.json` (Unaware/Problem Aware → advertorial; Solution Aware → landing; Product/Most Aware → pdp_robust/pdp_lean — mesma tabela da 07a ETAPA 1.1).
 - Mismatch → `severity: medium` (a 07a confirma isso com o membro na criação; aqui é rede de segurança contra drift pós-iteração). `page-plan.json` ausente → `"skipped"`.
+- **Além do tipo, julgue o PRIMEIRO OLHAR e o mix de seções** (quando `07-page/design/page.html` existe — a página com a copy real inserida). Puxe:
+  - **Grunt Test (5-Second Clarity Diagnostic)** (rode `StoryBrand grunt test 5 second clarity hero section three questions`) — o hero responde em 5 segundos: o que é, o que melhora na minha vida, o que eu faço pra comprar? Falhar qualquer uma das 3 → `severity: medium` no mesmo check.
+  - **Os 4 formatos de 5-Second Test (Memory Dump / Attitudinal / Target ID / Mix)** (rode `quatro formatos teste 5 segundos memory dump attitudinal target ID mix test`) — indica o formato certo pra VALIDAR o primeiro olhar (memory dump pro que a página comunica; target ID pra quem ela parece servir); usar no fix path quando o Grunt Test acima falhar — é o teste que o membro roda pra confirmar o fix.
+  - **Button Placement Rules por estágio de awareness** (rode `botao nao pertence ao hero unless product-aware clique reflexo lizard brain nao converte`) — cruze com o awareness dominante da 02 (mesmo input deste check): CTA de compra no hero com público majoritariamente não-product-aware (advertorial/landing) → `severity: medium` no mesmo check.
+  - **Decision Maker Sweep (DM Sweep)** (rode `Decision Maker Sweep mapear secoes spontaneous competitive humanistic methodical 10x page plan`) — mapeie `sections_plan[]`/as seções da página contra os 4 perfis de decisor (spontaneous, competitive, humanistic, methodical); perfil inteiro sem NENHUMA seção que o sirva (ex.: zero specs/FAQ pro methodical) → `severity: medium`.
+  - **16 Táticas de Redução de Bounce** (rode `reduzir bounce rate auditoria mobile repensar hero mover proof bar reduzir CTAs para um`) — o MENU DE FIX dos findings deste check, na ordem de diagnóstico list → offer → copy; na re-validação pós-iteração (quando `11-ad-analysis/dados.json` existe e aponta clique sem conversão), vira a fila de correção da página.
 
 **M6. Design tokens vs design system**
 - Paleta e tipografia de `07-page/design-tokens.json` (variação aprovada) devem bater com o documentado em `07-page/design-system.md`.
@@ -185,6 +218,8 @@ Salvar TRÊS artefatos em `workspace/[produto]/09-consistency-audit/`:
    - `.pill` pra status tags (BLOCK/CAUTION/GO)
    - `.kpi-grid` pra counters (critical/high/medium)
 3. **`09-consistency-audit/dados.json`** — machine-readable schema abaixo
+
+**Priorização dos fixes (sistema nomeado):** antes de salvar, puxe **ICE Hypothesis Prioritization** (rode `hipotese if then because ICE score impacto confianca facilidade priorizar recomendacoes`) e aplique aos findings: cada `fix_suggested` escrito como hipótese se-então-porque ("SE alinharmos o nome do mecanismo no hero, ENTÃO o message match do funil fecha, PORQUE o consumidor vê o mesmo nome do ad à página"), e a fila de correção do report ordenada por severity primeiro e score ICE (impacto × confiança × facilidade) como desempate dentro da mesma severity — o membro ataca primeiro o fix de maior impacto que custa menos. A severity continua sendo o que decide o gate (ETAPA 4); o ICE só ordena o trabalho.
 
 Atualizar o manifest e regenerar o painel:
 

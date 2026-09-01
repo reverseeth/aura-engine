@@ -18,9 +18,17 @@ Esta skill roda em dois momentos diferentes do pipeline, com escopos diferentes.
 
 **Fase B — Retenção completa (PÓS-LAUNCH, ≥ 50 compras no ESP):** com dados mínimos existe o que segmentar. Entram: Welcome Series completo (emails 2-4), Win-Back, Replenishment, cadência/coordenação de lista, e as ops pós-launch (chargeback, refund da garantia, CS básico — seção própria). Antes de 50 compras, segmentação é noise — por isso ela espera.
 
-## Base de conhecimento (NUNCA query genérica)
+## Base de conhecimento (contrato de cobertura — NUNCA query genérica)
 
-Esta skill puxa SISTEMAS NOMEADOS de email lifecycle e psicologia de persuasão da base — não query genérica tipo "email flows" ou "abandoned cart". Em cada ETAPA/fluxo abaixo, rode `search_knowledge` com a `best_query` exata de cada framework relevante listado ali (deep=true), puxando o sistema completo (ex: a curva de decaimento de abandoned cart com os 5 motivos de abandono, não "dicas de cart recovery"). **Índice completo dos frameworks desta skill (domínios `retention-email` + `persuasion-psychology`): `.claude/lib/kb-index/` — `frameworks.json` (machine-readable) e `README.md` (mapa skill→domínio).** Os frameworks de maior impacto estão embutidos direto nos fluxos onde são usados; o resto do catálogo do domínio fica disponível no índice.
+Esta skill puxa SISTEMAS NOMEADOS de email lifecycle e psicologia de persuasão da base — não query genérica tipo "email flows" ou "abandoned cart". E a puxada é **cobertura do tópico, não amostra** (contrato completo: `.claude/lib/kb-index/README.md`):
+
+1. **Abra a seção inteira dos domínios, sempre.** No início de cada fase/fluxo que consulta a base, abra `.claude/lib/kb-index/frameworks.json` e enumere TODAS as entradas dos domínios `retention-email` e `persuasion-psychology` cujo `use_in_skill` inclui a 13 — não só as embutidas no texto. As queries embutidas nos fluxos abaixo são o **núcleo mínimo garantido de cada etapa, nunca o teto**: entrada relevante à fase que não está embutida É PARA SER PUXADA do mesmo jeito. (Duas entradas de OUTROS domínios também pertencem a esta skill e já estão embutidas no ponto de uso: **Desire Calendar** em `market-research-voc` e **Subscription Economics Playbook** em `finance-projections`.)
+2. **Rode a `best_query` exata de cada entrada relevante, com `deep=true`**, puxando o sistema completo (a curva de decaimento de abandoned cart com os 5 motivos de abandono, não "dicas de cart recovery").
+3. **Relevância é por FASE, não por preguiça:** a pergunta é "esta entrada informa a decisão desta etapa?" — se a resposta for "talvez", puxa. Só se descarta o que claramente pertence a outra fase da skill (e será puxado lá).
+4. **Não repita busca de framework já puxado na mesma sessão** — entradas duplicadas entre domínios apontam pro MESMO conteúdo; reuse o resultado.
+5. **Encerramento de etapa:** antes de fechar cada fase, releia a lista enumerada do passo 1 e confirme que nenhuma entrada relevante ficou sem puxar.
+
+A contagem de entradas por domínio **vem sempre do próprio `frameworks.json`** (fonte da verdade) — nunca de número fixo escrito no texto desta skill.
 
 ## Pré-flight
 
@@ -48,6 +56,7 @@ Ler `workspace/[produto]/09-consistency-audit/dados.json` **se existir**:
 - [ ] `04-offer-builder/offer-builder.md` (ou o legado `relatorio.md` — mesmo fallback vale pras outras fases) + `04-offer-builder/dados.json` carregados (pra saber a janela de reorder, guarantee period, e os `bonuses[]` com seus `delivery_trigger`)
 - [ ] `02-market-research/market-research.md` carregado (objeções = hooks de win-back; dores = hooks de abandoned cart)
 - [ ] `06-copy-engine/dados.json` carregado **(if exists)** → campo `email_hooks[]` (3-5 hooks de follow-up que a 06 gera na ETAPA 7, derivados das top-5 headlines + Big Idea + objeções — inglês US; também na seção canônica `## Email Follow-up Hooks` de `copy-engine.md`). É o seed dos subject lines/aberturas dos flows — ver nota em "Fluxos base". Ausente (copy legada, gerada antes do contrato) → derivar os hooks das headlines de `copy-engine.md` direto.
+- [ ] `15-finance-engine/dados.json` carregado **(if exists)** → bloco `cohorts`, quatro campos: `ltv_pct_by_month`, `decay_factor`, `crossover_month` e `churn_spike_day`. É a curva de LTV **medida** do negócio (a 15 a calcula a partir dos cohorts reais do membro), e ela troca o benchmark por número em três lugares: o beat de churn do post-purchase (fluxo 3), a janela de reorder do replenishment (fluxo 5) e o gatilho do win-back (fluxo 4). **Fallback:** arquivo ausente, ou `cohorts.calibrated: false` / `decay_source: "assumed"` — os fluxos rodam pelos benchmarks e pela janela declarada pelo membro, exatamente como hoje. A 15 nunca é pré-requisito desta skill.
 
 ## TrendTrack MCP (opcional, se conectado)
 
@@ -144,39 +153,65 @@ Incluir o asset/link do bonus (PDF, Circle invite, código de acesso — produzi
 - Email 3 (dia 7-10): request review (com incentivo)
 - Email 4 (dia 21-30): cross-sell ou replenishment trigger (se consumível)
 
+**O beat do pico de churn (a batida que decide a segunda compra).** A maior parte do abandono acontece num único momento, tipicamente quando o produto chegou, foi testado e a decisão foi tomada — a referência de mercado é **por volta do dia 45**, e é justamente onde o post-purchase acima acaba (dia 21-30) e o win-back ainda não começou (60+ dias). O Email 4 é o que cobre essa lacuna, e o timing dele não é palpite quando existe número:
+
+- **Com `15-finance-engine/dados.json` (cohorts medidos):** posicione o Email 4 alguns dias **antes** de `cohorts.churn_spike_day` — chegar depois do pico é falar com quem já decidiu sair. O conteúdo do email é ditado pela leitura da curva: se `cohorts.ltv_pct_by_month` mostra queda forte já no mês 1, o email ataca uso e resultado (o cliente não chegou a experimentar o benefício); se a queda vem depois, ataca reposição e continuidade. Use `cohorts.crossover_month` como a régua de quanto vale investir aqui: é o mês em que o cohort cruza pra positivo, ou seja, até lá o cliente ainda não pagou o próprio CAC.
+- **Sem o arquivo da 15 (ou com `cohorts.calibrated: false`):** mantenha o dia 21-30 do Email 4 e trate o dia ~45 como referência de mercado, não como medida do negócio — dizendo isso ao membro em uma frase, e não escrevendo o benchmark no doc como se fosse número dele.
+
 ### 4. Win-Back (60+ dias sem purchase, subscriber ativo) — FASE B (pós-launch, ≥ 50 compras)
 
 **Frameworks a puxar (rode a query de cada um antes de escrever):**
 - **Hormozi's 9-Word Email** — reativação curta ("are you still interested in [resultado]?") como abertura mais barata e de maior reply (rode `Hormozi 9-word email are you still interested reactivation dormant leads $100M Leads`)
 - **Kennedy's Collection Agency Model** — escalada de urgência em intervalos com mudança de formato a cada email (rode `Kennedy collection agency model multi-step mailing format change urgency intervals`)
 - **Collier's Ruffle-Smooth-Ruffle** — alternar tom emocional (tensão → alívio → tensão) pra furar a habituação de quem ignora (rode `Collier ruffle smooth ruffle alternating emotional tone collection series habituation`)
+- **Fórmula de Reorder + Winback com desconto progressivo** — a escada dos 3 emails: abrir pelo frame de progresso do cliente (está progredindo → vai progredir mais → vai perder o progresso) e só escalar o desconto quando o frame não converter; o mesmo sistema traz a fórmula de reorder ("7 dias antes de acabar o estoque") que alimenta o timing do Email 1 do Fluxo 5 — puxou aqui, reuse lá (rode `você está progredindo vai progredir mais continue vai perder o progresso, 7 dias antes de acabar o estoque`)
 - **Engagement Suppression / Sunset & Double-Opt-In Re-engagement** — definir o ponto de corte: quem não reativar vai pra sunset/suppression pra proteger deliverability (rode `engagement suppression sunset re-engagement double opt-in unsubscribe non-engaged deliverability 30 day`)
 
 - Email 1: "sentimos sua falta" + novidade do produto
 - Email 2 (7 dias depois): oferta especial com código de win-back
 - Email 3 (14 dias depois): final call + feedback survey pra entender porque churn
 
+**Gatilho com número medido (se `15-finance-engine/dados.json` existir):** os "60+ dias sem purchase" são um default de mercado. Com a curva medida na mão, o disparo certo é logo depois de `cohorts.churn_spike_day` (quem passou do pico sem recomprar é inativo de fato, não alguém ainda dentro da janela normal de consumo) — e o tamanho do incentivo do Email 2 se calibra por `cohorts.crossover_month`: cliente que ainda não cruzou pra positivo não comporta desconto agressivo, porque o cohort dele nem pagou o CAC. **Sem o arquivo, mantenha os 60+ dias**, como hoje.
+
 ### 5. Replenishment (consumíveis — trigger baseado na janela de reorder) — FASE B (pós-launch)
 
 **Frameworks a puxar (rode a query de cada um antes de escrever):**
-- **Day Zero Triggered-Email Method** — replenishment é behavior-triggered mini-funnel (dispara pelo timing real de consumo), não drip por tempo fixo (rode `Day Zero behavior-triggered email mini-funnel outperforms time-based drip cap day 4 Copy School`)
+- **Day Zero Triggered-Email Method** — replenishment é behavior-triggered mini-funnel (dispara pelo timing real de consumo), não drip por tempo fixo (rode `Day Zero behavior-triggered email mini-funnel outperforms time-based drip cap day 4`)
 - **Fibonacci Drip-Cadence Sequence** — espaçamento dos nudges antes/depois do produto acabar (day 0/1/2/3/5/8) (rode `Fibonacci sequence drip campaign email cadence day 0 1 2 3 5 8 spacing Copyhackers`)
 - **Door-Closing Aversion** — enquadrar a janela de reorder como opção que expira (subscription/2-pack antes de acabar o estoque dele) (rode `door-closing aversion loss of options Shin Ariely expires midnight only 3 spots disappearing bonus`)
+- **Subscription Economics Playbook (8 passos)** — a economia da assinatura que o Email 2 oferece: take rate, one-click upsell pós-compra e produto dimensionado pra supply de 1 mês; ler junto do bloco "Arquitetura de assinatura" abaixo antes de escrever o Email 2 (rode `playbook de subscription take rate one-click upsell pós-compra supply de 1 mês`)
 
 A janela de reorder não vem pronta do `04-offer-builder/dados.json` (ele não produz um `reorder_rate` legível por máquina). Defina a fonte assim, antes de configurar o fluxo:
 
 1. PERGUNTAR ao membro: "Em quantos dias um cliente típico **acaba** uma unidade do produto?" (ex: um sérum de 30ml dura ~30 dias).
 2. Calcular o timing dos emails a partir disso: Email 1 dispara ~5-7 dias **antes** do produto acabar (ex: produto dura 30 dias → Email 1 no dia 23-25 pós-compra), Email 2 perto do fim, Email 3 logo após o fim estimado.
 3. Cruzar com benchmark: a 2ª compra ideal cai **antes de 65 dias** pós-primeira-compra. Se a duração informada empurrar o reorder pra além disso, antecipar o nudge (oferecer subscription/2-pack) pra não perder a janela.
+4. **Cruzar com a curva medida, quando existir** (`15-finance-engine/dados.json` → `cohorts`): `ltv_pct_by_month` mostra em qual mês a recompra de fato acontece nesse negócio, e `decay_factor` diz o quanto ela decai de um mês pro seguinte. Se a janela declarada pelo membro no passo 1 não bate com o mês em que a curva medida acusa recompra, **a curva medida vence** — ela é o comportamento real, a estimativa dele é memória. Se a recompra medida vier depois de `cohorts.crossover_month`, o Email 2 é o momento de empurrar assinatura/2-pack com mais força: sem isso o cohort demora demais pra pagar o CAC. **Sem o arquivo da 15 (ou com `cohorts.calibrated: false`), os passos 1-3 decidem sozinhos**, como hoje.
 
 - Email 1 (~5-7 dias antes do acabar): "seu [produto] tá acabando — reorder aqui"
-- Email 2 (perto do fim): subscription option com desconto
+- Email 2 (perto do fim): subscription option pelo preço-base (o one-time é que custa mais)
 - Email 3 (pós-acabar): "hora de reabastecer"
 
 **Arquitetura de assinatura (ler `04-offer-builder/dados.json.subscription_architecture`):**
-- `onetime_plus_sub_no_reorder` → o **Email 2 deste fluxo é O momento canônico** de oferecer a assinatura (a PDP vendeu one-time de propósito; a conversão pra assinatura foi delegada pra cá). Usar o `sub_discount_pct` da 04 no framing.
+- `onetime_plus_sub_no_reorder` → o **Email 2 deste fluxo é O momento canônico** de oferecer a assinatura (a PDP vendeu one-time de propósito; a conversão pra assinatura foi delegada pra cá).
+  > **Framing corrigido (2026-09-01):** a 04 não dá mais desconto ao assinante — ela cobra um **prêmio de ~15% no one-time**. Leia `onetime_premium_pct` (o campo antigo `sub_discount_pct` existe só por compatibilidade e é **sempre 0**; usá-lo faria o email prometer "0% de desconto"). O framing correto é *"você paga mais por NÃO assinar"*: a assinatura é o preço-base, o avulso é que carrega o prêmio. Razão econômica: o desconto entregaria margem exatamente na recompra, que é onde ela é melhor.
 - `subscription_first` → o fluxo mira só quem comprou one-time (assinante já tem reorder automático — mandar replenishment pra assinante é ruído); filtrar por não-assinante no trigger.
 - `no_subscription` (ou campo ausente) → Email 2 oferece o 2-pack/bundle no lugar da assinatura.
+
+## Sazonal (Fase B) — handoff
+
+Dois donos, ninguém órfão: a 13 executa os **FLOWS** (sempre-ligados, disparados por evento) e a adaptação sazonal deles; as **CAMPANHAS** sazonais (Q4, Black Friday/Cyber Monday, promos datadas — sends agendados pra lista) são orquestradas pela skill **17-promo-engine** (em criação), que chama a 13 pra gerar os assets de email de cada send. Na prática: pedido de "campanha de email" / "Black Friday" / "promo" → a 17 é a dona do calendário, da mecânica da promo e dos segmentos; a 13 entrega os emails e mantém os flows coerentes com a promo no ar (flow NUNCA desliga durante campanha — se adapta). Enquanto a 17 não estiver disponível, a 13 não deixa o membro sem dono: gera os assets de email da campanha com os sistemas abaixo e avisa que a orquestração completa (calendário + mecânica + segmentos) entra quando a 17 rodar. A copy dos emails sazonais permanece **inglês US** (regra de rigor 2); o handoff e o relatório seguem o `report_language`.
+
+**Timing — quando religar/adaptar mensagens por época:**
+- **Desire Calendar** — decide QUANDO adaptar a mensagem dos flows por época: como os 6 desejos flutuam mês a mês, Fresh Start Effect (janeiro e setembro) e Early Shopping Migration (antecipar a mensagem em 4-6 semanas) (rode `calendario sazonal de desejos health sex status belonging control comfort por mes`)
+
+**Sistemas dos assets sazonais (puxar quando a 17 chamar — ou quando o membro pedir a campanha direto):**
+- **Playbook Q4 de Email & SMS** — targeting pyramid (engaged 30 / engaged 90 / dormant 120), email tolera volume e SMS é cirúrgico, quiet hours (rode `email tolera volume SMS é cirúrgico, engaged 30 engaged 90 dormant 120, quiet hours texas`)
+- **Campanha de 4 Dias e os 6 templates** — a estrutura de promo curta, incluindo o dia de slump e o template da inveja (rode `campanha sazonal de 4 dias com 6 templates, dia de slump, template da inveja`)
+- **Sequências promocionais formulaicas (Holiday 3 / Black Friday 6 / Flash Sale 24h 3)** — os esqueletos por tipo de sale: razão pra sale, stock-up recommendation, sale de 24h "não planejada" (rode `razão para a sale, stock up recommendation, sale de 24 horas não planejada`)
+
+**O lado dos FLOWS durante a campanha (trabalho da 13, sem esperar a 17):**
+- **Seasonal Abandoned-Cart SMS Update Checklist** — atualizar o abandoned cart durante a janela da promo: detalhes da oferta, hora exata de fechamento, urgência/escassez reais e sem "rain check" (rode `seasonal abandoned cart SMS update checklist offer details campaign close time urgency scarcity no rain check`)
 
 ## OPS pós-launch (Fase B — seção compacta, junto dos flows de retenção)
 

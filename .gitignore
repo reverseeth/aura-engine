@@ -36,3 +36,8 @@ AGENTS.md
 tools/design-clone/_*.py
 !tools/design-clone/_css_utils.py
 !tools/design-clone/_venv_bootstrap.py
+
+# Documentos internos de trabalho — NUNCA publicar (contem fontes internas e paths locais)
+docs/historico/
+.claude/lib/kb-index/AUDITORIA-2026-09.md
+.claude/lib/kb-index/PROVENIENCIA-LOCAL.md

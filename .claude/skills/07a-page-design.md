@@ -11,7 +11,9 @@ Princípio reitor: **HTML-first → fonte única de verdade visual → aprovaç�
 
 Decisão de design: a 07a NÃO escolhe sozinha COMO o design nasce. Ela **apresenta ao membro um menu de rotas** (clone-and-adapt, Claude Design handoff, AIDesigner MCP, frontend-design fallback, AI site-builders externos quando o membro já usa um) e ele escolhe. Causa raiz de página genérica/"horrível" = gerar do zero sem referência concreta. Por isso clone-and-adapt (partir de um layout de concorrente que já converte) é o padrão recomendado, e gerar do zero (frontend-design) é o fallback. Todas as rotas convergem pro MESMO `design/page.html`.
 
-> **Índice completo dos frameworks desta skill (domínio page-landing-cro):** `.claude/lib/kb-index/` (`frameworks.json` + `README.md`, mapa skill→domínio no README). Sempre que esta skill mandar "consulte a base", isso significa: **puxe os SISTEMAS NOMEADOS da base — rode `search_knowledge` com a `best_query` de cada framework relevante PRA AQUELA ETAPA, com `deep=true`.** NUNCA use query genérica. Os frameworks de maior impacto já vêm embutidos nas ETAPAs abaixo com sua query exata; o resto do domínio (33 frameworks) está no índice.
+> **Índice completo dos frameworks desta skill (domínio page-landing-cro):** `.claude/lib/kb-index/` (`frameworks.json` + `README.md`, mapa skill→domínio no README). Sempre que esta skill mandar "consulte a base", isso significa: **puxe os SISTEMAS NOMEADOS da base — rode `search_knowledge` com a `best_query` de cada framework relevante PRA AQUELA ETAPA, com `deep=true`.** NUNCA use query genérica.
+>
+> **Contrato de cobertura (kb-index, revisado 2026-09):** no início de cada ETAPA que consulta a base, abra `frameworks.json` e **enumere TODAS as entradas do domínio cujo `use_in_skill` inclui a 07a** — as queries embutidas nas ETAPAs abaixo são o núcleo mínimo garantido, **nunca o teto**: entrada relevante pra etapa que não está embutida é pra ser puxada do mesmo jeito. Critério de relevância por FASE: "esta entrada informa a decisão desta etapa?" — "talvez" = puxa. Não repita busca de framework já puxado na sessão (entradas duplicadas entre domínios apontam pro MESMO conteúdo — reuse o resultado). Antes de fechar cada ETAPA, releia a lista enumerada e confirme que nenhuma entrada relevante ficou sem puxar. O tamanho real do domínio é o que está no `frameworks.json` — nunca um número decorado no texto desta skill.
 
 **O que esta skill faz:**
 
@@ -35,7 +37,7 @@ Depois desta skill, rode **07b-page-build** pra compilar o HTML aprovado em Liqu
 
 ## Pré-flight
 
-1. Leia `workspace/profile.md` — em especial `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno desta skill (`page-plan.json` reasoning, `design-system.md`/`.html`, conversa com o membro) usa esse idioma. **A copy consumidor-final (headlines, eyebrows, hero, bullets, CTAs) inserida no `design/page.html` permanece SEMPRE em inglês US**, independente do `report_language` — copy pública nunca traduz.
+1. **Idioma (report_language — regra 0 do CLAUDE.md, INVIOLÁVEL):** leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno desta skill (`page-plan.json` reasoning, `design-system.md`/`.html`, conversa com o membro) usa esse idioma, com o rigor de linguagem simples da regra 0. **A copy consumidor-final (headlines, eyebrows, hero, bullets, CTAs) inserida no `design/page.html` permanece SEMPRE em inglês US**, independente do `report_language` — copy pública nunca traduz.
 2. Valide os inputs (todos sob `workspace/[produto]/`):
    - [ ] `manifest.json` existe e tem `06-copy-engine` em `skills_completed`
    - [ ] `06-copy-engine/dados.json` + `06-copy-engine/copy-engine.md` existem e parseiam (se o `.md` novo não existir, use o legado `relatorio.md` — mesmo fallback vale pras outras fases)
@@ -68,7 +70,7 @@ Puxe os SISTEMAS NOMEADOS da base (não query genérica) — rode `search_knowle
 - **Specificity → Landing Page Conversion** (rode `specificity landing page conversion Hopkins Caples PVA VAKOG mental movies`) — Hopkins/Caples proof stacking + mental movies.
 - **CTAs / Calls to Value** (rode `CTAs buttons friction anxiety calls to value lizard brain first person mirror headline`).
 
-Aprofunde até ter domínio de conversão + estrutura de página. Schwartz awareness e Bond sophistication entram na 1.1; advertorial e checkout/AOV têm seus frameworks próprios nas ETAPAs onde são usados (1.1 / referência cruzada à 07d). Domínio completo (33 frameworks) em `.claude/lib/kb-index/`.
+Aprofunde até ter domínio de conversão + estrutura de página. Awareness e sophistication (os dois são Schwartz — Breakthrough Advertising) entram na 1.1; advertorial e checkout/AOV têm seus frameworks próprios nas ETAPAs onde são usados (1.1 / referência cruzada à 07d). O domínio completo está em `.claude/lib/kb-index/frameworks.json` (a contagem viva é a de lá — enumere pelo contrato de cobertura do topo desta skill).
 
 ### 0.2 Detectar o produto
 
@@ -109,7 +111,7 @@ O `page_type` é decidido pelo **awareness level** lido de `02-market-research/d
 
 A 07b usa `destination_ref` pra linkar o soft CTA. Sem destino definido, o advertorial vai ao ar mandando tráfego pago pra uma página sem copy nem oferta — NÃO pule esta decisão.
 
-**Se `page_type = advertorial` — mapa canônico copy→sections (estrutura Zakaria):** a skill 06 grava a copy do advertorial com 7 seções canônicas de heading fixo. O `sections_plan` de um advertorial NÃO usa o menu genérico da 1.2 cru — a espinha é este mapa 1:1 (não improvise ids; a 07b splita por eles):
+**Se `page_type = advertorial` — mapa canônico copy→sections (estrutura da masterclass interna):** a skill 06 grava a copy do advertorial com 7 seções canônicas de heading fixo. O `sections_plan` de um advertorial NÃO usa o menu genérico da 1.2 cru — a espinha é este mapa 1:1 (não improvise ids; a 07b splita por eles):
 
 | Seção canônica da copy (06) | `sections_plan[].id` | Papel na página |
 |---|---|---|
@@ -124,7 +126,7 @@ A 07b usa `destination_ref` pra linkar o soft CTA. Sem destino definido, o adver
 Sections opcionais podem entrar DEPOIS da espinha (ex: `social-proof` se a copy tem depoimentos, `faq` se há objeções mapeadas) — nunca no meio da narrativa, que quebra o ritmo editorial. Se alguma das 7 seções não existir no `copy-engine.md` do produto, PARE e avise o membro: o advertorial da 06 está incompleto — rode a 06 de novo antes de desenhar a página (não invente a seção faltante).
 
 **Frameworks que sustentam essa decisão** (puxe os nomeados, não query genérica):
-- **Schwartz awareness levels** (rode `product market awareness Schwartz levels`) + **Bond sophistication stages** (rode `market sophistication stages`) — confirme que o awareness lido de `02` casa com o lead type de `06`.
+- **Schwartz 5 Stages of Awareness** (rode `Schwartz five stages of awareness unaware problem aware solution aware product aware most aware`) + **Schwartz 5 Stages of Market Sophistication** (rode `market sophistication five stages Schwartz mechanism claim escalation jaded market`) — confirme que o awareness lido de `02` casa com o lead type de `06`.
 - Se `page_type = advertorial`: **Advertorial / Editorial-Look Principle** (rode `advertorial editorial look principle 5x readership Halbert Kennedy native ad`) + **Listicle Advertorials (2 Types)** (rode `listicle advertorial product-focused education-focused types awareness bridge`) pra escolher product-focused vs education-focused, e **PCPO body copy** (rode `PCPO problem cure proof offer body copy framework web page`) pra estruturar o corpo editorial (Problem → Cure → Proof → Offer).
 - Se `page_type = landing`: **NESP** (já puxado na 0.1) dirige a diferenciação Solution-Aware.
 - Se `page_type = pdp_robust/pdp_lean`: **AOV Builders** (rode `checkout optimization AOV order bump upsell gift with purchase bundle threshold money close`) informam a ancoragem de oferta — note que a execução de bump/upsell vive na 07d, aqui só dimensiona a section de oferta.
@@ -143,7 +145,7 @@ Não force "9 sections padrão". Escolha o que a estratégia pede.
 - `mechanism` — **SÓ se o produto tem mecanismo único** (ingrediente patenteado, processo proprietário, inovação). Commodity → PULE (mecanismo forçado parece falso)
 - `social-proof` — essencial em alto ceticismo (skincare, saúde, wellness); pular em impulse barato
 - `guarantee` — proporcional ao risco percebido (caro/duradouro = section grande; impulse = uma linha)
-- `comparison-table` — quando o produto é disrupter numa categoria madura
+- `comparison-table` — quando o produto é disruptor numa categoria madura
 - `before-after` — cosmético / estético / transformação visual
 - `how-it-works` — produtos com 3+ passos de uso
 - `ingredients` — skincare / supplements / food
@@ -455,6 +457,7 @@ Independente da rota, `design/page.html` precisa passar nas mesmas ground rules 
 - **Imagens do mapa de mídia (ETAPA 1.6):** toda section com `media.required` tem a imagem REAL no slot, ou placeholder EXPLÍCITO (visivelmente marcado) com `acquisition_plan` registrado no `page-plan.json`. Nunca stock aleatório fingindo ser final, nunca `src` de sandbox de gerador, nunca imagem/foto do concorrente (rota 1).
 - **CTAs como call-to-VALUE** ("Start My 30-Day Glow", não "Buy Now"). Fundamente em **CTAs / Calls to Value** (rode `CTAs buttons friction anxiety calls to value lizard brain first person mirror headline`) e decida direto vs stepping-stone com **Direct vs Transitional CTA** (rode `direct vs transitional CTA Miller buy now download guide stepping stone`).
 - **Serve as 4 modalities ao mesmo tempo** — antes do checkpoint, confira que o `page.html` atende **4 Decision Making Modalities** (rode `4 decision making modalities spontaneous competitive humanistic methodical web copy`): Spontaneous (CTA rápido acima da dobra), Competitive (comparison/diferenciação), Humanistic (prova social, rostos, histórias), Methodical (specs, garantia, FAQ). Falta de uma = furo de conversão.
+- **Régua econômica da página** — a página é avaliada também pelo número que ela terá que sustentar: **Revenue per Session** (rode `revenue per session AOV vezes CVR problema de site ou de tráfego`) — receita por sessão = AOV × conversão, referência em torno de $2,50. Não é métrica pra medir agora (não há tráfego ainda); é a régua que a Skill 11 vai usar pra separar problema de página de problema de tráfego — desenhe a página sabendo que ela responde por esse número (hero que segura a dobra, oferta que sustenta o AOV da 04, CTA sem fricção).
 - **Congruência ad→page:** o topo da página tem que ecoar a promessa do ad que traz o tráfego — valide com **Congruence Principle** (rode `congruence principle message match ad to landing page scent Kennedy consistency rule`).
 - **Tratamento por page_type:** advertorial → editorial (dek, drop caps, ritmo de leitura); landing/pdp → benefit-forward com proof acima da dobra. Em advertorial, aplique os **Ogilvy 14 Readability Devices** (rode `Ogilvy 14 readability devices drop caps captions subheads reverse type`) e a **Double Readership Path** (rode `Kennedy double readership path skimmers analytical readers subheads PS`) pra servir skimmers e leitores analíticos.
 
@@ -528,7 +531,7 @@ Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não 
     "awareness_level": "Problem-Aware | Solution-Aware | Product-Aware | Most-Aware",
     "sophistication_stage": 4,
     "skepticism": "baixo | médio | alto",
-    "product_type": "commodity | nova categoria | disrupter | incremental",
+    "product_type": "commodity | nova categoria | disruptor | incremental",
     "has_unique_mechanism": true,
     "mechanism_name": "[LITERAL do 04-offer-builder/dados.json — nome exato do mecanismo nomeado]",
     "hero_type": "[1 dos 5 canônicos da base]",
@@ -587,7 +590,7 @@ Atualize `workspace/[produto]/manifest.json` adicionando `07a-page-design` ao ar
 
 ## Self-audit silencioso (rule post-task-self-audit)
 
-Antes de declarar concluído, rode os 5 gates internos e corrija inline (sem mencionar): `mechanism_name` em `page-plan.json` bate LITERAL com `04-offer-builder/dados.json`; `page_type` é coerente com o awareness de `02` e com o `lead_type` de `06`; se `page_type=advertorial`, `destination_ref` está definido (não null) E o `sections_plan` segue o mapa canônico Zakaria da 1.1 (as 7 seções da copy de 06 mapeadas 1:1, nada inventado); eyebrows são criativos (não rótulos de framework); a copy inserida em `design/page.html` veio de `06` (não inventada); **todo `sections_plan[]` tem o campo `media` preenchido (ETAPA 1.6) — nenhum placeholder implícito, todo `status: "placeholder"` tem `acquisition_plan` específico, e nenhum lifestyle gerado por AI nasceu de prompt de texto puro com rótulo/embalagem em quadro**; **o self-review visual rodou (screenshots desktop 1440 + mobile 390 lidos por visão) e os defeitos achados foram corrigidos ANTES do checkpoint**; se o Caminho 4 foi usado, os tokens vieram LITERAIS de `.claude/lib/design-presets/presets.json` (não inventados); `design-tokens.json` e `design-signals.json` existem e parseiam; `section_order` e `sections_plan` consistentes entre si; `design_route` registrado no plan; nas rotas 2/5, a normalização da 3.6c rodou de verdade (zero `<script>` no `page.html`, CSS plano, assets locais/estáveis); markers `data-aura-section` presentes em todas as sections (qualquer rota, inclusive handoff do canvas e clone-and-adapt); regras de qualidade comuns da 3.7 passaram (SVG, ad-safe, contraste, performance budget); logo SVG presente nos `.html` internos. **Se a rota foi clone-and-adapt: confirme que NENHUMA copy, imagem, logo, claim ou nome de marca do concorrente vazou pra `design/page.html` — só o esqueleto de layout.** Surface só o que exige decisão do membro (ex: conflito de nome de mecanismo entre 02 e 04, ou rota escolhida que ficou inviável a meio caminho).
+Antes de declarar concluído, rode os 5 gates internos e corrija inline (sem mencionar): `mechanism_name` em `page-plan.json` bate LITERAL com `04-offer-builder/dados.json`; `page_type` é coerente com o awareness de `02` e com o `lead_type` de `06`; se `page_type=advertorial`, `destination_ref` está definido (não null) E o `sections_plan` segue o mapa canônico de advertorial da 1.1 (as 7 seções da copy de 06 mapeadas 1:1, nada inventado); eyebrows são criativos (não rótulos de framework); a copy inserida em `design/page.html` veio de `06` (não inventada); **todo `sections_plan[]` tem o campo `media` preenchido (ETAPA 1.6) — nenhum placeholder implícito, todo `status: "placeholder"` tem `acquisition_plan` específico, e nenhum lifestyle gerado por AI nasceu de prompt de texto puro com rótulo/embalagem em quadro**; **o self-review visual rodou (screenshots desktop 1440 + mobile 390 lidos por visão) e os defeitos achados foram corrigidos ANTES do checkpoint**; se o Caminho 4 foi usado, os tokens vieram LITERAIS de `.claude/lib/design-presets/presets.json` (não inventados); `design-tokens.json` e `design-signals.json` existem e parseiam; `section_order` e `sections_plan` consistentes entre si; `design_route` registrado no plan; nas rotas 2/5, a normalização da 3.6c rodou de verdade (zero `<script>` no `page.html`, CSS plano, assets locais/estáveis); markers `data-aura-section` presentes em todas as sections (qualquer rota, inclusive handoff do canvas e clone-and-adapt); regras de qualidade comuns da 3.7 passaram (SVG, ad-safe, contraste, performance budget); logo SVG presente nos `.html` internos. **Se a rota foi clone-and-adapt: confirme que NENHUMA copy, imagem, logo, claim ou nome de marca do concorrente vazou pra `design/page.html` — só o esqueleto de layout.** Surface só o que exige decisão do membro (ex: conflito de nome de mecanismo entre 02 e 04, ou rota escolhida que ficou inviável a meio caminho).
 
 ## Referências cruzadas
 

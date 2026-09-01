@@ -1,6 +1,6 @@
 ---
 name: copy-engine
-description: Engine de escrita de copy completo baseado em market research, competitor analysis, e oferta. Escreve PDPs, landing pages, advertoriais, ou long-form sales pages aplicando headlines (processo de 100 linhas, fórmulas), leads tipados por awareness, hero patterns de ecom, 10x page plan, frameworks de persuasão (Cialdini, Sugarman, Hopkins), proof stacking, CTAs (call to value), 7 sweeps de revisão, e linguagem EXATA do customer. Use quando o membro disser "copy", "escrever copy", "copy da página", "copy do ad", "PDP copy", "landing page copy", ou após a skill de oferta. O sistema DECIDE a estratégia de copy automaticamente — não consulta o membro sobre decisões estratégicas.
+description: Engine de escrita de copy completo baseado em market research, competitor analysis, e oferta. Escreve PDPs, landing pages, advertoriais, ou long-form sales pages aplicando headlines (processo de 100 linhas, fórmulas), leads tipados por awareness, hero patterns de ecom, 10x page plan, frameworks de persuasão (Cialdini, Sugarman, Hopkins), proof stacking, CTAs (call to value), 7 sweeps de revisão, e linguagem EXATA do customer. Modela a estrutura contra ESPÉCIMES reais de swipe file (peças que já converteram) antes de escrever, e audita o resultado com o método de markup (4 U's, 4 emoções, loop Objection-Claim-Proof-Benefit). Use quando o membro disser "copy", "escrever copy", "copy da página", "copy do ad", "PDP copy", "landing page copy", ou após a skill de oferta. O sistema DECIDE a estratégia de copy automaticamente — não consulta o membro sobre decisões estratégicas.
 ---
 
 # Copy Engine
@@ -35,11 +35,11 @@ Quando o membro tem market research, competitor analysis e oferta prontos, e pre
 
 ## Antes de Começar
 
-1. Leia `workspace/profile.md` — em especial `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno desta skill (strategy brief, sweeps documentados, `.md`/`.html` descritivos) e toda conversa com o membro usam esse idioma. **A copy consumidor-final (headlines, leads, hero, bullets, CTAs, advertorial, email hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language` — copy pública nunca traduz.
+1. Leia `workspace/profile.md` — em especial `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno desta skill (strategy brief, sweeps documentados, `.md`/`.html` descritivos) e toda conversa com o membro usam esse idioma, seguindo o padrão de linguagem simples da regra 0 do `.claude/CLAUDE.md` (nenhuma sigla sem explicação imediata, zero frase de analista comprimida, números estatísticos em palavras). **A copy consumidor-final (headlines, leads, hero, bullets, CTAs, advertorial, email hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language` — copy pública nunca traduz.
 2. Leia `workspace/[produto]/02-market-research/market-research.md` (psychographics, awareness/sophistication, VOC literal, objeções, root cause)
 3. Leia `workspace/[produto]/03-competitor-analysis/competitor-analysis.md` (claims saturados a evitar, gaps, posicionamento recomendado, swipe file)
 4. Leia `workspace/[produto]/04-offer-builder/offer-builder.md` (mecanismo único com 3 versões, bundles, garantia, unit economics)
-5. **Puxe os SISTEMAS NOMEADOS da base — não query genérica.** Esta skill é o coração do sistema. Para cada ETAPA, rode `search_knowledge` com a `best_query` exata de cada framework relevante (as queries estão embutidas nas ETAPAs 2-6 abaixo, no ponto onde cada framework é usado). NUNCA dispare uma busca tipo "copy framework" ou "headlines" — sempre o nome do sistema + sua query curada. **Índice completo dos frameworks desta skill (3 domínios: copy-headlines-leads, copy-proof-persuasion-structure, persuasion-psychology): `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — mapa skill→domínio no README).** Faça múltiplas buscas por ETAPA pra cobrir o assunto a fundo; se um framework adjacente aparecer numa busca e for útil pra fase, puxe também.
+5. **Puxe os SISTEMAS NOMEADOS da base — não query genérica.** Esta skill é o coração do sistema. NUNCA dispare uma busca tipo "copy framework" ou "headlines" — sempre o nome do sistema + sua query curada. **Contrato de cobertura (regra do kb-index):** no início de cada ETAPA que consulta a base, abra `.claude/lib/kb-index/frameworks.json` e enumere TODAS as entradas dos 3 domínios desta skill (copy-headlines-leads, copy-proof-persuasion-structure, persuasion-psychology) cujo `use_in_skill` inclui a 06; rode a `best_query` exata, com `deep=true`, de TODAS as relevantes àquela etapa. As queries embutidas nas ETAPAs 2-6 abaixo (no ponto onde cada framework é usado) são o **núcleo mínimo garantido de cada etapa, nunca o teto** — entrada relevante que não está embutida é pra ser puxada do mesmo jeito. Critério de relevância: "esta entrada informa a decisão desta etapa?" — se a resposta for "talvez", puxa; só descarte o que claramente pertence a outra etapa (será puxado lá). Framework já puxado na sessão não se busca de novo (entradas duplicadas entre domínios apontam pro MESMO conteúdo — reuse o resultado). **Antes de fechar cada ETAPA, releia a lista enumerada e confirme: alguma entrada relevante ficou sem puxar? Se sim, puxe agora.** A fonte da verdade do tamanho de cada domínio é sempre o próprio `frameworks.json`, nunca contagem citada em texto de skill (mapa skill→domínio no `README.md` da lib).
 
 ## Fluxo da Skill
 
@@ -50,6 +50,12 @@ Antes de gerar copy, carregue:
 3. `voc_checklist` = ler DIRETO o campo `voc_top20` de `02-market-research/dados.json` (a Skill 02 já grava as 20 frases curadas com rank + contagem de menções — use na ordem do rank, a frequência real vale mais que re-curadoria). FALLBACK (produto legado sem `voc_top20`): achate os 3 pools de `voc_phrases` — `{problem, desire, frustration}` — num único array e selecione as 20 mais repetidas antes do substring matching. VOC permanece SEMPRE no inglês original do consumidor.
 4. `mechanism` = objeto do `04-offer-builder/dados.json` (use `mechanism.name` pro nome; não tratar como string)
 5. `guarantee` + `offer_stack` = do `04-offer-builder/dados.json`
+6. `core_avatar` + `sub_avatars[]` = ler DIRETO de `02-market-research/dados.json` — a camada ACIONÁVEL de avatar da 02 (não confundir com o objeto descritivo `avatar`). `core_avatar` define a quem a PÁGINA inteira se dirige: `surface_desire` é a promessa no nível "I want X", `core_desire_behind` orienta o TOM. **O lead fala com UM sub-avatar — o da estratégia escolhida na ETAPA 2** (o de `angle` mais próximo do ângulo principal), nunca com "todos ao mesmo tempo".
+7. `labels[]` = os apelidos com que o próprio mercado se nomeia — **matéria-prima de call-out** (headline, kicker/eyebrow, bullets). Usar o label literal gera identificação imediata.
+8. `market_vocabulary` = as palavras permitidas e proibidas da 02: `words_used[]` (com flag `saturated_in_market`) e `words_absent[]` (com o substituto `market_says_instead`). Consulte ANTES de escrever qualquer linha — alimenta o gate de vocabulário do sweep 2.
+
+FALLBACK (produto legado sem os campos 6-8 — a 02 rodou antes de eles existirem): derive o foco do objeto `avatar` (psychographics + pain/desire hierarchy) e do `voc_top20`, escreva sem o gate de vocabulário (o sweep 2 checa só o checklist VOC) e recomende na Mensagem Final re-rodar a 02 pra ganhar a camada acionável de avatar.
+
 Use ESTAS variáveis ao gerar — sem placeholders hardcoded.
 
 ### ETAPA 1 — Perguntas ao Membro (APENAS 2)
@@ -84,7 +90,8 @@ Antes de decidir, puxe os SISTEMAS de seleção de estratégia (rode cada `best_
 - **Schwartz's Five Stages of Market Sophistication** (rode `Schwartz market sophistication five stages new mechanism virgin market skepticism Breakthrough Advertising`) — define se lidera com promessa, mecanismo, ou identificação conforme o estágio de saturação da Skill 03
 - **Big Idea (Paradoxical Question, Gum Name, Conspiracy Story)** (rode `Big Idea paradoxical question gum name conspiracy story marketing thesis`) — transforma o gap mais forte da Skill 03 no ângulo dominante
 - **Hero Sections (5 Types + 3 Questions)** (rode `hero sections five types selection three questions five seconds awareness`) — value-prop / problem / dreamstate / segment / campaign-level
-- **Rule of One (One Reader, One Idea, One Offer)** (rode `Rule of One one reader one idea one offer one promise copy`) — força foco da página inteira
+- **As três escolas de porta-voz** (rode `tres escolas de porta-voz autoridade primeiro credibilidade de baixo autoridade quebrada`) — decide QUEM fala a peça (autoridade primeiro / credibilidade de baixo / autoridade quebrada) antes de escolher o hero pattern e, no advertorial, a Background Story
+- **Rule of One (One Reader, One Idea, One Offer)** (rode `Rule of One one reader one idea one offer one promise copy`) — força foco da página inteira; o "one reader" aqui é o sub-avatar escolhido pro lead
 
 O sistema apresenta as decisões como FATO (não pedido de aprovação) e segue pra escrita. Todas vêm do market research + competitor analysis + oferta:
 
@@ -104,6 +111,9 @@ Pra CONSTRUIR o lead escolhido, puxe o sistema certo (rode a `best_query`):
 - **Unique Mechanism Theory (UMP + UMS)** (rode `unique mechanism UMP UMS problem solution knowledge gap direct response`) — Solution Aware (Mechanism/Secret Lead)
 - **Sugarman's Seeds of Curiosity / Slippery Slide** (rode `Sugarman seeds of curiosity slippery slide open loop paragraph end`) — pra qualquer lead que precisa puxar pra próxima frase
 - **Schwartz's 'The Turn'** (rode `Schwartz the turn product introduction inevitable transition after lead story`) — a transição do lead pro pitch
+- **As 6 Formas de Bridge + Bridge Hook** (rode `6 formas de bridge introduce mechanism escalate problem reposition timeline`) — as seis maneiras de sair do hook e chegar na oferta sem quebrar a leitura (par operacional do The Turn)
+- **Unaware Ads — Buyer's Pyramid + 4 openers** (rode `unaware ads buyers pyramid 4 openers hidden fear hidden desire did you know debate`) — quando o awareness dominante é Unaware (hidden fear / hidden desire / did you know / debate)
+- **Identity Lead — 5 beats + 3 variantes** (rode `identity lead manifesto de persona recusa ritual confissao de ex-membro prova de lifestyle`) — o lead-manifesto de persona pra Sophistication 4-5 (a regra diagnóstica da ETAPA 2.5 veta usá-lo fora desse estágio)
 
 Nota de proveniência (não é Schwartz): os 5 tipos de lead acima cruzam três tradições. As fórmulas de primeiro parágrafo vêm de **Caples** (as 6 fórmulas clássicas). A escolha de QUAL lead usar vem da dimensão **Schwartz** de awareness + desire/identification/belief. **Secret Lead** e **Proclamation Lead** são da tradição **Masterson**, não de Schwartz. Mapeamento canônico: Unaware → story/identification · Problem Aware → problem-agitation · Solution Aware → mechanism/secret · Product/Most Aware → direct/offer.
 
@@ -121,9 +131,10 @@ Decisão aplica: awareness + tipo de produto + presença de visual transformatio
 **Ângulo Principal** (do competitor analysis):
 - Escolha o gap mais forte identificado na Skill 03 (angle que NENHUM concorrente está usando)
 - Esse vira o **Big Idea** da página — o ângulo dominante que unifica headline, subheadline, e hook
+- Cruze com `sub_avatars[]` da 02: escolha o sub-avatar cujo `angle` casa com esse gap — **é com ELE que o lead fala** (Rule of One: one reader). Registre a escolha no brief abaixo
 
 **Tom de Voz** (do market research):
-Definido pelo perfil psicográfico:
+Definido pelo perfil psicográfico (e pelo `core_desire_behind` do `core_avatar` — o instinto por trás do desejo orienta o registro emocional):
 - Sofisticado/educado (público com renda alta, escolaridade, sofisticação do mercado)
 - Casual/conversacional (público mainstream, Gen Z/millennial)
 - Técnico/autoridade (público que valoriza credenciais — saúde, finanças)
@@ -133,7 +144,7 @@ Definido pelo perfil psicográfico:
 **Framework de Organização:**
 - **PDP** → estrutura: Hero → Trust Bar → Benefícios → Mecanismo → Prova Social → Oferta/Stack → Garantia → FAQ → CTA final
 - **Landing Page** → 10x Page Plan ou PAS on Steroids
-- **Advertorial** → 7-section blueprint (estilo Zakaria): Headline → Lead → Background Story → Root Cause → Unique Mechanism → Product Build-Up → Product Reveal + Close (7 seções; Reveal e Close são UMA seção combinada — ver ETAPA 5)
+- **Advertorial** → 7-section blueprint (estilo da masterclass interna): Headline → Lead → Background Story → Root Cause → Unique Mechanism → Product Build-Up → Product Reveal + Close (7 seções; Reveal e Close são UMA seção combinada — ver ETAPA 5)
 - **Long-form Sales Page** → 15-point themeplate ou 8-block VSL structure
 
 **Como servir as 4 Decision Making Modalities**:
@@ -152,13 +163,53 @@ Toda página precisa SIMULTANEAMENTE servir os 4 tipos de decisor (senão perde 
 
 Apresente a estratégia (6-8 linhas no máximo) como um BRIEF antes de escrever:
 
-> Baseado no market research (awareness: {{dominant_awareness}}, Sophistication: Estágio {{sophistication_stage}}) e gaps do competitor analysis ([gap X]), vou escrever [tipo de página] com [tipo de lead], hero [tipo], ângulo [ângulo], tom [tom], usando o framework [X]. Mecanismo único: {{mechanism.name}}. VOC phrases prioritárias: [3 frases-chave do voc_checklist]. Objeções principais a quebrar: [3].
+> Baseado no market research (awareness: {{dominant_awareness}}, Sophistication: Estágio {{sophistication_stage}}) e gaps do competitor analysis ([gap X]), vou escrever [tipo de página] com [tipo de lead], hero [tipo], ângulo [ângulo], tom [tom], usando o framework [X]. O lead fala com o sub-avatar [nome do sub-avatar escolhido] (angle: [angle dele]). Mecanismo único: {{mechanism.name}}. VOC phrases prioritárias: [3 frases-chave do voc_checklist]. Objeções principais a quebrar: [3].
 
 (Os placeholders `{{...}}` indicam valores vindos do Input Extraction — NÃO usar números fixos como "45%" ou "Estágio 4".)
 
 Não peça aprovação — segue direto pra escrita. O membro pode ajustar depois se quiser, mas o default é o sistema executar a decisão fundamentada.
 
 **Persistir a decisão de lead (contrato com a 07a):** o tipo de lead escolhido nesta etapa DEVE ser gravado no campo **top-level `lead_type`** do `06-copy-engine/dados.json` (ver Output Schema). A 07a lê esse campo pra confirmar o `page_type` da página — sem ele, a fase STOREFRONT decide no escuro.
+
+### ETAPA 2.5 — Seleção de Espécime (Swipe Modeling) — OBRIGATÓRIA
+
+> Frameworks dizem O QUE fazer. Espécime mostra COMO uma peça que já converteu foi montada, bloco a bloco. Copywriter de verdade não escreve só com framework na mesa — ele escolhe a peça provada mais próxima e modela a estrutura. Esta etapa faz isso explicitamente, antes de escrever qualquer linha.
+
+**2.5A — Selecionar o espécime primário.**
+
+Leia `.claude/lib/swipe-models/specimens.json`. Cruze o seletor de cada espécime (`aplica_a`: `page_type` × `dominant_awareness` × `sophistication_stage` × `product_vertical`) com as decisões que a ETAPA 2 já tomou. Precedência: `page_type` restringe primeiro; depois awareness; `sophistication` desempata (4-5 empurra pra espécimes de identidade/mecanismo); vertical só refina.
+
+Leia a `regra_diagnostica` do candidato antes de fechar — ela existe pra vetar escolha errada (ex.: Identity Lead só serve estágio 4-5; discovery story exige evento dramático real ou defensável, senão use problem-agitation em vez de fabricar história).
+
+Escolha **1 espécime primário**. Opcionalmente **1 secundário**, só quando houver um bloco específico que o primário não resolve bem (ex.: primário = advertorial de 7 seções, secundário = escada de prova em 3 degraus do chassi de VSL).
+
+**2.5B — Puxar a anatomia.**
+
+Rode `search_knowledge` com a `best_query` do espécime escolhido (e do secundário, se houver). Rode também a régua medida da base: **Anatomia da Promo — 11 blocos, presença medida em 179 promos** (rode `11 blocos promo Agora kicker saudacao qualificada mecanismo batizado presenca medida`) — a frequência real de cada bloco (kicker, saudação qualificada, big idea narrativa, mecanismo batizado) calibra o modelo estrutural contra o que as peças que converteram de fato fazem. Extraia:
+- a **sequência de blocos** da peça, em ordem
+- **que trabalho cada bloco faz** (não o texto dele)
+- a **regra diagnóstica** que a nota documenta
+
+Se a query não retornar a anatomia, escolha o próximo espécime aplicável e registre o fato — escrever sem modelo é o comportamento antigo, e é o que esta etapa existe pra evitar.
+
+**2.5C — Montar o modelo estrutural.**
+
+Antes de escrever, produza a tabela de blocos que a copy vai seguir:
+
+| # | Bloco (do espécime) | Trabalho que faz | O que entra aqui (do research do membro) |
+|---|---|---|---|
+
+Preencha a última coluna com o material real das skills 02/03/04 — VOC, mecanismo, prova, objeções, oferta. **É essa tabela que vira a copy nas ETAPAs 3-5**, não o espécime.
+
+Declare também os **4-6 pilares** da peça (leia `arquitetura_de_extensao` no mesmo JSON). Copy longa que funciona não é muito conteúdo — é um número pequeno de ideias reapresentadas, onde o que muda a cada volta é a **prova**, nunca a ideia. Cada bloco de corpo deve marcar qual pilar reforça e com que prova nova. Isso alimenta a dieta do sweep 4.5: pilar que volta **sem** prova nova é gordura; pilar que volta **com** prova nova é a arquitetura funcionando.
+
+**2.5D — Aplicar o scaffold universal de lead.**
+
+Independente do espécime escolhido, o lead precisa cumprir os 4 passos do Makepeace (rode `grab eyeballs expand headline establish credibility bribe esqueleto de abertura`): grab eyeballs (ideal prospect + big promise + curiosidade) → expand headline → establish cred → bribe. É a segunda camada sobre o espécime primário; lead que não cumpre os 4 passos não está pronto.
+
+> **REGRA INEGOCIÁVEL — modelar estrutura, nunca conteúdo.** Não copie frase, claim, número ou nome de mecanismo do espécime. Além de plágio, boa parte do arquivo de health é anterior à política atual do Meta e carrega disease claims que reprovam no gate de compliance (sweep 8). O que se extrai é arquitetura: ordem dos blocos, trabalho de cada um, e por que funciona.
+
+Registre no `dados.json`: `specimen_primary` (id), `specimen_secondary` (id ou null), e `specimen_block_map` (a tabela 2.5C). A skill 11 (ad-analysis) usa isso pra diagnosticar depois se a estrutura escolhida foi a certa pro avatar.
 
 ### ETAPA 3 — Headlines (Processo de 100 Linhas, versão condensada)
 
@@ -173,6 +224,9 @@ Puxe os SISTEMAS de headline da base antes de gerar (rode cada `best_query` — 
 - **Four U's (Unique, Useful, Urgent, Ultra-specific)** (rode `Four U's unique useful urgent ultra-specific hook headline hierarchy`) — grade rápido das top variações
 - **Hormozi's Seven Headline Components** (rode `Hormozi seven headline components callout value timeframe proof mechanism obstacle urgency $100M Leads`) — pra ofertas/Product-Most Aware
 - **Hopkins: Headlines as Audience Selectors + Specificity** (rode `Hopkins headlines audience selectors preemptive claim specificity Scientific Advertising`) — specificity converte 2-3x sobre generalidade
+- **Sticky Hook — 3 must-haves** (rode `sticky hook emotion curiosity gap high stakes targeted vs broad ad`) — emoção + curiosity gap + stakes altos: o critério mínimo que toda headline/hook precisa cumprir
+- **Promise vs Open Loop** (rode `make a promise vs open a loop juxtaposition fear do the opposite Harry Dry`) — a decisão binária de cada variação: PROMETER ou ABRIR LOOP (e as 3 formas de abrir o loop)
+- **Labels + Word Swapping** (rode `labels callout de identidade word swapping linguagem do cliente urban dictionary`) — `labels[]` da 02 como call-out de identidade; troque a palavra da marca/indústria pela palavra que o cliente usa
 - **Headline Sweep (8-Part Laddering Edit)** (rode `headline sweep eight parts captures attention avoids confusion matches message button SEO`) — pra refinar as top 5 na sub-etapa 3B
 
 Aplique os princípios do processo de 100 linhas (Caples, expandido) e as fórmulas clássicas acima.
@@ -192,7 +246,7 @@ Gere 20-30 variações de headline aplicando as fórmulas. Cobrir diferentes tip
 - **Authority**: "[Expert title] reveals the [claim]"
 - **Fear of loss**: "The [thing you're missing] that [outcome]"
 
-Use linguagem EXATA do VOC do market research sempre que possível. Hopkins: "specificity in headlines converts 2-3x over generality".
+Use linguagem EXATA do VOC do market research sempre que possível. Hopkins: "specificity in headlines converts 2-3x over generality". Pro call-out (componente #1 do Hormozi), use os `labels[]` da 02 — o apelido com que o mercado se nomeia é o call-out mais forte que existe. E consulte `market_vocabulary` JÁ NA GERAÇÃO: termo com `saturated_in_market: true` não entra em headline (mensagem fatigada — só como prova no corpo); termo de `words_absent[]` não entra em lugar nenhum (use o `market_says_instead`).
 
 **3B — Categorização + Top 5:**
 
@@ -210,6 +264,8 @@ Justifique cada escolha.
 ### ETAPA 4 — Página Completa (Seção por Seção)
 
 Escreva a página inteira, seção por seção, na ordem definida pelo framework escolhido. Para cada seção, aplique frameworks específicos.
+
+Antes do corpo, puxe a ordem macro do pitch: **Pitch Sem Rejeição (Payoff → Belief → Recomendação)** (rode `pitch sem rejeicao entregue o payoff estabeleca belief recomendacao em vez de venda`) — entregue primeiro o payoff que o lead prometeu, estabeleça a crença necessária, e só então RECOMENDE o produto em vez de vendê-lo (vale pra PDP/LP e igualmente pro advertorial da ETAPA 5).
 
 #### Hero Section
 
@@ -262,6 +318,7 @@ Aplicar os frameworks de proof — puxe cada um por nome (rode a `best_query`):
 - **Schwab's Ten Categories of Proof + Five Presentation Principles** (rode `Schwab ten categories of proof taxonomy five principles presenting proof testimonials`) — o menu completo de tipos de prova
 - **Sugarman's Satisfaction Conviction** (rode `Sugarman satisfaction conviction objection raising resolution before order form doubt friction`) — levanta e resolve dúvida antes do botão
 - **The Sinatra Test + Human-Scale Principle** (rode `Sinatra Test one example so impressive establishes credibility case study` e `Made to Stick human-scale principle statistics as relationships Disneyland 99.9 percent`) — 1 prova devastadora + estatística traduzida pra relação humana
+- **Prova em Escada (3 degraus)** (rode `prova em escada funcionou em mim no cetico mais proximo espalhou numero quebrado`) — a ordem de montagem do stack: funcionou em mim → funcionou no cético mais próximo → espalhou-se, fechando com número quebrado
 - **Length-Implies-Strength Heuristic** (rode `length implies strength heuristic volume persuasion cue 101 testimonials 22 reasons`) — volume de prova vira sinal de força
 
 - **Social proof volume**: número de clientes, reviews, anos no mercado
@@ -299,6 +356,7 @@ Aplique **pricing psychology** — puxe os sistemas por nome (rode cada `best_qu
 - **Decoy Effect (Asymmetric Dominance)** (rode `decoy effect asymmetric dominance Economist Ariely pricing tiers print-only combo`) — o 3-pack Popular como decoy
 - **Extremeness Aversion + Three-Tier Pricing** (rode `extremeness aversion three tier pricing middle option beer experiment Simonson Tversky`) — por que a opção do meio ganha
 - **Charm Pricing (9-Endings) & Transaction Utility** (rode `charm pricing nine endings left digit transaction utility was price deal Poundstone Thaler`) — framing de "savings" e was-price
+- **Os 4 tipos de Reason-Why** (rode `quatro tipos de reason-why preco existencia generosidade mecanismo razao operacional`) — razão OPERACIONAL pra preço/escassez, razão MORAL pra generosidade/garantia; trocar uma pela outra inverte o efeito (também governa a razão real da seção Urgency/Scarcity abaixo)
 
 #### Garantia
 
@@ -312,6 +370,7 @@ Frameworks pra quebrar objeção (rode cada `best_query`):
 - **Inoculation Theory (McGuire)** (rode `Inoculation theory McGuire weakened attack vaccination strengthen attitudes competitor argument`) — antecipa e neutraliza a objeção antes que ela cresça
 - **Kennedy's Damaging Admission** (rode `Kennedy damaging admission list every reason not to respond admit flaws too good to be true`) — admitir a falha desarma o ceticismo
 - **The 'Yeah, Sure' Principle (Proof Matches Claim)** (rode `Bencivenga yeah sure principle proof match claim three reasons why IF THEN construction doctors headache`) — cada resposta de FAQ precisa de prova proporcional ao claim
+- **Matriz de objeções (3 tipos × 4 estratégias)** (rode `3 tipos de objecao 4 estrategias facts reversals because reassigning matriz eficacia`) — pra cada objeção da 02, classifique o TIPO e escolha a estratégia (facts / reversals / because / reassigning) que a matriz indica como mais eficaz pra ele
 
 Cada FAQ quebra uma objeção REAL do market research. Pegue as **Top 5 objeções priorizadas** da Skill 02 e escreva a resposta que quebra cada uma. Nada de FAQ genérica ("qual o prazo de envio" — isso vai em lugar específico, não é FAQ estratégica).
 
@@ -357,7 +416,7 @@ Frameworks pra advertorial (rode cada `best_query`):
 - **Schwartz's 'The Turn'** (rode `Schwartz the turn product introduction inevitable transition after lead story`) — a transição do Root Cause pro Mechanism Reveal (seção 4→5)
 - **Cashvertising — 12 Ways to Lure Readers Into Copy** (rode `Cashvertising 12 ways lure readers into copy question authority skepticism story bandwagon short first sentence`) — pro Lead (seção 2)
 
-Se o tipo de página definido é Advertorial, siga a **estrutura de 7 seções** (Zakaria blueprint):
+Se o tipo de página definido é Advertorial, siga a **estrutura de 7 seções** (blueprint da masterclass interna):
 
 1. **Irresistible Headline** (estilo editorial, não-vendedor: "The Weird 30-Second Ritual That's Changing How Women Over 40 Handle [Problem]")
 2. **Lead** que pulls readers in (primeiras 100-200 palavras — responde as 4 perguntas mentais do leitor: por que ler agora? por que isso importa? por que isso é diferente? por que vai funcionar pra mim?)
@@ -378,7 +437,10 @@ Antes de entregar, faça os **7 sweeps Aura** abaixo (1–7) — são os sweeps 
 Pra calibrar o que cada sweep procura, puxe os sistemas de edição (rode cada `best_query`):
 - **Seven Sweeps (Editing Ladder)** (rode `Seven Sweeps editing ladder clarity voice tone so what prove it specificity heightened emotion zero risk`) — o ladder canônico que inspira estes sweeps
 - **Hopkins' Specificity Principle** (rode `Hopkins specificity principle reason-why platitudes generalities specific claims transformation`) — pro Specificity sweep (#3)
+- **Mona Lisa Frame (show, don't tell)** (rode `Mona Lisa Frame show dont tell placa embaixo do quadro half the words double the examples`) — também pro Specificity sweep (#3): mostrar em vez de afirmar — metade das palavras, o dobro dos exemplos
 - **Sugarman's Slippery Slide** (rode `Sugarman slippery slide every element read the next sentence frictionless`) — pro Flow sweep (#4)
+- **5 Alavancas de Stakes** (rode `5 alavancas de stakes bigger witnesses urgent permanent cost more revisao`) — passada de revisão que eleva o que está em jogo (maior / testemunhas / urgente / permanente / custo); aplicar onde a peça está morna
+- **Checklist do Copywriter (13 checagens)** (rode `checklist de revisao do copywriter 13 checagens sanity check onde posso dramatizar`) — o sanity check final da peça inteira, rodado DEPOIS dos sweeps 1-7 (inclui o "onde ainda dá pra dramatizar?")
 - **Reeves' USP + Vampire Claims** (rode `Reeves USP burning glass vampire claims mosaic structure single proposition unrelated claims`) — pro Originality sweep (#7), pra não cair em claim saturado/genérico:
 
 1. **Clarity sweep**: cada frase é clara em primeira leitura? Jargão sem explicação?
@@ -388,12 +450,19 @@ Pra calibrar o que cada sweep procura, puxe os sistemas de edição (rode cada `
    - [ ] Ausente? (marca como gap)
 
    Taxa mínima: >= 60% das top-20 VOC phrases presentes literais ou parafraseadas. Se < 60%, regerar seções fracas.
+
+   **Gate de vocabulário (contrato com `market_vocabulary` da 02) — roda no mesmo sweep:**
+   - Ctrl+F em CADA termo de `market_vocabulary.words_absent[]`: qualquer ocorrência na copy é **PROIBIDA** — a pesquisa provou que o mercado não fala assim. Substitua pelo `market_says_instead` do próprio campo e re-cheque.
+   - CADA termo com `saturated_in_market: true` NÃO pode aparecer em headline (nas variações da ETAPA 3 nem em crosshead que faz papel de headline) — mensagem fatigada serve só como prova no corpo. Se apareceu, reescreva a headline.
+   - `labels[]` são matéria-prima de call-out: se a 02 coletou labels e NENHUM aparece na peça (call-out, kicker, bullets), corrija ou justifique no relatório do sweep.
+   - FALLBACK legado: sem `market_vocabulary` no dados.json da 02, o gate roda só com o checklist VOC acima — e a Mensagem Final recomenda re-rodar a 02.
 3. **Specificity sweep**: Hopkins — cada claim genérico foi substituído por específico? ("many customers" → "12,847 customers"; "fast results" → "visible improvement in 14 days")
 4. **Flow sweep**: slippery slide de Sugarman — cada frase compele a próxima? Onde há quebra de fluxo?
    - **Em-dash check (rule 8a, ACIONÁVEL):** conte os travessões (—) por peça. Se `em_dash_count > 0` em QUALQUER headline OU `> 2` em copy longa → **REESCREVER** os trechos afetados substituindo o travessão por ponto, vírgula, parênteses, duas frases curtas, ou dois-pontos, e **re-checar** a contagem depois. Não basta medir: o sweep só passa quando headlines têm zero travessão e a copy longa tem ≤2.
 4.5. **Dieta de copy (extensão sob controle)**: conte as palavras da página inteira e por seção. A força da copy vem da PROVA, não do volume — o Length-Implies-Strength continua valendo pra prova, specificity e VOC (isso NUNCA se corta). O que a dieta corta é o resto: a mesma ideia dita duas vezes em seções diferentes, adjetivo que não muda a decisão de compra, parágrafo de transição que não move a leitura, benefício reafirmado pela terceira vez sem prova nova. Processo:
    - Se a página passou do teto da categoria (PDP/landing: ~1.800 palavras é sinal de alerta; advertorial aguenta mais) OU o membro pediu "menos texto": monte a proposta de corte — percentual alvo (ex: reduzir ~25-30%) + cortes estruturais (seções que dizem a mesma coisa e podem fundir) — e mostre AO MEMBRO antes de aplicar, com o word count atual e o projetado. Extensão é decisão estratégica; dieta nunca é silenciosa.
    - Ao aplicar, teste frase a frase: cortar esta frase leva junto alguma prova, VOC literal ou claim único? Se sim, a frase fica (ou a prova migra pra outra seção antes do corte).
+   - **Teste do pilar (da ETAPA 2.5C):** antes de cortar um bloco por "já foi dito", cheque qual pilar ele reforça e com que prova. Repetição de pilar **com prova nova** não é redundância — é a arquitetura de copy longa (ver `arquitetura_de_extensao` em `.claude/lib/swipe-models/specimens.json`). Só corte quando o pilar voltar sem trazer prova ou ângulo que as voltas anteriores não trouxeram.
    - Depois do corte, re-rode os sweeps 2 (a taxa de VOC continua ≥ 60%?) e 4 (o fluxo continua deslizando sem os conectivos removidos?).
 5. **Objection sweep**: cada objeção do market research foi quebrada em algum lugar? Onde está omitida?
 6. **CTA sweep**: CTAs são call to VALUE? Aparecem em frequência certa (não muito, não pouco)?
@@ -434,6 +503,30 @@ Pra calibrar o que cada sweep procura, puxe os sistemas de edição (rode cada `
    - `pass` → salvar silenciosamente (sem output).
 
    Além do log de warnings acima, mantenha o log consolidado de TODOS os checks (qualquer verdict) em `workspace/[produto]/06-copy-engine/compliance-log.json`. Se diretório não existir, `mkdir -p` antes de escrever.
+
+9. **Markup audit sweep (método Kyle Milligan)** — auditoria estrutural da peça, rodada DEPOIS dos sweeps 1-7 e do gate de compliance:
+
+   Leia o nó `auditoria` de `.claude/lib/swipe-models/specimens.json` (e, se precisar do detalhe, rode `auditoria markup promo codigo de cores lexico de blocos objection claim proof benefit`). Audite a copy gerada em 5 camadas:
+
+   **Gate de entrada (roda primeiro, é bloqueante):**
+   - Teste dos **4 U's** na headline escolhida: Urgent / Useful / Unique / Ultra-Specific — marque passa/reprova em cada um.
+   - **Ideal Prospect** e **Big Promise** presentes no lead?
+   - Distinção obrigatória: **fato do mundo não é promessa.** "X causa Y" é fato — o leitor não tem o que fazer com ele. Promessa é uma transação: o que ele ganha, em troca do quê. Se o lead abre com fato, ele reprova em Big Promise mesmo que a afirmação seja verdadeira e interessante.
+   - **Regra de veredito:** se reprova em 3 dos 4 U's **e** falha em Ideal Prospect ou Big Promise → **não audite o corpo. Reescreva o lead e volte à ETAPA 3.** Auditar corpo de peça que morreu na abertura é desperdício.
+   - **Teste da primeira página:** o lead inteiro precisa poder ser rotulado nos três frames (4 U's + 4 emoções + os 4 passos do Makepeace) **dentro da primeira tela/página**. Se algum frame só se resolve depois, o lead está diluído.
+
+   **Camadas de auditoria (documente bloco a bloco)** — as 4 grades na ordem fixa vêm da base: rode `quatro grades auditoria 4 U's lead Makepeace checklist desejabilidade Beats body copy formula`:
+   - **Estrutura** — a sequência de blocos bate com o `specimen_block_map` da ETAPA 2.5? Onde divergiu, foi decisão ou descuido?
+   - **4 emoções** — New/Only · Safe/Predictable · Easy/Anybody · Big/Fast: marque onde cada uma é ativada. Emoção sem nenhuma ocorrência na peça é buraco.
+   - **Lead de 4 passos** — grab eyeballs / expand HL / establish cred / bribe, em ordem. Nota: `cred` **não precisa vir primeiro** — no espécime control auditado, o porta-voz só se apresenta a 40% da peça, e passa; o que não pode é faltar.
+   - **Psicologia** — secret knowledge, sense of power, future pacing, WIIFM. O WIIFM tem que estar respondido **antes** da primeira prova, não depois.
+   - **Oferta/preço** — a escada `extreme anchor → step down → price anchor → true price` está montada? A adesão é escrita como pertencimento ou como transação? ("subscribe"/"assine" é transação; "faça parte" é pertencimento.)
+
+   **Loop de body copy** — rastreie `Objection → Claim → Proof (3x) → Benefit` parágrafo a parágrafo. O ciclo roda dezenas de vezes numa peça longa, não uma vez por seção. Onde houver Claim sem Proof adjacente, marque.
+
+   **Folha de defeitos** — varra os 12 defeitos catalogados no JSON (o método de rotulagem por camadas + as 12 críticas recorrentes: rode `auditoria com caneta camadas de rotulagem too vague too big too early move to end`). Os que mais aparecem em copy gerada por AI: *too vague*, *lazy copy / obligatory* (bloco escrito por obrigação), *old proof* (prova reciclada), *reads like editorial* (falta WIIFM), *vende a categoria e não o ativo* (prova pertence ao ingrediente/estudo, não ao seu produto), e **prova em ordem decrescente** (número grande antes do pequeno faz o segundo encolher — "too big too early").
+
+   **Output do sweep:** tabela de arco (bloco → camada auditada → veredito → correção aplicada). As correções são aplicadas na hora; o que não puder ser corrigido sem novo research entra na Mensagem Final como recomendação.
 
 Para cada sweep, documente o que mudou (as edits são o output do sweep).
 
@@ -519,9 +612,26 @@ Schema:
   "voc_compliance": { "total_checked": 20, "literal_hits": 14, "paraphrased": 5, "missing": 1 },
   "voc_forced_continue": false,
   "claims_unverified": false,
-  "decision_modalities_covered": ["spontaneous", "competitive", "humanistic", "methodical"]
+  "decision_modalities_covered": ["spontaneous", "competitive", "humanistic", "methodical"],
+  "specimen_primary": "agora-11-blocos",
+  "specimen_secondary": null,
+  "specimen_block_map": [
+    {"n": 1, "bloco": "saudacao qualificada", "trabalho": "pre-qualifica o leitor pelo estado emocional", "conteudo_origem": "voc_top20 #3 + persona da 02"}
+  ],
+  "markup_audit": {
+    "four_us": {"urgent": true, "useful": true, "unique": false, "ultra_specific": true},
+    "ideal_prospect": true,
+    "big_promise": true,
+    "first_page_test": true,
+    "four_emotions": {"new_only": true, "safe_predictable": false, "easy_anybody": true, "big_fast": true},
+    "makepeace_4": {"grab_eyeballs": true, "expand_hl": true, "cred": true, "bribe": true},
+    "defects_found": ["too vague (secao Benefits, corrigido)"],
+    "verdict": "pass | rewrite_lead"
+  }
 }
 ```
+
+> `specimen_primary`/`specimen_block_map` vêm da ETAPA 2.5 e `markup_audit` do sweep 9. A skill 11 (ad-analysis) usa os dois pra diagnosticar: quando uma página converte mal, a primeira pergunta é se o espécime escolhido era o certo pro avatar, e a segunda é qual camada do audit já tinha reprovado antes do launch.
 
 `lead_type` é o campo **top-level** decidido na ETAPA 2 — contrato com a 07a (que o lê pra confirmar `page_type`). `voc_forced_continue` e `claims_unverified` são os flags do pré-flight (só `true` quando o membro escolheu prosseguir com VOC insuficiente / sem research foundation).
 

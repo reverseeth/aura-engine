@@ -25,7 +25,9 @@ recycle winner
 1. Se `[creative-id]` fornecido (formato `c-NN`, que mapeia pra `concept-NN.md`):
    - PRIMEIRO abrir `workspace/[produto]/08-creative-engine/dados.json` (fonte estruturada), achar `concepts[]` cujo `id == creative-id`, e extrair dali os campos estruturados (hook, mechanism, avatar, voc_source, proof, cta).
    - Usar `workspace/[produto]/08-creative-engine/concept-NN.md` como brief complementar (texto longo, nuance de tom).
-2. Se `winner`: ler `workspace/[produto]/11-ad-analysis/dados.json` e usar `dados.winners[]` — array JÁ filtrado pela skill 11 (`outcome == "winner"`). NÃO recomputar critério; ordenar por `spend_total` desc (tiebreak `days_active` desc) e pegar o topo. Se precisar de target pra exibir, ler explícito de `manifest.target_cpa`.
+2. Se `winner`: ler `workspace/[produto]/11-ad-analysis/dados.json` e pegar o criativo de classe **`breakthrough`** — use `breakthroughs[]` se existir, senão filtre `winners[]` por `outcome == "breakthrough"`. NÃO recomputar critério; ordenar por `spend_total` desc (tiebreak `days_active` desc) e pegar o topo. Se precisar de target pra exibir, ler explícito de `manifest.target_cpa`.
+
+   > **Gatilho canônico (2026-09-01):** só `breakthrough` entra na reciclagem — ver `.claude/lib/ad-taxonomy/README.md` §2. `kpi_winner` (bate KPI sem puxar spend) é tratado como **loser para decisão** e nunca entra, nem por id explícito; reciclá-lo multiplica um teste que nunca provou nada em escala. `spend_winner` entra só no Movimento 1 (iteração) da Trilha 1 da skill 14. O `outcome == "winner"` legado não distingue as classes.
 3. Se nenhum dos dois disponível: perguntar ao membro qual criativo reciclar
 
 ### ETAPA 2 — Extração de essência (rastreável, não inventada)
@@ -52,9 +54,13 @@ Destilar em shape estruturado (valores extraídos das fontes acima, não pré-de
   "proof_points": ["<proof points mais repetidos no briefing>"],
   "offer_core": "<garantia + pricing principal resumido>",
   "cta_essence": "<call to value final do criativo>",
-  "forbidden_words": ["<red-flag words do CLAUDE.md + blocklist do membro>"]
+  "forbidden_words": ["<red-flag words do CLAUDE.md + blocklist do membro>"],
+  "framework_template": "<o PADRÃO do hook com o slot vazio, em inglês US — ex: 'I think [negative thing] just happened (to me)'>",
+  "psychological_mechanism": "<por que o padrão funciona, em 1 frase: o efeito na cabeça do avatar, não a descrição do hook>"
 }
 ```
+
+> **O script não viaja; o framework viaja.** Extrair "I think I just got scammed" preso ao contexto original produz derivadas que só funcionam naquele nicho. Suba um nível até o padrão com slot (`framework_template`) e registre o efeito psicológico que o sustenta (`psychological_mechanism`) — é esse par que atravessa avatares, formatos e canais, e é ele que julga se uma derivada continua congruente com o original.
 
 **Sanity check (drift)**: se o `mechanism_name_canonical` extraído divergir do `mechanism_name` em `04-offer-builder`, PARE e surface ao membro (não auto-resolva) — é drift entre fases que precisa decisão dele.
 

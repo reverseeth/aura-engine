@@ -126,6 +126,14 @@ Criativo com humano fotorrealista gerado/alterado por AI EXIGE o label **"AI Inf
 }
 ```
 
+**Ad log (cânone `.claude/lib/ad-log/README.md`) — na MESMA execução:** append em `workspace/[produto]/ad-log.md` (criar com o cabeçalho da tabela se não existir), uma linha por ad criado. No motivo, o contexto real da subida (quem invocou e por quê):
+
+```
+| YYYY-MM-DD HH:MM | ad:[creative_id] | criado em PAUSED no ad set [ad_set_name] | recipe:upload-creative-to-meta | [batch inicial do full-deploy · variação de rotação do [winner_id] · reposição de fadiga · pedido do membro] |
+```
+
+Modo `--dry-run` não escreve nada (nenhuma mudança real aconteceu).
+
 Mensagem ao membro (estrutura):
 ```
 ✓ Criativo <creative_id> subido no Meta.

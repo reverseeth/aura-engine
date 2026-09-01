@@ -7,7 +7,7 @@
       "name": "Advertorial editorial (1500 words)",
       "output_file": "advertorial-1500w.md",
       "length_words_total": [1200, 1800],
-      "structure": "Zakaria 7-section (hook → story → pivot → mechanism → proof → offer → close)",
+      "structure": "7-section advertorial blueprint (hook → story → pivot → mechanism → proof → offer → close)",
       "tone": "editorial, story-first, low pitch intensity",
       "compliance_notes": "Meta scraper lê LP — mesma rigor do ad copy"
     },

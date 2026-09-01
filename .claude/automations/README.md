@@ -2,7 +2,7 @@
 
 Coleção de "receitas" que permitem ao Claude Code executar operações diretamente
 no Shopify (criar produto, wire variants, push tema) e Meta Ads Manager (subir
-criativo, pausar ad set, rotacionar winners, puxar insights) via MCPs.
+criativo, pausar ad set, rotacionar breakthroughs, puxar insights) via MCPs.
 
 ## Stack atual (julho/2026)
 
@@ -32,12 +32,12 @@ Em `recipes/`:
 
 - `sync-campaign-from-meta.md` — puxa estado completo da campanha com **cascade interno** (MCP oficial → Pipeboard → manual). No caminho oficial inclui industry benchmarks, dataset quality, auction ranking e anomaly signal; no Pipeboard, mesmo shape sem esses blocos.
 - `upload-creative-to-meta.md` — sobe vídeo aprovado pro Meta Ads Manager com UTM + pixel wired, modo pausado (humano ativa). Roda via Pipeboard ou Playwright porque o MCP oficial não aceita arquivo local.
-- `pause-ad-set.md` — pausa ad set por CPA/freq threshold (emergência). Cascade oficial → Pipeboard.
+- `pause-ad-set.md` — pausa ad set por decisão humana (réguas de kill do cânone `.claude/lib/ad-taxonomy/README.md` §3, lidas pela Skill 11 — nunca por threshold automático de performance). Cascade oficial → Pipeboard.
 - `deploy-shopify-product.md` — cria produto + variants pelos tiers de bundle da 07d (Solo/3-pack/6-pack) + wire Variant IDs no template da PDP
 - `create-fixed-bundles.md` — cria os bundles FIXOS da oferta (tiers `qty > 1` do 04/07d) via Admin GraphQL `productBundleCreate` — bundle nasce como produto nativo, sem app de terceiro, qualquer plano. Cascade: Shopify MCP → Admin API `client_credentials` (token de app do Dev Dashboard) → app nativo Shopify Bundles manual. Invocada pela 07d Alavanca 3 caminho 2; roda DEPOIS de `deploy-shopify-product.md` (o produto principal precisa existir).
-- `rotate-winning-creative.md` — detecta winner, gera variações via Skill 08 preservando DNA, sobe paused
+- `rotate-winning-creative.md` — rotaciona criativo classificado como `breakthrough` pela Skill 11 (cânone `ad-taxonomy` §2 — KPI winner não rotaciona), gera variações via Skill 08 preservando DNA, sobe paused
 - `creative-loop.md` — **loop semi-autônomo** ad → performance → variação com 2 gates humanos e guardrails (spend cap, piso de ROAS, incrementos < 20%, nunca publish autônomo). Ritual de ~15min pós-teste.
-- `full-deploy.md` — orquestra full launch (Shopify product + campanha 1-1-N no Meta, tudo paused)
+- `full-deploy.md` — orquestra full launch (Shopify product + campanha no Meta na estrutura canônica 1 campanha CBO → N ad sets, 1 por conceito → 3 ads cada, tudo paused)
 
 ## Como invocar
 
@@ -62,7 +62,9 @@ MCPs, e reporta de volta.
 - **Paused by default**: ads subidos sempre em status PAUSED, humano ativa;
   Automated Rules nascem DESATIVADAS
 - **Audit log**: cada ação de automação é registrada em
-  `/workspace/[produto]/automation-log.jsonl`
+  `/workspace/[produto]/automation-log.jsonl`; toda MUDANÇA executada na conta de
+  ads também apende uma linha em `workspace/[produto]/ad-log.md` (cânone
+  `.claude/lib/ad-log/README.md` — leituras, como o sync, ficam de fora)
 - **Dry-run**: `full-deploy.md` e `upload-creative-to-meta.md` suportam `--dry-run`
   (simula sem criar nada real). As demais receitas ou são read-only (sync) ou têm
   gates humanos embutidos (creative-loop, pause, rotate).

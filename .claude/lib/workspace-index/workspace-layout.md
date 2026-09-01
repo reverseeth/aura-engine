@@ -90,7 +90,25 @@ sourcing/
 14-content-recycler/
   content-recycler.md   content-recycler.html         (índice das fontes recicladas — p/ o painel)
   [source-id]/README.md/.html   [source-id]/essence.json   [source-id]/compliance-log.json
+15-finance-engine/
+  finance-engine.md   finance-engine.html   dados.json   (consulta lateral)
+  banking-sheet.csv                          (só no Modo B — medir)
+16-creator-engine/
+  creator-engine.md   creator-engine.html   dados.json   (lateral, 2 fases: A seeding/conteúdo, B performance)
+  briefs/framework-[creator-slug].md   outreach/messages.md
+  contracts/ambassador-agreement-[variant].md   roster.csv
+17-promo-engine/
+  promo-engine.md   promo-engine.html   dados.json   (lateral/sazonal — uma rodada por janela)
+18-team-engine/
+  team-engine.md   team-engine.html   dados.json    (lateral — org, vagas, pipeline de candidatos)
+19-ops-engine/
+  ops-engine.md   ops-engine.html   dados.json      (lateral — backups valem desde o começo)
+  memos/AAAA-MM-DD-<assunto>.md                     (criada quando o primeiro memo existir)
+20-marketplace-engine/
+  marketplace-engine.md   marketplace-engine.html   dados.json   (lateral — canais além do site)
 ```
+
+**Ad log (infra na raiz do produto, cânone `.claude/lib/ad-log/README.md`):** `ad-log.md` — registro append-only de toda mudança executada na conta de ads, escrito por 10/12/14/17 e pelas receitas. Isento de dual output (arquivo operacional de handoff, como `dados.json`).
 
 ## Dual output (.md + .html) — escopo e isenções
 
@@ -103,6 +121,10 @@ entre skills, que o membro não abre no browser):
 - `NEXT_BATCH_IDEAS.md` (11 → 08: fila de ideias)
 - `concept-NN-edl.md` (08 → editor: roteiro de montagem)
 - `setup-guide.md` (13: passo-a-passo de ESP pro fluxo)
+- `ad-log.md` (raiz do produto — registro append-only de mudanças na conta; cânone `ad-log`)
+- `banking-sheet.csv` (15: planilha operacional do Modo B)
+- `briefs/`, `outreach/messages.md`, `contracts/` e `roster.csv` (16: material operacional voltado ao creator, sempre em inglês US — não usa o design system Aura)
+- `memos/AAAA-MM-DD-<assunto>.md` (19: memos de decisão WAFM)
 
 Na dúvida: se o arquivo é lido pela PRÓXIMA skill (não pelo membro), não precisa de .html.
 

@@ -1,0 +1,173 @@
+{
+  "generated": "2026-09-01",
+  "purpose": "Catalogo de ESPECIMES estruturais provados (swipe files reais) que a skill 06 usa para MODELAR a copy antes de escrever. Frameworks dizem o que fazer; especimes mostram como uma peca que ja converteu foi montada, bloco a bloco.",
+  "regra_de_uso": "A skill 06 seleciona 1 especime PRIMARIO pelo seletor e (opcionalmente) 1 SECUNDARIO para emprestar um bloco especifico. Roda a best_query de cada um em search_knowledge, extrai a sequencia de blocos, e escreve a copy seguindo essa sequencia com o research do membro. NUNCA copiar frase do especime — modelar ESTRUTURA e MECANICA, nunca conteudo.",
+  "seletor": {
+    "eixos": ["page_type", "dominant_awareness", "sophistication_stage", "product_vertical"],
+    "precedencia": "page_type restringe primeiro; depois awareness; sophistication desempata (4-5 empurra para especimes de identidade/mecanismo); vertical so refina."
+  },
+  "especimes": [
+    {
+      "id": "agora-11-blocos",
+      "nome": "Anatomia da Promo Agora (11 blocos, bifurcacao finance x health)",
+      "nota_kb": "Anatomia da Promo Agora (11 Blocos, Variacao Finance x Health)",
+      "best_query": "anatomia promo Agora 11 blocos bifurcacao finance health mecanismo produto oferta",
+      "aplica_a": {"page_type": ["advertorial", "landing"], "awareness": ["unaware", "problem"], "sophistication": [2, 3, 4], "vertical": ["supplements", "health", "beauty", "other"]},
+      "base_empirica": "179 promos medidas; presenca por bloco documentada",
+      "regra_diagnostica": "O cliente consegue executar o mecanismo sozinho depois de ler? SIM = entregue o mecanismo de graca na propria copy e venda acesso/curadoria (close por pertencimento). NAO = retenha o mecanismo e venda o produto (close por urgencia). Essa decisao muda a copy E a arquitetura da oferta.",
+      "blocos_chave": ["saudacao qualificada", "escada de numeros", "vilao com motivo economico auditavel", "autoridade como apostata credenciado", "mecanismo batizado", "prova como catalogo auditavel", "oferta", "garantia em 3 niveis", "P.S. que acrescenta bonus novo"]
+    },
+    {
+      "id": "chassi-vsl-haddad",
+      "nome": "Chassi de VSL (biblioteca de modulos remontaveis)",
+      "nota_kb": "Chassi de VSL (A Promo como Biblioteca de Modulos Remontaveis)",
+      "best_query": "chassi VSL modulos remontaveis Haddad nichos esqueleto 14 blocos",
+      "aplica_a": {"page_type": ["vsl", "advertorial"], "awareness": ["unaware", "problem"], "sophistication": [2, 3, 4], "vertical": ["supplements", "health", "beauty", "relationship", "other"]},
+      "base_empirica": "189 pecas unicas de Chris Haddad; modulos verbatim reaparecendo entre 4 nichos",
+      "regra_diagnostica": "O chassi e estavel entre nichos; o que muda e vilao, autoridade, mecanismo e prova. Monte o esqueleto primeiro, depois preencha os 4 slots variaveis com o research do membro.",
+      "blocos_chave": ["lead de historia em cena", "no de decisao", "villain framing", "guru relutante", "escada de prova em 3 degraus", "bullets como mecanismos nomeados", "ponte para o preco", "garantia nomeada", "fechamento em encruzilhada"]
+    },
+    {
+      "id": "advertorial-7-secoes",
+      "nome": "7-Section Advertorial Blueprint (masterclass interna)",
+      "nota_kb": "7-Section Advertorial Blueprint (masterclass interna)",
+      "best_query": "advertorial blueprint 7 secoes root cause villain pain hope transition",
+      "aplica_a": {"page_type": ["advertorial"], "awareness": ["unaware", "problem", "solution"], "sophistication": [2, 3, 4, 5], "vertical": ["supplements", "health", "beauty", "other"]},
+      "base_empirica": "masterclass interna (P2, fonte de 2o nivel), arquitetura desenhada para DTC moderno",
+      "regra_diagnostica": "Preferir a este quando o produto e DTC fisico e a peca precisa passar por camuflagem editorial. Complementa o chassi de VSL (que e mais longo e narrativo).",
+      "blocos_chave": ["hook editorial", "root cause", "vilao externalizado", "mecanismo", "prova", "transicao pain->hope", "close"]
+    },
+    {
+      "id": "space-ad-schwartz",
+      "nome": "Anatomia do Space Ad de Schwartz",
+      "nota_kb": "Anatomia do Space Ad de Schwartz (Estrutura Completa em Acao)",
+      "best_query": "anatomia space ad Schwartz estrutura completa headline subhead corpo garantia",
+      "aplica_a": {"page_type": ["pdp", "landing"], "awareness": ["solution", "product"], "sophistication": [1, 2, 3], "vertical": ["other"]},
+      "base_empirica": "espécimes literais de Schwartz (fonte original)",
+      "regra_diagnostica": "Usar quando a peca e curta e precisa carregar credencial ANTES da promessa (pre-headline separada).",
+      "blocos_chave": ["credencial antes da promessa", "headline", "mecanismo narrado em estagios", "repeticao da claim mais absurda", "garantia na headline"]
+    },
+    {
+      "id": "halbert-water-purifier",
+      "nome": "Esqueleto Halbert de demanda para produto fisico",
+      "nota_kb": "Esqueleto Halbert de Demanda pra Produto Fisico (Water Purifier)",
+      "best_query": "esqueleto Halbert water purifier demanda produto fisico carta grabber duas razoes",
+      "aplica_a": {"page_type": ["landing", "advertorial"], "awareness": ["problem", "solution"], "sophistication": [1, 2, 3], "vertical": ["other", "home", "supplements"]},
+      "base_empirica": "carta real de Halbert + linhagem do grabber 'duas razoes' atravessando 30 anos",
+      "regra_diagnostica": "Melhor especime quando o produto resolve um problema fisico concreto e a credibilidade vem DE BAIXO (o vendedor como igual), nao de cima.",
+      "blocos_chave": ["carta mais importante que voce vai ler", "aqui esta o porque", "credibilidade de baixo", "ataque a industria", "oferta em duas etapas", "garantia dobro do dinheiro"]
+    },
+    {
+      "id": "carlton-long-form",
+      "nome": "Sales letter long-form (Carlton)",
+      "nota_kb": "Anatomia de Sales Letter Long-Form (Carlton - One-Legged Golfer)",
+      "best_query": "anatomia sales letter long form Carlton one legged golfer estrutura completa",
+      "aplica_a": {"page_type": ["landing", "vsl"], "awareness": ["problem", "solution"], "sophistication": [3, 4], "vertical": ["other"]},
+      "base_empirica": "peca classica dissecada + espécimes do swipe",
+      "regra_diagnostica": "Usar quando o diferencial e personagem + mecanismo, e a peca aguenta extensao.",
+      "blocos_chave": ["personagem improvavel", "mecanismo", "prova", "four ball", "escassez com denominador", "P.S. que narra o bonus"]
+    },
+    {
+      "id": "identity-lead",
+      "nome": "Identity Lead (lead-manifesto de persona)",
+      "nota_kb": "Identity Lead (Lead-Manifesto de Persona)",
+      "best_query": "identity lead manifesto persona 5 beats mercado saturado guru diferencial",
+      "aplica_a": {"page_type": ["vsl", "advertorial", "landing"], "awareness": ["solution", "product"], "sophistication": [4, 5], "vertical": ["other"]},
+      "base_empirica": "4 especimes; lead sem problema, sem jornada e sem descoberta",
+      "regra_diagnostica": "So usar em estagio 4-5, quando o mercado ja viu todo mecanismo e o unico diferencial disponivel e QUEM esta falando. Fora disso, e um lead que nao vende.",
+      "blocos_chave": ["declaracao de identidade", "recusa do script padrao", "prova de carater", "convite de auto-selecao", "promessa como consequencia da identidade"]
+    },
+    {
+      "id": "leads-health-agora",
+      "nome": "Leads de health promos (padroes reais Agora)",
+      "nota_kb": "Leads de Health Promos (Padroes Reais Agora)",
+      "best_query": "leads health promos padroes Agora contrarian permission lead sintoma",
+      "aplica_a": {"page_type": ["advertorial", "vsl", "landing"], "awareness": ["unaware", "problem"], "sophistication": [3, 4], "vertical": ["supplements", "health", "beauty"]},
+      "base_empirica": "promos de health medidas no arquivo Agora",
+      "regra_diagnostica": "Em health, o mecanismo costuma ser entregue de graca na propria peca — o produto vende conveniencia e dose, nao segredo.",
+      "blocos_chave": ["sintoma reconhecivel", "nao e sua culpa", "causa raiz nomeada", "mecanismo entregue", "produto como atalho"]
+    },
+    {
+      "id": "leads-story",
+      "nome": "Leads de story (emotional, discovery, blind-teaser)",
+      "nota_kb": "Leads de Story (Emotional, Discovery e Blind-Teaser)",
+      "best_query": "leads de story emotional discovery blind teaser estrutura abertura",
+      "aplica_a": {"page_type": ["vsl", "advertorial"], "awareness": ["unaware", "problem"], "sophistication": [2, 3, 4], "vertical": ["supplements", "health", "beauty", "other"]},
+      "base_empirica": "espécimes de Haddad, Clemens e Georgi",
+      "regra_diagnostica": "Discovery story exige um evento dramatico real ou defensavel. Sem isso, use problem-agitation em vez de fabricar historia.",
+      "blocos_chave": ["cena", "busca", "rejeicao dos especialistas", "breakthrough", "validacao por cetico", "dever moral"]
+    },
+    {
+      "id": "makepeace-4-passos",
+      "nome": "Lead de 4 passos (Makepeace)",
+      "nota_kb": "Lead de 4 Passos Makepeace (Grab Eyeballs, Expand, Cred, Bribe)",
+      "best_query": "lead 4 passos Makepeace grab eyeballs expand headline establish cred bribe",
+      "aplica_a": {"page_type": ["vsl", "advertorial", "landing", "pdp"], "awareness": ["unaware", "problem", "solution", "product"], "sophistication": [1, 2, 3, 4, 5], "vertical": ["other"]},
+      "base_empirica": "framework que Kyle Milligan reescreve na margem de TODA promo auditada",
+      "regra_diagnostica": "Este e o scaffold UNIVERSAL de lead — sempre aplicavel como segunda camada sobre o especime primario escolhido. Se o lead nao cumpre os 4 passos, ele nao esta pronto.",
+      "blocos_chave": ["grab eyeballs (ideal prospect + big promise + curiosidade)", "expand headline", "establish cred", "bribe"]
+    },
+    {
+      "id": "vsl-8-blocos",
+      "nome": "VSL structure (8 blocos, 3 vendas)",
+      "nota_kb": "VSL Structure (8 Blocos, 3 Vendas, Ordem de Escrita)",
+      "best_query": "VSL structure 8 blocos 3 vendas ordem de escrita",
+      "aplica_a": {"page_type": ["vsl"], "awareness": ["problem", "solution"], "sophistication": [2, 3, 4], "vertical": ["other"]},
+      "base_empirica": "metodologia interna de copy (P2, fonte de 2o nivel)",
+      "regra_diagnostica": "Complementar ao chassi de VSL: use os 8 blocos como checagem de completude sobre o chassi de 14 modulos.",
+      "blocos_chave": ["hook", "lead", "mecanismo do problema", "mecanismo da solucao", "produto", "prova", "oferta", "close"]
+    },
+    {
+      "id": "15-point-themeplate",
+      "nome": "Long-form sales page (15-point themeplate)",
+      "nota_kb": "Long-Form Sales Page Structure (15-Point Themeplate)",
+      "best_query": "long form sales page 15 point themeplate estrutura",
+      "aplica_a": {"page_type": ["landing", "vsl"], "awareness": ["solution", "product"], "sophistication": [3, 4], "vertical": ["other"]},
+      "base_empirica": "framework prescritivo classico",
+      "regra_diagnostica": "Usar como grade de completude, nao como sequencia obrigatoria — e generico por construcao.",
+      "blocos_chave": ["15 pontos canonicos"]
+    }
+  ],
+  "arquitetura_de_extensao": {
+    "principio": "Copy longa que funciona NAO e copy longa de conteudo — e um numero PEQUENO de ideias (4 a 6 pilares) reapresentadas varias vezes, onde o que muda a cada volta e a PROVA, nunca a ideia.",
+    "evidencia": "No especime auditado de 29 paginas, o proprio auditor inventaria as redundancias e encontra cinco: New / unico no mundo / validado por terceiros / seguro (93%) / simples. A promo inteira e esses 5 pilares em rotacao com provas diferentes.",
+    "pergunta_operacional": "Quando os numeros nao podem crescer, o que cresce e a pilha de atributos sobre o MESMO numero. A pergunta que o auditor escreve na margem: 'como deixar o show melhor com os mesmos ganhos no mesmo prazo?' — a resposta na peca foi acrescentar 'automatico', '30 segundos', 'nao importa o que aconteca' ao redor do mesmo 93%.",
+    "consequencia_para_a_dieta_de_copy": "A dieta da ETAPA 6 (sweep 4.5) corta repeticao SEM prova nova. Repeticao COM prova nova nao e gordura — e a arquitetura. Antes de cortar um bloco repetido, cheque se ele traz prova/angulo que os anteriores nao trouxeram; se traz, ele fica.",
+    "como_aplicar": "Na ETAPA 2.5C, alem da tabela de blocos, declare os 4-6 PILARES da peca. Cada bloco de corpo deve marcar qual pilar reforca e com que prova. Pilar sem prova nova em duas voltas seguidas e onde a dieta corta."
+  },
+  "auditoria": {
+    "nome": "Auditoria de markup (metodo Kyle Milligan)",
+    "nota_kb": "Auditoria de Markup de Promos (Metodo Kyle Milligan)",
+    "best_query": "auditoria markup promos Kyle Milligan 4 U codigo de cores objection claim proof benefit defeitos",
+    "camadas": [
+      {"cor": "vermelho", "checa": "esqueleto estrutural + teste dos 4 U's na headline (Urgent / Useful / Unique / Ultra-Specific), cada um com passa/reprova"},
+      {"cor": "verde", "checa": "checklist das 4 emocoes: New/Only, Safe/Predictable, Easy/Anybody, Big/Fast"},
+      {"cor": "laranja", "checa": "lead de 4 passos do Makepeace (grab eyeballs / expand HL / establish cred / bribe)"},
+      {"cor": "azul", "checa": "psicologia do leitor: secret knowledge, sense of power, future pacing, WIIFM"},
+      {"cor": "rosa", "checa": "oferta e preco: escada extreme anchor -> step down -> price anchor -> true price, garantia, urgencia, linguagem de pertencimento em vez de transacao"},
+      {"cor": "rosa-nomeacao", "checa": "REGRA DO 'Not: ___' — a palavra generica da categoria e proibida em TODA a pilha de entregaveis. No especime auditado a anotacao 'Not: X' aparece 9 vezes so na secao de oferta: email vira 'Mission Order', video vira 'Debriefing', site vira 'Digital Headquarters', carteira vira 'Victory Scorecard'. Se o offer stack lista 'e-book', 'video', 'newsletter', 'acesso ao grupo', ele esta descrevendo formato em vez de nomear ativo — e formato nao tem valor percebido. Vale para bonus, entregaveis e o proprio produto."}
+    ],
+    "loop_body_copy": "Objection -> Claim -> Proof (3x) -> Benefit, rastreado paragrafo a paragrafo. O ciclo roda dezenas de vezes numa peca, nao uma vez por secao.",
+    "defeitos_recorrentes": [
+      "Too big too early (prova grande antes da hora; prova em ordem decrescente encolhe a oferta)",
+      "Old proof / same ol' proof (prova reciclada que o leitor ja viu)",
+      "Reads like editorial / news article (falta WIIFM)",
+      "Too vague / very vague",
+      "Too long / too complicated / technical explanation (antidoto: 'all you need to know is')",
+      "Never explain why it works — just say it DOES work",
+      "Lazy copy / obligatory (bloco escrito por obrigacao, sem trabalho)",
+      "Backwards (ordem invertida de argumento)",
+      "Vende a categoria, nao o ativo (prova pertence ao ingrediente/terceiro, nao ao produto)",
+      "Not much 'Us' language (adesao tratada como transacao, nao como pertencimento)",
+      "Missing pattern interrupt",
+      "Could have stopped there (copy que continua depois de vender)",
+      "Lazy copy em escassez/garantia — afirmar limite ou risco zero SEM a mecanica que o sustenta ('tenho que manter o grupo pequeno' sem dizer por que). Quando a razao existe, ela vem DEPOIS da alegacao em vez de junto. Escassez sem reason-why e a forma mais comum de lazy copy.",
+      "Numero grande sem reframe — a peca converte cifras em termos do leitor por 27 paginas e larga o maior numero de todos cru no final. Se o padrao de reframe existe, ele vale principalmente para o numero mais extremo."
+    ],
+    "regra_de_veredito": "Se a headline reprova em 3 dos 4 U's E falha em ideal prospect ou big promise, a peca nao merece auditoria de corpo — reescreva o lead antes. (No arquivo, o proprio auditor abandona a anotacao na pagina 4 de 21 quando isso acontece: o abandono e o veredito.)",
+    "teste_primeira_pagina": "O lead inteiro precisa poder ser rotulado nos TRES frames (4 U's + 4 emocoes + os 4 passos do Makepeace) dentro da primeira tela. Evidencia: na peca control auditada, as tres camadas cabem na p.1 e o auditor para de anotar na p.2 de 23 — nao por abandono, mas porque ja tinha tudo. Na peca irmã que fracassou, ele para na p.4 de 21 por ausencia. Mesmo gesto, veredito oposto.",
+    "fato_nao_e_promessa": "Big Promise exige uma TRANSACAO dita ao leitor (o que ele ganha, em troca do que), nao um fato do mundo. 'X causa Y' pode ser verdadeiro, novo e interessante e ainda assim reprovar — o leitor nao tem o que fazer com um fato. Foi exatamente a diferenca entre a peca control ('Turn a Single $50 Bill Into a Massive Fortune', dita antes da saudacao) e a irmã abandonada (uma afirmacao cientifica como abertura).",
+    "qualificacao_por_negacao": "O bloco de 'voce NAO precisa de X, Y, Z' qualifica o ideal prospect melhor que declarar interesse no assunto — e o antidoto direto do defeito 'reads like editorial', porque transforma leitor curioso em leitor elegivel.",
+    "cred_pode_esperar": "A credencial nao precisa abrir a peca: no especime control o porta-voz so se apresenta a ~40% do texto e o lead passa em todos os testes. O que nao pode e faltar. Ordem e decisao de arquitetura; ausencia e defeito."
+  }
+}
