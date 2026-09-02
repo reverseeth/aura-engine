@@ -1,11 +1,11 @@
 ---
 name: ops-engine
-description: Engine de continuidade e risco estrutural da operação — a skill que pergunta "o que mata esse negócio nos próximos 12 meses?" e arma a resposta antes. Três frentes, curtas e acionáveis. (1) Constraint dos próximos 12 meses — identificar o ÚNICO gargalo que limita o ano (estoque, caixa, plataforma ou pessoa-chave) e organizar as prioridades em torno de removê-lo. (2) Continuidade — checklist de backups com status confirmado pelo membro: conta e Business Manager reserva com campanhas pré-montadas desligadas, processadora de pagamento redundante, banco e domínio reserva, pre-order pronto pra ligar como válvula de estoque e caixa, risco de pessoa-chave medido em "dores de cabeça por dólar". (3) Negócio como ativo — memos de decisão (WAFM), o teste de moat de produto e a operação exit-ready (o que um comprador auditaria). É consulta lateral, não fase do pipeline — e a parte de backups vale DESDE O COMEÇO, porque conta nova é a mais frágil. Não monta a estrutura anti-ban (isso é a skill 00), não calcula caixa (15) e não escolhe fornecedor (01b) — audita o status e aponta. Use quando o membro disser "backup de conta", "risco", "processor", "processadora", "constraint", "gargalo", "operação", "continuidade", "plano B", "conta caiu", "e se a conta for banida", "memo", "exit", "vender a empresa", "moat".
+description: Engine de continuidade e risco estrutural da operação — a skill que pergunta "o que mata esse negócio nos próximos 12 meses?" e arma a resposta antes. Três frentes, curtas e acionáveis. (1) Constraint dos próximos 12 meses — identificar o ÚNICO gargalo que limita o ano (estoque, caixa, plataforma ou pessoa-chave) e organizar as prioridades em torno de removê-lo. (2) Continuidade — checklist de backups com status confirmado pelo membro: conta e Business Manager reserva com campanhas pré-montadas desligadas, processadora de pagamento redundante, banco e domínio reserva, pre-order pronto pra ligar como válvula de estoque e caixa, risco de pessoa-chave medido em "dores de cabeça por dólar". (3) Negócio como ativo — memos de decisão (WAFM), o teste de moat de produto e a operação exit-ready (o que um comprador auditaria). É consulta lateral, não fase do pipeline — e a parte de backups vale DESDE O COMEÇO, porque conta nova é a mais frágil. Não monta a estrutura anti-ban (isso é a skill 00), não calcula caixa (15) e não escolhe fornecedor (01b) — audita o status e aponta. Use quando o membro disser "ops", "backup de conta", "risco", "processor", "processadora", "constraint", "gargalo", "operação", "continuidade", "plano B", "conta caiu", "e se a conta for banida", "memo", "exit", "vender a empresa", "moat".
 ---
 
 # Ops Engine
 
-> **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — domínio `ops-scale-risk`, 14 entradas). Esta skill puxa os SISTEMAS NOMEADOS por `search_knowledge` com a `best_query` curada de cada um. NUNCA query genérica. **Esta skill é a consumidora que faltava** de 5 sistemas do domínio marcados como dormant no índice (`use_in_skill: "—"`) — a partir dela, eles são puxáveis. As 2 entradas do domínio que já transferem pra outras skills (expectativa de winning ad → 08/12; mini-memo de criativo → 08) continuam lá e NÃO são desta skill. O restante do domínio segue dormant de propósito (ver "O que esta skill NÃO faz").
+> **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — domínio `ops-scale-risk` — o tamanho é o que o frameworks.json disser). Esta skill puxa os SISTEMAS NOMEADOS por `search_knowledge` com a `best_query` curada de cada um. NUNCA query genérica. **Esta skill é a consumidora que faltava** de 5 sistemas do domínio marcados como dormant no índice (`use_in_skill: "—"`) — a partir dela, eles são puxáveis. As 2 entradas do domínio que já transferem pra outras skills (expectativa de winning ad → 08/12; mini-memo de criativo → 08) continuam lá e NÃO são desta skill. O restante do domínio segue dormant de propósito (ver "O que esta skill NÃO faz").
 
 ## Quando Usar
 
@@ -19,7 +19,7 @@ Quando a pergunta é sobre a **sobrevivência e a estrutura da operação**, nã
 
 **O que esta skill responde e nenhuma outra respondia:** qual é o gargalo que decide o meu ano, o que acontece amanhã se a conta/a processadora/o fornecedor caírem, quanto do negócio depende de uma única pessoa, e o que um comprador encontraria se auditasse a operação hoje.
 
-**O que ela NÃO faz:** não monta Business Manager nem registra marca (a montagem é da 00 — aqui é status e processo); não calcula caixa, runway nem float (15); não escolhe fornecedor nem define ponto de recompra de estoque (01b); não mexe em campanha (10/11/12); não cobre contratação e gestão de time (domínio `team-hiring-ops` do índice, sem skill consumidora hoje) nem canais novos como Amazon e TikTok Shop (domínio `affiliate-creator-channels`, idem) — quando esses assuntos aparecerem aqui, são apontados como fronteira, não resolvidos.
+**O que ela NÃO faz:** não monta Business Manager nem registra marca (a montagem é da 00 — aqui é status e processo); não calcula caixa, runway nem float (15); não escolhe fornecedor nem define ponto de recompra de estoque (01b); não mexe em campanha (10/11/12); não cobre contratação e gestão de time (isso é a skill 18-team-engine) nem canais novos como Amazon e TikTok Shop (skill 20-marketplace-engine) — quando esses assuntos aparecerem aqui, são apontados pra dona certa, não resolvidos.
 
 ## Antes de Começar
 
@@ -46,7 +46,7 @@ Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; ta
 
 ### Puxe os SISTEMAS NOMEADOS da base
 
-Rode `search_knowledge` (deep=true) com a `best_query` exata de cada sistema. Os 5 primeiros são do domínio `ops-scale-risk`; os 3 seguintes vivem em outros domínios do índice e são reaproveitados aqui (mesmo conteúdo, recorte desta skill); os 3 últimos ainda não têm entrada no índice.
+Rode `search_knowledge` (deep=true) com a `best_query` exata de cada sistema. O primeiro e o terceiro blocos são do domínio `ops-scale-risk`; os 3 do bloco do meio vivem em outros domínios do índice e são reaproveitados aqui (mesmo conteúdo, recorte desta skill).
 
 **Domínio `ops-scale-risk`:**
 
@@ -62,7 +62,7 @@ Rode `search_knowledge` (deep=true) com a `best_query` exata de cada sistema. Os
 - **Trademark + Facebook Brand Rights Protection** — `trademark registrado brand rights protection fake DMCA derrubou 300 ads` (a 00 usa pro registro; aqui é o processo contínuo de defesa)
 - **Product Moat > Marketing Moat (o teste de desligar o marketing)** — `se você desligar o marketing amanhã sua receita cresce ou encolhe, Snow versus Hismile, IM8 construiu antes de lançar` (a 01/04 usam na escolha de produto e oferta; aqui é a leitura de ativo)
 
-**Sem entrada no índice ainda:**
+**Também do domínio `ops-scale-risk`:**
 
 - **Preparação operacional pro pior cenário (backups de conta, processadora, banco)** — `preparacao operacional worst case backup de BM processadora banco reserva nao financiar o caos`
 - **Pre-order como válvula de estoque e caixa** — `pre-order honesto expectativa clara valvula de estoque e caixa melhor que encalhar`

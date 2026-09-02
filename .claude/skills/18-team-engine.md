@@ -5,7 +5,7 @@ description: Engine de time da marca — decide QUANDO contratar (pela restriç�
 
 # Team Engine
 
-> **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — domínio `team-hiring-ops`, 62 sistemas). Esta skill é a **consumidora que faltava** do maior bloco órfão da base: até ela existir, 54 dos 62 sistemas estavam marcados como dormant (`use_in_skill: "—"`) e só 8 tinham leitor (08/09/11/12). A partir dela, o domínio inteiro é puxável. Esta skill puxa os SISTEMAS NOMEADOS por `search_knowledge` com a `best_query` curada de cada um. NUNCA query genérica.
+> **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — domínio `team-hiring-ops` — o tamanho é o que o frameworks.json disser). Esta skill é a **consumidora que faltava** do maior bloco órfão da base: até ela existir, a maior parte dos sistemas estava marcada como dormant (`use_in_skill: "—"`) e só 8 tinham leitor (08/09/11/12). A partir dela, o domínio inteiro é puxável. Esta skill puxa os SISTEMAS NOMEADOS por `search_knowledge` com a `best_query` curada de cada um. NUNCA query genérica.
 >
 > Além do domínio próprio, esta skill consome **6 entradas vizinhas** — 4 do domínio `ops-scale-risk` (a decisão por gargalo e o papel do fundador) e 2 do domínio `scaling` (o foco e o tamanho de time por faixa de faturamento, já lidas pela 08/12 — conteúdo compartilhado, reuse o resultado se já foi puxado na sessão).
 >
@@ -36,7 +36,7 @@ Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; ta
 - [ ] `workspace/[produto]/manifest.json` existe — fonte do `stage`, `budget_daily` e `fixed_costs_monthly`
 - [ ] `workspace/profile.md` existe — stage declarado e contexto do membro
 
-Se o manifest faltar ou não parsear, não aborte seco (rule `emergency-escape-paths.md` ES2): ofereça **(A)** rodar a skill 00 (setup), **OU (B)** prosseguir perguntando direto ao membro faturamento mensal aproximado, gasto em ads e estágio, marcando `manifest.skipped_preflight += ["manifest.json"]` quando o manifest voltar a existir. Esta skill não tem pré-requisito de outra fase — time é conversa que pode acontecer a qualquer altura.
+Se o manifest faltar (rota ES1 — arquivo ausente) ou não parsear (rota ES2 — manifest quebrado), não aborte seco (rule `emergency-escape-paths.md`): ofereça **(A)** rodar a skill 00 (setup), **OU (B)** prosseguir perguntando direto ao membro faturamento mensal aproximado, gasto em ads e estágio, marcando `manifest.skipped_preflight += ["manifest.json"]` quando o manifest voltar a existir. Esta skill não tem pré-requisito de outra fase — time é conversa que pode acontecer a qualquer altura.
 
 ### Contexto a carregar
 
@@ -56,7 +56,7 @@ Se o manifest faltar ou não parsear, não aborte seco (rule `emergency-escape-p
 
 4. **Três números nunca se inventam.** (a) **Salário/custo do time do membro** — benchmark do material de referência é referência, o número real é do membro; (b) **caixa e custo fixo** — vêm da 15 ou do membro (cânone: nunca estimar); (c) **KPI real de uma pessoa** — vem de tracking (planilha, ferramenta de gestão, relatório de ads), nunca de impressão. Faltando qualquer um: campo `null`, entra em `pending_inputs[]`, e o bloco dependente fica marcado como não calculável.
 
-5. **Creator ≠ funcionário.** Quem produz conteúdo de fora (creator, afiliado, embaixador) não entra no org chart, não ganha scorecard de funcionário e não passa pelo funil desta skill — o caminho é a **skill 16 (creator-engine)**. O que ESTA skill cobre é o time interno e contractors fixos: editor, media buyer, strategist, designer, operações, atendimento. A fronteira aparece na prática no bounty: prêmio por performance pago a **editor do time** é incentivo desta skill; bounty aberto pra **creators externos** é programa da 16.
+5. **Creator ≠ funcionário.** Quem produz conteúdo de fora (creator, afiliado, embaixador) não entra no org chart, não ganha scorecard de funcionário e não passa pelo funil desta skill — o caminho é a **skill 16 (creator-engine)**. O que ESTA skill cobre é o time interno e contractors fixos: editor, media buyer, strategist, designer, operações, atendimento. A fronteira aparece na prática no bounty: prêmio por performance pago a **editor do time** é incentivo desta skill; bounty aberto pra **creators/editores externos** (% da receita do ad enquanto rodar, brief aberto) é OPERADO pela 16 — entra no roster de lá com tier próprio `bounty`; o que fica aqui é a mecânica de recrutamento via comunidade (ETAPA 6).
 
 ### Puxe os SISTEMAS NOMEADOS da base
 
@@ -303,7 +303,7 @@ Truque de rastreio que liga esta skill à 11: **sufixo com o nome do editor/stra
 
 **Community hiring (o fim de jogo):** um líder A-player do time documenta o que faz, vira treinamento, vira comunidade paga do nicho de talento (editores, criadores de página) — e **as pessoas passam a PAGAR pra entrar no funil de contratação do membro**, já treinadas do jeito da casa. O acordo certo com o líder é por afiliação (ex.: ~30% sobre quem entra pelo link da empresa), nunca tomar corte do negócio dele — é o incentivo de empreendedorismo interno que retém A-players. Aviso da fonte: não resolve contratação imediata; é jogada de longo prazo.
 
-**Bounties e creators — a fronteira com a 16:** prêmio por performance pago a **editores do time** (remunerar o editor com % atrelada ao desempenho do criativo que ele produziu) é incentivo interno — vive aqui e na ETAPA 13. Bounty aberto pra **creators externos**, pipeline de creators (o dado de referência: hit rate ~14% de creators vs ~4% do time interno) e programa de embaixador são canal da **skill 16 (creator-engine)** — quando a conversa virar "quero criativo de gente de fora", aponte pra lá (se a 16 ainda não existir no clone do membro, os frameworks de creator seguem acessíveis pela 08).
+**Bounties e creators — a fronteira com a 16:** prêmio por performance pago a **editores do time** (remunerar o editor com % atrelada ao desempenho do criativo que ele produziu) é incentivo interno — vive aqui e na ETAPA 13. Bounty EXTERNO (% da receita do ad pago a creators/editores de fora, brief aberto), pipeline de creators (o dado de referência: hit rate ~14% de creators vs ~4% do time interno) e programa de embaixador são OPERADOS pela **skill 16 (creator-engine)** — o participante entra no roster de lá, com tier próprio e a convenção de nome de lá; o que esta skill empresta pro fluxo é a mecânica de community hiring acima, como fonte de candidatos. Quando a conversa virar "quero criativo de gente de fora", aponte pra 16 (se ela ainda não existir no clone do membro, os frameworks de creator seguem acessíveis pela 08).
 
 ### ETAPA 7 — O funil: 9 etapas, teste cronometrado e a oferta
 
@@ -370,7 +370,7 @@ O objetivo declarado da fonte: "construir sistemas onde é impossível a pessoa 
 - **Eu faço (semana 1):** o gestor executa ao vivo em 3 camadas — os passos, o como, e as RAZÕES de cada ponto-chave.
 - **Nós fazemos (semanas 2-3):** o novato executa explicando passo e porquê; correção na hora.
 - **Você faz (semana 4+):** trabalho real, começando por material de baixo risco (nunca no cliente/campanha mais crítica).
-- **QA regressivo — supervisão que diminui por evidência, não por tempo de casa:** semana 2 = revisar **100%** de tudo antes de ir ao ar → semana 3 = **50%** → semana 4 = **20-25%** → semana 5+ = **0%**, com conferências aleatórias pra sempre. Grave o estágio de QA de cada pessoa em `dados.json.onboarding[]` — é o dado que a 09 (consistency-audit) usa como referência quando audita artefatos produzidos por gente nova.
+- **QA regressivo — supervisão que diminui por evidência, não por tempo de casa:** semana 2 = revisar **100%** de tudo antes de ir ao ar → semana 3 = **50%** → semana 4 = **20-25%** → semana 5+ = **0%**, com conferências aleatórias pra sempre. Grave o estágio de QA de cada pessoa em `dados.json.onboarding[]` — fica gravado como referência disponível pra auditoria de artefatos produzidos por gente nova (09, consistency-audit).
 - **Cadência 5-3-1 de reuniões:** semana 1 = 1:1 todo dia; semanas 2-3 = 3×/semana; semanas 4-8 = 1×/semana ("traga suas dúvidas acumuladas" + o gestor traz a lista do QA).
 - **Cheques de compreensão por aplicação, nunca "entendeu?"** (gera "sim" preguiçoso): "como você explicaria isso pra outra pessoa do time?", "em que situação isso NÃO funcionaria?".
 - **Diagnóstico em 2 semanas:** (a) voando desde o início; (b) KPIs fracos mas melhorando toda semana com esforço visível → mantém; (c) sem progresso → plano de recuperação e busca reaberta. Treinamento passando de 8 semanas só tem dois diagnósticos: pessoa menos experiente que o esperado (ok SE melhora semana a semana) ou contratação errada.
@@ -596,14 +596,22 @@ O markdown é humano; o JSON é o contrato com as skills 08, 09, 11, 12, 15 e 16
 
 Esta skill é a **produtora** dos campos abaixo. A leitura é **aditiva, nunca pré-requisito**: quando `18-team-engine/dados.json` não existir, cada consumidora mantém o comportamento atual.
 
-| Skill | Campo que passa a poder ler | O que muda |
+**Quem já lê hoje:**
+
+| Skill | Campo que já lê | O que muda |
 |---|---|---|
-| **08** creative-engine | `org.pods`, `team_kpis.by_person`, vagas de editor/strategist abertas | O batch passa a saber a capacidade real da máquina (nº de editores × ~7 vídeos/semana) e quem produz o quê — em vez de assumir capacidade infinita. |
-| **09** consistency-audit | `onboarding[].qa_review_pct` | Artefato produzido por pessoa em QA regressivo 100%/50% ganha revisão proporcional — a amostragem decrescente vira dado, não intuição. |
-| **11** ad-analysis | `team_kpis.naming_suffix_by_person`, `hit_rate_pct` por pessoa | A análise desce ao nível 3 de granularidade (hit rate por editor) usando o sufixo de naming — atribuição de criativo a autor sem planilha manual. |
-| **12** scale-engine | `org.key_man_risk`, `payroll.current_monthly_total`, `hiring_decision.constraint` | Antes de autorizar escala agressiva, a 12 enxerga se a operação depende de uma pessoa só e qual gargalo de gente a escala vai estourar. |
-| **15** finance-engine | `payroll.payroll_delta_monthly` | A projeção de custo fixo da próxima rodada da 15 já entra com a folha nova na mesa — o membro confirma o número, a 15 recalcula o ponto de cobertura. |
-| **16** creator-engine | fronteira declarada no handoff | Creators, afiliados e embaixadores nunca aparecem como funcionários aqui; bounty interno (editor) vive aqui, bounty externo vive lá. |
+| **15** finance-engine | `payroll.payroll_delta_monthly` | A projeção de custo fixo da próxima rodada da 15 entra com a folha nova na mesa — o membro confirma o número, a 15 recalcula o ponto de cobertura. |
+
+**Disponível para (leitura aditiva)** — dados publicados que as skills podem puxar quando fizer sentido, sem que já leiam hoje:
+
+| Skill | Campo disponível | O que permite |
+|---|---|---|
+| **08** creative-engine | `org.pods`, `team_kpis.by_person`, vagas de editor/strategist abertas | Conhecer a capacidade real da máquina (nº de editores × ~7 vídeos/semana) e quem produz o quê — em vez de assumir capacidade infinita. |
+| **09** consistency-audit | `onboarding[].qa_review_pct` | Dar a artefato produzido por pessoa em QA regressivo 100%/50% revisão proporcional — a amostragem decrescente vira dado disponível, não intuição. |
+| **11** ad-analysis | `team_kpis.naming_suffix_by_person`, `hit_rate_pct` por pessoa | Descer ao nível 3 de granularidade (hit rate por editor) usando o sufixo de naming — atribuição de criativo a autor sem planilha manual. |
+| **12** scale-engine | `org.key_man_risk`, `payroll.current_monthly_total`, `hiring_decision.constraint` | Checar, antes de escala agressiva, se a operação depende de uma pessoa só e qual gargalo de gente a escala vai estourar. |
+
+**Fronteira com a 16 (não é leitura):** creators, afiliados e embaixadores nunca aparecem como funcionários neste arquivo; bounty interno (editor contratado) vive aqui — bounty externo é operado pela 16 (roster, tier `bounty` e convenção de nome de lá); daqui vai só a mecânica de recrutamento via comunidade.
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
@@ -654,11 +662,11 @@ O sinal que reabre esta conversa: **[marco concreto]**. Quando chegar lá, volta
 
 **Porta 2 (contratar):**
 "Vaga de **[função]** montada: gabarito com o par de indicadores **[volume] + [qualidade]**, anúncio em formato [carta de vendas/direto] com a faixa na metade alta (**US$ [X-Y]** — é o filtro nº 1 de qualidade), e o funil de 9 etapas com o teste prático de até 2h desenhado pro papel.
-Regra de ritmo: com candidato excelente, o calendário comprime — teste no mesmo dia, oferta na mesma semana. Etapa pulada não é velocidade, é a origem do bad hire.
+Regra de ritmo: com candidato excelente, o calendário comprime — teste no mesmo dia, oferta na mesma semana. Etapa pulada é a origem do bad hire mais caro.
 Publica o anúncio e me traz cada candidatura — eu trio, pontuo o teste contra o gabarito e te devolvo o ranking. E não fecha oferta sem a checagem de caixa: [status da checagem da 15]."
 
 **Porta 3 (rodar):**
-"Sistema de gestão montado pro seu time de **[N] pessoas**: KPIs por função com faixa verde/vermelha (alvo semanal = mensal ÷ 4,3), painel com dono único por número e a regra de ouro — **KPI perdido exige motivo + experimento**, nunca bronca. [Se tem editor: 'Seus editores agora têm hit rate individual — o sufixo no naming dos ads liga cada criativo ao autor, e a análise de ads (11) passa a ler isso sozinha.']
+"Sistema de gestão montado pro seu time de **[N] pessoas**: KPIs por função com faixa verde/vermelha (alvo semanal = mensal ÷ 4,3), painel com dono único por número e a regra de ouro — **KPI perdido exige motivo + experimento**, nunca bronca. [Se tem editor: 'Seus editores agora têm hit rate individual — o sufixo no nome do ad permite separar a performance por editor na análise de ads (peça na 11).']
 O ciclo: review mensal pros novos, trimestral pro time, 9-box duas vezes por ano — e a regra A/B sem exceção: quem não é A nem B derruba os outros.
 Roda a primeira semana do painel e me volta com os números — a primeira calibragem de faixa é sempre a maior."
 

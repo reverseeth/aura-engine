@@ -7,7 +7,7 @@ description: Engine de creators da marca — a operação completa de conteúdo 
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (`frameworks.json` / `README.md`) — domínios `affiliate-creator-channels` (esta skill é a consumidora que faltava, inclusive das entradas dormant), `creatives-hooks-formats` (as entradas de creator/seeding/brief), `meta-ads-strategy` (partnership ads + feedback loop), `scaling` (raw content, níveis de escala, time criativo), `team-hiring-ops` (creator pipeline) e `competitor-positioning` (descoberta de whitelisting de concorrente). Esta skill puxa os SISTEMAS NOMEADOS por `search_knowledge` com a `best_query` curada de cada um. NUNCA query genérica.
 >
-> **Cânones que governam esta skill:** `.claude/lib/ad-taxonomy/README.md` — as 4 classes de resultado (§2: só `breakthrough` libera a Fase B), o escopo estreito do Shotgun (§3: volume sem estratégia individual é legítimo SÓ no pipeline de conteúdo de creators) e a estrutura de campanha. Esta skill **não cria campanha nem mexe em budget** — quem roda o que ela produz são as skills 10 e 12, dentro do cânone.
+> **Cânones que governam esta skill:** `.claude/lib/ad-taxonomy/README.md` — as 4 classes de resultado (§2: só `breakthrough` libera a Fase B), o escopo estreito do Shotgun (§7: volume sem estratégia individual é legítimo SÓ no pipeline de conteúdo de creators) e a estrutura de campanha. Esta skill **não cria campanha nem mexe em budget** — quem roda o que ela produz são as skills 10 e 12, dentro do cânone.
 
 ## Quando Usar — DUAS fases
 
@@ -54,7 +54,7 @@ Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; ta
 2. `workspace/[produto]/02-market-research/dados.json` — `sub_avatars[]` com `angle` (cada sub-avatar pede um tipo de creator diferente — é a entrada da Creator Diversity na ETAPA 3) e `market_vocabulary`.
 3. `workspace/[produto]/08-creative-engine/dados.json` **(se existir)** — os conceitos do batch atual viram a semente do bloco de hooks do framework (ETAPA 5). Sem a 08 rodada, os `angles` dos sub-avatares da 02 cumprem o papel.
 4. `workspace/[produto]/11-ad-analysis/dados.json` + `NEXT_BATCH_IDEAS.md` **(Fase B)** — quem venceu, com que ângulo, e o que a análise pede pro próximo batch (vira ideia enviada ao creator).
-5. `workspace/[produto]/12-scale-engine/dados.json` **(se existir)** — a sub-fase de escala calibra quantos creators em retainer o negócio comporta (tabela da ETAPA 8 da 12: de 0 no teste a 4+ na otimização) e quando raw content campaign e whitelisting entram (níveis de escala, ETAPA 14).
+5. `workspace/[produto]/12-scale-engine/dados.json` **(se existir)** — a sub-fase de escala calibra quantos creators em retainer o negócio comporta (tabela da ETAPA 8 da 12: de 0 no teste a 4+ na otimização) e quando raw content campaign e whitelisting entram (níveis de escala, ETAPA 14 desta skill).
 6. `workspace/[produto]/14-content-recycler/` **(se existir)** — o `creator-report.md` de um breakthrough reciclado é material de kickoff pra novos ambassadors.
 
 ### Regras que não se negociam
@@ -127,7 +127,7 @@ Peça numa única mensagem só o que não vive em arquivo nenhum:
 
 - **Budget mensal de conteúdo** (separado do budget de mídia): decide a rota — seeding grátis (custa produto + frete), campanha paga por vídeo, ou os dois. Referências da fonte: campanha paga sai a **US$ 100-150 por vídeo**; budget mínimo recomendado pra rodada paga **~US$ 1.000**, ideal US$ 2-3k+ (operação madura dedica US$ 5-6k/mês a conteúdo); e a régua de cima: **investir no mínimo 5% do ad spend em produção criativa** (10%+ já é agressivo).
 - **O que o membro já tem:** creators conhecidos, conteúdo cru parado, conta em plataforma de creators, operação de TikTok Shop.
-- **Quem opera o dia a dia** (o próprio membro ou uma VA — assistente virtual). A operação mínima da fonte é 1 VA cuidando de achar creators, gerenciar campanhas e fazer follow-up, mais alguém mandando ideias. Estrutura de time além disso é assunto da skill 18-team-engine (em criação).
+- **Quem opera o dia a dia** (o próprio membro ou uma VA — assistente virtual). Grave a resposta em `operator` no `dados.json`. A operação mínima da fonte é 1 VA cuidando de achar creators, gerenciar campanhas e fazer follow-up, mais alguém mandando ideias. Estrutura de time além disso é assunto da skill 18-team-engine.
 
 **O objetivo declarado da Fase A** (escreva no relatório): encontrar **um brand ambassador** — o creator que sozinho é estrategista + copywriter + cinegrafista + editor (contratar essas 4 funções separadas custaria US$ 10k+/mês; um creator faz por US$ 100-150 por vídeo ou de graça no seeding). Winning ad no meio do caminho é bônus, não a meta. Pra marca abaixo de 7 dígitos, esse creator único É o time criativo.
 
@@ -216,19 +216,20 @@ A skill gera um framework por creator contratado em `briefs/framework-[creator-s
 
 - Hit rate (taxa de acerto) de UGC de creators: **~14%** vs **~4%** dos ads produzidos pelo time interno — com custo de operação ~US$ 6k/mês vs ~US$ 40k/mês.
 - Conteúdo cru: **~15%** de acerto vs **~5%** do conteúdo editado/polido (3x, por autenticidade).
-- Win rate acima de volume, sempre: 20% de acerto em 30 criativos/mês = 6 winners; 1% em 100 = 1. **Volume desestruturado (Shotgun) só é legítimo dentro deste pipeline de creators** (cânone ad-taxonomy §3) — como estratégia criativa deliberada, mata o hit rate.
-- Escala do motor: 10 creators fazendo 1-2 vídeos/semana, cortados em 3 = **~100 ads extras/mês**; a fonte sustenta marca a US$ 25k/dia assim, e cita marca a US$ 150k/dia com 3x+ ROAS rodando SÓ com volume de creators, sem creative strategy formal.
+- Win rate acima de volume, sempre: 20% de acerto em 30 criativos/mês = 6 winners; 1% em 100 = 1. **Volume desestruturado (Shotgun) só é legítimo dentro deste pipeline de creators** (cânone ad-taxonomy §7) — como estratégia criativa deliberada, mata o hit rate.
+- Escala do motor: 10 creators fazendo 1-2 vídeos/semana, cortados em 3 = **~130-260 ads extras/mês**; a fonte sustenta marca a US$ 25k/dia assim, e cita marca a US$ 150k/dia com 3x+ ROAS rodando SÓ com volume de creators, sem creative strategy formal.
 - O funil típico não é "winner de primeira": o creator faz um vídeo BOM → é contratado → e o SEGUNDO vídeo, já com feedback, vira o super winner.
 
 **Auditoria de ROI (mensal/trimestral):** "gastamos US$ X em conteúdo de creators → quantos winning ads saíram → quanto spend eles sustentaram". Grave em `economics.roi_audit` — é o número que justifica (ou corta) o budget de conteúdo.
 
 ### ETAPA 7 — [Fase A] Pipeline TikTok Shop: a fábrica de volume
 
-Opcional — roda pra quem já opera TikTok Shop ou quer o canal COMO FONTE DE CONTEÚDO. A decisão de abrir marketplace como canal de VENDA é outra conversa (regra de entrada própria, fora desta skill).
+Opcional — roda pra quem já opera TikTok Shop ou quer o canal COMO FONTE DE CONTEÚDO. A decisão de abrir marketplace como canal de VENDA é outra conversa (regra de entrada própria — skill 20-marketplace-engine).
 
 **O reframe da fonte: o valor do TikTok Shop não é a receita da plataforma — é ser PAGO para gerar conteúdo.** Caso citado: um operador gerou 600 vídeos num mês pra uma marca (faturando ~US$ 250-300k no canal) e passou a reutilizar o acervo como criativo de paid ads. "Most people spend money to get content; you make money to get content."
 
-- **Operação base:** envio de samples (amostras) pra creators do canal, gestão dos afiliados, comissão definida, e o fluxo de conteúdo que sustenta as vendas — cada afiliado postando é conteúdo novo que pode virar ad.
+- **Operação base:** envio de samples (amostras) pra creators do canal, gestão dos afiliados, comissão definida (dois níveis — orgânica vs de ads; a régua vive na 20), e o fluxo de conteúdo que sustenta as vendas — cada afiliado postando é conteúdo novo que pode virar ad.
+- **Leitura aditiva da 20 (se `20-marketplace-engine/dados.json` existir):** `channels[tiktok_shop].commission_organic_pct`, `samples_policy` e a meta de GMV definidos lá são os números que este pipeline usa — a decisão de abrir/manter o canal de venda continua na 20; aqui nada se redecide.
 - **Variação agressiva da fonte:** contas TikTok dedicadas à marca (caso: 20), cada uma tocada por um creator 100% comissionado (**40-50% de comissão**), produzindo volume diário reutilizado nos paid ads; contas chegam a 20k seguidores em ~6 meses. Comissão agressiva força volume — e o conteúdo vale mais que a margem cedida.
 - **Mineração de virais (DailyVirals):** os virais do dia do TikTok/TikTok Shop viram swipe file de UGC — sandbox de breakdowns, transcript downloader (cole a URL, receba o texto), análise por AI do vídeo linha a linha, e o AB compare (viral original vs seu remake, frame a frame, pra diagnosticar por que o seu flopou). O fluxo: transcript do viral → reescrever adaptado ao produto → virar concept no framework do creator (ETAPA 5). Remake próprio, nunca o vídeo alheio no ar (regra 5).
 - **Influencer grande é jogada de marca, não de performance** — a fonte viu post de celebridade funcionar como whitelisted ad num caso e flopar como ad noutro. O motor daqui é micro/médio creator em volume.
@@ -302,7 +303,7 @@ O erro comum é pedir conteúdo sem nunca dizer ao creator o que funcionou — e
 
 **Setup de acesso:** ferramenta de concessão em 3 cliques (Leasy, ~US$ 99/mês, trial de 14 dias sem cartão — com 1-2 creators, conclua no trial e pause): conecte o portfólio de negócios, crie o custom request de whitelisting, envie o link ao creator. Creator de Instagram sem página no Facebook: peça pra criar uma. No Ads Manager, monte o ad selecionando página e Instagram do creator. **Copy da primary text como se fosse o creator falando — ou melhor, peça pro próprio creator reescrever a copy do jeito dele.**
 
-**Onde testar (faixas da fonte):** abaixo de ~US$ 2k/dia de spend, whitelisted ads entram na campanha principal ou na raw content campaign ("você precisa de toda performance possível"); acima de US$ 2-3k/dia, campanha própria de whitelisting (funciona como segunda raw content campaign) pra ler o efeito isolado — depois de provado, dá pra fundir, mantendo o cuidado da regra 4. **Quem executa a campanha é a 10/12** — esta skill entrega os acessos e a lista de ads elegíveis por creator.
+**Onde testar:** os whitelisted ads começam DENTRO da campanha principal — abaixo de ~US$ 2k/dia de spend é a única casa deles ("você precisa de toda performance possível"; a raw content campaign nem existe nessa faixa). Campanha PRÓPRIA de whitelisting (funciona como segunda raw content campaign, pra ler o efeito isolado) é jogada de camada alta — a régua de quando cada camada entra é a dos níveis de escala da ETAPA 14 desta skill. Depois de provado o efeito, dá pra fundir, mantendo o cuidado da regra 4. **Quem executa a campanha é a 10/12** — esta skill entrega os acessos e a lista de ads elegíveis por creator.
 
 **Variante da fonte high-ticket:** páginas de nicho spin-off (perfis temáticos fora da conta principal) pra veicular criativos sem carimbo da marca — mesma lógica de camuflagem, mesma regra de agreement.
 
@@ -315,7 +316,7 @@ O erro comum é pedir conteúdo sem nunca dizer ao creator o que funcionou — e
 1. No ad: ative partnership ads → página da marca + o creator parceiro.
 2. **Dynamic identity** ligado (o Meta alterna a identidade exibida; entrega ~1,3% mais barata) em vez de travar uma das duas.
 3. Onde rodar: raw content campaign ou campanha principal — ambos funcionam (decisão da 10/12).
-4. **Pitch pra creator NOVO (não só winners):** peça acesso de partnership por **30 dias** já no primeiro contato, enquadrado como benefício DELE — "o Meta está empurrando partnership ads; com o acesso, o SEU ad tem mais chance de vencer na conta — e quem vence tem chance de retainer de longo prazo". Remova o acesso após 30 dias se não evoluir. (É o único formato em que acesso antes de winner se justifica — o custo é zero e o teste beneficia os dois.)
+4. **Pitch pra creator NOVO (não só winners):** peça acesso de partnership por **30 dias**, enquadrado como benefício DELE — "o Meta está empurrando partnership ads; com o acesso, o SEU ad tem mais chance de vencer na conta — e quem vence tem chance de retainer de longo prazo". **Timing do pitch:** "já no primeiro contato" vale só pra creator recrutado na Fase B (com o gate aberto); pra creator que veio do seeding da Fase A, o pitch entra no momento do upgrade pra winning creator (ETAPAs 8-9). Remova o acesso após 30 dias se não evoluir. (É o único formato em que acesso antes de winner se justifica — o custo é zero e o teste beneficia os dois.)
 5. Com ambassadors existentes: teste partnership em todos os top criativos deles. Continue testando whitelisting em paralelo.
 
 ### ETAPA 14 — [Fase B] Raw content campaign, creator farming e recrutamento contínuo
@@ -328,7 +329,7 @@ O erro comum é pedir conteúdo sem nunca dizer ao creator o que funcionou — e
 
 **Atribuição e pagamento em escala:** custom link por afiliado (cada venda atribuída ao creator que originou — paga a comissão certa e compara desempenho entre parceiros); programa automatizado quando o volume de parceiros crescer (a fonte cita Social Snowball — apuração de comissão por cliente — e a alternativa com payouts automáticos e programas diferentes por link, grátis + ~1,5% de taxa).
 
-**Ad Bounties (fronteira com a 18):** o modelo de pagar editores/creators por performance (% da receita do ad enquanto ele rodar, brief aberto, volume "infinito" a custo zero — só paga se performar; a fonte gastou ~US$ 20k num mês em bounties no beta). O recrutamento e a operação via comunidade/bounties detalham na **skill 18-team-engine (em criação)** — aqui, registre só se o membro já opera bounties, pra entrar no mesmo roster e na mesma convenção de nome.
+**Ad Bounties (bounty EXTERNO — opera aqui):** pagar creators/editores DE FORA por performance — % da receita do ad enquanto ele rodar, brief aberto, volume "infinito" sem custo fixo (só paga se performar; a fonte gastou ~US$ 20k num mês em bounties no beta). A operação é desta skill: cada participante entra no `roster[]` com `tier: "bounty"`; a % e o teto seguem o default da fonte quando ela os cita — senão vêm do membro (regra 6); e todo ad montado com conteúdo dele segue a MESMA convenção de nome da ETAPA 8 (sem isso não há apuração por bounty). O que fica na **skill 18-team-engine**: o prêmio por performance pago a editor CONTRATADO do time (incentivo interno) e a mecânica de recrutar via comunidade da marca — use-a pra encher este funil.
 
 ### ETAPA 15 — Checagens de sanidade
 
@@ -359,11 +360,12 @@ O markdown é humano; o JSON é o contrato com as skills 08, 10, 11, 12 e 14.
   "phase": "A_content | B_performance",
   "phase_reason": "sem breakthrough em manifest.ad_classification",
   "objective": "find_brand_ambassador",
+  "operator": "member | va | other",
   "channels": {
     "platform": { "name": "insense | other | none", "brand_added": false, "license_active": false },
     "manual_outreach": false,
     "film_yourself": false,
-    "tiktok_shop": { "active": false, "affiliates_count": null, "commission_pct": null, "dedicated_accounts": null }
+    "tiktok_shop": { "active": false, "affiliates_count": null, "commission_pct": null, "commission_note": "dois níveis (orgânica vs ads) — a régua vive na 20", "dedicated_accounts": null }
   },
   "seeding_campaigns": [
     {
@@ -387,7 +389,7 @@ O markdown é humano; o JSON é o contrato com as skills 08, 10, 11, 12 e 14.
       "sub_avatar_match": "<id>",
       "diversity_axes": { "age_band": "", "ethnicity": "", "gender": "", "language": "en", "physical_note": "", "psychographic_note": "" },
       "status": "applied | shortlisted | approved | hired | product_sent | filming | content_received | complete | dropped",
-      "tier": "seeding | paid_per_video | retainer | ambassador_performance",
+      "tier": "seeding | paid_per_video | retainer | ambassador_performance | bounty",
       "rate_per_video_usd": null,
       "retainer_monthly_usd": null,
       "videos_per_week_due": null,
@@ -469,12 +471,19 @@ O markdown é humano; o JSON é o contrato com as skills 08, 10, 11, 12 e 14.
 
 ## Contrato de leitura (quem lê o quê)
 
-| Skill | Campo que passa a ler | O que muda |
+**Quem já lê hoje:**
+
+| Skill | Campo que já lê | O que muda |
+|---|---|---|
+| **11** ad-analysis | `performance_by_creator[].ad_naming_pattern` (o nome do creator no nome do ad) | A análise agrupa por creator e devolve quem venceu (fecha o loop da ETAPA 8) |
+
+**Disponível para (leitura aditiva)** — dados publicados que as skills podem puxar quando fizer sentido, sem que já leiam hoje:
+
+| Skill | Campo disponível | O que permite |
 |---|---|---|
 | **08** creative-engine | `content[].dct_ready`, `roster[].tier`, `briefs[]` | A rota B (montagem) ganha footage licenciado real do roster; o archetype `creator_human` deixa de ser "raro" quando há creator contratado; o batch não duplica concept que já está com creator |
 | **10** ad-strategy | `handoff.for_skill_10` (naming, acessos, conteúdo cru) | Ads de creator sobem com o nome do creator no nome do ad; whitelisting/partnership viram opções de identidade na montagem; raw content campaign tem inventário |
-| **11** ad-analysis | `performance_by_creator[].ad_naming_pattern` | A análise consegue agrupar por creator e devolver quem venceu (fecha o loop da ETAPA 8) |
-| **12** scale-engine | `roster` por tier, `channels.tiktok_shop` | A coluna "Creators em retainer" da tabela de sub-fases passa a ter fonte real; o nível de escala consulta se há conteúdo/acessos pra abrir raw content (L2) e whitelisting (L3) |
+| **12** scale-engine | `roster` por tier, `channels.tiktok_shop` | A coluna "Creators em retainer" da tabela de sub-fases ganha fonte real; o nível de escala consulta se há conteúdo/acessos pra abrir raw content (L2) e whitelisting (L3) |
 | **14** content-recycler | `roster[]`, `report_visibility` | O creator-report do Movimento 6 sabe pra quem ir e com quais números visíveis |
 
 Quando `16-creator-engine/dados.json` não existir, cada consumidora mantém o comportamento atual — a leitura é aditiva, nunca pré-requisito.
@@ -503,14 +512,16 @@ Após salvar, atualizar `workspace/[produto]/manifest.json`:
 - **Bloco `creator` (contrato de fase — espelha o padrão do bloco `retention` da 13):**
 
 ```json
-"creator": {
-  "phase_a_done": true,
-  "phase_b_done": false,
-  "roster_count": 0,
-  "ambassadors_count": 0,
-  "whitelisting_active": false,
-  "ad_naming_pattern": "contains creator name",
-  "checked_at": "2026-09-01T00:00:00Z"
+{
+  "creator": {
+    "phase_a_done": true,
+    "phase_b_done": false,
+    "roster_count": 0,
+    "ambassadors_count": 0,
+    "whitelisting_active": false,
+    "ad_naming_pattern": "contains creator name",
+    "checked_at": "2026-09-01T00:00:00Z"
+  }
 }
 ```
 
@@ -524,7 +535,7 @@ Primeira versão é draft, não decreto (rule `iteration-driven-refinement.md`).
 **Fase A:**
 "Content Engine montado. Rota: [seeding grátis / campanha paga a US$ 100-150 por vídeo / outreach manual / filmar você mesmo]. Campanha de seeding pronta pra [N] creators mirando [sub-avatares], com as screening questions configuradas — inclusive a de whitelisting, que já deixa o acesso combinado desde o dia 1.
 [N] frameworks de brief curados por creator estão em `briefs/` — revisa o bloco de Hooks & Ideas antes de enviar (é onde o marketing acontece).
-Expectativa honesta: o objetivo NÃO é winning ad de primeira — é conhecer creators até achar UM embaixador que produza toda semana. Do hire ao conteúdo virar ad passam ~26 dias, então o funil começa agora e roda em paralelo com os criativos da 08.
+Expectativa honesta: o objetivo é conhecer creators até achar UM embaixador que produza toda semana — winning ad de primeira é bônus. Do hire ao conteúdo virar ad passam ~26 dias, então o funil começa agora e roda em paralelo com os criativos da 08.
 Follow-up a cada 3 dias depois que o produto chegar; conteúdo recebido eu marco pra corte em 3 hooks e entrego pro batch da 08. Quando a análise de ads (11) confirmar o primeiro breakthrough de creator, me chama com 'creators' de novo — aí abre a Fase B: contrato recorrente, escada de comissão e whitelisting."
 
 **Fase B:**

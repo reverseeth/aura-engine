@@ -97,18 +97,18 @@ Grave `gate.verdict` (`expand` / `not_yet` / `blocked_pending_proof`) e os sinai
 
 ### ETAPA 2 — Amazon: capturar a demanda que o ad criou
 
-**O racional.** O pool de compradores da Amazon é quase separado do seu site: a maioria dos compradores de Amazon só compra lá. Seu ad no Meta cria a demanda, a pessoa pesquisa na Amazon — e 9 em cada 10 visitas ao app terminam em compra. Sem listagem sua, essa venda vai pro concorrente ou pro revendedor, paga com o SEU ad. Por isso adicionar Amazon costuma somar na casa de +50% sobre a receita do site sem canibalizar, e a margem do canal é quase pura quando a busca orgânica da marca já existe.
+**O racional.** O pool de compradores da Amazon é quase separado do seu site: a maioria dos compradores de Amazon só compra lá. Seu ad no Meta cria a demanda, a pessoa pesquisa na Amazon — e 9 em cada 10 visitas ao app terminam em transação: na Amazon, a visita já é intenção de compra; no Google ainda há pesquisa. Sem listagem sua, essa venda vai pro concorrente ou pro revendedor, paga com o SEU ad. Por isso adicionar Amazon costuma somar na casa de +50% sobre a receita do site sem canibalizar, e a margem do canal é quase pura quando a busca orgânica da marca já existe.
 
 **O essencial de entrada (nesta ordem):**
 
-1. **Marca protegida ANTES da listagem.** Registro de marca + Brand Registry (o cadastro oficial de marca da Amazon, que exige a marca registrada) são o que permite tirar revendedor da sua listagem e travar sequestro. Uma listagem famosa de água engarrafada chega a ter ~148 vendedores diferentes — sem registro, esse é o teto do risco. A régua de proteção é das skills **00 (setup) e 19 (proteção de marca)**: se `trademark` não consta no manifest, esta skill marca a pendência e aponta pra lá, sem duplicar o protocolo.
+1. **Marca protegida ANTES da listagem.** Registro de marca + Brand Registry (o cadastro oficial de marca da Amazon, que exige a marca registrada) são o que permite tirar revendedor da sua listagem e travar sequestro. Uma listagem famosa de água engarrafada chega a ter ~148 vendedores diferentes — sem registro, esse é o teto do risco. A régua de proteção é das skills **00 (setup) e 19 (proteção de marca)**: o status do registro vem de `19-ops-engine/dados.json.legal` (se existir); sem o arquivo, pergunte direto ao membro. A pendência só dispara quando os dois caminhos falham — aí esta skill marca e aponta pra lá, sem duplicar o protocolo.
 2. **Listagem com SEO primeiro, anúncio depois.** O orgânico carrega mais que o pago no canal — busca com intenção de compra e custo por venda zero (só a fee). A mecânica do algoritmo tem 3 camadas: a keyword precisa bater com o produto → a imagem principal decide o clique → o produto alinhado com a busca decide a compra (imagem chamativa com produto desalinhado é punido como enganoso). Selos criativos na imagem principal ("viral on TikTok") sobem o clique.
 3. **Base de prova.** Amazon exige construção de marca real: reviews, logística FBA (o braço da Amazon que armazena e entrega por você), cadastro de marca. Chegue com o plano de reviews definido antes de ligar tráfego pro canal — listagem sem prova perde a compra pra quem tem.
 4. **Preço riscado (slash-through).** Configurar preço de tabela + preço promocional no painel: concorrente a US$ 9 sem desconto perde pra US$ 15 riscado por US$ 9 — percepção de premium e de negócio ao mesmo tempo.
 5. **Anúncios internos com lance baixo (ninja low-bid).** O leilão da Amazon tem buracos sem competição: lance de metade do sugerido ainda pega volume (referências reais: US$ 0,25-0,55 de custo por clique pagando 8-35× de retorno). Alvos: página do produto concorrente, os 10 termos de busca principais, **a própria listagem** (defesa de marca — senão o concorrente paga centavos pelas SUAS keywords), o resto do próprio catálogo e o bloco "comprados juntos".
 6. **Custom link pra tráfego externo.** A Amazon reduz a fee da venda atribuída a link seu (ex.: de 25% pra 8%) — e a listagem costuma converter melhor que o site (7% vs 5% é referência da fonte). Mandar ad direto pra Amazon vira decisão de rota legítima; quem fecha essa conta (fee menor vs margem do site) é a 15.
 7. **Régua do canal.** TACOS — o gasto com anúncio como porcentagem da receita TOTAL do canal — é a métrica de eficiência da Amazon; TROAS (o retorno sobre gasto de anúncio medido DENTRO da Amazon) de 15-25× é rotina lá **e não se compara com ROAS do Meta** (leilões e papéis diferentes). Acompanhar também LTV/CAC do canal (referência saudável: ~6×) e separar cliente de promoção de cliente que volta.
-8. **Dois aproveitamentos que quase ninguém usa:** a Amazon é obrigada a entregar, uma vez por ano, a lista de compradores com nome e endereço — cruzada com busca de email, vira lista própria (handoff pra 13). E a operação não exige olhar 5× ao dia como o Meta — exige conhecer os botões certos: internalizar a gestão cedo demais já custou US$ 700k num mês a uma marca de referência; até dominar, especialista/agência.
+8. **Dois aproveitamentos que quase ninguém usa:** a Amazon entrega, uma vez por ano, a lista de compradores com nome e endereço — um hack pouco conhecido da plataforma, com uma ressalva prática: é preciso navegar vários cliques no painel até achar. Cruzada (cross-match) com um software de busca de email, vira lista de email própria — a lista alimenta a base de email da marca, e o trabalho de email é o normal da 13. E a operação não exige olhar 5× ao dia como o Meta — exige conhecer os botões certos: internalizar a gestão cedo demais já custou US$ 700k num mês a uma marca de referência; até dominar, especialista/agência.
 
 ### ETAPA 3 — TikTok Shop: o canal de venda operado por afiliados
 
@@ -124,7 +124,7 @@ Grave `gate.verdict` (`expand` / `not_yet` / `blocked_pending_proof`) e os sinai
 
 **Expectativa honesta (a fonte é explícita):** TikTok Shop raramente é centro de lucro. É canal de venda **e** máquina de demanda: o retorno composto vem de (a) **halo de busca** — o volume de conteúdo faz a busca do nome da marca subir dentro do TikTok, e as gerações mais novas pesquisam produto lá antes do Google; (b) **lift cruzado** — ads do canal elevam vendas na Amazon e no varejo; (c) **acervo de criativo** — a operação é PAGA pra gerar conteúdo (600 vídeos num mês, num caso de referência) que abastece os ads do Meta. "A maioria gasta dinheiro pra ter conteúdo; aqui você ganha dinheiro pra ter conteúdo."
 
-**Divisão de trabalho com a 16 (creator-engine):** a 16 recruta, gerencia e produz — creator farming, o teste de volume orgânico (spam test) que valida conceito antes de mídia paga, whitelisting. Esta skill define comissão, samples, meta de GMV e o go/no-go do canal. Quando as duas rodam, é o mesmo exército de creators servindo os dois lados: a 16 entrega o conteúdo que sustenta as vendas daqui; daqui saem os winners orgânicos que a 16 devolve pro Meta.
+**Divisão de trabalho com a 16 (creator-engine):** a 16 recruta, gerencia e produz — creator farming, o pipeline TikTok Shop (fábrica de volume), whitelisting. Esta skill define comissão, samples, meta de GMV e o go/no-go do canal. Quando as duas rodam, é o mesmo exército de creators servindo os dois lados: a 16 entrega o conteúdo que sustenta as vendas daqui; daqui saem os winners orgânicos que a 16 devolve pro Meta.
 
 ### ETAPA 4 — Afiliados via tráfego pago (e clientes virando afiliados)
 
@@ -266,12 +266,19 @@ Os valores do exemplo (escada de comissão inclusive) são o default da fonte �
 
 ## Contrato de leitura (quem lê o quê)
 
-| Skill | Campo que passa a ler | O que muda |
+**Quem já lê hoje:**
+
+| Skill | Campo que já lê | O que muda |
 |---|---|---|
-| **12** scale-engine | `gate.verdict`, `channels[].status` | Canal `live` entra nas projeções como fonte incremental (mesmo padrão do `manifest.agentic`), nunca como premissa de caixa. |
 | **15** finance-engine | `channels[].fees_and_commissions`, comissões | A margem por canal (fee/comissão como custo variável) entra no modelo — cada canal age como um mini negócio com a própria conta. |
-| **16** creator-engine | comissão orgânica, política de samples, GMV do TikTok Shop | O motor de creators da 16 opera com os números de canal definidos aqui. |
-| **13** retention-engine | handoff de compradores de marketplace | Lista anual de compradores da Amazon e clientes de TikTok Shop entram no ecossistema de email/SMS. |
+| **16** creator-engine | `channels[tiktok_shop].commission_organic_pct`, `samples_policy`, meta de GMV | O pipeline TikTok Shop da 16 opera com os números de canal definidos aqui, sem redecidir o canal. |
+
+**Disponível para (leitura aditiva)** — dados publicados que as skills podem puxar quando fizer sentido, sem que já leiam hoje:
+
+| Skill | Campo disponível | O que permite |
+|---|---|---|
+| **12** scale-engine | `gate.verdict`, `channels[].status` | Canal `live` pode entrar nas projeções como fonte incremental (mesmo padrão do `manifest.agentic`), nunca como premissa de caixa. |
+| **13** retention-engine | compradores de marketplace (lista anual da Amazon, clientes de TikTok Shop) | A lista alimenta a base de email própria — o trabalho de email é o normal da 13. |
 
 Quando `20-marketplace-engine/dados.json` não existir, cada consumidora mantém o comportamento atual — a leitura é aditiva, nunca pré-requisito.
 
@@ -301,7 +308,7 @@ Primeira versão é draft, não decreto (rule `iteration-driven-refinement.md`).
 "Avaliação de canais pronta. O sinal que abre a porta: **[sinal decisivo com número]**. Recomendo começar por **[canal]** — [razão em 1 frase]. Antes de listar qualquer coisa: [requisito pendente, ex.: registro de marca — skills 00/19]. A comissão/fee de **[X]%** muda a conta desse canal; diga **'finanças'** pra 15 fechar a margem por canal antes do primeiro dólar. Revisa o plano e me diz o que ajustar — abro um canal por vez, e o segundo só entra quando o primeiro estiver rodando sozinho."
 
 **Gate `not_yet` / `blocked_pending_proof`:**
-"Ainda não é hora de canal novo — e isso é uma conclusão, não um consolo. Falta: **[prova/sinal ausente]**. Canal secundário captura demanda que transborda; hoje a demanda ainda [não existe em volume / está sendo criada]. O que destrava: [ex.: primeiro breakthrough na análise de ads; busca de marca subindo no Search Console]. Quando qualquer um desses aparecer, roda **'marketplace'** de novo que eu reavalio."
+"Ainda não é hora de canal novo — essa é a conclusão honesta da avaliação. Falta: **[prova/sinal ausente]**. Canal secundário captura demanda que transborda; hoje a demanda ainda [não existe em volume / está sendo criada]. O que destrava: [ex.: primeiro breakthrough na análise de ads; busca de marca subindo no Search Console]. Quando qualquer um desses aparecer, roda **'marketplace'** de novo que eu reavalio."
 
 **Rodada de status (canais abertos):**
 "Status dos canais atualizado. [Canal]: [métrica-chave vs meta]. [Alerta ou próximo passo em 1 frase]. Me traz [dado pendente] do painel do canal que eu fecho a leitura do mês."

@@ -689,10 +689,11 @@ Add-Content $PROFILE &#x27;function aura { Set-Location &quot;$HOME\aura-engine&
 </section>
 <section class="section" id="s5"><div class="section-label reveal"><span class="num">05</span>Conectar a base de conhecimento</div>
 <div class="subsection reveal"><div class="subsection-title">O que fundamenta as recomendações.</div>
-<p>A base de conhecimento reúne centenas de frameworks de marketing, copy e mídia paga prontos pra consulta. É ela que sustenta as decisões da Aura em cada fase.</p></div>
+<p>A base de conhecimento reúne mais de 1.300 sistemas de marketing, copy e mídia paga prontos pra consulta. É ela que sustenta as decisões da Aura em cada fase.</p></div>
 <div class="subsection reveal" style="margin-top:34px"><div class="subsection-title" style="font-size:clamp(20px,2.2vw,26px)">No Claude Code (automático)</div>
 <p>O próprio Aura Engine já vem com a base registrada — falta só guardar a sua chave de acesso. Rode uma vez no terminal, fora de uma sessão do Claude (outra aba, ou Ctrl+C duas vezes pra sair):</p></div>
-<div class="codebox reveal"><div class="cb-head"><span class="cb-label">guardar a chave de acesso · roda uma vez</span><button class="cb-copy" type="button">Copiar</button></div><pre>echo 'export AURA_KEY="AURADTCACCESS"' &gt;&gt; ~/.zshrc</pre></div>
+<div class="codebox reveal"><div class="cb-head"><span class="cb-label">guardar a chave de acesso · mac · roda uma vez</span><button class="cb-copy" type="button">Copiar</button></div><pre>echo 'export AURA_KEY="AURADTCACCESS"' &gt;&gt; ~/.zshrc</pre></div>
+<div class="codebox reveal"><div class="cb-head"><span class="cb-label">guardar a chave de acesso · windows (powershell) · roda uma vez</span><button class="cb-copy" type="button">Copiar</button></div><pre>[System.Environment]::SetEnvironmentVariable('AURA_KEY','AURADTCACCESS','User')</pre></div>
 <div class="subsection reveal"><p>Depois abra um terminal <strong>novo</strong> e entre no Claude Code (comando <code>aura</code>). Na primeira vez vai aparecer um aviso perguntando se você aprova o servidor <strong>aura</strong> — aprove, e está conectado.</p>
 <p>Recusou o aviso sem querer? Rode fora de uma sessão do Claude e abra o Claude Code de novo pra aprovar:</p></div>
 <div class="codebox reveal"><div class="cb-head"><span class="cb-label">reexibir o aviso de aprovação · claude code</span><button class="cb-copy" type="button">Copiar</button></div><pre>claude mcp reset-project-choices</pre></div>
@@ -716,7 +717,7 @@ Add-Content $PROFILE &#x27;function aura { Set-Location &quot;$HOME\aura-engine&
     <div class="ps ps3"><i class="ps-line"><b></b></i><strong>Copy</strong><em>headlines, página e argumentos (copy)</em></div>
     <div class="ps ps4"><i class="ps-line"><b></b></i><strong>Loja</strong><em>design e deploy da página, tracking, checkout (page → tracking → checkout)</em></div>
     <div class="ps ps5"><i class="ps-line"><b></b></i><strong>Tráfego</strong><em>criativos, estratégia de ads, análise, escala (creatives → ad strategy…)</em></div>
-    <div class="ps ps6"><strong>Retenção</strong><em>email e SMS depois do lançamento (retention)</em></div>
+    <div class="ps ps6"><strong>Retenção</strong><em>email e SMS — os fluxos de recuperação antes do lançamento, campanhas depois (retention)</em></div>
   </div>
 </div>
 <div class="note reveal"><strong>Fora da sequência, as consultas laterais</strong> Além das fases em ordem, existem skills que você chama a qualquer momento, pelo nome, quando a necessidade aparece: <code>finance</code> (números, projeções e quanto dá pra gastar em ads), <code>sourcing</code> (fornecedor, cotação e custo real do produto), <code>creators</code> (UGC, seeding e embaixadores), <code>promo</code> (Black Friday, Q4 e qualquer promoção, com a conta refeita antes de ligar campanha), <code>time</code> (quando e como contratar), <code>ops</code> (backups de conta e plano B — vale desde o primeiro dia) e <code>marketplace</code> (expandir pra Amazon e TikTok Shop na hora certa). A Aura também indica cada uma sozinha, no momento em que faz sentido.</div>

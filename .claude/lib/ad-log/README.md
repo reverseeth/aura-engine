@@ -21,7 +21,7 @@ O artefato que faltava do sistema de learnings: **um registro cronológico de to
 
 - **Skill 10** — criação de campanha/ad sets/ads (mesmo em PAUSED) e automações de proteção.
 - **Skill 12** — todo ajuste de budget (subida, descida, reset da meia-noite), duplicação em ABO, graduação pra ASC.
-- **Skill 14** — duplicações e novos ad sets/LPs criados pela amplificação.
+- **Skill 14** — é planejadora: entrega o plano de amplificação e NÃO executa na conta; a execução (e a linha no log) fica com a Skill 12 e as receitas. Se algum passo do plano for executado na conta ainda na sessão da 14, quem executa loga.
 - **Skill 17** — tudo que a janela promocional muda na conta: campanha promo, budget direto da promo, surf/recuo intradiário, resets da janela, rule de fim de promo, religada do evergreen.
 - **Receitas** `full-deploy`, `creative-loop`, `pause-ad-set`, `upload-creative-to-meta` — cada ação executada via MCP.
 - **Qualquer skill** que souber de mudança manual do membro ("desliguei o ad X ontem") registra com executor `membro`.

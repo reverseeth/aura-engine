@@ -60,6 +60,8 @@ Se algum arquivo de pré-flight faltar, não aborte seco (rule `emergency-escape
 
 5f. Leia `workspace/[produto]/sourcing/dados.json` **(se existir)** — a 01b (ETAPA 12) grava `calendar.volume_confirmation_30_60_90` (confirmação escrita do fornecedor pro volume de 30/60/90 dias) e `calendar.reorder_point_days` (ponto de recompra em dias de estoque restante). Existindo, esses campos respondem o check de fornecedor da ETAPA 3 e da ETAPA 6 — **não re-pergunte ao membro**. Sourcing nunca rodou → o check segue com a pergunta de hoje.
 
+5g. Leia `manifest.promo.active` **(se existir — a skill 17 grava; leitura aditiva, nunca pré-requisito):** se `true`, a conta está numa **janela promocional com data-fim** — degraus e reset seguem o regime da janela (exceção (a) do cânone §5: budget planejado da promo direto, surf + reset da meia-noite TODA noite sobre o gasto real), e esta skill **não "corrige" budget de promo pra baixo por conta própria** — a dona da janela é a 17, e qualquer ajuste na campanha de promo passa por ela. O evergreen fora da promo segue o protocolo normal. Campo ausente ou `false` = sem janela, nada muda.
+
 6. **Puxe os SISTEMAS NOMEADOS da base — NUNCA query genérica — e cubra o domínio, não uma amostra** (contrato de cobertura do `.claude/lib/kb-index/README.md`):
    - **Enumere o domínio inteiro no início de cada ETAPA que consulta a base:** abra `.claude/lib/kb-index/frameworks.json` e liste TODAS as entradas dos domínios desta skill — `scaling` e `finance-projections` (mapa skill→domínio no README do índice) — cujo `use_in_skill` inclui a 12; entradas de outros domínios marcadas pra 12 (ex: `ops-scale-risk`, `affiliate-creator-channels`) contam igual. **O tamanho do domínio é o que o `frameworks.json` disser** — contagem citada em texto de skill nunca é fonte de verdade.
    - **As queries embutidas nas ETAPAS abaixo são o núcleo mínimo garantido daquela etapa, nunca o teto:** entrada relevante pra fase que não está embutida É PARA SER PUXADA do mesmo jeito. Critério de relevância é por FASE: "esta entrada informa a decisão desta etapa?" — se a resposta for "talvez", puxa.
@@ -133,7 +135,7 @@ Se `manifest.psm_real` estiver ausente, rode a skill 11 primeiro (quem o grava) 
 
 ### ETAPA 1 — Receber Panorama Atual
 
-Primeiro, pré-popule dos artefatos: `11-ad-analysis/dados.json` (spend diário, CPA médio, CPM por conta, ROAS médio, AOV real, a classificação por criativo nas 4 classes do cânone §2 — ou `winners[]` a reclassificar — + `champions[]` com Post ID, se houver) + `04-offer-builder/dados.json` (breakeven CPA/ROAS) + `manifest.psm_real`. Só pergunte ao membro o que NÃO está nos artefatos.
+Primeiro, pré-popule dos artefatos: `11-ad-analysis/dados.json` (spend diário, CPA médio, ROAS médio, a classificação por criativo nas 4 classes do cânone §2 — ou `winners[]` a reclassificar — + `champions[]` com Post ID, se houver) + `04-offer-builder/dados.json` (breakeven CPA/ROAS) + `manifest.psm_real`. **AOV real:** leia do `15-finance-engine/dados.json` (modelo mensal) quando existir; senão, pergunte ao membro — a 11 não grava AOV. **CPM atual da conta:** pergunte ao membro (Ads Manager) — a 11 grava só a tendência (`health_signals.cpm_trend`), não o valor. Só pergunte ao membro o que NÃO está nos artefatos.
 
 Campos **necessários pra esta skill decidir** que os artefatos nem sempre cobrem — peça junto com o resto, numa mensagem só, apenas os que faltarem:
 
@@ -203,7 +205,7 @@ Sistemas a carregar antes de montar o plano: `scaling protocol 48-72 hours above
 >
 > A meia-noite que conta é a do **fuso do AD ACCOUNT**, não a do membro — confirme o fuso na ETAPA 1 antes de dar horário.
 >
-> Exceção única: dia excepcional em que o gasto real bateu o KPI com folga → pode manter o gasto real como budget do dia seguinte, em vez da metade. Nunca acima do gasto real.
+> Em janela promocional com data-fim, quem governa o comportamento do budget é a exceção (a) do cânone §5 e a skill 17 (promo-engine), dona da janela — e o reset da meia-noite segue existindo lá, sobre o gasto real da promo.
 
 **Ad log — verificar antes, registrar no ato (cânone `.claude/lib/ad-log/README.md`):**
 
@@ -326,6 +328,23 @@ Pergunte ao membro qual escola quer rodar. Se ele não tiver opinião, vá com o
 
 **Variante condicional — value optimization (só se o AOV varia de verdade):** se o spread de AOV entre pedidos passa de ~30% (bundle/subscription/upsell forte pós-07d), otimizar por CPA uniforme sub-otimiza — paga o mesmo por pedido de $40 e de $120. Nesse caso, teste **ROAS goal + value rules** numa campanha DUPLICADA (nunca na campanha de controle), com 14+ dias de teste antes de julgar. Pra produto único de preço estável (a maioria dos membros), ignore esta variante: otimizar por CPA — no lance padrão (highest volume) ou com teto, conforme a escola — segue superior em simplicidade e controle.
 
+### ETAPA 4.4 — Promoção do breakthrough pra ABO (cânone §5)
+
+O cânone §5 aposentou o champions ad set: **cada breakthrough ganha 1 ad set próprio em campanha ABO paralela** — e a EXECUÇÃO dessa promoção vive AQUI (a 11 sinaliza que o criativo está pronto; a 14 planeja a duplicação no Movimento 5 dela; quem cria, ajusta budget e loga é esta skill).
+
+**Gatilho:** breakthrough novo confirmado pela 11 (`manifest.breakthroughs[]` / `ad_classification[].class == "breakthrough"`) ainda sem ad set ABO próprio — ou o plano da 14 (Movimento 5 do `amplification-plan.md`) apontando a duplicação.
+
+**Execução (réguas do cânone §5, sem improviso):**
+
+1. **Campanha ABO paralela:** na primeira promoção, criar a campanha ABO (budget no nível do AD SET, sem CBO); nas promoções seguintes, **reusar a mesma campanha ABO** — não criar uma por breakthrough.
+2. **1 ad set próprio por breakthrough** — nunca 2 breakthroughs no mesmo ad set.
+3. **Budget inicial do ad set: ~10% do budget diário da campanha principal** (`manifest.budget_daily` / o CBO de teste da 10).
+4. **O ad original PERMANECE rodando no CBO.** A promoção duplica, não move — o motivo do cânone: winner novo rouba spend do antigo dentro do CBO, e o ABO garante a continuidade do que já provou escalar.
+5. **Depois da promoção, o degrau normal do protocolo (ETAPA 3.5) governa o ad set novo:** 48-72h acima do target antes do primeiro +20%, gate click-based, reset da meia-noite — sem regime especial.
+6. **Linha no ad-log NO ATO** (cânone ad-log): `adset:[creative_id]` criado na campanha ABO, com o budget inicial e executor `skill-12` (ou `membro`, no caminho manual). Promoção executada e não logada é bug de processo.
+
+**Como criar:** via MCP quando disponível (a MESMA cascade da ETAPA 4.6, tudo em `status: PAUSED` — o membro revisa e ativa), senão instrução passo-a-passo ao membro no Ads Manager. Registrar cada promoção em `dados.json.abo_promotions[]` (creative_id, adset_id, budget inicial, data).
+
 ### ETAPA 4.5 — Quando o budget trava a entrega → abrir nova conta
 
 Padrão que aparece em todas as escolas: às vezes você sobe o budget e a entrega **não acompanha** — a campanha não gasta o novo budget, ou trava o aprendizado e o CPA dispara. Antes de concluir "atingi meu teto", diagnostique:
@@ -343,7 +362,7 @@ A escala não precisa ser só instrução manual — o membro é não-técnico, 
 - **Escola A:** as campanhas 1-1-1 do breakthrough, duplicadas com os caps decrescentes calculados ($50/$45/$40/$35…), todas em `status: PAUSED`. O surf em si continua manual — é monitoramento ativo por definição.
 - **Escola B:** a campanha bid cap (bid = CPA máximo, budget 100×) em PAUSED; os ad sets novos de alimentação também nascem PAUSED a cada adição.
 - **Escola C:** sem estrutura nova pra criar — só o plano de doubling (mudança de budget é sempre aprovada pelo membro, nunca automática).
-- **Automated Rules opcionais** (scale-down −20% quando a performance fica abaixo do breakeven **por 24-48h persistentes** — a janela do protocolo da ETAPA 3.5, nunca o susto de 1 dia; PGS): criar **DESATIVADAS** — nenhuma rule executa ação automática até o membro revisar e ativar no Ads Manager.
+- **Automações — só as DUAS de proteção do cânone §6, nunca de performance:** criar **DESATIVADAS**, pro membro revisar e ativar no Ads Manager — **(a)** spend 5× em 24h → pausar; **(b)** URL de destino ≠ domínio da loja → desligar o ad (as mesmas da Skill 10 ETAPA 6; se já existem na conta, só conferir o estado). O único limitador aceito além delas é o **`ad set spending limit → daily maximum`** — o substituto do PGS, que o Meta recusa em campanha com CBO (*"performance-related conditions are not available for assets that use CBO"*). **Kill e escala por métrica NUNCA se automatizam — são decisão humana via protocolo (cânone §6):** nenhuma rule de scale-down/scale-up por CPA/ROAS/frequency é oferecida, criada ou prometida.
 - **A regra de reset da meia-noite NÃO vira automação.** Ela depende do gasto REAL do dia, que só se conhece no fim do dia — a skill entrega o número calculado e o membro aplica. Nenhuma automated rule pode setar budget nominal sozinha.
 
 **Regras invioláveis (as mesmas da 10):** tudo nasce PAUSED/desativado; o membro revisa e ativa; a skill NUNCA ativa nada sozinha. Gravar os IDs criados em `12-scale-engine/dados.json.mcp_execution` — e **registrar cada ação executada via MCP no `workspace/[produto]/ad-log.md` na MESMA execução** (cânone ad-log: campanhas/ad sets criados em PAUSED, automated rules criadas desativadas — executor `skill-12`). Sem MCP conectado → entregar o passo-a-passo manual formatado campo a campo (como sempre). Se a criação falhar (rate limit/auth), aplicar `.claude/rules/emergency-escape-paths.md` ES6.
@@ -407,7 +426,7 @@ Construa dois cenários usando breakeven, AOV e PSM reais.
 | Mês 2 | $[atual × 2-3] | $[calc] | $[margem] |
 | Mês 3 | $[atual × 3-4] | $[calc] | $[margem] |
 
-Use AOV real do `11-ad-analysis/dados.json` e breakeven do `04-offer-builder/dados.json`. Não infle: na Escola A o crescimento é em saltos (surf), na C é dobra a cada 3 dias até o teto — modele o caminho realista da escola escolhida.
+Use o AOV real da ETAPA 1 (do `15-finance-engine/dados.json` quando existir; senão o que o membro informou — a 11 não grava AOV) e o breakeven do `04-offer-builder/dados.json`. Não infle: na Escola A o crescimento é em saltos (surf), na C é dobra a cada 3 dias até o teto — modele o caminho realista da escola escolhida.
 
 > **Camada de custo fixo na projeção (quando `15-finance-engine/dados.json` existir).** A tabela acima projeta **margem de contribuição**, não lucro (unit-economics §1). Com `monthly_model.fixed_costs_monthly` na mão, acrescente **uma coluna**: `Resultado operacional mensal = margem de contribuição do mês − custo fixo mensal` — o único número da projeção que pode ser chamado de lucro. Some duas linhas de leitura ao redor da tabela: o **teto de escala** (`payback.scale_ceiling_monthly_spend`) marcando até onde a curva de spend pode ir, e o **runway** (`cash.runway_months`) dizendo quantos meses o caixa banca esse caminho. O custo fixo é o MESMO valor nos três meses — ele não cresce porque o budget cresceu, e é exatamente por isso que mais volume melhora o resultado mesmo com eficiência um pouco pior (cânone §4).
 >
@@ -533,7 +552,8 @@ Outputs em `workspace/[produto]/12-scale-engine/`:
   2. Análise de prontidão com bloqueios identificados, incluindo a classe do(s) criativo(s) que liberou (ou não) a escala (Etapa 3)
   2b. **Scaling Protocol aplicado ao caso do membro** (Etapa 3.5): status dos dois gates (consistência 48-72h + as duas portas do click-based), a última mudança de budget do `ad-log.md` e há quanto tempo, exceção ativa do cânone se houver (promo com data-fim / "new reason to be scaling"), qual o próximo passo de budget e quando, a régua de descida (−20% só após 24-48h persistentes abaixo do breakeven), e — em destaque — **a regra de reset da meia-noite com o número calculado** pro budget vigente
   3. **Escola de escala escolhida** (variante de intensidade) + bidding efetivo + setup operacional concreto (cost cap value / bid cap + budget / cadência de doubling) (Etapa 4)
-  4. Política de conta nova quando entrega trava (Etapa 4.5) + status da execução via MCP, se usada: o que foi criado em PAUSED e os IDs (Etapa 4.6)
+  3b. **Promoções de breakthrough pra ABO** (Etapa 4.4): quais criativos foram promovidos (ou estão na fila), o budget inicial de cada ad set (~10% da campanha principal), a confirmação de que o ad original segue no CBO, e o registro no ad-log
+  4. Política de conta nova quando entrega trava (Etapa 4.5) + status da execução via MCP, se usada: o que foi criado em PAUSED e os IDs (Etapas 4.4/4.6)
   5. Credibilidade da loja — gaps a resolver (Etapa 5)
   6. Cash flow check + gap projetado — com a necessidade de caixa, o float e o runway da 15 quando ela existir (Etapa 6)
   7. Projeção 30/60/90 base + pessimista + template cash flow, com a coluna de resultado operacional e o teto de escala quando os fixos estiverem na mesa (Etapa 7)
@@ -549,7 +569,7 @@ Outputs em `workspace/[produto]/12-scale-engine/`:
   - Sinais que trigam volta pra 08 (creative refresh) + se a escala está estagnada (a ação fora do ad account que cabe à 08)
   - Bloqueios de cash flow (se houver)
 
-- **`workspace/[produto]/ad-log.md`** (append-only, cânone `.claude/lib/ad-log/README.md` — arquivo operacional, isento de dual output): as linhas desta execução já foram gravadas **no momento de cada mudança** (degraus, resets da meia-noite, ABO, graduação ASC, ações via MCP — ETAPAS 3.5/4.6/9), nunca em lote no fim. Antes de fechar, conferir que nenhuma mudança instruída/executada ficou sem linha.
+- **`workspace/[produto]/ad-log.md`** (append-only, cânone `.claude/lib/ad-log/README.md` — arquivo operacional, isento de dual output): as linhas desta execução já foram gravadas **no momento de cada mudança** (degraus, resets da meia-noite, promoções pra ABO, graduação ASC, ações via MCP — ETAPAS 3.5/4.4/4.6/9), nunca em lote no fim. Antes de fechar, conferir que nenhuma mudança instruída/executada ficou sem linha.
 
 - `dados.json` (JSON companion):
 
@@ -621,6 +641,16 @@ Outputs em `workspace/[produto]/12-scale-engine/`:
     "doubling_cadence_days": null,
     "surf_enabled": false
   },
+  "abo_promotions": [
+    {
+      "creative_id": "c-01",
+      "abo_campaign_id": null,
+      "adset_id": null,
+      "initial_daily_budget": 0,
+      "promoted_at": null,
+      "original_stays_in_cbo": true
+    }
+  ],
   "new_account_policy": {
     "trigger": "delivery_throttled_or_account_cpm_too_high",
     "legitimate_only": true
@@ -654,6 +684,8 @@ Outputs em `workspace/[produto]/12-scale-engine/`:
 }
 ```
 
+**`abo_promotions[]`** registra cada promoção da ETAPA 4.4 — uma entrada por breakthrough promovido (`initial_daily_budget` = ~10% do budget diário da campanha principal; `abo_campaign_id` repete entre entradas porque a campanha ABO é reusada; `original_stays_in_cbo` fica `true` sempre — a promoção duplica, não move). Array vazio enquanto nenhum breakthrough foi promovido.
+
 **Campos que a skill NUNCA preenche por estimativa:** `scale_trigger.class` (vem da classificação do cânone §2 sobre dados reais da 11), `scaling_protocol.click_based_purchase_share` (vem de `manifest.click_based_purchase_share` gravado pela 11 — ou do membro via Ads Manager, quando o manifest não tem), `psm_real_basis` (cópia de `manifest.psm_real_basis`; ausente = tratar como `platform_cpa_proxy`), `supply_confirmation` (vem do `sourcing/dados.json` da 01b ou do membro) e `fixed_cost_gate.monthly_fixed_costs` (vem do membro ou da 15). Faltando qualquer um, o campo fica nulo, o gate correspondente fica bloqueado, e o relatório diz o que falta pra destravar.
 
 **Campos que só existem quando a 15 rodou:** `fixed_cost_gate.finance_verdict` / `.spend_to_breakeven_with_fixed`, `scaling_protocol.scale_ceiling_monthly_spend`, `cash_flow.cash_needed_90d` / `.total_float_days` / `.runway_months`. São **cópias** do `15-finance-engine/dados.json` — esta skill não os recalcula com fórmula própria. Sem o arquivo da 15, ficam `null`, os campos `source` registram a origem local, e cada ponto de uso cai no fallback descrito no Contexto (item 5d).
@@ -674,6 +706,7 @@ Primeira versão é draft, não decreto (rule `iteration-driven-refinement.md`).
 
 **Se PRONTO pra escalar:**
 "Plano de escala pronto (draft). A régua é a mesma pra qualquer caminho: sobe **+20%** só depois de **48-72h acima do target** e com o gate click-based verde (**≥60% das compras em 7-day click**, ou o ROAS contado só com compras de clique batendo o KPI sozinho), depois a cada 24h — cada mudança fica registrada no ad-log do produto, e é lá que eu confiro as 24h desde o último degrau. Descida: só depois de **24-48h seguidas abaixo do breakeven**, aí **−20%** (um dia ruim isolado não derruba nada). Duas exceções, e só essas: promo com data-fim entra direto no budget da promo (protegida pelo surf + reset da meia-noite), e um motivo NOVO pra escalar (oferta nova, breakthrough novo, sazonalidade) reinicia a contagem. Recomendei a **Escola [X]** pro seu stage como intensidade: [setup concreto — bidding, cost cap $Y / bid cap $Z budget $W / dobra a cada 3 dias].
+[Se há breakthrough novo sem ad set ABO:] Breakthrough confirmado ganha um **ad set próprio numa campanha ABO paralela**, começando em ~10% do budget da principal — o ad original continua rodando no CBO, e o ad set novo segue o mesmo degrau de +20% dali em diante ([se MCP: já criei em PAUSED — revisa e ativa / senão: te passo o passo-a-passo]).
 **O ponto que mais custa dinheiro:** toda vez que você subir budget, à meia-noite (fuso do seu ad account) o budget do dia seguinte volta pra **~metade do que você REALMENTE gastou**, nunca pro número que ficou na tela. Hoje isso dá **~$[valor]**. Se deixar o nominal de pé, o Meta gasta ele inteiro no dia seguinte enquanto você dorme.
 Quer rodar essa escola ou prefere outra? Roda o checklist semanal e me volta daqui a 30 dias ou quando precisar re-analisar — diga **'ad analysis'** com os dados atualizados."
 

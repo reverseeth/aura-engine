@@ -159,7 +159,14 @@
     },
     "psm_real": {
       "type": "number",
-      "description": "PSM real = LTV / (CPA + COGS). CANONICAL formula and CANONICAL source. Written ONLY by skill 11 (ad-analysis) from live performance; read by skill 12 (scale). Skill 12 must NOT recompute psm_real with a different formula."
+      "description": "PSM real = LTV / (CAC_real + COGS). CANONICAL formula and CANONICAL source. CAC_real = ad spend / clientes novos (Shopify); CPA de plataforma so como proxy declarado (ver psm_real_basis). Written ONLY by skill 11 (ad-analysis) from live performance; read by skill 12 (scale). Skill 12 must NOT recompute psm_real with a different formula."
+    },
+    "psm_real_basis": {
+      "enum": [
+        "shopify_new_customer",
+        "platform_cpa_proxy"
+      ],
+      "description": "Base do denominador do psm_real. Gravado pela skill 11 junto com psm_real. Com 'platform_cpa_proxy' o numero e declaradamente otimista e a comparacao teorico-vs-real NAO libera escala — a skill 12 exige a base 'shopify_new_customer' pra comparar e liberar (campo ausente = tratar como proxy)."
     },
     "target_cpa": {
       "type": "number",
@@ -326,7 +333,7 @@
     },
     "cogs_estimate": {
       "type": "number",
-      "description": "Approximate per-order COGS+shipping in USD. Captured in 00-setup for C/D; refined in skill 04 (cogs_breakdown). Used for PSM = LTV / (CPA + COGS)."
+      "description": "Approximate per-order COGS+shipping in USD. Captured in 00-setup for C/D; refined in skill 04 (cogs_breakdown). Used for PSM = LTV / (CAC_real + COGS) — CAC_real = ad spend / clientes novos (Shopify); CPA de plataforma so como proxy declarado."
     },
     "batch_count": {
       "type": "integer",
@@ -396,12 +403,18 @@
             "description": "breakthrough exige ad_kpi melhor que campaign_kpi E puxar spend"
           },
           "hook_rate": {
-            "type": "number",
-            "description": "3-sec plays / impressoes"
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "3-sec plays / impressoes; null para criativo estatico (mesma convencao do emq_score)"
           },
           "hold_rate": {
-            "type": "number",
-            "description": "ThruPlays / impressoes"
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "ThruPlays / impressoes; null para criativo estatico"
           }
         }
       },

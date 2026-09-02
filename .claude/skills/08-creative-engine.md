@@ -19,17 +19,18 @@ Quando o membro tem copy pronta (Skill 06) e precisa dos briefings de criativos 
 - [ ] **Pixel/CAPI validados**: ler `manifest.tracking.tracking_ready` (gravado pela 07c). Se `true`, seguir. Se `false`/ausente, pedir screenshot do Events Manager mostrando **EMQ ≥ 6/10** (Event Match Quality, escala 0-10) — se membro não pode fornecer, AVISAR que criativos serão desperdiçados e sugerir rodar a 07c (tracking-setup) primeiro
 - [ ] Se existe `workspace/[produto]/03-competitor-analysis/creative-patterns.json` (output do `creative_deep_analysis` da Skill 03), LER pra extrair `hook_archetypes`, `recurring_claims` (cada claim traz `market_validated` + `also_saturated_pdp` + `usage` — semântica na ETAPA 3) e `format_distribution` dos concorrentes — alimenta a ideação na ETAPA 3
 - [ ] Se existe `workspace/[produto]/03-competitor-analysis/dados.json` com `validated_library` (mecanismos + ângulos validados com evidência de veiculação/escala), `top_creatives` e `ad_formats` (formatos dissecados dos criativos escalados — ETAPA 3D da Skill 03: estrutura, duração, padrão de iteração), LER também — ângulos com validação de mercado entram na Vertical 1 da ideação com prioridade, e o batch usa formatos JÁ validados por escala (`ad_formats`), nunca só ângulos
-- [ ] Se existe `workspace/[produto]/11-ad-analysis/NEXT_BATCH_IDEAS.md` (output do loop 11→08 fechado), LER e usar como input para priorizar ângulos no novo batch
+- [ ] Se existe `workspace/[produto]/11-ad-analysis/NEXT_BATCH_IDEAS.md` (output do loop 11→08 fechado), LER e usar como input para priorizar ângulos no novo batch — e todo conceito que ITERA um criativo já rodado nasce com **`iteration_of`** preenchido (creative_id do original, schema do dados.json): é essa linhagem que a 11 lê no `iteration_zone_check`
 
 **Arquivo de pré-flight faltante (escape path, rule ES1):** se `04-offer-builder/dados.json` ou `02-market-research/dados.json` não existir, NÃO aborte seco. Ofereça: **(A)** rodar a skill faltante agora (04 ou 02), OU **(B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["arquivo"]` e avisando no output final que recomenda re-executar a Skill 08 quando o arquivo real existir. `03-competitor-analysis/creative-patterns.json` ausente é não-bloqueante (a ETAPA 3 segue só com VOC + competitor analysis + base).
 
 ### Quando rodar essa skill (decision tree)
 - **Primeira vez** (nunca rodou para este produto): sim, proceed
 - **Após skill 11 recomendar 'creatives'**: sim, proceed — LER `11-ad-analysis/NEXT_BATCH_IDEAS.md` primeiro
-- **Refresh por fadiga**: só execute se `11-ad-analysis` reportou no último ciclo:
-  - `frequency > 1.4` E `ctr_drop_pct > 20` em 7 dias, OU
-  - CPM subiu > 30% em 7 dias com freq < 1.3 (saturation de audience), OU
-  - top-performing criativo tem > 14 dias de idade
+- **Refresh por fadiga**: só execute se o último ciclo da 11 sustenta a leitura — pelos campos que o handoff dela REALMENTE grava (`11-ad-analysis/dados.json.health_signals`):
+  - `frequency_max > 1.4` E `cpm_trend == "up"` (re-martelando a mesma audiência com custo subindo), OU
+  - `cpm_trend == "up"` com `frequency_max < 1.3` (saturação de audiência: custo sobe sem re-impacto), OU
+  - top-performing criativo tem > 14 dias de idade (`creative_age_days_oldest`)
+  A queda de CTR não vive no handoff da 11 — antes de rodar refresh pelos dois primeiros sinais, confirme com o membro em 1 pergunta: "o CTR desses ads caiu na última semana no Ads Manager?"
 - **Diversificação** (skill 12 pediu mais diversity): use ratio "2× budget → 2× creative" só em escala >$1k/dia; abaixo disso, use 1.5× — em qualquer caso limitado pela capacidade de teste da ETAPA 2
 
 ### Contexto a carregar
@@ -220,7 +221,7 @@ Use o archetype pra influenciar FORMATO e SCRIPT dos conceitos:
 
 **Diversidade de talento entre conceitos (variável Avatar do mapa de composição):** ao definir QUEM aparece/grava em cada conceito, puxe o **Creator Diversity Matrix** da base — rode a `best_query` exata `creator diversity matrix idade raca genero idioma espanhol caracteristicas fisicas psicografia` — e varie deliberadamente os 6 eixos (idade, raça, gênero, idioma, características físicas, psicografia) ENTRE os conceitos do batch, em vez de repetir o mesmo perfil de talento em todos. Espanhol nos EUA é subvalorizado: um criativo em espanhol escalou a $10k/dia só regravando ads em inglês já provados. A matriz vale igual pra creator humano e pra avatar de IA (a rota avatar fixo + lip-sync da ETAPA 1.0 escolhe o avatar pelos mesmos eixos), e o eixo escolhido de cada conceito fica declarado no campo **Avatar** do briefing (ETAPA 5).
 
-> **Handoff:** aqui os creators entram só como FONTE de material do batch. O motor operacional de creators (seeding, casting, ambassadors, whitelisting) é a skill **16-creator-engine** (em criação — referencie pelo nome): pedido de recrutar, gerir ou whitelistar creators vai pra ela, não pra esta skill.
+> **Handoff:** aqui os creators entram só como FONTE de material do batch. O motor operacional de creators (seeding, casting, ambassadors, whitelisting) é a skill **16-creator-engine**: pedido de recrutar, gerir ou whitelistar creators vai pra ela, não pra esta skill.
 
 ### ETAPA 2 — Quantos Conceitos Entram no Batch (capacidade de teste, não stage)
 
@@ -388,7 +389,7 @@ O cânone define três métodos; a Skill 08 usa dois e nunca os redefine localme
 |---|---|
 | Primeiro teste, formato **imagem** (static, product photography, infográfico, meme) | **`marksman`** |
 | Primeiro teste, formato **vídeo** | **`sniper`** (Marksman em vídeo é a rota avançada — só se o membro for experiente e o hold universal passar no gate A.0.2) |
-| **Qualquer iteração** (batch nasceu de `11-ad-analysis/NEXT_BATCH_IDEAS.md`, ou o ângulo já teve direção num batch anterior) | **`sniper`**, sempre — sem exceção |
+| **Conceito que É iteração** (itera um criativo que já rodou, ou o ângulo já teve direção num batch anterior) | **`sniper`**, sempre — sem exceção. A regra é POR CONCEITO, não por batch: num batch derivado da 11, um conceito de direção NOVA pode ser `marksman` — é o retorno do cânone §7 quando a performance platôa e o ângulo já foi "snipado" |
 | Ângulo já venceu e o conceito está aprofundando comportamento/experiência do sub-avatar | **`sniper`** |
 
 Grave `testing_method` por conceito no `dados.json`. Na apresentação da ETAPA 4, declare o método de cada conceito junto do ângulo — o membro precisa saber se aquele pack está procurando direção ou extraindo profundidade.
@@ -1022,7 +1023,7 @@ Output log em `workspace/[produto]/08-creative-engine/compliance-log.json`:
   "flags_medium": 3,
   "pieces_rewritten": 2,
   "triggers_by_eixo": {"Meta Policy": 3, "FTC": 2, "AI Style": 1},
-  "details": [...]
+  "details": [ "um item por check rodado: peça, trigger, severity, rewrite aplicado" ]
 }
 ```
 
@@ -1065,7 +1066,7 @@ Crie um resumo operacional pro membro executar. As linhas variam conforme a rota
 | [c-01] | Marksman | **qual dos 3 ângulos** o mercado favorece — o vencedor vira o ângulo do próximo batch, em Sniper |
 | [c-02] | Sniper | **qual execução** do ângulo [X] extrai mais — ângulo já tem direção |
 
-**Se o batch tem creator humano** (algum conceito com archetype `creator_human`, ou UGC comprado de creator): deixe o loop de feedback armado desde já — puxe o **Feedback Loop de Creator (benchmarks de soft metric)**, rode a `best_query` exata `custom report por creator ad name contains thumb stop ratio 42-48% 3s ate 15s Loom`. O nome do ad carrega o nome do creator (é o que permite à Skill 11 montar custom report por "ad name contains" e ler resultado POR creator), e a devolutiva pro creator vai em Loom com os benchmarks: **thumb stop ratio bom fica em 42-48%**, e a retenção dos 3s até os 15s diz se o corpo segurou quem o hook prendeu. Inclua essa instrução de nomenclatura + devolutiva no resumo de produção sempre que houver creator no batch.
+**Se o batch tem creator humano** (algum conceito com archetype `creator_human`, ou UGC comprado de creator): deixe o loop de feedback armado desde já — puxe o **Feedback Loop de Creator (benchmarks de soft metric)**, rode a `best_query` exata `custom report por creator ad name contains thumb stop ratio 42-48% 3s ate 15s Loom`. O nome do ad carrega o nome do creator (é o que permite à Skill 11 montar custom report por "ad name contains" e ler resultado POR creator), e a devolutiva pro creator vai em Loom com os benchmarks: **thumb stop ratio bom fica em 42-48%** (régua exigente específica do feedback de creator; a tabela geral de Hook rate — 21/30/40/50+ — vive no cânone §4 e é a mesma métrica), e a retenção dos 3s até os 15s diz se o corpo segurou quem o hook prendeu. Inclua essa instrução de nomenclatura + devolutiva no resumo de produção sempre que houver creator no batch.
 
 **Se Rota A (ou conceitos `ai` no Mix):**
 
@@ -1127,7 +1128,7 @@ A skill tem ~10 gates espalhados pelas ETAPAs. Antes de declarar o batch entregu
 - [ ] Entregável de produção por conceito conforme a rota (ETAPA 5.7): Rota A = prompts em `prompts/` + `prompts-index.json` (+ `renders/` se MCP rendeu); Rota B = `concept-XX-edl.md` com tabela timecode + bloco de usage rights; Mix = cada conceito no seu ramo
 - [ ] LP congruency documentada por conceito (ETAPA 6): destino + message/visual/promise match
 - [ ] Hooks Bank com 10 hooks categorizados no `.md` E no array top-level `hooks_bank[]` do dados.json (ETAPA 7 — contrato com os checks H1/M3 da Skill 09)
-- [ ] `dados.json` completo no schema: `emotion_dominant`/`archetype`/`awareness_level` no NÍVEL do concept (contrato com o gate H4 da 09), mais os campos novos `testing_method`, `angle` (frase), `concept_type`, `sub_avatar_id`, `valence`/`intensity`/`valence_open`/`valence_close`, e `angles[]`+`hold_universal*` nos conceitos `marksman`; `compliance_summary` preenchido, `production_route`/`ai_video_model` gravados
+- [ ] `dados.json` completo no schema: `emotion_dominant`/`archetype`/`awareness_level` no NÍVEL do concept (contrato com o gate H4 da 09), mais os campos novos `testing_method`, `angle` (frase), `concept_type`, `sub_avatar_id`, `valence`/`intensity`/`valence_open`/`valence_close`, `angles[]`+`hold_universal*` nos conceitos `marksman`, e `iteration_of` preenchido em todo conceito que é iteração (null nos novos); `compliance_summary` preenchido, `production_route`/`ai_video_model` gravados
 - [ ] DNA extraction rodada por criativo (ETAPA 7.6) ou erro logado em `extraction-errors.log` (não bloqueia)
 - [ ] Instrução de UTM usa o schema canônico da Skill 10 (`utm_content=[concept-id]-[creative-n]` + macros `{{ad.id}}`/`{{adset.id}}`) — nenhum formato próprio inventado
 - [ ] Dual output: todo relatório `.md` com `.html` companion + logo SVG literal (isenções: `concept-NN-edl.md`, `prompts/*`, `renders/*`, `dados.json`); `manifest.json` atualizado + `build_index.py` rodado
@@ -1182,7 +1183,9 @@ Outputs em `workspace/[produto]/08-creative-engine/` (nomenclatura normalizada):
       "name": "...",
       "production_route": "ai|edl",
       "testing_method": "marksman|sniper",
-      "_comment_testing_method": "cânone `.claude/lib/ad-taxonomy/README.md` §7. Default: primeiro teste em IMAGEM = marksman; primeiro teste em VÍDEO = sniper; QUALQUER iteração = sniper. Define o que os 3 criativos variam entre si (ETAPA 4.5.A.0)",
+      "_comment_testing_method": "cânone `.claude/lib/ad-taxonomy/README.md` §7. Default: primeiro teste em IMAGEM = marksman; primeiro teste em VÍDEO = sniper; conceito que É iteração = sniper (regra POR CONCEITO — direção nova no mesmo batch pode ser marksman). Define o que os 3 criativos variam entre si (ETAPA 4.5.A.0)",
+      "iteration_of": null,
+      "_comment_iteration_of": "OPCIONAL (string|null): creative_id do criativo ORIGINAL quando este conceito é iteração dele (nasceu de NEXT_BATCH_IDEAS.md ou de diretiva da 11/12); null pra conceito novo. Preencher no pré-flight, quando a iteração nasce. É a linhagem que a Skill 11 usa como `original_ref` no `iteration_zone_check` — sem o campo, ela pareia por prosa do briefing",
       "angle": "frase completa que dá a razão de compra, ex: 'you're still waking up tired even after the magnesium'",
       "_comment_angle": "STRING EM FRASE, obrigatória — NUNCA um enum. Fonte: `sub_avatars[].angle` de `02-market-research/dados.json`, ou frase nova das Verticais 1/3 no mesmo formato. Uma palavra solta, um rótulo de formato ou um valor de `concept_type` aqui = reprovado (gate ETAPA 4.5.A.0.3). Em marksman este campo carrega o ângulo do criativo #1 e os 3 vivem em `angles[]`",
       "angles": [
@@ -1239,11 +1242,11 @@ Outputs em `workspace/[produto]/08-creative-engine/` (nomenclatura normalizada):
         }
       ],
       "primary_texts": [
-        { "text": "...", "variant": "A|B", "structure": "descrição da estrutura desta variante", "valence": "positive|negative", "intensity": "low|high", "voc_source": {...}, "compliance_clean": true }
+        { "text": "...", "variant": "A|B", "structure": "descrição da estrutura desta variante", "valence": "positive|negative", "intensity": "low|high", "voc_source": { "ref_id": "voc-001", "original_phrase": "...", "confidence": "direct_quote" }, "compliance_clean": true }
       ],
       "_comment_primary_texts": "`variant` substitui o antigo `angle: A|B` — as duas versões NÃO mudam o ângulo do conceito (ângulo é variável do criativo). O que varia é estrutura, entrada e zona emocional",
       "headlines": [
-        { "text": "...", "frame": "benefit|urgency|offer|question", "voc_source": {...}, "compliance_clean": true }
+        { "text": "...", "frame": "benefit|urgency|offer|question", "voc_source": { "ref_id": "voc-001", "original_phrase": "...", "confidence": "direct_quote" }, "compliance_clean": true }
       ],
       "production_prompts": {
         "_comment": "preenchido só pra conceitos production_route=ai; pra route=edl, production_prompts=null e o entregável é edl_file",

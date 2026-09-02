@@ -27,7 +27,7 @@ Quando existe (ou vai existir) uma **janela promocional com data de fim**: Black
 | Escala evergreen fora de janela | **12** | O registro da janela (a exceção (a) do §5 só vale com data-fim) |
 | Modelo financeiro completo | **15** | O flag de cohort de promo pra calibragem (ETAPA 10) |
 | Estoque e fornecedor | **01b** | A cobrança da confirmação de volume antes da janela |
-| Backups de conta, processadora e operação | **19-ops-engine** (em criação) | Pointer na preparação |
+| Backups de conta, processadora e operação | **19-ops-engine** | Pointer na preparação |
 
 ## Antes de Começar
 
@@ -51,10 +51,10 @@ Se `04-offer-builder/dados.json` faltar, não aborte seco (rule `emergency-escap
 2. `workspace/[produto]/manifest.json` — **`target_cpa` e `breakeven_roas`** (se existirem, carregam o recálculo mais recente e prevalecem sobre o `dados.json` da 04 — mesma precedência das skills 10 e 12), `budget_daily`, `stage`, `breakthroughs[]`/`ad_classification[]` (matéria-prima do banner), `fixed_costs_monthly`, `esp`, `storefront.page_url`, `retention.phase_a_done`
 3. `workspace/[produto]/04-offer-builder/dados.json` — `cogs_breakdown` (os custos em % do preço encolhem junto com o desconto; os custos em dinheiro por pedido não — a diferença é o que espreme a margem), `unit_economics` completo, `pricing.aov_expected`
 4. `workspace/[produto]/15-finance-engine/dados.json` **(se existir)** — `handoff.for_skill_12` (custo fixo, teto de escala, caixa pra 90 dias, veredito da espiral) + `monthly_model.fixed_costs_monthly` + `roas_spiral` (a fórmula do breakeven com fixo vive na ETAPA 5 da 15 — esta skill a reaplica com a margem promocional, nunca a redefine) + `cohorts` (baseline pra leitura pós-promo). Leitura aditiva: sem o arquivo, a janela roda com margem de contribuição e a frase honesta do §1
-5. `workspace/[produto]/01b-sourcing/dados.json` **(se existir)** — `calendar.volume_confirmation_30_60_90` e `calendar.reorder_point_days` (a confirmação de volume por escrito que a janela vai consumir)
+5. `workspace/[produto]/sourcing/dados.json` **(se existir)** — `calendar.volume_confirmation_30_60_90` e `calendar.reorder_point_days` (a confirmação de volume por escrito que a janela vai consumir)
 6. `workspace/[produto]/11-ad-analysis/dados.json` + `workspace/[produto]/ad-log.md` — classificação por criativo (o "best ad" do banner é `breakthrough` ou, na falta, o `spend_winner` mais estável), CPM da conta, trajetória
 7. `workspace/[produto]/12-scale-engine/dados.json` **(se existir)** — escola de escala em uso, `scale_phase`, hábito de reset da meia-noite já instalado
-8. `workspace/[produto]/10-ad-strategy/dados.json` — estrutura evergreen atual, convenção de nomes, URL de destino
+8. `workspace/[produto]/10-ad-strategy/dados.json` **(se existir)** — estrutura evergreen atual, convenção de nomes, URL de destino
 9. `workspace/[produto]/13-retention-engine/dados.json` **(se existir)** — flows ativos (o que a promo precisa adaptar, nunca desligar)
 10. Rodadas anteriores desta skill em `workspace/[produto]/17-promo-engine/` — em especial `seasonal_vault[]` de janelas passadas: winners sazonais guardados são a primeira coisa a religar (ETAPA 6)
 11. Os três cânones do header — leitura obrigatória antes de qualquer recomendação
@@ -88,7 +88,7 @@ Pergunte (ou confirme) numa mensagem só: **qual evento**, **estoque disponível
 
 **A tese central da fonte (P1): comece a sale cedo.** Sem um diferencial de marca fortíssimo, o consumidor compra do primeiro que abrir a sale — e a compra de Black Friday começa a ser planejada meses antes (listas de presente montadas a partir de ads vistos desde o começo do ano). Três benefícios de abrir antes: captura quem vai comprar de qualquer jeito; permite testar oferta, criativo e site ANTES do pico; e gera momentum na conta. Começar cedo **não** drena o pico: marca que tem BF grande tem BF grande mesmo abrindo 1-2 semanas antes.
 
-**Âncoras de calendário da fonte (masterclass de Q4, edição 2025 — a estrutura relativa se mantém de ano pra ano):**
+**Âncoras de calendário (playbook de Q4 da fonte, edição 2025 — a estrutura relativa se mantém de ano pra ano):**
 
 | Janela | Quando (edição 2025) | Nota da fonte |
 |---|---|---|
@@ -115,9 +115,9 @@ Grave `window` no `dados.json` (evento, início, fim, fases, fuso do ad account)
 
 **2.2 — Lead-gen VIP: decisão explícita (o default é NÃO fazer).** Posição da fonte na edição 2025 (mudança vs. o ano anterior): a maioria das marcas de resposta direta não deve captar lista antes da promo — melhor vender direto começando a sale cedo. Lead-gen VIP só faz sentido com **pelo menos um** destes: **taxa de clientes que voltam a comprar ≥ 30%**, OU parte grande das vendas vindo de orgânico verdadeiro (boca a boca), OU posicionamento de marca muito único (ex.: fashion com drops) — e nunca sem operação de email/SMS forte. Se os critérios fecharem: funil VIP (ads → opt-in pra oferta VIP melhor que a pública, ou early access), rodando ~2 semanas antes da abertura, projetado pela **Calculadora de lead gen VIP** (rode `VIP lead gen calculator pré-BF CPL AOV CVR dos leads break-even projetado`) — 5 entradas: spend total, custo por lead aceitável, AOV da oferta específica, taxa de conversão dos leads (referências da fonte: AOV > US$ 200 → 2-4%; AOV < US$ 200 → 6-10%; há quem reporte 10-15%, não conte com isso) e **a margem JÁ com o desconto VIP dentro** (não o custo do produto puro). Filosofia declarada: **sempre subestimar**. Os leads que não converterem ficam na lista pra 13 trabalhar depois. Complemento do critério: `lead gen VIP quando não fazer returning customer rate 30 por cento vender direto começando cedo`.
 
-**2.3 — Estoque.** Leia `01b-sourcing/dados.json` → `calendar.volume_confirmation_30_60_90` (a confirmação POR ESCRITO do fornecedor de que entrega o volume projetado) e `calendar.reorder_point_days`. Sem a confirmação, a janela roda no escuro — cobre antes de abrir. Regras da fonte: comprar estoque com antecedência (a fábrica lota no Q4); se subestimou, **pre-order com expectativas claras** vence encalhe (com prazo comunicado, a conversão quase não cai). Depois da janela, o planejamento integrado de Q1+Q2 evita a armadilha de concentrar tudo no Q4 (rode `planejamento Q1 Q2 armadilha Q4-heavy front-load SKUs janelas de negociação janeiro março` — domínio da 01b, aqui só a cobrança).
+**2.3 — Estoque.** Leia `sourcing/dados.json` → `calendar.volume_confirmation_30_60_90` (a confirmação POR ESCRITO do fornecedor de que entrega o volume projetado) e `calendar.reorder_point_days`. Sem a confirmação, a janela roda no escuro — cobre antes de abrir. Regras da fonte: comprar estoque com antecedência (a fábrica lota no Q4); se subestimou, **pre-order com expectativas claras** vence encalhe (com prazo comunicado, a conversão quase não cai). Depois da janela, o planejamento integrado de Q1+Q2 evita a armadilha de concentrar tudo no Q4 (rode `planejamento Q1 Q2 armadilha Q4-heavy front-load SKUs janelas de negociação janeiro março` — domínio da 01b, aqui só a cobrança).
 
-**2.4 — Backups e pior cenário → skill 19-ops-engine (em criação).** Conta de anúncio reserva com campanhas pré-montadas e desligadas, processadora e banco backup, CS dimensionado pra 3-10× o volume de tickets, prazos de envio de dezembro comunicados — esse plano de redundância é da 19. Enquanto ela não existe, registre em `prep.ops_backups` o que o membro tem e o que falta, sem virar dono do assunto.
+**2.4 — Backups e pior cenário → skill 19-ops-engine.** Conta de anúncio reserva com campanhas pré-montadas e desligadas, processadora e banco backup, CS dimensionado pra 3-10× o volume de tickets, prazos de envio de dezembro comunicados — esse plano de redundância é da 19: se o checklist de continuidade dela ainda não rodou (ou está com pendência), recomende rodá-la ANTES da janela. Registre em `prep.ops_backups` o status que a 19 reportar (ou o que o membro declarar), sem virar dono do assunto.
 
 **2.5 — Site pronto ANTES (o pico é pra escalar, nunca pra otimizar site).** O elemento nº 1 de conversão de sale segundo a fonte: mostrar em todo lugar **quanto** a pessoa está economizando — *"make sure the customers aren't doing math"*. Direções (execução com 07a/07b/07d):
 - **Automatic discount** sempre que a sale é do site inteiro: aplica sozinho, aparece no carrinho, zero fricção de cupom — com a trava "only apply discount once per order" marcada e **data/hora de início e fim agendadas**. Rode `automatic discount aparece no carrinho, only apply discount once per order, economia visível em cada etapa`.
@@ -260,7 +260,7 @@ Marque `email_sms_calendar_13.handed_off: true` e avise o membro que os sends na
 - Duplo objetivo declarado: extrair o máximo dos dias bons E proteger o lucro nos fracos (reduzir cedo). **O objetivo da janela é lucro, não receita.**
 - Cost caps na janela: suba o **budget**, não o bid — e monitore, porque às vezes disparam gasto.
 
-> ⚠️ **RESET DA MEIA-NOITE (cânone §5 — risco financeiro real):** ao fim de cada dia surfado, o budget do dia seguinte é **~50% do que foi REALMENTE GASTO — nunca o nominal que ficou na tela.** Budget surfado até US$ 150k com gasto real de US$ 70k → o dia seguinte começa em ~US$ 35k, não em US$ 75k do nominal. Sem isso, o pacing do Meta persegue o nominal inteiro e o membro acorda no vermelho. Exceção única do cânone: dia excepcional que bateu o KPI com folga → pode manter o gasto real, nunca acima dele. **Toda instrução de subida desta skill sai com o valor do reset junto**, gravado em `dados.json.scaling_window.midnight_resets[]`. É melhor começar baixo: com 1-2 dobras você recupera a escala em horas.
+> ⚠️ **RESET DA MEIA-NOITE (cânone §5 — risco financeiro real):** ao fim de cada dia surfado, o budget do dia seguinte é **~50% do que foi REALMENTE GASTO — nunca o nominal que ficou na tela.** Budget surfado até US$ 150k com gasto real de US$ 70k → o dia seguinte começa em ~US$ 35k, não em US$ 75k do nominal. Sem isso, o pacing do Meta persegue o nominal inteiro e o membro acorda no vermelho. O reset vale TODA noite da janela, sem exceção — o que a exceção (a) do §5 muda é a ENTRADA do budget (direto no valor planejado, sem degraus), nunca o reset; se o dia seguinte pedir, o surf da manhã recupera o nível. **Toda instrução de subida desta skill sai com o valor do reset junto**, gravado em `dados.json.scaling_window.midnight_resets[]`. É melhor começar baixo: com 1-2 dobras você recupera a escala em horas.
 
 **A curva do fim de semana (3+ anos de dados da fonte):** **sexta é SEMPRE o maior dia** — nunca um sábado superou a sexta (ex. real: US$ 800k sex → ~US$ 600k sáb → US$ 450-500k dom → ~US$ 400k seg). **Sábado de manhã é onde a maioria se destrói**: budget alto deixado da sexta + demanda caindo = receita parecida com lucro despencando — reduza na manhã de sábado sem dó. Não persiga o high da sexta. **Cyber Monday:** flatline até ~15h EST e um repique noturno de compradores de última hora que vai até a meia-noite (candles de US$ 50k/h em contas grandes) — como o Meta leva 1-2h pra acelerar o pacing, **o bump de budget é às ~15h EST**, não quando o rally já apareceu. Pós-Cyber: espere o dip e desça os budgets junto.
 
@@ -336,8 +336,8 @@ O markdown é humano; o JSON é o contrato com as skills 08, 11, 12, 13, 14 e 15
       "criteria": { "returning_rate": null, "organic_share_high": null, "unique_brand": null },
       "calculator": { "total_spend": null, "cpl_max": null, "aov_vip": null, "cvr_assumed": null, "offer_margin_with_vip_discount": null, "breakeven_roas": null, "projected_leads": null, "projected_revenue": null }
     },
-    "inventory": { "source": "01b-sourcing/dados.json", "volume_confirmation_30_60_90": null, "reorder_point_days": null, "fallback": "none | preorder" },
-    "ops_backups": { "owner": "19-ops-engine (em criação)", "member_has": [], "gaps": [] },
+    "inventory": { "source": "sourcing/dados.json", "volume_confirmation_30_60_90": null, "reorder_point_days": null, "fallback": "none | preorder" },
+    "ops_backups": { "owner": "19-ops-engine", "member_has": [], "gaps": [] },
     "site_ready": { "automatic_discount_scheduled": false, "savings_visible_everywhere": false, "qa_done": false, "dev_on_standby": false }
   },
   "offer": {
@@ -432,14 +432,22 @@ O markdown é humano; o JSON é o contrato com as skills 08, 11, 12, 13, 14 e 15
 
 ## Contrato de leitura (quem lê o quê)
 
-| Skill | Campo que passa a ler | O que muda |
+**Quem já lê hoje:**
+
+| Skill | Campo que já lê | O que muda |
+|---|---|---|
+| **12** scale-engine | `manifest.promo.active` (+ o resumo `manifest.promo`) | A exceção (a) do §5 só vale com janela registrada e ativa; na aterrissagem (`active: false`) a leitura do evergreen reinicia limpa |
+| **15** finance | `result.promo_cohort_flagged_for_15` + números da janela | O mês da promo ganha nota obrigatória e o cohort não calibra decay sem ela |
+
+**Disponível para (leitura aditiva)** — dados publicados que as skills podem puxar quando fizer sentido, sem que já leiam hoje:
+
+| Skill | Campo disponível | O que permite |
 |---|---|---|
 | **08** creatives | `creative_brief_08` | O batch de sale nasce do brief (banner sobre o winner + statics de oferta), não de ideação evergreen |
-| **11** ad-analysis | `window` + `ad-log.md` da janela | A análise separa efeito de promo de fadiga; winner de janela passa pelo filtro Lucky vs Durable antes de virar control |
-| **12** scale-engine | `window`, `promo_economics.breakeven_roas_promo`, `landing`, `seasonal_vault` | A exceção (a) do §5 só vale com janela registrada; a volta pro evergreen usa o budget pré-janela do ad-log; o cofre alimenta revival |
-| **13** retention | `email_sms_calendar_13`, `offer`, `window.phases` | Os sends sazonais nascem do calendário desta skill; flows se adaptam à promo sem desligar |
+| **11** ad-analysis | `window`, `scaling_window.midnight_resets`, `result.curve_by_day` | A janela demarcada separa efeito de promo de fadiga (o `ad-log.md` a 11 já lê sempre, por cânone); winner de janela passa pelo filtro Lucky vs Durable antes de virar control |
+| **12** scale-engine | `window`, `promo_economics.breakeven_roas_promo`, `landing.evergreen_budget_restored_to`, `seasonal_vault` | A volta pro evergreen usa o budget pré-janela do ad-log; o cofre alimenta revival |
+| **13** retention | `email_sms_calendar_13`, `offer`, `window.phases` | Os sends sazonais nascem do calendário desta skill quando o membro roda 'retention'; flows se adaptam à promo sem desligar |
 | **14** content-recycler | `seasonal_vault` | Winners sazonais entram na reciclagem com timing de religar |
-| **15** finance | `result.promo_cohort_flagged_for_15` + números da janela | O mês da promo ganha nota obrigatória e o cohort não calibra decay sem ela |
 
 Quando `17-promo-engine/dados.json` não existir, cada consumidora mantém o comportamento atual — leitura aditiva, nunca pré-requisito.
 

@@ -5,7 +5,7 @@ description: Engine financeira da marca — dona do modelo completo declarado no
 
 # Finance Engine
 
-> **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — domínio `finance-projections`, 22 sistemas). Esta skill puxa os SISTEMAS NOMEADOS por `search_knowledge` com a `best_query` curada de cada um. NUNCA query genérica.
+> **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (`frameworks.json` / `README.md` — domínio `finance-projections` — o tamanho é o que o frameworks.json disser). Esta skill puxa os SISTEMAS NOMEADOS por `search_knowledge` com a `best_query` curada de cada um. NUNCA query genérica.
 >
 > **Cânone que governa esta skill:** `.claude/lib/unit-economics/README.md`. Ele já declara a 15 como **dona do modelo completo** (§5). Esta skill **referencia** o cânone — não redefine margem de contribuição, first order vs repeat order, CAC vs CPA nem a espiral do ROAS. Onde o texto daqui divergir do cânone, **o cânone vence**, e a divergência é bug desta skill.
 
@@ -48,6 +48,10 @@ Se `04-offer-builder/dados.json` faltar, não aborte seco (rule `emergency-escap
 5. `workspace/[produto]/12-scale-engine/dados.json` **(se existir)** — `cash_flow.cash_gap_projected` e `fixed_cost_gate` da última rodada de escala. A 12 estima caixa sozinha hoje; aqui o número é recalculado com o fixo dentro e devolvido pra ela
 6. `workspace/[produto]/13-retention-engine/dados.json` **(se existir)** — take rate de assinatura e sinais de recompra, que alimentam a alavanca de % de recorrentes
 7. Rodadas anteriores desta skill em `workspace/[produto]/15-finance-engine/` — comparar premissas com o realizado é metade do valor do Modo B
+8. **Skills laterais (se existirem — leitura aditiva, nunca pré-requisito):**
+   - `17-promo-engine/dados.json` → janela promocional fechada no período: o mês da janela entra em `monthly_notes[]` automaticamente ("promoção no site inteiro") e o cohort de nov/dez (ou da janela) é marcado pra **não calibrar o decay** sem a nota — cohort de promo tem LTV atípico e compará-lo com mês normal quebra o modelo
+   - `18-team-engine/dados.json` → `payroll.monthly_total` (ou o delta de contratação planejada): entra nos custos fixos do monthly model — contratação nova SEM atualizar o fixo é exatamente o furo que o Modo A existe pra fechar
+   - `20-marketplace-engine/dados.json` → `channels[].fees` e comissões (Amazon/TikTok Shop/afiliados): comissão é **custo variável por pedido daquele canal** — quando houver receita de marketplace no período, o stack de variáveis do canal é montado à parte (a margem blended esconde canal deficitário)
 
 ### As quatro regras que não se negociam
 

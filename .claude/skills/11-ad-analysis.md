@@ -1,6 +1,6 @@
 ---
 name: ad-analysis
-description: Engine de análise de performance de Meta Ads. Lê a estrutura da Skill 10 (1 campanha com CBO → N ad sets, 1 ad set = 1 conceito) em DOIS níveis: por CONCEITO (o ad set — onde o CBO concentra gasto é o sinal) e por CRIATIVO (o ad dentro do ad set). Classifica cada criativo nas 4 classes do cânone `.claude/lib/ad-taxonomy/README.md` §2 (loser · KPI winner · spend winner · breakthrough) — só o breakthrough (KPI do AD melhor que o KPI da CAMPANHA E puxando spend) libera escala e reciclagem; KPI winner é tratado como loser para decisão. Aplica as réguas de kill do cânone §3 (conta madura: ad set após 7 dias sem spend e sem KPI · conta nova: 8× target CPA sem purchase · ad novo overspendando: 24-48h), mede Hook rate e Hold rate (§4) pra dizer ONDE o criativo falhou, usa CPM como sinal de saúde da conta, diagnostica funil quebrado por benchmarks (ATC→compra, checkout→compra) e cruza com o espécime de copy da Skill 06, e lê tudo por 4Pi (Spend → Frequency → CPM → Cost per Result) + PSM como diagnóstico. Nenhuma recomendação de cortar spend por queda de ROAS sai sem passar por `.claude/lib/unit-economics/README.md` §4. Faz 19-point diagnostic de losers, extração de learnings de breakthroughs, checklist de 12 perguntas de feedback, e decide kill de produto (cadência quarta→domingo). NÃO configura escala nem kill por Automated Rule: condição de performance é recusada pelo Meta em campanha com CBO (cânone §6), então o ritmo de escala é o Scaling Protocol manual do §5, executado pela Skill 12 — o que esta skill confere são as duas automações de proteção (pico de gasto, URL errada). Lê os contratos dos produtores: da 08, `testing_method`+`angles[]` (num pack Marksman a leitura por criativo é "qual ÂNGULO venceu", não "qual execução"), `sub_avatar_id` (grava `winning_sub_avatar_id` — o sinal que volta pra pesquisa) e `valence`/`intensity` (diagnóstico de iteração que trocou de zona emocional sem perceber); da 10, `test_capacity.below_floor_directional_only` (teste nascido abaixo do piso = resultado DIRECIONAL: sem classificação formal, sem kill, sem escala). Lê `workspace/[produto]/ad-log.md` no início de TODA análise (cânone `.claude/lib/ad-log/README.md`) pra cruzar a janela de leitura com as mudanças executadas na conta, e grava no manifest `ad_classification[]` + `click_based_purchase_share`. Use quando o membro disser "ad analysis", "análise de ads", "analisar performance", "ver resultado", "diagnóstico", ou após rodar a campanha da Skill 10. Entrega decisões concretas — matar criativo, testar produto em outra conta, escalar, refresh, ou ajustar oferta/página.
+description: Engine de análise de performance de Meta Ads. Lê a estrutura da Skill 10 (1 campanha com CBO → N ad sets, 1 ad set = 1 conceito) em DOIS níveis: por CONCEITO (o ad set — onde o CBO concentra gasto é o sinal) e por CRIATIVO (o ad dentro do ad set). Classifica cada criativo nas 4 classes do cânone `.claude/lib/ad-taxonomy/README.md` §2 (loser · KPI winner · spend winner · breakthrough) — só o breakthrough (KPI do AD melhor que o KPI da CAMPANHA E puxando spend) libera escala e reciclagem; KPI winner é tratado como loser para decisão. Aplica as réguas de kill do cânone §3 (conta madura: ad set após 7 dias sem spend e sem KPI · conta nova: 8× target CPA sem purchase · ad novo overspendando: 24-48h), mede Hook rate e Hold rate (§4) pra dizer ONDE o criativo falhou, usa CPM como sinal de saúde da conta, diagnostica funil quebrado por benchmarks (ATC→compra, checkout→compra) e cruza com o espécime de copy da Skill 06, e lê tudo por 4Pi (Spend → Frequency → CPM → Cost per Result) + PSM como diagnóstico. Nenhuma recomendação de cortar spend por queda de ROAS sai sem passar por `.claude/lib/unit-economics/README.md` §4. Faz 19-point diagnostic de losers, extração de learnings de breakthroughs, checklist de 12 perguntas de feedback, e roda o checkpoint de kill (cadência quarta→domingo). NÃO configura escala nem kill por Automated Rule: condição de performance é recusada pelo Meta em campanha com CBO (cânone §6), então o ritmo de escala é o Scaling Protocol manual do §5, executado pela Skill 12 — o que esta skill confere são as duas automações de proteção (pico de gasto, URL errada). Lê os contratos dos produtores: da 08, `testing_method`+`angles[]` (num pack Marksman a leitura por criativo é "qual ÂNGULO venceu", não "qual execução"), `sub_avatar_id` (grava `winning_sub_avatar_id` — o sinal que volta pra pesquisa) e `valence`/`intensity` (diagnóstico de iteração que trocou de zona emocional sem perceber); da 10, `test_capacity.below_floor_directional_only` (teste nascido abaixo do piso = resultado DIRECIONAL: sem classificação formal, sem kill, sem escala). Lê `workspace/[produto]/ad-log.md` no início de TODA análise (cânone `.claude/lib/ad-log/README.md`) pra cruzar a janela de leitura com as mudanças executadas na conta, e grava no manifest `ad_classification[]` + `click_based_purchase_share`. Use quando o membro disser "ad analysis", "análise de ads", "analisar performance", "ver resultado", "diagnóstico", ou após rodar a campanha da Skill 10. Entrega decisões concretas — matar criativo, testar produto em outra conta, escalar, refresh, ou ajustar oferta/página.
 ---
 
 # Ad Analysis Engine
@@ -61,7 +61,7 @@ As réguas que valem, por contexto (cânone `.claude/lib/ad-taxonomy/README.md` 
 
   | `roas_spiral.verdict` da 15 | O que esta skill recomenda |
   |---|---|
-  | `cut_spend_below_variable_breakeven` (`cut_spend_recommendation_allowed: true`) | **Cortar é certo** — cada dólar a mais destrói margem de contribuição. Vale a régua de descida do `ad-taxonomy` §5 (−20%) |
+  | `cut_spend_below_variable_breakeven` (`cut_spend_recommendation_allowed: true`) | **Cortar é certo** — cada dólar a mais destrói margem de contribuição. Vale a régua de descida do `ad-taxonomy` §5 (−20%, só com breakeven furado **por 24-48h persistentes** — um dia ruim isolado não dispara) |
   | `scale_up_accept_lower_roas` | **Cortar aumentaria o prejuízo.** A saída é **subir** spend aceitando ROAS menor, até o `spend_to_breakeven_with_fixed` que a 15 calculou |
   | `covers_fixed_costs` | **Segurar.** A operação cobre o fixo no nível de spend atual; não há corte a recomendar por queda de ROAS |
   | `blocked_pending_fixed_costs` | Fallback: volta a valer o bloqueio acima — a recomendação é a pergunta |
@@ -108,6 +108,7 @@ As réguas que valem, por contexto (cânone `.claude/lib/ad-taxonomy/README.md` 
    - **`below_floor_directional_only`** — se `true`, aplica o PLAYBOOK item 6: resultado DIRECIONAL, dito ao membro com todas as letras — sem `ad_class` formal, sem kill, sem escala; recomendação = subir budget até o piso ou reduzir conceitos. Vale pra ETAPA 3 (classificação), ETAPA 9 (scaling) e pro `recommended_action`.
    **Fallback legado (`test_capacity` ausente):** o do PLAYBOOK item 6 — comportamento normal, com o check manual de `test_budget_daily` contra o piso de US$ 100/dia.
 4g. **Ad log (cânone `.claude/lib/ad-log/README.md`) — SEMPRE, no início da análise.** Leia `workspace/[produto]/ad-log.md` (registro append-only de toda MUDANÇA executada na conta: budget, pausas, religadas, criações, LP trocada, automações) e cruze a janela de leitura desta análise com as mudanças do período — "a queda de quinta coincide com o quê?". Os dois achados que SÓ este log revela entram no diagnóstico (ETAPA 2 e ETAPA 7): **mudança sem o efeito esperado** (ex: budget subiu e o resultado não acompanhou) e **efeito sem mudança conhecida** (degrau de performance sem nenhuma linha no log — aí sim vale investigar fadiga/conta/mercado). Se o membro relatar durante a análise uma mudança manual que não está no log ("desliguei o ad X ontem"), registre a linha na hora com executor `membro` (criando o arquivo com o cabeçalho da tabela se não existir — regra do cânone). **Fallback legado (arquivo não existe e nenhuma mudança relatada):** siga sem ele — produto anterior ao cânone; não é `data_gap` bloqueante, mas o diagnóstico de coincidência temporal sai limitado e o relatório diz isso em uma linha.
+4h. Leia `workspace/[produto]/16-creator-engine/dados.json → performance_by_creator` **(se existir — leitura aditiva, nunca pré-requisito):** com o bloco na mão + o sufixo de creator/editor no ad name (convenção 08/16 — o nome do ad carrega o nome do creator), a ETAPA 3 pode AGRUPAR a leitura também **por creator** ("ad name contains"), além de por conceito e por criativo: hit rate e soft metrics por creator alimentam a devolutiva da 16 e o creator report da 14. Sem o arquivo (ou sem sufixo no ad name), nada muda — a análise segue por conceito/criativo como sempre.
 5. **Unidade de análise (dois níveis):** a estrutura padrão da Skill 10 é **1 campanha com CBO → N ad sets broad/Advantage+, 1 ad set = 1 conceito → 3 ads (criativos) cada**. A leitura acontece nos dois níveis: **entre AD SETS** (qual CONCEITO o CBO escolheu financiar — a distribuição de spend entre ad sets é o sinal de escala) e **entre ADS dentro de cada ad set** — e o que ESSA comparação responde depende do `testing_method` do conceito (item 4e): num Sniper, qual EXECUÇÃO do conceito puxou; num Marksman, qual ÂNGULO (bifurcação na ETAPA 3). O `concept_id` está no nome do ad set e do ad (naming convention da Skill 10) e o `utm_content=[concept-id]-[creative-n]` fecha o cruzamento com a loja. A classificação em `ad_class` continua sendo por AD; o nível de ad set responde "qual conceito funcionou". Leitura por CAMPANHA só se aplica depois que a Skill 12 criou campanhas ABO paralelas (pós-escala) ou se o membro montou estrutura custom por fora.
 6. **Puxe os SISTEMAS NOMEADOS da base — NÃO use query genérica.** Rode `search_knowledge` com a `best_query` exata de cada framework relevante pra ETAPA que está executando (cada ETAPA abaixo já lista os seus). O índice completo do domínio desta skill (meta-ads-strategy — **o tamanho do domínio é o que o `frameworks.json` disser hoje, nunca um número decorado neste texto**) está em **`.claude/lib/kb-index/`** (`frameworks.json` + `README.md`, mapa skill→domínio no README). Os sistemas de maior impacto pra leitura de performance, com a query a rodar:
    - **4Pi Analysis (Spend, Frequency, CPM, Cost per Result)** (rode `4Pi analysis spend frequency CPM cost per result funnel position`) — o motor da ETAPA 2
@@ -291,15 +292,17 @@ breakthrough  = ad_kpi_vs_campaign AND puxa spend
                  conta grande, > ~$500k/mês: spend_share_7d >= 0.05-0.10)
 spend_winner  = spend_share_7d >= 0.10 AND NOT ad_kpi_vs_campaign
 kpi_winner    = ad_kpi_vs_campaign AND spend_share_7d < 0.10
-loser         = spend_share_7d <= 0.02 em 7 dias, ou spend sem KPI
+loser         = spend_share_7d <= 0.02 em 7 dias
 ```
+
+> **Gastar sem bater KPI não faz loser.** O cânone §2 é explícito: ad que puxa spend sem bater o KPI é **`spend_winner`** — o destino é iteração (autópsia do que o algoritmo gostou), nunca a lixeira. A única régua de gasto-sem-venda que MATA é o **8× de conta nova** (§3). Faixa intermediária (spend share entre 2% e 10%, sem KPI) não é classe: cai nos estados intermediários abaixo (NEEDS OPTIMIZATION / EM APRENDIZADO) até a leitura fechar.
 
 | `ad_class` | O que é | Destino |
 |---|---|---|
 | **`breakthrough`** | KPI do AD melhor que o KPI da CAMPANHA **e** puxa spend | **Escala (skill 12) + reciclagem (skill 14)** — o único que libera as duas |
 | **`spend_winner`** | Puxa spend mas KPI abaixo do da campanha | Iterar (skill 08), **não escalar** |
 | **`kpi_winner`** | Bate o KPI mas **não puxa spend** | **Tratar como loser para decisão** — não escala, não recicla, não vira learning replicável |
-| **`loser`** | ≤ 2% do spend da conta em 7 dias, ou spend sem KPI | Graveyard / limpeza pela régua de kill do ad set |
+| **`loser`** | ≤ 2% do spend da conta em 7 dias ("não fez nada pela conta") | Graveyard / limpeza pela régua de kill do ad set |
 
 > **O falso positivo que essa skill produzia:** a definição anterior (`CPA ≤ target` + `spend ≥ 50% do fair_share`) classificava como "winner" exatamente o que o cânone chama de **KPI winner** — ad que bate um alvo estático numa amostra pequena. Isso se propagava pra skill 12 (escala prematura) e pra skill 14 (reciclagem de criativo que nunca provou nada). O que separa breakthrough de ilusão é a comparação com **o KPI da própria campanha**, não com um alvo fixo, somada à prova de que o ad **puxa spend**.
 
@@ -395,7 +398,7 @@ A comparação que classifica é **CPA do AD vs. `campaign_cpa`** (ou ROAS do ad
 - **KPI do ad melhor que o da campanha + puxa spend** → **`breakthrough`** (o único que vai pro diagnóstico "scale")
 - **Puxa spend + KPI abaixo do da campanha** → **`spend_winner`** (iterar, não escalar)
 - **KPI melhor que o da campanha + `spend_share_7d` < 10%** → **`kpi_winner`** (loser para decisão; ver o escape abaixo antes de descartar)
-- **`spend_share_7d` ≤ 2% em 7 dias, ou spend sem KPI** → **`loser`**
+- **`spend_share_7d` ≤ 2% em 7 dias** → **`loser`** (gastou sem bater KPI mas puxando spend? é `spend_winner` acima, nunca loser — cânone §2)
 
 **Escape antes de descartar um `kpi_winner`:** o ad pode ser ótimo pra uma audiência pequena demais. Antes de tratá-lo como peso morto, dá pra **forçar spend** — ad set próprio começando no que ele já gastava — para tirar a dúvida em ambiente controlado. Isso é decisão de estrutura, então a recomendação sai daqui e a execução é da skill 12. O que **não** pode acontecer é ele entrar em `breakthroughs[]` sem ter provado que sustenta spend.
 
@@ -463,7 +466,7 @@ click_based_purchase_share = purchases atribuídas em 7-day click ÷ purchases t
 
 ### ETAPA 3 — Diagnóstico Por Ad (criativo)
 
-Pra CADA ad de CADA ad set, grave `ad_class` (as 4 classes do cânone `.claude/lib/ad-taxonomy/README.md` §2, calculadas no bloco Decision Thresholds). Registre junto o `concept_id` do ad set a que ele pertence — é o que permite responder "qual CONCEITO funcionou", e não só "qual execução".
+Pra CADA ad de CADA ad set, grave `ad_class` (as 4 classes do cânone `.claude/lib/ad-taxonomy/README.md` §2, calculadas no bloco Decision Thresholds). Registre junto o `concept_id` do ad set a que ele pertence — é o que permite responder "qual CONCEITO funcionou", e não só "qual execução". Se o batch tem creator humano e a 16 rodou (Contexto 4h), agrupe a MESMA leitura também **por creator** (custom report "ad name contains" o nome do creator) — é esse agrupamento que devolve hit rate por creator pra 16 e pro creator report da 14.
 
 **Gate de piso (antes de classificar qualquer ad):** se `test_capacity.below_floor_directional_only: true` na 10 (Contexto 4f; PLAYBOOK item 6), **não grave `ad_class` formal** — a análise inteira sai marcada como DIRECIONAL (`test_capacity_check.directional_only_analysis: true` no `dados.json`), sem kill e sem escala; a recomendação é subir budget até o piso ou reduzir conceitos, dita ao membro com todas as letras.
 
@@ -493,7 +496,7 @@ Três consequências da leitura Marksman:
 > **Calibração 2026 (pós-Andromeda/GEM):** a vida útil típica de criativo encolheu pra **2-4 semanas** (estático fatiga mais rápido; o pico de performance costuma ser a 1ª semana). Planeje refresh nessa janela — não em ciclos de 6-8 semanas.
 → Ação: trocar os 1-2 criativos mais fatigados do ad set por conceitos novos (Skill 08) OU pedir batch novo completo. **Não pausar ainda** — pode ainda estar performando acima do breakeven mesmo com sinais de fadiga.
 
-**`loser`** (def. canônica do bloco Decision Thresholds): `spend_share_7d` ≤ 2% em 7 dias, OU spend sem KPI. Some a isso as réguas de kill do cânone §3 — conta madura: ad set após 7 dias sem spend e sem KPI; conta nova: ad com ≥ 8× o target CPA sem purchase; ad novo overspendando: 24-48h de carência antes de decidir.
+**`loser`** (def. canônica do bloco Decision Thresholds): `spend_share_7d` ≤ 2% em 7 dias ("não fez nada pela conta" — cânone §2; gastar sem bater KPI não é loser: puxando spend, é `spend_winner`, que itera). Some a isso as réguas de kill do cânone §3 — conta madura: ad set após 7 dias sem spend e sem KPI; conta nova: ad com ≥ 8× o target CPA sem purchase; ad novo overspendando: 24-48h de carência antes de decidir.
 → Ação: PAUSAR pela régua do contexto da conta (ad set em conta madura, ad em conta nova). Fazer diagnóstico profundo (Etapa 4) pra entender por que falhou.
 
 **FUNIL QUEBRADO (não é o criativo):** o criativo trouxe ATC/checkouts mas as taxas estão abaixo dos benchmarks (ATC→compra < 20-25% ou checkout→compra < 40-50%).
@@ -505,12 +508,14 @@ Três consequências da leitura Marksman:
 **EM APRENDIZADO:** < 7 dias rodando (ou < 24-48h, no caso de ad novo que está overspendando), ou a campanha ainda sem `campaign_cpa` estável.
 → Ação: aguardar antes de classificar — não grave `ad_class` ainda. Dê ao Meta tempo de estabilizar a entrega e o CPA antes de julgar — a learning phase clássica (~50 eventos de conversão/7 dias por ad set) continua valendo em 2026, e abaixo desse volume o CPA balança. Não mexer no ad set enquanto isso (edições resetam o learning com mais facilidade desde abril/2026).
 
-**KILL de PRODUTO (cadência quarta→domingo — a decisão vive AQUI, não na 10):** o teste de produto lança quarta e tem teto de 7 dias (cadência montada pela Skill 10). Se até domingo NENHUM criativo vendeu, o default é **matar o produto** e rodar o próximo. Ordem de precedência OBRIGATÓRIA antes de decretar:
+**CHECKPOINT de KILL de PRODUTO (cadência quarta→domingo — a leitura vive AQUI, não na 10):** o teste de produto lança quarta e tem teto de 7 dias por rodada (cadência montada pela Skill 10). **Domingo é CHECKPOINT de decisão informada, não sentença** — a data abre a leitura; quem decreta qualquer óbito é a leitura (esta skill + as réguas do cânone), nunca o calendário. Ordem de precedência OBRIGATÓRIA no checkpoint:
 0. **Teste abaixo do piso?** (`below_floor_directional_only: true` — Contexto 4f) — resultado direcional NÃO decreta morte de produto: a janela não teve leitura válida. Recomende subir budget até o piso (ou reduzir conceitos) e re-rodar a janela antes de qualquer veredito.
 1. **Funil quebrado?** (ETAPA 6B) — se os ads trouxeram checkouts que a página desperdiçou, o problema é página/oferta; conserta antes de matar o produto.
 2. **Conta suspeita?** (Pi 3, `account_cpm_suspect`) — CPM generalizado fora do nicho pede re-teste em OUTRA conta antes de matar o produto.
 3. **Entrega travada?** — ads presos em review/policy não testaram nada; resolver e re-rodar a janela.
-Se os 4 checks passam e não houve venda até domingo → mata o produto, documenta o learning e segue pro próximo.
+Se os 4 checks passam e não houve venda até domingo → o default é **processar os learnings e iterar**, não matar o produto. Batch sem venda reprova, na maioria dos casos, a EXECUÇÃO testada, não o ângulo (Execution Problem, ETAPA 3): ângulo com strikes restantes itera em **Sniper** no próximo batch, com a diretiva gravada no `NEXT_BATCH_IDEAS.md`. O que morre já no checkpoint morre por régua, não por clemência: ad set que cruzou o cânone §3 (conta madura: 7 dias sem spend e sem KPI · conta nova: 8× target CPA sem purchase) é decretado normalmente.
+
+**Matar o PRODUTO é decisão de outro nível:** só entra na mesa com **≥ 2 batches com learnings processados** (esta skill extraiu o que cada batch ensinou e o batch seguinte aplicou a correção) **OU quando as réguas do cânone §3 mandarem — nunca por calendário sozinho.** A intenção original do marco de domingo permanece inteira: impedir o membro de queimar caixa por semanas num produto morto. O que muda é o mecanismo — quem declara o óbito é a leitura (esta skill + cânone), não a data.
 
 ### ETAPA 4 — Diagnóstico Profundo de LOSERS (19-Point Diagnostic)
 
@@ -551,7 +556,7 @@ Pra cada loser, identifique **a camada onde falhou** e a hipótese específica. 
 
 ### Diagnóstico de valência — iteração que trocou de zona (`iteration_zone_check`)
 
-Roda pra **toda iteração que fracassou** (criativo cujo conceito nasceu de `NEXT_BATCH_IDEAS.md` ou é iteração declarada — `testing_method: "sniper"` de batch derivado). Compare, em `08-creative-engine/dados.json`, a zona emocional do ORIGINAL vs a da ITERAÇÃO — `valence` × `intensity` de abertura (do conceito e do hook) e o arco `valence_open` → `valence_close`:
+Roda pra **toda iteração que fracassou** (criativo cujo conceito nasceu de `NEXT_BATCH_IDEAS.md` ou é iteração declarada — `testing_method: "sniper"` de batch derivado). **Quem é o original:** leia `concepts[].iteration_of` da 08 (creative_id do original — a linhagem declarada); só quando o campo não existe (batch legado), paree original↔iteração pela prosa do briefing, como sempre. Compare, em `08-creative-engine/dados.json`, a zona emocional do ORIGINAL vs a da ITERAÇÃO — `valence` × `intensity` de abertura (do conceito e do hook) e o arco `valence_open` → `valence_close`:
 
 - **Zona igual, elemento iterado diferente** → a variável testada explica o resultado; o diagnóstico segue nas camadas do 19-point.
 - **Zona MUDOU** (ex: a iteração abre em negative/high onde o original abria em positive/low) → a iteração **trocou de zona emocional sem perceber** — o flop inexplicável que a 08 (ETAPA 4.5.E) documenta: trocou a palavra, trocou junto o sentimento, e o ad deixou de falar com o mesmo estado emocional. A causa provável do fracasso é a ZONA, não o elemento editado; a diretiva pro próximo batch é refazer a iteração **na zona original**, mudando só a variável pretendida.
@@ -679,7 +684,7 @@ Compile respostas num bloco objetivo.
 
 ### ETAPA 9 — Decisão de Scaling (Recomendação Clara)
 
-> Fundamente a recomendação puxando o sistema de scaling da base (rode a `best_query`): **Profitable Scaling Margin (PSM)** (`Profitable Scaling Margin PSM LTV CPA COGS replaces ROAS`) — usa o `psm_real` calculado na ETAPA 2 pra decidir agressivo/steady/breakeven/cortar. O ritmo de subida e descida é o **Scaling Protocol** do cânone `.claude/lib/ad-taxonomy/README.md` §5 (48-72h acima do target → **+20%**, depois a cada 24h; abaixo do breakeven → **−20%**), executado **à mão** pela Skill 12 — nunca por automação. A montagem detalhada do plano de escala (vertical + horizontal) é delegada pra skill 12; aqui só a recomendação.
+> Fundamente a recomendação puxando o sistema de scaling da base (rode a `best_query`): **Profitable Scaling Margin (PSM)** (`Profitable Scaling Margin PSM LTV CPA COGS replaces ROAS`) — usa o `psm_real` calculado na ETAPA 2 pra decidir agressivo/steady/breakeven/cortar. O ritmo de subida e descida é o **Scaling Protocol** do cânone `.claude/lib/ad-taxonomy/README.md` §5 (48-72h acima do target → **+20%**, depois a cada 24h; abaixo do breakeven **por 24-48h persistentes** → **−20%** — um dia ruim isolado não dispara), executado **à mão** pela Skill 12 — nunca por automação. A montagem detalhada do plano de escala (vertical + horizontal) é delegada pra skill 12; aqui só a recomendação.
 
 **Escala automática não existe nesta estrutura (cânone §6).** Se o membro pedir "deixa uma regra escalando sozinha", a resposta é não — e o porquê tem duas camadas independentes:
 
@@ -768,15 +773,15 @@ Pra cada criativo analisado nesta rodada:
 2. Compor performance JSON:
    ```json
    {
-     "cpa": X, "ctr": Y, "roas": Z, "spend": W,
-     "thumbstop_3s": A, "hold_15s": B,
-     "impressions": N, "clicks": M, "purchases": P,
-     "days_active": D, "decile_rank": R,
+     "cpa": 38.5, "ctr": 1.4, "roas": 2.6, "spend": 412.0,
+     "thumbstop_3s": 0.31, "hold_15s": 0.12,
+     "impressions": 48210, "clicks": 675, "purchases": 11,
+     "days_active": 7, "decile_rank": 2,
      "ad_class": "breakthrough|spend_winner|kpi_winner|loser|unclassified",
      "outcome": "winner|loser|neutral|zero_conversions|insufficient_data"
    }
    ```
-   `thumbstop_3s` recebe o **hook rate** (3-second plays ÷ impressões) e `hold_15s` recebe o **hold rate** (ThruPlays ÷ impressões), medidos na ETAPA 2 — os dois nomes de campo são legados do registry, o conteúdo é o do cânone §4. Criativo estático: `null` nos dois. Nunca grave esses campos vazios: sem eles o `dna-profile.json` não consegue correlacionar abertura e retenção com resultado.
+   Os números do exemplo são ilustrativos — grave os medidos deste criativo. `thumbstop_3s` recebe o **hook rate** (3-second plays ÷ impressões) e `hold_15s` recebe o **hold rate** (ThruPlays ÷ impressões), medidos na ETAPA 2 — os dois nomes de campo são legados do registry, o conteúdo é o do cânone §4. Criativo estático: `null` nos dois. Nunca grave esses campos vazios: sem eles o `dna-profile.json` não consegue correlacionar abertura e retenção com resultado.
 
 3. Salvar em `workspace/[produto]/creative-dna/perf-[creative-id].json`
 
@@ -877,7 +882,7 @@ O arquivo de análise é `workspace/[produto]/11-ad-analysis/dados.json` (cópia
     { "creative_id": "c-04", "ad_class": "kpi_winner", "cpa": 0, "roas": 0, "spend_total": 0, "spend_share_7d": 0, "ad_kpi_vs_campaign": true, "hook_rate": 0, "hold_rate": 0, "days_active": 0, "treated_as": "loser_for_decision", "next_action": "force_spend_test|drop" }
   ],
   "losers": [
-    { "creative_id": "c-03", "ad_class": "loser", "reason": "adset_7d_no_spend_no_kpi|kill_8x_target_cpa_no_purchase|spend_share_under_2pct_7d|spend_without_kpi|creative_policy", "spend_share_7d": 0, "hook_rate": 0, "hold_rate": 0, "days_active": 0 }
+    { "creative_id": "c-03", "ad_class": "loser", "reason": "adset_7d_no_spend_no_kpi|kill_8x_target_cpa_no_purchase|spend_share_under_2pct_7d|creative_policy", "spend_share_7d": 0, "hook_rate": 0, "hold_rate": 0, "days_active": 0 }
   ],
   "winners": [],
   "champions": [
@@ -934,7 +939,7 @@ O arquivo de análise é `workspace/[produto]/11-ad-analysis/dados.json` (cópia
 - **`roas_spiral_check` registra de ONDE veio a decisão de spend.** Com `15-finance-engine/dados.json` na mão, `source: "15-finance-engine"` e os quatro campos vêm copiados de lá (`breakeven_roas_with_fixed`, `spend_to_breakeven_with_fixed`, `finance_verdict`, mais `fixed_costs_monthly` de `monthly_model`) — esta skill não recalcula nenhum deles. Sem o arquivo, `source: "04-offer-builder"` (ou `"none"`), os três campos novos ficam `null` e o `blocked_reason` volta a operar como hoje. `recommended_action: "raise_spend_accept_lower_roas"` só pode ser gravado quando `finance_verdict == "scale_up_accept_lower_roas"` — nunca por leitura própria de ROAS.
 - **`winning_sub_avatar_id`** (por item de `breakthroughs[]`) fecha o loop com a pesquisa: aponta o item de `sub_avatars[]` da 02 que produziu o vencedor (num Marksman, o do item de `angles[]` do criativo vencedor). `null` em batch legado sem o campo. É o alvo da mini-passada de re-research da ETAPA 5.
 - **`test_capacity_check`** copia `binding_constraint` e `below_floor_directional_only` da 10; `directional_only_analysis: true` marca que ESTA análise inteira saiu direcional (gate de piso) — as skills 12 e 14 não devem tratar `breakthroughs[]` vazio dessa análise como veredito. `source: "none"` = estratégia legada sem `test_capacity`.
-- **`iteration_zone_check[]`** registra o diagnóstico de valência da ETAPA 4 (iteração que trocou de zona emocional); `verdict: "no_data"` quando o batch é anterior ao schema de `valence`/`intensity` da 08.
+- **`iteration_zone_check[]`** registra o diagnóstico de valência da ETAPA 4 (iteração que trocou de zona emocional); `original_ref` vem de `concepts[].iteration_of` da 08 quando presente (linhagem declarada), com fallback = pareamento por prosa do briefing (batch legado); `verdict: "no_data"` quando o batch é anterior ao schema de `valence`/`intensity` da 08.
 - **`click_based_purchase_share`** espelha o que vai pro manifest (bloco da ETAPA 2): fração das purchases da janela em 7-day click. `null` = breakdown indisponível — **nunca estimado**; o gate de escala da 12 fica bloqueado até existir.
 - `champions[]` permanece por compatibilidade (Post ID dedicado). A rota vigente de promoção de breakthrough é o ABO paralelo da skill 12 (cânone §5).
 
