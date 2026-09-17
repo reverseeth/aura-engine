@@ -1,6 +1,6 @@
 ---
 name: creative-engine
-description: Engine de criação de briefings de criativos para Meta Ads. Começa perguntando a ROTA de produção (gerar com IA / modelar concorrente e montar clipes / mix), gera conceitos baseados nas 3 verticais de pesquisa (competitiva, consumidor, interna), produz briefings completos com scripts de vídeo segundo-a-segundo, hooks exatos, image ad specs, primary texts meaningfully different, headlines, LP congruency, e entregáveis ramificados (prompts de IA por clipe OU EDL/roteiro de montagem). Cada conceito declara o método de teste do cânone `.claude/lib/ad-taxonomy/README.md` §7 (Marksman = 3 ângulos distintos sob hold universal, para achar direção; Sniper = 1 ângulo em 3 execuções; toda iteração é Sniper), o ângulo em FRASE de razão de compra (vindo de `sub_avatars[].angle` da Skill 02, com a embalagem separada no `concept_type`), a persona como item de `sub_avatars[]` identificado por id, e a zona emocional em Valence × Intensity com arco obrigatório que abre em valência baixa e fecha em valência alta. Vídeo AI segue hierarquia I2V-first (foto real do produto → image-to-video; avatar fixo + lip-sync pra talking head; text-to-video só B-roll) e, se o Higgsfield MCP estiver conectado, renderiza os vídeos in-session. Humano fotorrealista gerado por AI exige o label "AI Info" da Meta no upload. O tamanho do batch vem da CAPACIDADE DE TESTE do cânone §1 (`max_assets = budget diário ÷ target CPA`), lida de `10-ad-strategy/dados.json.test_capacity` quando existe — não do stage do membro; cada conceito ocupa 1 ad set próprio na estrutura da Skill 10 (1 campanha com CBO → N ad sets → 3 criativos + 2 primary texts + 2 headlines cada). Use quando o membro disser "creatives", "criativos", "briefings", "ads", "criar anúncios", ou quando a copy estiver pronta. A mensagem final orienta geração de IA, edição em ferramentas externas (CapCut, Submagic, Captions) e voiceover no ElevenLabs.
+description: Engine de criação de briefings de criativos para Meta Ads. Começa perguntando a ROTA de produção (gerar com IA / modelar concorrente e montar clipes / mix), gera conceitos baseados nas 3 verticais de pesquisa (competitiva, consumidor, interna), produz briefings completos com scripts de vídeo segundo-a-segundo, hooks exatos, image ad specs, primary texts meaningfully different, headlines, LP congruency, e entregáveis ramificados (prompts de IA por clipe OU EDL/roteiro de montagem). Cada conceito declara o método de teste do cânone `.claude/lib/ad-taxonomy/README.md` §7 (Marksman = 3 ângulos distintos sob hold universal, para achar direção; Sniper = 1 ângulo em 3 execuções; toda iteração é Sniper), o ângulo em FRASE de razão de compra (vindo de `sub_avatars[].angle` da Skill 02, com a embalagem separada no `concept_type`), a persona como item de `sub_avatars[]` identificado por id, e a zona emocional em Valence × Intensity com arco obrigatório que abre em valência baixa e fecha em valência alta. Vídeo AI segue hierarquia I2V-first (foto real do produto → image-to-video; avatar fixo + lip-sync pra talking head; text-to-video só B-roll) e, se o Higgsfield MCP estiver conectado, renderiza os vídeos in-session. Todo criativo passa pelo Limpador de Metadados antes de qualquer upload (regra 12). O tamanho do batch vem da CAPACIDADE DE TESTE do cânone §1 (`max_assets = budget diário ÷ target CPA`), lida de `10-ad-strategy/dados.json.test_capacity` quando existe — não do stage do membro; cada conceito ocupa 1 ad set próprio na estrutura da Skill 10 (1 campanha com CBO → N ad sets → 3 criativos + 2 primary texts + 2 headlines cada). Use quando o membro disser "creatives", "criativos", "briefings", "ads", "criar anúncios", ou quando a copy estiver pronta. A mensagem final orienta geração de IA, edição em ferramentas externas (CapCut, Submagic, Captions) e voiceover no ElevenLabs.
 ---
 
 # Creative Engine
@@ -18,6 +18,7 @@ Quando o membro tem copy pronta (Skill 06) e precisa dos briefings de criativos 
 - [ ] `02-market-research/dados.json` existe com `awareness_distribution`, `voc_phrases`, **`sub_avatars[]`**, `core_avatar`, `labels[]` e `market_vocabulary` (contrato de sub-avatar da ETAPA 3 — detalhe no "Contexto a carregar", item 2b)
 - [ ] **Pixel/CAPI validados**: ler `manifest.tracking.tracking_ready` (gravado pela 07c). Se `true`, seguir. Se `false`/ausente, pedir screenshot do Events Manager mostrando **EMQ ≥ 6/10** (Event Match Quality, escala 0-10) — se membro não pode fornecer, AVISAR que criativos serão desperdiçados e sugerir rodar a 07c (tracking-setup) primeiro
 - [ ] Se existe `workspace/[produto]/03-competitor-analysis/creative-patterns.json` (output do `creative_deep_analysis` da Skill 03), LER pra extrair `hook_archetypes`, `recurring_claims` (cada claim traz `market_validated` + `also_saturated_pdp` + `usage` — semântica na ETAPA 3) e `format_distribution` dos concorrentes — alimenta a ideação na ETAPA 3
+- [ ] **Limpador de Metadados pronto (regra 12):** `node -v` responde (já vem com o Claude Code) e `ffmpeg -version` responde — sem ffmpeg, imagens limpam mas vídeo não. Se faltar, ofereça instalar agora (`brew install ffmpeg` no Mac · `winget install Gyan.FFmpeg` no Windows) e siga; o membro abre o programa com 2 cliques em `Limpador de Metadados.command`/`.cmd` na pasta da Aura quando os criativos finais estiverem prontos
 - [ ] Se existe `workspace/[produto]/03-competitor-analysis/dados.json` com `validated_library` (mecanismos + ângulos validados com evidência de veiculação/escala), `top_creatives` e `ad_formats` (formatos dissecados dos criativos escalados — ETAPA 3D da Skill 03: estrutura, duração, padrão de iteração), LER também — ângulos com validação de mercado entram na Vertical 1 da ideação com prioridade, e o batch usa formatos JÁ validados por escala (`ad_formats`), nunca só ângulos
 - [ ] Se existe `workspace/[produto]/11-ad-analysis/NEXT_BATCH_IDEAS.md` (output do loop 11→08 fechado), LER e usar como input para priorizar ângulos no novo batch — e todo conceito que ITERA um criativo já rodado nasce com **`iteration_of`** preenchido (creative_id do original, schema do dados.json): é essa linhagem que a 11 lê no `iteration_zone_check`
 
@@ -117,7 +118,7 @@ Verifique se há tools com prefixo `mcp__foreplay__` disponíveis (ad spy — 20
 
 ### ETAPA 0.7 — Higgsfield MCP (opcional, se conectado — muda o ENTREGÁVEL da Rota A)
 
-Verifique se há tools com prefixo `mcp__higgsfield__` disponíveis (MCP oficial da Higgsfield — 30+ modelos incluindo Kling 3.x, Veo 3.1 e Sora 2; OAuth via browser, créditos do plano do membro, sem API key). Se SIM, a ETAPA 5.7 (Ramo A) pode, além de salvar os prompts, **renderizar os vídeos in-session**: a skill gera o prompt, chama a tool de geração e salva o asset pronto no workspace — e roda `bash tools/strip-metadata.sh <pasta-dos-assets>` logo depois (todo asset gerado por IA sobe limpo de metadados de proveniência — EXIF/XMP/C2PA, IDs de job do gerador; o script preserva os pixels e o perfil de cor, e NÃO substitui o label "AI Info" da Meta). Confirme com o membro antes de gastar créditos ("Higgsfield conectado — quer que eu já renderize os [N] vídeos ou prefere só os prompts?"). Se NÃO estiver disponível, entregue os prompts como sempre — nada muda no fluxo atual.
+Verifique se há tools com prefixo `mcp__higgsfield__` disponíveis (MCP oficial da Higgsfield — 30+ modelos incluindo Kling 3.x, Veo 3.1 e Sora 2; OAuth via browser, créditos do plano do membro, sem API key). Se SIM, a ETAPA 5.7 (Ramo A) pode, além de salvar os prompts, **renderizar os vídeos in-session**: a skill gera o prompt, chama a tool de geração e salva o asset pronto no workspace — e roda `bash tools/strip-metadata.sh <pasta-dos-assets>` logo depois (todo asset gerado por IA sobe limpo de metadados de proveniência — EXIF/XMP/C2PA, IDs de job do gerador; o script preserva os pixels e o perfil de cor, e renomeia pra `asset-xxxx`). Confirme com o membro antes de gastar créditos ("Higgsfield conectado — quer que eu já renderize os [N] vídeos ou prefere só os prompts?"). Se NÃO estiver disponível, entregue os prompts como sempre — nada muda no fluxo atual.
 
 ### ETAPA 1.0 — Rota de Produção (Pergunta 0 — ANTES de tudo)
 
@@ -481,8 +482,7 @@ Siglas, números complexos, nomes científicos, compostos químicos, unidades de
 - Siglas (qualquer acrônimo de 2+ letras maiúsculas) → overlay
 - Números com decimais, percentuais, ou unidades técnicas → overlay (`"48.5% improvement"`, `"2,500 IU"`)
 - Nomes de ingrediente/composto químico complexos → overlay
-- Estudos citados com N amostral, duração, peer-review status → overlay ou gráfico
-- Regulatory references (FDA status, clinical trial phase) → overlay ou disclaimer
+- Estudos citados com N amostral, duração → overlay ou gráfico
 
 **Motivo:** a fala precisa fluir emocionalmente. Siglas/números faladas quebram ritmo, desligam avatares 35+, soam clinicamente desinteressante. No overlay, o mesmo dado ganha peso de evidência visual sem matar cadência.
 
@@ -524,11 +524,9 @@ Em direct response o ad **abre em valência baixa e fecha em valência alta**. A
 
 Declare o arco no `dados.json` (`valence_open` → `valence_close`) e na linha "Estrutura Invisível / emocional" do briefing. **Conceito que abre e fecha na mesma zona baixa está incompleto** — volte e escreva a resolução antes de entregar.
 
-**Guardrail ético da zona 4 (inegociável):**
+**Régua da zona 4 (craft, não freio):**
 
-- **Nunca inventar claim.** "Se não tomar isso, você pode ter um infarto em 10 anos" é mentira: derruba a conta, queima o processador de pagamento e destrói reputação. Intensidade inventada não escala.
-- **Use pesquisa real.** "Se ignorar, pode virar dano permanente" só entra com evidência rastreável no `04-offer-builder/research-foundation.json`.
-- **Testimonial real assinado é a fonte mais segura de intensidade** — intensidade emprestada de história real de cliente escala sem risco de compliance.
+- **Intensidade com lastro escala mais.** O medo mais forte é o que o avatar já sente: tire a consequência das frases literais de review e do banco de provas da 04 (números, estudos) — história real de cliente é a fonte de intensidade que mais converte.
 - **A linha:** se o medo faz a pessoa **parar** de ler/assistir, você cruzou. O objetivo é fazer checar se está tudo bem, não paralisar.
 
 **As 4 Hook Emotions (camada inferior — continua obrigatória por hook):**
@@ -555,9 +553,9 @@ Preencha os três campos (`valence`, `intensity`, `emotion_dominant`). Quando a 
 
 Junto da emoção, declarar também o **hook archetype** (id de `.claude/lib/hook-taxonomy/archetypes.json` — 17 arquétipos organizados pelas 4 emoções, ex: `pattern_interrupt`, `secret_reveal`, `transformation`). O archetype declarado aqui entra no contexto da extração de DNA (ETAPA 7.6) — é o que permite ao dna-profile revelar QUAL arquétipo de hook ganha no seu nicho quando a Skill 11 marca winners.
 
-**F. VOC traceability — cada claim/hook linka a VOC phrase**
+**F. Origem da VOC — registrar de qual frase real o hook nasceu**
 
-Cada hook, cada primary text, cada headline precisa ser rastreável a uma fonte no `02-market-research/dados.json` (VOC phrases, trigger events, objeções, dores hierarquizadas). Documentar no output JSON:
+Hook, primary text ou headline que nasce de uma frase real de cliente (VOC phrases, trigger events, objeções, dores hierarquizadas do `02-market-research/dados.json`) registra a origem no output JSON — é o que permite à Skill 11 medir qual frase do mercado vendeu:
 
 ```json
 {
@@ -573,9 +571,7 @@ Cada hook, cada primary text, cada headline precisa ser rastreável a uma fonte 
 }
 ```
 
-`ref_id` é o **id estável cunhado pela Skill 02** (`voc-001`, `voc-002`… em `voc_top20[]` e `voc_evidence[]` de `02-market-research/dados.json`) — use o id da frase de origem, nunca invente um. Produto legado sem ids na 02: gravar `"ref_id": null` e preencher `original_phrase` (a rastreabilidade fica pela frase até a 02 re-rodar).
-
-Claim sem VOC rastreável **OU** sem evidência no `04-offer-builder/research-foundation.json` da Skill 04 = marcar `"voc_source": null, "requires_manual_review": true` e listar no output final pra o membro validar. Proibido inventar frase de avatar sem lastro.
+`ref_id` é o **id estável cunhado pela Skill 02** (`voc-001`, `voc-002`… em `voc_top20[]` e `voc_evidence[]` de `02-market-research/dados.json`) — use o id da frase de origem. Produto legado sem ids na 02: gravar `"ref_id": null` e preencher `original_phrase`. Hook que nasce de ângulo, mecanismo ou insight (não de uma frase literal) grava `"voc_source": null` e segue — não é falha, é informação pra 11.
 
 **G. Hook-swap — OPCIONAL, não sempre**
 
@@ -591,23 +587,19 @@ Hook-swap NÃO funciona quando:
 
 **Regra:** na Etapa 5, declare explicitamente `hook_swap_viable: true|false` por conceito. Se `false`, Etapa 7 (Hooks Bank) gera hooks pra FUTUROS conceitos novos (não pra swap no atual).
 
-**H. Compliance pré-geração (gate leve antes da Etapa 7.5)**
+**H. Estilo (rule 8 do CLAUDE.md)**
 
-Além do compliance pass final da Etapa 7.5, aplicar **soft check** durante geração:
+- Zero travessão (—) em headlines; ≤2 em copy longa (8a)
+- Claim direto, específico, sem aviso, disclaimer ou suavização inserida por conta própria (8b) — a peça sai na força que a pesquisa sustenta
 
-- Zero travessão (—) em headlines (regra 8a do CLAUDE.md)
-- Zero palavras ad-flag (Botox/Filler/Injection/Cure/Treat/Anti-aging literal) em qualquer peça de copy pra consumidor (regra 8b)
-- Substituições automáticas do CLAUDE.md já aplicadas na primeira geração (não deixar pro compliance checker consertar depois)
+**I. Limpeza de metadados — obrigatória antes de QUALQUER upload (regra 12 do CLAUDE.md)**
 
-Esse soft check evita 80% do retrabalho pós-compliance.
+Todo gerador de IA (Higgsfield, Veo, Sora, Kling, GPT Image, Midjourney) grava metadados de proveniência no arquivo — EXIF/XMP/IPTC, manifesto C2PA, chunks de texto como o `hf-job-id` do Higgsfield — e as plataformas de ads leem isso. Nenhum criativo sobe sem passar pelo **Limpador de Metadados** (`tools/limpador-de-metadados/`), que remove tudo sem alterar um pixel nem um frame e renomeia pra `asset-xxxx.<ext>`:
 
-**I. Disclosure "AI Info" da Meta — humano fotorrealista gerado por AI**
-
-Se o criativo contém HUMANO fotorrealista gerado ou alterado por AI (avatar de IA, lip-sync, ator sintético — qualquer conceito de Rota A com pessoa em quadro), o ad DEVE receber o label **"AI Info"** da Meta no upload (Ads Manager → nível do ad → marcação de conteúdo gerado por AI). Disclosure correto NÃO sofre penalidade de entrega; conteúdo detectado SEM disclosure sofre distribuição reduzida ou remoção. Regras:
-
-- Marcar `ai_disclosure_required: true` no concept correspondente do `dados.json`
-- Listar no resumo de produção (ETAPA 8) quais conceitos exigem o label
-- Motion graphics, product shots sem pessoa e footage real de creator humano NÃO exigem o label
+- **O membro:** 2 cliques em `Limpador de Metadados.command` (Mac) / `Limpador de Metadados.cmd` (Windows) na pasta da Aura → arrasta os criativos finais (arquivos ou a pasta inteira) → os limpos saem em `Área de Trabalho/Aura Limpos`. É o último passo antes de subir, depois da edição (CapCut/Submagic exportam com metadados próprios — limpa o arquivo FINAL, não o bruto).
+- **A skill:** tudo que o Higgsfield MCP renderizou em `renders/` passa por `bash tools/strip-metadata.sh workspace/[produto]/08-creative-engine/renders/` antes de ser entregue (in-place; os nomes viram `asset-xxxx.mp4` e `rendered_files[]` no `dados.json` é atualizado com os nomes novos).
+- **A receita de upload** (`upload-creative-to-meta.md`) recusa arquivo cujo nome não é `asset-xxxx` até rodar o limpador nele.
+- Listar no resumo de produção (ETAPA 8) o passo de limpeza como último item antes do upload.
 
 ### ETAPA 5 — Gerar Briefings Completos (Um Por Conceito)
 
@@ -721,7 +713,7 @@ Estrutura: Hook → Bridge → Hold → CTA (framework)
 - **13+ Winning Static Ad Templates (named breakdowns)** (rode `13 winning static ad templates avatar callout nutella meme breakdown why it works`) — templates nomeados (avatar callout, meme, etc).
 - **Show Don't Tell / 'ugly ads convert'** (rode `show don't tell behavioral change when telling aren't selling spoken language video`) — quando o "ugly ad" cru bate o product shot polido.
 
-**Se a imagem tem PESSOA fotorrealista** (review de PDP, "closer look", UGC estático, pessoa aplicando/segurando o produto): as regras de `.claude/lib/prompt-directors/real-people-imagery.md` são OBRIGATÓRIAS no prompt — pessoa crível (nunca modelo), públicos distribuídos por pesquisa (nunca lote homogêneo), zero pele exposta, embalagem real por referência anexada, specs de câmera/luz, contexto imperfeito, ratio pelo destino — mais o pós-processo (strip de metadados + disclosure "AI Info" + review do lote).
+**Se a imagem tem PESSOA fotorrealista** (review de PDP, "closer look", UGC estático, pessoa aplicando/segurando o produto): as regras de `.claude/lib/prompt-directors/real-people-imagery.md` são OBRIGATÓRIAS no prompt — pessoa crível (nunca modelo), públicos distribuídos por pesquisa (nunca lote homogêneo), zero pele exposta, embalagem real por referência anexada, specs de câmera/luz, contexto imperfeito, ratio pelo destino — mais o pós-processo (limpeza de metadados + review do lote).
 
 - **Descrição visual principal**: [o que aparece — produto + contexto + modelo se houver]
 - **Texto overlay principal** (hook): "[texto grande]"
@@ -864,7 +856,8 @@ Se há tools `mcp__higgsfield__*` na sessão E o membro aprovou o render, após 
 
 1. Chamar a tool de geração correspondente à rota da cena (I2V com a foto real do produto pra cenas com produto; lip-sync pra takes de avatar; T2V só pra B-roll)
 2. Salvar o vídeo resultante em `workspace/[produto]/08-creative-engine/renders/`, **com o índice da EXECUÇÃO no nome** — as 3 execuções do pack 3-2-2 são 3 arquivos distintos, e a 10 sobe cada uma como um ad separado dentro do ad set do conceito: `c0X-[creative-n].mp4` na geração contínua, ou `c0X-[creative-n]-shot-N.mp4` quando o modelo exige split em takes (Pergunta 1.5 da ETAPA 1.0)
-3. Registrar cada path em `production_prompts.video.rendered_files[]` no `dados.json`, **um item por execução** (`creative_n` de 1 a 3, na mesma ordem do pack e do `utm_content=[concept-id]-[creative-n]` da Skill 10). Execução ainda não renderizada fica com `file: null` — a lista sempre tem os 3 itens
+3. **Limpar os metadados do render** antes de registrar: `bash tools/strip-metadata.sh workspace/[produto]/08-creative-engine/renders/` (regra 12 — o Higgsfield grava `hf-job-id` e C2PA no arquivo; o limpador remove sem re-encodar e renomeia pra `asset-xxxx.mp4`). Se o ffmpeg não estiver instalado, ofereça instalar (`brew install ffmpeg` / `winget install Gyan.FFmpeg`) e, enquanto isso, deixe o render em `renders/` marcado como `metadata_clean: false` no `dados.json` — ele NÃO sobe assim
+4. Registrar cada path (já com o nome `asset-xxxx.mp4`) em `production_prompts.video.rendered_files[]` no `dados.json`, **um item por execução** (`creative_n` de 1 a 3, na mesma ordem do pack e do `utm_content=[concept-id]-[creative-n]` da Skill 10), com `metadata_clean: true`. Execução ainda não renderizada fica com `file: null` — a lista sempre tem os 3 itens
 
 Falha de render (créditos esgotados, timeout, tool error) NÃO bloqueia a skill — o prompt salvo continua sendo o entregável e o membro gera manualmente (escape-path: sempre ≥2 caminhos). Sem o MCP, o fluxo é o atual (prompts pra colar).
 
@@ -992,50 +985,18 @@ Esses hooks ficam na biblioteca pra iteração futura. **Além do `hooks-bank.md
 
 > O DNA aprendido (dna-profile.json) já foi carregado no "Contexto a carregar" (item 6) e enviesou a ideação desde a ETAPA 3 — não há step de DNA aqui.
 
-### ETAPA 7.5 — Compliance Pre-flight (OBRIGATÓRIO antes de salvar)
+### ETAPA 7.5 — Passada final de estilo
 
-Antes de finalizar os briefings e hooks bank, rodar compliance check em TODA peça de copy que vai pro consumidor final.
-
-**Invocação:**
-1. Ler `.claude/lib/compliance-preflight/checker.md` (prompt completo) e `.claude/lib/compliance-preflight/red_flags.json` (base de regras)
-2. Para CADA item abaixo, rodar o checker:
-   - Hook (primeiros 3s do script de cada criativo)
-   - Voiceover script completo (se houver)
-   - Primary text de cada ad (2 versões por conceito)
-   - Headlines (2 por conceito)
-   - Text overlays (todos os beats)
-   - Hooks Bank (10 alternativos)
-3. Parse da resposta JSON — decisão pelo **`overall_verdict`** (protocolo canônico do GATE 1 de `pre-launch-gates.md`, mesma tabela da Skill 06; mapeamento severity→verdict: low → `pass`, medium → `warning`, high/critical → `critical`):
-   - `critical` → **BLOCK**: se algum trigger tem `severity: "critical"`, PARAR e apresentar os triggers ao membro com as `rewrite_suggestions[]`, pedindo revisão manual (rota ES3 se launch urgente). Se o verdict veio só de triggers `high`, aplicar o `rewrite_suggestion` (reescrita completa da peça) e **RE-RODAR o check no texto reescrito**; se persistir `critical`, PARAR e apresentar ao membro — a peça não entra no batch sem passar.
-   - `warning` → aplicar as `rewrite_suggestions[]` automáticas e **RE-RODAR o check** (NUNCA "manter original"). Se virar `pass`, prosseguir. Se persistir `warning`, salvar a peça MAS logar em `workspace/[produto]/compliance-warnings.json` (path canônico do gate) e citar os warnings na Mensagem Final ("N warnings de compliance — revise se quiser").
-   - `pass` → salvar silenciosamente.
-
-   Além do log de warnings acima, manter o log consolidado de TODOS os checks (qualquer verdict) em `workspace/[produto]/08-creative-engine/compliance-log.json`.
-4. Sanity pass final: zero termos ad-flag (Botox, filler, injection, cure, treat) em qualquer peça pública. Travessão (—) zero em headlines, ≤2 em copy longa. Todo conceito com humano fotorrealista gerado por AI está marcado `ai_disclosure_required: true` (gate I da ETAPA 4.5).
-
-Output log em `workspace/[produto]/08-creative-engine/compliance-log.json`:
-```json
-{
-  "checked_at": "ISO timestamp",
-  "total_pieces": 45,
-  "flags_critical": 0,
-  "flags_high": 2,
-  "flags_medium": 3,
-  "pieces_rewritten": 2,
-  "triggers_by_eixo": {"Meta Policy": 3, "FTC": 2, "AI Style": 1},
-  "details": [ "um item por check rodado: peça, trigger, severity, rewrite aplicado" ]
-}
-```
+Antes de salvar: travessão (—) zero em headlines, ≤2 em copy longa (8a); nenhuma peça pública com aviso, disclaimer ou claim suavizado por iniciativa da skill (8b); todo arquivo em `renders/` passou pelo limpador de metadados e tem nome `asset-xxxx` (item I da ETAPA 4.5).
 
 ### ETAPA 7.6 — DNA Registry Extraction (silent)
 
-Após compliance pass, pra cada criativo gerado:
+Após os briefings e o hooks bank, pra cada criativo gerado:
 
 1. Ler `.claude/lib/creative-dna/feature_schema.json` e `.claude/lib/creative-dna/extractor.md`
 2. Rodar o extractor prompt com:
    - Briefing completo do criativo
    - Awareness level dominante do market research
-   - Compliance risk score do Pre-flight
    - Hook archetype declarado na ETAPA 4.5.E (id de `.claude/lib/hook-taxonomy/archetypes.json`) — a extração é schema-driven (a feature `hook_archetype` do `feature_schema.json` flui automaticamente), mas o PROMPT do `extractor.md` pede o archetype declarado explicitamente; é o que fecha o loop archetype→DNA prometido pelo hook-taxonomy
 3. Parse JSON response (features estruturadas conforme schema)
 4. Salvar em `workspace/[produto]/creative-dna/features-[creative-id].json`
@@ -1074,7 +1035,7 @@ Crie um resumo operacional pro membro executar. As linhas variam conforme a rota
 |---|---|---|
 | Vídeos a gerar com IA ([modelo escolhido]) | [Y] | Prompts prontos em `prompts/prompt-c0X-video.txt` (modelo longo = roteiro contínuo único) ou pasta `c0X-slug/` (Higgsfield multi-shot). Link/instrução de generation no fim do prompt. Se o Higgsfield MCP rendeu in-session (ETAPA 0.7), os vídeos prontos já estão em `renders/` |
 | Imagens a gerar com GPT Image 2.0 | [W] | Prompts em `prompts/prompt-c0X-image.txt` — colar direto no GPT Image 2.0 |
-| Conceitos que exigem label "AI Info" no upload | [lista de concept-ids] | Ads Manager → nível do ad → marcação de conteúdo gerado por AI (gate I da ETAPA 4.5 — humano fotorrealista AI) |
+| Limpar metadados (ÚLTIMO passo, depois da edição) | todos os arquivos finais | 2 cliques em `Limpador de Metadados.command`/`.cmd` na pasta da Aura → arraste os criativos finais → suba só os `asset-xxxx` da pasta `Aura Limpos` (item I da ETAPA 4.5 / regra 12). Renders do MCP em `renders/` já saem limpos |
 
 **Se Rota B (ou conceitos `edl` no Mix):**
 
@@ -1107,28 +1068,26 @@ A skill tem ~10 gates espalhados pelas ETAPAs. Antes de declarar o batch entregu
 
 **Copy e script:**
 - [ ] Word count do spoken script dentro do range 2.8-3.0 palavras/s pra duração alvo (ETAPA 4.5.C); `word_count_within_limit: true` em todos
-- [ ] Siglas, números técnicos, compostos químicos e claims regulatórios SÓ em text overlay, nunca na fala (ETAPA 4.5.D)
+- [ ] Siglas, números técnicos e compostos químicos SÓ em text overlay, nunca na fala (ETAPA 4.5.D)
 - [ ] **Ângulo em frase (gate ETAPA 4.5.A.0.3):** todo conceito tem `angle` preenchido como frase completa de razão de compra, passando no teste de classificação. Zero enum, zero palavra solta, zero rótulo de formato no campo `angle`. `concept_type` preenchido separadamente com a embalagem
 - [ ] **Contrato de sub-avatar:** todo conceito tem `sub_avatar_id` apontando pra um item real de `sub_avatars[]` da 02, e o `angle` veio de `sub_avatars[].angle` (ou é frase nova no mesmo formato, das Verticais 1/3). Nenhuma micro-persona escrita à mão sem lastro na 02
-- [ ] **Vocabulário do mercado:** zero termos de `market_vocabulary.words_absent[]` em qualquer peça; zero termos com `saturated_in_market: true` em headline/hook (só como prova no corpo). `absent_terms_used` e `saturated_terms_in_headlines` = 0 no `compliance_summary`
+- [ ] **Vocabulário do mercado:** zero termos de `market_vocabulary.words_absent[]` em qualquer peça; zero termos com `saturated_in_market: true` em headline/hook (só como prova no corpo). `absent_terms_used` e `saturated_terms_in_headlines` = 0 no `vocabulary_summary`
 - [ ] **Zona emocional e arco (ETAPA 4.5.E):** todo conceito e todo hook com `valence` + `intensity` declarados; `valence_open` → `valence_close` gravado e **fechando em valência alta** (única exceção aceita: `valence_arc_owner: "landing_page"` para image ad de curiosidade). Conceito que abre e fecha na mesma zona baixa não sai
 - [ ] Hooks Bank cobre as 4 zonas (≥1 hook em cada) e, se a 11 já apontou zona vencedora, ≥2 hooks nela
-- [ ] Guardrail ético da zona 4: nenhum claim de risco/consequência sem lastro em `research-foundation.json` ou testimonial real assinado (`intensity_claims_without_evidence: 0`)
 - [ ] Todo hook (dos conceitos E do Hooks Bank) com `emotion_dominant` (1 das 4 Hook Emotions, derivado da zona) + hook archetype declarados (ETAPA 4.5.E)
-- [ ] Todo hook/primary text/headline com `voc_source` rastreável à 02 OU marcado `requires_manual_review: true` e listado pro membro (ETAPA 4.5.F) — zero frase de avatar inventada
+- [ ] Hook/primary text/headline que nasceu de frase real tem `voc_source` apontando pra 02 (ETAPA 4.5.F); os demais com `voc_source: null`
 - [ ] `hook_swap_viable` declarado por conceito (ETAPA 4.5.G)
 - [ ] Primary texts meaningfully different (estrutura+ângulo+hook, não cosmético); headlines com frames distintos (ETAPA 5)
 
-**Compliance:**
-- [ ] Soft check da geração passou (ETAPA 4.5.H): zero travessão em headlines (≤2 em copy longa), zero ad-flag words em peça pública
-- [ ] Compliance Pre-flight (ETAPA 7.5) rodado em TODA peça consumidor-final; decisão pelo `overall_verdict` (critical bloqueado/reescrito+re-rodado, warning reescrito+re-rodado); `compliance-log.json` salvo e warnings residuais em `compliance-warnings.json`
-- [ ] Todo conceito com humano fotorrealista de AI marcado `ai_disclosure_required: true` e listado no resumo de produção (ETAPA 4.5.I)
+**Estilo e upload:**
+- [ ] Passada de estilo (ETAPA 7.5): zero travessão em headlines (≤2 em copy longa); nenhuma peça pública com aviso, disclaimer ou claim suavizado por iniciativa da skill
+- [ ] Renders in-session (se houve) passaram pelo limpador de metadados e estão como `asset-xxxx` com `metadata_clean: true`; o resumo de produção lista a limpeza como último passo antes do upload (ETAPA 4.5.I / regra 12)
 
 **Entregáveis e handoff:**
 - [ ] Entregável de produção por conceito conforme a rota (ETAPA 5.7): Rota A = prompts em `prompts/` + `prompts-index.json` (+ `renders/` se MCP rendeu); Rota B = `concept-XX-edl.md` com tabela timecode + bloco de usage rights; Mix = cada conceito no seu ramo
 - [ ] LP congruency documentada por conceito (ETAPA 6): destino + message/visual/promise match
 - [ ] Hooks Bank com 10 hooks categorizados no `.md` E no array top-level `hooks_bank[]` do dados.json (ETAPA 7 — contrato com os checks H1/M3 da Skill 09)
-- [ ] `dados.json` completo no schema: `emotion_dominant`/`archetype`/`awareness_level` no NÍVEL do concept (contrato com o gate H4 da 09), mais os campos novos `testing_method`, `angle` (frase), `concept_type`, `sub_avatar_id`, `valence`/`intensity`/`valence_open`/`valence_close`, `angles[]`+`hold_universal*` nos conceitos `marksman`, e `iteration_of` preenchido em todo conceito que é iteração (null nos novos); `compliance_summary` preenchido, `production_route`/`ai_video_model` gravados
+- [ ] `dados.json` completo no schema: `emotion_dominant`/`archetype`/`awareness_level` no NÍVEL do concept (contrato com o gate H4 da 09), mais os campos novos `testing_method`, `angle` (frase), `concept_type`, `sub_avatar_id`, `valence`/`intensity`/`valence_open`/`valence_close`, `angles[]`+`hold_universal*` nos conceitos `marksman`, e `iteration_of` preenchido em todo conceito que é iteração (null nos novos); `vocabulary_summary` preenchido, `production_route`/`ai_video_model` gravados
 - [ ] DNA extraction rodada por criativo (ETAPA 7.6) ou erro logado em `extraction-errors.log` (não bloqueia)
 - [ ] Instrução de UTM usa o schema canônico da Skill 10 (`utm_content=[concept-id]-[creative-n]` + macros `{{ad.id}}`/`{{adset.id}}`) — nenhum formato próprio inventado
 - [ ] Dual output: todo relatório `.md` com `.html` companion + logo SVG literal (isenções: `concept-NN-edl.md`, `prompts/*`, `renders/*`, `dados.json`); `manifest.json` atualizado + `build_index.py` rodado
@@ -1222,7 +1181,6 @@ Outputs em `workspace/[produto]/08-creative-engine/` (nomenclatura normalizada):
       "funnel_position": "TOF|MOF|BOF",
       "hook_swap_viable": true,
       "format": "video_ugc|video_demo|static_image|carousel|motion_graphic",
-      "ai_disclosure_required": false,
       "duration_target_seconds": 22,
       "edl_file": "concept-01-edl.md|null",
       "_comment_edl_file": "preenchido só pra conceitos production_route=edl; null na rota ai (o entregável vira production_prompts)",
@@ -1242,11 +1200,11 @@ Outputs em `workspace/[produto]/08-creative-engine/` (nomenclatura normalizada):
         }
       ],
       "primary_texts": [
-        { "text": "...", "variant": "A|B", "structure": "descrição da estrutura desta variante", "valence": "positive|negative", "intensity": "low|high", "voc_source": { "ref_id": "voc-001", "original_phrase": "...", "confidence": "direct_quote" }, "compliance_clean": true }
+        { "text": "...", "variant": "A|B", "structure": "descrição da estrutura desta variante", "valence": "positive|negative", "intensity": "low|high", "voc_source": { "ref_id": "voc-001", "original_phrase": "...", "confidence": "direct_quote" } }
       ],
       "_comment_primary_texts": "`variant` substitui o antigo `angle: A|B` — as duas versões NÃO mudam o ângulo do conceito (ângulo é variável do criativo). O que varia é estrutura, entrada e zona emocional",
       "headlines": [
-        { "text": "...", "frame": "benefit|urgency|offer|question", "voc_source": { "ref_id": "voc-001", "original_phrase": "...", "confidence": "direct_quote" }, "compliance_clean": true }
+        { "text": "...", "frame": "benefit|urgency|offer|question", "voc_source": { "ref_id": "voc-001", "original_phrase": "...", "confidence": "direct_quote" } }
       ],
       "production_prompts": {
         "_comment": "preenchido só pra conceitos production_route=ai; pra route=edl, production_prompts=null e o entregável é edl_file",
@@ -1258,9 +1216,9 @@ Outputs em `workspace/[produto]/08-creative-engine/` (nomenclatura normalizada):
           "preset": "UGC|Tutorial|Unboxing|Hyper Motion|Product Review|TV Spot|Wild Card|UGC Virtual Try On|Pro Virtual Try On",
           "tool_url": "https://higgsfield.ai/marketing-studio",
           "rendered_files": [
-            { "creative_n": 1, "file": "renders/c01-1.mp4|null" },
-            { "creative_n": 2, "file": "renders/c01-2.mp4|null" },
-            { "creative_n": 3, "file": "renders/c01-3.mp4|null" }
+            { "creative_n": 1, "file": "renders/asset-k3p9.mp4|null", "metadata_clean": true },
+            { "creative_n": 2, "file": "renders/asset-7wq2.mp4|null", "metadata_clean": true },
+            { "creative_n": 3, "file": "renders/asset-m1xd.mp4|null", "metadata_clean": true }
           ],
           "rendered_file": "renders/c01-1.mp4|null"
         },
@@ -1291,16 +1249,11 @@ Outputs em `workspace/[produto]/08-creative-engine/` (nomenclatura normalizada):
   "total_assets": 3,
   "format": "3-2-2",
   "next_batch_ideas_applied": ["ref-01", "ref-02"],
-  "compliance_summary": {
-    "ad_flag_words_found": 0,
+  "vocabulary_summary": {
     "em_dash_in_headlines": 0,
-    "unresolved_claims_without_voc": 0,
-    "unresolved_claims_without_research_foundation": 0,
     "absent_terms_used": 0,
     "saturated_terms_in_headlines": 0,
-    "_comment_vocabulary": "gate de `market_vocabulary` da Skill 02: `absent_terms_used` = ocorrências de `words_absent[]` em qualquer peça (tem que ser 0); `saturated_terms_in_headlines` = termos com `saturated_in_market: true` usados em headline/hook em vez de prova no corpo (tem que ser 0)",
-    "intensity_claims_without_evidence": 0,
-    "_comment_intensity": "guardrail ético da zona 4 (ETAPA 4.5.E): claim de risco/consequência sem lastro em `04-offer-builder/research-foundation.json` ou em testimonial real assinado. Tem que ser 0"
+    "_comment_vocabulary": "gate de `market_vocabulary` da Skill 02: `absent_terms_used` = ocorrências de `words_absent[]` em qualquer peça (tem que ser 0); `saturated_terms_in_headlines` = termos com `saturated_in_market: true` usados em headline/hook em vez de prova no corpo (tem que ser 0)"
   }
 }
 ```
@@ -1315,7 +1268,7 @@ Após salvar, atualizar `workspace/[produto]/manifest.json`:
 
 ## Mensagem Final
 
-A mensagem se adapta à rota escolhida (ETAPA 1.0). Apresente como **draft** convidando iteração (rule iteration-driven-refinement), não como "pronto pra lançar". Se a ETAPA 7.5 deixou warnings residuais de compliance, cite na mensagem ("N warnings de compliance — revise se quiser").
+A mensagem se adapta à rota escolhida (ETAPA 1.0). Apresente como **draft** convidando iteração (rule iteration-driven-refinement), não como "pronto pra lançar".
 
 **Se Rota A (IA):**
 
@@ -1325,7 +1278,7 @@ A mensagem se adapta à rota escolhida (ETAPA 1.0). Apresente como **draft** con
 - **Imagens**: abra `prompts/prompt-c0X-image.txt` — cole no GPT Image 2.0 (formato já ajustado ao tipo)
 - **Voiceovers** (se conceito tem): gere no ElevenLabs com os scripts marcados nos briefings
 - **Edição**: junte vídeo + voiceover + text overlays no CapCut/Submagic/Captions
-- **Label "AI Info"**: os conceitos [lista] têm humano fotorrealista gerado por AI — no upload, marque o conteúdo como gerado por AI no Ads Manager (com o label correto não há penalidade; sem ele, o Meta reduz a entrega ou remove o ad)
+- **Limpar metadados (último passo)**: depois de editar, dê 2 cliques em `Limpador de Metadados.command` (Mac) ou `.cmd` (Windows) na pasta da Aura e arraste os criativos finais pra lá — eles saem sem nenhum metadado de IA, com a mesma qualidade, renomeados `asset-xxxx`, na pasta `Aura Limpos`. Suba só esses. [Se o Higgsfield MCP rendeu in-session: "Os renders em `renders/` já estão limpos."]
 
 Revisa e me diz o que ajustar (tom, ângulo, hook) antes de você gerar tudo. Quando os criativos estiverem prontos: diga **'agentic readiness'** (07e) e depois **'consistency audit'** (09 — o GATE de launch); com o audit verde, **'ad strategy'** monta a campanha no Meta."
 

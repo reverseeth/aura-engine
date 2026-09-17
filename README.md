@@ -9,11 +9,11 @@ Orchestrates the full product-to-ads-to-retention workflow through 26 skills (ph
 | # | Skill | Output |
 |---|---|---|
 | 00 | setup | profile + first manifest + dashboard |
-| 01 | product research | product validation + score |
+| 01 | product research | brand discovery on TrendTrack (native ads, image + video, fixed filters; MCP or manual), per-brand file (top LP, top ads, traffic, offer, mechanisms), Google Trends + Trustpilot 1-2★ validation, recombination plays (never clone, never from zero), 8-axis score, brand bank in Notion or HTML |
 | 01b | sourcing (optional) | supplier analysis + quote message + logistics route (DDP → 3PL) + real COGS for skill 04 |
 | 02 | market research | VOC, awareness, sophistication, root cause |
 | 03 | competitor analysis | claims, gaps, creative patterns (Whisper transcription) |
-| 04 | offer builder | mechanism, research foundation, pricing, guarantee |
+| 04 | offer builder | mechanism, proof bank, pricing, guarantee |
 | 05 | bonus delivery | ecom bonus asset + delivery (Phase A pre-launch: assets + GWP config; Phase B post-launch: take-rate tracking) |
 | 06 | copy engine | headlines, leads, advertorial, PDP copy — structure modeled on a proven swipe-file specimen, then markup-audited |
 | 07a | page design | HTML-first page design (brand signals + member-approved HTML) |
@@ -39,7 +39,6 @@ Plus an intelligence layer (`.claude/lib/`) providing:
 - **Ad taxonomy** — the single canon for paid-media decisions: testing capacity (`assets = daily budget ÷ target CPA`, $100-150/day floor, ~3× target CPA ceiling per ad set, max 5 test ad sets under $1k/day), the CBO structure where 1 ad set = 1 concept, the 4 result classes (loser / KPI winner / spend winner / breakthrough — only breakthrough unlocks scale and recycling), kill rules, hook & hold rates, the Scaling Protocol and the parallel-ABO promotion that replaced the champions ad set, plus what can and cannot be automated (Meta refuses performance conditions on CBO; two protection automations are mandatory and ship disabled). Read by skills 08/10/11/12/14/17 — no skill redefines these locally
 - **Unit economics** — the single canon for margin and spend decisions: full variable-cost stack, contribution margin vs profit (never label "profit" a number that hasn't subtracted fixed costs), first vs repeat order, CAC ≠ platform CPA, and the ROAS spiral (cutting spend on a ROAS dip can deepen the loss — no cut recommendation ships without fixed costs on the table). Skill 15 owns the full model the canon declares (4 levers, cohorts, cash cycle) and publishes the numbers the others read. Read by skills 04/11/12/15
 - **Ad log** — the canon for account-change records: an append-only `ad-log.md` per product, one line per executed change (entity, change with values, executor, short reason). Written at execution time by skills 10/12/14/17 and the automation recipes; read by 11 at the start of every analysis and by 12 before scaling
-- **Compliance pre-flight** — scores ad/page copy for Meta/FTC/FDA risk before submit (blocking gate)
 - **KB index** — catalog of 1,309 named framework entries across 19 domains (some systems appear in more than one domain when they serve different skills); each skill pulls the exact systems by name
 - **Swipe models** — 12 proven structural specimens (Agora 11-block promo, Haddad VSL chassis, Identity Lead, Halbert skeleton, Schwartz space ad…) selected by awareness × sophistication × page type, so skill 06 models copy on a piece that actually converted instead of writing from theory alone — plus the Milligan markup audit as a QA rubric (4 U's, 4 emotions, Objection→Claim→Proof→Benefit loop, 12-defect sheet)
 - **Creative DNA** — learns what works for this member's avatar over time
@@ -47,7 +46,8 @@ Plus an intelligence layer (`.claude/lib/`) providing:
 - **Prompt directors** — production-ready creative prompt generation (video/image)
 - **Content recycler** — format specs behind Track 2 of skill 14 (1 breakthrough creative into 9 channel derivatives)
 - **Workspace index** — generates the per-product `ABRIR-AQUI.html` dashboard
-- **MCP detect + TrendTrack / Refero integrations** — auto-detect optional MCPs and enrich research/design when connected
+- **Metadata cleaner** (`tools/limpador-de-metadados/`) — every creative goes through it before upload: strips EXIF/XMP/IPTC/C2PA and generator job ids without touching a pixel or a frame, renames to `asset-xxxx`; drag-and-drop app for the member (double-click launchers in the repo root) + CLI for the skills
+- **MCP detect + TrendTrack / Notion / Refero integrations** — auto-detect optional MCPs; TrendTrack drives product discovery, Notion stores the brand bank, Refero feeds brand signals
 - **Automation recipes** — MCP-based deploy/sync through the Meta Ads + Shopify MCPs
 
 > The page (07) is HTML-first: the design is generated and approved in-session as self-contained HTML+CSS (the single source of visual truth), then compiled deterministically to Liquid — no mandatory Claude Design step.
@@ -55,7 +55,6 @@ Plus an intelligence layer (`.claude/lib/`) providing:
 And operational rules in `.claude/rules/` (auto-loaded when relevant):
 
 - `shopify-theme-safety.md` — pull-before-edit, `--nodelete`, silent push rejection diagnosis
-- `pre-launch-gates.md` — Compliance gate + Promise↔Config gate (blocking, non-negotiable)
 - `post-task-self-audit.md` — mandatory self-audit after every skill or important task (5 gates, silent-fix-first)
 - `iteration-driven-refinement.md` — skills produce a draft plus an invitation to iterate, not a "done"
 - `troubleshooting-patterns.md` — diagnostic tree for recurring issues
@@ -113,7 +112,6 @@ Queries starting with `aura:` consult the knowledge base.
 ├── skills/                # skill markdown files (00–20; 07 splits into 07a–e)
 ├── rules/                 # operational rules (auto-loaded)
 │   ├── shopify-theme-safety.md
-│   ├── pre-launch-gates.md
 │   ├── post-task-self-audit.md
 │   ├── iteration-driven-refinement.md
 │   ├── troubleshooting-patterns.md
@@ -127,7 +125,6 @@ Queries starting with `aura:` consult the knowledge base.
 │   ├── ad-taxonomy/       # canon: testing capacity, 4 result classes, kill rules, Scaling Protocol
 │   ├── unit-economics/    # canon: contribution margin, CAC, the ROAS spiral
 │   ├── swipe-models/      # 12 structural specimens + the markup audit rubric
-│   ├── compliance-preflight/
 │   ├── content-recycler/
 │   ├── creative-dna/
 │   ├── design-presets/
@@ -154,12 +151,16 @@ workspace/                 # member data (GITIGNORED)
 └── [product-slug]/        # per-product subfolder
     ├── ABRIR-AQUI.html    # dashboard — the member's entry point
     ├── manifest.json      # single source of truth
-    ├── 01-product-research/   # product-research.md / .html
+    ├── 01-product-research/   # product-research.md / .html + dados.json + banco-de-marcas.md (+ .html when Notion is not connected)
     ├── 02-market-research/    # market-research.md / .html + dados.json
     └── ...                    # one subfolder per phase (0X-stem/)
 
 tools/
+├── limpador-de-metadados/ # metadata cleaner (Node, zero deps): strips EXIF/XMP/IPTC/C2PA/encoder tags, lossless, renames to asset-xxxx
+├── strip-metadata.sh      # CLI wrapper the skills/recipes run before any upload
 └── design-clone/          # optional design signal extractor
+
+Limpador de Metadados.command / .cmd   # double-click launchers (Mac / Windows): drag-and-drop UI for the member
 ```
 
 ## Updates

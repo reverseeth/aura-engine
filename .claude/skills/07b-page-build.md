@@ -1,6 +1,6 @@
 ---
 name: page-build
-description: Segunda skill da fase STOREFRONT. COMPILE+POPULATE determinístico do design/page.html aprovado na 07a em sections Liquid via liquid-converter.py (Modo C por section ou --batch pra página inteira, por código não por reasoning), valida cada section com shopify-plugin:shopify-liquid (3 retries), roda os gates de launch (compliance + promise↔config), faz DEPLOY seguro no Shopify (shopify-theme-safety integral, marker data-aura-build) e conduz a PUBLICAÇÃO do tema com aprovação do membro (grava manifest.storefront). Use quando o membro disser "build page", "deploy", "subir página", depois de aprovar o design na 07a.
+description: Segunda skill da fase STOREFRONT. COMPILE+POPULATE determinístico do design/page.html aprovado na 07a em sections Liquid via liquid-converter.py (Modo C por section ou --batch pra página inteira, por código não por reasoning), valida cada section com shopify-plugin:shopify-liquid (3 retries), roda o gate de performance budget, faz DEPLOY seguro no Shopify (shopify-theme-safety integral, marker data-aura-build) e conduz a PUBLICAÇÃO do tema com aprovação do membro (grava manifest.storefront). Use quando o membro disser "build page", "deploy", "subir página", depois de aprovar o design na 07a.
 ---
 
 # 07b — Page Build (COMPILE determinístico + POPULATE + DEPLOY)
@@ -19,7 +19,7 @@ Princípio: **conversão determinística mata as traduções lossy e o drift.** 
 4. RENAME semântico — o Claude renomeia os block types genéricos pros type-specific (editando `.liquid` E template JSON juntos), SÓ DEPOIS do compile (nunca re-rode o conversor por cima de renames) — mais a RESTAURAÇÃO dos SVGs grandes que o conversor substituiu por placeholder (inventário + reinjeção do original).
 5. VALIDATE — cada `.liquid` passa por `shopify-plugin:shopify-liquid` (3 retries) + snippet de validação cruzada do template JSON + **check bloqueante de imagens/placeholders** (nenhuma section com imagem vazia/placeholder do mapa de mídia da 07a; zero `{{PLACEHOLDER}}` residual).
 5.5. GEO / Schema (agent-readability) — gera o JSON-LD Schema.org (Product + Offer + AggregateRating + BreadcrumbList + FAQPage das perguntas reais da section faq) de `04-offer-builder/dados.json` + `06-copy-engine/dados.json` + reviews, valida, e injeta no template como bloco `custom_liquid` + um bloco "agent-readable facts" (specs, envio/retorno, disponibilidade, garantia) em texto limpo separado da copy persuasiva.
-6. GATES (blocking) — GATE 1 compliance (ad-flag, CLI canônica) + GATE 2 promise↔config + GATE 3 performance budget, ANTES do deploy.
+6. GATE (blocking) — GATE 3 performance budget, ANTES do deploy (a página aprovada tem que ser rápida no 4G).
 7. DEPLOY — shopify-theme-safety integral (duplicate → pull --nodelete → **provisionamento de web fonts** → push --nodelete + marker `data-aura-build` + criação da página + smoke test).
 8. PUBLISH — com aprovação explícita do membro: backup do live → `shopify theme publish` → grava `manifest.storefront` (theme_id, page_url, published_at) que a 07d e a 10 leem → **fidelity check por visão** (screenshot da página no ar vs `design/page.html` aprovado; divergiu = corrige antes de encerrar).
 9. Dual output (.md + .html, logo SVG) + iteration loop.
@@ -248,7 +248,7 @@ Leia as fontes (todas já existem na cadeia; não invente nenhum campo):
 
 - `workspace/[produto]/04-offer-builder/dados.json` → nome do produto, preço, `compare_at_price`, moeda, garantia (dias), unique mechanism, descrição da oferta.
 - `workspace/[produto]/06-copy-engine/dados.json` → headline/descrição do produto, specs/benefícios em texto, brand, **e as perguntas/respostas REAIS da section faq** (fonte do nó FAQPage — as mesmas Q&A que a página exibe, nunca perguntas inventadas só pro Schema).
-- **Reviews** → `04-offer-builder/dados.json` (se traz `social_proof`/`rating`) OU a review app real (Judge.me/Loox/Yotpo via Admin API, se conectada) OU o número que o GATE 2 já valida em `promise-check.json`. **O rating do Schema TEM que bater com o rating exibido na página e com a review app real** (senão é structured-data fraudulento — Google penaliza e pode disparar manual action).
+- **Reviews** → `04-offer-builder/dados.json` (se traz `social_proof`/`rating`) OU a review app real (Judge.me/Loox/Yotpo via Admin API, se conectada). O rating do Schema é o mesmo que a página exibe.
 
 **Regra dura — sem dado, sem nó.** Se um campo não tem fonte real (ex: rating sem review app conectada, ou `compare_at_price` ausente), **OMITA o nó/propriedade** em vez de inventar. `AggregateRating` só entra se há reviews reais e contáveis. Schema com número fabricado é pior que Schema ausente (vira manual action no Google Search Console).
 
@@ -318,7 +318,7 @@ Monte `staging/geo/product-schema.json` com este shape (preencha dos arquivos, s
 O nó **FAQPage** cobre TODAS as perguntas da section faq da página (uma entrada `Question` por Q&A, na mesma ordem). Se a página não tem section faq, omita o nó inteiro (mesma regra dura: sem dado, sem nó) — mas registre no `deploy-report.json` que a página saiu sem FAQ (a 07e vai apontar isso como gap de agent-readability).
 
 Notas de montagem:
-- **Coerência com o GATE 2** (ETAPA 5): `merchantReturnDays`, `returnFees` (free vs paid), `shippingDetails` (free shipping vs cobrado) e `priceValidUntil` (promo time-bound) TÊM que bater com o que `promise-check.json` valida contra a config real da Shopify. Se a promise de free shipping só cobre US, o `shippingDestination` é US — não invente cobertura mundial. **O Schema é mais uma superfície onde a promise tem que ser verdade** (Gate 2 cobre isso na ETAPA 5; se o Schema diverge da config, o gate barra).
+- `merchantReturnDays`, `returnFees` (free vs paid), `shippingDetails` (free shipping vs cobrado) e `priceValidUntil` (promo time-bound) saem da oferta (04) e da política da loja. Se o frete grátis cobre só US, o `shippingDestination` é US.
 - `availability` reflete o estoque real (`InStock`/`OutOfStock`/`PreOrder`).
 - `priceValidUntil`: só se há promo com data-fim FIXA real (mesma regra do countdown na seção Padrões — nunca rolling/evergreen).
 - `image`/`url`/`item` são URLs **absolutas** (`https://$STORE/...`), nunca relativas.
@@ -401,7 +401,7 @@ Gere `staging/geo/agent-facts.html` — uma section discreta no fim da PDP (`dat
 Regras do bloco:
 - **Frase declarativa curta, verificável.** Nada de "the best", "revolutionary", "transform your skin" — isso é copy persuasiva, mora nas outras sections. Aqui é o "spec sheet" que a AI cita.
 - Permanece em **inglês US** (é consumer-facing — regra inviolável do CLAUDE.md, igual ao resto da página).
-- **Ad-safe** (rule 8b) e **sem travessão em excesso** (rule 8a) — passa pelo GATE 1 junto com o resto na ETAPA 5.
+- **Sem travessão em excesso** (rule 8a) e **sem aviso/disclaimer inserido por conta própria** (rule 8b) — entra na passada de estilo da ETAPA 5.
 - Bate 1:1 com o JSON-LD e com a config real (envio/retorno/garantia/disponibilidade): JSON-LD, agent-facts e config são a MESMA verdade em três formatos.
 - Esse bloco vira uma section a mais no SPLIT→COMPILE→POPULATE se você quiser editabilidade total; ou, mais simples, um `custom_liquid` companion do bloco JSON-LD. Escolha pela complexidade da página (section dedicada se o membro quer controle fino; `custom_liquid` se é só prosa estável).
 
@@ -413,52 +413,11 @@ Starter ($300–1000/mês, primeira loja): entregue o Schema completo mesmo assi
 
 ---
 
-## ETAPA 5 — GATES de launch (blocking, ANTES do deploy)
+## ETAPA 5 — GATE de launch (blocking, ANTES do deploy)
 
-Os dois gates da rule `pre-launch-gates.md` rodam sobre a copy injetada ANTES do push, mais o GATE 3 (performance budget) desta skill. **Inclua o bloco agent-facts (ETAPA 4.5.4) na varredura do GATE 1** (é consumer-facing) e confira que o JSON-LD (ETAPA 4.5.1) não contradiz a config real no GATE 2 (envio/retorno/garantia/rating/preço são a mesma verdade da página).
+**Passada de estilo (antes do gate):** zero travessão em headlines, ≤2 em copy longa (rule 8a); zero emoji na UI da página (rule 7 — ícones SVG); nenhum aviso/disclaimer inserido por conta própria (rule 8b).
 
-### GATE 1 — Ad-flag compliance
-
-Consolide TODA a copy consumidor-final do template JSON (settings + blocks + agent-facts) num arquivo e rode a CLI canônica (rule `pre-launch-gates.md`):
-```bash
-# 1. salvar a copy consolidada
-#    → workspace/[produto]/07-page/staging/gate1-copy.md
-# 2. rodar o gate
-python3 .claude/lib/compliance-preflight/run.py \
-  --file workspace/${PRODUTO}/07-page/staging/gate1-copy.md \
-  --vertical <manifest.product_vertical> \
-  --stage pre_page \
-  --json
-```
-Decisão pelo `overall_verdict` do JSON: `critical` → **BLOCK** (apresenta as flags com suas `rewrite_suggestions[]`, pede revisão). `warning` → BLOCK por default: aplica as `rewrite_suggestions[]` e **re-roda o check**; se virar `pass`, prossegue; se continuar `warning`/`critical`, loga em `workspace/[produto]/compliance-warnings.json` e o deploy só segue com decisão explícita do membro. `pass` → PASS.
-
-Também cheque: zero travessão em headlines, ≤2 em copy longa (rule 8a); zero emoji na UI da página (rule 7 — ícones SVG).
-
-### GATE 2 — Promise ↔ Config
-
-Pra cada promise na copy/página (free shipping, "90-day money-back", "Use code XXXX", "Limited time — ends [date]", "Rated 4.X by N", "Made in [country]", "FDA cleared"), valide contra a config real da loja Shopify. Output em `workspace/[produto]/promise-check.json`. `fail ≥ 1` → **BLOCK deploy** com `fix` sugerido (ajustar copy OU ajustar config — membro escolhe, re-valida). `warn` → membro decide. Todos `pass` → prossegue.
-
-**Mecânica executável por tipo de promise** (a skill só tem credencial de theme CLI — não assuma acesso Admin API que não existe; registre em cada item do `promise-check.json` o `method` que validou):
-
-| Promise | Método de validação | `method` |
-|---|---|---|
-| Garantia/returns ("90-day money-back") | `curl -s https://$STORE/policies/refund-policy` e conferir os dias declarados | `policy_page_curl` |
-| Free shipping / threshold | Perguntar ao membro com screenshot de Settings → Shipping (starter), OU Admin API `deliveryProfiles` se houver token de app (Dev Dashboard + client_credentials) conectado | `member_screenshot` / `admin_api` |
-| Discount code ("Use code XXXX") | Screenshot de Discounts no admin, OU Admin API discount codes se houver token | `member_screenshot` / `admin_api` |
-| Rating ("Rated 4.X by N") | Números reais da review app (Judge.me/Loox/Yotpo — painel ou API dela) | `review_app` |
-| Regulatório ("Made in", "FDA cleared") | Confirmação documentada do membro + artefato (doc/link) | `member_confirmation` |
-
-Sem método disponível pra um item → o item fica `warn` com nota "não-verificável agora" e o membro decide — NUNCA marcar `pass` sem verificação real (gate que "assume pass" é teatro).
-
-**Check Preço↔Arquitetura da oferta (contrato 04→07b — a 09 herda):** leia `04-offer-builder/dados.json` → `subscription_architecture`, `onetime_premium_pct`, `pricing.main_sku_price` e compare com os preços que a página REALMENTE renderiza (settings de `pricing_tier`, opções do selling plan, buy box no template JSON):
-- `subscription_first` → a opção de assinatura tem que custar `main_sku_price` (preço-base) e a one-time `main_sku_price × (1 + onetime_premium_pct/100)` (tolerância só pro arredondamento de charm pricing que a 04 documentou). Qualquer framing "Subscribe & Save X% off" na página é divergência por definição — a 04 aboliu o desconto de assinatura (`sub_discount_pct` = 0).
-- `onetime_plus_sub_no_reorder` → a página não pode ter selling plan; o preço exibido é `main_sku_price`.
-- Tiers de bundle exibidos devem bater com `aov_levers.bundles[]` (`{qty, price}`) quando o bloco existir na 04.
-- **Divergência = item `warn` em `promise-check.json`** (promise: "pricing↔arquitetura da oferta", `method: "offer_dados_json"`, com o par esperado-vs-renderizado no `reason` e o `fix`) — não bloqueia o deploy sozinho, mas a **Skill 09 herda o warning** pelo C4 (checkout promise↔config) e o gate de launch cobra a resolução. Campos ausentes (dados.json legado, sem `subscription_architecture`) → check `skipped`, comportamento atual.
-
-O **JSON-LD e o bloco agent-facts (ETAPA 4.5)** são superfícies de promise adicionais: confira que `merchantReturnDays`/`returnFees`, `shippingDetails`, `availability`, `priceValidUntil`, `price` e `aggregateRating` do Schema batem com a config real e com `promise-check.json`. Schema divergente da config = structured-data fraudulento (manual action no Google) → trate como `fail` no gate.
-
-> Sem bypass automático. Se o membro insistir em override, registre em `manifest.compliance_override` com `risk_acknowledged: true` (ES3 — exige o membro digitar "EU ACEITO O RISCO").
+**Preços renderizados = arquitetura da oferta (contrato 04→07b):** leia `04-offer-builder/dados.json` → `subscription_architecture`, `onetime_premium_pct`, `pricing.main_sku_price` e use exatamente esses valores nos settings de `pricing_tier`, nas opções do selling plan e na buy box do template JSON: `subscription_first` → assinatura a `main_sku_price` e one-time a `main_sku_price × (1 + onetime_premium_pct/100)`, sem framing "Subscribe & Save X%"; `onetime_plus_sub_no_reorder` → sem selling plan, preço `main_sku_price`; tiers de bundle iguais a `aov_levers.bundles[]`. Campos ausentes (dados.json legado) → comportamento atual.
 
 ### GATE 3 — Performance budget (a página aprovada tem que ser rápida no 4G do consumidor)
 
@@ -635,7 +594,7 @@ Se o membro NÃO quiser publicar ainda (loja em construção), tudo bem — mas 
 
 Salve `page-report.md` (fonte pra AI) + `page-report.html` (humano) + `deploy-report.json`. O `.html` usa `.claude/templates/aura-report-template.html` (CSS inline, self-contained) e **abre com o bloco SVG da logo copiado LITERAL de `.claude/templates/aura-logo-snippet.html`** (rule 6b — NUNCA texto; o 07c/deploy antigo não tinha logo, agora tem). Componentes Aura, responsivo mobile.
 
-Conteúdo do `.md`/`.html`: plano de sections + justificativa (de `page-plan.json`), brand signals usados (source), design system, variante aprovada, lista de arquivos com paths absolutos, settings expostos por section (resumo), **resumo da camada GEO** (nós Schema.org gerados + fatos do bloco agent-facts + o que ganha: discovery/citação por AI search, não venda-no-chat — seja honesto com o membro), fontes provisionadas (6.4b), preview links, resultado dos gates (compliance + promise-check + performance) e do fidelity check (6.11), issues conhecidas, histórico de iterações.
+Conteúdo do `.md`/`.html`: plano de sections + justificativa (de `page-plan.json`), brand signals usados (source), design system, variante aprovada, lista de arquivos com paths absolutos, settings expostos por section (resumo), **resumo da camada GEO** (nós Schema.org gerados + fatos do bloco agent-facts + o que ganha: discovery/citação por AI search, não venda-no-chat — seja honesto com o membro), fontes provisionadas (6.4b), preview links, resultado do gate de performance e do fidelity check (6.11), issues conhecidas, histórico de iterações.
 
 `deploy-report.json`:
 ```json
@@ -647,7 +606,7 @@ Conteúdo do `.md`/`.html`: plano de sections + justificativa (de `page-plan.jso
   "preview_url_storefront": "https://<STORE>/pages/<produto>?preview_theme_id=<NEW_THEME_ID>&view=<produto>",
   "sections_deployed": [{"id": "hero", "type": "page-<produto>-hero", "blocks_count": 0}, {"id": "benefits", "type": "page-<produto>-benefits", "blocks_count": 4}],
   "geo": {"jsonld_types": ["Product", "Offer", "AggregateRating", "BreadcrumbList", "FAQPage"], "jsonld_validated": true, "agent_facts_block": true, "schema_path": "workspace/<produto>/07-page/staging/geo/product-schema.json"},
-  "gates": {"compliance": "pass", "promise_check": "pass", "performance": "pass"},
+  "gates": {"performance": "pass"},
   "fonts_provisioned": {"method": "google_fonts | font_face | none_needed", "families": ["Fraunces", "Inter"], "verified_in_html": true},
   "validation_passed": true, "validation_errors": [], "push_warnings": [],
   "marker_verified": true, "smoke_test_passed": true,
@@ -684,7 +643,7 @@ Pra ajustes:
 
 ## Self-audit silencioso (rule post-task-self-audit) — deep audit (skill peso crítico)
 
-Antes de declarar concluído, rode os 5 gates expandidos e corrija inline (sem mencionar): cada section do `section_order` virou um `.liquid` validado; template JSON tem `blocks{}` + `block_order[]` não-vazios em toda section **block-based** (schema define blocks) — sections monolíticas legitimamente ficam com `blocks: {}` (NÃO "corrija" injetando blocks fantasma); copy injetada veio de `06` (não inventada); **zero `icon-placeholder` residual nos `.liquid` (restauração de SVGs grandes da ETAPA 2 rodou) e zero placeholder `{{MAIÚSCULA}}` nas sections/template (check bloqueante da ETAPA 4)**; **nenhuma section com `media.required` sem imagem e nenhum `media.status: "placeholder"` sobrevivente do `page-plan.json`**; cores das section settings batem com `design-tokens.json`; **web fonts provisionadas (6.4b) e confirmadas no HTML servido — a tipografia aprovada não caiu pra fallback**; blocks `pricing_tier` expõem `qty` + `variant_id` (contrato da recipe deploy-shopify-product); **selling plan/preços da página batem com `subscription_architecture` + `onetime_premium_pct` da 04 (assinatura = preço-base; one-time = base × (1+premium); zero "Subscribe & Save X%") — divergência registrada como `warn` no promise-check, nunca silenciada; campos ausentes = fallback legado anotado**; **JSON-LD da ETAPA 4.5 valida (Product + BreadcrumbList no mínimo), todo campo vem de fonte real (nenhum rating/preço inventado — nó omitido se sem dado), e Schema + agent-facts + config são a MESMA verdade (envio/retorno/garantia/rating/preço)**; GATE 1, GATE 2 e GATE 3 (performance budget) passaram (sem override silencioso), incluindo o bloco agent-facts na varredura de compliance; marker `data-aura-build` verificado (hash atual) + smoke test OK antes de declarar "no ar"; **fidelity check do 6.11 rodou (screenshots por visão, live/preview vs design aprovado) e divergências reais foram corrigidas**; se publicou, `manifest.storefront` gravado com theme_id/page_url/published_at; logo SVG presente no `page-report.html`. Surface só o que exige decisão (gate `critical` sem rewrite seguro, promise `fail` que precisa escolha copy-vs-config, rating do Schema que diverge da review app e precisa escolha de qual fonte vale, publicar ou não o tema, placeholder de imagem que só o membro pode resolver).
+Antes de declarar concluído, rode os 5 gates expandidos e corrija inline (sem mencionar): cada section do `section_order` virou um `.liquid` validado; template JSON tem `blocks{}` + `block_order[]` não-vazios em toda section **block-based** (schema define blocks) — sections monolíticas legitimamente ficam com `blocks: {}` (NÃO "corrija" injetando blocks fantasma); copy injetada veio de `06` (não inventada); **zero `icon-placeholder` residual nos `.liquid` (restauração de SVGs grandes da ETAPA 2 rodou) e zero placeholder `{{MAIÚSCULA}}` nas sections/template (check bloqueante da ETAPA 4)**; **nenhuma section com `media.required` sem imagem e nenhum `media.status: "placeholder"` sobrevivente do `page-plan.json`**; cores das section settings batem com `design-tokens.json`; **web fonts provisionadas (6.4b) e confirmadas no HTML servido — a tipografia aprovada não caiu pra fallback**; blocks `pricing_tier` expõem `qty` + `variant_id` (contrato da recipe deploy-shopify-product); **selling plan/preços da página batem com `subscription_architecture` + `onetime_premium_pct` da 04 (assinatura = preço-base; one-time = base × (1+premium); zero "Subscribe & Save X%"); campos ausentes = fallback legado anotado**; **JSON-LD da ETAPA 4.5 valida (Product + BreadcrumbList no mínimo), todo campo vem de fonte real (nenhum rating/preço inventado — nó omitido se sem dado), e Schema + agent-facts + config são a MESMA verdade (envio/retorno/garantia/rating/preço)**; GATE 3 (performance budget) passou (sem override silencioso); marker `data-aura-build` verificado (hash atual) + smoke test OK antes de declarar "no ar"; **fidelity check do 6.11 rodou (screenshots por visão, live/preview vs design aprovado) e divergências reais foram corrigidas**; se publicou, `manifest.storefront` gravado com theme_id/page_url/published_at; logo SVG presente no `page-report.html`. Surface só o que exige decisão (rating do Schema que diverge da review app e precisa escolha de qual fonte vale, publicar ou não o tema, placeholder de imagem que só o membro pode resolver).
 
 ---
 
@@ -715,7 +674,6 @@ O que o `liquid-converter.py` (v3) REALMENTE aplica — valide o output contra e
   - `onetime_plus_sub_no_reorder` → a PDP vende SÓ one-time a `main_sku_price`, **sem selling plan** — a assinatura entra no reorder (flow de replenishment da 13) e no pós-compra (07d). Não adicione widget de Subscribe & Save "porque o app está instalado".
   - `no_subscription` → sem selling plan (nada a fazer).
   - **Fallback legado:** `subscription_architecture`/`onetime_premium_pct` ausentes do dados.json (oferta gerada antes do contrato) → comportamento atual (implementação manual guiada pelo membro), anotando a lacuna no `page-report.md`.
-  - **Check de consistência (roda no GATE 2):** os preços renderizados na página têm que bater com a arquitetura — divergência vira `warn` em `promise-check.json` que a 09 herda (detalhe na ETAPA 5).
 - **"Regra dos 4 headers" e `custom_css` por block** (`#pu-{{ block.id }}`) — não gerados; adicionar manualmente só se o membro precisar de override fino por block.
 - **Texto solto misturado com sub-árvores** (`<div>Texto <div>...</div></div>`) fica hardcoded — reestruture o HTML no design se precisar editável.
 - **Cores em `style=""` inline do HTML de origem** não são tokenizadas (só no CSS).

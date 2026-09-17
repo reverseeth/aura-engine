@@ -11,7 +11,7 @@ Quando o membro tem produto definido e market research feito, e precisa mapear o
 ## Antes de Começar
 
 1. Leia `workspace/profile.md`. Leia o campo `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language`. Observação importante específica desta skill: copy literal de concorrentes (headlines, hooks, claims, transcrições de ads) permanece no idioma original do ad — é evidência, não tradução.
-2. Leia `workspace/[produto]/01-product-research/product-research.md` (se existir — tem concorrentes já identificados)
+2. Leia `workspace/[produto]/01-product-research/product-research.md` e `01-product-research/banco-de-marcas.md` (se existirem — as marcas escaladas do nicho já vêm com LP mais escalada, ads mais escalados, tráfego, mecanismos e ângulos; são os primeiros concorrentes desta análise) e `01-product-research/dados.json` (`validated_elements[]` é a semente da `validated_library` da ETAPA 7 — aprofunde, não refaça)
 3. Leia `workspace/[produto]/02-market-research/market-research.md` (overview competitivo básico + gaps já identificados; se não existir, leia o legado `relatorio.md`)
 4. **Puxe os SISTEMAS NOMEADOS da base** — NUNCA use query genérica tipo "competitor analysis". Pra cada ETAPA, rode `search_knowledge` (com `deep=true`) usando a `best_query` exata de cada framework relevante listado nas próprias ETAPAs abaixo. O índice completo do domínio desta skill (domínio `competitor-positioning` — o tamanho do domínio é o que o `frameworks.json` disser, fonte da verdade, não um número fixo aqui) está em **`.claude/lib/kb-index/`** (`frameworks.json` + `README.md` com o mapa skill→domínio). Esta skill opera em detalhe EXECUTIVO, não conceitual — puxe o sistema completo de cada framework, não o resumo de superfície.
 
@@ -548,18 +548,9 @@ A Skill 04 (ETAPA 2A — Rota A) usa esse bloco pra APRIMORAR um mecanismo valid
 
 Última seção do relatório: o que a análise inteira significa, em texto corrido e detalhado — não bullets soltos. Cobre: (a) o retrato do mercado em 1-2 parágrafos (quem escala, com quê, e o que isso prova); (b) as lacunas que NINGUÉM ocupa e por que estão abertas; (c) a jogada recomendada com a lógica encadeada (por que ESTA combinação de mecanismo + ângulo + formato vence, ancorada na evidência das etapas anteriores); (d) os riscos e o que vigiar (amarra com o radar de monitoramento). É a seção que o membro relê antes de cada decisão grande — precisa se sustentar sozinha.
 
-### Data Source Audit (antes de salvar)
+### Fontes (só no `dados.json`, nunca no relatório)
 
-Seção obrigatória no output (md + json):
-
-```
-## Data Source Audit
-- Concorrentes analisados: N
-- Concorrentes descartados por inacessibilidade: [lista com URL + motivo + fallbacks tentados]
-- Fontes usadas: Meta Ad Library (N ads analisados), Wayback Machine (N snapshots), archive.today (N hits), scraping direto (N páginas)
-- Métricas reais disponíveis: [sim/não — note que Meta Ad Library público NÃO inclui CPM/freq/CTR]
-- Timestamp da coleta: YYYY-MM-DDTHH:MM:SSZ
-```
+Grave em `dados.json.sources` os concorrentes analisados, as fontes usadas por concorrente (TrendTrack, Meta Ad Library, Wayback, scraping) e o timestamp da coleta. É procedência pra AI; o relatório `.md/.html` traz só o resultado (rule `report-only-results.md`).
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
@@ -615,7 +606,7 @@ Salvar os seguintes artefatos:
   "swipe_avoid": [ { "item": "", "why_avoid": "", "alternative": "" } ],
   "positioning_recommendation": { "angle": "", "mechanism": "", "avatar_segment": "", "page_type": "" },
   "creative_deep_analysis": { "status": "completed|skipped|whisper_unavailable", "creatives_analyzed_count": 0, "patterns_file": "workspace/[produto]/03-competitor-analysis/creative-patterns.json" },
-  "data_source_audit": { "collected_at": "", "meta_ad_library_ads_count": 0, "wayback_hits": 0, "archive_today_hits": 0 }
+  "sources": { "collected_at": "", "competitors_analyzed": 0, "meta_ad_library_ads_count": 0, "trendtrack_calls": 0, "wayback_hits": 0, "archive_today_hits": 0 }
 }
 ```
 
@@ -632,7 +623,6 @@ Estrutura do `.md`:
 9. Gap analysis (Etapa 6)
 10. Síntese estratégica — posicionamento + swipe file com "COMO adaptar" + validated library (Etapa 7)
 11. Resumo e Conclusão (Etapa 7, item 7 — texto corrido, fecha o relatório)
-12. Data Source Audit
 
 Regras de escrita do `.md`/`.html`: texto INTEGRAL sempre — NUNCA truncar conteúdo em tabelas ou cards (posicionamentos, claims, hooks cortados com "..." perdem exatamente a parte que importa); posicionamento de concorrente é a frase de COMO ELE SE VENDE (entendível sozinha), nunca resumo interno de analista — a leitura estratégica vai em campo/parágrafo separado.
 

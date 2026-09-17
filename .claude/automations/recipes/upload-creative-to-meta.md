@@ -12,7 +12,7 @@
 - `status` — default `PAUSED` (sempre pausado, humano ativa)
 - `facebook_page_id` — de `manifest.meta_page_id`; se ausente, perguntar 1× ao membro (Business Suite → Settings → Pages) e gravar `manifest.meta_page_id`
 - `pixel_id` — de `manifest.meta_pixel_id`; se ausente, resolver via `mcp__meta__ads_get_dataset_details` (oficial) ou perguntar 1× ao membro (Events Manager → Data Sources) e gravar `manifest.meta_pixel_id`
-- `ai_disclosure_required` — lido de `08-creative-engine/dados.json.concepts[]` pro concept deste `creative_id` (gate I da ETAPA 4.5 da Skill 08 — humano fotorrealista gerado por AI). Default `false` se o campo não existir
+- `metadata_clean` — `true` só se o arquivo já saiu do Limpador de Metadados (nome `asset-xxxx.<ext>`); senão o step 1.5 limpa antes de subir
 
 ## Cascade (detecção de prefixo — ver `.claude/lib/mcp-detect/README.md`)
 
@@ -31,7 +31,7 @@
 - [ ] `facebook_page_id` + `pixel_id` resolvidos (ver Input — manifest ou pergunta única ao membro)
 - [ ] Primary text + headline + CTA já em `/workspace/[produto]/08-creative-engine/`
 - [ ] UTM convention definida no manifest (`utm_campaign` derivado do campaign_name da strategy)
-- [ ] `ai_disclosure_required` resolvido pro concept (ver Input) — se `true`, o step 5.5 é OBRIGATÓRIO
+- [ ] Arquivo com nome `asset-xxxx.<ext>` (metadados já limpos) — senão o step 1.5 roda o limpador antes de qualquer upload
 
 ## Steps
 
@@ -41,6 +41,14 @@ Via MCP:
 ad_sets = meta_ads.list_ad_sets(ad_account_id, filter_by_name=ad_set_name)
 ad_set_id = ad_sets[0].id
 ```
+
+### 1.5. Limpar metadados (obrigatório — regra 12 do CLAUDE.md)
+
+Se o nome do arquivo em `video_path` NÃO segue `asset-xxxx.<ext>`:
+```bash
+bash tools/strip-metadata.sh "<video_path>"
+```
+O limpador remove EXIF/XMP/C2PA/tags de encoder sem re-encodar (stream copy) e renomeia no lugar — atualize `video_path` pro nome novo (`asset-xxxx.mp4`) e grave `metadata_clean: true`. Se o ffmpeg faltar, PARE aqui e avise o membro (Mac `brew install ffmpeg` · Windows `winget install Gyan.FFmpeg`) — nenhum vídeo sobe sem limpar.
 
 ### 2. Upload do vídeo
 ```
@@ -100,13 +108,6 @@ ad = meta_ads.ad.create(
 )
 ```
 
-### 5.5. Disclosure "AI Info" (só se `ai_disclosure_required: true`)
-
-Criativo com humano fotorrealista gerado/alterado por AI EXIGE o label **"AI Info"** da Meta no nível do ad (contrato do gate I da ETAPA 4.5 da Skill 08 + `.claude/rules/pre-launch-gates.md`). Com o label correto NÃO há penalidade de entrega; conteúdo detectado SEM disclosure sofre distribuição reduzida ou remoção.
-
-1. **Se a tool MCP do caminho ativo expõe o campo de disclosure de conteúdo gerado por AI** (verificar na doc da tool de create/update do ad), setar o flag na criação/update do ad e gravar `ai_disclosure_marked: true` no log.
-2. **Se o caminho MCP não expõe o campo** (comum — o toggle vive no Ads Manager), gravar `ai_disclosure_marked: false` e INCLUIR na mensagem final a instrução de marcação manual (abaixo). O ad continua PAUSED — a Skill 10 (GATE 3) não deixa ativar sem o membro confirmar o label.
-
 ### 6. Log + reporta de volta
 ```json
 // /workspace/[produto]/automation-log.jsonl (append) — shape
@@ -121,8 +122,8 @@ Criativo com humano fotorrealista gerado/alterado por AI EXIGE o label **"AI Inf
   "status": "PAUSED",
   "utm": "utm_source=facebook&utm_campaign=<campaign_slug>&utm_content=<creative_id>",
   "pixel_wired": true,
-  "ai_disclosure_required": false,
-  "ai_disclosure_marked": false
+  "metadata_clean": true,
+  "asset_file": "asset-k3p9.mp4"
 }
 ```
 
@@ -141,13 +142,10 @@ Mensagem ao membro (estrutura):
   Ad set: <ad set name>
   UTM wired, pixel attached.
 
+  Arquivo subido: asset-xxxx.mp4 (metadados limpos)
+
   Pra ativar: Meta Ads Manager → selecionar ad → toggle ON.
   Ou: "Claude, ativa o ad <ad_id>"
-
-  [Se ai_disclosure_required e não marcado via MCP:]
-  ATENÇÃO: esse criativo tem humano gerado por AI. Antes de ativar, marca o
-  label "AI Info" no Ads Manager (nível do ad → marcação de conteúdo gerado
-  por AI). Sem o label, o Meta reduz a entrega ou remove o ad.
 ```
 
 ## Rollback

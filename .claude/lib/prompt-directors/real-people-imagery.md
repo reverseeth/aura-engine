@@ -59,6 +59,5 @@ Fundo de review é casa vivida, não estúdio: `slightly cluttered nightstand wi
 
 ## Pós-processo obrigatório (antes de QUALQUER upload)
 
-1. **Limpar metadados**: `bash tools/strip-metadata.sh <arquivo|pasta>` — remove EXIF/XMP/IPTC/C2PA (incluindo IDs de job do gerador) sem alterar pixels, e renomeia pra `asset-<hex>`. Imagem gerada sobe SEMPRE limpa.
-2. **Disclosure continua valendo**: o strip de metadados NÃO substitui o rótulo "AI Info" da Meta — humano fotorrealista gerado por IA exige o disclosure no upload do ad (gate das Skills 08/10). Metadado limpo é higiene de asset; disclosure é obrigação de plataforma.
-3. **Review humano do lote**: antes de subir, o membro olha o lote inteiro de uma vez — mão com 6 dedos, texto derretido no rótulo e duplicata de rosto entre "clientes" diferentes são os 3 defeitos que passam batido em foto individual e explodem em conjunto.
+1. **Limpar metadados**: `bash tools/strip-metadata.sh <arquivo|pasta>` (ou o membro arrasta no Limpador de Metadados, 2 cliques na pasta da Aura) — remove EXIF/XMP/IPTC/C2PA (incluindo IDs de job do gerador) sem alterar pixels, e renomeia pra `asset-xxxx`. Imagem gerada sobe SEMPRE limpa (regra 12 do CLAUDE.md).
+2. **Review humano do lote**: antes de subir, o membro olha o lote inteiro de uma vez — mão com 6 dedos, texto derretido no rótulo e duplicata de rosto entre "clientes" diferentes são os 3 defeitos que passam batido em foto individual e explodem em conjunto.

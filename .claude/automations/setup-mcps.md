@@ -25,6 +25,15 @@ pip3 install meta-ads-mcp playwright
 
 O MCP oficial **não precisa de instalação local** — é remote, conecta via URL.
 
+## 1.4. FFmpeg (recomendado, 1min — Limpador de Metadados pra vídeo)
+
+O Limpador de Metadados (2 cliques em `Limpador de Metadados.command`/`.cmd` na pasta da Aura, ou `bash tools/strip-metadata.sh`) limpa imagens só com o Node. Pra vídeo e áudio ele usa o ffmpeg (stream copy, sem re-encodar):
+
+```bash
+brew install ffmpeg            # Mac
+winget install Gyan.FFmpeg     # Windows (depois feche e abra o terminal)
+```
+
 ## 1.5. (Opcional) GROQ_API_KEY — transcrição de criativos (Skill 03 ETAPA 3C)
 
 Não é MCP, mas mora aqui porque é setup de integração: a análise profunda de criativos escalados dos concorrentes (Skill 03 ETAPA 3C) transcreve os vídeos com um cascade de 3 degraus — **Groq API (`whisper-large-v3-turbo`) → Whisper local → transcript colado pelo membro**. O degrau 1 é o preferencial: rápido, ~$0.02-0.04 por hora de áudio, zero instalação.
@@ -195,6 +204,19 @@ claude mcp add --transport http foreplay https://public.api.foreplay.co/mcp
 
 Reinicie. Tools com prefixo `mcp__foreplay__` aparecem; as skills detectam sozinhas. Sem ele, as skills seguem o método tradicional (TrendTrack MCP se houver, Meta Ad Library público, uploads do membro) — silent fallback, nada trava.
 
+## 3.9. Conectar Notion MCP (opcional, 2min — banco de marcas da pesquisa de produto)
+
+A **Skill 01** salva o banco de marcas (uma página por marca com LP mais escalada, ads mais escalados, tráfego, oferta, mecanismos, Trustpilot, Trends e a jogada recomendada, mais uma página de ranking) direto no seu Notion. Sem ele, a skill salva o mesmo banco em HTML na pasta do produto.
+
+### Claude Desktop / claude.ai
+Settings → Connectors → **Notion** (connector oficial) → conectar e autorizar o workspace. As tools aparecem com prefixo `mcp__claude_ai_Notion__` (o Claude Code logado na mesma conta enxerga as mesmas tools).
+
+### Claude Code (registro local)
+```bash
+claude mcp add --transport http notion https://mcp.notion.com/mcp
+```
+Reinicie e autorize no browser. Tools com prefixo `mcp__notion__` aparecem; a Skill 01 detecta qualquer prefixo com `notion` sozinha.
+
 ## 4. Conectar Shopify (3min — plugin oficial AI Toolkit)
 
 O caminho oficial é o **plugin Shopify AI Toolkit pro Claude Code** (não existe pacote npm `@shopify/ai-toolkit` — o toolkit é distribuído como plugin):
@@ -286,6 +308,8 @@ Vale pros dois lados: Admin da Shopify (criar Pages — `deploy-shopify-product.
 - [ ] (Opcional) Klaviyo MCP conectado (`mcp__klaviyo__*`) — automação de retention flows na Skill 13
 - [ ] (Opcional) Higgsfield MCP conectado (`mcp__higgsfield__*`) — render de vídeo in-session na Skill 08
 - [ ] (Opcional) Foreplay MCP conectado (`mcp__foreplay__*`) — ad spy nas Skills 03/08/11
+- [ ] (Opcional) Notion MCP conectado (`mcp__claude_ai_Notion__*` ou `mcp__notion__*`) — banco de marcas da Skill 01
+- [ ] (Recomendado) TrendTrack MCP conectado (`mcp__trendtrack__*`) — motor de descoberta da Skill 01 (gasta créditos do plano; sem ele, a pesquisa roda manual no browser)
 - [ ] (Opcional) Shopify Dev MCP (`mcp__shopify_dev__*`) + Stripe MCP (`mcp__stripe__*`)
 - [ ] (Opcional) `GROQ_API_KEY` exportado — degrau 1 da transcrição de criativos na Skill 03 ETAPA 3C
 

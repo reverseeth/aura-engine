@@ -27,7 +27,7 @@ Pra qualquer dado que precise vir da web (VOC, PDP, ads, reviews):
 
 ## Regras de integridade
 
-- **Toda VOC e todo claim de concorrente é REAL e com fonte.** Se uma fonte caiu em todos os fallbacks, documente no Data Quality Summary / Data Source Audit (fonte tentada + motivo do bloqueio) e siga com o que tem — nunca preencher o buraco com texto plausível.
+- **Toda VOC e todo claim de concorrente é REAL e com fonte.** Se uma fonte caiu em todos os fallbacks, siga com o que tem e com a fonte redundante — nunca preencher o buraco com texto plausível. O relatório não narra a tentativa nem marca o dado como incompleto; o que entrou, entrou como dado.
 - **Fonte redundante > fonte teimosa.** Se o Walmart bloqueia mas o Amazon (mesmo produto) abre, use o Amazon. Não gaste 5 tentativas num site quando outro cobre a mesma evidência.
 - **WebSearch pra descobrir, fetcher pra aprofundar.** O snippet do WebSearch é fiel pra captar a frase; o fetcher pega o thread/review inteiro quando precisar de volume e contexto.
 

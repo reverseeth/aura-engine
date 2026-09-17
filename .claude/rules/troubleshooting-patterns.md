@@ -23,7 +23,6 @@ Quando uma skill do Aura Engine não entrega resultado esperado, seguir esse dia
 | Input JSON malformado | Parse dos JSONs carregados — erro de sintaxe? | Re-gerar JSON da skill fonte |
 | Rate limit de API externa | Logs mostram 429/503? | Esperar 60s, retry |
 | VOC insufficient (< 15 phrases) | `02-market-research/dados.json.voc_count` | Re-rodar Skill 02 com mais fontes |
-| Research foundation vazia | `04-offer-builder/research-foundation.json.evidence_items[]` empty? | Voltar Skill 04 Etapa 2.5 |
 | Brand snapshot ausente | `workspace/[produto]/brand.md` | Rodar Skill 00 setup + preencher |
 
 ### 2. Output drift (diferente entre rodadas)
@@ -39,25 +38,13 @@ Quando uma skill do Aura Engine não entrega resultado esperado, seguir esse dia
 | Prompt vago com muitas interpretações | Instruções ambíguas ("bom copy", "atrativo") | Reescrever skill com exemplos concretos |
 | Conflito entre rules | Rules contradizem CLAUDE.md? | Conferir hierarquia, corrigir |
 
-### 3. Compliance gate bloqueia launch
-
-**Sintomas**: tudo parece OK mas `pre-launch-gates.md` recusa
-
-**Causas prováveis:**
-
-| Causa | Check | Fix |
-|-------|-------|-----|
-| Ad-flag word injetada acidentalmente | Rodar `compliance-preflight` isoladamente | Aplicar rewrite suggestion |
-| Promise↔Config mismatch | `workspace/[produto]/promise-check.json` | Ajustar copy OU ajustar config da loja |
-| Research foundation insuficiente pra claim forte | Claim tem evidence rastreável? | Softpen claim ou add evidence |
-
-### 4. Shopify push silenciosamente rejeitado
+### 3. Shopify push silenciosamente rejeitado
 
 **Sintomas**: `shopify theme push` retorna exit 0 mas mudanças não aparecem
 
 **Fix**: aplicar protocolo da `shopify-theme-safety.md` Regra 5 (silent push rejection diagnosis)
 
-### 5. Skill 08 gerou conceitos muito similares
+### 4. Skill 08 gerou conceitos muito similares
 
 **Sintomas**: N conceitos do batch parecem variações do mesmo conceito
 
@@ -68,9 +55,9 @@ Quando uma skill do Aura Engine não entrega resultado esperado, seguir esse dia
 | Market research raso (poucos gaps) | `02-market-research/dados.json` tem < 5 gaps? | Re-rodar Skill 02 profundo |
 | Competitor analysis incompleto | `03-competitor-analysis/creative-patterns.json` ausente | Rodar Skill 03 Etapa 3C com criativos |
 | Prompt de ideação sem diversity constraint | Skill 08 Etapa 3 — geração das 3 verticais | Forçar ≥ 2 emotions + ≥ 3 archetypes |
-| Research foundation com 1 claim dominante só | Só 1 mecanismo anchored | Ampliar evidence base na 04 |
+| Banco de provas com 1 número só | `04-offer-builder/research-foundation.json.best_numbers[]` tem 1 item | Ampliar o banco de provas na 04 (ETAPA 2.5) |
 
-### 6. Ad rodou 3 dias sem gastar
+### 5. Ad rodou 3 dias sem gastar
 
 **Sintomas**: ad com spend perto de zero após 72h (bem abaixo da régua mínima de leitura do cânone `.claude/lib/ad-taxonomy/README.md` §1 — criativo abaixo de ~1× target CPA/dia não acumula dado suficiente pra ser lido), OU a campanha inteira sem entregar
 

@@ -626,9 +626,11 @@
 <tr><td><strong>Assinatura Claude (Pro ou Max)</strong></td><td><span class="pill pill-win">essencial</span></td><td>O motor que roda a Aura (conta em claude.ai)</td></tr>
 <tr><td><strong>Git</strong></td><td><span class="pill pill-win">essencial</span></td><td>Baixar e atualizar a Aura. No Mac já vem; no Windows, git-scm.com</td></tr>
 <tr><td><strong>Node.js 20+</strong></td><td><span class="pill pill-win">essencial</span></td><td>Requisito do Claude Code (nodejs.org)</td></tr>
-<tr><td><strong>TrendTrack</strong></td><td><span class="pill pill-win">essencial</span></td><td>Pesquisa de produto e criativos de concorrentes. Fonte primária de várias fases de research</td></tr>
+<tr><td><strong>TrendTrack</strong></td><td><span class="pill pill-win">essencial</span></td><td>Motor da pesquisa de produto (Explorer → Meta Ads, native ads em imagem e em vídeo) e dos criativos de concorrentes. Com o MCP conectado a Aura pesquisa sozinha (gasta créditos do plano); sem ele, você aplica os filtros no browser e cola o resultado</td></tr>
 <tr><td><strong>SpyBox</strong></td><td><span class="pill pill-common">opcional, muito relevante</span></td><td>Uma assinatura que agrega várias ferramentas de research (Kalodata, SimilarWeb e outras)</td></tr>
 <tr><td><strong>Higgsfield Ultra</strong></td><td><span class="pill pill-common">opcional</span></td><td>Criativos de vídeo com inteligência artificial, na fase de criativos</td></tr>
+<tr><td><strong>FFmpeg</strong></td><td><span class="pill pill-common">recomendado</span></td><td>O Limpador de Metadados (2 cliques na pasta da Aura) limpa os metadados de IA dos criativos antes de subir; imagens funcionam sem nada, vídeos precisam do FFmpeg. Mac: <code>brew install ffmpeg</code> · Windows: <code>winget install Gyan.FFmpeg</code></td></tr>
+<tr><td><strong>Notion</strong></td><td><span class="pill pill-common">opcional</span></td><td>A pesquisa de produto salva o banco de marcas nele (uma página por marca, com links dos ads, landing page, tráfego, reviews e a jogada recomendada). Conecta em Settings → Connectors → Notion. Sem ele, o banco vai pra um HTML na pasta do produto</td></tr>
 </tbody></table></div>
 <div class="note reveal"><strong>Windows</strong> Os comandos deste guia rodam no PowerShell, não no Prompt de Comando.</div>
 </section>
@@ -708,7 +710,7 @@ Add-Content $PROFILE &#x27;function aura { Set-Location &quot;$HOME\aura-engine&
 </section>
 <section class="section" id="s6"><div class="section-label reveal"><span class="num">06</span>Depois de instalar</div>
 <div class="subsection reveal"><div class="subsection-title">Digite setup, e a Aura assume.</div>
-<p>Com a Aura aberta, digite <code>setup</code>. Ela pergunta o idioma dos relatórios (português ou inglês) e faz 4 perguntas: a sua situação atual, o budget de anúncios, as ferramentas que você já tem (TrendTrack, SpyBox, Higgsfield) e o link da loja, se existir. No fim, ela aponta a fase certa pra começar.</p>
+<p>Com a Aura aberta, digite <code>setup</code>. Ela pergunta o idioma dos relatórios (português ou inglês) e faz 4 perguntas: a sua situação atual, o budget de anúncios, as ferramentas que você já tem (TrendTrack, SpyBox, Higgsfield, Notion) e o link da loja, se existir. No fim, ela aponta a fase certa pra começar.</p>
 <p>Daí em diante o uso é sempre o mesmo: <strong>você digita o nome da fase, a Aura executa e indica a próxima.</strong> A ordem:</p></div>
 <div class="pipe reveal" role="img" aria-label="As fases da Aura em ordem, cada uma alimentando a seguinte">
   <div class="pipe-steps">

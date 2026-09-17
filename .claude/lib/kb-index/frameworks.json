@@ -160,7 +160,7 @@
     "name": "Technical Viability Criteria (economic gate)",
     "source": "Operational product-research method",
     "one_line": "Hard pre-filters: AOV after bundles above $60, minimum 3x markup on COGS+shipping (5x ideal), Google Trends flat or growing over 5 years, lightweight/low-logistics. Broken economics: discard immediately.",
-    "use_in_skill": "01 product-research (first elimination pass)",
+    "use_in_skill": "01b (sourcing) — markup e logística na cotação",
     "best_query": "technical viability criteria AOV markup 3x Google Trends lightweight product filter"
    },
    {
@@ -216,21 +216,21 @@
     "name": "Filtros Kalodata refinados (versão atual)",
     "source": "Aura KB — tema 'Pesquisa de Mercado e Concorrencia' (segundo nível: livros / swipe files / masterclass interna)",
     "one_line": "Conjunto de filtros aplicados no Kalodata — janela dos últimos 30 dias, receita entre 100k e 500k, growth rate positivo e corte de preço unitário em 60 — para isolar os produtos em ascensão dentro do catálogo.",
-    "use_in_skill": "01b (sourcing); 01 (product-research)",
+    "use_in_skill": "20 (marketplace-engine); 01b (sourcing)",
     "best_query": "filtros kalodata last 30 days revenue 100k 500k growth rate positivo unit price 60"
    },
    {
     "name": "Similarweb Revenue Estimation (visits × 1% CVR × AOV)",
     "source": "Aura KB — tema 'Pesquisa de Mercado e Concorrencia' (segundo nível: livros / swipe files / masterclass interna)",
     "one_line": "Estimar a receita de um concorrente multiplicando as visitas que o Similarweb reporta por uma conversão presumida de 1% e pelo AOV, gerando uma ordem de grandeza para decidir se vale disputar o mercado.",
-    "use_in_skill": "01 (product-research); 03 (competitor-analysis)",
+    "use_in_skill": "03 (competitor-analysis)",
     "best_query": "estimar receita do concorrente similarweb visitas conversao 1 por cento AOV arbitragem"
    },
    {
     "name": "Conviction Test (o produto realmente funciona?)",
     "source": "Aura KB — tema 'Pesquisa de Mercado e Concorrencia' (segundo nível: livros / swipe files / masterclass interna)",
     "one_line": "Checar, inclusive perguntando a modelos como Claude e GPT, se o produto entrega de fato o resultado prometido ou se funciona como placebo — caso do chin slimmer e do body shaper — porque produto que não funciona volta em forma de refund rate.",
-    "use_in_skill": "01 (product-research); 01b (sourcing)",
+    "use_in_skill": "01b (sourcing)",
     "best_query": "conviction test claude gpt chin slimmer placebo body shaper funciona refund rate"
    },
    {
@@ -244,7 +244,7 @@
     "name": "Validação de demanda sem estoque (teste com refund)",
     "source": "Aura KB — tema 'Pesquisa de Mercado e Concorrencia' (segundo nível: livros / swipe files / masterclass interna)",
     "one_line": "Abrir vendas em um mercado novo por uma semana sem ter estoque, no formato de pré-venda com 50% off e prazo de 60 dias, e reembolsar todos os pedidos ao final — o volume vendido mede a demanda real.",
-    "use_in_skill": "01b (sourcing); 01 (product-research)",
+    "use_in_skill": "01b (sourcing)",
     "best_query": "testar demanda em mercado novo uma semana e reembolsar tudo pre order 50 off 60 dias"
    },
    {
@@ -8196,7 +8196,7 @@
     "name": "Category Compliance Matrix + Big Three Labs",
     "source": "Fonte primária 2026 (P1) — fonte primária DTC/ecommerce, inclusive Meta Ads (hierarquia revisada 2026-09-01)",
     "one_line": "Matriz que mapeia as exigências de compliance por categoria — skincare, suplementos e eletrônicos — cobrindo FDA, GMPC, FCC, UL e CE, além dos três grandes laboratórios de certificação.",
-    "use_in_skill": "01b (sourcing); 01 (product-research)",
+    "use_in_skill": "01b (sourcing)",
     "best_query": "compliance por categoria skincare supplements eletrônicos FDA GMPC FCC UL CE"
    },
    {

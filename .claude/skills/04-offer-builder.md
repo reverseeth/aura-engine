@@ -28,7 +28,7 @@ Quando o membro tem produto definido, market research pronto, e precisa construi
 ## Antes de Começar
 
 1. Leia `workspace/profile.md` (ferramentas disponíveis, budget diário — informa viabilidade econômica; lê também `report_language` conforme o pré-flight)
-2. Leia `workspace/[produto]/01-product-research/product-research.md` (se existir — tem features, COGS preliminar, potencial de oferta)
+2. Leia `workspace/[produto]/01-product-research/product-research.md` (se existir — tem a jogada vencedora com os elementos validados por marca, a estrutura de oferta preliminar e o potencial de oferta) e `01-product-research/dados.json` (`plays[]`, `validated_elements[]`, `winner` — a Rota A da ETAPA 2A parte daí quando a `validated_library` da 03 ainda estiver rasa)
 3. Leia `workspace/[produto]/02-market-research/market-research.md` (narrativa: pain points, desires, root cause, objeções) E `02-market-research/dados.json` (campos estruturados: awareness_distribution, sophistication_stage, voc_phrases) — a oferta é a RESPOSTA direta ao market research
 4. Leia `workspace/[produto]/03-competitor-analysis/competitor-analysis.md` E `03-competitor-analysis/dados.json` (claims saturados a evitar, gaps de oferta, e os campos `validated_library`, `top_creatives` e `alternative_solutions` — matéria-prima da Rota A de mecanismo e do Gate de Complementaridade). Leia também `03-competitor-analysis/creative-patterns.json` SE existir (`recurring_claims` com `market_validated` — claims que o mercado já validou em ad)
 4b. Leia `workspace/[produto]/brand.md` SE existir (posicionamento em 1 frase — vem da Etapa 7 da Skill 03 — mais o nome da marca e o vocabulário que ele gera). O mecanismo da ETAPA 2 tem que REFORÇAR esse posicionamento, não competir com ele: se o posicionamento é "a marca do despertar das 3h", um mecanismo sobre "energia diurna" está brigando com a própria marca. Na recomendação 2C isso vira gate qualitativo: candidato que contradiz o posicionamento do brand.md não pode ser recomendado sem o conflito aparecer — e se o conflito for real (o mecanismo mais forte apontar pra OUTRO posicionamento), não decida sozinho: apresente os dois lados ao membro (posicionamento atual vs o que o mecanismo sugere) e deixe ele escolher qual prevalece
@@ -198,77 +198,46 @@ Recomende o mecanismo com maior score total, com justificativa explícita por qu
 
 A oferta define a estratégia do mecanismo; a copy nasce na Skill 06. **NUNCA escreva versões prontas de copy do mecanismo aqui (headline, parágrafo de PDP, expansão de advertorial)** — copy pré-escrita na oferta enviesa a Skill 06, que deve reler todo o research e decidir os ângulos sozinha. Documente, no report_language:
 
-- **UMP (o problema):** nome próprio + a lógica de por que as soluções atuais falham, com os estudos/evidências citados (claim_ids da ETAPA 2.5).
-- **UMS (a solução):** nome próprio + a lógica de por que a nossa entrega funciona, com os estudos citados.
+- **UMP (o problema):** nome próprio + a lógica de por que as soluções atuais falham, com os números e estudos do banco de provas (ETAPA 2.5) quando houver.
+- **UMS (a solução):** nome próprio + a lógica de por que a nossa entrega funciona, com os números e estudos do banco de provas quando houver.
 - **Externalização de culpa:** de quem/do que é a culpa pela falha das soluções anteriores (nunca do avatar).
 
-É essa lógica (nomes + causa + evidência) que a Skill 06 expande em copy nas versões que ELA decidir (headline, parágrafo, expansão longa) conforme awareness e formato de página.
+É essa lógica (nomes + causa + prova) que a Skill 06 expande em copy nas versões que ELA decidir (headline, parágrafo, expansão longa) conforme awareness e formato de página.
 
-### ETAPA 2.5 — Research Foundation (OBRIGATÓRIO — Lastro de Evidência)
+### ETAPA 2.5 — Banco de provas (munição pra copy, nunca teto)
 
-Mecanismo sem lastro científico/empírico é claim vazio e vira copy fraca, ad reprovado e member frustrado. Antes de prosseguir pra Etapa 3, você DEVE construir a base de evidência que sustenta o mecanismo recomendado.
+Claim específico vende mais que claim genérico (Hopkins): "47% menos inchaço em 14 dias" bate "reduz o inchaço". Esta etapa junta a **munição** que deixa o mecanismo mais específico e mais crível — números, estudos, citações, patentes, o que os concorrentes escalados citam. É um banco pra copy puxar, não uma régua que limita o que a copy pode afirmar.
 
-**Fontes a consultar (web search extensivo):**
+**Fontes (web search rápido — 15-20 min, não uma tese):**
 
-1. **Estudos científicos / papers peer-reviewed**
-   - PubMed (`site:pubmed.ncbi.nlm.nih.gov`)
-   - Google Scholar (`site:scholar.google.com`)
-   - ResearchGate, ScienceDirect, NIH
-   - Queries: nome do ingrediente/processo + "clinical trial", "peer-reviewed", "mechanism of action", "efficacy study", "randomized controlled trial"
+1. **Estudos e resumos de estudo** — PubMed, Google Scholar, ScienceDirect; queries: ingrediente/processo + "study", "trial", "mechanism of action". Pra estudo atrás de paywall, `WebSearch "PMC <título>"` costuma ter o texto integral.
+2. **Comunicados e press releases** — Harvard Health, Mayo Clinic, Cleveland Clinic; whitepapers de fornecedores de ingrediente (Lonza, DSM, BASF).
+3. **Patentes** — Google Patents (ingrediente/processo com nome próprio).
+4. **O que os concorrentes escalados já citam** — números e estudos que aparecem nas LPs do `01-product-research/banco-de-marcas.md` e da 03: se uma marca que escala usa um número, o mercado já aceitou esse número.
 
-2. **Press releases / comunicados de pesquisa institucional**
-   - Harvard Health Publishing, Mayo Clinic, Cleveland Clinic, WebMD
-   - Press releases de fornecedores de ingrediente (Lonza, DSM, BASF, etc — têm whitepapers técnicos)
-
-3. **Regulatório / referências oficiais**
-   - FDA GRAS status (se aplicável)
-   - EMA monographs, EFSA opinions
-   - USP Pharmacopeia
-
-4. **Reviews sistemáticas e meta-análises** (evidência de maior grau)
-   - Cochrane Library
-   - Meta-analyses em periódicos da especialidade
-
-5. **Patents** (ingrediente/processo protegido)
-   - Google Patents — procurar prior art que sustenta o mecanismo
-
-**Para CADA claim do mecanismo (causa-raiz, ingrediente ativo, resultado esperado, diferenciação), documente:**
+**Pra cada item, registre:**
 
 ```json
 {
-  "claim": "texto do claim",
-  "evidence_type": "peer_reviewed_study|meta_analysis|press_release|regulatory|patent|empirical_observation",
-  "source_title": "título completo",
-  "source_url": "url completa",
-  "source_date": "YYYY-MM-DD",
-  "strength": "strong|moderate|weak",
-  "strength_rationale": "por que essa classificação",
-  "quote_or_summary": "trecho literal ou resumo 1-2 frases",
-  "usage_rights": "public|paywalled|needs_permission"
+  "claim": "o claim que o item sustenta",
+  "number": "o número pronto pra copy (ex: '47% em 14 dias') | null",
+  "source_title": "título",
+  "source_url": "url",
+  "quote_or_summary": "trecho literal ou resumo em 1-2 frases",
+  "used_by_competitors": ["marca A", "marca B"]
 }
 ```
 
-**Regras de rigor (NÃO NEGOCIÁVEIS):**
-
-- Proibido inventar estudo ou extrapolar além do que a fonte afirma literalmente
-- Proibido citar "estudos mostram que..." sem fonte rastreável com URL
-- Se a evidência é `weak` (anecdotal, in-vitro só, animal study único, tamanho amostral pequeno), o claim precisa ser suavizado ("helps with", "supports", "may contribute") — não afirmado categoricamente
-- Se NENHUMA evidência for encontrada pra um claim central, o mecanismo precisa ser reformulado antes de prosseguir — não escreva copy sobre fundação vazia
-
-**Output dessa etapa:**
-
-Arquivo `workspace/[produto]/04-offer-builder/research-foundation.json` contendo:
+**Output:** `workspace/[produto]/04-offer-builder/research-foundation.json`:
 ```json
 {
   "mechanism_name": "...",
-  "evidence_items": [ { ... } ],
-  "summary_statement": "2-3 frases resumindo a base de evidência do mecanismo",
-  "confidence_score": "high|medium|low",
-  "gaps_and_risks": "claims que ficaram sem lastro forte — a serem suavizados na copy"
+  "proof_items": [ { ... } ],
+  "best_numbers": ["os 3-5 números mais fortes, prontos pra headline/hook"]
 }
 ```
 
-Esse arquivo é lido pelas skills 06 (copy) e 08 (creatives) pra ancorar afirmações com fonte verificável. Copy sem `04-offer-builder/research-foundation.json` acessível roda com warning "claims unverified — escalate carefully".
+A 06 (copy) e a 08 (creatives) leem o arquivo pra dar número e nome à prova. O que não está no banco não trava nada: claim forte que o mecanismo sustenta entra na copy do mesmo jeito, e o banco só deixa ele mais específico.
 
 ### ETAPA 3 — Estrutura de Oferta
 
@@ -376,7 +345,6 @@ Nenhum componente entra na oferta por ser "um produto que dá pra vender junto".
 - **Bonus Stacking (Value Stack / Stack Slide)** (rode `value stack stack slide bonus stacking standalone value exceeds price`) — soma cumulativa que faz o preço parecer pequeno.
 - **Razor-Blade vs Handle (Bonus Fit Principle)** (rode `razor blade vs handle bonus fit natural complement to product`) — cada bônus deve aumentar o consumo/resultado do produto principal.
 - **Bonus Types Taxonomy** (rode `bonus types presuppose success enables success graduation gift access partner complementary`) — escolhe o `type` certo (não default pra PDF), alimenta o campo `bonuses[]` do JSON.
-- **FTC Anchored-Value / Fictitious-Pricing Legality** (rode `FTC anchored value fictitious pricing bonus must be actually sold legality`) — o `value_anchored` de cada bônus precisa ser legalmente sustentável (o bônus tem que ser realmente vendível por aquele valor).
 - **P.S. que Acrescenta — Fast-Reply Gift** (rode `P.S. acrescenta bonus novo fast-reply gift nao recapitula oferta 154 de 179`) — padrão medido em 154 de 179 peças: o P.S. ACRESCENTA um bônus novo (o fast-reply gift, prêmio por agir agora) em vez de recapitular a oferta. A decisão de oferta é aqui: se o stack tiver um bônus com essa vocação, marque-o — a Skill 06 escreve o P.S.; a oferta define qual bônus ele entrega.
 
 **Nomeação dos entregáveis — a regra do `Not: "___"` (OBRIGATÓRIA antes de escrever o stack):**
@@ -442,7 +410,7 @@ Kennedy Five-Level Guarantee Hierarchy e Guarantee Power Statement Template est�
 
 **Tipos possíveis:**
 - **Money-back** (30, 60, 90 dias): baixo risco pro cliente, médio risco pro merchant
-- **Results-based** ("se não funcionar, reembolsamos"): forte psicologicamente, exige evidência clara de uso
+- **Results-based** ("se não funcionar, reembolsamos"): a mais forte psicologicamente
 - **Extended trial** (primeiro mês grátis, cancela depois): baixa barreira de entrada mas exige subscription
 - **Double-your-money-back**: agressivo, usa sophistication alto, mas blindado contra abuso (com critérios)
 
@@ -658,14 +626,14 @@ Antes de salvar, responda HONESTAMENTE:
    > **As três condições são cumulativas e nenhuma se estima.** Faltando qualquer uma — a 15 não rodou, o cohort não está calibrado, o `decay_source` é `assumed`, ou o stage é `starter`/`validating` — **o gate de margem mínima vale integralmente, como hoje**. É o mesmo recorte que o cânone aplica: sem LTV medido e sem caixa pra bancar a janela, a economia do primeiro pedido é a única que decide.
 9. **Bundle structure aumenta AOV sem canibalizar margem?** (rode o guardrail de net AOV da ETAPA 6: desconto que sobe AOV bruto mas derruba a margem de contribuição líquida reprova)
 10. **breakeven_roas < 3.0?** (se > 3.0, a oferta depende de um custo de aquisição baixo demais pra ser realista — trate como falha do check e volte pra ETAPA 7: aumentar AOV, reduzir COGS ou repricing, antes de salvar)
-11. **`04-offer-builder/research-foundation.json` existe e cobre todos os claims centrais do mecanismo com fonte rastreável?** (sem fundação de evidência, copy da Skill 06 sai sem lastro — bloqueante)
+11. **O banco de provas (ETAPA 2.5) tem ao menos 1 número pronto pra UMP e 1 pra UMS?** (não bloqueia — sem número, a copy sai com mecanismo e VOC; com número, sai mais específica)
 12. **O teto de CAC (2×) está acima do piso de US$ 25?** (piso físico de CAC no leilão: US$ 15–25, cânone §3. Teto abaixo disso exige um custo de aquisição que não existe em escala — bloqueante. Saídas, nesta ordem: subir AOV (ETAPA 6), subir preço (ETAPA 3), ou sustentar a conta com LTV de recompra **medido** — nunca estimado — e recalcular o PSM da ETAPA 7 com esse LTV real)
 
 Registre o resultado em `04-offer-builder/dados.json` → `sanity_checks` como `{ "total": 12, "passed": N, "failed": [<números dos checks que falharam>] }` (NÃO um inteiro hard-coded). Se alguma resposta for "não", **itere antes de salvar**. Uma oferta fraca que passa adiante vira ad ruim, copy genérica, e membro frustrado em 30 dias.
 
 **No relatório (.md/.html), as checagens aparecem como AFIRMAÇÕES do que está validado, com a evidência em 1 frase — nunca em formato de pergunta** (o formato de pergunta acima é ferramenta interna da skill; ver `.claude/rules/report-only-results.md`). Ex: "Margem de contribuição sustenta tráfego pago. X% por pedido no primeiro pedido; CAC de empate acima do mediano da categoria."
 
-**Bloqueio de save (checks críticos):** se QUALQUER um dos checks críticos falhar — check 3 (economics/PSM viável), check 8 (margem de contribuição ≥ $20 em ao menos uma variação do primeiro pedido, **ou a alternativa por payback medido descrita nele**), check 11 (`04-offer-builder/research-foundation.json` cobre os claims centrais) ou check 12 (teto de CAC acima do piso de US$ 25) — NÃO salve o `04-offer-builder/dados.json` final. Itere até passar, ou aplique o escape-path correspondente (ES1 pra foundation faltante; ETAPA 7 pra economics; ETAPA 1 sanity de margem; ETAPAs 3/6 pra teto de CAC abaixo do piso). Os demais checks que falharem entram em `failed[]` como aviso, mas não bloqueiam.
+**Bloqueio de save (checks críticos):** se QUALQUER um dos checks críticos falhar — check 3 (economics/PSM viável), check 8 (margem de contribuição ≥ $20 em ao menos uma variação do primeiro pedido, **ou a alternativa por payback medido descrita nele**) ou check 12 (teto de CAC acima do piso de US$ 25) — NÃO salve o `04-offer-builder/dados.json` final. Itere até passar, ou aplique o escape-path correspondente (ETAPA 7 pra economics; ETAPA 1 sanity de margem; ETAPAs 3/6 pra teto de CAC abaixo do piso). Os demais checks que falharem entram em `failed[]` como aviso, mas não bloqueiam.
 
 ### Output Schema — `04-offer-builder/offer-builder.md` + `04-offer-builder/dados.json`
 
@@ -798,7 +766,7 @@ No exemplo acima: weighted_margin_per_order 72 → breakeven_cpa 72, target_2x 3
 
 `workspace/[produto]/04-offer-builder/offer-builder.md` contendo:
 1. Mecanismo único recomendado — a LÓGICA de UMP e UMS com nomes e estudos citados (Etapa 2D; sem versões de copy)
-2. **Research Foundation** (Etapa 2.5) — evidências que sustentam o mecanismo, com fontes rastreáveis
+2. **Banco de provas** (Etapa 2.5) — os números, estudos e citações prontos pra copy usar como munição
 3. Estrutura de oferta completa (produto principal, bundles, arquitetura de assinatura se consumível, bump, upsell, stack de valor)
 4. Garantia recomendada + copy
 5. Unit economics em DUAS tabelas separadas — primeiro pedido (5A) e recompra (5B) — mais o AOV blended quando as duas existem (Etapa 5). Nenhum número desta seção é chamado de "lucro"

@@ -1,363 +1,309 @@
 ---
 name: product-research
-description: Engine completo de pesquisa e validação de produto. Use quando o membro disser "product research", "pesquisa de produto", "encontrar produto", "qual produto vender", ou quando estiver na situação A do setup (não tem produto). Faz filtragem técnica, validação de Trends, trademark, Meta Ad Library, review mining, validação de eficácia, análise estratégica completa usando os frameworks, e entrega ranking com veredicto + plano preliminar + brand.md inicial pro produto #1.
+description: Engine de pesquisa de produto por recombinação de elementos validados. Use quando o membro disser "product research", "pesquisa de produto", "encontrar produto", "qual produto vender", ou quando estiver na situação A do setup (não tem produto). Descobre marcas DTC que já escalam no nicho de health & supplements via TrendTrack (MCP ou manual, com dois conjuntos de filtros fixos — native ads em imagem e em vídeo), monta a ficha completa de cada marca (LP mais escalada, ads mais escalados, tráfego, oferta, mecanismos, ângulo), valida com Google Trends (problema + ingrediente, 5 anos, US) e com as reviews de 1-2 estrelas do Trustpilot, decompõe cada marca em elementos validados, monta jogadas de recombinação (nunca clonar, nunca criar do zero), rankeia pelos eixos de score e salva o banco de marcas no Notion (ou em HTML na pasta da Aura).
 ---
 
 # Product Research Engine
 
 ## Quando Usar
-Quando o membro ainda não tem produto ou quer validar/encontrar um novo produto pra testar. Esta skill existe pra reduzir drasticamente o risco de escolher um produto ruim — sai com um veredicto fundamentado em frameworks em vez de "parece interessante".
+
+Quando o membro ainda não tem produto ou quer encontrar o próximo. A skill existe pra responder uma pergunta só: **qual combinação de elementos que o mercado já provou (mecanismo, ângulo, formato do produto, posicionamento, oferta) eu consigo montar de um jeito que nenhum concorrente escalado está usando — sem clonar ninguém e sem inventar nada do zero?**
+
+A tese que governa a skill inteira:
+
+- **Clonar** uma marca escalada coloca o membro num leilão com quem já tem histórico de pixel, prova social e caixa. Sem diferencial, ele paga o CPM mais caro pra entregar a mesma mensagem.
+- **Criar do zero** (mecanismo novo, formato novo, ângulo nunca testado) custa o teste inteiro — e a maior parte dos testes do zero morre.
+- **Recombinar** elementos validados por marcas diferentes é o meio do caminho: cada peça já provou que vende, e a combinação é nova. O máximo de invenção permitido é **aprimorar** um mecanismo que já escala.
 
 ## Antes de Começar
 
-0. **Idioma do relatório (rule 0 — INVIOLÁVEL)**: leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do `report_language`.
-1. Leia `workspace/profile.md` pra entender o contexto do membro (budget, ferramentas disponíveis, se tem SpyBox)
+0. **Idioma do relatório (rule 0 — INVIOLÁVEL)**: leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; também em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo, páginas do Notion) e toda conversa com o membro usam esse idioma. **Copy consumidor-final (hooks, headlines, ads, páginas) e VOC literal (frases de review) permanecem SEMPRE em inglês US**, independente do `report_language`.
+1. Leia `workspace/profile.md` — budget diário, ferramentas conectadas (TrendTrack, Notion), nicho de interesse se o membro já declarou.
 
-> **Índice completo dos frameworks desta skill: `.claude/lib/kb-index/` (mapa skill→domínio no README; catálogo machine-readable em `frameworks.json`).** Skill 01 puxa do domínio `product-research` — o tamanho do domínio é o que o `frameworks.json` disser (fonte da verdade), não um número decorado aqui. Nas ETAPAS abaixo, onde a skill pede "puxe os SISTEMAS NOMEADOS", rode `search_knowledge` com a `best_query` EXATA de cada framework relevante — nunca query genérica tipo "product research" ou "market sophistication".
+> **Índice completo dos frameworks desta skill: `.claude/lib/kb-index/` (mapa skill→domínio no README; catálogo machine-readable em `frameworks.json`).** A skill 01 puxa do domínio `product-research`. Nas ETAPAS 5, 7 e no naming, onde a skill pede "puxe os SISTEMAS NOMEADOS", rode `search_knowledge` com a `best_query` EXATA de cada framework — nunca query genérica tipo "product research" ou "market sophistication".
 >
-> **Contrato de cobertura (regra 2026-09 do kb-index):** a puxada é COBERTURA do tópico, não amostra. No início de cada ETAPA que consulta a base, abra o domínio `product-research` inteiro no `frameworks.json` e enumere TODAS as entradas cujo `use_in_skill` inclui esta skill. As queries embutidas nas ETAPAs são o núcleo mínimo garantido daquela fase, **nunca o teto**: entrada relevante pra fase que não está embutida é pra puxar do mesmo jeito (critério por FASE: "esta entrada informa a decisão desta etapa?" — se "talvez", puxa). Não repita framework já puxado na mesma sessão. Antes de fechar cada ETAPA, releia a lista enumerada e confirme que nenhuma entrada relevante ficou sem puxar.
+> **Contrato de cobertura (regra 2026-09 do kb-index):** a puxada é COBERTURA do tópico, não amostra. No início de cada ETAPA que consulta a base, abra o domínio `product-research` inteiro no `frameworks.json` e enumere TODAS as entradas cujo `use_in_skill` inclui esta skill. As queries embutidas nas ETAPAs são o núcleo mínimo garantido, **nunca o teto**: entrada relevante pra fase que não está embutida é pra puxar do mesmo jeito. Não repita framework já puxado na mesma sessão.
 
-2. **Puxe os SISTEMAS NOMEADOS da base — não query genérica.** Antes da análise, rode `search_knowledge` com a `best_query` de cada framework que esta skill aplica abaixo (estão embutidos por NOME nas ETAPAS 2, 8 e 10). A lista completa do domínio `product-research` está em `.claude/lib/kb-index/` (`frameworks.json` / README). Puxe os SISTEMAS COMPLETOS (ex: os 5 estágios de sophistication de Schwartz com claims e respostas estratégicas, não "sophistication"), aprofunde em cada sub-conceito que aparecer, e aplique os thresholds/critérios LITERALMENTE nas etapas seguintes.
-3. Internalize os frameworks ANTES de começar a análise. Não é pra "mencionar" — é pra APLICAR na escolha de cada produto.
+2. **Puxe os SISTEMAS COMPLETOS**, não resumos (ex: os 5 estágios de sophistication de Schwartz com claims e respostas estratégicas, não "sophistication"). Internalize ANTES de analisar — os frameworks são pra APLICAR na decomposição e no ranking de cada marca, não pra citar.
 
 ## Fluxo da Skill
 
 ### ETAPA 0 — Pre-flight
 
-Antes de qualquer outra coisa:
-
-1. Leia `workspace/profile.md`. Se **não existir**, aborte com: `"Rode \`setup\` primeiro — profile.md ausente."` (profile/manifest totalmente ausentes mantêm abort: sem eles não há o que inferir; ofereça rodar o setup inline).
+1. Leia `workspace/profile.md`. Se **não existir**, aborte com: `"Rode \`setup\` primeiro — profile.md ausente."` (ofereça rodar o setup inline).
 2. Localize `manifest.json`:
    - Procure um `manifest.json` em `workspace/*/manifest.json` cujo `setup_complete === true`.
-   - Se existir, leia `product_slug` — este é o path canônico para qualquer salvamento (ver Etapa SALVAR).
-   - **Se houver MAIS de um** manifest com `setup_complete === true` (membro roda 2+ produtos), NÃO escolha silenciosamente: liste os `product_name` e pergunte em 1 linha qual é o produto-alvo. Se o membro já nomeou o produto no trigger (ex: "product research do [produto]"), use esse sem perguntar.
+   - Se existir, leia `product_slug` — é o path canônico pra qualquer salvamento até o produto vencedor ser escolhido (ver SALVAR).
+   - **Se houver MAIS de um** manifest com `setup_complete === true`, NÃO escolha silenciosamente: liste os `product_name` e pergunte em 1 linha qual é o alvo. Se o membro já nomeou o produto no trigger, use esse.
    - Se **não existir**, aborte com: `"Rode \`setup\` primeiro — manifest.json ausente."` (ofereça rodar o setup inline).
-3. Confirme que `00-setup` está em `skills_completed` do manifest. Caso contrário, re-rode o setup.
-4. Use `product_slug` do manifest como `[produto]` padrão para todos os paths nesta skill até que o produto vencedor seja escolhido (ver Etapa SALVAR para substituição).
+3. Confirme que `00-setup` está em `skills_completed`. Caso contrário, re-rode o setup.
+4. **Nicho.** Default desta skill é **health & supplements** (é o nicho dos filtros fixos da ETAPA 0.5). Se o membro quer outro nicho, ele diz e você troca só o filtro de nicho — o resto do método é idêntico.
+5. **Onde salvar o banco de marcas.** Verifique se há tools de Notion na sessão (prefixo `mcp__claude_ai_Notion__` ou `mcp__notion__` — qualquer prefixo com `notion`). Se NÃO houver, pergunte UMA vez, em 1 linha:
 
-### ETAPA 0.5 — Motor de descoberta: o que é AUTOMÁTICO vs o que o MEMBRO COLA
+   > "Quer que eu salve o banco de marcas no Notion (uma página por marca, com links dos ads, LP, tráfego, reviews e a jogada recomendada)? Se sim, conecta o Notion MCP agora — no claude.ai / Claude Desktop: Settings → Connectors → Notion → conectar; no Claude Code: `claude mcp add --transport http notion https://mcp.notion.com/mcp` e autorize no browser. Se preferir, eu salvo tudo em HTML na pasta do produto."
 
-Antes de qualquer coisa, fica CRISTALINO o que esta skill faz sozinha e o que depende de dado colado pelo membro. **Regra dura de honestidade: a AI NUNCA finge acessar ferramenta paga.** SpyBox, Kalodata e SimilarWeb são pagos e sem API que a AI consiga ler — sempre que precisar de um número dessas ferramentas, a AI diz EXATAMENTE o que olhar e onde, e trata o que voltar como input colado pelo membro (marcado como fonte manual no relatório).
+   Grave a escolha (`notion` ou `html`) e siga. A pesquisa não espera o Notion — ela roda igual; só o destino muda (ver SALVAR).
 
-Há **dois caminhos de descoberta**, e o que estiver disponível define o caminho:
+### ETAPA 0.5 — Motor de descoberta: TrendTrack (MCP ou manual)
 
-**Caminho AUTO — TrendTrack MCP (runtime-discovery, sem nomes hard-coded):**
+A fonte de descoberta é o **TrendTrack — Explorer → Meta Ads**, com dois conjuntos de filtros fixos. O objetivo é achar **native ads** (anúncio que parece conteúdo, com copy longa) de marcas DTC que já escalam no nicho — imagem e vídeo separadamente, porque os dois formatos revelam marcas diferentes.
 
-Verifique se há tools com prefixo `mcp__trendtrack__` disponíveis na sessão. Se SIM, este é o motor de descoberta automático (única fonte que dá revenue estimado de forma legítima e programática). **NÃO assuma nomes de tool fixos** (`find_winning_products`, `search_shops`, etc — a lista muda entre versões do MCP). Em vez disso:
-
-1. **Descubra em runtime** quais tools `mcp__trendtrack__*` existem nesta sessão (inspecione os nomes disponíveis).
-2. **Case por intenção, não por nome literal:**
-   - Descoberta de winners (intenção "discover/find products/winning") → use pra puxar a leva inicial de candidatos.
-   - Busca de lojas/concorrentes (intenção "search/find shops/similar") → fonte alternativa pra ETAPA 5 (sizing de concorrente) com revenue agregado.
-   - Inspiração criativa (intenção "creative/inspiration/hooks/angles") → sinal extra pra ETAPA 8.
-3. **Passe a intenção de filtro via params que a tool expõe** (não invente params): nicho do `profile.md`, país US, crescimento de tráfego alto, evitar marca grande já estabelecida (plano Shopify alto, se a tool filtrar isso), já rodando alguns dias, limite ~15 candidatos brutos. Se a tool não suportar um filtro, aplique-o depois nas ETAPAS 2-4 (são eliminatórios de qualquer jeito).
-4. Se nenhuma tool de descoberta de produto existir entre as `mcp__trendtrack__*` (só tools de brief/monitor, por ex.), trate como **TrendTrack ausente pra esta etapa** e caia no caminho manual abaixo.
-
-Custa créditos TrendTrack. Use 2-4 chamadas no máximo aqui — não saia explorando. Se uma chamada falhar (auth expirou, rate limit), caia pro caminho manual sem avisar o membro (silent fallback).
-
-**Caminho MANUAL — membro cola do Kalodata/SpyBox (ETAPA 1):**
-
-Se NÃO há `mcp__trendtrack__*` (ou nenhuma faz descoberta de produto), a leva inicial vem do membro colando dados do Kalodata/SpyBox — ver ETAPA 1. A AI não abre essas ferramentas; ela pede o dado e o recebe colado.
-
-**Pós-descoberta (vale pros DOIS caminhos):** os ~15 candidatos (vindos do TrendTrack-auto OU colados pelo membro) ENTRAM na ETAPA 2. Os filtros eliminatórios da Aura são aplicados nas ETAPAS 2/3/4 já existentes:
-
-- **AOV ≥ $60** → ELIMINATÓRIO (ETAPA 2) — precisa do supplier price do membro pra checar o 3× markup
-- **3× markup** → ELIMINATÓRIO (ETAPA 2)
-- **Peso/logística** → FLAG (não elimina) (ETAPA 2)
-- **Google Trends 5 anos** → ELIMINATÓRIO se QUEDA consistente (ETAPA 3)
-- **USPTO / trademark de marca grande** → ELIMINATÓRIO (ETAPA 4)
-
-Antes da análise profunda (ETAPAS 5+), corte dos ~15 pros **top 8-10** por um `triage_score`:
+**Pesquisa 1 — native ads em IMAGEM:**
 
 ```
-triage_score = growth*0.35 + ad_traction*0.30 + price_fit_AOV60*0.20 + store_smallness*0.15
-  (cada componente normalizado 0-1; ad_traction = densidade de ads ativos do nicho)
-
-SEM dado de ads no momento do triage (caminho manual Kalodata/SpyBox — o membro cola
-nome/preço/revenue, não densidade de ads), NÃO tente levantar Ad Library pros 15 candidatos
-(é exatamente o custo que o triage evita). Re-normalize sem o componente:
-  triage_score = growth*0.50 + price_fit_AOV60*0.30 + store_smallness*0.20
-No caminho TrendTrack, use o sinal de ads que a própria tool de discovery já retornou.
+Status: active
+Media type: image
+Days Running: min 10
+Ad creation date: last 30 days
+Language: english
+Ad rank: top 10%
+Growth rank: rising
+Description Length: min 1500
+Ad countries: only US
+Niche: health & supplement
+Monthly traffic: min 300k
+Sort by: longest running (ou ad rank)
 ```
 
-**Regra:** o motor de descoberta (TrendTrack-auto OU Kalodata-colado) só ACELERA achar candidatos. Nunca pula os filtros eliminatórios — todo candidato passa pelas ETAPAS 2/3/4.
+**Pesquisa 2 — native ads em VÍDEO:**
 
-> **MAPA AUTO vs MANUAL (pipeline de 7 estágios desta skill) — leia antes de seguir:**
+```
+Status: active
+Media type: video
+Days Running: min 10
+Ad creation date: last 30 days
+Language: english
+Ad rank: top 10%
+Growth rank: rising
+Ad countries: only US
+Niche: health & supplement
+Monthly traffic: min 300k
+Sort by: longest running (ou ad rank)
+```
+
+Por que esses filtros: `Days Running ≥ 10` + `Ad creation date: last 30 days` isola ad **novo que já sobreviveu** (a marca está escalando agora, não um criativo velho rodando no automático); `Ad rank top 10%` + `Growth rank rising` pega o que está subindo; `Description Length ≥ 1500` (só na imagem) força native ad de copy longa, que é o formato que converte tráfego frio em supplements; `Monthly traffic ≥ 300k` garante marca com escala real, não teste de iniciante.
+
+**Caminho A — MCP do TrendTrack (gasta créditos do membro):**
+
+Verifique se há tools com prefixo `mcp__trendtrack__` na sessão. Se SIM:
+
+1. **Rode a tool de créditos primeiro** (intenção *Account → créditos*, hoje `check_credits`) e diga ao membro em 1 linha quanto tem e quanto a pesquisa deve gastar (descoberta: 4-8 chamadas; ficha por marca: 2-3 chamadas × número de marcas pré-selecionadas). Se o saldo não cobre, rode a descoberta por MCP e faça a ficha por marca pelo caminho manual — ou tudo manual, o membro decide.
+2. **Resolva o id do nicho** (intenção *lookup de filtros*, hoje `lookup_filter_ids` com `type: "categories"`, `query: "supplement"` — e também `"health"`; pegue os ids que casam com health & supplement).
+3. **Rode as duas pesquisas** (intenção *Discover → ads em lote*, hoje `search_ads`). Mapeamento dos filtros da UI pros params da tool (NÃO invente params — se um filtro não existir na versão da tool, aplique-o você mesmo na leitura dos resultados):
+
+   | Filtro da UI | Param da tool (hoje) |
+   |---|---|
+   | Status: active | `status: "active"` |
+   | Media type | `media_type: "image"` / `"video"` |
+   | Days Running ≥ 10 | `min_days_running: 10` |
+   | Ad creation date: last 30 days | `created_after: "<hoje − 30 dias, YYYY-MM-DD>"` |
+   | Language: english | `ad_languages: ["en"]` |
+   | Ad rank: top 10% | `ad_rank_mode: "percentile"`, `max_ad_rank_value: 10` |
+   | Growth rank: rising | `growth_rank: [{ "period": "last7d", "direction": "rising" }]` (se vier pouco resultado, `last30d`) |
+   | Description Length ≥ 1500 (só imagem) | `min_description_length: 1500` |
+   | Ad countries: only US | `ad_countries: { "include": ["US"] }` |
+   | Niche | `category_ids: [<ids do passo 2>]` |
+   | Monthly traffic ≥ 300k | `min_traffic: 300000` |
+   | Sort by longest running / ad rank | `sort_by: "longestRunning"` / `sort_by: "adOrder"` |
+   | (diversidade) | `max_ads_per_brand: 2`, `limit: 20`, `page: 1, 2, 3` |
+
+   Passe `sort_by` SEMPRE — sem ele a tool aplica por default um filtro de alcance que só existe pra ads da União Europeia e devolve zero pra ads só-US. Se mesmo assim a resposta vier vazia ou magra, adicione `trend_signal: "relevance"`. **Regra de leitura:** o alcance publicado pela Meta só existe pra ads veiculados na UE — ad só-US aparece com alcance 0 sem significar gasto zero. Escala se lê por **dias no ar + duplicatas + ad rank + tráfego da loja**.
+4. Pagine até juntar **15-25 marcas distintas** entre as duas pesquisas (uma marca pode aparecer nas duas — conta uma vez). Anote por ad: marca, domínio, link do ad (Ad Library / TrendTrack), URL de mídia (Media URL, senão Thumbnail URL), dias no ar, ad rank, duplicatas, tráfego mensal da loja, LP de destino.
+5. Se uma chamada falhar (auth expirou, rate limit, créditos acabaram), caia pro caminho manual sem drama — diga ao membro exatamente o que fazer (abaixo) e continue de onde parou.
+
+**Caminho B — manual (membro usa o TrendTrack no browser):**
+
+Se não há MCP, ou os créditos acabaram, ou o membro prefere olhar com os próprios olhos:
+
+> "Abre o TrendTrack → **Explorer → Meta Ads**. Aplica os filtros abaixo (dois passes: um com Media type = image + Description Length min 1500, outro com Media type = video sem esse filtro de tamanho). Ordena por **longest running** (ou ad rank). Vai abrindo os ads e, pra cada marca que fizer sentido, me manda:
 >
-> | # | Estágio | Fonte | Como roda | Eliminatório? |
-> |---|---------|-------|-----------|---------------|
-> | 1 | **Descoberta** | TrendTrack `mcp__trendtrack__*` **OU** Kalodata/SpyBox | **AUTO** (TrendTrack, runtime-discovery) **OU** membro cola (Kalodata/SpyBox) | não (gera a leva) |
-> | 2 | **AOV ≥ $60 + 3× markup** | dado do produto + **supplier price do membro** | semi-auto: AOV do dado; markup precisa o membro informar o supplier price (Alibaba/1688) | **SIM** |
-> | 3 | **Peso / logística** | descrição do produto | AUTO leve (FLAG, não elimina) | não (flag) |
-> | 4 | **Google Trends 5 anos** | Google Trends público | **AUTO** via WebFetch (fallback: fetcher Playwright → membro cola screenshot) | **SIM** se queda |
-> | 5 | **Revenue / sizing do concorrente** | TrendTrack **OU** SimilarWeb/Kalodata | **AUTO** (TrendTrack) **OU** membro **COLA** (SimilarWeb é pago, sem API — revenue via SimilarWeb é SEMPRE colado) | não (calibra) |
-> | 6 | **USPTO trademark** | uspto.gov público | **AUTO** via WebFetch (fallback: fetcher Playwright) | **SIM** se marca grande |
-> | 7 | **Mecanismo único + avatar underserved** | frameworks da base Aura | **AUTO** (raciocínio sobre frameworks) | não (scoring) |
+> 1. Nome da marca + site
+> 2. Link do ad (o link do TrendTrack ou do Ad Library) — os 2-3 ads mais antigos no ar da marca
+> 3. Dias no ar de cada ad
+> 4. Link da landing page do ad (o destino do botão)
+> 5. Tráfego mensal da loja (aparece no card da marca)
+> 6. Link do Trustpilot da marca (aparece na página da marca no TrendTrack)
 >
-> Os estágios 2-7 mapeiam nas ETAPAS 2-8 abaixo. Onde diz "membro cola", a AI **pede o dado exato e espera** — nunca inventa o número nem finge ter aberto a ferramenta.
+> Pode mandar screenshot também, eu leio. Mira em 15-25 marcas. Marca que só vende na Amazon, marketplace ou gigante (Nestlé, Bayer, Unilever) não entra — quero DTC com loja própria."
 
-Se TrendTrack NÃO estiver disponível, pule a parte AUTO desta etapa e siga pra ETAPA 1 (caminho manual).
+Onde diz "membro cola", a AI **pede o dado exato e espera** — nunca finge ter aberto o TrendTrack nem inventa número.
 
-### ETAPA 1 — Receber Dados (Kalodata / SpyBox OU Fallback) — CAMINHO MANUAL
+**Critérios de pré-seleção (valem pros dois caminhos):**
 
-Esta etapa só roda quando a descoberta automática (TrendTrack) NÃO está disponível, OU pra complementar a leva auto com dados que só a ferramenta paga mostra. **A AI não abre o Kalodata/SpyBox — esses são pagos e sem API que a AI consiga ler.** Ela diz exatamente o que olhar e recebe o dado colado pelo membro, tratando-o como input manual.
+- **DTC com loja própria** (Shopify ou equivalente) — não Amazon-only, não marketplace, não gigante de consumo.
+- **AOV ≥ $60 contando a oferta inteira** — abra a LP/PDP e some o que a marca faz pra subir o ticket: preço base, bundle (3-pack/6-pack), assinatura, bump no carrinho, upsell pós-compra. Marca com produto de $29 que vende em 3-pack a $79 com upsell **passa**; marca de $39 unitário sem bundle nem upsell **não passa**.
+- **O produto faz sentido** pro membro — ele conhece o nicho, consegue sourcing (fórmula pronta / white label na 01b), e o problema é real e recorrente (consumível = recompra).
 
-Verifique em `workspace/profile.md` se o membro tem SpyBox disponível.
+Saída desta etapa: **lista de 15-25 marcas pré-selecionadas**, cada uma com domínio + ads + LP + tráfego + Trustpilot. Todas seguem pra ETAPA 1.
 
-**Sistema a puxar nesta etapa (rode a `best_query` exata):** **Filtros Kalodata refinados (versão atual)** (rode `filtros kalodata last 30 days revenue 100k 500k growth rate positivo unit price 60`) — o conjunto ATUAL de filtros do Kalodata (janela de 30 dias, faixa de receita, growth rate positivo, corte de preço unitário) que isola os produtos em ascensão. Instrua o membro com os valores que a base devolver; se divergirem dos números do exemplo abaixo, **a base vence**.
+### ETAPA 1 — Ficha por marca (coleta profunda)
 
-**SE tem SpyBox / Kalodata:**
+Pra CADA marca pré-selecionada, monte a ficha completa. É a matéria-prima de tudo que vem depois — quanto mais detalhada, melhor a recombinação.
 
-Diga ao membro:
+**Com MCP (2-3 chamadas por marca):**
 
-"Eu não consigo abrir o Kalodata/SpyBox por você (são pagos, sem acesso direto), então preciso que você abra e cole o resultado:
-1. Aplique os filtros:
-   - Period: Last 30 Days
-   - Revenue: $30k - $400k
-   - Revenue Growth Rate: >0%
-   - Avg. Unit Price: >$15
-   - Category: sem filtro (não marque nenhuma categoria)
-2. Selecione entre 5 e 15 produtos que parecem promissores
-3. Me mande: screenshots dos produtos OU copie e cole os dados (nome, preço, faturamento estimado, categoria, link)
+- **Ads mais escalados da marca:** `search_ads` com `query: "<domínio>"`, `search_in: "domain"`, `status: "active"`, `sort_by: "longestRunning"` (e uma segunda passada com `sort_by: "mostDuplicates"`). Pegue os **top 3-5** — link, mídia, dias no ar, duplicatas, formato, hook (primeiras linhas da copy / primeiros 3s), ângulo, LP de destino.
+- **LP mais escalada:** `lookup_filter_ids` com `type: "landing_pages"`, `scope_domain: "<domínio>"`, `status: "active"` — devolve as URLs de destino com a contagem de ads ativos apontando pra cada uma. A LP com mais ads ativos é a **LP mais escalada**.
+- **Loja:** `search_shops` com `query: "<domínio>"`, `match_mode: "exact"` — visitas mensais, nota e nº de reviews no Trustpilot, data de criação da loja, apps/tema (opcional).
+- **Decomposição de 1 ad (opcional, quando o hook não está claro):** `scan_ad` com o `collation_id` do ad — hook, enquadramento da copy, estrutura, LP, veredito de escala.
 
-> NOTA: unit price > $15 no Kalodata NÃO é o mesmo que AOV ≥ $60. Um produto de $25/unidade que vende em 3-pack atinge AOV $75 e PASSA na ETAPA 2. São dois filtros diferentes — não confundir o preço unitário da vitrine com o AOV viável depois de bundle/bump.
+**Manual:** o membro abre a página da marca no TrendTrack e cola os mesmos itens (ads mais antigos no ar, aba de landing pages, tráfego, Trustpilot).
 
-Tudo que você colar daqui eu marco como **fonte manual (colada por você)** no relatório, pra ficar claro de onde veio cada número. Se você também tiver dados do SimilarWeb sobre os concorrentes, cole também (a receita do SimilarWeb eu nunca consigo puxar sozinho — é sempre colada). Se não tiver, eu faço o que puder com fontes públicas."
+**Leitura da LP (vale pros dois caminhos):** abra a LP mais escalada com `WebFetch`; se barrar (Cloudflare/JS), `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode text` (rule `.claude/rules/resilient-fetch.md`); último degrau: o membro cola um print. Extraia:
 
-**SE NÃO tem SpyBox/Kalodata (fallback):**
+- **Tipo de página** (advertorial / listicle / PDP / landing dedicada / quiz)
+- **Headline e promessa central**
+- **Mecanismo do problema** (o "por que as outras soluções falham" — a causa raiz que a marca nomeia)
+- **Mecanismo da solução** (o "por que o nosso funciona" — ingrediente/ativo, processo, forma, dose, nome proprietário se houver)
+- **Ângulo principal** (a razão de compra que a copy usa: problema, custo da alternativa, identidade, comparação, medo, curiosidade, autoridade)
+- **Avatar** (com quem a página fala — idade, gênero, momento de vida, sub-grupo)
+- **Formato do produto** (cápsula, gummy, pó, sachê, líquido, shot, patch…)
+- **Estrutura de oferta**: preço base, bundles e preço por tier, assinatura (% off), bump, upsell pós-compra, garantia, frete, bônus — e o **AOV estimado** que sai disso
+- **Prova** usada (reviews, número de clientes, estudos citados, autoridade, antes/depois)
 
-"Você não tem acesso ao SpyBox/Kalodata — sem problema. Me descreva o tipo de produto que te interessa:
-- Categoria / nicho
-- Faixa de preço-alvo
-- Público que quer atingir
+**Ficha por marca (campos obrigatórios):**
 
-Eu pesquiso usando fontes públicas (Meta Ad Library, TikTok Shop Trending, Amazon Best Sellers, Reddit) e te volto com candidatos pra analisar."
+| Campo | Conteúdo |
+|---|---|
+| Marca / site | nome + domínio |
+| Visitas/mês | número do TrendTrack |
+| Nicho / sub-nicho | ex: gut health → bloating |
+| Produto + formato | ex: pó de fibra em sachê |
+| Preço base / AOV estimado | $ / $ (com a conta: base × bundle + upsell) |
+| LP mais escalada | link + tipo de página |
+| Ads mais escalados | 3-5 links (+ mídia), com dias no ar, duplicatas, formato, hook, ângulo |
+| Formato de criativo dominante | imagem native / vídeo UGC / vídeo talking head / demo |
+| Mecanismo do problema | nome + lógica em 1-2 frases |
+| Mecanismo da solução | nome + ingrediente/ativo + lógica em 1-2 frases |
+| Ângulo principal | 1 frase de razão de compra |
+| Avatar | quem, em 1 linha |
+| Trustpilot | link + nota + nº de reviews (o veredito vem na ETAPA 3) |
+| Fonte | `trendtrack_mcp` ou `manual` |
 
-ESPERE o membro responder antes de prosseguir. Se veio com fallback, faça as buscas iniciais automaticamente e apresente 8-12 candidatos identificados antes de seguir pras próximas etapas.
+Vá salvando as fichas conforme fecha cada uma (Notion ou `banco-de-marcas.md` — ver SALVAR). Não deixe pra salvar tudo no fim: se a sessão cair, o trabalho fica.
 
-**Elicitação sem timeout automático**: Claude Code não tem timer interno dentro de uma skill. Espere a resposta do membro. Se o membro disser "não sei" ou "prossiga com dados públicos" ou se ele não souber responder de imediato, siga com fallback público (Meta Ad Library, TikTok Shop Trending, Amazon Best Sellers, Reddit via web search) e avise: `"Prosseguindo com dados públicos. Me passa SpyBox/Kalodata quando tiver e eu re-rankeio."` Não espere prazo — se membro respondeu com conteúdo vazio, é sinal de "sigo sem".
+### ETAPA 2 — Checagem 1: Google Trends (5 anos, US)
 
-### ETAPA 2 — Filtragem Técnica (Thresholds Exatos)
+Pra cada marca, rode **duas** consultas no Google Trends: **o problema** que o produto resolve (ex: "bloating", "joint pain", "hair thinning") e **o ingrediente ou mecanismo** da solução (ex: "berberine", "collagen peptides", "psyllium husk"). Janela: **últimos 5 anos**, país: **US**.
 
-Pra CADA produto enviado ou identificado, aplique os filtros técnicos nesta ordem. Cada FILTRO é eliminatório — descarta o produto se falha. Os critérios vêm dos frameworks sobre viabilidade e unit economics.
+Como rodar: `python3 .claude/lib/web-fetch/fetch.py "<termo>" --mode trends` (defaults já são US / 5 anos; devolve a série + classificação). NUNCA tente renderizar o site do Trends com `--mode text` — ele recusa navegador automatizado. Se o fetcher falhar, peça ao membro pra abrir `trends.google.com`, setar 5 anos / US e colar um print da curva de cada termo — você lê a tendência pela imagem.
 
-**Sistemas a puxar nesta etapa (rode a `best_query` exata, não query genérica):**
-- **Technical Viability Criteria — economic gate** (rode `technical viability criteria AOV markup 3x Google Trends lightweight product filter`) — fonte literal dos thresholds AOV ≥ $60, markup 3×, peso/logística. Aplique os números exatos que vierem.
-- **Halbert RFU Framework (Recency, Frequency, Unit of Sale)** (rode `Halbert RFU recency frequency unit of sale buyer evaluation`) — calibra se o unit-of-sale do produto sustenta AOV/repeat.
+**Regra de eliminação:** queda constante por 12 meses ou mais, dentro da janela de 5 anos → **elimina** (vale pro problema e pro ingrediente).
 
-> **Markup 3× depende de dado do membro (supplier price).** O preço de venda você vê no dado de descoberta, mas o COGS real (custo do fornecedor + frete) a AI não tem como adivinhar. Antes de avaliar o filtro de markup, peça ao membro: *"Pra checar o markup 3×, me passa o preço de fornecedor (Alibaba/1688/AliExpress) de cada produto-candidato — ou um custo estimado se ainda não cotou. Sem isso eu uso uma estimativa de COGS conservadora (~30-40% do preço de venda) e marco o markup como ESTIMADO, não confirmado."* Se o membro não passar, rode com a estimativa conservadora e deixe a coluna Markup marcada como estimada (não dispare DESCARTA só com base em estimativa — vira FLAG até o membro confirmar o supplier price).
+**Leitura dos dois termos juntos:**
 
-| Filtro | Critério | Ação se falha |
+- **Problema vivo define se o nicho vale a pena.** Problema em queda de 12+ meses = nicho encolhendo, elimina mesmo com ingrediente bom.
+- **Ingrediente define se você chegou na hora.**
+- **Problema subindo + ingrediente estável** = **melhor cenário** (demanda crescendo, mecanismo maduro e sem hype).
+- **Ingrediente ou mecanismo subindo há 6+ meses** = ótimo cenário — a onda ainda está no começo.
+- **Problema subindo + ingrediente em pico recente** = tarde. A marca pegou a onda cedo; o membro chegaria no pico. Aqui a jogada é **trocar o mecanismo** (ETAPA 6, padrão 3): manter o ângulo/problema e usar um ingrediente validado por outra marca que não esteja no pico.
+- **Subida vertical em 1-3 meses** = **hype**. Na maior parte das vezes cai tão rápido quanto subiu. Não elimina sozinho, mas rebaixa o score e exige mecanismo alternativo.
+
+Classifique cada termo em **QUEDA / ESTÁVEL / SUBINDO / PICO RECENTE / HYPE** e grave o **cenário** da marca (combinação dos dois) na ficha. Marca eliminada aqui sai da análise com o motivo registrado.
+
+### ETAPA 3 — Checagem 2: Trustpilot, reviews de 1 e 2 estrelas
+
+O TrendTrack traz o link do Trustpilot da marca. Entre nele e puxe as reviews negativas: `https://www.trustpilot.com/review/<domínio>?stars=1&stars=2&languages=all&sort=recency`. Cascade: `WebFetch` → se barrar, `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode reviews` (rola pra carregar os widgets) → se ainda barrar, o membro abre e cola as 20-30 reviews mais recentes de 1-2 estrelas.
+
+Leia **no mínimo 20-30 reviews negativas** por marca e classifique cada uma em um tema:
+
+- **Cobrança / assinatura** (cobrado sem querer, cancelamento difícil, refund lento)
+- **Entrega / logística** (atraso, não chegou, embalagem)
+- **Atendimento** (ninguém responde)
+- **Eficácia** ("não funcionou", "não senti nada", "zero diferença", "waste of money")
+
+**Regras de veredito:**
+
+- Reviews reclamando de **cobrança e entrega** → dá pra resolver com fornecedor, operador logístico e checkout melhores. **Passa.** (E vira ângulo: "sem assinatura escondida", "cancela em 1 clique" são posicionamentos abertos.)
+- Nota **abaixo de 4** mas as reclamações **não são sobre eficácia** → tudo bem. **Passa.**
+- A **maioria** das reviews negativas fala de **eficácia** → **elimina.**
+- Nota **abaixo de 4** com **muita gente dizendo que o produto não funciona** → **elimina.**
+
+O porquê: produto que não funciona gera refund em massa no mês 2 e 3, quando o efeito prometido não aparece. A marca pode até estar escalando agora — ela está escalando em cima de churn, e o membro herdaria o mesmo churn ao usar o mesmo produto.
+
+Grave na ficha: nota, nº de reviews, mix de temas (% por tema), veredito (**OK / cobrança-entrega / eficácia → eliminar**) e **5-10 frases literais** em inglês (com "tradução livre:" ao lado nos relatórios em pt-BR). As frases de eficácia dos concorrentes são matéria-prima de ângulo pra 02/06 ("I tried X for 3 months and nothing" é o hook de quem chega com mecanismo diferente).
+
+**Marcas sem Trustpilot:** procure a mesma leitura em reviews da Amazon (se a marca vende lá), Reddit (`--mode reddit`) e comentários dos próprios ads. Sem NENHUMA fonte de review negativa, a marca segue com o veredito em aberto e o score de eficácia neutro.
+
+Ao fim das ETAPAS 2 e 3, sobram os **finalistas** (alvo: 8-12 marcas). Marca eliminada permanece no banco com status `eliminada` + motivo — é informação de mercado, não lixo.
+
+### ETAPA 4 — Decomposição em elementos validados
+
+Aqui a skill deixa de olhar marca por marca e passa a olhar **peças**. Pra cada finalista, quebre a marca em elementos e registre, ao lado de cada um, a **evidência de validação** (dias no ar do ad mais antigo, ad rank, duplicatas, tráfego da loja, nº de ads ativos no mesmo ângulo):
+
+| Elemento | O que é | Exemplo |
 |---|---|---|
-| **AOV viável** | Preço base + potencial de bundle/bump permite AOV ≥ $60 | DESCARTA |
-| **Markup 3x+** | Preço de venda ≥ 3× (COGS + frete estimado) | DESCARTA |
-| **Peso/logística** | Produto não é volumoso/pesado (facilita fulfillment internacional) | FLAG de risco (não descarta) |
-| **Bateria/eletrônico** | Produto tem bateria, é eletrônico, ou tem defect rate potencial | FLAG (questão legal + retorno) |
-| **Sazonalidade** | Produto só vende em época específica (ex: natal, verão) | FLAG (operação de curto prazo) |
-| **Compliance** | Produto faz claim médico direto (fármaco, tratamento) | FLAG ou descarta dependendo da agressividade do claim |
+| **Mecanismo do problema** | a causa raiz que a marca nomeia pra explicar por que as soluções comuns falham | "your gut lining is leaky, that's why probiotics never worked" |
+| **Mecanismo da solução** | o ingrediente/processo/forma que resolve a causa raiz, com nome | "butyrate-first formula", "8-hour release" |
+| **Ângulo** | a razão de compra que o ad usa | custo anual da alternativa; "I tried everything"; identidade ("for women over 45") |
+| **Formato do produto** | a forma física | gummy, pó em sachê, shot, cápsula, patch |
+| **Posicionamento / avatar** | com quem a marca fala e como se enquadra | "a marca do despertar das 3h", "gut health pra quem usa GLP-1" |
+| **Formato de criativo** | o tipo de peça que mais escala | native image de copy longa; UGC talking head; demo |
+| **Estrutura de oferta** | como a marca sobe o ticket | 3-pack + assinatura + upsell de sono |
 
-Mostre uma **tabela comparativa** com cada produto e o resultado de cada filtro:
+Depois, consolide o **pool cruzado de elementos validados** (todas as marcas juntas), agrupando elementos iguais/quase iguais e contando **em quantas marcas escaladas cada um aparece**:
 
-| Produto | AOV | Markup | Peso | Bateria | Sazonal | Compliance | Status |
-|---|---|---|---|---|---|---|---|
+- Elemento presente em **1-2 marcas** escaladas = **validado e ainda aberto** (a melhor matéria-prima).
+- Elemento presente em **3+ marcas** no mesmo ângulo = **validado e saturado** naquele ângulo — só entra numa jogada se vier com outro ângulo, outro formato ou aprimorado (ETAPA 6).
+- Elemento que nenhuma marca escalada usa = **não validado** — não entra em jogada nenhuma (é criação do zero).
 
-Produtos descartados saem da análise. Produtos com flags continuam mas com o risco documentado pra ser reavaliado depois.
+Esse pool é a `validated_elements[]` do `dados.json` e a semente da `validated_library` que a Skill 03 constrói em profundidade.
 
-### ETAPA 3 — Google Trends (Janela 5 Anos)
+### ETAPA 5 — Análise Estratégica (frameworks da base)
 
-**Estágio AUTO.** Pra cada produto que passou na Etapa 2, consulte o Google Trends via WebFetch (dado público, a AI puxa sozinha):
-
-- Termos principais do produto (nome genérico + categoria + problema que resolve)
-- Janela: últimos 5 anos
-- Comparar com termos relacionados e concorrentes quando relevante
-
-> **Fallback em cascade (rule `.claude/rules/resilient-fetch.md`)** se o WebFetch do Trends falhar (bloqueio/anti-bot — trends.google.com é app só-JS, o WebFetch quase sempre falha): primeiro tente o fetcher Playwright da Aura: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode text`. Só se o fetcher também falhar, peça ao membro pra abrir `trends.google.com`, setar a janela de 5 anos pro termo, e colar um screenshot da curva. Aí você lê a tendência pela imagem (visão nativa). Marque como fonte manual.
-
-Classifique:
-- **QUEDA CONSISTENTE** (tendência negativa há 12+ meses) → DESCARTA
-- **FLAT** (estável, sem crescimento mas sem queda) → ACEITÁVEL
-- **SUBINDO** (tendência positiva há 6+ meses) → BOM
-- **SPIKE RECENTE** (subida vertical em 1-3 meses) → FLAG (pode ser fad temporário)
-
-Mostre tendência por produto com o classificador aplicado.
-
-### ETAPA 4 — USPTO Trademark + Brand Check
-
-**Estágio AUTO.** Pra cada produto ainda na lista, consulte o USPTO via WebFetch (`tmsearch.uspto.gov`, base pública) + web search. Se o WebFetch barrar (o tmsearch é app JS pesado), use o fetcher Playwright: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode text` (rule `.claude/rules/resilient-fetch.md`):
-
-- Existe trademark ativo pro nome do produto, da marca mais conhecida vendendo ele, ou do mecanismo/fórmula?
-- Classifique o owner:
-  - **Marca grande com recursos legais** (ex: Unilever, P&G, Nestle, ou DTC de 9 dígitos) → DESCARTA (alto risco de C&D + ação legal)
-  - **Marca pequena ou média** → PASSA (risco gerenciável com mecanismo próprio e copy original)
-  - **Sem trademark ativo** → PASSA
-
-Também busque no Google por `"nome do produto" site:bbb.org` e `"nome do produto" lawsuit OR complaint` — identifique se há histórico de problemas legais no nicho.
-
-### ETAPA 5 — Meta Ad Library + Sizing do Concorrente (Agrupamento Por Aparições)
-
-**Fontes desta etapa (auto vs manual):**
-
-- **Ads ativos / criativos escalados** → AUTO: Meta Ad Library público (web search / fetch). Se TrendTrack estiver conectado, as tools `mcp__trendtrack__*` de busca de loja/concorrente (descobertas em runtime, ver ETAPA 0.5) dão isso refinado em 1-2 chamadas.
-- **Revenue / sizing estimado do concorrente** → **AUTO se TrendTrack** (revenue agregado via tool); **MANUAL se não** — a AI **NÃO acessa o SimilarWeb** (pago, sem API que ela leia). Quando precisar do tamanho/tráfego de uma loja sem TrendTrack, ela pede o dado colado, com instrução exata:
-  > *"Pra dimensionar o concorrente [loja X], abre o SimilarWeb (direto ou pelo painel do SpyBox) e me cola: visitas/mês (visits) + receita estimada da loja. Eu não consigo puxar esse número sozinho — a receita via SimilarWeb é sempre colada por você."*
-  Trate o número como input manual e marque a fonte no relatório. NUNCA estime revenue do SimilarWeb sem o dado colado (não invente "deve faturar ~$200k").
-
-Acesse o Meta Ad Library (web search / fetch quando possível) pra cada produto. A Ad Library é conteúdo só-JS — se o WebFetch voltar vazio ou barrado, use o fetcher Playwright: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode text` (rule `.claude/rules/resilient-fetch.md`); só depois disso caia pra pedir screenshot ao membro.
-
-**Regras críticas de análise:**
-
-1. **NÃO use "tempo de veiculação" como métrica de escala.** Muitos criativos rodam há meses sem spend.
-2. **Agrupe criativos idênticos ou quase idênticos** (mesmo vídeo com variação de overlay, mesma copy com 1-2 palavras diferentes) e conte o número de APARIÇÕES.
-3. **Mais aparições = mais ad sets ativos usando esse criativo = mais escalado**. Esta é a métrica que importa.
-
-Para cada concorrente que vende o produto:
-- Total de ads ativos no momento
-- Agrupamento dos criativos por semelhança
-- **Top 5-10 criativos por número de aparições**
-
-Pra cada um dos top 5 criativos mais escalados, documente:
-- Tipo (UGC falando, demonstração, antes/depois, depoimento, imagem estática, carrossel)
-- **Hook exato dos primeiros 3 segundos** (texto E fala, transcrição literal)
-- Descrição visual do hook (o que aparece na tela)
-- Ângulo (qual razão de compra — problema, resultado, curiosidade, autoridade, comparação, social proof, controvérsia)
-- Primary text do ad (copia literal)
-- CTA (botão + copy)
-- Landing page destino (PDP, landing page dedicada, advertorial)
-- Aparições aproximadas (proxy de escala)
-
-Se for vídeo, transcreva pelo menos o hook + 2-3 frases do corpo do script.
-
-**Sinal de validação forte:** se múltiplos concorrentes (3+) têm 20+ ads ativos cada no mesmo produto, é porque tem tração real. Se todo mundo tem ≤5 ads, ou não há tração, ou o nicho está morto, ou é muito novo.
-
-**Registro de elementos validados (por candidato):** além dos criativos em si, anote o que os ads escalados PROVAM que já funciona nesse mercado — porque isso muda a decisão de escolha do produto. Três tipos de elemento, sempre com a evidência de escala ao lado (aparições/duplicatas, tempo no ar):
-
-- **Mecanismo validado** — todo mecanismo nomeado (ou descrito) que aparece nos criativos escalados. Ex: "liberação de 8 horas" com 18 aparições há 200+ dias.
-- **Ângulo validado** — a razão de compra que os winners usam (problema, custo acumulado, comparação com a alternativa, identidade). Ex: "o ângulo de custo anual da alternativa sustenta 5 criativos escalados".
-- **Formato validado** — o tipo de criativo que domina os escalados (imagem estática de mecanismo, vídeo de demonstração, depoimento).
-
-Grave essa lista curta por candidato no relatório (3-8 itens). Ela é a semente da `validated_library` que a Skill 03 constrói em profundidade — e, mais importante aqui, é INSUMO DE ESCOLHA: um produto cujo mercado já validou mecanismos e ângulos fortes permite construir por recombinação (rota barata e de risco baixo da Skill 04); um produto sem nenhum elemento validado exige criar tudo do zero (rota cara e arriscada).
-
-### ETAPA 6 — Review Mining (Voice of Customer Preliminar)
-
-Pra cada produto ainda na lista, pesquise (descoberta via `WebSearch`; aprofundamento via `WebFetch` — se barrado, fetcher Playwright: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode reviews|reddit|text`, conforme rule `.claude/rules/resilient-fetch.md`; só então fallback manual de paste/screenshot):
-
-- **Amazon reviews** — pegue 4-star e 1-star reviews (as mais honestas). Foco: o que elogiam E o que reclamam. 4-star especialmente útil porque geralmente elogia MAS identifica um problema real que pode virar positioning. Se a página de reviews barrar o WebFetch, use `--mode reviews` (rola pra carregar os widgets lazy).
-- **Reddit** — procure em subreddits relevantes (r/SkincareAddiction, r/HairLoss, r/BuyItForLife, etc). Use busca: `"nome do produto" OR "categoria" site:reddit.com`. Reddit bloqueia fetch direto por IP — pra abrir o thread inteiro, sempre `--mode reddit`.
-- **TikTok comments** — nos próprios ads dos concorrentes identificados na Etapa 5. Comentários em viral posts (#nomedoproduto) também.
-- **Fóruns** específicos do nicho (ex: realself.com pra beauty, forum.bodybuilding.com ou r/fitness / r/xxfitness pra fitness)
-- **"Tired of" + "tried everything" shortcuts**: buscar essas frases + categoria revela a exata frustração da pessoa pronta pra comprar
-
-Extraia e organize:
-- **DORES** — o que reclamam sobre produtos similares (com frequência de menção)
-- **DESEJOS** — o que querem que o produto faça (com intensidade)
-- **OBJEÇÕES** — o que impede de comprar (medo, preço, ceticismo, experiência ruim anterior)
-- **LINGUAGEM EXATA** — frases literais dos consumidores. Mínimo 10-15 frases que vão direto pra copy e criativos depois. NÃO parafrasear.
-- **GAPS** — reclamações recorrentes que NENHUM concorrente está resolvendo
-
-### ETAPA 7 — Validação de Eficácia (Gimmick Check)
-
-**Sistema a puxar nesta etapa (rode a `best_query` exata):** **Conviction Test (o produto realmente funciona?)** (rode `conviction test claude gpt chin slimmer placebo body shaper funciona refund rate`) — o teste de convicção que separa produto que entrega de placebo (os casos do chin slimmer e do body shaper), inclusive perguntando a modelos de AI. Produto que não funciona volta em forma de refund rate. Aplique junto dos checks abaixo.
-
-Pra cada produto, pesquise (web search):
-
-- O produto realmente funciona como promete?
-- Tem estudos clínicos, evidências publicadas, ou consensus científico?
-- Consulte PubMed, Google Scholar, ou reviews de especialistas
-- Veja o sentimento nos reviews 1-star: "não funcionou" aparece muito?
-
-Classifique:
-- **FUNCIONA COMPROVADAMENTE** (estudos + reviews consistentes) → VERDE
-- **FUNCIONA PARCIALMENTE** (funciona pra alguns, não pra outros, ou com condições) → AMARELO — precisa gerenciar expectativas
-- **GIMMICK** (zero evidência, reviews inconsistentes, promessa fantasiosa) → DESCARTA
-
-Não venda placebo, não venda fraude. Mesmo que tenha demanda, o long-term é insustentável.
-
-### ETAPA 8 — Análise Estratégica Completa
-
-**Estágio AUTO (frameworks da base Aura).** Esta é a etapa onde os frameworks geram o insight final — mecanismo único possível e avatar underserved saem do raciocínio sobre os frameworks, sem depender de dado colado. Aplique TODOS em sequência pra cada produto remanescente.
-
-**Puxe os SISTEMAS NOMEADOS desta etapa ANTES de raciocinar (rode a `best_query` de cada um, nunca query genérica — índice completo em `.claude/lib/kb-index/`):**
+**Puxe os SISTEMAS NOMEADOS desta etapa ANTES de raciocinar (rode a `best_query` de cada um — índice completo em `.claude/lib/kb-index/`):**
 - **Schwartz Mass Desire Theory + 3-Stage Channeling** (rode `Schwartz mass desire theory channeling urgency staying power scope`) → sub-passo 1 (Magnitude).
-- **Three Factors That Determine Product Difficulty** (rode `three factors determine difficulty desire magnitude market awareness sophistication`) → enquadra os sub-passos 1-3 (são os 3 fatores).
-- **Cashvertising Life-Force 8 (LF8)** (rode `Cashvertising Life-Force 8 LF8 Whitman biological desires`) + **Six Mass Instincts** (rode `six mass instincts health sex status belonging control comfort technological problems`) → qual instinto biológico o desejo ataca (calibra Magnitude pra FORTE vs MÉDIO).
-- **Hormozi Starving Crowd / Market Selection (4 Indicators)** (rode `Hormozi starving crowd market selection four indicators massive pain purchasing power`) → valida que o mercado tem dor massiva + poder de compra antes de pontuar.
-- **Schwartz 5 Levels of Product-Market Awareness** (rode `Schwartz five stages of awareness Unaware Problem Solution Product Most aware`) + **AI Deep-Research Market Awareness Prompt** (rode `deep research prompt market awareness TAM percentage distribution final selection`) → sub-passo 2 (distribuição de awareness por % do TAM).
-- **Schwartz 5 Stages of Market Sophistication** (rode `Schwartz market sophistication 5 stages mechanism claims`) → sub-passo 3 (estágio + resposta estratégica certa).
-- **Two Forms of Differentiation (Mechanism vs Avatar Innovation)** (rode `two forms of differentiation mechanism innovation avatar innovation overlooked avatar`) → sub-passos 4 e 5 (UMP e avatar underserved são as duas formas).
-- **Ries & Trout: Cherchez le Creneau (8 Holes in the Mind)** (rode `Ries Trout cherchez le creneau eight holes in the mind size price age`) → sub-passo 5 (achar a brecha de posicionamento/avatar livre).
-- **Auditoria de Produto / 8-Figure Blueprint (o produto como multiplicador)** (rode `auditoria de produto fraquezas forcas unico so contam forcas que o mercado valoriza`) → enquadra os sub-passos 4-7: mapear forças, fraquezas e o que o produto tem de único, contando SÓ as forças que o mercado de fato valoriza — o próprio produto é multiplicador do resultado de marketing, não detalhe.
+- **Three Factors That Determine Product Difficulty** (rode `three factors determine difficulty desire magnitude market awareness sophistication`) → enquadra os sub-passos 1-3.
+- **Cashvertising Life-Force 8 (LF8)** (rode `Cashvertising Life-Force 8 LF8 Whitman biological desires`) + **Six Mass Instincts** (rode `six mass instincts health sex status belonging control comfort technological problems`) → qual instinto biológico o desejo ataca (calibra Magnitude).
+- **Hormozi Starving Crowd / Market Selection (4 Indicators)** (rode `Hormozi starving crowd market selection four indicators massive pain purchasing power`) → dor massiva + poder de compra.
+- **Halbert Market-First Thinking / Product-Market Inversion** (rode `Halbert market-first thinking product-market inversion starving crowd`) + **Halbert RFU** (rode `Halbert RFU recency frequency unit of sale buyer evaluation`) → o mercado compra com frequência? o unit-of-sale sustenta AOV/recompra?
+- **Schwartz 5 Levels of Product-Market Awareness** (rode `Schwartz five stages of awareness Unaware Problem Solution Product Most aware`) + **AI Deep-Research Market Awareness Prompt** (rode `deep research prompt market awareness TAM percentage distribution final selection`) → sub-passo 2.
+- **Schwartz 5 Stages of Market Sophistication** (rode `Schwartz market sophistication 5 stages mechanism claims`) → sub-passo 3.
+- **Two Forms of Differentiation (Mechanism vs Avatar Innovation)** (rode `two forms of differentiation mechanism innovation avatar innovation overlooked avatar`) → sub-passos 4 e 5.
+- **Ries & Trout: Cherchez le Creneau (8 Holes in the Mind)** (rode `Ries Trout cherchez le creneau eight holes in the mind size price age`) + **Positioning Strategies** (rode `positioning strategies being first against the leader repositioning by attribute by user`) → sub-passo 5.
+- **Brunson Market Depth Model** (rode `Brunson Expert Secrets market depth core market submarket niche three levels`) → define em que nível (core / submercado / nicho) a jogada entra.
+- **Market Cyclicality** (rode `market cyclical 2-3 years markets retrace swipe file recycle past`) + **3 tipos de tendência** (rode `tendencia de conteudo consumo marketing criterio decisivo entrada nicho`) → cruza com a leitura do Trends (ETAPA 2).
+- **Auditoria de Produto / 8-Figure Blueprint** (rode `auditoria de produto fraquezas forcas unico so contam forcas que o mercado valoriza`) → só contam forças que o mercado de fato valoriza.
+- **Avatar Selection Matrix** (rode `avatar selection matrix desire magnitude competition level quick kill framework`) → sub-passo 5.
 
-**1. Magnitude do Desejo** (Schwartz / Breakthrough Advertising):
-- **FRACO**: desejos superficiais (organizar mesa, gerenciar cabos) → preço baixo, volume alto, persuasão muito pesada pra justificar ads pagos. Geralmente inviável.
-- **MÉDIO**: qualidade de vida (melhor sono, mais energia, reduzir estresse) → viável com preço médio e storytelling forte.
-- **FORTE**: desejos universais (perder peso, atrair sexo oposto, eliminar dor crônica, reverter envelhecimento, fazer dinheiro) → ticket alto viável, persuasão mínima, crowd pronta pra comprar.
+Aplique em sequência pra cada finalista:
 
-O produto precisa atacar um desejo MÉDIO ou FORTE pra ser viável com budget de ads. Se é FRACO, descarta (ou marca como inviável com o budget atual).
+**1. Magnitude do Desejo** — FRACO (organizar mesa) / MÉDIO (dormir melhor, mais energia) / FORTE (perder peso, dor crônica, envelhecimento, dinheiro, atração). Supplements quase sempre caem em MÉDIO-FORTE; documente qual instinto do LF8 o problema ataca.
 
-**2. Market Awareness — 5 Níveis de Schwartz**:
+**2. Market Awareness** — estime a distribuição do TAM pelos 5 níveis de Schwartz. A distribuição dita o funil: maioria Problem Aware → advertorial/listicle; Solution Aware → landing com mecanismo; Product Aware → PDP robusta; Most Aware → PDP enxuta. O tipo de LP mais escalada de cada marca (ETAPA 1) é a pista mais forte de onde o mercado está.
 
-Estime a distribuição do TAM (Total Addressable Market) por nível:
-- Unaware (não sabe que tem o problema)
-- Problem Aware (sabe do problema, não sabe de soluções)
-- Solution Aware (conhece soluções genéricas, não a sua)
-- Product Aware (conhece seu tipo de produto, comparando)
-- Most Aware (conhece sua marca especificamente)
+**3. Market Sophistication** — pelos claims que os finalistas usam: estágio 1-2 (claim direto ainda funciona), 3 (precisa de mecanismo nomeado), 4 (mecanismo saturou, precisa de informação nova/mecanismo expandido), 5 (identificação). Liste os claims e mecanismos **saturados** (os do pool com 3+ marcas) — são os que a jogada precisa evitar ou superar.
 
-A distribuição dita o tipo de funil e copy necessários:
-- MAIORIA em Problem Aware → advertorial ou listicle (educação antes do pitch)
-- MAIORIA em Solution Aware → landing page com comparação e mecanismo
-- MAIORIA em Product Aware → PDP robusta com reviews, garantia, comparação
-- MAIORIA em Most Aware → PDP enxuta direto à oferta
+**4. Possibilidade de mecanismo por recombinação** — o filtro S.I.N. (Simple / Intuitive / New) sobre cada mecanismo candidato que sai da ETAPA 6: dá pra explicar em 1-2 frases? faz sentido imediato sem exigir fé? soa novo pro mercado (mesmo que a ciência seja antiga)? Mecanismo que nasce de elemento validado fica no topo da faixa que o S.I.N. der; mecanismo que só existiria por criação original **não entra** nesta skill.
 
-Se o mercado é majoritariamente Unaware/Problem Aware, a conversão é MAIS CARA mas o TAM é MAIOR. Documenta.
+**5. Avatar underserved** — todos os finalistas falam com o mesmo público? Existe segmento ignorado (45+, homens, quem usa GLP-1, atletas amadores, mães no pós-parto…)? O buraco de avatar é uma das duas formas de diferenciar — e é a mais barata, porque não muda o produto.
 
-**3. Market Sophistication — 5 Estágios**:
+**6. Potencial de oferta** — dá pra montar stack (bundle + bump + upsell) que chegue em AOV ≥ $60 com folga? Tem produto complementar óbvio? O formato permite premium?
 
-Analise os claims que os concorrentes já usam (da Etapa 5):
-- **Estágio 1** (virgin market): "eu tenho X" funciona. Raramente existe hoje.
-- **Estágio 2**: claim direto com superlativo ("MAIS eficaz", "MAIS barato"). Ainda funciona em nichos novos.
-- **Estágio 3**: claims diretos ficaram saturados — precisa de **mecanismo único** (ingrediente, processo, tecnologia com nome próprio).
-- **Estágio 4**: mecanismos ficaram saturados — precisa de **nova informação** ou mecanismo expandido (causa raiz nova, descoberta recente).
-- **Estágio 5**: tudo saturado — precisa de **identificação** (falar com quem a pessoa quer SE TORNAR, não com o problema).
+**7. Potencial criativo** — os ângulos abertos (do pool) rendem hooks? O produto/mecanismo é demonstrável em vídeo? UGC é viável?
 
-Liste os claims saturados que devem ser EVITADOS. Defina a resposta estratégica certa pro estágio (mecanismo novo? informação nova? identificação?).
+### ETAPA 6 — Jogadas de recombinação (o que fazer diferente)
 
-**4. Possibilidade de Mecanismo Único** (mecanismo único do problema/da solução — UMP/UMS):
+É a etapa que responde a pergunta do membro. Pra cada finalista (ou pra cada oportunidade que o pool revelar), monte **2-3 jogadas** usando os padrões abaixo. Toda jogada nomeia **cada elemento usado, de qual marca veio e com que evidência de escala** — jogada sem lastro de validação em alguma ponta não é jogada, é aposta.
 
-> Sistema-base deste sub-passo: **Two Forms of Differentiation — Mechanism Innovation** (já puxado no topo da ETAPA 8, rode `two forms of differentiation mechanism innovation avatar innovation overlooked avatar` se ainda não puxou). O mecanismo é a primeira das duas formas de diferenciar.
+**Os 4 padrões de recombinação:**
 
-Aplique o filtro S.I.N. (Simple / Intuitive / New — o mesmo da Skill 04 e do kb-index):
-- **Simple** — dá pra explicar em 1-2 frases que qualquer pessoa entende?
-- **Intuitive** — faz sentido imediato ("ah, é ÓBVIO que isso funciona") sem exigir fé?
-- **New** — soa novo pro mercado (mesmo que a ciência subjacente seja antiga)?
+1. **Mesmo mecanismo validado (não saturado) + outro ângulo, formato de produto ou posicionamento.** Ex: a marca A escala "8-hour release magnesium" em cápsula pra insônia com ângulo de "wake up at 3am"; a jogada é o mesmo mecanismo em **pó pra mulheres 45+ na perimenopausa**, com ângulo de "hot flashes at night". O mecanismo já provou; o avatar e o formato são novos.
+2. **Mecanismo do problema da marca A + mecanismo da solução da marca B (mesmo nicho).** Ex: A explica o problema como "gut lining damage" (e vende probiótico comum); B vende "butyrate" (com explicação fraca do problema). A jogada casa a explicação forte de A com o ativo validado de B — ninguém no mercado conta essa história inteira.
+3. **Trocar o mecanismo mantendo o ângulo.** Ex: o ângulo "I tried every sleep supplement and nothing worked" escala pra marca A com melatonina (ingrediente em pico/saturado); a jogada mantém o ângulo e usa **um mecanismo validado por outra marca** (ex: glycine + apigenin, que a marca C escala com ângulo diferente). É a jogada certa quando o Trends mostra ingrediente em pico recente.
+4. **Aprimorar um mecanismo validado** (o máximo de invenção permitido). Pegue um mecanismo que já escala e leve pro próximo nível de sophistication: mais específico (dose, forma, timing), mais crível (um elemento novo de explicação), mais completo (o passo que a marca original não explica). Mantém o ângulo que o mercado já compra. Ex: "magnesium glycinate" → "3-form magnesium timed for the 3 sleep phases".
 
-Consigo criar um mecanismo proprietário baseado em algo REAL do produto (ingrediente, feature, processo, combinação única)? Dê 1-2 exemplos preliminares (detalhe completo na Skill 04).
+**Regras duras:**
 
-**Avalie também POR QUAL ROTA esse mecanismo nasceria** — usando os elementos validados registrados na ETAPA 5. São as mesmas rotas que a Skill 04 executa depois (Rota A/B da ETAPA 2A dela); aqui a pergunta é se o candidato DÁ matéria-prima pra rota barata:
+- **Nunca clonar**: mesma combinação de mecanismo + ângulo + formato + posicionamento de uma marca escalada = leilão contra quem já tem histórico. Se a jogada não muda pelo menos DUAS peças (ou aprimora o mecanismo de forma visível), não é jogada.
+- **Nunca criar do zero**: mecanismo, formato ou ângulo que nenhuma marca escalada validou não entra. O máximo é o padrão 4.
+- **Saturação respeitada**: elemento com 3+ marcas no mesmo ângulo só entra com ângulo/formato diferente ou aprimorado.
+- **O Trends manda no ingrediente**: ingrediente em pico recente ou hype só entra via padrão 3 (troca) ou 4 (aprimoramento com timing/forma diferente).
+- **A oferta faz parte da jogada**: toda jogada declara a estrutura de oferta (bundle/assinatura/upsell) que sustenta AOV ≥ $60 — e de qual marca essa estrutura foi validada.
 
-- **Aprimorar mecanismo validado (mantendo o ângulo):** existe mecanismo já escalado por concorrente que dá pra levar pro próximo nível — mais específico, mais crível, com um elemento novo — mantendo o ângulo que o mercado já compra? (validação pré-existente nas duas pontas; a rota mais barata)
-- **Mesmo mecanismo com OUTRO ângulo validado:** existe mecanismo validado que dá pra cruzar com um ângulo validado de outra marca ou vertical adjacente? (combinação única, porém pré-validada nas duas pontas)
-- **Criação original:** nenhum elemento validado aproveitável — o mecanismo teria que nascer do zero. É legítimo (e às vezes é a jogada, ex: mercado em estágio 5 de sofisticação), mas custa mais teste e mais risco.
+Pra cada jogada, escreva em texto corrido (report_language) **por que ela tem potencial**: qual elemento carrega a validação, o que é novo, por que o mercado deve comprar a combinação, e o que a diferencia de cada finalista que usa peças parecidas. É esse texto que o membro lê pra decidir.
 
-Produto que sustenta as duas primeiras rotas vale mais no ranking do que produto que obriga a terceira — outras marcas já pagaram o custo de validar as peças.
-
-**5. Oportunidade de Avatar Underserved**:
-
-Dos concorrentes analisados, todos falam com o mesmo público? Existe segmento ignorado (ex: todos falam com mulheres 25-35, ninguém fala com 45+; todos focam em iniciantes, ninguém foca em avançados; todos falam com o problema funcional, ninguém fala com a identidade por trás)?
-
-**6. Potencial de Oferta**:
-- Dá pra criar stack de valor convincente (bundle com savings claros)?
-- Tem produto complementar pra bump/upsell?
-- AOV potencial projetado?
-- Consigo justificar preço premium com o mecanismo único?
-
-**7. Potencial Criativo**:
-- Tem storytelling possível (fundador, jornada, transformação)?
-- Tem ângulos que os concorrentes NÃO usam (identificados nos gaps da Etapa 6)?
-- Tem visual demonstrável (before/after, demo, ingredient drop)?
-- UGC viável com custo razoável?
-
-### ETAPA 9 — Ranking Final
+### ETAPA 7 — Ranking Final (eixos de score)
 
 Inclua no topo do output desta etapa:
 
@@ -370,149 +316,217 @@ Formula:
   — Min aceitável pra TESTAR: ≥ 7.5. Min aceitável pra TALVEZ: 6.0-7.4. Abaixo de 6.0 → DESCARTA.
 ```
 
-**Definição explícita de cada sub-score (use literalmente — elimina drift entre rodadas):**
+O objeto rankeado é a **oportunidade**: a marca finalista **com a sua melhor jogada** (ETAPA 6). Uma marca pode aparecer duas vezes se duas jogadas dela forem realmente distintas.
 
-- **Magnitude** (do desejo, ETAPA 8.1): FRACO = 2-3 · MÉDIO = 5-7 · FORTE = 8-10.
-- **Sophistication** = FACILIDADE de diferenciação dado o estágio (sentido INVERTIDO do stage: quanto mais cedo o mercado, mais fácil diferenciar, maior o score). Stage 1-2 = 9-10 · Stage 3 = 6-7 · Stage 4 = 4-5 · Stage 5 = 2-3.
-- **AwarenessFit** = quão bem o funil/copy viável bate com a distribuição de awareness dominante (ETAPA 8.2) e o budget do membro: distribuição majoritária em Most/Product Aware (PDP direta, conversão barata) = 8-10 · Solution Aware (landing com mecanismo) = 6-7 · Problem Aware (advertorial/listicle, conversão mais cara mas TAM maior) = 4-6 · majoritariamente Unaware = 2-3.
-- **UMPotential** = score do filtro S.I.N. da ETAPA 8.4 — média dos 3 componentes **Simple / Intuitive / New** (simplicity/intuitiveness/novelty, como no `sin_score` da Skill 04) do mecanismo possível, 1-10 cada — **ajustado pela rota de origem** (avaliação de rota da mesma ETAPA 8.4): mecanismo que nasce aprimorando um validado ou cruzando validado × ângulo validado fica no topo da faixa que o S.I.N. deu; mecanismo que só existe por criação original fica na metade de baixo da faixa. Elementos já validados por outras marcas reduzem o risco do teste — o score precisa refletir isso.
-- **AvatarFit** = força do avatar underserved da ETAPA 8.5 (segmento ignorado claro e alcançável = alto; todos os concorrentes já falam com o mesmo público sem brecha = baixo).
-- **OfferPotential** = potencial de stack/bundle/bump e AOV projetado da ETAPA 8.6.
-- **CreativePotential** = ângulos não-usados + demonstrabilidade visual + viabilidade de UGC da ETAPA 8.7.
-- **TrendFit** (bucket da ETAPA 3 → número): QUEDA = 2 · FLAT = 6 · SUBINDO = 9 · SPIKE = 5.
+**Definição de cada sub-score (use literalmente):**
 
-Crie um ranking dos produtos sobreviventes com score de 1-10 em cada dimensão:
+- **Magnitude** (ETAPA 5.1): FRACO = 2-3 · MÉDIO = 5-7 · FORTE = 8-10.
+- **Sophistication** = FACILIDADE de diferenciação dado o estágio (sentido INVERTIDO): Stage 1-2 = 9-10 · Stage 3 = 6-7 · Stage 4 = 4-5 · Stage 5 = 2-3.
+- **AwarenessFit** = quão bem o funil viável bate com a distribuição dominante (ETAPA 5.2) e o budget do membro: Most/Product Aware (PDP direta) = 8-10 · Solution Aware (landing com mecanismo) = 6-7 · Problem Aware (advertorial, TAM maior, conversão mais cara) = 4-6 · Unaware = 2-3.
+- **UMPotential** = média S.I.N. (Simple / Intuitive / New, 1-10 cada) do mecanismo da jogada, **ajustado pelo padrão de recombinação**: padrão 1 ou 2 (duas pontas validadas) fica no topo da faixa; padrão 3 (troca) no meio; padrão 4 (aprimoramento) no topo se o aprimoramento for específico e demonstrável, senão no meio.
+- **AvatarFit** = força do avatar underserved (ETAPA 5.5): segmento ignorado claro e alcançável = alto; todos já falam com o mesmo público sem brecha = baixo.
+- **OfferPotential** = stack/bundle/bump e AOV projetado (ETAPA 5.6).
+- **CreativePotential** = ângulos abertos + demonstrabilidade + viabilidade de UGC (ETAPA 5.7).
+- **TrendFit** (cenário da ETAPA 2 → número): problema SUBINDO + ingrediente ESTÁVEL ou SUBINDO 6+ meses = 9-10 · ESTÁVEL + ESTÁVEL = 6 · problema SUBINDO + ingrediente em PICO RECENTE = 5 (a jogada precisa ser padrão 3 ou 4) · HYPE (subida vertical 1-3 meses) = 4 · QUEDA de 12+ meses em qualquer termo = a marca já foi eliminada antes do ranking.
 
-| Produto | Magnitude | Awareness Fit | Sophistication | UM Potential | Avatar | Offer | Creative | Trend | **Total** |
-|---|---|---|---|---|---|---|---|---|---|
+Tabela do ranking:
 
-Score final = média ponderada documentada acima. Apresente o cálculo numericamente pra pelo menos o Top 3.
+| # | Marca (oportunidade) | Jogada recomendada | Magnitude | Awareness | Sophist. | UM | Avatar | Offer | Creative | Trend | **Total** | Veredicto |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
 
-> **Cross-check do ranking com o sistema de validação final** (rode `final validation Gemini GPT Perplexity Kimi rank products scale potential unique mechanism`): a base traz o protocolo **AI Final-Validation Ranking** que cruza scale potential × mecanismo único — use os critérios dele pra sanity-check do Top 3 antes de cravar o veredicto, garantindo que o produto #1 tem escala E diferenciação, não só um ou outro.
+Apresente o cálculo numericamente pra pelo menos o Top 3.
 
-> **Segundo cross-check — template de go/no-go** (rode `avaliar produto magnitude de desejo awareness 1 a 5 competition 1 a 5 go no go`): a base traz o **Product Evaluation Framework (Desire × Awareness × Sophistication + Selection Template)** — os mesmos três eixos da ETAPA 8 em notas de 1 a 5, fechando num go/no-go pelo template de seleção. Rode o template pro Top 3 e confirme que o veredicto TESTAR/TALVEZ/DESCARTAR bate com o go/no-go do sistema; se divergir, re-examine o score antes de cravar.
+> **Cross-check do Top 3 com o sistema de validação final** (rode `final validation Gemini GPT Perplexity Kimi rank products scale potential unique mechanism`): o **AI Final-Validation Ranking** cruza potencial de escala × mecanismo único — use os critérios dele pra confirmar que a #1 tem escala E diferenciação, não só um dos dois.
 
-**Validação de mínimo (bloqueadora)**: se NENHUM produto atingiu score ≥ 6.0, **NÃO** declare "research completo". Em vez disso:
+> **Segundo cross-check — template de go/no-go** (rode `avaliar produto magnitude de desejo awareness 1 a 5 competition 1 a 5 go no go`): o **Product Evaluation Framework (Desire × Awareness × Sophistication)** em notas de 1 a 5. Rode pro Top 3; se o go/no-go divergir do veredicto, re-examine o score antes de cravar.
 
-1. Liste por que cada candidato falhou (o filtro ou score dominante).
-2. Sugira **3 novos candidatos** alinhados ao perfil do membro (budget, tools, interesse declarado) via web search em Meta Ad Library + TikTok Shop + Amazon Best Sellers. Pra escolher a nova leva, aplique **Hormozi Starving Crowd / Market Selection (4 Indicators)** (rode `Hormozi starving crowd market selection four indicators massive pain purchasing power`) e **Halbert Market-First Thinking** (rode `Halbert market-first thinking product-market inversion starving crowd`) — comece pelo mercado faminto, não pelo produto.
-3. Retorne à Etapa 2 com essa nova leva. Repita até haver pelo menos 1 produto TESTAR ou o membro optar explicitamente por parar.
+**Validação de mínimo (bloqueadora):** se NENHUMA oportunidade atingiu ≥ 6.0, **NÃO** declare "research completo". Liste por que cada uma falhou (o filtro ou score dominante), volte ao TrendTrack com o filtro de nicho ajustado (sub-nicho vizinho, ou o mesmo nicho com `Growth rank` em `last30d`) e repita a partir da ETAPA 0.5 até haver pelo menos 1 TESTAR — ou o membro optar por parar.
 
-Pra CADA produto mostre:
+Pra CADA oportunidade do ranking:
 
-**[Nome do Produto] — Score: X.X/10 — Veredicto: TESTAR / TALVEZ / DESCARTAR**
+**[Marca → Jogada] — Score: X.X/10 — Veredicto: TESTAR / TALVEZ / DESCARTAR**
 
-- **3 razões principais pra testar** (com fundamento em frameworks)
-- **3 riscos principais** (com mitigação sugerida)
-- **Ângulo de diferenciação sugerido** (1 frase)
-- **Nível de dificuldade**: FÁCIL / MÉDIO / DIFÍCIL (considerando sophistication stage + budget do membro)
+- **O que fazer diferente** (a jogada em 2-4 frases, com os elementos e as marcas de origem)
+- **Por que tem potencial** (o texto corrido da ETAPA 6)
+- **3 riscos principais** (com o que fazer sobre cada um)
+- **Nível de dificuldade**: FÁCIL / MÉDIO / DIFÍCIL (sophistication stage + budget do membro)
 
-Veredito:
-- **TESTAR**: score ≥ 7.5, zero DESCARTA em nenhum filtro, alinha com budget do membro
-- **TALVEZ**: score 6.0-7.4, tem flags mas viável com ajustes
-- **DESCARTAR**: score < 6.0 OU falhou em filtro crítico
+Veredicto: **TESTAR** ≥ 7.5 e sem eliminação em Trends/Trustpilot · **TALVEZ** 6.0-7.4 · **DESCARTAR** < 6.0.
 
-> **Demanda real sem estoque (sistema a puxar — rode a `best_query` exata):** pra de-riskar um TESTAR antes de comprar estoque, ou pra desempatar um TALVEZ com dado real em vez de score, puxe **Validação de demanda sem estoque (teste com refund)** (rode `testar demanda em mercado novo uma semana e reembolsar tudo pre order 50 off 60 dias`) — abrir pré-venda por uma semana (50% off, prazo de 60 dias) sem ter estoque e reembolsar todos os pedidos no fim: o volume vendido mede a demanda real. Ofereça ao membro como passo opcional de validação antes do compromisso com fornecedor.
+### ETAPA 8 — Plano Preliminar pra Oportunidade #1
 
-### ETAPA 10 — Plano Preliminar pro Produto #1
+Pra oportunidade com maior score, entregue um plano inicial (detalhado depois nas skills 02-04):
 
-Pro produto com maior score, entregue um plano inicial (detalhado depois nas skills 02-04):
-
-**Mecanismo Único Sugerido:**
+**Mecanismo sugerido (da jogada):**
 - Nome proprietário (2-4 palavras, memorável)
-- Explicação de 2-3 frases (como funciona, por que diferente)
-- Ingrediente/feature/processo base (a coisa REAL do produto)
+- Explicação em 2-3 frases (como funciona, por que diferente)
+- Ingrediente/forma/processo base — e **de qual marca cada peça foi validada**
 
-**Avatar Principal Sugerido:**
+**Avatar principal sugerido:**
 - Quem é (demografia rápida)
-- Dor central (frase exata tirada do review mining)
-- Desejo central (frase exata)
+- Dor central (frase literal do Trustpilot/reviews, em inglês)
+- Desejo central (frase literal)
 - Trigger event típico (o que faz comprar AGORA)
 
-**Estrutura de Oferta Preliminar:**
+**Estrutura de oferta preliminar** (validada pela estrutura das marcas do pool):
 - Produto base: $X
-- Bundle sugerido: 2-pack ou 3-pack com savings
-- Bump sugerido: produto complementar de $Y
-- Guarantee sugerido (tipo + duração)
+- Bundle: 2-pack / 3-pack com savings
+- Assinatura: sim/não e %
+- Bump / upsell sugeridos
+- Garantia (tipo + duração)
 - AOV projetado
 
-**3 Hooks de Criativo (ângulos que os concorrentes NÃO usam):**
-- Hook 1: [texto + tipo de criativo sugerido]
+**3 hooks de criativo (ângulos abertos no pool — em inglês US):**
+- Hook 1: [texto + tipo de criativo]
 - Hook 2: [texto + tipo]
 - Hook 3: [texto + tipo]
 
-**Próximo passo recomendado:**
-"Diga 'market research' pra aprofundar na pesquisa do [produto] e montar o Unified Research Brief que vai alimentar copy, oferta, e criativos."
+**Sourcing:** se a jogada usa fórmula validada por outra marca, o caminho mais curto costuma ser fórmula pronta / white label — a Skill 01b fecha o custo real.
 
-## SALVAR (dual output — rule 6b do CLAUDE.md)
+## SALVAR
 
 **Antes de qualquer write**, garanta: `mkdir -p workspace/[produto]/01-product-research/`.
 
-Salve em DOIS arquivos dentro de `workspace/[produto]/` (onde `[produto]` = slug do PRODUTO VENCEDOR, não do produto original da pesquisa — assim as fases seguintes salvam no mesmo lugar):
+`[produto]` = slug da **oportunidade vencedora** (não o placeholder do setup) — assim as fases seguintes salvam no mesmo lugar.
+
+### 1. Banco de marcas — Notion (caminho preferido) ou HTML
+
+**Se há Notion MCP** (escolha `notion` na ETAPA 0):
+
+1. Crie uma página-mãe privada: `Aura — Product Research — [nicho] — [YYYY-MM-DD]` (tool de criar página; sem parent nomeado, cria como página privada do membro — diga isso a ele e ofereça mover).
+2. Dentro dela, crie o **banco de dados de marcas** (tool de criar database, parent = a página-mãe) com estas propriedades:
+
+   ```
+   CREATE TABLE (
+     "Marca" TITLE,
+     "Site" URL,
+     "Status" SELECT('Pré-selecionada':gray, 'Finalista':green, 'Eliminada':red),
+     "Ranking" NUMBER,
+     "Score" NUMBER,
+     "Veredicto" SELECT('TESTAR':green, 'TALVEZ':yellow, 'DESCARTAR':red),
+     "Nicho" RICH_TEXT,
+     "Produto" RICH_TEXT,
+     "Formato do produto" RICH_TEXT,
+     "Preço base" NUMBER FORMAT 'dollar',
+     "AOV estimado" NUMBER FORMAT 'dollar',
+     "Visitas/mês" NUMBER,
+     "LP mais escalada" URL,
+     "Tipo de LP" SELECT('Advertorial':blue, 'Listicle':blue, 'PDP':gray, 'Landing dedicada':purple, 'Quiz':orange),
+     "Ads mais escalados" RICH_TEXT,
+     "Dias no ar (ad mais antigo)" NUMBER,
+     "Formato de criativo" SELECT('Imagem native':blue, 'Vídeo UGC':purple, 'Vídeo talking head':purple, 'Demo':gray, 'Misto':gray),
+     "Mecanismo do problema" RICH_TEXT,
+     "Mecanismo da solução" RICH_TEXT,
+     "Ingrediente / ativo" RICH_TEXT,
+     "Ângulo principal" RICH_TEXT,
+     "Avatar" RICH_TEXT,
+     "Trustpilot" URL,
+     "Trustpilot nota" NUMBER,
+     "Trustpilot reviews" NUMBER,
+     "Trustpilot veredito" SELECT('OK':green, 'Cobrança/entrega':yellow, 'Eficácia — eliminar':red, 'Sem fonte':gray),
+     "Trends problema" SELECT('Subindo':green, 'Estável':gray, 'Pico recente':yellow, 'Hype':orange, 'Queda':red),
+     "Trends ingrediente" SELECT('Subindo':green, 'Estável':gray, 'Pico recente':yellow, 'Hype':orange, 'Queda':red),
+     "Cenário" RICH_TEXT,
+     "O que fazer diferente" RICH_TEXT,
+     "Fonte" SELECT('TrendTrack MCP':blue, 'Manual':gray),
+     "Pesquisado em" DATE
+   )
+   ```
+
+3. **Uma página por marca** no banco (tool de criar páginas, parent = data source do banco). Propriedades preenchidas + **conteúdo da página** com a ficha completa: tabela dos ads mais escalados (link do ad, link da mídia, dias no ar, duplicatas, formato, hook, ângulo), leitura da LP (headline, promessa, mecanismos, prova, estrutura de oferta com a conta do AOV), leitura do Trends (os dois termos + cenário), Trustpilot (mix de temas + 5-10 frases literais com tradução livre), decomposição em elementos (ETAPA 4) e as jogadas da marca (ETAPA 6, com o texto de "por que tem potencial"). Texto integral — nunca truncar.
+4. **Uma página de síntese** dentro da página-mãe: `Ranking e recomendação` — a tabela do ranking (ETAPA 7), o pool de elementos validados (ETAPA 4), as jogadas rankeadas com o "por que" e o plano preliminar da #1 (ETAPA 8).
+5. Grave a URL da página-mãe em `manifest.product_research.notion_url` e cite na mensagem final.
+
+Vá criando as páginas de marca **conforme fecha cada ficha** (ETAPA 1), e atualize Status/Score/Veredicto no fim. Se uma chamada do Notion falhar (auth, rate limit), salve o restante em HTML (abaixo) e avise em 1 linha.
+
+**Se NÃO há Notion** (escolha `html`): salve `01-product-research/banco-de-marcas.html` — um HTML self-contained no design system `.claude/templates/aura-report-template.html` (copiar `<style>` + topbar com a logo SVG, NUNCA texto no lugar da logo), com **um card/seção por marca** contendo exatamente a mesma ficha completa descrita no item 3 (links clicáveis dos ads, mídia, LP e Trustpilot) e, no topo, a tabela-resumo de todas as marcas (status, score, veredicto, visitas, AOV, cenário, veredito Trustpilot, jogada). Texto integral, nunca truncar.
+
+**Nos dois casos**, salve também `01-product-research/banco-de-marcas.md` — a mesma ficha por marca em markdown. É o arquivo que as Skills 02 e 03 leem (concorrentes já identificados, VOC de review, mecanismos e ângulos validados).
+
+### 2. Relatório da pesquisa (dual output — rule 6b)
 
 1. **`01-product-research/product-research.md`** (a AI lê nas fases seguintes)
-2. **`01-product-research/product-research.html`** (visualização humana — use `.claude/templates/aura-report-template.html` como base, self-contained com CSS inline + logo SVG do Aura (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA substituir por texto))
+2. **`01-product-research/product-research.html`** (visualização humana — `.claude/templates/aura-report-template.html`, self-contained, logo SVG copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html`)
 
-Conteúdo de ambos:
-- Lista completa de todos os produtos analisados (mesmo os descartados, com razão)
-- Tabela de filtragem técnica (Etapa 2)
-- Resultados de Trends, Trademark, Meta Ad Library, Reviews (Etapas 3-6)
-- Validação de eficácia (Etapa 7)
-- Análise estratégica completa aplicando os 7 frameworks (Etapa 8)
-- Ranking final com scores e veredictos (Etapa 9) — incluindo timestamp e fórmula explícita
-- Plano preliminar pro produto #1 (Etapa 10)
+Conteúdo (na ordem — ficha primeiro, detalhe depois):
+1. **Resumo de 1 página**: a oportunidade #1 (marca-base → jogada), o mecanismo sugerido, por que funciona, o maior concorrente na mesma faixa, o score e os 3 riscos
+2. Ranking completo (ETAPA 7) com timestamp e fórmula explícita
+3. As jogadas de cada finalista com o "por que tem potencial" (ETAPA 6)
+4. Pool de elementos validados, com contagem de marcas e saturação (ETAPA 4)
+5. Análise estratégica dos finalistas (ETAPA 5)
+6. Resultados de Trends e Trustpilot por marca, incluindo as eliminadas com o motivo (ETAPAS 2-3)
+7. Plano preliminar da #1 (ETAPA 8)
+8. Lista completa das marcas pré-selecionadas (link pro banco de marcas no Notion ou pro `banco-de-marcas.html`)
 
-**Atualize o `manifest.json`** (fonte única de verdade):
+O doc segue `.claude/rules/report-only-results.md`: só o resultado — sem narração de processo, sem descrição de ausências, sem referência à conversa. Dado que veio colado pelo membro entra como dado, sem marcação.
 
-1. Se o `product_slug` do vencedor for diferente do slug temporário criado no setup:
-   - `mkdir -p workspace/[novo-slug]/`
-   - Mova (ou copie + remove) o manifest existente para o novo diretório
-   - Atualize `product_slug` e `product_name` com os valores do vencedor
-2. Adicione `"01-product-research"` ao array `skills_completed` (evite duplicatas)
-3. Atualize `updated_at` com o timestamp atual (ISO-8601 UTC)
-4. Grave (marcados como PRELIMINARES — a Skill 02 refina depois):
-   - `product_vertical` — vertical/nicho do vencedor
-   - `awareness_distribution` — distribuição estimada por nível de Schwartz da ETAPA 8.2 (objeto `{unaware, problem, solution, product, most}`)
-   - `sophistication_stage` — estágio de sophistication da ETAPA 8.3 (1-5)
-5. Preserve todos os campos preenchidos no setup (`budget_tier`, `product_url`, etc.)
-6. Regenera o painel do produto: `python3 .claude/lib/workspace-index/build_index.py <slug>` (onde `<slug>` = `product_slug` do vencedor — atualiza o `ABRIR-AQUI.html`).
+### 3. `01-product-research/dados.json` (AI-only, lido por 02/03/04)
 
-**Naming da marca — nome chiclete (antes de criar o brand.md):**
+```json
+{
+  "generated_at": "ISO-8601 UTC",
+  "niche": "health & supplements",
+  "source": "trendtrack_mcp | manual | mixed",
+  "notion_url": "https://... | null",
+  "filters_used": { "image": { }, "video": { } },
+  "brands": [
+    {
+      "brand": "...", "domain": "...", "monthly_visits": 0, "niche": "...", "product": "...", "format": "...",
+      "price_base": 0, "aov_estimated": 0, "offer_structure": { "bundles": [], "subscription_pct": 0, "bump": "...", "upsell": "...", "guarantee": "..." },
+      "lp_url": "...", "lp_type": "advertorial|listicle|pdp|landing|quiz",
+      "top_ads": [ { "url": "...", "media_url": "...", "days_running": 0, "ad_rank": 0, "duplicates": 0, "format": "image|video", "hook": "...", "angle": "..." } ],
+      "creative_format": "...", "problem_mechanism": "...", "solution_mechanism": "...", "ingredient": "...", "angle": "...", "avatar": "...",
+      "trustpilot": { "url": "...", "rating": 0, "reviews": 0, "complaint_mix": { "billing": 0, "delivery": 0, "support": 0, "efficacy": 0 }, "verdict": "ok|billing_delivery|efficacy_eliminate|no_source", "quotes": ["..."] },
+      "trends": { "problem_term": "...", "problem_class": "rising|flat|recent_peak|hype|decline", "ingredient_term": "...", "ingredient_class": "...", "scenario": "..." },
+      "status": "pre_selected|finalist|eliminated", "elimination_reason": "... | null"
+    }
+  ],
+  "validated_elements": [
+    { "type": "problem_mechanism|solution_mechanism|angle|product_format|positioning|creative_format|offer_structure", "name": "...", "brands": ["..."], "evidence": "...", "saturation": "open|saturated" }
+  ],
+  "plays": [
+    { "id": "play-01", "base_brand": "...", "pattern": 1, "description": "...", "elements": [ { "type": "...", "name": "...", "from_brand": "...", "evidence": "..." } ], "why_it_wins": "...", "offer_structure": "..." }
+  ],
+  "ranking": [ { "rank": 1, "brand": "...", "play_id": "play-01", "scores": { "magnitude": 0, "sophistication": 0, "awareness_fit": 0, "um_potential": 0, "avatar_fit": 0, "offer_potential": 0, "creative_potential": 0, "trend_fit": 0 }, "total": 0, "verdict": "TESTAR|TALVEZ|DESCARTAR" } ],
+  "winner": { "brand": "...", "play_id": "...", "mechanism_name": "...", "avatar": "...", "offer": { }, "hooks": ["..."] }
+}
+```
 
-As marcas que mais vendem têm nome chiclete: criativo, que gruda na primeira vez que a pessoa ouve, e amarrado ao conceito central do produto (o problema, o momento, o mecanismo, a tribo). Frameworks da base pra fundamentar (puxar por nome, com a best_query exata do kb-index): **Ries & Trout Naming as Positioning** (rode `Ries Trout name is the position own a word mind works by ear line extension`) — o nome é a ferramenta de posicionamento mais forte: dono de UMA palavra na cabeça do consumidor, funciona de ouvido; **Hopkins Naming Strategy Hierarchy** (rode `Hopkins naming hierarchy coined personal names substitution warning frivolous`) — hierarquia de tipos de nome (benefício/história > pessoal > cunhado) e o alerta contra nome frívolo em produto sério; **Proprietary Mechanism Naming (Gum Name)** (rode `proprietary mechanism gum name nickname ritual hack effect`) e **Big Idea (Paradoxical Question / Gum Name / Conspiracy Story)** (rode `Big Idea paradoxical question gum name conspiracy story`) — como cunhar o apelido que gruda e vira o embrulho emocional da marca.
+### 4. `manifest.json` (fonte única de verdade)
 
-- Gere 3-5 candidatos e recomende 1, com a lógica de cada um. O melhor candidato é o que gera VOCABULÁRIO próprio: rende verbo de campanha, status de cliente, apelido de mecanismo — um nome que só nomeia é fraco; um nome que cria linguagem carrega a marca inteira.
-- **O que É gate**: colisão direta na MESMA categoria com marca ativa vendendo (confusão real de consumidor).
-- **O que NÃO é gate no estágio de teste**: domínio exato ocupado (variação de domínio resolve); registro de marca ainda não feito (o custo de registro vem DEPOIS da validação com vendas, não antes); marca parecida em outra categoria que não fala do mesmo conceito. O check de trademark da ETAPA 4 informa o risco — não veta um nome genial pré-validação.
-- O membro decide. Grave o nome escolhido (e o vocabulário que ele gera) no `brand.md`.
+1. Se o `product_slug` do vencedor for diferente do slug temporário do setup: `mkdir -p workspace/[novo-slug]/`, mova o manifest, atualize `product_slug` e `product_name`.
+2. Adicione `"01-product-research"` a `skills_completed` (sem duplicar).
+3. Atualize `updated_at` (ISO-8601 UTC).
+4. Grave (PRELIMINARES — a Skill 02 refina): `product_vertical`, `awareness_distribution` (`{unaware, problem, solution, product, most}`), `sophistication_stage` (1-5), e o bloco `product_research: { "source": "trendtrack_mcp|manual|mixed", "notion_url": "...|null", "winner_play_id": "play-01", "base_brands": ["..."] }`.
+5. Preserve todos os campos do setup (`budget_tier`, `budget_daily`, etc.).
+6. Regenere o painel: `python3 .claude/lib/workspace-index/build_index.py <slug>`.
 
-**Crie o `brand.md` do vencedor** (se ainda não existir `workspace/[produto]/brand.md` — membros de situação B/C/D já ganharam o deles no setup):
+### 5. Naming da marca — nome chiclete (antes do brand.md)
 
-- Copie `.claude/templates/brand.md.template` pra `workspace/[produto]/brand.md`.
-- Preencha o que a pesquisa já sabe: `{{ PRODUCT_SLUG }}` (slug do vencedor), posicionamento preliminar (1 frase, do ângulo de diferenciação da ETAPA 9/10), atributos de tom sugeridos pelo nicho/avatar, e "o que NUNCA dizer" (claims saturados da ETAPA 8.3).
-- Paleta de cores, tipografia e logo ficam como `[preencher]` — o produto ainda não tem loja pra extrair identidade visual. A skill 07a (page design) lê este arquivo na brand discovery e só pergunta o que faltar.
-- Avise o membro: `"Criei workspace/[produto]/brand.md com o posicionamento preliminar. Cores/fontes/logo ficam pra fase de page."`
+As marcas que mais vendem têm nome chiclete: gruda na primeira vez que a pessoa ouve e está amarrado ao conceito central (o problema, o momento, o mecanismo, a tribo). Frameworks (puxar pela `best_query` do kb-index): **Ries & Trout Naming as Positioning** (rode `Ries Trout name is the position own a word mind works by ear line extension`); **Hopkins Naming Strategy Hierarchy** (rode `Hopkins naming hierarchy coined personal names substitution warning frivolous`); **Proprietary Mechanism Naming (Gum Name)** (rode `proprietary mechanism gum name nickname ritual hack effect`); **Big Idea** (rode `Big Idea paradoxical question gum name conspiracy story`).
 
-Se o slug mudou, informe ao membro: `"Produto vencedor: [nome]. Movi os artefatos para workspace/[novo-slug]/."`
+- Gere 3-5 candidatos e recomende 1, com a lógica de cada um. O melhor é o que gera VOCABULÁRIO próprio (verbo de campanha, status de cliente, apelido de mecanismo).
+- Os nomes são **sugestão** — o membro decide. Domínio ocupado se resolve com variação; registro de marca vem depois da validação com vendas, não antes.
+- Grave o nome escolhido (e o vocabulário que ele gera) no `brand.md`.
+
+### 6. `brand.md` do vencedor
+
+Se ainda não existir `workspace/[produto]/brand.md`: copie `.claude/templates/brand.md.template`, preencha `{{ PRODUCT_SLUG }}`, posicionamento preliminar (1 frase, da jogada vencedora), atributos de tom sugeridos pelo avatar, e "o que NUNCA dizer" (claims e mecanismos saturados do pool). Paleta, tipografia e logo ficam como `[preencher]` — a 07a lê e só pergunta o que faltar.
+
+Se o slug mudou, informe: `"Oportunidade vencedora: [marca-base → jogada]. Movi os artefatos para workspace/[novo-slug]/."`
 
 ## Mensagem Final
 
-Se houver produto TESTAR no ranking:
+Se houver TESTAR no ranking:
 
-"Product research completo. [Nome do produto] venceu com score X.X/10.
+"Product research completo. A oportunidade #1 é **[jogada]** (base: [marca], score X.X/10) — [1 frase do que fazer diferente].
 
-Plano preliminar salvo em `workspace/[produto]/01-product-research/product-research.md`. Alinhamento com budget: [starter/standard/escala-inicial/escala-avançada] — viável.
+Banco de marcas: [link do Notion | `workspace/[produto]/01-product-research/banco-de-marcas.html`] — [N] marcas pré-selecionadas, [M] finalistas, [K] eliminadas (Trends/Trustpilot). Relatório em `workspace/[produto]/01-product-research/product-research.md`.
 
-Próximo passo: diga **'market research'** pra aprofundar a pesquisa e montar o Unified Research Brief. Se o produto é físico e você ainda não tem fornecedor, diga **'sourcing'** — a cotação roda em paralelo à pesquisa e fecha o custo real antes da oferta."
+Próximo passo: diga **'market research'** pra aprofundar no avatar e montar o Unified Research Brief. Se a jogada usa fórmula que outra marca já valida, diga **'sourcing'** — a 01b fecha o custo real (fórmula pronta / white label) em paralelo à pesquisa."
 
-Se NENHUM produto passou (todos TALVEZ ou DESCARTAR):
+Se NENHUMA oportunidade passou:
 
-"Nenhum produto dessa leva passou nos filtros críticos. Os principais bloqueios foram: [listar razões].
+"Nenhuma oportunidade dessa leva passou. Os bloqueios foram: [Trends em queda / eficácia no Trustpilot / mercado em estágio 5 sem avatar aberto / AOV sem sustentação].
 
-Antes de investir tempo nesses, vale buscar novos candidatos. Sugestões de filtros ajustados DERIVADOS do bloqueador mais comum nesta leva:
-- Se bloqueio dominante foi **AOV** → buscar produtos com preço base ≥ $60 OU que suportam bundle 3-unit
-- Se foi **Markup 3x+** → buscar fornecedores alternativos (1688, Alibaba Gold supplier) ou produtos com COGS < 30% do preço visto
-- Se foi **Saturação/Claims saturados** → buscar nichos adjacentes (ex: se beauty skincare saturado, testar beauty devices ou supplements beauty)
-- Se foi **Logística (peso, bateria)** → filtrar por peso < 500g e sem componentes eletrônicos
-
-Volte ao Kalodata/SpyBox com esses filtros ou me descreva outro nicho que eu rodo a busca."
+Vale rodar outra leva: [sub-nicho vizinho sugerido a partir do pool] ou o mesmo nicho com a janela de `Growth rank` em 30 dias. Me diz o nicho e eu rodo de novo — ou aplica os filtros no TrendTrack e me cola as marcas."

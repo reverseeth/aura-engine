@@ -77,7 +77,6 @@ Copy: 2-3 frases + benefício principal + a oferta com âncora ("normally $X, to
 - `no_subscription` → nenhuma superfície de assinatura. Ponto.
 - **Cuidado com a palavra na superfície:** framing de subscription mal apresentado destrói CPA — **Offer Rebuild + o custo da palavra "subscription"** (rode `mesmos ads mesma conta só mudou a oferta, subscription destrói CPA 100x`). Se a superfície precisa da assinatura, venda o benefício (supply contínuo, preço travado, "cancel anytime"), não a palavra.
 - **Fallback legado:** `subscription_architecture`/`onetime_premium_pct` ausentes (dados.json anterior ao contrato) → comportamento atual (nenhuma superfície de assinatura nova), lacuna anotada no output.
-- **Check de consistência (a 09 herda):** se qualquer superfície configurada aqui exibir desconto de assinatura, ou preço de assinatura ≠ preço-base, ou one-time ≠ base × (1+premium), registre item `warn` em `gates.promise_config` do `07d-checkout-aov/dados.json` (com o par esperado-vs-configurado) — a Skill 09 herda pelo C4 (checkout promise↔config) e cobra no gate de launch.
 
 ### Alavanca 2 — Cart bump / order bump
 
@@ -123,7 +122,7 @@ Recomendar o caminho 1 (variantes na PDP) pra starter/validating — zero app, z
 Empurra o cliente a adicionar mais um item pra cruzar a linha. Funciona por **zero price effect** (frete REALMENTE $0, não "quase") + **mental accounting** (o "free shipping over $X" é um ganho dentro do frame) — os dois já puxados na **Pricing Psychology Suite** do item 3. Threshold típico ≈ 1.3-1.5× do AOV atual (perto o bastante pra ser alcançável, alto o bastante pra forçar o item extra). Puxar `aov_expected` do 04 pra calcular. Fundamento com números de operação: **Profit Optimization 4 Categories + AOV Builders** (rode `profit optimization four categories AOV builders bundles free shipping threshold volume discount GWP profit per visitor`) — threshold, volume discount e GWP julgados por lucro-por-visitante, nunca por AOV bruto.
 
 **Caminho real Shopify:**
-1. **Shipping rate condicional** — Settings → Shipping and delivery → criar rate "Free" com condição "Order price ≥ $X" na zona do target market. Esta é a fonte da verdade que o **Gate Promise↔Config (pre-launch-gates)** valida: se a copy promete "Free shipping over $75" mas a zona não tem essa rate configurada, é `fail` e bloqueia.
+1. **Shipping rate condicional** — Settings → Shipping and delivery → criar rate "Free" com condição "Order price ≥ $X" na zona do target market — o mesmo $X que a barra e a copy anunciam.
 2. **Barra de progresso de free-shipping** no cart/drawer — bloco do tema ("You're $12 away from free shipping") que atualiza via JS conforme o subtotal. Editável como block (copy default do 04, em inglês US). Caminho do tema, dentro de `shopify-theme-safety`.
 3. **App de progress bar** (ex: Hextom Free Shipping Bar) — no-code se o membro preferir.
 
@@ -135,7 +134,7 @@ Reduz a ansiedade no momento mais nervoso do funil (digitar o cartão). Pós-`ch
 2. **Checkout branding** (Settings → Checkout → customize / brand) — logo, cores, e os trust elements suportados nativamente sem extension. Caminho no-code pro que o branding API expõe.
 3. **Trust row na PDP/cart** (caminho do tema) — como o checkout em si é restrito, a maior parte da prova de confiança vive na PDP e no cart (trust badges com **ícones SVG, nunca emoji** — regra 7 do CLAUDE.md: cadeado, caminhão, escudo de garantia, estrelas de review em SVG inline 16-18px). É onde o membro tem controle total e onde 80% do efeito acontece antes do checkout.
 
-A garantia exibida tem que bater com a `guarantee` do 04 E com a policy page da loja (Gate Promise↔Config: "90-day money-back" na trust row exige policy declarando 90 dias). Os números de review ("Rated 4.8 by 2,300 customers") exigem que o review app (Judge.me/Loox/Yotpo) tenha esses números reais — senão é `fail` no gate.
+A garantia exibida vem da `guarantee` do 04 (e a policy page da loja diz os mesmos dias). Os números de review ("Rated 4.8 by 2,300 customers") vêm do review app (Judge.me/Loox/Yotpo).
 
 ## Fluxo da Skill
 
@@ -170,7 +169,7 @@ Para **starter**, default no-code: app único que cobre bump + upsell + bar, ou 
 Para cada alavanca ativa, produza um spec concreto e aplicável (não prosa genérica):
 
 - **Pricing exato** com charm pricing aplicado e a âncora ("was $X / now $Y").
-- **Copy real** (inglês US, ad-safe pela regra 8b, sem travessão em headlines pela 8a) — bump (1 frase + benefício), upsell (2-3 frases + benefício + oferta), bundle labels (Popular/Best Value), free-shipping bar ("You're $X away from free shipping"), trust row (garantia + badges).
+- **Copy real** (inglês US, direta e sem aviso pela regra 8b, sem travessão em headlines pela 8a) — bump (1 frase + benefício), upsell (2-3 frases + benefício + oferta), bundle labels (Popular/Best Value), free-shipping bar ("You're $X away from free shipping"), trust row (garantia + badges).
 - **Caminho técnico** escolhido (tema / Function / extension / app) com os passos reais.
 - **Onde aplicar** (qual arquivo do tema, qual setting do admin, qual painel do app).
 - **Aceitação projetada** (do 04 ou benchmark da base) e impacto no AOV.
@@ -204,10 +203,6 @@ Se (e somente se) o ajuste de escopo mudou a economics: registre o novo `target 
 - **Caminhos de admin** (shipping rate, checkout branding, discount function via app): documentar os passos exatos do painel (não dá pra automatizar tudo via CLI) — ex: "Settings → Shipping → Add rate → condition Order price ≥ $75 → price $0.00".
 - **Caminho nativo automatizável** (bundles fixos): recipe `.claude/automations/recipes/create-fixed-bundles.md` (Admin GraphQL `productBundleCreate` — cria os tiers e devolve variant IDs pro wire da PDP).
 - **Caminhos de app**: NENHUM app de upsell tem API pública de configuração — gere o **config spec** (produto, preço, copy, downsell, IDs de variante reais) pro membro colar no painel do app. IDs de variante: pedir ao membro ou ler via Admin API/MCP se conectada.
-
-**GATES (blocking — pre-launch-gates):**
-- **GATE 1 — Ad-flag compliance** sobre TODA copy de checkout/cart injetada (bump, upsell, bar, trust) ANTES de aplicar, via CLI canônica: `python3 .claude/lib/compliance-preflight/run.py --text "<copy>" --vertical <manifest.product_vertical> --stage pre_page --json`. Decisão pelo `overall_verdict`: `critical` bloqueia; `warning` bloqueia por default — aplicar as `rewrite_suggestions[]` e re-checar.
-- **GATE 2 — Promise↔Config**: o free-shipping threshold da copy tem que existir como shipping rate real; a garantia exibida tem que bater com a policy page; os números de review têm que existir no review app. `fail` ≥ 1 → não aplicar, reportar o `fix`.
 
 **Se a loja NÃO existe** (`pending_store: true`): entregar o blueprint completo, marcar cada alavanca como `pending` no JSON, e avisar no output final que aplica assim que a 07b deployar a loja. Sem inventar IDs de variante nem aplicar nada.
 
@@ -249,7 +244,7 @@ Salvar em `workspace/[produto]/`:
 1. Mapa das 5 alavancas: definida no 04? caminho Shopify? status (aplicada/pending/not_in_offer) + categoria do Gate de Complementaridade
 2. Spec de cada alavanca ativa (pricing com charm, copy real, caminho técnico, onde aplicar/config spec do app, aceitação projetada)
 3. Reconciliação de AOV (sem alavancas → projeção do 04 → ajustes de escopo, se houver) + o target CPA que vale pra Skill 10 (explicitando: "2×" = 2× o ROAS de breakeven, metade da margem vira lucro)
-4. Resultado dos gates (compliance + promise↔config + anti-Scripts se houve app instalado)
+4. Resultado do check anti-Scripts (se houve app instalado)
 5. Passos de aplicação (tema / admin / app / recipe nativa) e o que ficou pending
 
 **`07d-checkout-aov/checkout-aov.html`** (companion humano) — usar `.claude/templates/aura-report-template.html` como base (CSS inline, self-contained). **Logo SVG no topo do `<body>`, copiada LITERALMENTE de `.claude/templates/aura-logo-snippet.html` — NUNCA texto.** Componentes aura (kpi-grid pro AOV antes/depois, table-wrap pro mapa de alavancas, callout/note/danger pros gates). Ícones SVG, nunca emoji, em qualquer preview de checkout/cart consumidor-final (regra 7).
@@ -279,16 +274,11 @@ Salvar em `workspace/[produto]/`:
     "target_cpa_2x_breakeven_multiple": 36.00,
     "target_cpa_3x_breakeven_multiple": 24.00,
     "manifest_updated": false
-  },
-  "gates": {
-    "compliance": "pass|warn|block",
-    "promise_config": { "pass": 3, "warn": 0, "fail": 0, "items": [] }
   }
 }
 ```
 
 Notas do schema:
-- `gates.promise_config.items[]` detalha os `warn`/`fail` — inclusive o check de consistência de assinatura (superfície com desconto de assinatura, ou preço divergente de `subscription_architecture`/`onetime_premium_pct` da 04, entra como `warn` com o par esperado-vs-configurado; a Skill 09 herda pelo C4).
 - `aov_reconciliation` substitui a antiga "projeção nova": no caso normal (alavancas = as que o 04 projetou), `aov_final == aov_projected_04` e `scope_diff` fica vazio — o delta é ≈ 0 por definição (ETAPA 4) e `manifest_updated: false`. Só quando `scope_diff` lista alavancas que entraram/saíram fora do plano do 04 é que `aov_final`/`weighted_margin_final` divergem e o manifest é atualizado.
 - Os campos `target_cpa_*_breakeven_multiple` seguem a convenção do 04/11: margem final ÷ N — múltiplo do ROAS de BREAKEVEN, não ROAS literal.
 - `levers.bundles.tiers` (`{qty, price, label}`) é o contrato lido pelas recipes `deploy-shopify-product.md` e `create-fixed-bundles.md`.
@@ -311,4 +301,4 @@ Próximo passo: diga **'creatives'** pra gerar os anúncios (já com o AOV/CPA c
 
 ---
 
-> **Self-audit silencioso (rule 9 + `.claude/rules/post-task-self-audit.md`):** antes de declarar pronto, confirmar inline e sem mostrar bloco: (1) NENHUMA alavanca foi re-somada sobre `aov_expected` (contagem dupla — a reconciliação da ETAPA 4 bate: caso normal `aov_final == aov_projected_04` e `scope_diff` vazio); (2) todo bump/upsell/bundle-mate/GWP tem `complementarity_category` de uma das 4 categorias (componente sem categoria = reprovado, não aplicado); (3) copy de checkout/cart em inglês US, ad-safe (GATE 1 via CLI canônica), promessas batendo com config (GATE 2 — threshold como shipping rate real, garantia = policy page, reviews reais); (3b) superfícies de assinatura obedecem `subscription_architecture` + `onetime_premium_pct` da 04 (nenhum desconto de assinatura em upsell/OTO — o framing é o prêmio do one-time; arquitetura 2 = checkout sem push de assinatura; campos ausentes = fallback legado anotado; divergência = `warn` em `gates.promise_config.items[]`, nunca silenciada); (4) caminho recomendado respeita o plano da loja (nada de extension in-checkout ou Function custom pra não-Plus) e nenhum app instalado roda sobre Shopify Scripts; (5) operações de tema usaram `--path` + o `theme_id` do `manifest.storefront` + marker `data-aura-build`; (6) `dados.json` + `checkout-aov.md` + `checkout-aov.html` (logo SVG) salvos e manifest atualizado (`skills_completed`, `aov_baseline` se aplicado, `target_cpa`/`breakeven_roas` SÓ se `scope_diff` não-vazio). Issue dentro do escopo → fix inline. Decisão do membro (ex: trocar produto do bump, aceitar take menor por loja wallet-heavy) → surface curto.
+> **Self-audit silencioso (rule 9 + `.claude/rules/post-task-self-audit.md`):** antes de declarar pronto, confirmar inline e sem mostrar bloco: (1) NENHUMA alavanca foi re-somada sobre `aov_expected` (contagem dupla — a reconciliação da ETAPA 4 bate: caso normal `aov_final == aov_projected_04` e `scope_diff` vazio); (2) todo bump/upsell/bundle-mate/GWP tem `complementarity_category` de uma das 4 categorias (componente sem categoria = reprovado, não aplicado); (3) copy de checkout/cart em inglês US, com o mesmo threshold, garantia e números de review que a página e a oferta usam; (3b) superfícies de assinatura obedecem `subscription_architecture` + `onetime_premium_pct` da 04 (nenhum desconto de assinatura em upsell/OTO — o framing é o prêmio do one-time; arquitetura 2 = checkout sem push de assinatura; campos ausentes = fallback legado anotado); (4) caminho recomendado respeita o plano da loja (nada de extension in-checkout ou Function custom pra não-Plus) e nenhum app instalado roda sobre Shopify Scripts; (5) operações de tema usaram `--path` + o `theme_id` do `manifest.storefront` + marker `data-aura-build`; (6) `dados.json` + `checkout-aov.md` + `checkout-aov.html` (logo SVG) salvos e manifest atualizado (`skills_completed`, `aov_baseline` se aplicado, `target_cpa`/`breakeven_roas` SÓ se `scope_diff` não-vazio). Issue dentro do escopo → fix inline. Decisão do membro (ex: trocar produto do bump, aceitar take menor por loja wallet-heavy) → surface curto.

@@ -19,7 +19,7 @@ Loop **ad → performance → nova variação** num ritual de ~15 minutos. É o 
 | **Piso de ROAS** | Se ROAS da campanha < `breakeven_roas` (04 `unit_economics`), ZERO recomendação de escala — só refresh criativo + apontar diagnóstico da Skill 11. | Skill 04/12 |
 | **Incrementos < 20%** | Ajuste de budget recomendado por ciclo ≤ +20% (default +5%, estilo "farmer" da Skill 12) — incremento maior reseta a learning phase. | Skill 12 |
 | **Estrutura respeitada** | 1 campanha com CBO → N ad sets (1 ad set = 1 conceito) → 3 criativos cada. O loop troca CRIATIVOS **dentro do ad set do conceito correspondente**; nunca cria campanha nova nem empilha conceitos diferentes no mesmo ad set. Ad set novo existe só pra conceito NOVO, dentro do teto de capacidade (Step 5). Diversificação em campanha ABO paralela continua sendo Skill 12, pós-breakthrough. | contrato da Skill 10 + cânone `.claude/lib/ad-taxonomy/README.md` §1/§5 |
-| **Compliance** | Toda variação nova passa pelos gates da Skill 08 (compliance pre-flight + disclosure "AI Info" se humano fotorrealista gerado por AI). | pre-launch-gates |
+| **Metadados limpos** | Toda variação nova passa pelo Limpador de Metadados antes do upload (`bash tools/strip-metadata.sh` — a receita de upload roda sozinha no step 1.5); só arquivo `asset-xxxx` sobe. | regra 12 do CLAUDE.md |
 
 ## Pre-flight
 - [ ] `manifest.10_campaign_id` existe (campanha criada pela 10 / full-deploy) e campanha ATIVA

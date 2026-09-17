@@ -37,8 +37,8 @@ Gere cada briefing de variação diretamente, a partir do conceito-pai:
 
 O output de cada variação é um briefing novo (`concept-XX-v2.md`, `-v3`, `-v4`) no mesmo formato da Skill 08 — mas gerado aqui inline, sem re-rodar o fluxo completo da 08 (a rotação pula ideação/batch: o conceito já está validado, só o eixo varia).
 
-### 3. Rodar compliance + DNA extraction em cada
-(Automático via ETAPAs 7.5 + 7.6 da Skill 08)
+### 3. Rodar DNA extraction em cada
+(Automático via ETAPA 7.6 da Skill 08)
 
 ### 4. Upload pro Meta (invocar `upload-creative-to-meta.md` pra cada)
 ```
@@ -59,7 +59,7 @@ for variation in new_variations:
   "parent_class": "<breakthrough | legacy_gate — qual gate liberou a rotação>",
   "variations_generated": ["<creative-id>-v2", "<creative-id>-v3", "<creative-id>-v4"],
   "all_paused": true,
-  "dna_compliance": "preserved (+80% overlap)"
+  "dna_overlap": "preserved (+80% overlap)"
 }
 ```
 

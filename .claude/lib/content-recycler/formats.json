@@ -8,8 +8,7 @@
       "output_file": "advertorial-1500w.md",
       "length_words_total": [1200, 1800],
       "structure": "7-section advertorial blueprint (hook → story → pivot → mechanism → proof → offer → close)",
-      "tone": "editorial, story-first, low pitch intensity",
-      "compliance_notes": "Meta scraper lê LP — mesma rigor do ad copy"
+      "tone": "editorial, story-first, low pitch intensity"
     },
     {
       "id": "email_sequence_5",
@@ -18,8 +17,7 @@
       "length_words_total": [800, 1200],
       "length_words_per_email": [160, 240],
       "structure": "E1 story hook, E2 mechanism deeper, E3 social proof, E4 objection break, E5 CTA with guarantee",
-      "tone": "personal, conversational, segmented by signup trigger",
-      "compliance_notes": "CAN-SPAM compliant + unsubscribe footer"
+      "tone": "personal, conversational, segmented by signup trigger"
     },
     {
       "id": "organic_tiktok_20s",
@@ -28,8 +26,7 @@
       "length_words_total": [45, 65],
       "reading_speed_wpm_estimate": 150,
       "structure": "hook (2s) → payoff tease (5s) → mechanism glimpse (8s) → soft pointer (5s)",
-      "tone": "authentic, creator-voice, non-salesy",
-      "compliance_notes": "TikTok organic is less strict but watch age-restricted topics (beauty mentions of injectables auto-flag)"
+      "tone": "authentic, creator-voice, non-salesy"
     },
     {
       "id": "blog_seo_post",
@@ -38,7 +35,6 @@
       "length_words_total": [1500, 2200],
       "structure": "H1 with keyword → intro hook → H2 mechanism explained → H2 symptoms/triggers → H2 solutions → H2 product mention (soft) → H2 FAQ → CTA",
       "tone": "informational, authoritative, optimized for featured snippet",
-      "compliance_notes": "Google E-E-A-T, YMYL considerations, schema markup",
       "additional_fields": ["meta_title", "meta_description", "keyword_target", "related_keywords", "schema_jsonld"]
     },
     {
@@ -48,8 +44,7 @@
       "length_words_total": [200, 400],
       "length_words_per_pin": [25, 50],
       "structure": "Pin 1: hook visual + claim. Pin 2-3: problem. Pin 4-5: mechanism. Pin 6-7: solution/product. Pin 8: CTA saved link",
-      "tone": "visual-first, aspirational, low-pitch",
-      "compliance_notes": "Pinterest restricts before/after weight/beauty claims heavily"
+      "tone": "visual-first, aspirational, low-pitch"
     },
     {
       "id": "youtube_preroll_15s",
@@ -58,8 +53,7 @@
       "length_words_total": [35, 50],
       "reading_speed_wpm_estimate": 160,
       "structure": "hook 0-2s → mechanism punch 3-10s → CTA 11-15s",
-      "tone": "punchy, direct, high energy",
-      "compliance_notes": "YouTube/Google Ads medical device + drug claim strict"
+      "tone": "punchy, direct, high energy"
     },
     {
       "id": "sms_welcome",
@@ -68,8 +62,7 @@
       "length_chars": [120, 160],
       "note": "SMS uses chars not words — length_chars is canonical",
       "structure": "hook phrase → one benefit → link",
-      "tone": "conversational, first-name casual, no-pitch",
-      "compliance_notes": "TCPA compliant, STOP to opt-out, sender ID"
+      "tone": "conversational, first-name casual, no-pitch"
     },
     {
       "id": "package_insert",
@@ -77,8 +70,7 @@
       "output_file": "package-insert.md",
       "length_words_total": [120, 200],
       "structure": "Welcome headline → 3-step how-to-use → secondary benefit → referral invitation",
-      "tone": "warm, premium, onboarding",
-      "compliance_notes": "Physical collateral — FDA cosmetic labeling rules apply if making claims"
+      "tone": "warm, premium, onboarding"
     },
     {
       "id": "podcast_ad_30s",
@@ -87,8 +79,7 @@
       "length_words_total": [60, 80],
       "reading_speed_wpm_estimate": 140,
       "structure": "host transition (5s) → problem framing (8s) → mechanism (10s) → CTA + promo code (7s)",
-      "tone": "host-voice conversational, testimonial-like, warm",
-      "compliance_notes": "Audio-only so no visual claims but verbal claims still subject to FTC"
+      "tone": "host-voice conversational, testimonial-like, warm"
     }
   ]
 }

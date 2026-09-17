@@ -77,7 +77,7 @@ Para a dependência obrigatória:
 - ❌ se ausente OU major < 20, com a instrução exata de upgrade acima
 
 Também detecte ferramentas opcionais pra uso futuro, mostrando como "disponível" (não bloqueador):
-- FFmpeg: `ffmpeg -version 2>/dev/null | head -1` — paths comuns: `/opt/homebrew/bin/ffmpeg`, `/usr/local/bin/ffmpeg`, `/usr/bin/ffmpeg`. Install: `brew install ffmpeg` (Mac) ou `apt install ffmpeg` (Linux).
+- FFmpeg (RECOMENDADO — o Limpador de Metadados precisa dele pra limpar VÍDEO antes do upload, regra 12 do CLAUDE.md; e a transcrição de criativos da 03 também usa): `ffmpeg -version 2>/dev/null | head -1` — paths comuns: `/opt/homebrew/bin/ffmpeg`, `/usr/local/bin/ffmpeg`, `/usr/bin/ffmpeg`. Install: `brew install ffmpeg` (Mac), `winget install Gyan.FFmpeg` (Windows) ou `apt install ffmpeg` (Linux).
 - Whisper.cpp: verificar `~/whisper.cpp/main`, `/usr/local/bin/whisper-cli`, `/opt/homebrew/bin/whisper-cli`. Install: `brew install whisper-cpp` (Mac) ou `git clone https://github.com/ggerganov/whisper.cpp.git ~/whisper.cpp && cd ~/whisper.cpp && make`.
 - **Groq API key (opcional — transcrição rápida):** cheque `[ -n "${GROQ_API_KEY:-}" ] && echo "disponível"`. Se o membro tiver uma key da Groq no ambiente, a skill 03 (competitor analysis, ETAPA 3C) transcreve os vídeos dos concorrentes via API (`whisper-large-v3-turbo`) — muito mais rápido que o Whisper local. A cascade de transcrição é: Groq API (se key) → Whisper local → pedir o transcript ao membro. Sem a key, nada quebra.
 - Python 3: `python3 --version` — necessário pra pipeline de design-clone (skill 07a — rotas clone-and-adapt e brand signals). Mac já vem com Python 3.
@@ -195,7 +195,7 @@ Formato da mensagem a enviar:
 >
 > **2. Budget diário pra ads** (em dólares — ex: `100`)
 >
-> **3. Ferramentas que você tem acesso** (marca as que se aplicam): TrendTrack · SpyBox · Higgsfield
+> **3. Ferramentas que você tem acesso** (marca as que se aplicam): TrendTrack · SpyBox · Higgsfield · Notion (pra guardar o banco de marcas da pesquisa de produto)
 >
 > **3b. Plataforma de email (ESP)** que você usa — escolha uma:
 > - A) Klaviyo
@@ -208,7 +208,7 @@ Formato da mensagem a enviar:
 Depois que o membro responder, parseie a resposta e extraia:
 - `SITUACAO` → A, B, C ou D
 - `BUDGET` → número em dólares
-- `TOOLS` → lista das ferramentas mencionadas (TrendTrack, SpyBox, Higgsfield)
+- `TOOLS` → lista das ferramentas mencionadas (TrendTrack, SpyBox, Higgsfield, Notion)
 - `ESP` → plataforma de email escolhida na 3b: `klaviyo` (A), `omnisend` / `mailerlite` / `shopify_email` conforme o que o membro citar (B), ou `none` (C) — tokens EXATOS do enum do manifest-schema (`shopify_email` com underscore, nunca hífen)
 - `LINK` → URL do produto principal (se SITUACAO ≠ A)
 - `SHOPIFY_LINK` → URL da loja Shopify (se o membro informar a loja na pergunta 4)
@@ -270,6 +270,7 @@ Data do setup: [YYYY-MM-DD]
 - TrendTrack: [sim/não]
 - SpyBox: [sim/não]
 - Higgsfield: [sim/não]
+- Notion: [sim/não]
 - Shopify: [sim + link / não — vem da pergunta 4]
 - ESP (plataforma de email): [klaviyo / omnisend / mailerlite / shopify_email / none]
 
@@ -386,7 +387,7 @@ Depois apresente a mensagem de próximo passo baseada na situação do membro (A
 
 Começa pela fase de descoberta: diga **'product research'** pra encontrar um produto pra validar.
 
-O sistema vai te guiar na filtragem (Kalodata/SpyBox, ou fontes públicas se não tiver), análise estratégica (market desires, sophistication, awareness), e ranking dos candidatos. Só depois disso partimos pra oferta e copy."
+A pesquisa acha as marcas que já escalam no nicho pelo TrendTrack (pelo MCP, ou você aplica os filtros no browser e me cola), valida cada uma no Google Trends e nas reviews de 1-2 estrelas do Trustpilot, e monta as jogadas de recombinação — o que fazer diferente de quem já escala, sem clonar e sem inventar do zero. O banco de marcas vai pro seu Notion (se conectar o MCP) ou pra um HTML na pasta do produto. Só depois disso partimos pra oferta e copy."
 
 **Situação B — Tem produto, não lançou:**
 

@@ -53,7 +53,7 @@ Cada hook tem UMA emoção dominante. Archetypes são cortes mais finos dentro d
 ## Regras de uso
 
 1. **Cada hook declara 1 archetype + 1 emotion** (não múltiplos). Se o hook encaixa em 2, escolher o dominante.
-2. **Archetype NÃO substitui VOC traceability** — todo hook ainda precisa linkar a VOC phrase no `02-market-research/dados.json` (ou marcar `voc_source: null, requires_manual_review: true`).
+2. **Archetype NÃO substitui a VOC** — hook que nasce de uma frase real de cliente registra o `ref_id` dela no `02-market-research/dados.json` (é o que deixa a Skill 11 medir qual frase vendeu).
 3. **Cobertura por batch**: um batch de N conceitos deve cobrir ≥ 2 emotions diferentes e ≥ 3 archetypes distintos (diversidade de cobertura = escala).
 4. **Archetype ≠ formato**: um `pain_amplification` pode ser UGC humano, AI UGC, motion graphic, ou static. Formato é decisão separada.
 

@@ -86,10 +86,6 @@ Toda skill ANTES de executar:
 
 Alguns elementos são inegociáveis em qualquer stage:
 
-- Research foundation (Skill 04 Etapa 2.5)
-- VOC traceability (Skill 08 Etapa 4.5.F)
-- Compliance pre-flight
-- Promise↔Config gate
 - Shopify theme safety
 - Logo SVG obrigatória
 - Aspect ratio 9:16

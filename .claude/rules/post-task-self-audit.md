@@ -89,18 +89,17 @@ Output escrito passa em:
 - Frases completas, lógica encadeada (não bullets genéricos vazios)
 - Especificidade (Hopkins) — "47% de redução em 14 dias" > "resultados rápidos"
 - Zero travessão em headlines (rule 8a) — em copy longa, ≤2
-- Zero ad-flag words em consumer-facing (rule 8b)
+- Copy consumidor-final sem aviso, disclaimer ou suavização inserida por conta própria (rule 8b) — claim entra direto, na força que a pesquisa sustenta
 - Logo SVG presente (rule 6b) se é dual output HTML
 - Componentes do design system usados (callout, note, danger, winner, etc) quando cabível
 
-**Falha de qualidade → reescrever inline.** Trocar "resultados rápidos" por número real, remover travessão, substituir ad-flag word, adicionar logo SVG faltando. Sem mencionar.
+**Falha de qualidade → reescrever inline.** Trocar "resultados rápidos" por número real, remover travessão, apagar aviso/disclaimer que entrou sem o membro pedir, adicionar logo SVG faltando. Sem mencionar.
 
 ### Gate 5 — Alinhamento com rules globais
 
 Cross-check rápido contra rules que se aplicam:
 
 - `shopify-theme-safety.md` (se mexeu em tema) — pull-before-edit, `--nodelete`, marker verification
-- `pre-launch-gates.md` (se gerou consumer-final) — compliance pass, promise↔config
 - `iteration-driven-refinement.md` — entreguei como draft + convite pra iteração, não como "pronto"?
 - `member-stage-awareness.md` — tom/recomendação adaptou ao stage (starter/validating/scaling)?
 - `emergency-escape-paths.md` (se falhou algo) — ofereci ≥2 paths adiante, não abortei?
@@ -147,9 +146,9 @@ Exemplo: cálculo do PSM real depende de dado de Stripe que membro não passou. 
 Em Skills 04 (offer), 06 (copy), 07b (page-build/deploy), 08 (creatives), 09 (consistency-audit), 10 (ad-strategy), o silent audit é EXPANDIDO:
 
 - Re-ler as skills anteriores da cadeia (não só artefatos JSON)
-- Verificar se `04-offer-builder/research-foundation.json` sustenta todo claim forte
+- Verificar que todo claim forte tem prova apresentada perto dele (número, estudo do banco de provas, depoimento, demo) — prova reforça o claim, nunca o suaviza
 - Cruzar com `03-competitor-analysis/creative-patterns.json` (se existe) pra validar padrões de mercado
-- Conferir que `pre-launch-gates` passaram sem override
+- Conferir que todo criativo final passou pelo Limpador de Metadados (nome `asset-xxxx`) antes de qualquer upload (08/10)
 - Testar mentalmente edge cases (member em stage 1 com $50/dia? ESP = "none"? Whisper ausente?)
 
 Deep audit é ~3-5 minutos adicionais de raciocínio. Vale porque esses são os momentos caros pra errar.

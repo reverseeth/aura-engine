@@ -16,12 +16,12 @@ Localização: `/workspace/[produto]/brand.md`
 
 **Atributos do tom** (3-5):
 - [ex: autoritativo mas acessível]
-- [ex: baseado em evidência, não hype]
+- [ex: direto e específico, com números]
 - [ex: direto, sem jargão médico]
 
 **O que NUNCA dizer**:
 - [ex: clichês saturados do nicho]
-- [ex: palavras ad-flag já conhecidas]
+- [ex: mecanismos e claims saturados que os concorrentes escalados já usam]
 
 ## 3. Paleta de cores
 
@@ -97,13 +97,6 @@ SVG inline sempre (nunca emoji em UI consumidor final — regra 7 CLAUDE.md).
 - Números: "1,000" com vírgula pra thousands (US format)
 - Moeda: "$" prefix, 2 casas decimais ("$29.99")
 - Data: "April 15, 2026" (full) ou "4/15" (compact)
-
-## 11. Disclaimers (ad-safe)
-
-Disclaimers legais que aparecem em ads/páginas (reutilizar pra manter consistência):
-
-- "[Disclaimer 1]"
-- "[Disclaimer 2]"
 
 ## Update log
 

@@ -21,14 +21,11 @@ description: Engine de escrita de copy completo baseado em market research, comp
   Se membro escolher 3, marca `"voc_forced_continue": true` no output pra Skill 11 diagnosticar depois.
 - [ ] `03-competitor-analysis/competitor-analysis.md` existe (ou o legado `relatorio.md` — mesmo fallback vale pras outras fases)
 - [ ] `04-offer-builder/dados.json` existe → extrair `mechanism` (objeto `{name, ...}` — usar `mechanism.name`, NÃO tratar como string), `pricing`, `guarantee`, `bonuses[]` (cada bonus tem `condition` — dirige a copy de GWP/stack, ver ETAPA 4)
-- [ ] `04-offer-builder/research-foundation.json` existe → extrair `evidence_items[]`, `confidence_score`, `gaps_and_risks`
-  - Se ausente: WARN "Research foundation não rodou (Skill 04 Etapa 2.5). Claims na copy vão sair sem lastro verificável. Opções: (1) voltar pra skill 04 e rodar Etapa 2.5; (2) prosseguir marcando `claims_unverified: true` no output — skill 09 (consistency-audit) vai bloquear launch depois."
-  - Se existe mas `confidence_score == "low"`: WARN "Evidence weak — claims fortes (clinically proven, X% melhoria) vão ser suavizados automaticamente pra 'helps with', 'designed to support'. Skill 09 vai re-validar antes de launch."
-- [ ] Extrair `product_vertical` do manifest (default "other" se ausente) — usado pelo Compliance Pre-flight (Sweep 8)
+- [ ] `04-offer-builder/research-foundation.json` (se existir) → extrair `proof_items[]` — o banco de provas (estudos, números, citações) que vira munição de specificity na copy. É munição, não teto: a copy não fica limitada ao que está lá.
 - [ ] Ler `manifest.copy_language` (se presente; default `"en"`) — confirma o idioma da copy consumidor-final. Não confundir com `report_language` (idioma dos relatórios internos): a copy pública segue `copy_language`, que hoje é sempre inglês US pro mercado US
 
 Se faltar qualquer arquivo de fase anterior (02/03/04), em vez de abortar seco ofereça ≥2 caminhos:
-> **(A)** Rodar a skill faltante agora (02/03/04), OU **(B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["arquivo"]` e avisando no output final que recomenda re-executar com o arquivo real. VOC com opção 3 e research-foundation com acknowledgment já seguem esse padrão acima. Exceção: se `manifest.json` ou `profile.md` estiverem TOTALMENTE ausentes, não há o que inferir — ofereça rodar o setup (skill 00) inline.
+> **(A)** Rodar a skill faltante agora (02/03/04), OU **(B)** prosseguir com default genérico marcando `manifest.skipped_preflight += ["arquivo"]` e avisando no output final que recomenda re-executar com o arquivo real. VOC com opção 3 já segue esse padrão acima. Exceção: se `manifest.json` ou `profile.md` estiverem TOTALMENTE ausentes, não há o que inferir — ofereça rodar o setup (skill 00) inline.
 
 ## Quando Usar
 Quando o membro tem market research, competitor analysis e oferta prontos, e precisa escrever a copy da página que vai converter o tráfego pago. Copy aqui é escrita com base em decisões ESTRATÉGICAS derivadas dos documentos anteriores, não em opiniões ou intuições.
@@ -207,7 +204,7 @@ Declare também os **4-6 pilares** da peça (leia `arquitetura_de_extensao` no m
 
 Independente do espécime escolhido, o lead precisa cumprir os 4 passos do Makepeace (rode `grab eyeballs expand headline establish credibility bribe esqueleto de abertura`): grab eyeballs (ideal prospect + big promise + curiosidade) → expand headline → establish cred → bribe. É a segunda camada sobre o espécime primário; lead que não cumpre os 4 passos não está pronto.
 
-> **REGRA INEGOCIÁVEL — modelar estrutura, nunca conteúdo.** Não copie frase, claim, número ou nome de mecanismo do espécime. Além de plágio, boa parte do arquivo de health é anterior à política atual do Meta e carrega disease claims que reprovam no gate de compliance (sweep 8). O que se extrai é arquitetura: ordem dos blocos, trabalho de cada um, e por que funciona.
+> **REGRA INEGOCIÁVEL — modelar estrutura, nunca conteúdo.** Não copie frase, claim, número ou nome de mecanismo do espécime — é plágio. O que se extrai é arquitetura: ordem dos blocos, trabalho de cada um, e por que funciona.
 
 Registre no `dados.json`: `specimen_primary` (id), `specimen_secondary` (id ou null), e `specimen_block_map` (a tabela 2.5C). A skill 11 (ad-analysis) usa isso pra diagnosticar depois se a estrutura escolhida foi a certa pro avatar.
 
@@ -349,7 +346,7 @@ Do `04-offer-builder/offer-builder.md`:
 - `unconditional` → sem condição na copy (todo comprador recebe)
 - `tier_specific` → o brinde aparece SÓ no tier que o destrava (3-pack/6-pack), não no stack geral
 
-Mismatch entre a promessa da página e a `condition` real é promessa quebrada no checkout — o GATE 2 (promise↔config) bloqueia por isso.
+A `condition` que a copy descreve é exatamente a que a Skill 05 configura na loja — escreva a copy a partir do campo, não de memória.
 
 Aplique **pricing psychology** — puxe os sistemas por nome (rode cada `best_query`):
 - **Anchoring & Adjustment + Contrast Principle** (rode `anchoring adjustment Tversky Kahneman SSN auction real estate listing reference price Poundstone`) — o valor ancorado do stack
@@ -430,9 +427,9 @@ Tom editorial (não vendedor). Use parágrafos curtos (2-4 linhas). Inclua image
 
 No arquivo final (`copy-engine.md`), estas 7 seções entram com os nomes canônicos H2 do Output Schema (`## Advertorial Headline` → `## Reveal + Close`) — ver a seção "Output Schema" abaixo. É por esses nomes exatos que a 07a mapeia o advertorial pro design da página.
 
-### ETAPA 6 — Auto-Revisão (7 sweeps Aura + gate de compliance)
+### ETAPA 6 — Auto-Revisão (7 sweeps Aura + markup audit)
 
-Antes de entregar, faça os **7 sweeps Aura** abaixo (1–7) — são os sweeps de revisão DESTA skill, não os "7 sweeps" clássicos de copywriting. O **Compliance Pre-flight (sweep 8)** roda em seguida como gate de bloqueio separado, fora da contagem dos 7.
+Antes de entregar, faça os **7 sweeps Aura** abaixo (1–7) — são os sweeps de revisão DESTA skill, não os "7 sweeps" clássicos de copywriting. O **markup audit (sweep 9)** roda em seguida como auditoria estrutural. Nenhum sweep suaviza claim, insere aviso ou troca palavra por "risco": a revisão deixa a copy mais forte e mais específica, nunca mais tímida (rule 8b do CLAUDE.md).
 
 Pra calibrar o que cada sweep procura, puxe os sistemas de edição (rode cada `best_query`):
 - **Seven Sweeps (Editing Ladder)** (rode `Seven Sweeps editing ladder clarity voice tone so what prove it specificity heightened emotion zero risk`) — o ladder canônico que inspira estes sweeps
@@ -444,7 +441,7 @@ Pra calibrar o que cada sweep procura, puxe os sistemas de edição (rode cada `
 - **Reeves' USP + Vampire Claims** (rode `Reeves USP burning glass vampire claims mosaic structure single proposition unrelated claims`) — pro Originality sweep (#7), pra não cair em claim saturado/genérico:
 
 1. **Clarity sweep**: cada frase é clara em primeira leitura? Jargão sem explicação?
-2. **Customer voice sweep (VOC compliance)**: checklist dinâmico — passe o `voc_checklist` como lista. Para cada frase VOC:
+2. **Customer voice sweep (cobertura de VOC)**: checklist dinâmico — passe o `voc_checklist` como lista. Para cada frase VOC:
    - [ ] Aparece LITERAL no copy? (marca se sim)
    - [ ] Aparece parafraseada? (marca se só aproximação)
    - [ ] Ausente? (marca como gap)
@@ -467,44 +464,9 @@ Pra calibrar o que cada sweep procura, puxe os sistemas de edição (rode cada `
 5. **Objection sweep**: cada objeção do market research foi quebrada em algum lugar? Onde está omitida?
 6. **CTA sweep**: CTAs são call to VALUE? Aparecem em frequência certa (não muito, não pouco)?
 7. **Originality sweep**: comparar com os claims saturados do competitor analysis — onde estou usando um claim saturado? substitua por ângulo original.
-8. **Compliance Pre-flight sweep** (OBRIGATÓRIO antes de salvar o arquivo final):
+8. **Sweep de força (o inverso de suavizar)**: releia cada claim forte e pergunte "dá pra dizer com mais força e mais específico, com a prova ao lado?". Claim hedged ("may help", "designed to support") vira claim direto com número, mecanismo ou depoimento ao lado. Nenhum aviso, asterisco ou disclaimer entra por iniciativa da skill (rule 8b do CLAUDE.md).
 
-   Claude deve rodar este prompt INLINE (não invocar arquivo externo) pra cada peça de copy gerada — headlines, primary texts, advertorial sections, CTAs, crossheads:
-
-   ```
-   Você é Compliance Pre-flight Checker. Analise a copy abaixo contra Meta Ad Policy, FTC substantiation, FDA cosmetic boundary (se vertical = beauty/skincare/supplements), e AI style red flags.
-
-   Vertical: {product_vertical do manifest — default "other"}
-   Asset type: {headline | primary_text | advertorial_section | cta | crosshead}
-   Plataforma: Meta Ads (padrão)
-
-   Red flags de referência (categoria do vertical): {leia `.claude/lib/compliance-preflight/red_flags.json`, filtre pelo vertical}
-
-   Copy a analisar:
-   \"{copy_text}\"
-
-   Retorne JSON conforme o shape definido em `.claude/lib/compliance-preflight/output-schema.json` (essa é a fonte da verdade do formato — siga os campos e enums dela). `rewrite_suggestions[]` é SEMPRE presente (uma entrada por flag não-informational); `rewrite_suggestion` (reescrita COMPLETA da peça) deve ser preenchido SOMENTE quando `severity >= high`; caso contrário, `null`.
-   {
-     "risk_score": 0,
-     "severity": "low|medium|high|critical",
-     "overall_verdict": "pass|warning|critical",
-     "triggers": [{"phrase": "...", "severity": "...", "reason": "...", "eixo": "...", "suggested_replacement": "..."}],
-     "rewrite_suggestions": [{"phrase": "...", "severity": "...", "suggested_replacement": "...", "reason": "..."}],
-     "rewrite_suggestion": null,
-     "em_dash_count": 0,
-     "ai_style_score": 0,
-     "recommendation": "..."
-   }
-   ```
-
-   Ação pelo `overall_verdict` — mesma tabela do GATE 1 de `pre-launch-gates.md` (a rule é a fonte da verdade do protocolo; mapeamento severity→verdict: low → `pass`, medium → `warning`, high/critical → `critical`):
-   - `critical` → **BLOCK**: se algum trigger tem `severity: "critical"`, PARAR direto — apresentar os triggers ao membro com as `rewrite_suggestions[]` e pedir revisão manual (rota ES3 se launch urgente). Se o verdict veio só de triggers `high`, aplicar o `rewrite_suggestion` (reescrita completa) e **RE-RODAR este check no texto reescrito**; se ainda `critical`, PARAR e apresentar ao membro — a peça não entra no relatório final sem passar.
-   - `warning` → aplicar as `rewrite_suggestions[]` automáticas e re-rodar o check. Se virar `pass`, prosseguir. Se persistir `warning`, salvar a peça MAS logar em `workspace/[produto]/compliance-warnings.json` (path canônico do gate) e citar os warnings na Mensagem Final ("N warnings de compliance — revise se quiser").
-   - `pass` → salvar silenciosamente (sem output).
-
-   Além do log de warnings acima, mantenha o log consolidado de TODOS os checks (qualquer verdict) em `workspace/[produto]/06-copy-engine/compliance-log.json`. Se diretório não existir, `mkdir -p` antes de escrever.
-
-9. **Markup audit sweep (método Kyle Milligan)** — auditoria estrutural da peça, rodada DEPOIS dos sweeps 1-7 e do gate de compliance:
+9. **Markup audit sweep (método Kyle Milligan)** — auditoria estrutural da peça, rodada DEPOIS dos sweeps 1-8:
 
    Leia o nó `auditoria` de `.claude/lib/swipe-models/specimens.json` (e, se precisar do detalhe, rode `auditoria markup promo codigo de cores lexico de blocos objection claim proof benefit`). Audite a copy gerada em 5 camadas:
 
@@ -609,9 +571,8 @@ Schema:
   "faq": [{"q": "...", "a": "..."}],
   "urgency": "...",
   "email_hooks": ["..."],
-  "voc_compliance": { "total_checked": 20, "literal_hits": 14, "paraphrased": 5, "missing": 1 },
+  "voc_coverage": { "total_checked": 20, "literal_hits": 14, "paraphrased": 5, "missing": 1 },
   "voc_forced_continue": false,
-  "claims_unverified": false,
   "decision_modalities_covered": ["spontaneous", "competitive", "humanistic", "methodical"],
   "specimen_primary": "agora-11-blocos",
   "specimen_secondary": null,
@@ -633,7 +594,7 @@ Schema:
 
 > `specimen_primary`/`specimen_block_map` vêm da ETAPA 2.5 e `markup_audit` do sweep 9. A skill 11 (ad-analysis) usa os dois pra diagnosticar: quando uma página converte mal, a primeira pergunta é se o espécime escolhido era o certo pro avatar, e a segunda é qual camada do audit já tinha reprovado antes do launch.
 
-`lead_type` é o campo **top-level** decidido na ETAPA 2 — contrato com a 07a (que o lê pra confirmar `page_type`). `voc_forced_continue` e `claims_unverified` são os flags do pré-flight (só `true` quando o membro escolheu prosseguir com VOC insuficiente / sem research foundation).
+`lead_type` é o campo **top-level** decidido na ETAPA 2 — contrato com a 07a (que o lê pra confirmar `page_type`). `voc_forced_continue` é o flag do pré-flight (só `true` quando o membro escolheu prosseguir com VOC insuficiente).
 
 **A 07a (pré-flight/PLAN) e a 07b (populate/GEO) leem diretamente este JSON** — se inválido, a fase STOREFRONT não prossegue.
 
@@ -649,13 +610,13 @@ Atualizar `manifest.json`: adicionar `06-copy-engine` em `skills_completed`, atu
 1. Strategy brief (Etapa 2 — tipo de página, lead, hero, ângulo, tom, framework, modalities mapping)
 2. 20-30 headlines geradas + top 5 + 3 pra teste A/B
 3. Página completa seção por seção (Etapa 4 ou 5)
-4. Revisão após 7 sweeps (mudanças documentadas, incluindo VOC compliance %)
+4. Revisão após os sweeps (mudanças documentadas, incluindo a taxa de cobertura de VOC)
 5. Variações pra teste (Etapa 7)
 
 Também salvar `workspace/[produto]/06-copy-engine/dados.json` no schema acima.
 
 ## Mensagem Final
 
-"Copy completa pro [tipo de página]. Big Idea: [big idea]. Mecanismo aplicado: [nome]. VOC integrado, objeções quebradas, 3 variações de headline pra teste. [Se houver warnings residuais de compliance: N warnings — revise se quiser.]
+"Copy completa pro [tipo de página]. Big Idea: [big idea]. Mecanismo aplicado: [nome]. VOC integrado, objeções quebradas, 3 variações de headline pra teste.
 
 Próximo passo: diga **'page'** pro design da página (skill 07a — você escolhe a rota de design e aprova o HTML navegável, com essa copy dentro, ANTES de qualquer código existir); depois **'build page'** pra compilar e subir no Shopify (07b), **'tracking'** (07c) e **'checkout'** (07d). Com a loja pronta, armamos a infraestrutura de launch — **'bônus'** (05 Fase A, se a oferta tem bônus) e **'retention'** (13 Fase A: flows de recuperação, abandoned cart + post-purchase) — e só então os criativos. Não adianta criar ads pra uma página que ainda não existe."

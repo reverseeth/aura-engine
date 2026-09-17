@@ -23,9 +23,8 @@ Antes de launch oficial (ads go-live + page em produção), rodar esta skill pra
 
 - Mecanismo único nomeado "X" na skill 04 virou "X-alt" nas variações de hook da skill 08
 - VOC phrase repetida 12x no market research NÃO aparece em nenhum hook do ad batch
-- Claim "clinically proven" aparece no hero da página mas `04-offer-builder/research-foundation.json` não tem estudo correspondente
+- Hook do ad promete resultado "in 14 days" mas a página inteira fala em "30 days"
 - Guarantee copy diz "90 days" mas `04-offer-builder/dados.json` diz 30 days
-- Promo banner promete "free US shipping" mas Shopify shipping zones cobram $X em algumas regiões
 - Ad primary text menciona bonus que foi removido na última iteração do offer stack
 
 ## Pré-flight
@@ -48,20 +47,18 @@ Ler todos os artefatos disponíveis (só os que existem):
 - `03-competitor-analysis/competitor-analysis.md` + `03-competitor-analysis/dados.json` → extract `claims_saturation[]`, `swipe_adapt[]`, `positioning_recommendation`
 - `03-competitor-analysis/creative-patterns.json` (se existir) → extract `hook_archetypes[]`, `recurring_claims[]`
 - `04-offer-builder/offer-builder.md` + `04-offer-builder/dados.json` → extract `mechanism.name`, `mechanism.ump.name`, `mechanism.ums.name`, `guarantee`, `pricing`, `bonuses[]` (schemas legados podem ter `mechanism.version_short` no lugar de `ump`/`ums` — aceitar ambos)
-- `04-offer-builder/research-foundation.json` → extract `evidence_items[]`, claims supported, `confidence_score`, `mechanism_name` (top-level)
-  - **Se AUSENTE:** automaticamente criar CRITICAL finding C2b "Research foundation não rodou — todos os claims de copy/ads saem sem lastro verificável." Oferecer 2 caminhos: **(A)** rodar Skill 04 Etapa 2.5 agora pra gerar o lastro, OU **(B)** prosseguir com o check flagado como critical marcando `manifest.skipped_preflight += ["04-offer-builder/research-foundation.json"]` e avisando no output final que recomenda re-executar. Não pule o check.
-  - **Sinal explícito adicional:** `06-copy-engine/dados.json.claims_unverified: true` dispara o MESMO finding C2b, mesmo que o `research-foundation.json` exista agora — significa que a copy foi escrita ANTES do lastro existir (membro escolheu prosseguir no pré-flight da 06). Nesse caso o fix é re-validar os claims da copy contra o research-foundation atual (não basta o arquivo existir; a copy nasceu sem ele). Mais robusto que só detectar ausência do arquivo, porque cobre o cenário do membro gerar o research-foundation DEPOIS da copy.
+- `04-offer-builder/research-foundation.json` (se existir) → extract `proof_items[]`, `best_numbers[]`, `mechanism_name` (top-level) — contexto pro C2 (prova apresentada perto do claim). Ausente → C1b e a parte de números do C2 ficam `skipped`, sem finding.
 - `05-bonus-delivery/bonus-delivery.md` **(if exists)** + assets em `05-bonus-delivery/bonuses/[bonus-id]/` → extract status da Fase A por bônus (asset gerado? GWP/delivery configurado? "pronto pro launch"?) — alimenta o H5. Se há bônus visível na PDP e a 05 nunca rodou, o próprio H5 flaga (não bloqueia a carga).
-- `06-copy-engine/copy-engine.md` + `06-copy-engine/dados.json` → extract headlines, hero, mechanism mentions, claims, promises + os campos top-level `lead_type` (enum: `story|big_idea|problem_agitation|mechanism|secret|proclamation|offer|direct` — alimenta o H2) e os flags de pré-flight `claims_unverified` (alimenta o C2b) e `voc_forced_continue` (contexto pro H1: se `true`, a copy nasceu com VOC insuficiente — coverage baixo no H1 ganha essa causa provável no finding, com fix "re-rodar skill 02 e re-gerar a copy")
+- `06-copy-engine/copy-engine.md` + `06-copy-engine/dados.json` → extract headlines, hero, mechanism mentions, claims, promises + os campos top-level `lead_type` (enum: `story|big_idea|problem_agitation|mechanism|secret|proclamation|offer|direct` — alimenta o H2) e o flag de pré-flight `voc_forced_continue` (contexto pro H1: se `true`, a copy nasceu com VOC insuficiente — coverage baixo no H1 ganha essa causa provável no finding, com fix "re-rodar skill 02 e re-gerar a copy")
 - `07-page/page-plan.json` → extract `strategy.mechanism_name`, `page_type`, `sections_plan[]`, `section_order`, `brand_discovery` (alimenta C1c e M5)
 - `07-page/design-system.md` → extract paleta, tipografia (alimenta M6 — comparação com os tokens)
 - `07-page/design-tokens.json` (gerado por 07a, qualquer rota) → tokens extraídos da variação aprovada (alimenta M6)
-- `07d-checkout-aov/dados.json` **(if exists)** → extract config aplicada de bump/upsell/free-shipping threshold (alimenta o C4: promessa de checkout vs config real)
+- `07d-checkout-aov/dados.json` **(if exists)** → extract bump/upsell/free-shipping threshold aplicados (contexto pro C3 e pro H5: a garantia e o bônus que o checkout mostra são os mesmos da oferta e da página)
 - `08-creative-engine/dados.json` → extract hooks, primary_texts, headlines per concept + `hooks_bank[]` top-level
 - `13-retention-engine/[fluxo]/email-N.html` + `flow-metadata.json` **(if exists — a Fase A da 13 roda pré-launch na ordem canônica: abandoned cart + post-purchase)** → alimenta o M7 (placeholders tipo `{{BONUS_LINK}}` ainda não preenchidos) e dá contexto ao gate (flows de recuperação prontos antes do go-live)
 - `10-ad-strategy/dados.json` **(if exists)** — no modo pré-launch ainda não existe (a 10 roda depois da 09); só lê se presente, nunca bloqueia por ausência.
 - `11-ad-analysis/dados.json` **(if exists)** → extract `psm_real`, `winners[]`, `recommended_action` — só existe na re-execução pós-iteração, nunca no pré-launch.
-- `manifest.json.agentic` **(if exists)** → `{ready, channel_enabled, score, checked_at}` escrito pela 07e — **contexto INFORMATIVO no gate de launch, NUNCA bloqueante** (agentic readiness é canal incremental, não pré-requisito de ads). Se presente com `ready: false` ou itens `blocked_pending` em `07e-agentic-readiness/dados.json`, mencione no output como nota informativa: esses itens apontam pras mesmas superfícies que o C4 (promise↔config) já confere (JSON-LD/agent-facts vs config real da loja) — se o C4 achou drift nessas superfícies, o dado da 07e ajuda a localizar. Ausente → silêncio (a 07e pode não ter rodado; não é finding).
+- `manifest.json.agentic` **(if exists)** → `{ready, channel_enabled, score, checked_at}` escrito pela 07e — **contexto INFORMATIVO no gate de launch, NUNCA bloqueante** (agentic readiness é canal incremental, não pré-requisito de ads). Se presente com `ready: false` ou itens `blocked_pending` em `07e-agentic-readiness/dados.json`, mencione no output como nota informativa: esses itens apontam pra dado estruturado (JSON-LD/agent-facts) que diverge da página — se o C3 (garantia) ou o H5 (bônus) acharam drift nessas superfícies, o dado da 07e ajuda a localizar. Ausente → silêncio (a 07e pode não ter rodado; não é finding).
 
 > **A 09 roda em dois momentos:** (1) **gate pré-launch** — antes de ads go-live e page em produção, com artefatos 01-08; nesse modo `10-ad-strategy/dados.json` e `11-ad-analysis/dados.json` não existem ainda e devem ser lidos só `if exists` (inversão de dependência: a 10 e a 11 dependem da 09 passar, não o contrário). (2) **re-validação pós-iteração** — depois de corrigir issues ou rodar batches, quando 10/11 já existem e entram no cruzamento.
 
@@ -76,7 +73,7 @@ Ler todos os artefatos disponíveis (só os que existem):
 - Ausente em AMBOS os lados (copy E ads) → `severity: critical`, `fix: inject mechanism name in hero + no corpo de pelo menos 1 conceito`
 - Presente em só UM dos lados → `severity: high` (drift parcial: o consumidor vê o mecanismo numa fase da jornada e não na outra)
 
-**C1b. Mechanism name normalizado (04 ↔ research-foundation)**
+**C1b. Mechanism name normalizado (04 ↔ research-foundation)** — só se `research-foundation.json` existir
 - `04-offer-builder/dados.json.mechanism.name` DEVE ser idêntico a `04-offer-builder/research-foundation.json.mechanism_name` (campo top-level).
 - Divergência → `severity: critical`, `check_id: "mechanism-drift"`, `fix: alinhar o nome do mecanismo entre offer e research-foundation antes de propagar pra copy/ads`. (É a fonte da verdade do mecanismo; se essas duas já divergem, todo C1 abaixo herda o drift.)
 
@@ -85,19 +82,19 @@ Ler todos os artefatos disponíveis (só os que existem):
 - Divergência → `severity: critical` (a página é o artefato de maior visibilidade pro consumidor; mecanismo com nome diferente na página vs ads quebra o message match do funil inteiro), `fix: corrigir o strategy block do page-plan.json e re-gerar a section afetada`.
 - `07-page/page-plan.json` ausente (página ainda não planejada) → check `"skipped"`.
 
-**C2. Claim sem research foundation**
+**C2. Claim forte sem prova apresentada ao lado**
 - Pra cada claim forte em `06-copy-engine/copy-engine.md` (hero, mechanism section, proof blocks) e `08-creative-engine/dados.json` (hooks + primary_texts):
-  - Cross-check com `04-offer-builder/research-foundation.json.evidence_items[]`
-  - Se o claim NÃO tem match → `severity: critical`, `fix: add evidence OR soften claim ("helps with" instead of "proven to")`
-- **Não é só "tem match sim/não" — julgue se o PROOF SUSTENTA o CLAIM.** Puxe estes sistemas da base pra calibrar o veredito (rode a `best_query` de cada um):
+  - Confira se existe PROVA apresentada perto dele — número, estudo do banco de provas (`research-foundation.json.proof_items[]`), depoimento de performance, demo, comparação. Prova pode estar na mesma seção ou na imediatamente seguinte.
+  - Claim forte sem prova por perto → `severity: high`; se é a promessa do HERO e não existe prova em lugar nenhum da página → `severity: critical`. `fix: trazer a prova pra perto do claim (número do banco de provas, depoimento com resultado, demo) — nunca suavizar o claim`. O claim fica; o que muda é a prova chegar junto.
+- **Julgue a APRESENTAÇÃO da prova, não a força do claim.** Puxe estes sistemas da base pra calibrar o veredito (rode a `best_query` de cada um):
   - **Bencivenga's 'Yeah, Sure' Principle** (rode `Bencivenga yeah sure principle proof must match claims promise outweighs proof doctors headache`) — proof tem que ser proporcional à ousadia do claim; claim grande com proof fraco dispara o reflexo "yeah, sure". É o gate central deste check.
   - **Hopkins' Specificity Principle (Reason-Why)** (rode `Hopkins specificity principle reason-why platitudes generalities specific claims transformation`) — claim vago/genérico (sem número, sem mecanismo, sem reason-why) é fraco mesmo "com evidence". Flag claim que é platitude.
-  - **Schwab's Ten Categories of Proof** (rode `Schwab ten categories of proof taxonomy five principles presenting proof testimonials`) — classifica o TIPO de proof disponível em `04-offer-builder/research-foundation.json`; se o claim exige proof tipo X mas só existe tipo Y, é gap real.
+  - **Schwab's Ten Categories of Proof** (rode `Schwab ten categories of proof taxonomy five principles presenting proof testimonials`) — classifica o TIPO de proof que a peça usa; se o claim pede proof tipo X (resultado) e a peça só traz tipo Y (autoridade), o fix é trazer o tipo certo pra perto.
   - **Made to Stick — Audience-Testable Credibility + Sinatra Test** (rode `Made to Stick three wellsprings credibility external internal audience-testable Heath` e `Sinatra Test one example so impressive establishes credibility case study`) — se um único caso/demo carrega o claim sozinho, marca como forte; se nem isso existe, agrava o finding.
-  - **Puffery (hipérbole como bypass de substanciação)** (rode `puffery hiperbole evitar sustentar claim biggest no-brainer OMG that was easy`) — separa claim que EXIGE lastro de hipérbole reconhecível que dispensa substanciação ("best decision ever"); evita finding falso em cima de puffery legítima — e pega o inverso: número ou promessa concreta tentando passar por puffery.
+  - **Puffery (hipérbole)** (rode `puffery hiperbole evitar sustentar claim biggest no-brainer OMG that was easy`) — separa hipérbole reconhecível ("best decision ever"), que não pede prova ao lado, de promessa concreta, que pede; evita finding falso em cima de puffery legítima.
   - **Auditoria de prova — vocabulário de Kyle Milligan + o "Imagery Hack"** (rode `auditoria de prova numere as provas 3 to 6 examples mais fraca no meio fracao vence porcentagem`) — julga a APRESENTAÇÃO do proof que existe: provas numeradas, 3 a 6 exemplos, a mais fraca no meio, fração vencendo porcentagem. Evidence presente mas mal apresentada é finding de fix barato (medium, não critical).
   - **Auditoria de especificidade** (rode `auditoria de especificidade claims especificos 21 a 53% mais criveis timeline do processo`) — régua medida pro julgamento do Hopkins acima: claim específico é 21 a 53% mais crível; claim sem número, timeline ou detalhe de processo perde essa margem mesmo "com evidence".
-  - **Os 4 Erros de Conversão que o Critique caça (Kyle Milligan)** (rode `selling from your heels, pinte a imagem antes de oferecer o dinheiro de volta, mostre o resultado não o processo`) — lente de erro de conversão sobre os mesmos claims: vender na defensiva (claim hedged demais mesmo com lastro), mostrar o processo em vez do resultado, e oferecer o dinheiro de volta antes de pintar a imagem — este último alimenta também o C3.
+  - **Os 4 Erros de Conversão que o Critique caça (Kyle Milligan)** (rode `selling from your heels, pinte a imagem antes de oferecer o dinheiro de volta, mostre o resultado não o processo`) — lente de erro de conversão sobre os mesmos claims: vender na defensiva (claim hedged — "may help", "designed to support" — é finding aqui, com fix "afirmar direto"), mostrar o processo em vez do resultado, e oferecer o dinheiro de volta antes de pintar a imagem — este último alimenta também o C3.
   - **Greek Sweep (Ethos / Logos / Pathos)** (rode `greek sweep ethos logos pathos passada de edicao prova e emocao long copy`) — mapeia onde a peça concentra prova vs emoção; trecho todo pathos carregando claim forte sem nenhum logos por perto é exatamente onde este check mais acha gap.
   - **Empty vs Performance Testimonial (Settle) + os 3 formatos de elite** (rode `empty vs performance testimonial criterio de descarte retrato demografico asset nomeado`) — quando o "evidence" do claim é depoimento/review: depoimento vazio ("love it!") não sustenta claim de performance; aplicar o critério de descarte antes de aceitar o match.
 
@@ -106,15 +103,8 @@ Ler todos os artefatos disponíveis (só os que existem):
 - Divergência (30 vs 60 vs 90 dias) → `severity: critical`
 - **Não é só duração — julgue também a POSIÇÃO da garantia.** O sistema **Os 4 Erros de Conversão** (mesma puxada do C2 — não repita a busca) marca como erro oferecer o dinheiro de volta ANTES de pintar a imagem do resultado: garantia aparecendo antes do value build na página/copy → `severity: medium` no mesmo `check_id` (a divergência de duração continua `critical`).
 
-**C4. Promessa sem config**
-- Trigger o Promise↔Config gate (`.claude/rules/pre-launch-gates.md`)
-- Inclui o checkout (se `07d-checkout-aov/dados.json` existe): threshold de free-shipping prometido na barra/copy vs threshold configurado; desconto prometido no bump/upsell vs desconto realmente aplicado na config — promessa não-cumprida no checkout é onde nasce chargeback
-- **Urgência/escassez também é promessa.** Puxe **Urgency / Scarcity / FOMO como três alavancas distintas** (rode `urgency scarcity FOMO tres alavancas distintas hot sauce seeds of regret why 500`) — toda urgência/escassez em página/copy/ad precisa de mecânica REAL por trás: deadline que existe de verdade, estoque verdadeiro, limite com "Why?" respondível. Alavanca anunciada sem lastro na config/realidade da loja → mesmo tratamento de promessa sem config (`fail`).
-- Qualquer `fail` → `severity: critical`
-
-**C5. Ad-flag compliance drift**
-- Trigger Compliance Pre-flight em todo output consumidor-final
-- `severity: critical` em qualquer peça → reportar
+**C4. Urgência e escassez coerentes entre ad, página e checkout**
+- Puxe **Urgency / Scarcity / FOMO como três alavancas distintas** (rode `urgency scarcity FOMO tres alavancas distintas hot sauce seeds of regret why 500`) — a mesma alavanca de urgência/escassez tem que aparecer com o MESMO número, prazo e "Why?" no ad, na página e no checkout. Ad diz "48h", página diz "this week", checkout não mostra nada → `severity: high`, `fix: alinhar a alavanca nas três superfícies`.
 
 #### HIGH (recomendar fix antes de launch)
 
@@ -242,11 +232,11 @@ Schema do JSON:
   "findings": [
     {
       "check_id": "C2",
-      "severity": "critical",
+      "severity": "high",
       "status": "fail",
       "artifact": "06-copy-engine/copy-engine.md hero section",
-      "issue": "Claim 'visibly firmer skin in 14 days' não tem evidence em 04-offer-builder/research-foundation.json",
-      "fix_suggested": "Adicionar study com N=X amostra OR reescrever como 'designed to help with firmness'",
+      "issue": "Claim 'visibly firmer skin in 14 days' está no hero sem nenhuma prova nas duas seções seguintes",
+      "fix_suggested": "Trazer pro bloco abaixo do hero o número do banco de provas (research-foundation.json.best_numbers[0]) ou um depoimento com resultado em 14 dias — o claim fica como está",
       "auto_fixable": false
     }
   ]

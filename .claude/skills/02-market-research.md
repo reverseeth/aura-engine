@@ -11,7 +11,7 @@ Quando o membro tem produto definido e precisa entender profundamente o mercado,
 ## Antes de Começar
 
 1. Leia `workspace/profile.md` pra contexto do membro. Leia `report_language` (default `pt-BR` se ausente; também disponível em `manifest.report_language`). TODO output interno (.md/.html/.json descritivo) e toda conversa com o membro usam esse idioma, seguindo o padrão de linguagem simples da regra 0 do `.claude/CLAUDE.md` (nenhuma sigla sem explicação imediata, zero frase de analista comprimida, números estatísticos em palavras, citação VOC em inglês com "tradução livre:" ao lado quando o relatório é pt-BR). **Copy consumidor-final (ads, headlines, páginas, emails, hooks) e VOC literal permanecem SEMPRE em inglês US**, independente do report_language.
-2. Se existir `workspace/[produto]/01-product-research/product-research.md`, leia — tem dados preliminares úteis (dores, linguagem, concorrentes identificados, awareness/sophistication preliminar)
+2. Se existir `workspace/[produto]/01-product-research/product-research.md`, leia — tem a jogada vencedora, os elementos validados por marca e awareness/sophistication preliminar. Leia também `01-product-research/banco-de-marcas.md` (se existir): as fichas das marcas escaladas do nicho (LP, ads, mecanismos, ângulos) e as frases literais das reviews de 1-2 estrelas do Trustpilot — VOC pronta pra entrar na base de pesquisa desta skill
 3. **Puxe os SISTEMAS NOMEADOS da base — NUNCA use query genérica.** Para cada ETAPA abaixo, rode `search_knowledge` com a `best_query` exata de cada framework relevante listado naquela etapa (deep=true). Não busque por "market research" ou "pesquisa de mercado" solto — busque pelo NOME do sistema (ex: `Schwartz five stages of awareness unaware problem aware solution aware product aware most aware`). Aprofunde em cada método até entender o "por quê" de cada passo. Este documento é a FUNDAÇÃO de todo o sistema — se for raso, tudo que vier depois será raso.
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (`frameworks.json` + `README.md`, mapa skill→domínio no README). Esta skill cruza dois domínios: **market-research-voc** e **persuasion-psychology**. O tamanho de cada domínio é o que estiver no próprio `frameworks.json` — a fonte da verdade é sempre o índice, nunca um número decorado no texto desta skill.
@@ -439,22 +439,9 @@ Antes de salvar, valide:
 
 Se alguma validação falhar, aprofunde naquele ponto antes de salvar.
 
-### Data Quality Summary (antes de salvar)
+### Fontes (só no `dados.json`, nunca no relatório)
 
-Inclua seção dedicada no `.md` e no `.json`:
-
-```
-## Data Quality Summary
-- VOC coletado de: Amazon reviews (N), Reddit (N), TikTok comments (N), Trustpilot (N), fóruns (N), survey/giveaway (N), ligações pra clientes (N) = Total N frases únicas
-- Fontes tentadas e bloqueadas: [lista, ex: "Trustpilot (Cloudflare)", "Quora (login wall)"]
-- VOC minimum atingido? [sim / não — se não, N frases a aquém do mínimo 35]
-- Awareness distribution source: [user_estimate / default:<bucket> / hybrid / web_signals]
-- Sophistication stage confidence: [high / medium / low] + racional em 1 frase
-- Root cause candidatas baseadas em: [peer-reviewed research / specialist consensus / extrapolation]
-- Avatar: 1 core avatar + N sub-avatares (cada um com ângulo declarado) · N labels coletados
-- Vocabulário: N termos reais com contagem · N termos da marca/indústria confirmados como ausentes na base
-- Ideias de anúncio geradas até a parada: N (regra de parada: 5-10)
-```
+Grave em `dados.json.sources` a contagem de VOC por fonte (Amazon, Reddit, TikTok, Trustpilot, fóruns, survey, ligações) e a origem da distribuição de awareness (`user_estimate | default | hybrid | web_signals`). É informação de procedência pra AI das fases seguintes; o relatório `.md/.html` traz só o resultado (rule `report-only-results.md`).
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
@@ -487,11 +474,9 @@ Salvar TRÊS artefatos:
   "voc_count": 0,
   "voc_adequacy": "ok|medium|insufficient",
   "skills_blocked": [],
-  "data_quality": {
-    "voc_sources": { "amazon": 0, "reddit": 0, "tiktok": 0, "trustpilot": 0, "forums": 0 },
-    "sources_blocked": [],
-    "voc_minimum_met": true,
-    "root_cause_basis": "peer_reviewed|specialist_consensus|extrapolation"
+  "sources": {
+    "voc_sources": { "amazon": 0, "reddit": 0, "tiktok": 0, "trustpilot": 0, "forums": 0, "survey": 0, "warm_call": 0, "product_research_brand_bank": 0 },
+    "awareness_distribution_source": "user_estimate|default|hybrid|web_signals"
   },
   "core_avatar": {
     "category": "desire",

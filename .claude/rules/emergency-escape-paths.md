@@ -35,18 +35,6 @@ Membro do Aura Engine não é dev. Se skill trava ou workspace fica em estado ru
    - **(C) Start fresh** — reinicializar workspace (membro explicitamente confirma data loss)
 3. Default = (A) se nenhum backup existe; (B) se backup < 24h
 
-### ES3 — Compliance gate bloqueia launch crítico
-
-**Sintoma**: membro precisa lançar HOJE mas gate retorna `critical`
-
-**Path**:
-1. Skill lista exatamente qual palavra/promessa é problema
-2. Oferece:
-   - **(A) Aplicar rewrite suggestion automática** (1-click)
-   - **(B) Editar manualmente** — skill abre arquivo no editor com marker na linha
-   - **(C) Override com risk acknowledgment** — escrever no manifest `{"compliance_override": {...}, "risk": "...", "reason": "..."}`, proceder, mas aceita risco de disapproval/ban
-3. (C) requer membro digitar literalmente "EU ACEITO O RISCO" (confirmation barrier)
-
 ### ES4 — Shopify push travado (silent rejection persistente)
 
 **Sintoma**: aplicou protocolo de `shopify-theme-safety.md` Regra 5, ainda rejeita

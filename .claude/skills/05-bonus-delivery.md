@@ -18,7 +18,7 @@ O que justifica a 05 como skill standalone é o trabalho operacional que a 04 n�
 
 **Posicionamento na ordem — DUAS fases (isso resolve o paradoxo de launch):** o offer_stack da 04 promete os bônus na PDP desde o dia 1 (a 06 imprime literal, a 07b deploya). Um comprador do dia 1 NÃO pode receber promessa de e-book que ainda não foi gerado, nem de brinde que a loja não sabe adicionar ao carrinho. Por isso:
 
-- **Fase A — Launch-readiness (ANTES do go-live de ads, logo depois da 07d):** gerar o asset digital (PDF do e-book/guide), configurar GWP/complementary/gift-wrap na loja (coordenado com a 07d), hospedar o arquivo, garantir o acesso do comprador do dia 1 (link do asset na thank-you page / order status — funciona mesmo antes do flow de email existir) e produzir o payload de email pra Skill 13. **Todo bônus visível na PDP precisa sair da Fase A antes do primeiro ad** — a Skill 09 (consistency audit) verifica isso no gate de launch (promise↔config).
+- **Fase A — Launch-readiness (ANTES do go-live de ads, logo depois da 07d):** gerar o asset digital (PDF do e-book/guide), configurar GWP/complementary/gift-wrap na loja (coordenado com a 07d), hospedar o arquivo, garantir o acesso do comprador do dia 1 (link do asset na thank-you page / order status — funciona mesmo antes do flow de email existir) e produzir o payload de email pra Skill 13. **Todo bônus visível na PDP precisa sair da Fase A antes do primeiro ad** — a Skill 09 (consistency audit) verifica isso no H5.
 - **Fase B — Tracking e iteração (PÓS-launch, junto da Fase B da 13):** com a campanha ATIVA e pedidos acontecendo (dupla condição do pré-flight), a 05 volta em D+30 pra puxar take-rate/access rate agregados (ETAPA 4) e alimentar a iteração da oferta na 04. (O flow de email de entrega em si já nasce na Fase A da 13, que roda pré-launch — o que é pós-launch aqui é o TRACKING.)
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (mapa skill→domínio no `README.md`, queries exatas em `frameworks.json`). O domínio desta skill é **brand-building-bonus-aov** — o tamanho do domínio é o que o `frameworks.json` disser (fonte da verdade), não um número fixo aqui. Sempre que uma ETAPA mandar "puxar da base", rode `search_knowledge` com a `best_query` NOMEADA do framework relevante daquela fase — **nunca query genérica**.
@@ -98,7 +98,7 @@ A alavanca de AOV mais direta. Add um item de baixo COGS quando o cart subtotal 
 
 **1. Definir o threshold (cart subtotal — só pra `condition: cart_threshold`):** ancorar no AOV. Ler `04-offer-builder/dados.json` (price, offer_stack) e o AOV histórico se existir (manifest ou Stripe). Regra prática: threshold ~10-20% **acima** do AOV atual, pra empurrar o cliente a adicionar 1 item a mais sem ser inalcançável. Se não houver AOV histórico, usar o preço do tier principal × 1.1 como proxy e marcar como teórico.
 
-**2. Sourcing low-COGS:** o brinde precisa ter percepção de valor alta e custo real baixo (sample size do próprio catálogo, item complementar barato, kit emocional). O `value_anchored` na PDP ancora no **varejo real** do item, nunca num "sticker price" inventado (ver Compliance abaixo).
+**2. Sourcing low-COGS:** o brinde precisa ter percepção de valor alta e custo real baixo (sample size do próprio catálogo, item complementar barato, kit emocional). O `value_anchored` na PDP ancora no preço de varejo do item ou de itens comparáveis no mercado.
 
 **3. Implementação Shopify (caminho real — NÃO draft order):**
    - **Caminho A — App de gift-with-purchase** (BOLD, Gift Box, Free Gifts BOGO, etc): config no admin do app "free product when cart ≥ $threshold". Mais rápido pra starter, sem código.
@@ -199,7 +199,7 @@ Questions? Just reply to this email.
 — [Brand]
 ```
 
-Compliance do email: subject < 50 chars, 1 CTA só, reply-to monitorado, unsubscribe link. Sem emoji no subject (consistência com o tom da marca; opcional, decisão do membro).
+Formato do email: subject < 50 chars, 1 CTA só, reply-to monitorado, unsubscribe link. Sem emoji no subject (consistência com o tom da marca; opcional, decisão do membro).
 
 ### ETAPA 4 — Tracking (access rate / take-rate) — Fase B
 
@@ -250,16 +250,13 @@ KPIs por tipo:
 | **File hosting** (Shopify Files API / S3 / R2) | Hospedar PDF do e-book/guide | Gerar link público |
 | **Fulfillment center** | In-box gift (complementary físico, gift-wrap) | Documentar instrução pro membro repassar |
 
-## Compliance — valor ancorado e Kennedy Level-2
+## Valor ancorado e Kennedy Level-2
 
-**Puxe os SISTEMAS NOMEADOS antes de fechar valor ancorado e garantia** (rode a `best_query`):
-- **FTC Anchored-Value / Fictitious-Pricing Legality (sell-the-bonus rule)** (rode `FTC anchored value fictitious pricing bonus must be actually sold legality`) — base legal do item 1 abaixo.
+**Puxe o SISTEMA NOMEADO antes de fechar valor ancorado e garantia** (rode a `best_query`):
 - **Kennedy Five-Level Guarantee Hierarchy (incl. Refund + Keep the Premium, Deliberate Redundancy, Guarantee the Letter)** (rode `Kennedy five level guarantee hierarchy refund keep the premium guarantee the letter itself`) — base do Level-2 (item 2).
-- **Compliance Sweep (will→helps-to, claims→mice-type, fake-urgency cut, unauthorized-endorsement cut)** (rode `FTC compliance sweep will helps to claims mice type fake urgency endorsement cut`) — varredura do nome/descrição do bônus na PDP (item 3).
 
-1. **FTC anchored-value:** o `value_anchored` do bônus deve ancorar no **preço de varejo real** do item, não num "sticker price" colado num item que nunca foi vendido por aquele preço. Ancorar valor falso em item não-vendido é frágil legalmente. Se o e-book "vale $49" mas nunca foi vendido, usar uma âncora defensável (preço de guides comparáveis no mercado) ou baixar a âncora.
+1. **Valor ancorado:** o `value_anchored` do bônus ancora no preço de varejo do item ou no preço de itens comparáveis no mercado — a âncora mais alta que o comprador aceita como plausível.
 2. **Kennedy Level-2 (keep-the-premium-on-refund):** atar o bônus à garantia — "se pedir reembolso, **fica com o bônus de qualquer forma**". Sinaliza confiança suprema e reduz fricção de compra. Coordenar com a `guarantee` do `04-offer-builder/dados.json` (se a garantia já é Level-2, a copy da página deve refletir; ver Skill 06/07). Surface pro membro se quiser ativar isso e ainda não está na oferta.
-3. **Ad-flag words (rule 8b):** o nome/descrição do bônus que aparece na PDP segue ad-safe (Meta crawler lê a landing). Em doc interno, ok mencionar livre.
 
 ## Anti-patterns (FORBIDDEN)
 
@@ -272,14 +269,13 @@ KPIs por tipo:
 - Modelar log por compra (customer_id/delivered_at) — não há quem alimente; tracking é snapshot agregado (ETAPA 4).
 - Discount code sem expiração (vira promo eterna).
 - In-box gift (complementary/gift-wrap) sem coordenar com fulfillment (não vai na caixa).
-- `value_anchored` inflado em item não-vendido (frágil no FTC).
 - GWP threshold abaixo do AOV (queima margem sem empurrar AOV pra cima).
 - Sobrescrever o `05-bonus-delivery/dados.json` em vez de dar append (perde o histórico de snapshots).
 
 ## Regras de rigor
 
 1. **Bônus real e específico** — cada entrega é tangível e útil pro avatar. Recusar gerar bônus genérico sem justificar relevância.
-2. **Promise↔Config check** — bônus prometido no stack da Skill 04 (visível na PDP) precisa ter asset + delivery/GWP setup completos **ANTES do go-live de ads** (Fase A). A Skill 09 (consistency audit) e a rule `.claude/rules/pre-launch-gates.md` verificam essa promessa ("Free [bonus] with purchase") no gate de launch.
+2. **Bônus prometido existe antes do launch** — bônus prometido no stack da Skill 04 (visível na PDP) precisa ter asset + delivery/GWP setup completos **ANTES do go-live de ads** (Fase A). A Skill 09 (consistency audit) confere isso no H5.
 3. **Access/take-rate tracking** — sempre que possível, medir. Bônus nunca acessado/escolhido = sinal de oferta fraca, itera na 04.
 4. **Fallback graceful** — se a API de hosting/Function falha, gerar PDF como último recurso E avisar o membro pra setup manual depois (ES6).
 

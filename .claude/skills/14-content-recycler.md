@@ -11,7 +11,7 @@ Skill auxiliar invocável. Pega um criativo que **já provou escalar** e tira de
 
 > **Duas trilhas, nesta ordem.** **Trilha 1 — Amplificação** roda primeiro, sempre: é o que se faz de verdade com um ad que venceu (iterar, portar, dar página própria, levar pra outro canal, dar budget dedicado, devolver pro pipeline criativo). **Trilha 2 — Derivadas de formato** são as 9 peças de canal próprio; continuam disponíveis, mas como jogada de **marca e de LTV**, não de performance. Quem escala a conta é a Trilha 1.
 
-> **Fonte primária da Trilha 2 é a lib, não a base.** A estrutura "1 criativo → 9 formatos" (specs, length, tom, compliance de cada derivada) vem INTEIRA de `.claude/lib/content-recycler/` (`recycler.md` = engine do fluxo, `formats.json` = specs dos 9 formatos) — não existe framework "9 derivadas" na base de conhecimento, então NUNCA busque isso lá. A Trilha 1 não vem da lib: ela vem do cânone `.claude/lib/ad-taxonomy/README.md` (§2 classes, §5 escala, §7 Sniper) mais os movimentos descritos aqui. A base entra só pros **frameworks de copy NOMEADOS**: os domínios desta skill no índice `.claude/lib/kb-index/` (`frameworks.json` + `README.md`, mapa skill→domínio) são **creatives-hooks-formats** (102 sistemas, principal) e **page-landing-cro** (87 sistemas — relevante pra LP/prelander da Trilha 1 e pras derivadas advertorial e blog SEO). Quando uma etapa pede "consultar a base", NUNCA use query genérica — puxe os SISTEMAS NOMEADOS rodando `search_knowledge` com a `best_query` de cada framework relevante pra aquela etapa (`deep=true`).
+> **Fonte primária da Trilha 2 é a lib, não a base.** A estrutura "1 criativo → 9 formatos" (specs, length, tom de cada derivada) vem INTEIRA de `.claude/lib/content-recycler/` (`recycler.md` = engine do fluxo, `formats.json` = specs dos 9 formatos) — não existe framework "9 derivadas" na base de conhecimento, então NUNCA busque isso lá. A Trilha 1 não vem da lib: ela vem do cânone `.claude/lib/ad-taxonomy/README.md` (§2 classes, §5 escala, §7 Sniper) mais os movimentos descritos aqui. A base entra só pros **frameworks de copy NOMEADOS**: os domínios desta skill no índice `.claude/lib/kb-index/` (`frameworks.json` + `README.md`, mapa skill→domínio) são **creatives-hooks-formats** (102 sistemas, principal) e **page-landing-cro** (87 sistemas — relevante pra LP/prelander da Trilha 1 e pras derivadas advertorial e blog SEO). Quando uma etapa pede "consultar a base", NUNCA use query genérica — puxe os SISTEMAS NOMEADOS rodando `search_knowledge` com a `best_query` de cada framework relevante pra aquela etapa (`deep=true`).
 
 ## Quando usar
 
@@ -28,7 +28,6 @@ Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; ta
 - [ ] `.claude/lib/ad-taxonomy/README.md` existe (cânone das 4 classes — o gatilho e a régua de ABO saem daqui)
 - [ ] `.claude/lib/content-recycler/recycler.md` existe (engine da Trilha 2)
 - [ ] `.claude/lib/content-recycler/formats.json` existe (specs dos 9 formatos)
-- [ ] `.claude/lib/compliance-preflight/` existe (pra rodar check em cada derivada)
 
 **Detecção de breakthrough (quando o input não traz ID específico):**
 
@@ -137,8 +136,8 @@ Siga o fluxo do `.claude/lib/content-recycler/recycler.md` a partir da ETAPA 3 �
    - Demais frameworks do domínio (Hormozi Callout System, What-Who-When Matrix, SUCCESs, New Opportunity vs Improvement, etc.) ficam disponíveis em `.claude/lib/kb-index/` pra puxar sob demanda quando o formato pedir.
 
 4. **Gerar 9 derivadas** em paralelo (advertorial, email sequence, organic TikTok, blog SEO, Pinterest carousel, YouTube preroll, SMS, package insert, podcast ad)
-5. **Compliance Pre-flight em cada** — protocolo por severity (o mesmo da ETAPA 4 do `recycler.md`): `critical` → PARAR essa derivada, mostrar triggers + rewrite ao membro e aguardar aprovação (nunca auto-reescrever claim critical silenciosamente); `high` → auto-rewrite + log + re-rodar o check; `medium` → salvar original + logar warning; `low` → salvar silencioso
-6. **Gerar README.md + compliance-log.json** consolidados
+5. **Passada de estilo em cada** — travessão zero em headlines/subject lines, ≤2 no corpo (rule 8a); nenhuma derivada com aviso, disclaimer ou claim suavizado por conta própria (rule 8b)
+6. **Gerar README.md** consolidado
 
 ## Email-sequence: não colidir com os flows da Skill 13
 
@@ -166,7 +165,6 @@ Pasta `workspace/[produto]/14-content-recycler/[source-id]/`.
 **Trilha 2 (só quando rodada):**
 - 9 arquivos `.md`, um por formato (advertorial, email, TikTok, blog, Pinterest, YouTube preroll, SMS, package insert, podcast)
 - 9 arquivos `.html` correspondentes — um pra cada `.md` (rule 6b: dual output obrigatório)
-- `compliance-log.json` — log consolidado das derivadas
 
 Além das pastas por source-id, escreva também no topo de `workspace/[produto]/14-content-recycler/` um índice `content-recycler.md` + `content-recycler.html` que lista todas as fontes trabalhadas (cada `[source-id]` com a classe lida, o plano de amplificação e — quando existirem — os 9 formatos, com link pra pasta). Esse índice é o relatório humano que o painel do produto exibe.
 
@@ -193,7 +191,7 @@ Depois de salvar todos os outputs:
 **Trilha 2 (se rodada):**
 - [ ] 9 arquivos `.md` gerados
 - [ ] 9 arquivos `.html` companion gerados (rule 6b)
-- [ ] Cada um passa compliance check (severity ≤ medium)
+- [ ] Cada um passou na passada de estilo (rule 8a/8b)
 - [ ] README.md + README.html com índice pronto
 
 ## Customização (Trilha 2)
@@ -203,7 +201,6 @@ Pra adicionar novo formato (ex: LinkedIn post, Substack newsletter, Twitter thre
 - `length_words_total` range (+ opcional `length_words_per_email`/`length_words_per_pin` quando o formato tem unidades, seguindo as entries existentes)
 - `structure` template
 - `tone`
-- `compliance_notes`
 
 Próxima rodada da skill gera automaticamente também esse formato.
 
@@ -240,8 +237,6 @@ Próxima rodada da skill gera automaticamente também esse formato.
 ```
 ✓ 9 formatos gerados em workspace/[produto]/14-content-recycler/[source-id]/
 
-  Compliance: [X críticos, Y high, Z medium, W low]
-  Rewrites aplicados: [N]
 
   Distribuição sugerida:
   → Advertorial: publicar como LP secundária pra cold traffic

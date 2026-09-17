@@ -161,11 +161,6 @@
       "type": "enum",
       "values": ["none", "scarcity_real", "time_limit", "social_pressure", "curiosity_gap"],
       "description": "Tipo de urgency usada (se alguma)"
-    },
-    "compliance_risk_score": {
-      "type": "number",
-      "range": [0, 100],
-      "description": "Score do Compliance Pre-flight — útil pra correlacionar com Meta disapproval histórico"
     }
   },
   "contextual_features": {

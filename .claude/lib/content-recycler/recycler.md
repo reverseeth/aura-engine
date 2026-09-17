@@ -54,7 +54,7 @@ Destilar em shape estruturado (valores extraídos das fontes acima, não pré-de
   "proof_points": ["<proof points mais repetidos no briefing>"],
   "offer_core": "<garantia + pricing principal resumido>",
   "cta_essence": "<call to value final do criativo>",
-  "forbidden_words": ["<red-flag words do CLAUDE.md + blocklist do membro>"],
+  "forbidden_words": ["<o 'o que NUNCA dizer' do brand.md (mecanismos/claims saturados) + blocklist do membro>"],
   "framework_template": "<o PADRÃO do hook com o slot vazio, em inglês US — ex: 'I think [negative thing] just happened (to me)'>",
   "psychological_mechanism": "<por que o padrão funciona, em 1 frase: o efeito na cabeça do avatar, não a descrição do hook>"
 }
@@ -97,13 +97,8 @@ Pra cada formato:
 1. Carregar format spec de `formats.json`
 2. Construir prompt usando essence.json + format spec + knowledge base context
 3. Gerar derivada respeitando `length_words`, `structure`, `tone`
-4. Rodar Compliance Pre-flight (`.claude/lib/compliance-preflight/checker.md`)
-5. Decidir pela severity (mesmo protocolo do checker.md):
-   - `critical` → PARAR essa derivada, mostrar triggers + `rewrite_suggestion` ao membro e aguardar aprovação antes de salvar (nunca auto-reescrever claim critical silenciosamente)
-   - `high` → auto-rewrite + log, re-rodar o check
-   - `medium` → salvar original + logar warning
-   - `low` → salvar silencioso
-6. Salvar em `workspace/[produto]/14-content-recycler/[source-id]/[output_file]`
+4. Passada de estilo: travessão zero em headline/subject, ≤2 no corpo (rule 8a); nenhum aviso, disclaimer ou claim suavizado por conta própria (rule 8b)
+5. Salvar em `workspace/[produto]/14-content-recycler/[source-id]/[output_file]`
 
 ### ETAPA 5 — Gerar índice + relatório
 
@@ -121,21 +116,21 @@ Gerado em [timestamp] a partir de [source file].
 
 ## 9 formatos gerados
 
-| Formato | Arquivo | Palavras | Compliance |
-|---|---|---|---|
-| Advertorial 1500w | advertorial-1500w.md | 1540 | ✅ low |
-| Email sequence | email-sequence.md | 1080 | ✅ low |
-| Organic TikTok 20s | organic-tiktok-20s.md | 58 | ⚠️ medium (1 trigger) |
-| Blog SEO post | blog-seo-post.md | 1820 | ✅ low |
-| Pinterest carousel | pinterest-carousel-8.md | 290 | ✅ low |
-| YouTube pre-roll 15s | youtube-preroll-15s.md | 48 | ✅ low |
-| SMS welcome | sms-welcome.md | 24 | ✅ low |
-| Package insert | package-insert.md | 165 | ✅ low |
-| Podcast host-read 30s | podcast-ad-30s.md | 74 | ✅ low |
+| Formato | Arquivo | Palavras |
+|---|---|---|
+| Advertorial 1500w | advertorial-1500w.md | 1540 |
+| Email sequence | email-sequence.md | 1080 |
+| Organic TikTok 20s | organic-tiktok-20s.md | 58 |
+| Blog SEO post | blog-seo-post.md | 1820 |
+| Pinterest carousel | pinterest-carousel-8.md | 290 |
+| YouTube pre-roll 15s | youtube-preroll-15s.md | 48 |
+| SMS welcome | sms-welcome.md | 24 |
+| Package insert | package-insert.md | 165 |
+| Podcast host-read 30s | podcast-ad-30s.md | 74 |
 
 ## Como usar
 
-Cada formato foi derivado da mesma essência do winner [source-id]. Os prompts foram calibrados pra cada canal respeitar: comprimento, estrutura, tom, e restrições de compliance.
+Cada formato foi derivado da mesma essência do winner [source-id]. Os prompts foram calibrados pra cada canal respeitar: comprimento, estrutura e tom.
 
 **Próximos passos sugeridos:**
 - Advertorial: publicar em blog ou landing page secundária
@@ -161,31 +156,6 @@ Pra CADA `.md` salvo nesta pasta (README.md + as 9 derivadas) gerar o `.html` co
 - Abrir o `<body>` com o bloco SVG da logo copiado **LITERALMENTE** de `.claude/templates/aura-logo-snippet.html` (6 linhas, sem alterações). PROIBIDO substituir por texto "AURA"/"Aura Engine". Sem fallback textual.
 - O HTML do README segue o `report_language` do membro; o HTML das 9 derivadas reflete o conteúdo consumidor-final em inglês US.
 
-### ETAPA 6 — Compliance log consolidado
-
-Salvar log consolidado em `workspace/[produto]/14-content-recycler/[source-id]/compliance-log.json`:
-
-```json
-{
-  "source_creative": "<creative-id>",
-  "recycled_at": "2026-04-17T...",
-  "formats_generated": 9,
-  "compliance_summary": {
-    "all_low": true,
-    "total_triggers": 1,
-    "critical": 0,
-    "high": 0,
-    "medium": 1,
-    "low": 0
-  },
-  "by_format": {
-    "advertorial_1500w": {"severity": "low", "triggers": []},
-    "organic_tiktok_20s": {"severity": "medium", "triggers": [{"phrase": "...", "reason": "..."}]},
-    ...
-  }
-}
-```
-
 ## Estrutura final de arquivos
 
 ```
@@ -194,7 +164,6 @@ workspace/[produto]/14-content-recycler/
     ├── README.md                     ← índice + instruções
     ├── README.html                   ← companion humano (rule 6b)
     ├── essence.json                  ← essência extraída (pra reuso)
-    ├── compliance-log.json           ← log consolidado
     ├── advertorial-1500w.md          (+ .html)
     ├── email-sequence.md             (+ .html)
     ├── organic-tiktok-20s.md         (+ .html)
@@ -208,7 +177,7 @@ workspace/[produto]/14-content-recycler/
 
 ## Custo estimado
 
-- ~10-12 chamadas Claude (extração essência + 9 derivadas + compliance em cada)
+- ~10-12 chamadas Claude (extração essência + 9 derivadas)
 - Tokens totais: ~40-60k por rodada
 - Custo: zero custo extra — só tokens da assinatura Claude Code
 
@@ -222,4 +191,4 @@ workspace/[produto]/14-content-recycler/
 - **Não reinventar wheel**: se já tem email flow no Klaviyo com performance, recyler gera variação alternativa pra A/B, não substitui
 - **Idioma do destino**: derivadas seguem mesma language do criativo fonte (US market default = English)
 - **Brand voice lock**: essence.json inclui `brand_voice` — todas derivadas respeitam
-- **Forbidden words**: herdadas do CLAUDE.md (rules 8b) + qualquer blocklist específica do membro
+- **Forbidden words**: o "o que NUNCA dizer" do `brand.md` (mecanismos/claims saturados) + qualquer blocklist específica do membro

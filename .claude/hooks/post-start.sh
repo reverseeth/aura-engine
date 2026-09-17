@@ -189,15 +189,33 @@ auto_update() {
   fi
 }
 
-run_hook() {
-  # Guard roda TODA sessão (idempotente e barato)
-  install_pre_commit_guard "$AURA_HOME"
+# Limpador de Metadados — deixa os atalhos de 2 cliques executáveis (idempotente,
+# toda sessão) e, 1x por dia, avisa onde ele está e se falta o ffmpeg (só vídeo).
+setup_limpador() {
+  local launcher="$AURA_HOME/Limpador de Metadados.command"
+  [ -f "$launcher" ] && chmod +x "$launcher" 2>/dev/null || true
+  chmod +x "$AURA_HOME/tools/strip-metadata.sh" "$AURA_HOME/tools/limpador-de-metadados/limpar.js" "$AURA_HOME/tools/limpador-de-metadados/app.js" 2>/dev/null || true
+}
 
-  # Alias + auto-update: 1x por dia por clone
+notice_limpador() {
+  [ -d "$AURA_HOME/tools/limpador-de-metadados" ] || return 0
+  echo "[aura] Limpador de Metadados pronto: 2 cliques em 'Limpador de Metadados.command' (Mac) ou '.cmd' (Windows) na pasta da Aura — todo criativo passa por ele antes de subir."
+  if ! command -v ffmpeg >/dev/null 2>&1 && [ ! -x /opt/homebrew/bin/ffmpeg ] && [ ! -x /usr/local/bin/ffmpeg ]; then
+    echo "[aura] Falta o ffmpeg (só pra limpar VÍDEO; imagens já funcionam). Mac: brew install ffmpeg · Windows: winget install Gyan.FFmpeg"
+  fi
+}
+
+run_hook() {
+  # Guard + atalhos do limpador rodam TODA sessão (idempotentes e baratos)
+  install_pre_commit_guard "$AURA_HOME"
+  setup_limpador
+
+  # Alias + auto-update + aviso do limpador: 1x por dia por clone
   [ -f "$FLAG_DAILY" ] && return 0
 
   setup_alias
   auto_update
+  notice_limpador
 
   # Marca que já rodou hoje — não roda de novo até o próximo dia
   touch "$FLAG_DAILY" 2>/dev/null || true

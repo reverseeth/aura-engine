@@ -145,7 +145,7 @@ Carregue antes: **Offer Type Menu** (`offer types percent off dollar off buy one
 | Quiz offer | teste (gifting) | "encontre o presente certo" como funil |
 
 **Stacking e linguagem (regras duras da fonte):**
-- Empilhar desconto embutido de bundle + % extra da data e comunicar o total ("save up to 40%") é legítimo — mas **recalcule o preço final a partir do compare-at**: 10% + 20% em cima NÃO é 30%. A matemática errada no banner é bug de compliance e de confiança.
+- Empilhar desconto embutido de bundle + % extra da data e comunicar o total ("save up to 40%") é legítimo — mas **recalcule o preço final a partir do compare-at**: 10% + 20% em cima NÃO é 30%. A matemática errada no banner é bug de confiança.
 - Desconto uniforme → **"X% off EVERYTHING"** (mais forte que "site-wide"). **"Up to X% off" só quando o desconto NÃO é uniforme** — e saiba que o consumidor já desconfia do padrão "up to 70%" com 70% só no estoque encalhado. "Biggest sale of the year/ever" só quando for verdade.
 - **NUNCA inflar o compare-at price** pra fabricar desconto: *"as pessoas viram seus ads o ano todo; você não está sendo um bom vendedor, está enganando."* É gate ético e de conta.
 - Aceitável o ad dizer 25% e o site dar 40% (surpresa positiva); **o inverso destrói a conversão**.

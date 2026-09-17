@@ -48,7 +48,7 @@ Leia `report_language` de `workspace/profile.md` (default `pt-BR` se ausente; ta
 | Fees reais do canal | Painel do canal (fee de venda da Amazon por categoria, fee do TikTok Shop) |
 | GMV e métricas de canal aberto | Painel do canal — GMV é o total vendido dentro do canal |
 
-Ferramentas pagas (Kalodata, FastMoss) seguem a regra dura da skill 01: **a AI nunca finge acessar ferramenta paga** — diz exatamente o que olhar e trata o retorno como dado colado pelo membro.
+Ferramentas pagas (Kalodata, FastMoss) seguem a regra dura da Aura: **a AI nunca finge acessar ferramenta paga sem MCP** — diz exatamente o que olhar e trata o retorno como dado colado pelo membro.
 
 ### Puxe os SISTEMAS NOMEADOS da base
 

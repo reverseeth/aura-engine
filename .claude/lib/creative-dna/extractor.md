@@ -4,7 +4,7 @@ Usado pela Skill 08 imediatamente após gerar um briefing completo. Extrai featu
 
 ## Fluxo de invocação (a Skill 08 executa isso internamente — ETAPA 7.6)
 
-1. Depois de completar ETAPA 5 (briefings) e ETAPA 7.5 (compliance), pra cada criativo gerado:
+1. Depois de completar ETAPA 5 (briefings) e ETAPA 7 (hooks bank), pra cada criativo gerado:
 2. Rodar este prompt de extração abaixo
 3. Parse JSON response
 4. Salvar em `workspace/[produto]/creative-dna/features-[creative-id].json`
@@ -26,7 +26,6 @@ Briefing do criativo: {conteúdo do concept-XX.md ou script}
 Contexto adicional:
 - Awareness level alvo (do market research): {awareness_dominant}
 - Funnel position (do próprio briefing): {TOF | MOF | BOF}
-- Compliance risk score (do checker.md rodado antes): {0-100}
 - Hook archetype declarado na geração (ETAPA 4.5.E da Skill 08): {id de archetypes.json}
 
 Retorne APENAS JSON neste formato (nenhum texto antes ou depois):
@@ -58,7 +57,6 @@ Retorne APENAS JSON neste formato (nenhum texto antes ou depois):
   "guarantee_mentioned": true|false,
   "price_mentioned": true|false,
   "urgency_mechanism": "[enum]",
-  "compliance_risk_score": N,
 
   "awareness_level_target": "[enum]",
   "funnel_position": "[enum]",

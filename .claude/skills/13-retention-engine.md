@@ -125,7 +125,7 @@ Incluir o asset/link do bonus (PDF, Circle invite, código de acesso — produzi
 - Email 1 (imediato): boas-vindas + reforço do motivo do opt-in + code do welcome offer (se houver)
 - Email 2 (dia 2): educação sobre o mecanismo único (do `04-offer-builder/offer-builder.md`) + soft CTA
 - Email 3 (dia 4): social proof stack + trust reinforcement
-- Email 4 (dia 7): urgency layer + hard CTA. **Branch obrigatório:** se existe welcome code, a urgência é a expiração real do code (cross-check com o Promise↔Config gate — regra de rigor 4). Se NÃO existe welcome offer, NUNCA inventar deadline — usar urgência legítima alternativa: estoque real, prova social acumulada ("2.400 já compraram"), ou recap do mecanismo + custo de adiar o resultado.
+- Email 4 (dia 7): urgency layer + hard CTA. **Branch obrigatório:** se existe welcome code, a urgência é a data real de expiração do code criado no Shopify (regra de rigor 4). Se NÃO existe welcome offer, NUNCA inventar deadline — usar urgência legítima alternativa: estoque real, prova social acumulada ("2.400 já compraram"), ou recap do mecanismo + custo de adiar o resultado.
 
 ### 2. Abandoned Cart (viewed product, added to cart, didn't checkout) — FASE A (pré-launch)
 
@@ -273,16 +273,16 @@ Membro faz o setup manual seguindo o guia, skill entrega os materiais prontos.
 
 **Nota específica pra `esp: "shopify_email"`:** o Shopify Email (com Shopify automations/Flow) cobre bem welcome, abandoned cart e post-purchase, mas os flows com branch/segmentação avançada (win-back por janela de inatividade, replenishment com timing por consumo) são limitados. O setup-guide adapta: usa as automations nativas onde existem, e converte os flows que o Shopify Email não suporta em campanhas agendadas manualmente (com o timing calculado no guia). Avisar no output final: quando o membro passar de ~$5k/mês em receita de email, migrar pra Klaviyo destrava os 5 flows completos + segmentação — recomendar a migração sem forçar.
 
-## Compliance & deliverability
+## Deliverability (cair na inbox, não em Promotions/Spam)
 
 Pra cada email gerado:
 
 - **Subject line**: < 50 chars ideal; sem ALL CAPS; sem emoji excessivo
 - **Preview text**: 40-70 chars
-- **Unsubscribe link**: obrigatório no footer (CAN-SPAM + GDPR)
+- **Unsubscribe link**: no footer (todo ESP exige pra entregar)
 - **From name**: "[Brand Name]" — não email genérico tipo "noreply@"
 - **Reply-to**: endereço monitorado (replies de cliente vão pra algum lugar)
-- **Spam trigger words check (checklist inline — a lib `compliance-preflight` cobre ad-flags de Meta/TikTok, não spam de email; não usar aqui):** revisar subject + body contra: "FREE!!!" e variações all-caps, "ACT NOW", "LIMITED TIME!!!", "GUARANTEED", "RISK-FREE", "100% free", excesso de `!` e `$`, subject inteiro em caixa alta, mais de 1 emoji no subject. Esses padrões derrubam inbox rate (caem em Promotions/Spam) — reescrever antes de salvar
+- **Padrões que derrubam inbox rate (checklist inline):** revisar subject + body contra: "FREE!!!" e variações all-caps, "ACT NOW", "LIMITED TIME!!!", "GUARANTEED", "RISK-FREE", "100% free", excesso de `!` e `$`, subject inteiro em caixa alta, mais de 1 emoji no subject. Esses padrões derrubam inbox rate (caem em Promotions/Spam) — reescrever antes de salvar
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
@@ -293,7 +293,7 @@ Salvar:
 1. **`workspace/[produto]/13-retention-engine/[fluxo]/email-N.html`** — HTML pronto de cada email do fluxo (consumidor final; responsive table-based email HTML, NÃO o design-system Aura)
 2. **`workspace/[produto]/13-retention-engine/[fluxo]/flow-metadata.json`** — metadata de cada email (subject, preview, trigger, delay)
 3. **`workspace/[produto]/13-retention-engine/retention-engine.md`** — relatório operacional do setup pra AI ler em skills futuras (resumo dos fluxos criados, triggers, status)
-4. **`workspace/[produto]/13-retention-engine/retention-engine.html`** — visualização humana (AI report) usando `.claude/templates/aura-report-template.html` como base. Logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por fluxo, `.pill` pra status (DRAFT/ACTIVE), `.callout` pra avisos de compliance.
+4. **`workspace/[produto]/13-retention-engine/retention-engine.html`** — visualização humana (AI report) usando `.claude/templates/aura-report-template.html` como base. Logo SVG do Aura no topo (copiar LITERALMENTE de `.claude/templates/aura-logo-snippet.html`). Componentes: `.section-label` por fluxo, `.pill` pra status (DRAFT/ACTIVE), `.callout` pra notas de setup.
 5. **`workspace/[produto]/13-retention-engine/dados.json`** — log de flows criados + timestamps + status + delivery results + `phase` (`"A" | "B"`) por flow
 
 **Distinção importante:** os emails em si (item 1) são HTML de email marketing (table-based, inline styles pra ESP compatibility) — NÃO usam o design-system Aura, NÃO têm logo Aura. Já os relatórios internos (itens 3-4) seguem a rule 6b do CLAUDE.md normalmente.
@@ -319,7 +319,7 @@ Atualizar o `manifest.json`:
 1. **NUNCA ativar flow sem revisão humana** — risco de spam em escala
 2. **Dois idiomas, dois papéis.** A copy dos emails (subject, preview, body, CTA) é consumidor-final do mercado US e fica SEMPRE em **inglês**, independente do `report_language`. Já o relatório interno (`13-retention-engine/retention-engine.md`/`.html`), o setup-guide e a conversa com o membro seguem o `report_language` do `profile.md` (default `pt-BR`). Nunca misturar: nunca email em português, nunca relatório interno forçado em inglês quando o membro escolheu pt-BR.
 3. **Replenishment requer a janela de reorder definida** — perguntar ao membro em quantos dias o produto acaba (ver Fluxo 5). Se o produto é one-time (não consumível), pular Fluxo 5.
-4. **Welcome offer code precisa existir** — cross-check com Promise↔Config gate antes de enviar
+4. **Welcome offer code precisa existir no Shopify antes de enviar** — se ainda não existe, crie em Discounts (ou peça ao membro) com a mesma expiração que o email anuncia
 5. **Rate limit**: ao criar flows via Klaviyo MCP oficial, respeitar o rate limit da API pública (spacing entre chamadas; ao receber 429, backoff conforme ES6). No fallback (assets + guide) não há chamada de API, então não se aplica.
 
 ## Mensagem Final

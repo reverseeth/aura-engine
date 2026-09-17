@@ -15,28 +15,27 @@ Cada fase do pipeline mora numa **subpasta própria** cujo nome é **o stem da s
 | `<stem>.html` (ex: `market-research.html`) | **O que o membro abre.** Report humano (design v5). É o link "Abrir" no painel. |
 | `<stem>.md` (ex: `market-research.md`) | O que a IA lê nas fases seguintes (narrativa). |
 | `dados.json` | Dados estruturados primários da fase (quando a fase tem JSON). |
-| *(descritivos)* | Arquivos secundários mantêm nome descritivo dentro da pasta (ex: `research-foundation.json`, `compliance-log.json`, `concept-01.md`). |
+| *(descritivos)* | Arquivos secundários mantêm nome descritivo dentro da pasta (ex: `research-foundation.json`, `banco-de-marcas.md`, `concept-01.md`). |
 
 **Por que `dados.json` NÃO ganha nome por fase:** é um arquivo AI-only (o membro nunca abre), e o nome imutável permite que qualquer skill downstream leia `[fase]/dados.json` sem manter mapa de nomes por fase. O nome descritivo existe pra ajudar o MEMBRO a se orientar em .html/.md — pra dado estruturado que só a IA consome, uniformidade > descritividade.
 
 **Compat legado:** produtos criados antes da renomeação usam `relatorio.md`/`relatorio.html`. O `build_index.py` tenta `<stem>.html` primeiro e cai pra `relatorio.html`; skills que leem outputs das fases mais consumidas (02/03/04/06) leem `<stem>.md` e, se não existir, `relatorio.md` (legado). Nenhuma migração automática.
 
-Arquivos de **infra/fundação** ficam na raiz do produto (não são fase): `manifest.json`, `brand.md`, `brand/logo.svg`, `promise-check.json`, `compliance-warnings.json`, `creative-dna/` (compartilhado 08+11), `ABRIR-AQUI.html`, backups. O `profile.md`/`profile.html` do membro são **globais** em `workspace/` (não por produto).
+Arquivos de **infra/fundação** ficam na raiz do produto (não são fase): `manifest.json`, `brand.md`, `brand/logo.svg`, `creative-dna/` (compartilhado 08+11), `ABRIR-AQUI.html`, backups. O `profile.md`/`profile.html` do membro são **globais** em `workspace/` (não por produto).
 
-**Artefatos de runtime de rules** (criados sob demanda pelas rules, também na raiz do produto): `troubleshooting-log.md` (troubleshooting-patterns), `escape-paths-log.json` e `.snapshots/[timestamp]/` (emergency-escape-paths), `compliance-warnings.json` (pre-launch-gates — já listado na infra acima), `.manifest-backup-*.json` (skill 00 / ES2); e **per-fase**, `[fase]/iterations-log.json` (iteration-driven-refinement — não existe log global de iterações na raiz).
+**Artefatos de runtime de rules** (criados sob demanda pelas rules, também na raiz do produto): `troubleshooting-log.md` (troubleshooting-patterns), `escape-paths-log.json` e `.snapshots/[timestamp]/` (emergency-escape-paths), `.manifest-backup-*.json` (skill 00 / ES2); e **per-fase**, `[fase]/iterations-log.json` (iteration-driven-refinement — não existe log global de iterações na raiz).
 
 ## Mapa por fase (sufixo relativo a `workspace/<slug>/`)
 
 ```
 manifest.json                          ← infra (inalterado)
 brand.md  ·  brand/logo.svg            ← infra (inalterado)
-promise-check.json                     ← infra compartilhada (07b + 10)
-compliance-warnings.json               ← infra compartilhada (07b + 10)
 creative-dna/                          ← infra compartilhada (08 escreve features-*, 11 escreve perf-*/dna-profile)
 ABRIR-AQUI.html                        ← painel, gerado por build_index.py
 
 01-product-research/
-  product-research.md   product-research.html         (01 não tem dados.json)
+  product-research.md   product-research.html   dados.json
+  banco-de-marcas.md   banco-de-marcas.html    (banco de marcas — o .html só existe quando o membro não usa o Notion; o .md existe sempre)
 sourcing/
   sourcing.md   sourcing.html   dados.json            (01b, opcional — fornecedor, cotação, logística)
 02-market-research/
@@ -53,7 +52,6 @@ sourcing/
   bonuses/[bonus-id]/[bonus-id].pdf
 06-copy-engine/
   copy-engine.md   copy-engine.html   dados.json
-  compliance-log.json
 07-page/                                ← storefront (07a design + 07b build)
   page-plan.json   design-system.md   design-system.html
   design/page.html                      (só page.html fica dentro de design/)
@@ -71,7 +69,6 @@ sourcing/
 08-creative-engine/
   creative-engine.md   creative-engine.html   dados.json
   concept-NN.md/.html   concept-NN-edl.md   hooks-bank.md/.html   production-summary.md/.html
-  compliance-log.json
   prompts/...
 09-consistency-audit/
   consistency-audit.md   consistency-audit.html   dados.json
@@ -89,7 +86,7 @@ sourcing/
   [fluxo]/email-N.html   [fluxo]/flow-metadata.json   [fluxo]/setup-guide.md
 14-content-recycler/
   content-recycler.md   content-recycler.html         (índice das fontes recicladas — p/ o painel)
-  [source-id]/README.md/.html   [source-id]/essence.json   [source-id]/compliance-log.json
+  [source-id]/README.md/.html   [source-id]/essence.json
 15-finance-engine/
   finance-engine.md   finance-engine.html   dados.json   (consulta lateral)
   banking-sheet.csv                          (só no Modo B — medir)

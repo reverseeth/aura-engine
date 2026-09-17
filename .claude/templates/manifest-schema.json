@@ -193,7 +193,7 @@
         "education",
         "other"
       ],
-      "description": "Product vertical used by compliance pre-flight (checker.md) to pick the right red-flag rule set. Set during skill 00-setup or 01-product-research. Default 'other' if ambiguous."
+      "description": "Product vertical (niche) of the winning product. Set during skill 00-setup or 01-product-research; refined by 02. Default 'other' if ambiguous."
     },
     "copy_language": {
       "type": "string",
@@ -363,9 +363,9 @@
       "type": "boolean",
       "description": "True if skill 04 flagged weighted margin < $20. Read by 10/12 as a scaling caution."
     },
-    "compliance_override": {
+    "product_research": {
       "type": "object",
-      "description": "Set only when the member explicitly overrides a compliance BLOCK (emergency-escape-paths ES3). Records {reason, risk, gate, timestamp}."
+      "description": "Written by skill 01. {source: 'trendtrack_mcp'|'manual'|'mixed', notion_url: string|null, winner_play_id: string, base_brands: string[]} — where the brand bank lives and which recombination play won."
     },
     "skipped_preflight": {
       "type": "array",

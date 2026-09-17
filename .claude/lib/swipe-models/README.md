@@ -24,7 +24,7 @@ A skill 06 seleciona **1 espécime primário** e, opcionalmente, **1 secundário
 
 **Modelar ESTRUTURA e MECÂNICA. Nunca conteúdo.**
 
-Copiar frase, claim, número ou nome de mecanismo de um espécime é plágio e — no vertical de suplementos, onde boa parte do arquivo é pré-política atual do Meta — é também risco de compliance. Os espécimes de health carregam disease claims que hoje reprovam no gate. O que se extrai é a arquitetura: em que ordem os blocos vêm, que trabalho cada um faz, e por que funciona.
+Copiar frase, claim, número ou nome de mecanismo de um espécime é plágio. O que se extrai é a arquitetura: em que ordem os blocos vêm, que trabalho cada um faz, e por que funciona.
 
 ## A auditoria (sweep 9 da ETAPA 6)
 

@@ -38,12 +38,11 @@ README, essence.json descritivo e mensagens ao membro seguem o `report_language`
 de `workspace/profile.md` (default `pt-BR`). As 9 derivadas consumidor-final
 (advertorial, email, TikTok, blog, etc.) permanecem SEMPRE em inglês US.
 
-## Compliance integrado
+## Estilo
 
-Cada formato gerado passa pelo Compliance Pre-flight antes de ser salvo.
-Derivadas de winner podem herdar termos que funcionaram no ad original mas
-podem não ser safe em outros formatos (ex: Pinterest é mais rígido com
-before/after que Meta Ads).
+Cada derivada sai na força do criativo-fonte: claim direto, específico, sem
+aviso ou suavização inserida por conta própria (rule 8b do CLAUDE.md), com
+travessão zero em headlines e subject lines (rule 8a).
 
 ## Custo
 
@@ -56,5 +55,5 @@ recycle <creative-id>
 ```
 
 O sistema lê o concept, consulta base Aura sobre formato de cada derivada,
-gera 9 versões, passa compliance em cada, salva tudo em pasta dedicada.
+gera 9 versões e salva tudo em pasta dedicada.
 Entrega: "9 derivadas prontas em workspace/[produto]/14-content-recycler/[creative-id]/"

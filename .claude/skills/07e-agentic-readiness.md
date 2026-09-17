@@ -20,7 +20,7 @@ Esta skill **NÃO consulta a base de conhecimento Aura** (`search_knowledge`): n
 ## Pré-flight (OBRIGATÓRIO)
 
 - [ ] `workspace/[produto]/manifest.json` existe e é parseável (senão → escape ES2: rebuild ou restore de `.manifest-backup-*.json`)
-- [ ] **Idioma:** ler `report_language` de `workspace/profile.md` (default `pt-BR`; também em `manifest.report_language`). Todo output interno e conversa usam esse idioma. Conteúdo que vai pra loja (specs, FAQ, llms.txt) é **sempre em inglês US** — é superfície pública que o robô lê (rules 0 e 8b do CLAUDE.md).
+- [ ] **Idioma:** ler `report_language` de `workspace/profile.md` (default `pt-BR`; também em `manifest.report_language`). Todo output interno e conversa usam esse idioma. Conteúdo que vai pra loja (specs, FAQ, llms.txt) é **sempre em inglês US** — é superfície pública que o robô lê (rule 0 do CLAUDE.md).
 - [ ] `07b-page-build` em `manifest.skills_completed` E `manifest.storefront.page_url` presente (página publicada). Sem página no ar não há o que auditar.
 - [ ] Acesso ao Shopify admin da loja (canal de vendas, apps, robots.txt do tema).
 
@@ -41,7 +41,7 @@ O canal é o que torna a loja descobrível dentro dos assistentes (ChatGPT, Copi
 
 Guiar o membro no admin:
 1. **Shopify admin > Settings > Apps and sales channels** → confirmar o canal **Agentic Storefronts** (ou "Agentic") instalado/ativo. Se a loja é US e ele não aparece, checar elegibilidade nos requisitos do canal (plano, região, policies).
-2. **Completar as 3 policies obrigatórias** que o canal exige — o próprio admin marca o que falta (tipicamente: shipping policy, return/refund policy e contact/customer service). Sem elas o canal não expõe a loja. As policies têm que bater com o que a página promete (a 09 confere promise↔config depois).
+2. **Completar as 3 policies obrigatórias** que o canal exige — o próprio admin marca o que falta (tipicamente: shipping policy, return/refund policy e contact/customer service). Sem elas o canal não expõe a loja. Escreva as policies com os mesmos prazos e condições que a página e a oferta (04) usam.
 3. Registrar o status: `enabled` / `pending_policies` / `not_eligible`.
 
 > A loja também expõe nativamente o endpoint `/api/mcp` (Storefront MCP) — não precisa configurar nada, mas confirme com `curl -sI https://<store>/api/mcp` que responde (qualquer status ≠ 404 conta como presente).
@@ -52,7 +52,7 @@ O Knowledge Base app é a camada de contexto que os agentes consultam pra respon
 
 1. Instalar o app **Knowledge Base** da Shopify (App Store, grátis).
 2. Popular com dado REAL das fases anteriores — nunca inventar: FAQ da PDP (de `06-copy-engine/dados.json`), políticas de envio/devolução (as mesmas da ETAPA 1), garantia (da 04), e 2-3 parágrafos de brand voice (de `brand.md`, se existir).
-3. Conteúdo em inglês US, factual, sem palavra ad-flag (rule 8b — o robô da Meta também lê).
+3. Conteúdo em inglês US, factual e específico.
 
 Status: `populated` / `installed_empty` / `pending`.
 
@@ -98,7 +98,7 @@ Status: `all_allowed` / `fixed` / `blocked_pending`.
 
 O Shopify gera `/llms.txt` nativo em toda loja (desde mai/2026). Verificar com `curl -s https://<store>/llms.txt` que existe. O override via `templates/llms.txt.liquid` é **opcional** — vale quando o membro quer controlar a descrição da marca e destacar o mecanismo/claims com as palavras certas:
 
-- Conteúdo: 1 parágrafo de marca + produto hero com mecanismo nomeado (da 04) + links pras políticas + fatos verificáveis. Inglês US, claims sustentados pela research foundation, zero ad-flag.
+- Conteúdo: 1 parágrafo de marca + produto hero com mecanismo nomeado (da 04) + links pras políticas + fatos específicos (specs, prazos, garantia). Inglês US.
 - Se o membro não quiser customizar, o nativo basta — registrar `native` e seguir.
 
 ### ETAPA 7 — Perplexity Merchant Program
@@ -130,7 +130,7 @@ Consolidar o checklist num score simples: **itens `pass` / itens aplicáveis** (
 | 50-79% | Funcional com lacunas — listar as 2-3 ações de maior impacto (quase sempre: dados estruturados + canal). |
 | < 50% | Invisível pra agente de compra. Resolver ETAPAs 1, 3 e 5 antes do launch. |
 
-O score NÃO bloqueia o launch (quem gateia é a 09) — mas os itens `blocked_pending` de dado estruturado divergente (ETAPA 3) devem ser resolvidos antes, porque a 09 confere promise↔config nas mesmas superfícies.
+O score NÃO bloqueia o launch (quem gateia é a 09) — mas os itens `blocked_pending` de dado estruturado divergente (ETAPA 3) devem ser resolvidos antes, porque dado estruturado divergente da página confunde o agente de compra que lê os dois.
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
