@@ -58,3 +58,14 @@ python3 -m venv .claude/lib/web-fetch/.venv
 ## Manutenção
 
 As instâncias **redlib** (lista `REDLIB` em `fetch.py`) podem cair com o tempo — são serviços comunitários. Se o `--mode reddit` começar a falhar, atualize a lista com instâncias vivas (busque "redlib instances" / o wiki do projeto redlib). O fetcher já tenta cada uma em ordem e cai pra próxima — e, se todas caírem, ainda tenta a **API Arctic Shift** (`ARCTIC` em `fetch.py`) como degrau final antes de desistir.
+
+## Lote de termos no Trends (`trends_batch.py`)
+
+O endpoint do Trends aceita ~25-30 consultas seguidas do mesmo IP e depois responde 429 por 30-60 minutos. Pra medir os 30-40 termos de um product research sem perder a metade final, use o lote com ritmo:
+
+```bash
+python3 .claude/lib/web-fetch/trends_batch.py --out <pasta> "termo 1" "termo 2" ...
+python3 .claude/lib/web-fetch/trends_batch.py --out <pasta> --terms termos.txt   # 1 termo por linha
+```
+
+Espaça as consultas (`--gap 20`), pausa entre lotes (`--batch 20 --pause 600`), espera e tenta de novo quando um termo volta bloqueado (`--cooldown 900 --retries 2`) e pula termos que já têm série salva, então pode ser rodado de novo pra retomar. A saída por termo é o mesmo JSON do `fetch.py --mode trends --json`.
