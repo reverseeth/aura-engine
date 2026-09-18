@@ -16,7 +16,8 @@ Regras:
   skill-ids      número de skill só vive em `legacy_ids`/`legacy_folder` do registro, em
                  `use_in_skill` do índice e no changelog do OVERVIEW (§14). Em qualquer outro lugar,
                  número como identificador de skill é falha: pasta ou arquivo `NN-slug` (com qualquer
-                 número), `skill NN`, `skill-NN`, `(NN)` depois do nome de uma skill, apelido com letra
+                 número), a forma abreviada `NN-<começo do slug>` (`04-offer`, `06-copy`) quando o
+                 número é o apelido daquela skill, `skill NN`, `skill-NN`, `(NN)` depois do nome de uma skill, apelido com letra
                  solto (`07a`), `a NN`/`da NN`/`pela NN`/`→ NN` fora de contexto numérico, lista ligada
                  a um desses e faixa entre apelidos (`skills 00-20`). O filtro de contexto numérico
                  (o que separa "a 08" de "chega a 12") é o do `tools/migrate_ids.py`, importado: tudo
@@ -300,6 +301,19 @@ class Registry:
                 m = re.match(r"^(\d{2}[a-e]?)-(.+)$", s["legacy_folder"])
                 if m:
                     self.slug_aliases.setdefault(m.group(2), set()).add(m.group(1))
+        # começo de slug (por segmento) → {id a sugerir: apelidos daquela skill}. `04-offer` e
+        # `06-copy` são referência a skill tanto quanto `04-offer-builder`; o slug completo já está
+        # no slug_aliases. Exigir que o número seja o apelido DAQUELA skill é o que mantém
+        # `90-day` e `19-point` fora da regra.
+        self.slug_prefixes = {}
+        for s in self.skills:
+            lgs = set(s.get("legacy_ids") or [])
+            parts = s["id"].split("-")
+            for n in range(1, len(parts)):
+                pre = "-".join(parts[:n])
+                if pre in self.slug_aliases:
+                    continue
+                self.slug_prefixes.setdefault(pre, {}).setdefault(s["id"], set()).update(lgs)
 
     def resolve(self, token):
         """id ou apelido → id (ou None)."""
@@ -445,14 +459,20 @@ def rule_skill_ids(files, reg, index):
             if i in skip or (is_registry and REGISTRY_LEGACY_LINE_RE.match(raw)):
                 continue
             l = mig.LEGACY_REPORT_RE.sub(blank, MANIFEST_FIELDS_RE.sub(blank, raw))
-            # a. pasta ou arquivo de skill com número na frente, com qualquer número
+            # a. pasta ou arquivo de skill com número na frente, inteiro (`04-offer-builder`, com
+            #    qualquer número) ou abreviado (`04-offer`, só com o apelido daquela skill)
             hits = []
             for m in TOKEN_RE.finditer(l):
                 if m.group(2) in reg.slug_aliases:      # slug de skill; `90-day`, `19-point` não são
-                    hits.append(m)
-            for m in hits:
-                fails.append(Fail(f, i, "skill-ids", f"número no nome de skill ou pasta: `{m.group(0)}` (escreva `{m.group(2)}`)"))
-            for m in reversed(hits):
+                    hits.append((m, m.group(2)))
+                    continue
+                for sid, lgs in reg.slug_prefixes.get(m.group(2), {}).items():
+                    if m.group(1) in lgs:
+                        hits.append((m, sid))
+                        break
+            for m, name in hits:
+                fails.append(Fail(f, i, "skill-ids", f"número no nome de skill ou pasta: `{m.group(0)}` (escreva `{name}`)"))
+            for m, _ in reversed(hits):
                 l = l[:m.start()] + " " * (m.end() - m.start()) + l[m.end():]
             # b. tudo que o migrate_ids.py converteria: `skill NN`, `skill-NN`, `(NN)`, `07a`, `a NN`, listas
             new, n = mig.convert_line(l, mreg, html=html)

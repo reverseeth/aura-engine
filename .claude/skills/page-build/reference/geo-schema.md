@@ -29,7 +29,7 @@ Monte `staging/geo/product-schema.json` com este shape (preencha dos arquivos, s
     {
       "@type": "Product",
       "name": "<offer-builder product_name>",
-      "description": "<06-copy descrição factual do produto, sem hype — o que é, o que faz>",
+      "description": "<copy-engine descrição factual do produto, sem hype — o que é, o que faz>",
       "brand": { "@type": "Brand", "name": "<brand>" },
       "image": ["<URL absoluta da imagem principal do produto>"],
       "sku": "<SKU se disponível>",

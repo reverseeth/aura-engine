@@ -249,7 +249,7 @@ Dois MCPs opcionais que enriquecem skills específicas. Sem eles tudo funciona �
 claude mcp add shopify_dev -- npx -y @shopify/dev-mcp
 ```
 
-**Stripe MCP** (`mcp__stripe__*`) — leitura de revenue real (AOV histórico) pra calcular PSM/pricing de verdade em vez de teórico. Útil na **04-offer** (pricing) e **checkout-aov** (thresholds de free-shipping / bundle):
+**Stripe MCP** (`mcp__stripe__*`) — leitura de revenue real (AOV histórico) pra calcular PSM/pricing de verdade em vez de teórico. Útil na **offer-builder** (pricing) e **checkout-aov** (thresholds de free-shipping / bundle):
 
 ```bash
 claude mcp add --transport http stripe https://mcp.stripe.com

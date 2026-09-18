@@ -9,6 +9,10 @@ com dígito dos dois lados e palavra de quantidade depois do número nunca viram
 âncora. As linhas abaixo citam apelidos de propósito; por isso a pasta
 tools/tests/ fica fora da varredura do lint e do conversor.
 
+A classe LintSlugAbreviado cobre a forma abreviada do apelido (`04-offer` no lugar de
+`04-offer-builder`): ela reprova em texto do framework e passa nos quatro contextos em que o número
+é o dado (registro, mapa de pastas do build_index.py, use_in_skill do índice, changelog do OVERVIEW).
+
 Rodar da raiz do repositório:
   python3 -m unittest discover -s tools/tests
   python3 tools/tests/test_migrate_ids.py
@@ -101,6 +105,74 @@ class LintSkillIds(unittest.TestCase):
             self.ac._LINES.pop(virtual, None)
         self.assertEqual([f.line for f in fails], [len(linhas)], [f.render() for f in fails])
         self.assertIn("`scale-engine`", fails[0].msg)
+
+
+# Forma abreviada do apelido (`04-offer` em vez de `04-offer-builder`): é referência a skill e o
+# lint acusa, menos nos quatro contextos em que o número é o dado e não a referência.
+ABREVIADOS = [
+    "aponta pro `upsell` do 04-offer",
+    "a copy toda vem de 06-copy",
+]
+# Número seguido de hífen e de palavra que NÃO é começo de slug de skill, ou com o apelido de outra
+# skill: continua fora da regra, em qualquer arquivo.
+ABREVIADOS_NEGATIVOS = [
+    "a garantia roda numa 90-day window",
+    "o checklist é de 19-point",
+    "12-copy não é apelido do copy-engine",
+]
+# Um contexto permitido por entrada: (arquivo, linhas, quantas falhas esperadas).
+CONTEXTOS_PERMITIDOS = [
+    # registro: legacy_folder e legacy_ids são o dado
+    (".claude/skills.json", ['    "legacy_folder": "04-offer-builder",', '    "legacy_ids": ["04"],'], 0),
+    # mapa de pastas antigas do build_index.py: bloco gerado pelo gen_docs.py
+    (".claude/lib/workspace-index/build_index.py",
+     ["# gen:phases:start", 'LEGACY_FOLDERS = {', '    "offer-builder": "04-offer-builder",',
+      '    "copy-engine": "06-copy-engine",', "}", "# gen:phases:end"], 0),
+    # use_in_skill do índice: texto original do catálogo
+    (".claude/lib/kb-index/frameworks.json", ['      "use_in_skill": "04-offer, 06-copy",'], 0),
+    # changelog do OVERVIEW: registro histórico (e só ele — a linha antes da seção reprova)
+    (".claude/OVERVIEW.md",
+     ["a oferta é da 04-offer", "## 14. Mudanças recentes", "| data | renomeou 04-offer-builder |"], 1),
+]
+
+
+class LintSlugAbreviado(unittest.TestCase):
+    """`04-offer`/`06-copy` reprovam; os quatro contextos em que o número é o dado passam."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.ac = load_lint()
+        cls.reg = cls.ac.Registry()
+        cls.index = cls.ac.load_json(cls.ac.INDEX)
+
+    def _fails(self, arquivo, linhas):
+        anterior = self.ac._LINES.get(arquivo)
+        self.ac._LINES[arquivo] = linhas
+        try:
+            return [f for f in self.ac.rule_skill_ids([arquivo], self.reg, self.index) if f.file == arquivo]
+        finally:
+            if anterior is None:
+                self.ac._LINES.pop(arquivo, None)
+            else:
+                self.ac._LINES[arquivo] = anterior
+
+    def test_abreviado_reprova(self):
+        virtual = ".claude/skills/_fixture-de-teste.md"
+        fails = self._fails(virtual, ABREVIADOS)
+        self.assertEqual([f.line for f in fails], [1, 2], [f.render() for f in fails])
+        self.assertIn("`offer-builder`", fails[0].msg)
+        self.assertIn("`copy-engine`", fails[1].msg)
+
+    def test_numero_com_hifen_fora_da_regra(self):
+        virtual = ".claude/skills/_fixture-de-teste.md"
+        fails = self._fails(virtual, ABREVIADOS_NEGATIVOS)
+        self.assertEqual(fails, [], [f.render() for f in fails])
+
+    def test_contextos_permitidos(self):
+        for arquivo, linhas, esperadas in CONTEXTOS_PERMITIDOS:
+            with self.subTest(arquivo=arquivo):
+                fails = self._fails(arquivo, linhas)
+                self.assertEqual(len(fails), esperadas, [f.render() for f in fails])
 
 
 if __name__ == "__main__":
