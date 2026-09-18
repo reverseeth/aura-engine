@@ -48,7 +48,7 @@ Plus an intelligence layer (`.claude/lib/`) providing:
 - **Prompt directors** — production-ready creative prompt generation (video/image)
 - **Content recycler** — format specs behind Track 2 of skill `content-recycler` (1 breakthrough creative into 9 channel derivatives)
 - **Workspace index** — generates the per-product `ABRIR-AQUI.html` dashboard
-- **Metadata cleaner** (`tools/limpador-de-metadados/`) — every creative goes through it before upload: strips EXIF/XMP/IPTC/C2PA and generator job ids without touching a pixel or a frame, renames to `asset-xxxx`; drag-and-drop app for the member (double-click launchers in the repo root) + CLI for the skills
+- **Metadata cleaner** (`tools/limpador-de-metadados/`) — every creative goes through it before upload: strips EXIF/XMP/IPTC/C2PA and generator job ids without touching a pixel or a frame, renames to `asset-xxxx` in place; drag-and-drop app for the member (the session hook drops the launcher for their own OS in the repo root) + CLI for the skills
 - **MCP detect + TrendTrack / Notion / Refero integrations** — auto-detect optional MCPs; TrendTrack drives product discovery, Notion stores the brand bank, Refero feeds brand signals
 - **Automation recipes** — MCP-based deploy/sync through the Meta Ads + Shopify MCPs
 
@@ -168,10 +168,11 @@ tools/
 ├── aura-status.py         # verifiable product state: reports vs manifest marks, files outside the layout, dados.json vs schema
 ├── schema_validate.py     # minimal draft-07 validator (stdlib only) shared by manifest.py, aura-status.py and the dashboard
 ├── limpador-de-metadados/ # metadata cleaner (Node, zero deps): strips EXIF/XMP/IPTC/C2PA/encoder tags, lossless, renames to asset-xxxx
+│   └── lancadores/        # both double-click launchers (.command / .cmd); the session hook copies the member's one to the repo root
 ├── strip-metadata.sh      # CLI wrapper the skills/recipes run before any upload
 └── design-clone/          # optional design signal extractor
 
-Limpador de Metadados.command / .cmd   # double-click launchers (Mac / Windows): drag-and-drop UI for the member
+Limpador de Metadados.command|.cmd     # the launcher for THIS machine, put here by the session hook (git-ignored)
 ```
 
 ## Updates

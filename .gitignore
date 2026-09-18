@@ -27,6 +27,12 @@ Thumbs.db
 .claude/scheduled_tasks.lock
 .claude/settings.local.json
 
+# Lançador do Limpador de Metadados na raiz — o hook de início de sessão copia
+# pra cá o do sistema do membro (os dois versionados vivem em
+# tools/limpador-de-metadados/lancadores/)
+/Limpador de Metadados.command
+/Limpador de Metadados.cmd
+
 # OpenAI Codex CLI — local-only, never push
 AGENTS.md
 .Codex/

@@ -172,7 +172,7 @@ Hook-swap NÃO funciona quando:
 
 Todo gerador de IA (Higgsfield, Veo, Sora, Kling, GPT Image, Midjourney) grava metadados de proveniência no arquivo — EXIF/XMP/IPTC, manifesto C2PA, chunks de texto como o `hf-job-id` do Higgsfield — e as plataformas de ads leem isso. Nenhum criativo sobe sem passar pelo **Limpador de Metadados** (`tools/limpador-de-metadados/`), que remove tudo sem alterar um pixel nem um frame e renomeia pra `asset-xxxx.<ext>`:
 
-- **O membro:** 2 cliques em `Limpador de Metadados.command` (Mac) / `Limpador de Metadados.cmd` (Windows) na pasta da Aura → arrasta os criativos finais (arquivos ou a pasta inteira) → os limpos saem em `Área de Trabalho/Aura Limpos`. É o último passo antes de subir, depois da edição (CapCut/Submagic exportam com metadados próprios — limpa o arquivo FINAL, não o bruto).
+- **O membro:** 2 cliques em `Limpador de Metadados` na pasta da Aura (o hook de início de sessão deixa lá o lançador do sistema dele) → arrasta os criativos finais, arquivos ou a pasta inteira, ou usa os botões de escolher → cada arquivo é substituído pelo limpo `asset-xxxx`, na mesma pasta. É o último passo antes de subir, depois da edição (CapCut/Submagic exportam com metadados próprios — limpa o arquivo FINAL, não o bruto).
 - **A skill:** tudo que o Higgsfield MCP renderizou em `renders/` passa por `bash tools/strip-metadata.sh workspace/[produto]/creative-engine/renders/` antes de ser entregue (in-place; os nomes viram `asset-xxxx.mp4` e `rendered_files[]` no `dados.json` é atualizado com os nomes novos).
 - **A receita de upload** (`upload-creative-to-meta.md`) recusa arquivo cujo nome não é `asset-xxxx` até rodar o limpador nele.
 - Listar no resumo de produção (ETAPA 8) o passo de limpeza como último item antes do upload.

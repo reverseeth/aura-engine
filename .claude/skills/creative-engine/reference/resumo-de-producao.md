@@ -29,7 +29,7 @@ Crie um resumo operacional pro membro executar. As linhas variam conforme a rota
 |---|---|---|
 | Vídeos a gerar com IA ([modelo escolhido]) | [Y] | Prompts prontos em `prompts/prompt-c0X-video.txt` (modelo longo = roteiro contínuo único) ou pasta `c0X-slug/` (Higgsfield multi-shot). Link/instrução de generation no fim do prompt. Se o Higgsfield MCP rendeu in-session (ETAPA 0.7), os vídeos prontos já estão em `renders/` |
 | Imagens a gerar com GPT Image 2.0 | [W] | Prompts em `prompts/prompt-c0X-image.txt` — colar direto no GPT Image 2.0 |
-| Limpar metadados (ÚLTIMO passo, depois da edição) | todos os arquivos finais | 2 cliques em `Limpador de Metadados.command`/`.cmd` na pasta da Aura → arraste os criativos finais → suba só os `asset-xxxx` da pasta `Aura Limpos` (item I da ETAPA 4.5 / regra 12). Renders do MCP em `renders/` já saem limpos |
+| Limpar metadados (ÚLTIMO passo, depois da edição) | todos os arquivos finais | 2 cliques em `Limpador de Metadados` na pasta da Aura → arraste os criativos finais (ou a pasta) → cada arquivo é substituído pelo limpo `asset-xxxx`, na mesma pasta (item I da ETAPA 4.5 / regra 12). Renders do MCP em `renders/` já saem limpos |
 
 **Se Rota B (ou conceitos `edl` no Mix):**
 

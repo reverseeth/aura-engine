@@ -2,180 +2,447 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Limpador de Metadados</title>
+<!--
+  Aura Engine — Limpador de Metadados (janela do programa).
+  Design system dos relatórios da Aura (.claude/templates/aura-report-template.html):
+  mesma escala neutra, Geist, fundo off-white com profundidade, cartões de vidro fosco
+  e a logo SVG canônica de .claude/templates/aura-logo-snippet.html. Sem emoji.
+  O app.js serve este arquivo trocando o marcador do token pelo token da sessão.
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4f5f7">
+<title>Limpador de Metadados — Aura Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root { --ink:#14161a; --muted:#6b7280; --line:#e5e7eb; --bg:#f7f7f5; --card:#fff; --ok:#15803d; --warn:#b45309; --err:#b91c1c; --accent:#14161a; }
-  * { box-sizing:border-box; }
-  body { margin:0; font-family: ui-sans-serif, -apple-system, "Segoe UI", Inter, Roboto, sans-serif; background:var(--bg); color:var(--ink); }
-  .wrap { max-width:820px; margin:0 auto; padding:32px 16px 64px; }
-  h1 { font-size:22px; margin:0 0 4px; letter-spacing:-0.01em; }
-  .sub { color:var(--muted); font-size:14px; margin:0 0 22px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:14px; }
-  .drop { border:2px dashed #cfd3d8; border-radius:14px; padding:44px 20px; text-align:center; cursor:pointer; transition:.15s; background:#fff; }
-  .drop.over { border-color:var(--ink); background:#f0f0ee; }
-  .drop strong { display:block; font-size:17px; margin-bottom:6px; }
-  .drop span { color:var(--muted); font-size:14px; }
-  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-  label { font-size:13px; color:var(--muted); }
-  input[type=text] { flex:1; min-width:220px; padding:9px 11px; border:1px solid var(--line); border-radius:9px; font:inherit; font-size:14px; }
-  button { padding:9px 14px; border-radius:9px; border:1px solid var(--ink); background:var(--ink); color:#fff; font:inherit; font-size:14px; cursor:pointer; }
-  button.ghost { background:#fff; color:var(--ink); }
-  button:disabled { opacity:.5; cursor:default; }
-  .banner { border-radius:10px; padding:11px 13px; font-size:13.5px; margin-bottom:14px; }
-  .banner.warn { background:#fff7ed; border:1px solid #fed7aa; color:#7c2d12; }
-  .banner code { background:#fff; border:1px solid #fed7aa; padding:1px 6px; border-radius:6px; }
-  table { width:100%; border-collapse:collapse; font-size:13.5px; }
-  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top; word-break:break-word; }
-  th { color:var(--muted); font-weight:500; font-size:12.5px; }
-  .st-ok { color:var(--ok); font-weight:600; } .st-err { color:var(--err); font-weight:600; } .st-run { color:var(--muted); } .st-warn { color:var(--warn); font-weight:600; }
-  .small { font-size:12.5px; color:var(--muted); }
-  .sum { font-size:14px; margin-top:10px; }
-  .foot { color:var(--muted); font-size:12.5px; margin-top:22px; line-height:1.5; }
-  input[type=file] { display:none; }
-  .chk { display:flex; align-items:center; gap:6px; font-size:13.5px; }
+  :root{
+    color-scheme: light;
+    --bg:#F4F5F7;
+    --ink:#14161A;
+    --ink-2:#3A424A;
+    --muted:#5C656D;
+    --faint:#656E76;
+    --line:rgba(20,24,30,0.10);
+    --line-strong:rgba(20,24,30,0.17);
+    --line-hot:rgba(20,24,30,0.30);
+    --red:#CF3D3A;
+    --red-ink:#B02F2C;
+    --red-soft:rgba(207,61,58,0.07);
+    --red-line:rgba(207,61,58,0.26);
+    --green-ink:#2F6B43;
+    --green-line:rgba(47,107,67,0.28);
+    --green-soft:rgba(47,107,67,0.08);
+    --font:"Geist","Helvetica Neue",Helvetica,Arial,sans-serif;
+    --mono:"Geist Mono","SFMono-Regular","SF Mono","Roboto Mono",Consolas,monospace;
+    --ease:cubic-bezier(0.23,1,0.32,1);
+    --radius-sm:12px;
+    --radius:20px;
+    --glass:linear-gradient(145deg,rgba(255,255,255,0.86) 0%,rgba(255,255,255,0.60) 42%,rgba(255,255,255,0.78) 100%);
+    --card-solid:linear-gradient(145deg,rgba(255,255,255,0.97),rgba(255,255,255,0.93));
+    --shadow-card:inset 0 1px 0 rgba(255,255,255,0.9),0 1px 2px rgba(24,30,40,0.05),0 20px 48px -28px rgba(24,34,48,0.22),0 4px 12px -8px rgba(24,34,48,0.12);
+    --shadow-lift:inset 0 1px 0 rgba(255,255,255,0.95),0 2px 4px rgba(24,30,40,0.06),0 34px 80px -40px rgba(24,34,48,0.30),0 10px 26px -14px rgba(24,34,48,0.18);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+  html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  body{
+    margin:0;min-width:320px;min-height:100vh;overflow-x:hidden;
+    background:
+      radial-gradient(900px 560px at 86% -6%,rgba(120,140,165,0.10),transparent 66%),
+      radial-gradient(760px 520px at 2% 34%,rgba(150,160,172,0.08),transparent 70%),
+      linear-gradient(180deg,#F8F9FA 0%,var(--bg) 30%,#F1F2F4 100%);
+    color:var(--ink-2);font-family:var(--font);font-size:17px;font-weight:300;line-height:1.6;
+    letter-spacing:-0.014em;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    overflow-wrap:break-word;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:0.5;
+    background-image:linear-gradient(rgba(20,24,30,0.028) 1px,transparent 1px),linear-gradient(90deg,rgba(20,24,30,0.028) 1px,transparent 1px);
+    background-size:54px 54px;mask-image:linear-gradient(to bottom,black,transparent 88%);
+  }
+  ::selection{background:#14161A;color:#F5F6F7;}
+  svg{display:block;}
+  :focus-visible{outline:2px solid rgba(20,24,30,0.55);outline-offset:3px;border-radius:4px;}
+
+  /* ---------- topbar + logo ---------- */
+  .topbar{
+    position:fixed;z-index:120;top:max(14px,env(safe-area-inset-top));left:50%;
+    display:grid;grid-template-columns:1fr auto;align-items:center;
+    width:min(calc(100% - 32px),940px);min-height:58px;padding:8px 12px 8px 16px;
+    border:1px solid var(--line);border-radius:18px;transform:translateX(-50%);
+    background:linear-gradient(135deg,rgba(255,255,255,0.88),rgba(255,255,255,0.72));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.9),0 16px 44px -22px rgba(24,34,48,0.28),0 2px 8px -4px rgba(24,34,48,0.14);
+    -webkit-backdrop-filter:blur(20px) saturate(1.3);backdrop-filter:blur(20px) saturate(1.3);
+  }
+  .brand{display:inline-flex;align-items:center;gap:12px;font-size:12.5px;font-weight:500;letter-spacing:0.11em;text-transform:uppercase;color:var(--ink);}
+  .brand-mark{display:grid;place-items:center;}
+  .brand-mark svg{width:auto;height:21px;}
+  .brand-mark path{fill:var(--ink);}
+  .system-state{display:inline-flex;align-items:center;justify-self:end;min-height:38px;padding:0 14px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,0.6);color:var(--muted);font-family:var(--mono);font-size:9.5px;letter-spacing:0.11em;text-transform:uppercase;}
+  @media(max-width:560px){.system-state{display:none;}}
+
+  /* ---------- container + hero ---------- */
+  .container{width:min(100% - 40px,940px);margin:0 auto;padding-top:calc(env(safe-area-inset-top,0px) + 116px);padding-bottom:64px;}
+  @media(max-width:620px){.container{width:min(100% - 24px,940px);}}
+  .hero{margin-bottom:38px;}
+  .eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 22px;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;}
+  .eyebrow::before{content:"";width:24px;height:1px;background:var(--line-hot);}
+  .page-title{max-width:16ch;margin:0;color:var(--ink);font-size:clamp(40px,5.6vw,68px);font-weight:300;line-height:0.94;letter-spacing:-0.05em;}
+  .page-subtitle{max-width:62ch;margin:26px 0 0;color:var(--muted);font-size:clamp(16.5px,1.5vw,19px);font-weight:300;line-height:1.55;letter-spacing:-0.02em;}
+  .page-subtitle strong{color:var(--ink-2);font-weight:500;}
+
+  /* ---------- cartões de vidro ---------- */
+  .card,.note,.danger,.table-wrap{
+    position:relative;isolation:isolate;overflow:hidden;
+    border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--glass);box-shadow:var(--shadow-card);
+    -webkit-backdrop-filter:blur(22px) saturate(1.4);backdrop-filter:blur(22px) saturate(1.4);
+  }
+  .card{padding:22px;margin:0 0 16px;}
+  .note,.danger{padding:22px 24px;margin:0 0 16px;color:var(--ink-2);font-size:16.5px;line-height:1.5;letter-spacing:-0.02em;}
+  .note>strong:first-child,.danger>strong:first-child{
+    display:flex;align-items:center;gap:10px;margin-bottom:10px;color:var(--muted);
+    font-family:var(--mono);font-size:9px;font-weight:400;letter-spacing:0.14em;text-transform:uppercase;
+  }
+  .note>strong:first-child::before,.danger>strong:first-child::before{content:"";width:7px;height:7px;border:1px solid var(--line-hot);border-radius:2px;flex:0 0 7px;}
+  .danger{border-color:var(--red-line);background:linear-gradient(145deg,rgba(207,61,58,0.09),rgba(207,61,58,0.035));}
+  .danger>strong:first-child{color:var(--red-ink);}
+  .danger>strong:first-child::before{border-color:var(--red);background:var(--red);}
+  .note code,.danger code{padding:2px 7px;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,0.7);font-family:var(--mono);font-size:0.86em;}
+
+  /* ---------- área de soltar ---------- */
+  .drop{
+    display:grid;place-items:center;gap:8px;padding:52px 22px;text-align:center;cursor:pointer;
+    border:1.5px dashed var(--line-hot);border-radius:var(--radius-sm);
+    background:rgba(255,255,255,0.42);transition:background 220ms var(--ease),border-color 220ms ease,transform 320ms var(--ease);
+  }
+  .drop:hover{background:rgba(255,255,255,0.66);}
+  .drop.over{border-color:var(--ink);background:rgba(255,255,255,0.86);transform:scale(1.006);}
+  .drop-title{color:var(--ink);font-size:20px;font-weight:400;letter-spacing:-0.028em;}
+  .drop-sub{max-width:46ch;color:var(--muted);font-size:14.5px;line-height:1.45;}
+  .drop-formats{margin-top:4px;color:var(--faint);font-family:var(--mono);font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;}
+
+  /* ---------- botões ---------- */
+  .acoes{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:0 18px;
+    border:1px solid var(--ink);border-radius:12px;background:var(--ink);color:#F5F6F7;
+    font:inherit;font-size:15px;font-weight:400;letter-spacing:-0.015em;cursor:pointer;
+    transition:transform 220ms var(--ease),box-shadow 220ms var(--ease),opacity 180ms ease;
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 14px 30px -18px rgba(20,24,30,0.7);}
+  .btn.ghost{border-color:var(--line-strong);background:rgba(255,255,255,0.72);color:var(--ink);}
+  .btn:disabled{opacity:0.45;cursor:default;transform:none;box-shadow:none;}
+  .btn svg{width:17px;height:17px;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+
+  /* ---------- tabela ---------- */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:6px 20px;margin:0 0 16px;}
+  table{width:100%;min-width:560px;border-collapse:collapse;font-size:15px;}
+  caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  th{padding:16px 12px 12px;border-bottom:1px solid var(--line-strong);color:var(--faint);font-family:var(--mono);font-size:9px;font-weight:400;letter-spacing:0.14em;text-align:left;text-transform:uppercase;white-space:nowrap;}
+  td{padding:15px 12px;border-bottom:1px solid var(--line);color:var(--muted);font-size:15px;vertical-align:top;}
+  tbody tr:last-child td{border-bottom:0;}
+  td strong{color:var(--ink);font-weight:500;}
+  td .mono{font-family:var(--mono);font-size:13px;color:var(--ink-2);}
+  .detalhe{display:block;margin-top:5px;color:var(--faint);font-size:12.5px;line-height:1.4;}
+
+  /* ---------- pills de estado ---------- */
+  .pill{display:inline-flex;min-height:26px;align-items:center;padding:0 10px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:rgba(255,255,255,0.6);font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;}
+  .pill-ok{color:var(--green-ink);border-color:var(--green-line);background:var(--green-soft);}
+  .pill-erro{color:var(--red-ink);border-color:var(--red-line);background:var(--red-soft);}
+  .pill-atencao{color:var(--ink);border-color:var(--line-hot);background:rgba(20,22,26,0.05);}
+
+  .resumo{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:16px 4px 6px;color:var(--ink-2);font-size:16px;letter-spacing:-0.02em;}
+  .resumo .contagem{color:var(--ink);font-weight:500;}
+
+  .footer{margin-top:34px;padding-top:24px;border-top:1px solid var(--line);color:var(--faint);font-size:13px;line-height:1.6;}
+  .footer a{color:var(--ink-2);text-decoration:underline;text-underline-offset:3px;}
+
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    .card,.note,.table-wrap{background:var(--card-solid);}
+    .topbar{background:rgba(255,255,255,0.96);}
+  }
+  @media(max-width:860px){
+    .card,.note,.danger,.table-wrap,.topbar{-webkit-backdrop-filter:none !important;backdrop-filter:none !important;}
+    .card,.note,.table-wrap{background:var(--card-solid);}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important;}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Limpador de Metadados</h1>
-  <p class="sub">Arraste os criativos. Saem sem nenhum metadado, com a mesma qualidade, renomeados pra <code>asset-xxxx</code>.</p>
 
-  <div id="ffmpeg" class="banner warn" style="display:none">Vídeos precisam do <strong>ffmpeg</strong> (imagens já funcionam). Instale com <code id="ffcmd"></code>, depois feche e abra o Limpador de novo.</div>
+<header class="topbar" aria-label="Aura Engine">
+  <span class="brand" role="img" aria-label="Aura Engine">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg"><title>Aura Engine</title><path d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z"/></svg>
+    </span>
+    <span>Aura Engine</span>
+  </span>
+  <div class="system-state"><span id="estadoFfmpeg">Roda só na sua máquina</span></div>
+</header>
 
-  <div class="card">
-    <div id="drop" class="drop">
-      <strong>Solte os arquivos ou pastas aqui</strong>
-      <span>ou clique pra escolher · PNG, JPG, WebP, GIF, MP4, MOV, WebM, MP3, WAV</span>
-    </div>
-    <input id="file" type="file" multiple>
-    <div class="row" style="margin-top:12px">
-      <label>Salvar em</label>
-      <input id="saida" type="text" spellcheck="false">
-      <button class="ghost" id="btnSaida">Usar esta pasta</button>
-      <button class="ghost" id="btnAbrir">Abrir pasta</button>
-    </div>
+<main class="container">
+
+  <header class="hero">
+    <p class="eyebrow">Limpador de Metadados</p>
+    <h1 class="page-title">Metadados fora</h1>
+    <p class="page-subtitle">
+      Todo arquivo de imagem e de vídeo carrega dados escondidos sobre quem o criou: o aparelho, o programa, a data e a marca que os geradores de inteligência artificial deixam gravada.<br>
+      As plataformas de anúncio leem esses dados.<br>
+      Este programa <strong>tira tudo, sem mudar um pixel do que você vê</strong>.
+    </p>
+  </header>
+
+  <div id="avisoFfmpeg" class="danger" style="display:none">
+    <strong>Falta o ffmpeg</strong>
+    Imagens já limpam normalmente. Pra limpar vídeo e áudio, instale com <code id="cmdFfmpeg"></code>, feche esta janela e abra o Limpador de novo.
   </div>
 
   <div class="card">
-    <div class="row">
-      <label style="min-width:100%">Ou limpe uma pasta direto do computador (bom pra vídeos grandes, sem copiar nada):</label>
-      <input id="pasta" type="text" placeholder="/Users/voce/Downloads/criativos  ·  C:\Users\voce\Downloads\criativos" spellcheck="false">
-      <button id="btnPasta">Limpar pasta</button>
+    <div id="drop" class="drop" role="button" tabindex="0" aria-label="Soltar arquivos ou pastas">
+      <span class="drop-title">Solte aqui os arquivos ou a pasta</span>
+      <span class="drop-sub">Uma pasta limpa tudo que está dentro dela, inclusive o que estiver nas subpastas.</span>
+      <span class="drop-formats">PNG · JPG · WebP · GIF · MP4 · MOV · WebM · MP3 · WAV</span>
     </div>
-    <div class="row" style="margin-top:8px">
-      <label class="chk"><input id="substituir" type="checkbox"> substituir os originais (senão os limpos vão pra pasta de saída)</label>
-      <label class="chk"><input id="recursivo" type="checkbox"> incluir subpastas</label>
+    <div class="acoes">
+      <button class="btn" id="btnArquivos" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v5h5"/><path d="M19 8v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7z"/></svg>
+        Escolher arquivos
+      </button>
+      <button class="btn ghost" id="btnPasta" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Escolher pasta
+      </button>
+      <button class="btn ghost" id="btnAbrir" type="button" style="display:none">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12V5a2 2 0 0 1 2-2h4l2 2h4a2 2 0 0 1 2 2v5"/><path d="M3 19l2.5-7h16L19 19z"/></svg>
+        Abrir a pasta
+      </button>
     </div>
   </div>
 
-  <div class="card" id="cardLista" style="display:none">
+  <div class="note">
+    <strong>Antes de começar</strong>
+    O arquivo limpo fica no lugar do original, na mesma pasta, com o nome <code>asset-xxxx</code>. O original é substituído.
+  </div>
+
+  <div class="table-wrap" id="cardLista" style="display:none">
     <table>
-      <thead><tr><th>Arquivo</th><th>Novo nome</th><th>Removido</th><th>Status</th></tr></thead>
-      <tbody id="lista"></tbody>
+      <caption>Arquivos limpos nesta sessão</caption>
+      <thead><tr><th>Arquivo</th><th>Novo nome</th><th>O que saiu</th><th>Estado</th></tr></thead>
+      <tbody id="lista" aria-live="polite"></tbody>
     </table>
-    <div class="sum" id="sum"></div>
   </div>
+  <div class="resumo" id="resumo" style="display:none"></div>
 
-  <p class="foot">
-    Imagens: o arquivo é reescrito mantendo só os blocos de pixel e cor (EXIF, XMP, IPTC, C2PA e chunks de texto saem; perfil de cor fica). Vídeo e áudio: o container é recriado com <em>stream copy</em> do ffmpeg, sem re-encodar um frame sequer.
-    Roda só na sua máquina (127.0.0.1). Pra fechar, feche a janela do terminal ou <a href="#" id="sair">clique aqui</a>.
+  <p class="footer">
+    Imagem: o arquivo é reescrito mantendo só os blocos de pixel e de cor, então o perfil de cor continua e nada é comprimido de novo. Vídeo e áudio: o container é recriado por cópia direta do fluxo, sem re-codificar um frame sequer.<br>
+    O programa roda só na sua máquina, no endereço 127.0.0.1. Pra fechar, feche a janela do terminal ou <a href="#" id="sair">clique aqui</a>.
   </p>
-</div>
+
+</main>
 
 <script>
+const TOKEN = '__AURA_TOKEN__';
 const $ = (id) => document.getElementById(id);
-const lista = $('lista'), cardLista = $('cardLista'), sum = $('sum');
-let total = 0, ok = 0, erros = 0;
+const lista = $('lista'), cardLista = $('cardLista'), resumo = $('resumo');
+let total = 0, ok = 0, erros = 0, pendentes = 0, ignorados = 0, ultimaPasta = null, rodando = false;
 
-async function status() {
-  const s = await (await fetch('/api/status')).json();
-  $('saida').value = s.saida;
-  if (!s.ffmpeg) { $('ffmpeg').style.display = 'block'; $('ffcmd').textContent = s.instalar_ffmpeg; }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+async function api(rota, corpo) {
+  const r = await fetch(rota, { method: 'POST', headers: { 'x-aura-token': TOKEN, 'Content-Type': 'application/json' }, body: JSON.stringify(corpo || {}) });
+  return r.json();
 }
-status();
 
-$('btnSaida').onclick = async () => {
-  const r = await (await fetch('/api/saida', { method: 'POST', body: JSON.stringify({ saida: $('saida').value }) })).json();
-  $('saida').value = r.saida;
-};
-$('btnAbrir').onclick = async () => { await fetch('/api/abrir', { method: 'POST', body: '{}' }); };
-$('sair').onclick = async (e) => { e.preventDefault(); await fetch('/api/sair', { method: 'POST', body: '{}' }); document.body.innerHTML = '<div class="wrap"><h1>Fechado.</h1><p class="sub">Pode fechar esta aba.</p></div>'; };
+(async function status() {
+  const r = await fetch('/api/status', { headers: { 'x-aura-token': TOKEN } });
+  const s = await r.json();
+  if (!s.ffmpeg) { $('avisoFfmpeg').style.display = 'block'; $('cmdFfmpeg').textContent = s.instalar_ffmpeg; }
+  if (!s.seletor) { $('btnArquivos').disabled = true; $('btnPasta').disabled = true; }
+})();
 
-function linha(nome) {
+function travar(v) {
+  rodando = v;
+  $('btnArquivos').disabled = v; $('btnPasta').disabled = v;
+  $('drop').style.opacity = v ? '0.55' : '1';
+}
+
+function atualizaResumo(extra) {
+  resumo.style.display = 'flex';
+  const partes = [`<span class="contagem">${ok} de ${total} limpo${total === 1 ? '' : 's'}</span>`];
+  if (erros) partes.push(`${erros} com erro`);
+  if (ignorados) partes.push(`${ignorados} de formato não suportado`);
+  if (pendentes) partes.push(`${pendentes} sem localizar`);
+  if (extra) partes.push(esc(extra));
+  resumo.innerHTML = partes.join(' · ');
+}
+
+function novaLinha(nome) {
   cardLista.style.display = 'block';
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${esc(nome)}</td><td>—</td><td class="small">—</td><td class="st-run">na fila</td>`;
+  tr.innerHTML = `<td><strong>${esc(nome)}</strong></td><td class="mono">—</td><td>—</td><td><span class="pill">na fila</span></td>`;
   lista.appendChild(tr);
-  total++; atualizaSum();
   return tr;
 }
-function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
-function atualizaSum() { sum.textContent = `${ok} de ${total} limpo(s)${erros ? ` · ${erros} com erro` : ''}`; }
+
+// o núcleo devolve o nome técnico do bloco removido; a janela mostra em português
+const NOMES = [
+  [/^tEXt|^iTXt|^zTXt/, 'texto escondido'],
+  [/^APP1 \(EXIF\/XMP\)/, 'dados da câmera e do programa (EXIF e XMP)'],
+  [/^APP11 \(C2PA\/JUMBF\)/, 'selo de origem que os geradores gravam (C2PA)'],
+  [/^APP13 \(IPTC\/Photoshop\)/, 'dados do Photoshop'],
+  [/^COM$/, 'comentário'],
+  [/^APP\d+$/, 'bloco extra do arquivo'],
+  [/^EXIF$/i, 'dados da câmera'],
+  [/^XMP$/i, 'dados do programa'],
+  [/^APP:/, 'bloco de aplicativo'],
+  [/^COMMENT$/, 'comentário'],
+  [/^PLAINTEXT$/, 'texto escondido'],
+  [/^EXT:/, 'bloco extra do arquivo'],
+  [/^tIME|^tRNS|^pHYs/, 'data e hora'],
+  [/^metadados do container/, 'dados gravados no arquivo de vídeo'],
+  [/^tags de encoder/, 'marca do programa que exportou'],
+];
+function emPortugues(removidos) {
+  const vistos = [];
+  for (const r of removidos) {
+    const achado = NOMES.find(([re]) => re.test(r));
+    const nome = achado ? achado[1] : r;
+    if (!vistos.includes(nome)) vistos.push(nome);
+  }
+  return vistos.join(', ');
+}
+
 function preenche(tr, rel) {
-  if (rel.erro) { erros++; tr.children[3].innerHTML = `<span class="st-err">erro</span><div class="small">${esc(rel.erro)}</div>`; }
-  else {
+  if (rel.erro) {
+    erros++;
+    tr.children[3].innerHTML = `<span class="pill pill-erro">erro</span><span class="detalhe">${esc(rel.erro)}</span>`;
+  } else {
     ok++;
-    tr.children[1].textContent = rel.destino.split(/[\\/]/).pop();
-    tr.children[2].textContent = rel.removidos.length ? rel.removidos.join(', ') : 'nada encontrado';
-    tr.children[3].innerHTML = rel.residuos.length ? `<span class="st-warn">verificar</span><div class="small">ainda aparece: ${esc(rel.residuos.join(', '))}</div>` : '<span class="st-ok">limpo ✓</span>';
+    const nomeNovo = String(rel.destino).split(/[\\/]/).pop();
+    ultimaPasta = String(rel.destino).slice(0, String(rel.destino).length - nomeNovo.length - 1);
+    $('btnAbrir').style.display = 'inline-flex';
+    tr.children[1].textContent = nomeNovo;
+    tr.children[2].textContent = rel.removidos.length ? emPortugues(rel.removidos) : 'não havia metadado';
+    tr.children[3].innerHTML = rel.residuos.length
+      ? `<span class="pill pill-atencao">conferir</span><span class="detalhe">ainda aparece: ${esc(rel.residuos.join(', '))}</span>`
+      : '<span class="pill pill-ok">limpo</span>';
   }
-  atualizaSum();
+  atualizaResumo();
 }
 
-const fila = []; let rodando = false;
-async function processaFila() {
-  if (rodando) return; rodando = true;
-  while (fila.length) {
-    const { file, tr } = fila.shift();
-    tr.children[3].innerHTML = '<span class="st-run">limpando…</span>';
-    try {
-      const r = await fetch('/api/limpar?nome=' + encodeURIComponent(file.name), { method: 'POST', body: file });
-      preenche(tr, await r.json());
-    } catch (e) { preenche(tr, { erro: e.message }); }
-  }
-  rodando = false;
+function linhaSemLocal(nome) {
+  pendentes++;
+  const tr = novaLinha(nome);
+  tr.children[3].innerHTML = '<span class="pill pill-atencao">sem localizar</span><span class="detalhe">o navegador não informa onde este arquivo está. Use o botão Escolher arquivos.</span>';
+  atualizaResumo();
 }
-function enfileira(file) { fila.push({ file, tr: linha(file.name) }); processaFila(); }
 
-// arrastar e soltar, com suporte a pastas
+async function limparCaminhos(caminhos) {
+  if (!caminhos.length || rodando) return;
+  travar(true);
+  const r = await fetch('/api/limpar', { method: 'POST', headers: { 'x-aura-token': TOKEN, 'Content-Type': 'application/json' }, body: JSON.stringify({ caminhos }) });
+  const trata = (obj) => {
+    if (obj.inicio) {
+      total += obj.total;
+      for (const n of obj.ignorados || []) { ignorados++; const tr = novaLinha(n); tr.children[3].innerHTML = '<span class="pill pill-erro">formato não suportado</span><span class="detalhe">exporte como PNG, JPG, WebP, GIF, MP4 ou MOV.</span>'; }
+      atualizaResumo(obj.total === 0 ? 'nenhum arquivo de imagem, vídeo ou áudio encontrado' : '');
+      return;
+    }
+    const tr = novaLinha(obj.nome_original);
+    preenche(tr, obj);
+  };
+  if (r.body && r.body.getReader) {
+    const reader = r.body.getReader(), dec = new TextDecoder();
+    let buffer = '';
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buffer.indexOf('\n')) >= 0) {
+        const linha = buffer.slice(0, i).trim(); buffer = buffer.slice(i + 1);
+        if (linha) trata(JSON.parse(linha));
+      }
+    }
+    if (buffer.trim()) trata(JSON.parse(buffer.trim()));
+  } else {
+    for (const linha of (await r.text()).split('\n')) if (linha.trim()) trata(JSON.parse(linha));
+  }
+  travar(false);
+}
+
+// ---------- botões do seletor do sistema ----------
+async function escolher(tipo) {
+  if (rodando) return;
+  travar(true);
+  let r;
+  try { r = await api('/api/escolher', { tipo }); } finally { travar(false); }
+  if (r.erro) { atualizaResumo(r.erro); return; }
+  if (r.caminhos && r.caminhos.length) limparCaminhos(r.caminhos);
+}
+$('btnArquivos').onclick = () => escolher('arquivos');
+$('btnPasta').onclick = () => escolher('pasta');
+$('btnAbrir').onclick = () => { if (ultimaPasta) api('/api/abrir', { caminho: ultimaPasta }); };
+$('sair').onclick = async (e) => {
+  e.preventDefault();
+  await api('/api/sair');
+  document.body.innerHTML = '<main class="container"><h1 class="page-title">Fechado</h1><p class="page-subtitle">Pode fechar esta aba.</p></main>';
+};
+
+// ---------- arrastar e soltar ----------
 const drop = $('drop');
+drop.addEventListener('click', () => escolher('arquivos'));
+drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escolher('arquivos'); } });
 ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
 ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
-drop.addEventListener('drop', async e => {
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => e.preventDefault());
+
+drop.addEventListener('drop', async (e) => {
+  if (rodando) return;
+  // o que o navegador entrega tem que ser lido AGORA, antes de qualquer espera
+  const uris = (e.dataTransfer.getData('text/uri-list') || '').split('\n').map(s => s.trim()).filter(s => s && !s.startsWith('#'));
+  const entries = [];
   const items = e.dataTransfer.items;
   if (items && items.length && items[0].webkitGetAsEntry) {
-    for (const it of items) { const ent = it.webkitGetAsEntry(); if (ent) await percorre(ent); }
-  } else { for (const f of e.dataTransfer.files) enfileira(f); }
+    for (const it of items) { const en = it.webkitGetAsEntry(); if (en) entries.push(en); }
+  }
+  const arquivosSoltos = entries.length ? null : [...(e.dataTransfer.files || [])];
+
+  if (uris.length) {
+    const r = await api('/api/resolver', { uris });
+    if (r.caminhos && r.caminhos.length) return limparCaminhos(r.caminhos);
+  }
+
+  const itens = [];
+  if (entries.length) { for (const en of entries) await percorre(en, itens); }
+  else for (const f of (arquivosSoltos || [])) itens.push({ nome: f.name, tamanho: f.size, mtime: f.lastModified });
+  if (!itens.length) return;
+
+  const r = await api('/api/resolver', { itens });
+  for (const nome of (r.nao_encontrados || [])) linhaSemLocal(nome);
+  if (r.caminhos && r.caminhos.length) limparCaminhos(r.caminhos);
 });
-async function percorre(entry) {
-  if (entry.isFile) { const f = await new Promise((res, rej) => entry.file(res, rej)); if (!f.name.startsWith('.')) enfileira(f); return; }
+
+async function percorre(entry, itens) {
+  if (entry.isFile) {
+    const f = await new Promise((res, rej) => entry.file(res, rej));
+    if (!f.name.startsWith('.')) itens.push({ nome: f.name, tamanho: f.size, mtime: f.lastModified });
+    return;
+  }
   if (entry.isDirectory) {
     const reader = entry.createReader();
     let lote;
-    do { lote = await new Promise((res, rej) => reader.readEntries(res, rej)); for (const en of lote) await percorre(en); } while (lote.length);
+    do {
+      lote = await new Promise((res, rej) => reader.readEntries(res, rej));
+      for (const en of lote) await percorre(en, itens);
+    } while (lote.length);
   }
 }
-drop.addEventListener('click', () => $('file').click());
-$('file').addEventListener('change', e => { for (const f of e.target.files) enfileira(f); e.target.value = ''; });
-
-// pasta local
-$('btnPasta').onclick = async () => {
-  const caminho = $('pasta').value.trim(); if (!caminho) return;
-  $('btnPasta').disabled = true;
-  const tr = linha('pasta: ' + caminho);
-  tr.children[3].innerHTML = '<span class="st-run">limpando…</span>';
-  try {
-    const r = await (await fetch('/api/limpar-pasta', { method: 'POST', body: JSON.stringify({ caminho, substituir: $('substituir').checked, recursivo: $('recursivo').checked }) })).json();
-    if (r.erro) { preenche(tr, r); }
-    else {
-      tr.remove(); total--;
-      if (!r.length) { const t = linha('pasta: ' + caminho); preenche(t, { erro: 'nenhum arquivo de imagem/vídeo/áudio encontrado' }); }
-      for (const rel of r) preenche(linha(rel.nome_original), rel);
-    }
-  } catch (e) { preenche(tr, { erro: e.message }); }
-  $('btnPasta').disabled = false;
-};
 </script>
 </body>
 </html>

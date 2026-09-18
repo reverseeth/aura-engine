@@ -27,7 +27,7 @@ O MCP oficial **não precisa de instalação local** — é remote, conecta via 
 
 ## 1.4. FFmpeg (recomendado, 1min — Limpador de Metadados pra vídeo)
 
-O Limpador de Metadados (2 cliques em `Limpador de Metadados.command`/`.cmd` na pasta da Aura, ou `bash tools/strip-metadata.sh`) limpa imagens só com o Node. Pra vídeo e áudio ele usa o ffmpeg (stream copy, sem re-encodar):
+O Limpador de Metadados (2 cliques em `Limpador de Metadados` na pasta da Aura, ou `bash tools/strip-metadata.sh`) limpa imagens só com o Node. Pra vídeo e áudio ele usa o ffmpeg (stream copy, sem re-encodar):
 
 ```bash
 brew install ffmpeg            # Mac

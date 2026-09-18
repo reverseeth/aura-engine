@@ -290,6 +290,7 @@ function limparArquivo(arquivo, opts = {}) {
   const ext = EXT_NORMALIZADA[extOrig] || extOrig;
   const dirDestino = inPlace ? path.dirname(origem) : (saida ? path.resolve(saida) : path.join(path.dirname(origem), 'limpos'));
   const rel = { origem, nome_original: nomeBase, tipo: null, removidos: [], bytes_antes: 0, bytes_depois: 0, residuos: [], destino: null, erro: null };
+  const tmp = path.join(dirDestino, `.aura-tmp-${process.pid}-${crypto.randomBytes(3).toString('hex')}${ext}`);
   try {
     const st = fs.statSync(origem);
     rel.bytes_antes = st.size;
@@ -297,7 +298,6 @@ function limparArquivo(arquivo, opts = {}) {
     const manterNome = !renomear || PADRAO_ASSET.test(nomeBase);
     const nomeNovo = manterNome ? nomeBase.replace(/\.[^.]+$/, ext) : nomeAsset(dirDestino, ext, usados);
     const destino = path.join(dirDestino, nomeNovo);
-    const tmp = path.join(dirDestino, `.aura-tmp-${process.pid}-${crypto.randomBytes(3).toString('hex')}${ext}`);
 
     if (IMAGENS.has(ext)) {
       const buf = fs.readFileSync(origem);
@@ -311,16 +311,18 @@ function limparArquivo(arquivo, opts = {}) {
       throw new Error(`formato ${ext || 'sem extensão'} não suportado — exporte como PNG/JPG/WebP/GIF ou MP4/MOV`);
     }
 
-    if (inPlace) {
-      fs.unlinkSync(origem);
-      if (fs.existsSync(destino) && destino !== origem) fs.unlinkSync(destino);
-    }
+    // troca segura: o limpo é escrito inteiro no temporário e entra no lugar por
+    // rename (operação atômica do sistema de arquivos). O original só é apagado
+    // depois que o limpo já está no lugar — falha no meio não deixa arquivo corrompido.
     fs.renameSync(tmp, destino);
+    if (inPlace && path.resolve(destino) !== origem) fs.unlinkSync(origem);
     rel.destino = destino;
     rel.bytes_depois = fs.statSync(destino).size;
     rel.residuos = verificarArquivo(destino);
   } catch (e) {
     rel.erro = e.message || String(e);
+  } finally {
+    try { if (fs.existsSync(tmp)) fs.unlinkSync(tmp); } catch (_) { /* nada a fazer */ }
   }
   return rel;
 }

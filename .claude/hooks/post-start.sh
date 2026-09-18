@@ -191,17 +191,52 @@ auto_update() {
   fi
 }
 
-# Limpador de Metadados — deixa os atalhos de 2 cliques executáveis (idempotente,
-# toda sessão) e, 1x por dia, avisa onde ele está e se falta o ffmpeg (só vídeo).
+# Nome do lançador do Limpador que serve ESTE sistema (o outro nunca fica na raiz).
+launcher_do_sistema() {
+  case "$(uname -s 2>/dev/null)" in
+    Darwin) echo "Limpador de Metadados.command" ;;
+    MINGW*|MSYS*|CYGWIN*|Windows_NT) echo "Limpador de Metadados.cmd" ;;
+    Linux)
+      # WSL roda no Linux mas o membro dá os 2 cliques pelo Explorer do Windows
+      if [ -r /proc/version ] && grep -qi microsoft /proc/version 2>/dev/null; then
+        echo "Limpador de Metadados.cmd"
+      else
+        echo "Limpador de Metadados.command"
+      fi
+      ;;
+    *) echo "Limpador de Metadados.command" ;;
+  esac
+}
+
+# Limpador de Metadados — na raiz da Aura fica só o lançador do sistema do membro.
+# Os dois são versionados em tools/limpador-de-metadados/lancadores/; o hook copia
+# o certo pra raiz (ignorado pelo git) e tira o do outro sistema do caminho.
+# Idempotente: quando a cópia já está igual, não escreve nada.
 setup_limpador() {
-  local launcher="$AURA_HOME/Limpador de Metadados.command"
-  [ -f "$launcher" ] && chmod +x "$launcher" 2>/dev/null || true
-  chmod +x "$AURA_HOME/tools/strip-metadata.sh" "$AURA_HOME/tools/limpador-de-metadados/limpar.js" "$AURA_HOME/tools/limpador-de-metadados/app.js" 2>/dev/null || true
+  local origem="$AURA_HOME/tools/limpador-de-metadados/lancadores"
+  [ -d "$origem" ] || return 0
+
+  local meu outro
+  meu="$(launcher_do_sistema)"
+  [ "$meu" = "Limpador de Metadados.command" ] && outro="Limpador de Metadados.cmd" || outro="Limpador de Metadados.command"
+
+  if [ -f "$origem/$meu" ] && { [ ! -f "$AURA_HOME/$meu" ] || ! cmp -s "$origem/$meu" "$AURA_HOME/$meu"; }; then
+    cp "$origem/$meu" "$AURA_HOME/$meu" 2>/dev/null || true
+  fi
+  [ -f "$AURA_HOME/$meu" ] && chmod +x "$AURA_HOME/$meu" 2>/dev/null || true
+
+  # o lançador do outro sistema sai da raiz — nunca se ele ainda estiver rastreado
+  # (clone que não puxou o commit que moveu os dois pra tools/), pra não sujar o working tree
+  if [ -f "$AURA_HOME/$outro" ] && ! git -C "$AURA_HOME" ls-files --error-unmatch "$outro" >/dev/null 2>&1; then
+    rm -f "$AURA_HOME/$outro" 2>/dev/null || true
+  fi
+
+  chmod +x "$origem/Limpador de Metadados.command" "$AURA_HOME/tools/strip-metadata.sh" "$AURA_HOME/tools/limpador-de-metadados/limpar.js" "$AURA_HOME/tools/limpador-de-metadados/app.js" 2>/dev/null || true
 }
 
 notice_limpador() {
   [ -d "$AURA_HOME/tools/limpador-de-metadados" ] || return 0
-  echo "[aura] Limpador de Metadados pronto: 2 cliques em 'Limpador de Metadados.command' (Mac) ou '.cmd' (Windows) na pasta da Aura — todo criativo passa por ele antes de subir."
+  echo "[aura] Limpador de Metadados pronto: 2 cliques em '$(launcher_do_sistema)' na pasta da Aura — todo criativo passa por ele antes de subir."
   if ! command -v ffmpeg >/dev/null 2>&1 && [ ! -x /opt/homebrew/bin/ffmpeg ] && [ ! -x /usr/local/bin/ffmpeg ]; then
     echo "[aura] Falta o ffmpeg (só pra limpar VÍDEO; imagens já funcionam). Mac: brew install ffmpeg · Windows: winget install Gyan.FFmpeg"
   fi
