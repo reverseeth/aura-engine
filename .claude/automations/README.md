@@ -13,7 +13,7 @@ Receitas Meta usam **cascade resiliente** — tenta o MCP oficial primeiro, cai 
 | **Meta MCP oficial** (preferencial) | `https://mcp.facebook.com/ads` | Open beta desde 2026-04-29, rollout gradual sem GA, 29 tools |
 | Pipeboard Meta MCP (fallback) | https://github.com/pipeboard-co/meta-ads-mcp | 3rd party, GA, dispara quando oficial está disabled no ad account |
 | Shopify AI Toolkit (plugin Claude Code) | https://github.com/Shopify/shopify-ai-toolkit | Oficial, abril 2026 — **exportar `OPT_OUT_INSTRUMENTATION=true`** (ver alerta de telemetria no `setup-mcps.md` passo 4) |
-| Higgsfield MCP (opcional) | `https://mcp.higgsfield.ai/mcp` | Oficial, render de vídeo in-session (Skill `creative-engine` + creative-loop) |
+| Higgsfield MCP (opcional) | `https://mcp.higgsfield.ai/mcp` | Oficial, render in-session: vídeo (Skill `creative-engine` + creative-loop) e imagem da página (Skill `page-design`, 1.6.3) |
 | Playwright (fallback final) | `pip install playwright` | Pra operações que MCPs não cobrem |
 | Claude Code | tua assinatura | — |
 

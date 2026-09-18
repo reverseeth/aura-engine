@@ -15,8 +15,11 @@ bash tools/strip-metadata.sh <arquivo|pasta>              # limpa NO LUGAR e ren
 bash tools/strip-metadata.sh <pasta> --saida <dir>        # originais intactos, limpos em <dir>
 bash tools/strip-metadata.sh <pasta> --recursivo
 bash tools/strip-metadata.sh <arquivo> --verificar        # só relata o que ainda existe
+bash tools/strip-metadata.sh <pasta> --sem-renomear       # limpa mantendo o nome do arquivo
 bash tools/strip-metadata.sh <pasta> --json
 ```
+
+O `--sem-renomear` existe pro arquivo que já está sendo apontado por um caminho: as imagens da página em `page/design/assets/`, por exemplo, são citadas pelo `src` do HTML e pelo `media.asset` do plano, então trocar o nome pra `asset-xxxx` quebraria os dois. Criativo que vai subir pra plataforma de ads continua no padrão: limpa e renomeia.
 
 ## O lançador de 2 cliques
 

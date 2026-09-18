@@ -19,6 +19,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 2. Inputs sob `workspace/[produto]/`: `manifest.json` com `copy-engine` em `skills_completed`; `copy-engine/dados.json` e `copy-engine/copy-engine.md`; `offer-builder/dados.json` e `offer-builder/offer-builder.md`; `market-research/dados.json` e o `.md`; `competitor-analysis/competitor-analysis.md` (opcional); dir `page/` (`mkdir -p`). Relatório `.md` novo ausente: use o legado `relatorio.md`.
 3. Rota 2 do menu de design (clone com o SingleFile) exige a loja Shopify conectada (`shopify theme list` responde); sem isso o membro loga a CLI, como na `page-build`, ou escolhe outra rota.
 4. Input obrigatório faltando (ES1): oferecer (A) rodar a skill faltante agora ou (B) seguir com default genérico marcando `manifest.skipped_preflight` e `risk_acknowledged`. Manifest ou profile totalmente ausentes: oferecer o `setup` inline.
+5. Com tools `mcp__higgsfield__` na sessão, a 1.6 ganha a geração de imagem in-session (`reference/imagens-higgsfield.md`), confirmada com o membro antes de gastar crédito; sem elas, a 1.6 roda como está.
 
 ## Contexto a carregar
 

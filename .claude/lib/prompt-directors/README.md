@@ -1,6 +1,6 @@
 # Prompt Directors (lib auxiliar da Skill `creative-engine`)
 
-Diretores de prompt que convertem conceito de criativo em prompt production-ready pra ferramenta de geração específica. Invocados pela Skill `creative-engine` na **ETAPA 5.7 (Entregável de produção), Ramo A** — a rota de produção por IA. A **Rota B (montagem/EDL) NÃO usa director**: o entregável dela é um roteiro de montagem (`concept-XX-edl.md`) gerado pela própria Skill `creative-engine`.
+Diretores de prompt que convertem conceito de criativo em prompt production-ready pra ferramenta de geração específica. Invocados pela Skill `creative-engine` na **ETAPA 5.7 (Entregável de produção), Ramo A** — a rota de produção por IA. O `real-people-imagery.md` tem um segundo consumidor: a Skill `page-design` na sub-etapa 1.6.3, quando gera as imagens que faltam nos slots da página. A **Rota B (montagem/EDL) NÃO usa director**: o entregável dela é um roteiro de montagem (`concept-XX-edl.md`) gerado pela própria Skill `creative-engine`.
 
 ## Arquivos
 

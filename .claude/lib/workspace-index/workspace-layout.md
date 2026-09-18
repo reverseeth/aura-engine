@@ -58,6 +58,7 @@ copy-engine/
 page/                                ← storefront (`page-design` design + `page-build` build)
   page-plan.json   design-system.md   design-system.html
   design/page.html                      (a página aprovada, a fonte única de verdade visual)
+  design/assets/                        (as imagens reais da página, com nome por uso e metadados limpos)
   design/assets/fonts/                  (cópia dos arquivos da fonte local usados na página, quando há)
   design/brief-codex.md                 (segunda opinião, sub-etapa 3.8: o briefing que o membro cola no Codex)
   design/page-codex.html                (segunda opinião: a versão que voltou de lá, quando o membro roda)

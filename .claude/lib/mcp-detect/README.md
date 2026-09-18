@@ -16,7 +16,7 @@ A detecção é sempre por **prefixo de tool disponível na sessão**. Se não h
 | **Meta Ads oficial** | `mcp__meta__ads_*` | Caminho preferencial pra ads (campaign mgmt, insights, datasets, benchmarks) | Oficial → Pipeboard → manual |
 | **Meta Ads Pipeboard** | `mcp__meta-ads__` | Fallback 3rd party quando o oficial está disabled/indisponível | (é o 2º degrau do cascade Meta) |
 | **Refero** | `mcp__refero__` | Design system curado (~200 sites premium) pra brand signals da `page-design` | Refero → screenshot→visão → design-clone → manual |
-| **Higgsfield** | `mcp__higgsfield__` | Render de vídeo AI in-session na `creative-engine` (30+ modelos: Kling 3.x, Veo 3.1, Sora 2; OAuth via browser, créditos do plano do membro) | Higgsfield MCP → prompts salvos pro membro gerar manualmente |
+| **Higgsfield** | `mcp__higgsfield__` | Render in-session: vídeo na `creative-engine` e as imagens que faltam nos slots da página na `page-design` (1.6.3). 30+ modelos de vídeo e de imagem; OAuth via browser, créditos do plano do membro | Higgsfield MCP → prompts salvos pro membro gerar manualmente → (na `page-design`) placeholder explícito com `acquisition_plan` |
 | **Foreplay** | `mcp__foreplay__` | Ad spy (200M+ ads; criativos escalados dos concorrentes) nas skills `competitor-analysis`/`creative-engine`/`ad-analysis` | Foreplay → TrendTrack (se houver) → Meta Ad Library público / uploads do membro |
 | **Shopify AI Toolkit** | `mcp__shopify__` | Operações de produto/tema (usado por `deploy-shopify-product.md` e `full-deploy.md`) | Shopify MCP → Playwright → manual |
 | **Klaviyo oficial** | `mcp__klaviyo__` | Criação de flows de retenção (welcome/abandoned-cart/post-purchase) | Klaviyo MCP → HTML+setup-guide |
@@ -80,7 +80,7 @@ Onde gravar:
 |---|---|
 | TrendTrack | `.claude/lib/trendtrack-integration/README.md` |
 | Refero | `.claude/lib/refero-integration/README.md` |
-| Higgsfield | skill `creative-engine` (detecção + confirmação de créditos antes de renderizar) + setup em `.claude/automations/setup-mcps.md` (3.7) |
+| Higgsfield | skills `creative-engine` (vídeo) e `page-design` (imagem da página, `reference/imagens-higgsfield.md`) — as duas confirmam antes de gastar crédito + setup em `.claude/automations/setup-mcps.md` (3.7) |
 | Foreplay | skills `competitor-analysis` / `creative-engine` / `ad-analysis` + setup em `.claude/automations/setup-mcps.md` (3.8) |
 | Meta (oficial/Pipeboard) | receita única `sync-campaign-from-meta.md` (cascade interno oficial → Pipeboard → manual), `pause-ad-set.md`, `upload-creative-to-meta.md` + setup em `.claude/automations/setup-mcps.md` |
 | Shopify AI Toolkit | receitas `deploy-shopify-product.md` / `full-deploy.md` + setup em `.claude/automations/setup-mcps.md` (passo 4) |

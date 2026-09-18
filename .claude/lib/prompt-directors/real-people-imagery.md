@@ -1,6 +1,8 @@
 # Real-People Imagery Director — imagens estáticas de pessoas reais com o produto
 
 > Camada de REGRAS por cima do `gpt-image-2-director.md` (ou de qualquer gerador de imagem que o membro use — Higgsfield, Midjourney, GPT Image). O director de imagem define o FORMATO do prompt; este arquivo define o que o prompt precisa conter quando há **pessoa fotorrealista** na imagem. Vale pra: fotos de review na PDP, seções tipo "a closer look", UGC estático pra ad, unboxing estático, pessoa aplicando/segurando/usando o produto.
+>
+> Usado pela Skill `creative-engine` (ETAPA 5.7) e pela Skill `page-design` (sub-etapa 1.6.3, a geração de imagem da página): lá, este arquivo é o cânone do prompt, e a régua que reprova a imagem depois de gerada é a de `page-design/reference/imagens-higgsfield.md`.
 
 ## Por que existe
 
@@ -59,5 +61,5 @@ Fundo de review é casa vivida, não estúdio: `slightly cluttered nightstand wi
 
 ## Pós-processo obrigatório (antes de QUALQUER upload)
 
-1. **Limpar metadados**: `bash tools/strip-metadata.sh <arquivo|pasta>` (ou o membro arrasta no Limpador de Metadados, 2 cliques na pasta da Aura) — remove EXIF/XMP/IPTC/C2PA (incluindo IDs de job do gerador) sem alterar pixels, e renomeia pra `asset-xxxx`. Imagem gerada sobe SEMPRE limpa (regra 12 do CLAUDE.md).
+1. **Limpar metadados**: `bash tools/strip-metadata.sh <arquivo|pasta>` (ou o membro arrasta no Limpador de Metadados, 2 cliques na pasta da Aura) — remove EXIF/XMP/IPTC/C2PA (incluindo IDs de job do gerador) sem alterar pixels, e renomeia pra `asset-xxxx`. Imagem gerada sobe SEMPRE limpa (regra 12 do CLAUDE.md). Na `page-design` o comando leva `--sem-renomear`: ali o arquivo já está apontado pelo `src` da página e pelo `media.asset` do plano, e o nome não pode mudar.
 2. **Review humano do lote**: antes de subir, o membro olha o lote inteiro de uma vez — mão com 6 dedos, texto derretido no rótulo e duplicata de rosto entre "clientes" diferentes são os 3 defeitos que passam batido em foto individual e explodem em conjunto.

@@ -12,7 +12,7 @@ Aura usa **cascade resiliente** com 2 MCPs Meta em paralelo. Você instala os do
 | **Pipeboard MCP** (`pipeboard-co/meta-ads-mcp`) | Fallback automático quando o oficial não responde ou está disabled | 3rd party, GA |
 | **Shopify AI Toolkit** (plugin Claude Code) | Operações Shopify (produto, theme, store execute) + validação Liquid/GraphQL | Oficial, abril/2026 — **ver alerta de telemetria no passo 4** |
 
-Opcionais que enriquecem skills específicas: `GROQ_API_KEY` (1.5 — transcrição de criativos na Skill `competitor-analysis`), Refero (3.5), Klaviyo (3.6), **Higgsfield** (3.7 — render de vídeo in-session na Skill `creative-engine`), **Foreplay** (3.8 — ad spy nas Skills `competitor-analysis`/`creative-engine`/`ad-analysis`), Shopify Dev + Stripe (4.5).
+Opcionais que enriquecem skills específicas: `GROQ_API_KEY` (1.5 — transcrição de criativos na Skill `competitor-analysis`), Refero (3.5), Klaviyo (3.6), **Higgsfield** (3.7 — vídeo in-session na Skill `creative-engine` e imagem da página na Skill `page-design`), **Foreplay** (3.8 — ad spy nas Skills `competitor-analysis`/`creative-engine`/`ad-analysis`), Shopify Dev + Stripe (4.5).
 
 ## 1. Instalar dependências (2min)
 
@@ -174,9 +174,9 @@ Claude, lista meus flows no Klaviyo.
 
 Se retornar lista → conectado (tools `mcp__klaviyo__*` disponíveis). Sem ele, a Skill `retention-engine` cai pro caminho de **assets + setup-guide** (HTML pronto + guia manual), que continua sendo o fallback confiável. Os flows criados via MCP ficam SEMPRE em draft — o membro revisa e ativa no Klaviyo UI (a skill nunca ativa sozinha, pra não arriscar spam).
 
-## 3.7. Conectar Higgsfield MCP (opcional, 2min — render de vídeo in-session)
+## 3.7. Conectar Higgsfield MCP (opcional, 2min — vídeo e imagem gerados na própria sessão)
 
-Fecha o único passo manual do pipeline de criativos: sem ele, a **Skill `creative-engine`** entrega prompts prontos pra você colar no Higgsfield; com ele, a skill gera o prompt E **renderiza o vídeo na própria sessão**, salvando o `.mp4` em `workspace/[produto]/creative-engine/renders/`.
+Fecha o único passo manual do pipeline de criativos: sem ele, a **Skill `creative-engine`** entrega prompts prontos pra você colar no Higgsfield; com ele, a skill gera o prompt E **renderiza o vídeo na própria sessão**, salvando o `.mp4` em `workspace/[produto]/creative-engine/renders/`. O mesmo MCP também gera **as imagens que faltam na página**: a **Skill `page-design`** (sub-etapa 1.6.3) preenche os slots do mapa de mídia que você não tem foto, lê cada imagem gerada e só usa a que passa na régua de imagem dela.
 
 É o MCP oficial hospedado da Higgsfield (lançado 2026-04-30): OAuth via browser, sem API key, usa os créditos do plano que você já tem. Expõe 30+ modelos (Kling 3.x, Veo 3.1, Sora 2, Seedance, MiniMax Hailuo), output sem watermark em plano pago.
 
@@ -188,7 +188,7 @@ Settings → Connectors → "+ Add custom connector" → nome `higgsfield`, URL 
 claude mcp add --transport http higgsfield https://mcp.higgsfield.ai/mcp
 ```
 
-Reinicie. Tools com prefixo `mcp__higgsfield__` aparecem — a Skill `creative-engine` (ETAPA 0.7) detecta sozinha e **pergunta antes de gastar créditos** ("quer que eu renderize os N vídeos ou prefere só os prompts?"). Sem o MCP, nada muda: a skill entrega os prompts como sempre.
+Reinicie. Tools com prefixo `mcp__higgsfield__` aparecem — a Skill `creative-engine` (ETAPA 0.7) e a Skill `page-design` (1.6.3) detectam sozinhas e **perguntam antes de gastar créditos** ("quer que eu renderize os N vídeos ou prefere só os prompts?"; "faltam imagens em N slots, gero agora?"). Sem o MCP, nada muda: uma entrega os prompts como sempre, a outra segue com as suas fotos.
 
 ## 3.8. Conectar Foreplay MCP (opcional, 2min — ad spy)
 
@@ -306,7 +306,7 @@ Vale pros dois lados: Admin da Shopify (criar Pages — `deploy-shopify-product.
 - [ ] Plugin Shopify AI Toolkit instalado **com `OPT_OUT_INSTRUMENTATION=true` exportado** (ou decisão consciente de ficar no CLI puro)
 - [ ] Claude Code lista campanhas via cascade
 - [ ] (Opcional) Klaviyo MCP conectado (`mcp__klaviyo__*`) — automação de retention flows na Skill `retention-engine`
-- [ ] (Opcional) Higgsfield MCP conectado (`mcp__higgsfield__*`) — render de vídeo in-session na Skill `creative-engine`
+- [ ] (Opcional) Higgsfield MCP conectado (`mcp__higgsfield__*`) — vídeo in-session na Skill `creative-engine` e imagem da página na Skill `page-design`
 - [ ] (Opcional) Foreplay MCP conectado (`mcp__foreplay__*`) — ad spy nas Skills `competitor-analysis`/`creative-engine`/`ad-analysis`
 - [ ] (Opcional) Notion MCP conectado (`mcp__claude_ai_Notion__*` ou `mcp__notion__*`) — banco de marcas da Skill `product-research`
 - [ ] (Recomendado) TrendTrack MCP conectado (`mcp__trendtrack__*`) — motor de descoberta da Skill `product-research` (gasta créditos do plano; sem ele, a pesquisa roda manual no browser)
@@ -346,7 +346,7 @@ Pronto. A partir daqui, membro invoca receitas por linguagem natural.
 - **Meta MCP oficial:** $0 durante a open beta. Long-term pricing não-anunciado pela Meta até julho/2026.
 - **Pipeboard:** $0 — Meta Marketing API é grátis pra uso regular de advertiser.
 - **Shopify AI Toolkit:** $0 — grátis e open source (mas leia o alerta de telemetria no passo 4).
-- **Higgsfield MCP:** $0 pelo MCP em si — o render consome créditos do plano Higgsfield que você já paga.
+- **Higgsfield MCP:** $0 pelo MCP em si — o vídeo e a imagem consomem créditos do plano Higgsfield que você já paga.
 - **Foreplay MCP:** $0 pelo MCP — usa o plano + créditos de API da conta Foreplay existente.
 - **Groq API (transcrição):** free tier generoso; pago sai ~$0.02-0.04 por hora de áudio transcrita.
 
