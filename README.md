@@ -129,7 +129,7 @@ Queries starting with `aura:` consult the knowledge base.
 │   ├── swipe-models/      # 12 structural specimens + the markup audit rubric
 │   ├── content-recycler/
 │   ├── creative-dna/
-│   ├── design-presets/
+│   ├── design-presets/     # palette generator (3 candidates, WCAG AA) + the 8 presets it starts from
 │   ├── hook-taxonomy/
 │   ├── kb-index/          # 1,309 named framework entries, 19 domains
 │   ├── mcp-detect/

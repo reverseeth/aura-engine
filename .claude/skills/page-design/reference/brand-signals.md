@@ -1,6 +1,6 @@
 # Page Design · Referência: Brand signals, a cascade unificada até o design-signals.json (ETAPA 2)
 
-> O shape do `design-signals.json`, a leitura do `brand.md` antes de qualquer pergunta, os quatro caminhos da cascade (Refero MCP, screenshot lido por visão, design-clone pra hex exato, manual ou presets literais), a prova de paletas na página real com tokens em trio R,G,B, a regra de dois temas e o resumo ao membro. Abra na ETAPA 2.
+> O shape do `design-signals.json`, a leitura do `brand.md` antes de qualquer pergunta, os quatro caminhos da cascade (Refero MCP, screenshot lido por visão, design-clone pra hex exato, gerador de 3 paletas), a prova de paletas na página real com tokens em trio R,G,B, a regra de dois temas e o resumo ao membro. Abra na ETAPA 2.
 
 ## ETAPA 2 — BRAND SIGNALS (cascade unificada → `design-signals.json`)
 
@@ -11,7 +11,7 @@ Os 4 caminhos convergem TODOS pro MESMO arquivo `workspace/[produto]/page/design
 ```json
 {
   "source": "refero | screenshot_vision | design_clone | manual",
-  "source_detail": "Linear (via Refero) | print da loja X | hex extraído de competitor.com | preset Atelier Document",
+  "source_detail": "Linear (via Refero) | print da loja X | hex extraído de competitor.com | paleta gerada Verde de Farmácia · harmonia analogous · base apothecary-calm",
   "heading_font": "'Fraunces', Georgia, serif",
   "body_font": "'Inter', -apple-system, sans-serif",
   "palette": {
@@ -19,6 +19,7 @@ Os 4 caminhos convergem TODOS pro MESMO arquivo `workspace/[produto]/page/design
     "surface": "#F5EDE0",
     "foreground": "#231F20",
     "primary": "#D85C4A",
+    "on_primary": "#FFF8F1",
     "accent": "#9CAF88",
     "muted": "#B0A99F",
     "border": "#E3DAC9"
@@ -68,26 +69,42 @@ python3 tools/design-clone/aura_clone.py "URL" --output=/tmp/ref-[produto] --ski
 
 Leia o bloco `design_system` de `/tmp/ref-[produto]/patterns.json` e **cheque o campo `design_system_source`**: se `"extracted"`, mapeie pro shape do `design-signals.json` com `source: "design_clone"`; se `"defaults_fallback"` (o site não rendeu CSS computado real), **IGNORE o bloco e caia pro próximo caminho** — nada de paleta inventada. Se o modo signals abortar com "engine não extrai computed-styles" (a captura veio do single-file-cli, que não gera computed-styles), ou se Playwright não estiver instalado, pule graciosamente pro Caminho 2 (screenshot→visão) ou pro Caminho 4.
 
-### Caminho 4 — Manual / 8 presets (último recurso)
+### Caminho 4 — Gerador de 3 paletas (último recurso, e o único que não precisa de referência)
 
-Quando Refero não tem match E o membro não tem print/URL:
-- Peça descrição livre da vibe ("editorial sério, low-pressure, italic em keywords"), OU
-- Ofereça os 8 presets (Modern Clean, Bold Editorial, Premium Minimal, Warm Lifestyle, Tech Sharp, Atelier Document, Apothecary Calm, Luxe Magazine) — membro escolhe um, e os tokens saem **LITERAIS de `.claude/lib/design-presets/presets.json`** (paleta role-tagged, heading/body font, radius, shadow, density — completos e fixos por preset; o `vibe`/`use_when` de cada entrada ajuda a recomendar). Leia o arquivo e copie os campos pro `design-signals.json` com `source: "manual"`, `source_detail: "preset [Nome]"`. **NUNCA invente/ajuste tokens de preset em runtime** — preset é promessa de consistência (mesmo nome = mesmos tokens em qualquer run). Se o membro pedir ajuste, aplique e registre como `"preset [Nome] (customizado)"`.
+Quando Refero não tem match E o membro não tem print nem URL. Não é mais um menu de 8 presets prontos: a Aura gera **3 paletas candidatas pra ESTE produto**, com o motivo de cada uma, e o membro escolhe vendo a cor aplicada na página real.
+
+1. Peça a descrição livre da vibe se ele quiser dar uma ("editorial sério, low-pressure"), e converta pra hex qualquer cor que ele tenha citado por extenso (tabela de nomes logo abaixo). Isso vira semente, nunca decisão.
+2. Rode o gerador:
+   ```bash
+   python3 .claude/lib/design-presets/palette_engine.py \
+     --vertical <supplements|health|beauty|home|relationship|other> \
+     --avatar "<core_avatar_line da market-research>" \
+     --skepticism <baixo|médio|alto, o ceticismo da market-research> \
+     [--seed "#AABBCC,#112233"] [--lang en] [--theme dark]
+   ```
+   Saem exatamente 3 candidatas: nome curto, o motivo em uma frase (o que aquela família de cor comunica naquela vertical, pra aquele avatar), a relação de matiz declarada (análoga, complementar dividida ou tríade) e a paleta role-tagged inteira, com os trios R,G,B já prontos.
+3. O script confere sozinho, antes de imprimir: saturação viva no `primary` e no `accent` (nunca cinza), harmonia que bate com a distância real de matiz, contraste WCAG AA no texto e no texto secundário contra o fundo e contra a superfície dos cartões, e no texto do botão contra o botão, 3:1 na cor de apoio sobre o fundo, e as 3 candidatas distintas entre si. **Paleta que não passa é corrigida ou o script sai com erro** — nenhuma sai com aviso. Se sair com erro, reporte a mensagem e siga pela descrição livre.
+4. **Prove as 3 na página real** (bloco abaixo). Nunca peça a escolha por amostra de cor solta.
+5. Com a escolha do membro, grave no `design-signals.json`: `source: "manual"`, `source_detail: "paleta gerada [Nome] · harmonia [harmony] · base [base_preset]"` (o preset base precisa aparecer: é por ele que a `page-build` acha os pesos de fonte em `presets.json`), a `palette` inteira da candidata, e `heading_font`, `body_font`, `radius`, `shadow` e `density` **LITERAIS** do bloco `non_color_tokens` dela.
+
+**Os 8 presets continuam vivos como base do gerador, não como menu.** Cada candidata herda de um preset o perfil de claridade e saturação dos neutros, a tipografia e a forma, e troca só o matiz. Não ofereça a lista dos 8 ao membro, e não copie cor de `presets.json` à mão.
+
+Mesma entrada devolve sempre as mesmas 3 candidatas: re-rodar a skill no mesmo produto não troca a paleta debaixo do membro. Se ele pedir ajuste depois de escolher, aplique e registre como `"paleta gerada [Nome] (customizado)"`.
 
 Se o membro passou nomes de cor por extenso (ex: "sage green"), valide via regex de hex `^#([0-9A-Fa-f]{3,8})$` ou converta por nome (sage green `#9CAF88`, dusty rose `#D4A5A5`, off-white `#FDFAF4`, navy `#14213D`, terracotta `#C66B3D`, olive `#6B7040`, etc). Se a cor não for reconhecível, peça o hex.
 
-### Prova de paletas na página real (quando há 2-4 candidatas)
+### Prova de paletas na página real (obrigatória no Caminho 4)
 
-Paleta não se escolhe por swatch (a amostra de cor isolada). Quando a cascade deixou mais de uma candidata viva, ou o membro pediu comparação, gere uma página comparadora self-contained: a MESMA página (ou as 2-3 seções mais representativas: hero, oferta e uma seção escura) renderizada em CADA paleta candidata, com navegação por abas ou âncoras, pro membro decidir VENDO a cor aplicada no contexto real.
+Paleta não se escolhe por swatch (a amostra de cor isolada). Sempre que a cascade deixou mais de uma candidata viva, e no Caminho 4 são sempre 3, gere uma página comparadora self-contained: a MESMA página (ou as 2-3 seções mais representativas: hero, oferta e uma seção escura) renderizada em CADA paleta candidata, com navegação por abas ou âncoras, pro membro decidir VENDO a cor aplicada no contexto real. Ao lado de cada aba, o nome e o motivo daquela candidata, pra escolha ser informada.
 
-A implementação usa o sistema de tokens por snippet: todo valor de cor entra como trio R,G,B (ex: `--tk-bg: 246,245,241` pra um fundo areia, `--tk-ink: 34,34,36` pra um grafite) e é consumido como `rgb(var(--tk-bg))` ou `rgba(var(--tk-bg), .5)`. Trocar a paleta inteira significa trocar 1 bloco de tokens, e o formato em trio dá transparência (alpha) sem duplicar a paleta. A paleta vencedora vira o `design-signals.json`/`design-tokens.json` normalmente.
+A implementação usa o sistema de tokens por snippet: todo valor de cor entra como trio R,G,B (ex: `--tk-bg: 246,245,241` pra um fundo areia, `--tk-ink: 34,34,36` pra um grafite) e é consumido como `rgb(var(--tk-bg))` ou `rgba(var(--tk-bg), .5)`. Trocar a paleta inteira significa trocar 1 bloco de tokens, e o formato em trio dá transparência (alpha) sem duplicar a paleta. No Caminho 4 os blocos saem prontos do gerador (`--format css` devolve um `[data-palette="p1"]` por candidata, com todos os roles): copie os blocos, nunca converta hex a hex na mão. A paleta vencedora vira o `design-signals.json`/`design-tokens.json` normalmente.
 
 **Dois temas, duas paletas:** quando o membro mantém 2 ou mais temas com paletas diferentes (teste A/B de identidade visual), o snippet de tokens é POR-TEMA — as sections são as mesmas, muda só o snippet de paleta de cada tema. A disciplina de push por-tema está na rule `shopify-theme-safety.md`: nunca pushar snippet de paleta em lote genérico (um push amplo leva a paleta de um tema pro outro sem ninguém perceber), conferir o tema alvo antes de cada push, e `--allow-live` exige atenção redobrada porque o tema publicado é a loja no ar.
 
 ### Output da ETAPA 2
 
 Salve `design-signals.json` e mostre ao membro um resumo curto:
-> "Peguei a vibe [da Linear via Refero / do print da loja X via visão / do estilo Atelier Document]:
+> "Peguei a vibe [da Linear via Refero / do print da loja X via visão / da paleta [Nome] que você escolheu]:
 > - Fontes: **[heading_font]** (títulos) + **[body_font]** (corpo)
 > - Paleta: fundo **[background]** · texto **[foreground]** · accent **[primary]**
 > - Radius **[radius]px** · shadow **[shadow]** · density **[density]**

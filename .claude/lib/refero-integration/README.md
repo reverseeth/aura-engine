@@ -45,7 +45,7 @@ Integração focada na **skill page-design ETAPA 2 (Brand Signals)**. Cascade re
 1. **Refero MCP** (preferencial) — catálogo curado, designSystems estruturados
 2. **Screenshot → visão** (fallback primário) — membro tira print full-page da loja de referência e o Claude lê a imagem com visão nativa pra extrair paleta/tipografia/vibe. Imune a Cloudflare/JS/markup bagunçado
 3. **`tools/design-clone/`** (caminho 3, opcional) — extração via Playwright dos computed-styles quando o membro quer **hex exato** de um concorrente nichado fora do catálogo Refero (ex: PDPs de skincare/microneedling)
-4. **Manual / 8 presets** — membro descreve a referência em texto ou escolhe um estilo pré-definido
+4. **Gerador de 3 paletas** — sem referência nenhuma: `palette_engine.py` gera 3 candidatas pro produto (com motivo, harmonia e contraste AA) e o membro escolhe na comparadora
 
 | Skill | Tools usadas | O que melhora |
 |-------|--------------|---------------|

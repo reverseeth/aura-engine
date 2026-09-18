@@ -14,7 +14,7 @@ A skill page-design ETAPA 2 monta o `design-signals.json` por cascade unificada:
 1. **Refero MCP** (`mcp__refero__`) — catálogo curado de ~200 sites premium, preferencial.
 2. **Screenshot → visão (fallback PRIMÁRIO)** — o membro tira um print full-page da loja de referência (ou a Aura captura 1 screenshot via Playwright só pro print, sem extrair DOM) e o Claude **lê a imagem com visão nativa** pra extrair paleta/tipografia/vibe. Imune a Cloudflare/JS/markup bagunçado — exatamente o que faz o scraping de computed-styles travar.
 3. **design-clone (estes scripts) — caminho 3, opcional** — extração via Playwright dos computed-styles, pra quem quer **hex exato** de um concorrente nichado fora do catálogo Refero (ex: PDPs de skincare/microneedling). Mais frágil (depende do site renderizar limpo), por isso fica abaixo do screenshot→visão.
-4. **Manual / 8 presets** — membro descreve a vibe ou escolhe um preset.
+4. **Gerador de 3 paletas** — sem referência nenhuma: `.claude/lib/design-presets/palette_engine.py` gera 3 candidatas pro produto e o membro escolhe na comparadora.
 
 ## Cascade de CAPTURA (como o `aura_clone.py` obtém o DOM)
 

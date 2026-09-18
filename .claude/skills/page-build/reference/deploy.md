@@ -62,7 +62,7 @@ O CSS das sections declara `font-family` — mas declarar não carrega a fonte. 
      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Inter:wght@400;500;600&display=swap">
      ```
-     Só as famílias e SÓ OS PESOS que a página usa (se o preset veio de `.claude/lib/design-presets/presets.json`, o campo `google_fonts` lista exatamente isso — cada peso extra é KB no LCP). `display=swap` obrigatório.
+     Só as famílias e SÓ OS PESOS que a página usa (o campo `google_fonts` do preset base lista exatamente isso: o `source_detail` do `design-signals.json` nomeia o preset, e os pesos estão em `.claude/lib/design-presets/presets.json` — cada peso extra é KB no LCP). `display=swap` obrigatório.
    - **Caminho B — self-host:** baixe os `.woff2` das famílias/pesos, suba em `assets/` do tema, e declare `@font-face` no CSS da(s) section(s) (ou num snippet incluído pelo theme.liquid). Use quando o membro não quer dependência do Google ou o tema tem CSP restritiva.
 4. **Validação (obrigatória):** no smoke test (6.8), `curl -s` a preview e confirme que o `<link>` do Google Fonts (ou o `@font-face`) da família está presente no HTML servido; no fidelity check (6.11), o screenshot confirma visualmente que o heading NÃO caiu pra fallback. Sem os dois checks, este passo é teatro.
 
