@@ -6,7 +6,7 @@
 
 Aqui o design nasce. São **três rotas**, e a `page-design` NÃO escolhe por você: ela **apresenta as opções e o MEMBRO escolhe.** Todas convergem pro MESMO arquivo: `workspace/[produto]/page/design/page.html` — a **FONTE ÚNICA DE VERDADE visual**, aprovada pelo membro antes de qualquer Liquid existir. O resto da skill (tokens, plan, `page-build`) segue idêntico, independente da rota.
 
-A régua de qualidade da 3.7 é **bloqueante nas três**: a página não chega ao membro sem passar. Rota que entregou HTML violando a régua é corrigida inline aqui, nunca devolvida pro membro consertar.
+A régua de design da 3.7 (`reference/regua-de-design.md`) é **bloqueante nas três**: a página não chega ao membro sem passar, e ela é pontuada item a item, com evidência. Rota que entregou HTML violando a régua é corrigida inline aqui, nunca devolvida pro membro consertar.
 
 ### 3.1 Detectar rotas viáveis (runtime)
 

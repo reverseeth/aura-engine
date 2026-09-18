@@ -42,6 +42,8 @@ O esqueleto é referência de layout; a verdade estratégica é o seu `sections_
 
 Aplique sobre a estrutura reconciliada: a copy REAL da `copy-engine`, a oferta da `offer-builder`, os `design-signals` da ETAPA 2 (paleta, tipografia, radius, densidade) e as imagens do mapa de mídia da 1.6 (`design/assets/` — jamais as imagens da referência). Uma variação fiel ao layout-base basta (o membro já escolheu a referência); ofereça iterar densidade e paleta se ele quiser.
 
+O layout herdado costuma trazer padrões que a régua de design (`reference/regua-de-design.md`) reprova: gradiente decorativo, sombra em toda caixa, a mesma grade de três cartões repetida, ícone genérico em todo item. Corrija aqui, com os números da régua, em vez de deixar pro gate da 3.7.
+
 O arquivo herda HTML de terceiro, então passe pela **normalização da 3.6** antes de salvar: utilities viram CSS plano, JS de runtime sai, assets ficam locais, validação self-contained com zero `<script>`, markers `data-aura-section` injetados.
 
 Os padrões de seção endurecidos (marquee, sticky add-to-cart, gradiente, badges, drawer, fonte universal) vivem em `.claude/lib/shopify-section-patterns/` — consulte antes de reinventar qualquer um deles.

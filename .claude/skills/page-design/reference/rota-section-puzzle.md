@@ -29,7 +29,7 @@ O `sections_plan` manda, não o material que chegou:
 
 #### 4. Unificar (o passo que decide se parece colagem)
 
-As fontes contribuem com **estrutura e ritmo**; os tokens são da página, nunca de cada referência. Antes de montar, fixe e aplique em todas as seções:
+As fontes contribuem com **estrutura e ritmo**; os tokens são da página, nunca de cada referência. Os números abaixo são os da régua de design (`reference/regua-de-design.md`), que vale integralmente aqui: leia os blocos de tipografia e de espaço antes de unificar. Fixe e aplique em todas as seções:
 
 - **Uma escala tipográfica só** (modular, 1.25 ou 1.333) e no máximo duas famílias, as da ETAPA 2. A hierarquia relativa lida em cada fonte é traduzida PRA essa escala, nunca colada em pixels.
 - **Uma grade de espaçamento só** (base 4 ou 8), com o respiro entre seções maior que o respiro dentro delas — o mesmo valor do topo ao rodapé.

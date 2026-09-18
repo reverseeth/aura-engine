@@ -14,6 +14,7 @@ A página nasce inteira aqui dentro: as sections do plano na ordem, a copy real 
 - **(d) As imagens do mapa de mídia da 1.6** (`design/assets/`), com o requisito de hero que o `hero_type` amarra.
 - **(e) Uma referência visual concreta:** peça um screenshot de qualquer página cujo visual o membro curta e leia por visão (Read no PNG) pra extrair direção (ritmo, densidade, tratamento de imagem). Se ele não tiver nenhum, use o preset base da ETAPA 2 como âncora visual nomeada e diga qual é.
 - **(f) Direção explícita escrita antes de desenhar:** estilo nomeado (ex: "editorial minimalista, respiro alto, prova em números"), o que fazer e o que não fazer, e o anti-genérico — o que evitar pra não sair com cara de template.
+- **(g) A régua de design** (`reference/regua-de-design.md`): leia ANTES da primeira linha de HTML. A escala tipográfica, a grade de espaçamento, o uso da paleta e o movimento saem de lá já certos, e os sinais de "feito por IA" do bloco S são a lista concreta do anti-genérico do item (f). Ela volta como gate na 3.7; chegar nela com a página já dentro dos números é o que evita refazer.
 
 #### Abrir o canvas do Claude Design
 
@@ -46,4 +47,4 @@ Se o quickstart ou o publish falhar (conta sem Artifacts, erro de rede), **não 
 
 #### Fechamento
 
-Régua de qualidade da 3.7 é **bloqueante** aqui como nas outras rotas: rode o self-review visual e corrija inline antes de o membro ver. Registre `design_route: "claude-design"` e, em `design_route_ref`, a URL do Artifact (ou `null` se o canvas não abriu).
+A régua de design da 3.7 é **bloqueante** aqui como nas outras rotas: pontue item a item, rode o self-review visual e corrija inline antes de o membro ver. Registre `design_route: "claude-design"` e, em `design_route_ref`, a URL do Artifact (ou `null` se o canvas não abriu).
