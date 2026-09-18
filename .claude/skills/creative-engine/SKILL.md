@@ -74,7 +74,7 @@ Leia `reference/regras-estruturais.md` (método de teste e as 4 hard rules do 3-
 
 ### ETAPA 5 · Briefings completos (um por conceito)
 
-Leia `reference/briefing.md`. Puxe os sistemas de script, hook, hold, headline e primary text pela `best_query` exata (lista no arquivo; statics e pessoa fotorrealista têm sistemas próprios). Escreva no formato do arquivo: cabeçalho com as 9 variáveis, 3 criativos (script Hook → Bridge → Hold → CTA segundo a segundo, ou spec de imagem), 2 primary texts meaningfully different, 2 headlines, URL de destino com a congruência justificada e racional estratégico. Salve `concept-NN.md`.
+Com `competitor-analysis/ad-molds.json` (`ad_molds.status` `completed`), leia antes `reference/molde-e-injecao.md`: 1 molde por conceito, tabela slot a slot e nota técnica; sem o arquivo, nada muda. Leia `reference/briefing.md`. Puxe os sistemas de script, hook, hold, headline e primary text pela `best_query` exata (lista no arquivo; statics e pessoa fotorrealista têm sistemas próprios). Escreva no formato do arquivo: cabeçalho com as 9 variáveis, 3 criativos (script Hook → Bridge → Hold → CTA segundo a segundo, ou spec de imagem), 2 primary texts meaningfully different, 2 headlines, URL de destino com a congruência justificada e racional estratégico. Salve `concept-NN.md`.
 
 ### ETAPA 5.7 · Entregável de produção (ramifica pela rota)
 

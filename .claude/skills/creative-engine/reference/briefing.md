@@ -54,6 +54,7 @@ Para CADA conceito aprovado, gere o briefing completo aplicando os frameworks. *
 **Posição no Funil:** [TOF / MOF / BOF]
 **Formato Principal:** [UGC vídeo / demo vídeo / static / carrossel / motion graphics]
 **Senso Estético:** [referência de design/edição: caseiro vs polido, fontes, ritmo de cortes (a cada quantos segundos algo muda), paleta]
+**Molde** (só quando o conceito usa molde de `competitor-analysis/ad-molds.json`): [`mold_id` + concorrente + o sinal de escala do `evidence` + a frase do encaixe entre a função do molde e o ângulo deste conceito — `reference/molde-e-injecao.md`]
 **Estrutura Invisível:** [1 linha por dimensão — psicológica (sequência de objeções que derruba), emocional (o arco de valência: em que zona abre, o que segura na bridge, em que zona fecha), visual (onde estão os pattern interrupts), comunicativa (o que é falado vs overlay)]
 
 ---
@@ -72,6 +73,8 @@ Formato/awareness/intent diferente = 3-2-2 separado (outro conceito), em qualque
 **Tipo:** [vídeo UGC / vídeo demonstração / imagem estática / carrossel / motion graphics]
 
 **SE VÍDEO (script segundo-a-segundo):**
+
+**Conceito com molde:** os beats abaixo são os slots do molde, com o tempo, a função, o tipo de frase e o orçamento de palavras de cada um, e a duração alvo é o `duration_s` dele. A tabela de mapeamento e a nota técnica das pendências estão em `reference/molde-e-injecao.md`. Sem molde, valem as quatro seções e a duração escolhida por posição de funil, como abaixo.
 
 Duração alvo: [15s / 22s / 30s — baseada em posição de funil; TOF mais curto, BOF pode ser mais longo]
 

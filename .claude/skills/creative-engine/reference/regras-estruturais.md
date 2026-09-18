@@ -106,6 +106,8 @@ Cadência de fala natural pra ad é **2.8 a 3.0 palavras por segundo** (mesma re
 
 Text overlay não conta nesse cálculo — overlay roda em paralelo à fala.
 
+**Conceito com molde do vídeo escalado:** o `words_budget` de cada slot é a régua mais apertada e vence DENTRO do slot (teto de 115%); a tabela acima continua valendo pro total falado, e a duração alvo passa a ser o `duration_s` do molde (`reference/molde-e-injecao.md`).
+
 **Limite de duração por geração — depende do modelo (só relevante pra Rota A/IA):** o split em takes ≤15s **não é universal** — é o limite do **Higgsfield**. O comportamento depende do `ai_video_model` escolhido na ETAPA 1.0 (Pergunta 1.5):
 
 - **Modelo de clipe curto (Higgsfield ~15s; Sora/outro quando o ad estoura o limite):** cada geração é 1 clipe renderizado do zero, **sem memória dos clipes anteriores**. Se o script falado passa do limite, NÃO acelere a fala nem corte — **divida em takes** ≤limite: hook num take, body (mecanismo/prova/CTA) começando no take seguinte (hook e body nunca no mesmo take), cada take 100% autocontido. Lógica completa em `marketing-studio-director.md` (MULTI-SHOT SPLITTING). Entregável = 1 pasta por conceito, 1 arquivo por take.

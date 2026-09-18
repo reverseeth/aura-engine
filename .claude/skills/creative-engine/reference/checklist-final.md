@@ -27,6 +27,7 @@ A skill tem ~10 gates espalhados pelas ETAPAs. Antes de declarar o batch entregu
 - [ ] Hook/primary text/headline que nasceu de frase real tem `voc_source` apontando pra `market-research` (ETAPA 4.5.F); os demais com `voc_source: null`
 - [ ] `hook_swap_viable` declarado por conceito (ETAPA 4.5.G)
 - [ ] Primary texts meaningfully different (estrutura+ângulo+hook, não cosmético); headlines com frames distintos (ETAPA 5)
+- [ ] **Conceito com molde:** o roteiro tem a contagem, a ordem, as funções, os tipos de frase e as durações dos slots do `mold_id` declarado no briefing; nenhum slot acima de 115% do `words_budget`; nenhuma frase, afirmação, número ou nome de mecanismo do concorrente na saída; slot sem argumento e slot abaixo de 85% do orçamento estão na seção Pendências do molde do `concept-NN.md` (ETAPA 5, `reference/molde-e-injecao.md`)
 
 **Estilo e upload:**
 - [ ] Passada de estilo (ETAPA 7.5): zero travessão em headlines (≤2 em copy longa); nenhuma peça pública com aviso, disclaimer ou claim suavizado por iniciativa da skill
