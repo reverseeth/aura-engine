@@ -1,26 +1,26 @@
-# Content Recycler (Skill 14)
+# Content Recycler (Skill `content-recycler`)
 
-Pega 1 criativo winner e gera 9 derivadas adaptadas a canais diferentes.
-Reaproveita o winner em 9 canais sem produção nova.
+Engine da Trilha 2 da skill `content-recycler`: pega 1 criativo classificado como breakthrough pela skill `ad-analysis` (cânone `.claude/lib/ad-taxonomy/README.md` §2) e gera 9 derivadas adaptadas a canais diferentes.
+Reaproveita o breakthrough em 9 canais sem produção nova. A Trilha 1 (amplificação, o default da `content-recycler`) vive na skill `content-recycler` e no cânone, não nesta lib.
 
 ## Quando usar
 
-**Manual** (hoje): membro invoca com `recycle [creative-id]` ou `recycle winner`
-(usa o `dados.json.winners[]` já marcado pela skill 11).
+**Manual** (hoje): membro invoca com `recycle [creative-id]` ou `recycle breakthrough`
+(usa `breakthroughs[]` do `ad-analysis/dados.json`; `kpi_winner` não entra).
 
-**Automático** (futuro): disparo direto quando a skill 11 marcar um winner novo.
-Hoje o gatilho é sempre manual — a 11 recomenda, o membro invoca.
+**Automático** (futuro): disparo direto quando a skill `ad-analysis` marcar um breakthrough novo.
+Hoje o gatilho é sempre manual — a `ad-analysis` recomenda, o membro invoca.
 
 ## Input
 
 Um criativo de referência — qualquer um destes:
-- Briefing completo de `workspace/[produto]/08-creative-engine/concept-XX.md`
+- Briefing completo de `workspace/[produto]/creative-engine/concept-XX.md`
 - Ad script + primary text + headlines
 - Copy de advertorial ou PDP
 
 ## Output — 9 formatos derivados
 
-Salvos em `workspace/[produto]/14-content-recycler/[source-id]/`:
+Salvos em `workspace/[produto]/content-recycler/[source-id]/`:
 
 1. **advertorial-1500w.md** — advertorial editorial longa pra LP ou blog
 2. **email-sequence.md** — 5 emails (welcome → mechanism → social proof → objection → CTA)
@@ -56,4 +56,4 @@ recycle <creative-id>
 
 O sistema lê o concept, consulta base Aura sobre formato de cada derivada,
 gera 9 versões e salva tudo em pasta dedicada.
-Entrega: "9 derivadas prontas em workspace/[produto]/14-content-recycler/[creative-id]/"
+Entrega: "9 derivadas prontas em workspace/[produto]/content-recycler/[creative-id]/"

@@ -1,6 +1,6 @@
 # Ad Taxonomy — cânone único de classificação e capacidade de teste
 
-Fonte de verdade para: quantos criativos testar, como classificar resultado, quando matar e quando escalar. Skills 08, 10, 11, 12, 14 e 17 leem **daqui**; nenhuma redefine essas classes localmente.
+Fonte de verdade para: quantos criativos testar, como classificar resultado, quando matar e quando escalar. Skills `creative-engine`, `ad-strategy`, `ad-analysis`, `scale-engine`, `content-recycler` e `promo-engine` leem **daqui**; nenhuma redefine essas classes localmente.
 
 Origem: fonte primária 2026 (P1) + fonte primária high-ticket 2026 (P1), revisão de ~US$ 100M de spend. Queries: `taxonomia winners breakthrough spend winner KPI winner loser`, `assets budget dividido por CPA capacidade de teste`, `scaling protocol reset budget gasto real`.
 

@@ -40,7 +40,7 @@ escreve um status claro no stderr (a skill cai pro próximo fallback — paste/M
 DEPENDÊNCIA: Playwright + Chromium. O script faz BOOTSTRAP automático: se o python
 atual não tem playwright, ele re-executa usando o venv do framework
 (.claude/lib/web-fetch/.venv ou tools/design-clone/.venv). Se nenhum existir, mostra
-o comando de setup. A skill 00 (setup) cria o venv. (--mode trends usa só a
+o comando de setup. A skill `setup` cria o venv. (--mode trends usa só a
 biblioteca padrão do python — funciona até sem o venv.)
 """
 import sys, os, re, json, argparse

@@ -4,13 +4,16 @@
 <meta charset="UTF-8">
 <!--
   ═══════════════════════════════════════════════════════════════════════════
-  AURA REPORT TEMPLATE — "Editorial Intelligence" (light)
-  Design system padrão de TODOS os relatórios .html da Aura (skills 00-14).
-  Uma skill COPIA este <style> inteiro + a estrutura de componentes do <body>,
-  troca só o conteúdo. NÃO invente classes novas — use as daqui.
+  AURA REPORT TEMPLATE, "Editorial Intelligence" (light)
+  Design system padrão de TODOS os relatórios .html da Aura (todas as skills).
+  Ninguém copia este arquivo à mão: o `tools/render_report.py` lê o .md do relatório e
+  monta o .html a partir daqui (o <style> inteiro, a topbar com a logo, o hero, a meta-bar,
+  o sumário gerado dos `##`, o rodapé e o <script>). NÃO invente classes novas: componente
+  novo entra no <style> daqui e ganha uma convenção de Markdown no conversor
+  (`.claude/templates/aura-html-components.md` lista as convenções).
 
-  Placeholders: {{TITLE}} {{DESCRIPTION_HTML}} {{PRODUCT}} {{MARKET}} {{DATE}}
-                {{FEEDS}} {{EYEBROW}} {{REPORT_KIND}} {{YEAR}}
+  Placeholders que o render preenche: {{TITLE}} {{DESCRIPTION_HTML}} {{PRODUCT}} {{MARKET}}
+                {{DATE}} {{FEEDS}} {{EYEBROW}} {{REPORT_KIND}} {{YEAR}}
 
   Componentes (todos já estilizados abaixo):
     logo (topbar .brand.logo-wrap · SVG, NUNCA texto) · page-title · page-subtitle
@@ -18,10 +21,11 @@
     kpi-grid/kpi-card/big-num/big-num-label · table-wrap + table + pill/pill-win/pill-saturated/pill-common
     quote/quote-pt/quote-source · note · callout · opportunity · danger
     winner/winner-label/winner-name · faq/faq-q/faq-a · check-row/check-icon · footer
-  Vidro (liquid glass) é EMBUTIDO em cada card — não precisa de classe .glass extra.
+    pre (bloco de código) · ul/ol · hr · img
+  Vidro (liquid glass) é EMBUTIDO em cada card: não precisa de classe .glass extra.
   Seções alternam tema: <section class="section dark"> vira banda escura full-bleed com transição
-  suave (o resto do conteúdo re-tinge sozinho). Alterne light/dark para dar ritmo ao documento.
-  report_language:"en" → traduzir o chrome (Sumário→Contents, meta labels, etc.).
+  suave (o resto do conteúdo re-tinge sozinho). O render alterna light/dark sozinho (--no-dark desliga).
+  report_language:"en" → o render traduz o chrome (Sumário→Contents, rótulos da meta-bar).
   ═══════════════════════════════════════════════════════════════════════════
 -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' data: https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; script-src 'self' 'unsafe-inline';">
@@ -266,6 +270,32 @@
 
   code,pre{font-family:var(--mono);font-size:0.9em;overflow-wrap:break-word;}
 
+  /* ---------- prosa gerada do .md pelo render_report.py: código em bloco, listas, régua, imagem, link ---------- */
+  pre{margin:22px 0 0;padding:20px 22px;border:1px solid var(--line);border-radius:var(--radius-sm);background:rgba(20,22,26,0.035);color:var(--ink-2);font-size:13.5px;line-height:1.5;white-space:pre;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  pre code{font-size:inherit;}
+  pre+*,.table-wrap+*,.kpi-grid+*,.quote+*,.note+*,.callout+*,.opportunity+*,.danger+*,.winner+*,.faq+*{margin-top:22px;}
+  ul,ol{margin:0 0 18px;padding-left:26px;color:var(--ink-2);max-width:70ch;font-size:clamp(17px,1.15vw,18.5px);line-height:1.62;}
+  li{margin:0 0 8px;}
+  li>ul,li>ol{margin:8px 0 0;}
+  li p{margin:8px 0 0;}
+  li .quote{font-size:clamp(17px,1.4vw,20px);}
+  hr{margin:32px 0;border:0;border-top:1px solid var(--line);}
+  img{max-width:100%;height:auto;border-radius:var(--radius-sm);}
+  del{color:var(--faint);}
+  main a:not([class]){text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-hot);}
+  main a:not([class]):hover{color:var(--ink);}
+  .meta-bar[data-n="1"]{grid-template-columns:1fr;}
+  .meta-bar[data-n="2"]{grid-template-columns:repeat(2,1fr);}
+  .meta-bar[data-n="3"],.meta-bar[data-n="6"]{grid-template-columns:repeat(3,1fr);}
+  .meta-bar[data-n="5"]{grid-template-columns:repeat(5,1fr);}
+  .meta-bar[data-n="3"]>div:nth-child(3n),.meta-bar[data-n="6"]>div:nth-child(3n){border-right:0;}
+  @media(max-width:720px){
+    .meta-bar[data-n]{grid-template-columns:repeat(2,1fr);}
+    .meta-bar[data-n="1"]{grid-template-columns:1fr;}
+    .meta-bar[data-n]>div{border-right:1px solid var(--line);}
+    .meta-bar[data-n]>div:nth-child(2n){border-right:0;}
+  }
+
   /* ═══════════════ SEÇÃO DARK (alterna com light — banda full-bleed + transição suave) ═══════════════ */
   /* Uso: <section class="section dark" id="sN"> ... </section>. As variáveis abaixo re-tingem todo
      o conteúdo automaticamente (texto, cards, tabelas, pills). Cards viram vidro escuro. */
@@ -301,6 +331,7 @@
   .section.dark .pill-saturated{background:rgba(255,107,94,0.14);}
   .section.dark .check-icon{background:rgba(255,255,255,0.06);}
   .section.dark tbody tr:hover td{background:rgba(255,255,255,0.03);}
+  .section.dark pre{background:rgba(255,255,255,0.06);}
   .section.dark ::selection{background:#F5F6F2;color:#0F1116;}
 
   /* ---------- fallback: navegador sem backdrop-filter → fundo sólido (nunca transparente/cinza) ---------- */

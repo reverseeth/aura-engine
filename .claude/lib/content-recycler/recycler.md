@@ -1,6 +1,6 @@
 # Content Recycler — prompt structured
 
-Skill auxiliar invocável. Pega 1 winner e gera 9 derivadas.
+Skill auxiliar invocável. Engine da Trilha 2 da skill `content-recycler`: pega 1 criativo classificado como breakthrough pela skill `ad-analysis` (cânone `.claude/lib/ad-taxonomy/README.md` §2) e gera 9 derivadas. A Trilha 1 (amplificação, o default da `content-recycler`) vive na própria skill `content-recycler` e no cânone, não aqui.
 
 ## Como invocar
 
@@ -14,29 +14,29 @@ recycle [creative-id]
 ou
 
 ```
-recycle winner
-# (sistema lê dados.winners[] já marcado pela skill 11 e ordena por spend_total)
+recycle breakthrough
+# (sistema lê breakthroughs[] do ad-analysis/dados.json e ordena por spend_total)
 ```
 
 ## Fluxo da skill
 
-### ETAPA 1 — Identificação do winner
+### ETAPA 1 — Identificação do breakthrough
 
 1. Se `[creative-id]` fornecido (formato `c-NN`, que mapeia pra `concept-NN.md`):
-   - PRIMEIRO abrir `workspace/[produto]/08-creative-engine/dados.json` (fonte estruturada), achar `concepts[]` cujo `id == creative-id`, e extrair dali os campos estruturados (hook, mechanism, avatar, voc_source, proof, cta).
-   - Usar `workspace/[produto]/08-creative-engine/concept-NN.md` como brief complementar (texto longo, nuance de tom).
-2. Se `winner`: ler `workspace/[produto]/11-ad-analysis/dados.json` e pegar o criativo de classe **`breakthrough`** — use `breakthroughs[]` se existir, senão filtre `winners[]` por `outcome == "breakthrough"`. NÃO recomputar critério; ordenar por `spend_total` desc (tiebreak `days_active` desc) e pegar o topo. Se precisar de target pra exibir, ler explícito de `manifest.target_cpa`.
+   - PRIMEIRO abrir `workspace/[produto]/creative-engine/dados.json` (fonte estruturada), achar `concepts[]` cujo `id == creative-id`, e extrair dali os campos estruturados (hook, mechanism, avatar, voc_source, proof, cta).
+   - Usar `workspace/[produto]/creative-engine/concept-NN.md` como brief complementar (texto longo, nuance de tom).
+2. Se `breakthrough` (ou o alias antigo `winner`): ler `workspace/[produto]/ad-analysis/dados.json` e pegar o criativo de classe **`breakthrough`** — use `breakthroughs[]` se existir, senão filtre `winners[]` por `outcome == "breakthrough"`. NÃO recomputar critério; ordenar por `spend_total` desc (tiebreak `days_active` desc) e pegar o topo. Se precisar de target pra exibir, ler explícito de `manifest.target_cpa`.
 
-   > **Gatilho canônico (2026-09-01):** só `breakthrough` entra na reciclagem — ver `.claude/lib/ad-taxonomy/README.md` §2. `kpi_winner` (bate KPI sem puxar spend) é tratado como **loser para decisão** e nunca entra, nem por id explícito; reciclá-lo multiplica um teste que nunca provou nada em escala. `spend_winner` entra só no Movimento 1 (iteração) da Trilha 1 da skill 14. O `outcome == "winner"` legado não distingue as classes.
+   > **Gatilho canônico (2026-09-01):** só `breakthrough` entra na reciclagem — ver `.claude/lib/ad-taxonomy/README.md` §2. `kpi_winner` (bate KPI sem puxar spend) é tratado como **loser para decisão** e nunca entra, nem por id explícito; reciclá-lo multiplica um teste que nunca provou nada em escala. `spend_winner` entra só no Movimento 1 (iteração) da Trilha 1 da skill `content-recycler`. O `outcome == "winner"` legado não distingue as classes.
 3. Se nenhum dos dois disponível: perguntar ao membro qual criativo reciclar
 
 ### ETAPA 2 — Extração de essência (rastreável, não inventada)
 
 Antes de destilar, abrir as fontes pra herdar dados reais (nunca reparafrasear o que já é canônico):
 
-- `workspace/[produto]/04-offer-builder/offer-builder.md` (ou `04-offer-builder/dados.json`) → copiar o `mechanism_name` **LITERAL** pra `mechanism_name_canonical`. NÃO reparafraseie o nome do mecanismo.
-- `workspace/[produto]/08-creative-engine/dados.json` → herdar `voc_source.ref_id` de cada hook do conceito fonte pra popular `voc_refs[]`.
-- `workspace/[produto]/02-market-research/market-research.md` (ou `02-market-research/dados.json`) → VOC real (frases exatas do consumidor, em inglês US literal) referenciadas por `voc_refs[]`.
+- `workspace/[produto]/offer-builder/offer-builder.md` (ou `offer-builder/dados.json`) → copiar o `mechanism_name` **LITERAL** pra `mechanism_name_canonical`. NÃO reparafraseie o nome do mecanismo.
+- `workspace/[produto]/creative-engine/dados.json` → herdar `voc_source.ref_id` de cada hook do conceito fonte pra popular `voc_refs[]`.
+- `workspace/[produto]/market-research/market-research.md` (ou `market-research/dados.json`) → VOC real (frases exatas do consumidor, em inglês US literal) referenciadas por `voc_refs[]`.
 
 Destilar em shape estruturado (valores extraídos das fontes acima, não pré-definidos):
 
@@ -46,8 +46,8 @@ Destilar em shape estruturado (valores extraídos das fontes acima, não pré-de
   "big_idea": "<one-sentence thesis extraído do briefing>",
   "hook_essence": "<primeira frase/hook do criativo>",
   "mechanism": "<descrição do UMP/UMS em 5-12 palavras>",
-  "mechanism_name_canonical": "<nome LITERAL do mecanismo, copiado de 04-offer-builder>",
-  "voc_refs": ["<ref_id de cada VOC herdada de 08-creative-engine/dados.json / 02-market-research>"],
+  "mechanism_name_canonical": "<nome LITERAL do mecanismo, copiado de offer-builder>",
+  "voc_refs": ["<ref_id de cada VOC herdada de creative-engine/dados.json / market-research>"],
   "key_numbers": ["<Hopkins specificity numbers usados no criativo>"],
   "avatar": "<descrição resumida do avatar target>",
   "brand_voice": "<tom dominante derivado do briefing>",
@@ -62,13 +62,13 @@ Destilar em shape estruturado (valores extraídos das fontes acima, não pré-de
 
 > **O script não viaja; o framework viaja.** Extrair "I think I just got scammed" preso ao contexto original produz derivadas que só funcionam naquele nicho. Suba um nível até o padrão com slot (`framework_template`) e registre o efeito psicológico que o sustenta (`psychological_mechanism`) — é esse par que atravessa avatares, formatos e canais, e é ele que julga se uma derivada continua congruente com o original.
 
-**Sanity check (drift)**: se o `mechanism_name_canonical` extraído divergir do `mechanism_name` em `04-offer-builder`, PARE e surface ao membro (não auto-resolva) — é drift entre fases que precisa decisão dele.
+**Sanity check (drift)**: se o `mechanism_name_canonical` extraído divergir do `mechanism_name` em `offer-builder`, PARE e surface ao membro (não auto-resolva) — é drift entre fases que precisa decisão dele.
 
-Salvar em `workspace/[produto]/14-content-recycler/[source-id]/essence.json` pra referência de todos os formatos. O `essence.json` descritivo segue o `report_language` do membro; `voc_refs`/VOC literal permanecem em inglês US.
+Salvar em `workspace/[produto]/content-recycler/[source-id]/essence.json` pra referência de todos os formatos. O `essence.json` descritivo segue o `report_language` do membro; `voc_refs`/VOC literal permanecem em inglês US.
 
 ### ETAPA 3 — Consultar base Aura sobre cada formato (SISTEMAS NOMEADOS, não query genérica)
 
-Antes de gerar cada derivada, puxar os SISTEMAS NOMEADOS do domínio **creatives-hooks-formats** rodando `search_knowledge` com a `best_query` de cada framework (`deep=true`). NUNCA use query genérica de canal. Índice completo do domínio em `.claude/lib/kb-index/` (`frameworks.json` + `README.md`). Curadoria de maior impacto por formato:
+Antes de gerar cada derivada, puxar os SISTEMAS NOMEADOS do domínio **creatives-hooks-formats** rodando `search_knowledge` com a `best_query` de cada framework (`deep=true`). NUNCA use query genérica de canal. Índice completo do domínio em `.claude/lib/kb-index/` (lista pelo `python3 .claude/lib/kb-index/kb_lookup.py --skill content-recycler --domain creatives-hooks-formats`). Curadoria de maior impacto por formato:
 
 - **Advertorial / Blog SEO** →
   - `search_knowledge("Caples four U's hierarchy unique useful urgent ultra-specific headlines", deep=true)`
@@ -98,11 +98,11 @@ Pra cada formato:
 2. Construir prompt usando essence.json + format spec + knowledge base context
 3. Gerar derivada respeitando `length_words`, `structure`, `tone`
 4. Passada de estilo: travessão zero em headline/subject, ≤2 no corpo (rule 8a); nenhum aviso, disclaimer ou claim suavizado por conta própria (rule 8b)
-5. Salvar em `workspace/[produto]/14-content-recycler/[source-id]/[output_file]`
+5. Salvar em `workspace/[produto]/content-recycler/[source-id]/[output_file]`
 
 ### ETAPA 5 — Gerar índice + relatório
 
-Criar `workspace/[produto]/14-content-recycler/[source-id]/README.md` (relatório interno → segue `report_language` do membro; as 9 derivadas em si permanecem em inglês US):
+Criar `workspace/[produto]/content-recycler/[source-id]/README.md` (relatório interno → segue `report_language` do membro; as 9 derivadas em si permanecem em inglês US):
 
 ```markdown
 # Content Recycler Output — [source-id]
@@ -152,14 +152,13 @@ Caso queira adicionar formato novo (ex: LinkedIn, Substack, Twitter thread), edi
 
 Pra CADA `.md` salvo nesta pasta (README.md + as 9 derivadas) gerar o `.html` companion correspondente no mesmo diretório (`README.html`, `advertorial-1500w.html`, ... `podcast-ad-30s.html`). São 9 `.html` de derivada + `README.html`.
 
-- Copiar o CSS completo de `.claude/templates/aura-report-template.html` (inline, self-contained, sem server; manter responsividade mobile).
-- Abrir o `<body>` com o bloco SVG da logo copiado **LITERALMENTE** de `.claude/templates/aura-logo-snippet.html` (6 linhas, sem alterações). PROIBIDO substituir por texto "AURA"/"Aura Engine". Sem fallback textual.
+- Gerar cada um com `python3 tools/render_report.py <caminho do .md>` (o script aplica o design system, a topbar com a logo e o sumário; convenções de Markdown em `.claude/templates/aura-html-components.md`). Nunca escrever o HTML à mão.
 - O HTML do README segue o `report_language` do membro; o HTML das 9 derivadas reflete o conteúdo consumidor-final em inglês US.
 
 ## Estrutura final de arquivos
 
 ```
-workspace/[produto]/14-content-recycler/
+workspace/[produto]/content-recycler/
 └── <creative-id>/
     ├── README.md                     ← índice + instruções
     ├── README.html                   ← companion humano (rule 6b)

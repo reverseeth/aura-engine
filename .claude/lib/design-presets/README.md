@@ -1,8 +1,8 @@
-# Design Presets (fonte única dos 8 presets da 07a)
+# Design Presets (fonte única dos 8 presets da `page-design`)
 
-Tokens **completos e fixos** dos 8 presets de design que a skill **07a-page-design** oferece no **Caminho 4 dos brand signals** (Manual / presets — último recurso da cascade, quando não há Refero, nem print, nem URL de referência).
+Tokens **completos e fixos** dos 8 presets de design que a skill **page-design** oferece no **Caminho 4 dos brand signals** (Manual / presets — último recurso da cascade, quando não há Refero, nem print, nem URL de referência).
 
-**Por que este arquivo existe:** antes, cada run da 07a "inventava" os tokens do preset escolhido na hora — dois membros escolhendo "Warm Lifestyle" recebiam paletas diferentes, e o mesmo membro re-rodando a skill via drift visual sem ter pedido. Preset é promessa de consistência: mesmo nome, mesmos tokens, sempre. A fonte única é `presets.json`; a skill **lê o arquivo, nunca gera de cabeça**.
+**Por que este arquivo existe:** antes, cada run da `page-design` "inventava" os tokens do preset escolhido na hora — dois membros escolhendo "Warm Lifestyle" recebiam paletas diferentes, e o mesmo membro re-rodando a skill via drift visual sem ter pedido. Preset é promessa de consistência: mesmo nome, mesmos tokens, sempre. A fonte única é `presets.json`; a skill **lê o arquivo, nunca gera de cabeça**.
 
 ## Os 8 presets
 
@@ -19,7 +19,7 @@ Tokens **completos e fixos** dos 8 presets de design que a skill **07a-page-desi
 
 ## Shape de cada preset
 
-Cada entrada espelha (e é superset de) o shape do `design-signals.json` que a 07a grava:
+Cada entrada espelha (e é superset de) o shape do `design-signals.json` que a `page-design` grava:
 
 ```json
 {
@@ -36,13 +36,13 @@ Cada entrada espelha (e é superset de) o shape do `design-signals.json` que a 0
 }
 ```
 
-- **`palette` é role-tagged** — mesmas roles do `design-signals.json`/`design-tokens.json` (a 07b mapeia direto pra CSS vars + settings). `on_primary` é a cor do texto sobre o `primary` (botões).
-- **`google_fonts`** lista família + pesos usados — é o que a **07b (passo de web fonts)** usa pra montar o `<link>` do Google Fonts (só os pesos listados; cada peso extra é KB no LCP).
-- Todas as fontes são **Google Fonts** de propósito: o provisionamento na 07b é padronizado e sem arquivo de fonte pra licenciar.
+- **`palette` é role-tagged** — mesmas roles do `design-signals.json`/`design-tokens.json` (a `page-build` mapeia direto pra CSS vars + settings). `on_primary` é a cor do texto sobre o `primary` (botões).
+- **`google_fonts`** lista família + pesos usados — é o que a **`page-build` (passo de web fonts)** usa pra montar o `<link>` do Google Fonts (só os pesos listados; cada peso extra é KB no LCP).
+- Todas as fontes são **Google Fonts** de propósito: o provisionamento na `page-build` é padronizado e sem arquivo de fonte pra licenciar.
 
-## Como a 07a consome
+## Como a `page-design` consome
 
-1. Membro escolhe o preset no Caminho 4 (ETAPA 2 da 07a).
+1. Membro escolhe o preset no Caminho 4 (ETAPA 2 da `page-design`).
 2. A skill lê `.claude/lib/design-presets/presets.json`, pega a entrada da key escolhida.
 3. Mapeia LITERALMENTE pro `design-signals.json` do produto: `source: "manual"`, `source_detail: "preset [Nome]"`, e os campos `heading_font`/`body_font`/`palette`/`radius`/`shadow`/`density` copiados do preset (sem ajuste criativo — ajuste só se o membro pedir explicitamente, e aí registre como customização, não como preset puro).
 
@@ -50,4 +50,4 @@ Cada entrada espelha (e é superset de) o shape do `design-signals.json` que a 0
 
 - **NUNCA inventar/ajustar tokens de preset em runtime.** Se o resultado do preset não agrada, o caminho é o membro pedir customização (vira `source_detail: "preset X (customizado)"`) ou trocar de caminho na cascade — não é "melhorar" o preset silenciosamente.
 - **Editar este arquivo é mudança de FRAMEWORK** (afeta todos os membros): mantenha coerência com o nome do preset, contraste WCAG AA entre `foreground`/`background` e `on_primary`/`primary`, e fontes disponíveis no Google Fonts.
-- Novos presets: adicionar entrada aqui + atualizar a lista nomeada na 07a (Caminho 4).
+- Novos presets: adicionar entrada aqui + atualizar a lista nomeada na `page-design` (Caminho 4).

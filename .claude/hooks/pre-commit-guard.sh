@@ -98,7 +98,8 @@ fi
 # ============================================================================
 # Padrões: Facebook long-lived (EAA...), Google API (AIza/ya29), Stripe (sk_live/pk_live),
 # GitHub (ghp_), Slack (xox), Shopify Admin (shpat_/shpss_/shpca_), Anthropic (sk-ant-),
-# OpenAI (sk-proj-), Klaviyo private key (pk_ + hex).
+# OpenAI (sk-proj-), Klaviyo private key (pk_ + hex), chave antiga da base Aura
+# (AURADTC... e a URL da base com ?key=), que não pode voltar por acidente.
 # O grep roda no BLOB STAGED (git show :arquivo), não no working tree — token staged
 # mas já removido do arquivo local ainda é pego.
 INLINE_SECRETS=""
@@ -108,7 +109,7 @@ for f in "${STAGED_FILES[@]}"; do
   [ "$size" -eq 0 ] && continue
   [ "$size" -gt 500000 ] && continue
 
-  if git show ":$f" 2>/dev/null | grep -qE "EAA[A-Za-z0-9]{100,}|ya29\.[A-Za-z0-9_-]{30,}|sk_live_[A-Za-z0-9]{20,}|pk_live_[A-Za-z0-9]{20,}|AIza[A-Za-z0-9_-]{35}|ghp_[A-Za-z0-9]{36}|xox[bp]-[A-Za-z0-9-]{20,}|shpat_[a-fA-F0-9]{32}|shpss_[a-fA-F0-9]{32}|shpca_[a-fA-F0-9]{32}|sk-ant-[A-Za-z0-9_-]{20,}|sk-proj-[A-Za-z0-9_-]{20,}|pk_[a-f0-9]{30,}"; then
+  if git show ":$f" 2>/dev/null | grep -qE "EAA[A-Za-z0-9]{100,}|ya29\.[A-Za-z0-9_-]{30,}|sk_live_[A-Za-z0-9]{20,}|pk_live_[A-Za-z0-9]{20,}|AIza[A-Za-z0-9_-]{35}|ghp_[A-Za-z0-9]{36}|xox[bp]-[A-Za-z0-9-]{20,}|shpat_[a-fA-F0-9]{32}|shpss_[a-fA-F0-9]{32}|shpca_[a-fA-F0-9]{32}|sk-ant-[A-Za-z0-9_-]{20,}|sk-proj-[A-Za-z0-9_-]{20,}|pk_[a-f0-9]{30,}|AURADTC[A-Z0-9]{4,}|railway\.app/mcp\?key="; then
     INLINE_SECRETS+="  - $f"$'\n'
   fi
 done
@@ -118,13 +119,57 @@ if [ -n "$INLINE_SECRETS" ]; then
   echo "✋  AURA ENGINE — pre-commit guard BLOQUEOU este commit"
   echo ""
   echo "Os seguintes arquivos contêm o que parece ser um token REAL (Facebook,"
-  echo "Google, Stripe, GitHub, Slack, Shopify, Anthropic, OpenAI ou Klaviyo):"
+  echo "Google, Stripe, GitHub, Slack, Shopify, Anthropic, OpenAI, Klaviyo ou a"
+  echo "chave antiga da base Aura, que foi removida do framework):"
   echo ""
   echo "$INLINE_SECRETS"
   echo "Substitui pelo placeholder (ex: YOUR_TOKEN_HERE) antes de commitar, OU"
   echo "move pro .env (que está gitignored)."
   echo ""
   exit 1
+fi
+
+# ============================================================================
+# CHECK 4 — Lint do framework (aura-check.py: secrets, paths, skill-ids, member-data)
+# ============================================================================
+# A regra member-data roda com QUALQUER arquivo no staging: nome de produto, loja
+# ou marca do workspace do membro não pode entrar no repo por pasta nenhuma (os
+# termos vêm dos manifests em tempo de execução e nunca são impressos). As outras
+# três (secrets, paths, skill-ids) rodam quando há arquivo de .claude/ ou tools/:
+# nenhum arquivo rastreado com token ou a chave antiga da base, toda referência
+# entre crases a .claude/, tools/ e docs/ apontando pra algo existente e toda
+# referência a skill com id ou apelido válido do registro. Custa menos de 1 s; se o
+# script não existir (clone antigo), o check é pulado em silêncio.
+FRAMEWORK_STAGED=0
+for f in "${STAGED_FILES[@]}"; do
+  case "$f" in
+    .claude/*|tools/*) FRAMEWORK_STAGED=1; break ;;
+  esac
+done
+
+if [ "$FRAMEWORK_STAGED" -eq 1 ]; then
+  LINT_RULES="secrets,paths,skill-ids,member-data"
+else
+  LINT_RULES="member-data"
+fi
+
+if [ ${#STAGED_FILES[@]} -gt 0 ] && [ -f "$REPO_ROOT/tools/aura-check.py" ] && command -v python3 >/dev/null 2>&1; then
+  LINT_OUTPUT="$(cd "$REPO_ROOT" && python3 tools/aura-check.py --only "$LINT_RULES" 2>&1)"
+  LINT_STATUS=$?
+  if [ "$LINT_STATUS" -ne 0 ]; then
+    echo ""
+    echo "✋  AURA ENGINE — pre-commit guard BLOQUEOU este commit"
+    echo ""
+    echo "O lint do framework (tools/aura-check.py) encontrou problemas nos arquivos"
+    echo "que você está commitando:"
+    echo ""
+    echo "$LINT_OUTPUT" | sed 's/^/  /'
+    echo ""
+    echo "Corrija os itens acima (ou rode 'python3 tools/aura-check.py' pra ver todas"
+    echo "as regras) e faça 'git commit' de novo."
+    echo ""
+    exit 1
+  fi
 fi
 
 # Tudo OK — commit segue

@@ -1,7 +1,7 @@
 {
   "version": "1.1.0",
   "emotions": ["curiosity", "urgency", "fear", "delight"],
-  "format_vocabulary_note": "format_fit usa o enum CANÔNICO de format do .claude/lib/creative-dna/feature_schema.json (ugc_real_person, ugc_ai_avatar, stolen_ugc_stitch, founder_led, demo, motion_graphic, motion_graphic_hybrid, stock_footage, static_image, carousel) — cruzável com o registry do creative DNA. 'stolen_ugc_stitch' é vocabulário DESCRITIVO de análise de concorrente (descreve o que se vê no ad analisado), NUNCA recomendação de produção — a skill 08 só produz stitch com footage licenciado ('licensed_montage' no creator archetype).",
+  "format_vocabulary_note": "format_fit usa o enum CANÔNICO de format do .claude/lib/creative-dna/feature_schema.json (ugc_real_person, ugc_ai_avatar, stolen_ugc_stitch, founder_led, demo, motion_graphic, motion_graphic_hybrid, stock_footage, static_image, carousel) — cruzável com o registry do creative DNA. 'stolen_ugc_stitch' é vocabulário DESCRITIVO de análise de concorrente (descreve o que se vê no ad analisado), NUNCA recomendação de produção — a skill `creative-engine` só produz stitch com footage licenciado ('licensed_montage' no creator archetype).",
   "archetypes": [
     {
       "id": "pattern_interrupt",

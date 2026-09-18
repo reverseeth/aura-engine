@@ -1,0 +1,419 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine: ad-strategy/dados.json",
+  "description": "Estrutura de teste: capacidade (assets = budget ÷ target CPA), campanha CBO com 1 ad set por conceito, cadência, proteções e criação via MCP. Escrito pela skill `ad-strategy`. Lido por: creative-engine, ad-analysis, scale-engine, promo-engine, receitas (full-deploy, creative-loop, sync-campaign-from-meta). Campos `required` são só os que outra skill lê; qualquer campo extra é aceito (`additionalProperties: true`). Validado por `python3 tools/manifest.py <slug> complete ad-strategy` e por `python3 tools/aura-status.py <slug>`.",
+  "type": "object",
+  "required": [
+    "creative_batch_ref",
+    "target_cpa",
+    "breakeven_cpa",
+    "test_capacity",
+    "test_budget_daily",
+    "campaign",
+    "ad_sets",
+    "protections",
+    "pgs_enabled",
+    "mcp_creation"
+  ],
+  "properties": {
+    "strategy_id": {
+      "type": "string"
+    },
+    "product_slug": {
+      "type": "string"
+    },
+    "creative_batch_ref": {
+      "type": "string",
+      "description": "batch_id de creative-engine/dados.json"
+    },
+    "target_cpa": {
+      "type": "number"
+    },
+    "breakeven_cpa": {
+      "type": "number"
+    },
+    "member_daily_budget": {
+      "type": "number"
+    },
+    "test_capacity": {
+      "type": "object",
+      "properties": {
+        "max_assets": {
+          "type": "integer"
+        },
+        "max_adsets": {
+          "type": "integer"
+        },
+        "adsets_planned": {
+          "type": "integer"
+        },
+        "assets_planned": {
+          "type": "integer"
+        },
+        "concepts_available": {
+          "type": "integer"
+        },
+        "concepts_deferred": {
+          "type": "integer"
+        },
+        "binding_constraint": {
+          "type": "string",
+          "enum": [
+            "max_adsets",
+            "floor",
+            "adset_cap_5",
+            "batch_size",
+            "margin_warning",
+            "none"
+          ]
+        },
+        "floor_applied": {
+          "type": "boolean"
+        },
+        "below_floor_directional_only": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "max_assets",
+        "binding_constraint",
+        "below_floor_directional_only"
+      ],
+      "additionalProperties": true
+    },
+    "cac_floor_check": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": [
+            "finance-engine",
+            "none"
+          ]
+        },
+        "cac_floor_reference_usd": {
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "cac_max_first_order": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "target_reachable_vs_floor": {
+          "type": "string",
+          "enum": [
+            "yes",
+            "no",
+            "unknown"
+          ]
+        },
+        "binding": {
+          "type": "boolean"
+        },
+        "max_assets_at_floor": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "test_budget_daily": {
+      "type": "number"
+    },
+    "test_method": {
+      "type": "string",
+      "enum": [
+        "marksman",
+        "sniper",
+        "mixed"
+      ]
+    },
+    "structure": {
+      "type": "string"
+    },
+    "campaign": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "objective": {
+          "type": "string"
+        },
+        "optimization": {
+          "type": "string"
+        },
+        "budget_level": {
+          "type": "string"
+        },
+        "daily_budget": {
+          "type": "number"
+        },
+        "attribution": {
+          "type": "string"
+        },
+        "placements": {
+          "type": "string"
+        },
+        "targeting": {
+          "type": "string"
+        },
+        "one_account_per_product": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "daily_budget"
+      ],
+      "additionalProperties": true
+    },
+    "ad_sets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "concept_id": {
+            "type": "string"
+          },
+          "angle": {
+            "type": "string"
+          },
+          "testing_method": {
+            "type": "string",
+            "enum": [
+              "marksman",
+              "sniper"
+            ]
+          },
+          "landing_url": {
+            "type": "string"
+          },
+          "landing_url_source": {
+            "type": "string"
+          },
+          "landing_url_b": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "creative_count": {
+            "type": "integer"
+          },
+          "primary_texts": {
+            "type": "integer"
+          },
+          "headlines": {
+            "type": "integer"
+          },
+          "daily_max_spending_limit": {
+            "type": "number"
+          },
+          "ad_set_id": {
+            "type": "string"
+          },
+          "ad_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "concept_id",
+          "landing_url"
+        ],
+        "additionalProperties": true
+      },
+      "minItems": 1
+    },
+    "page_axis": {
+      "type": "object",
+      "properties": {
+        "enabled_322_2": {
+          "type": "boolean"
+        },
+        "budget_gate_daily_usd": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": true
+    },
+    "account_warmup": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "days": {
+          "type": "integer"
+        },
+        "engagement_budget_daily": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": true
+    },
+    "cadence": {
+      "type": "object",
+      "properties": {
+        "launch_day": {
+          "type": "string"
+        },
+        "decision_checkpoint": {
+          "type": "string"
+        },
+        "max_days": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": true
+    },
+    "protections": {
+      "type": "object",
+      "properties": {
+        "adset_daily_maximum": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "value_per_adset": {
+              "type": "number"
+            },
+            "basis": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "spend_spike_rule": {
+          "type": "object",
+          "properties": {
+            "created": {
+              "type": "boolean"
+            },
+            "active": {
+              "type": "boolean"
+            },
+            "condition": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "url_mismatch_rule": {
+          "type": "object",
+          "properties": {
+            "created": {
+              "type": "boolean"
+            },
+            "active": {
+              "type": "boolean"
+            },
+            "condition": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "automated_performance_kill": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "automated_performance_scaling": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "pgs_enabled": {
+      "type": "boolean",
+      "enum": [
+        false
+      ],
+      "description": "fixo em false: regra automática de performance não existe em CBO"
+    },
+    "store_credibility": {
+      "type": "object",
+      "properties": {
+        "instagram": {
+          "type": "string"
+        },
+        "reviews_count": {
+          "type": "integer"
+        },
+        "comment_management": {
+          "type": "string"
+        },
+        "gaps": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": true
+    },
+    "mcp_creation": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "enum": [
+            "official",
+            "pipeboard",
+            "manual"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "created_paused",
+            "fallback_manual"
+          ]
+        },
+        "campaign_id": {
+          "type": "string"
+        },
+        "ad_set_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ad_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "utm_schema": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

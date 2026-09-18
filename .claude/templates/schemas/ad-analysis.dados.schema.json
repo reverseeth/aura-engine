@@ -1,0 +1,590 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine: ad-analysis/dados.json",
+  "description": "Última análise de performance: KPI da campanha, classificação nas 4 classes do cânone, sinais de saúde, diagnóstico de página, espiral do ROAS, PSM real e ação recomendada. Escrito pela skill `ad-analysis`. Lido por: finance-engine, creative-engine, creator-engine, scale-engine, promo-engine, team-engine, content-recycler, marketplace-engine. Campos `required` são só os que outra skill lê; qualquer campo extra é aceito (`additionalProperties: true`). Validado por `python3 tools/manifest.py <slug> complete ad-analysis` e por `python3 tools/aura-status.py <slug>`.",
+  "type": "object",
+  "required": [
+    "analysis_id",
+    "test_capacity_check",
+    "breakthroughs",
+    "spend_winners",
+    "kpi_winners",
+    "losers",
+    "winners",
+    "health_signals",
+    "iteration_zone_check",
+    "click_based_purchase_share",
+    "psm_real",
+    "psm_real_basis",
+    "recommended_action"
+  ],
+  "properties": {
+    "analysis_id": {
+      "type": "string"
+    },
+    "analyzed_at": {
+      "type": "string",
+      "description": "ISO-8601"
+    },
+    "current_daily_spend": {
+      "type": "number"
+    },
+    "current_cpa_avg": {
+      "type": "number"
+    },
+    "current_roas_avg": {
+      "type": "number"
+    },
+    "campaign_kpi": {
+      "type": "object",
+      "properties": {
+        "campaign_cpa": {
+          "type": "number"
+        },
+        "campaign_roas": {
+          "type": "number"
+        },
+        "account_spend_7d": {
+          "type": "number"
+        },
+        "window_days": {
+          "type": "integer"
+        },
+        "stable": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "batch_rates": {
+      "type": "object",
+      "properties": {
+        "concepts_tested": {
+          "type": "integer"
+        },
+        "hit_rate": {
+          "type": "number"
+        },
+        "breakthrough_rate": {
+          "type": "number"
+        },
+        "volume_up_rate_down": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "test_capacity_check": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": [
+            "ad-strategy",
+            "none"
+          ]
+        },
+        "binding_constraint": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "max_adsets",
+            "floor",
+            "adset_cap_5",
+            "batch_size",
+            "margin_warning",
+            "none",
+            null
+          ]
+        },
+        "below_floor_directional_only": {
+          "type": "boolean"
+        },
+        "directional_only_analysis": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "directional_only_analysis"
+      ],
+      "additionalProperties": true
+    },
+    "active_breakthroughs_count": {
+      "type": "integer"
+    },
+    "active_losers_count": {
+      "type": "integer"
+    },
+    "breakthroughs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "creative_id": {
+            "type": "string"
+          },
+          "ad_class": {
+            "type": "string",
+            "enum": [
+              "breakthrough"
+            ]
+          },
+          "cpa": {
+            "type": "number"
+          },
+          "roas": {
+            "type": "number"
+          },
+          "spend_total": {
+            "type": "number"
+          },
+          "spend_share_7d": {
+            "type": "number"
+          },
+          "ad_kpi_vs_campaign": {
+            "type": "boolean"
+          },
+          "hook_rate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "hold_rate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "days_active": {
+            "type": "integer"
+          },
+          "ad_set_id": {
+            "type": "string"
+          },
+          "winning_sub_avatar_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "creative_id",
+          "ad_class"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "spend_winners": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "creative_id": {
+            "type": "string"
+          },
+          "ad_class": {
+            "type": "string",
+            "enum": [
+              "spend_winner"
+            ]
+          },
+          "cpa": {
+            "type": "number"
+          },
+          "roas": {
+            "type": "number"
+          },
+          "spend_total": {
+            "type": "number"
+          },
+          "spend_share_7d": {
+            "type": "number"
+          },
+          "ad_kpi_vs_campaign": {
+            "type": "boolean"
+          },
+          "hook_rate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "hold_rate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "days_active": {
+            "type": "integer"
+          },
+          "next_action": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "creative_id",
+          "ad_class"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "kpi_winners": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "creative_id": {
+            "type": "string"
+          },
+          "ad_class": {
+            "type": "string",
+            "enum": [
+              "kpi_winner"
+            ]
+          },
+          "cpa": {
+            "type": "number"
+          },
+          "roas": {
+            "type": "number"
+          },
+          "spend_total": {
+            "type": "number"
+          },
+          "spend_share_7d": {
+            "type": "number"
+          },
+          "ad_kpi_vs_campaign": {
+            "type": "boolean"
+          },
+          "hook_rate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "hold_rate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "days_active": {
+            "type": "integer"
+          },
+          "treated_as": {
+            "type": "string"
+          },
+          "next_action": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "creative_id",
+          "ad_class"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "losers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "creative_id": {
+            "type": "string"
+          },
+          "ad_class": {
+            "type": "string",
+            "enum": [
+              "loser"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "spend_share_7d": {
+            "type": "number"
+          },
+          "hook_rate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "hold_rate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "days_active": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "creative_id",
+          "ad_class"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "winners": {
+      "type": "array",
+      "description": "alias legado: exatamente o conteúdo de breakthroughs[]"
+    },
+    "champions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "creative_id": {
+            "type": "string"
+          },
+          "post_id": {
+            "type": "string"
+          },
+          "promoted_at": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "health_signals": {
+      "type": "object",
+      "properties": {
+        "frequency_max": {
+          "type": "number"
+        },
+        "cpm_trend": {
+          "type": "string",
+          "enum": [
+            "up",
+            "flat",
+            "down"
+          ]
+        },
+        "creative_age_days_oldest": {
+          "type": "integer"
+        },
+        "creative_age_days_newest": {
+          "type": "integer"
+        },
+        "account_cpm_suspect": {
+          "type": "boolean"
+        },
+        "hook_rate_avg": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "hold_rate_avg": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "funnel_atc_to_purchase_rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "funnel_checkout_to_purchase_rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "funnel_broken": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "account_cpm_suspect",
+        "funnel_broken"
+      ],
+      "additionalProperties": true
+    },
+    "page_diagnosis": {
+      "type": "object",
+      "properties": {
+        "specimen_primary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "specimen_fit": {
+          "type": "string"
+        },
+        "markup_audit_verdict": {
+          "type": "string"
+        },
+        "markup_audit_layer_failed": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "defects_still_open": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "iteration_zone_check": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "iteration_creative_id": {
+            "type": "string"
+          },
+          "original_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "zone_original": {
+            "type": "string"
+          },
+          "zone_iteration": {
+            "type": "string"
+          },
+          "zone_changed": {
+            "type": "boolean"
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "zone_shift_suspected",
+              "variable_isolated",
+              "no_data"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "roas_spiral_check": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": [
+            "finance-engine",
+            "offer-builder",
+            "none"
+          ]
+        },
+        "fixed_costs_monthly": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "breakeven_roas_with_fixed": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "spend_to_breakeven_with_fixed": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "finance_verdict": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "covers_fixed_costs",
+            "scale_up_accept_lower_roas",
+            "cut_spend_below_variable_breakeven",
+            "blocked_pending_fixed_costs",
+            null
+          ]
+        },
+        "spend_cut_considered": {
+          "type": "boolean"
+        },
+        "spend_cut_recommended": {
+          "type": "boolean"
+        },
+        "blocked_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "click_based_purchase_share": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "nunca estimado; null = sem breakdown"
+    },
+    "psm_real": {
+      "type": "number"
+    },
+    "psm_real_basis": {
+      "type": "string",
+      "enum": [
+        "shopify_new_customer",
+        "platform_cpa_proxy"
+      ]
+    },
+    "cac_real": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "new_customers_period": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "margin_per_order_weighted": {
+      "type": "number"
+    },
+    "recommended_action": {
+      "type": "string",
+      "enum": [
+        "continue",
+        "scale",
+        "iterate_creatives",
+        "refresh_creatives",
+        "kill",
+        "fix_funnel",
+        "fix_copy_specimen",
+        "test_other_account",
+        "ask_fixed_costs",
+        "raise_spend_accept_lower_roas",
+        "raise_budget_or_reduce_concepts"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

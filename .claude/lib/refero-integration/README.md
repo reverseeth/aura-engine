@@ -4,7 +4,7 @@ Integração com o **Refero Design MCP** (package canônico: `fidgetcoding-refer
 
 ## Quando usar
 
-Membro tem o Refero MCP conectado E está rodando a skill **07a-page-design ETAPA 2 (Brand Signals)**. Aura procura na biblioteca curada um estilo que case com a vibe pedida (do `profile.md` ou da descrição do membro) e usa o `designSystem` retornado pra alimentar o `frontend-design` via `design-signals.json` (heading/body font, palette role-tagged, radius, shadow, density).
+Membro tem o Refero MCP conectado E está rodando a skill **page-design ETAPA 2 (Brand Signals)**. Aura procura na biblioteca curada um estilo que case com a vibe pedida (do `profile.md` ou da descrição do membro) e usa o `designSystem` retornado pra alimentar o `frontend-design` via `design-signals.json` (heading/body font, palette role-tagged, radius, shadow, density).
 
 **Default = não-integrado.** Aura funciona 100% sem Refero (cai pro screenshot→visão, ou `tools/design-clone/` pra hex exato, ou estilo pré-definido). Integração é puro upside.
 
@@ -23,7 +23,7 @@ Opcional pra qualidade de busca:
 export OPENAI_API_KEY="sk-..."
 ```
 
-> **Não configure `REFERO_MCP_VAULT_DIR` apontando pra raiz de `workspace/`** — o layout canônico (`.claude/lib/workspace-index/workspace-layout.md`) não tem `DESIGN.md` solto na raiz (múltiplos produtos sobrescreveriam o mesmo arquivo, órfão do produto e invisível pro painel). A 07a consome o `designSystem` direto da tool e grava `design-signals.json` em `workspace/<slug>/07-page/`. Se o membro usar `refero_design_md` com escrita em disco, a 07a absorve o conteúdo e o arquivo vai pra `workspace/<slug>/07-page/`.
+> **Não configure `REFERO_MCP_VAULT_DIR` apontando pra raiz de `workspace/`** — o layout canônico (`.claude/lib/workspace-index/workspace-layout.md`) não tem `DESIGN.md` solto na raiz (múltiplos produtos sobrescreveriam o mesmo arquivo, órfão do produto e invisível pro painel). A `page-design` consome o `designSystem` direto da tool e grava `design-signals.json` em `workspace/<slug>/page/`. Se o membro usar `refero_design_md` com escrita em disco, a `page-design` absorve o conteúdo e o arquivo vai pra `workspace/<slug>/page/`.
 
 Reinicie o Claude Code. Tools com prefixo `mcp__refero__` aparecem.
 
@@ -40,7 +40,7 @@ Reinicie o Claude Code. Tools com prefixo `mcp__refero__` aparecem.
 
 ## Mapping skill → tool
 
-Integração focada na **skill 07a-page-design ETAPA 2 (Brand Signals)**. Cascade resiliente (mesma ordem da regra 10c do CLAUDE.md):
+Integração focada na **skill page-design ETAPA 2 (Brand Signals)**. Cascade resiliente (mesma ordem da regra 10 do CLAUDE.md):
 
 1. **Refero MCP** (preferencial) — catálogo curado, designSystems estruturados
 2. **Screenshot → visão** (fallback primário) — membro tira print full-page da loja de referência e o Claude lê a imagem com visão nativa pra extrair paleta/tipografia/vibe. Imune a Cloudflare/JS/markup bagunçado
@@ -49,13 +49,13 @@ Integração focada na **skill 07a-page-design ETAPA 2 (Brand Signals)**. Cascad
 
 | Skill | Tools usadas | O que melhora |
 |-------|--------------|---------------|
-| **07a-page-design (ETAPA 2)** | `refero_search` + `refero_get` (+ opcional `refero_design_md`) | Sinais de cor/typography/spacing vêm de curadoria humana de design systems top, não scraping bruto. Convergem todos pro mesmo `design-signals.json` que alimenta o `frontend-design`. |
+| **page-design (ETAPA 2)** | `refero_search` + `refero_get` (+ opcional `refero_design_md`) | Sinais de cor/typography/spacing vêm de curadoria humana de design systems top, não scraping bruto. Convergem todos pro mesmo `design-signals.json` que alimenta o `frontend-design`. |
 
 **Quando NÃO usar Refero:** quando o membro passa URL de concorrente nichado fora do catálogo (Refero é generalista top-200, não tem PDPs nichadas de skincare/microneedling). Nesses casos, o fallback é screenshot→visão (caminho 2) ou design-clone pra hex exato (caminho 3).
 
 ## Detecção em runtime (padrão)
 
-Na ETAPA 2 (Brand Signals) da 07a-page-design, Aura testa (prefixo conforme `.claude/lib/mcp-detect/README.md`):
+Na ETAPA 2 (Brand Signals) da page-design, Aura testa (prefixo conforme `.claude/lib/mcp-detect/README.md`):
 
 ```
 refero_available = qualquer tool começando com mcp__refero__ existe
@@ -94,13 +94,13 @@ O design da página é **HTML-first**: nasce in-session via a skill nativa `fron
 
 O Refero não compete com o `frontend-design`: ele só **alimenta os signals** que o `frontend-design` aplica.
 
-| Aspecto | Refero MCP (07a ETAPA 2) | frontend-design (07a ETAPA 3) |
+| Aspecto | Refero MCP (`page-design` ETAPA 2) | frontend-design (`page-design` ETAPA 3) |
 |---------|--------------------------|-------------------------------|
 | O que entrega | `design-signals.json` (cores role-tagged, typography, spacing, radius, shadow, density) | A página inteira como HTML+CSS (2-3 variações navegáveis), copy real aplicada |
 | Quando roda | Brand Signals, antes do design | Geração do design HTML-first aprovado pelo membro |
 | Papel | Fonte de inspiração + signals técnicos | Fonte única de verdade visual |
 
-Sequência: Refero (ou screenshot→visão / design-clone) fornece os signals da vibe → `frontend-design` gera a página HTML aplicando esses signals → membro aprova → 07b-page-build compila em Liquid determinístico.
+Sequência: Refero (ou screenshot→visão / design-clone) fornece os signals da vibe → `frontend-design` gera a página HTML aplicando esses signals → membro aprova → page-build compila em Liquid determinístico.
 
 ## Roadmap (não implementado, ideias futuras)
 

@@ -1,0 +1,473 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine: scale-engine/dados.json",
+  "description": "Plano de escala: estágio, escola, gatilho de escala (só breakthrough), Scaling Protocol, reset da meia-noite, gate de custo fixo, caixa e suprimento. Escrito pela skill `scale-engine`. Lido por: ad-analysis (via scale-directives.md e manifest), creative-engine (scale-directives.md), member-stage-awareness (scale_phase). Campos `required` são só os que outra skill lê; qualquer campo extra é aceito (`additionalProperties: true`). Validado por `python3 tools/manifest.py <slug> complete scale-engine` e por `python3 tools/aura-status.py <slug>`.",
+  "type": "object",
+  "required": [
+    "stage",
+    "scale_phase",
+    "scaling_school",
+    "breakeven_cpa",
+    "psm_real",
+    "psm_real_basis",
+    "readiness_blockers",
+    "scale_trigger",
+    "scaling_protocol"
+  ],
+  "properties": {
+    "plan_id": {
+      "type": "string"
+    },
+    "product_slug": {
+      "type": "string"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "validating",
+        "scaling"
+      ]
+    },
+    "scale_phase": {
+      "type": "string",
+      "enum": [
+        "testing",
+        "traction",
+        "initial_scale",
+        "aggressive",
+        "optimization"
+      ]
+    },
+    "scaling_school": {
+      "type": "string",
+      "enum": [
+        "A_cost_cap_surf",
+        "B_bid_cap",
+        "C_budget_doubling"
+      ]
+    },
+    "current_daily_spend": {
+      "type": "number"
+    },
+    "target_daily_spend_30d": {
+      "type": "number"
+    },
+    "breakeven_cpa": {
+      "type": "number"
+    },
+    "max_cpa": {
+      "type": "number"
+    },
+    "psm_real": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "psm_real_basis": {
+      "type": "string",
+      "enum": [
+        "shopify_new_customer",
+        "platform_cpa_proxy"
+      ]
+    },
+    "psm_theoretical": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "readiness_blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "scale_trigger": {
+      "type": "object",
+      "properties": {
+        "class": {
+          "type": "string",
+          "enum": [
+            "breakthrough",
+            "spend_winner",
+            "kpi_winner",
+            "loser",
+            "none"
+          ]
+        },
+        "breakthrough_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "source": {
+          "type": "string"
+        },
+        "reclassified_from_legacy_winners": {
+          "type": "boolean"
+        },
+        "scale_unlocked": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "class",
+        "scale_unlocked"
+      ],
+      "additionalProperties": true
+    },
+    "scaling_protocol": {
+      "type": "object",
+      "properties": {
+        "hours_above_target": {
+          "type": "number"
+        },
+        "consistency_gate_passed": {
+          "type": "boolean"
+        },
+        "click_based_purchase_share": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "click_based_share_source": {
+          "type": "string",
+          "enum": [
+            "manifest",
+            "member",
+            "none"
+          ]
+        },
+        "click_based_roas_beats_kpi": {
+          "type": "boolean"
+        },
+        "click_gate_passed": {
+          "type": "boolean"
+        },
+        "hours_below_breakeven": {
+          "type": "number"
+        },
+        "active_exception": {
+          "type": "string",
+          "enum": [
+            "none",
+            "promo_end_date",
+            "new_reason_to_be_scaling"
+          ]
+        },
+        "step_up_pct": {
+          "type": "number"
+        },
+        "step_down_pct": {
+          "type": "number"
+        },
+        "next_step_allowed_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last_budget_change_from_ad_log": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stagnated": {
+          "type": "boolean"
+        },
+        "scale_ceiling_monthly_spend": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "scale_ceiling_source": {
+          "type": "string",
+          "enum": [
+            "finance-engine",
+            "empirical",
+            "unknown"
+          ]
+        },
+        "outside_ad_account_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "midnight_reset": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "type": "string"
+        },
+        "ad_account_timezone": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last_real_spend": {
+          "type": "number"
+        },
+        "next_day_budget": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": true
+    },
+    "bidding": {
+      "type": "object",
+      "properties": {
+        "main_campaign": {
+          "type": "string"
+        },
+        "cost_cap_scope": {
+          "type": "string"
+        },
+        "bid_cap_used": {
+          "type": "boolean"
+        },
+        "bid_cap_caveat_acknowledged": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "fixed_cost_gate": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": [
+            "finance-engine",
+            "member",
+            "manifest",
+            "none"
+          ]
+        },
+        "monthly_fixed_costs_known": {
+          "type": "boolean"
+        },
+        "monthly_fixed_costs": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "finance_verdict": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "covers_fixed_costs",
+            "scale_up_accept_lower_roas",
+            "cut_spend_below_variable_breakeven",
+            "blocked_pending_fixed_costs",
+            null
+          ]
+        },
+        "spend_to_breakeven_with_fixed": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "roas_cut_recommendation": {
+          "type": "string",
+          "enum": [
+            "blocked_pending_fixed_costs",
+            "blocked_by_roas_spiral",
+            "cleared",
+            "not_applicable"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "vertical_plan": {
+      "type": "object",
+      "properties": {
+        "cost_cap_value": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "cost_cap_duplication_steps": {
+          "type": "array"
+        },
+        "bid_cap_value": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "bid_cap_budget": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "doubling_cadence_days": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "surf_enabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "abo_promotions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "creative_id": {
+            "type": "string"
+          },
+          "abo_campaign_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "adset_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "initial_daily_budget": {
+            "type": "number"
+          },
+          "promoted_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "original_stays_in_cbo": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "creative_id"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "new_account_policy": {
+      "type": "object",
+      "properties": {
+        "trigger": {
+          "type": "string"
+        },
+        "legitimate_only": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "mcp_execution": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "enum": [
+            "official",
+            "pipeboard",
+            "manual"
+          ]
+        },
+        "created_paused_campaign_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "automated_rules_created_disabled": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": true
+    },
+    "cash_flow": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": [
+            "finance-engine",
+            "local_estimate"
+          ]
+        },
+        "cash_gap_projected": {
+          "type": "number"
+        },
+        "cash_needed_90d": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "total_float_days": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "runway_months": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "safe_to_escalate": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "supply_confirmation": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "volume_confirmation_30_60_90": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "reorder_point_days": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "triggers_back_to_08": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

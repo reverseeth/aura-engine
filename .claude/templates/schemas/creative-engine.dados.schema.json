@@ -1,0 +1,698 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine: creative-engine/dados.json",
+  "description": "Batch de criativos: rota de produção, conceitos (pack 3-2-2 com ângulo, sub-avatar, zona emocional, hooks, textos, headlines e prompts) e banco de hooks. Escrito pela skill `creative-engine`. Lido por: creator-engine, consistency-audit, ad-strategy, ad-analysis, content-recycler, receitas de upload (full-deploy, upload-creative-to-meta). Campos `required` são só os que outra skill lê; qualquer campo extra é aceito (`additionalProperties: true`). Validado por `python3 tools/manifest.py <slug> complete creative-engine` e por `python3 tools/aura-status.py <slug>`. O bloco `resumo` (opcional) abre o arquivo com o que a fase seguinte lê de primeira; ele espelha campos daqui e nunca substitui a leitura do campo de origem quando a etapa precisa do valor literal.",
+  "type": "object",
+  "required": [
+    "batch_id",
+    "concepts",
+    "hooks_bank"
+  ],
+  "properties": {
+    "resumo": {
+      "type": "object",
+      "description": "Bloco compacto que a fase seguinte lê primeiro: espelha campos que já existem neste arquivo, com no máximo doze entradas curtas, e é preenchido por último. Onde divergir do campo de origem, o campo de origem vence. Opcional: `dados.json` gravado antes desta convenção não tem o bloco, e quem lê cai no arquivo inteiro.",
+      "additionalProperties": true,
+      "properties": {
+        "batch_id": {
+          "type": "string"
+        },
+        "concepts_count": {
+          "type": "integer"
+        },
+        "total_assets": {
+          "type": "integer"
+        },
+        "concept_lines": {
+          "type": "array"
+        },
+        "testing_method_by_concept": {
+          "type": "object"
+        },
+        "production_route": {
+          "type": "string"
+        },
+        "platform_primary": {
+          "type": "string"
+        },
+        "aspect_ratio_primary": {
+          "type": "string"
+        },
+        "hooks_bank_count": {
+          "type": "integer"
+        },
+        "naming_convention": {
+          "type": "string"
+        }
+      }
+    },
+    "batch_id": {
+      "type": "string"
+    },
+    "product_slug": {
+      "type": "string"
+    },
+    "production_route": {
+      "type": "string",
+      "enum": [
+        "ai",
+        "edl",
+        "mix"
+      ]
+    },
+    "ai_video_model": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "creator_archetype_default": {
+      "type": "string"
+    },
+    "platform_primary": {
+      "type": "string",
+      "enum": [
+        "meta",
+        "tiktok",
+        "both"
+      ]
+    },
+    "aspect_ratio_primary": {
+      "type": "string"
+    },
+    "concepts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "production_route": {
+            "type": "string",
+            "enum": [
+              "ai",
+              "edl"
+            ]
+          },
+          "testing_method": {
+            "type": "string",
+            "enum": [
+              "marksman",
+              "sniper"
+            ]
+          },
+          "iteration_of": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "angle": {
+            "type": "string",
+            "description": "frase completa com a razão de compra, nunca enum"
+          },
+          "angles": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "object",
+              "properties": {
+                "creative_n": {
+                  "type": "integer"
+                },
+                "angle": {
+                  "type": "string"
+                },
+                "sub_avatar_id": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "concept_type": {
+            "type": "string",
+            "enum": [
+              "problem",
+              "result",
+              "curiosity",
+              "social",
+              "authority",
+              "comparison",
+              "controversy",
+              "identification"
+            ]
+          },
+          "sub_avatar_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "persona": {
+            "type": "string"
+          },
+          "labels_used": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "hold_universal": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hold_universal_validated": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "avatar_who": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "theme": {
+            "type": "string"
+          },
+          "benefit_or_consequence": {
+            "type": "string",
+            "enum": [
+              "benefit",
+              "consequence"
+            ]
+          },
+          "aesthetic_ref": {
+            "type": "string"
+          },
+          "vertical": {
+            "type": "string",
+            "enum": [
+              "competitive",
+              "consumer",
+              "internal"
+            ]
+          },
+          "awareness_level": {
+            "type": "string",
+            "enum": [
+              "unaware",
+              "problem_aware",
+              "solution_aware",
+              "product_aware",
+              "most_aware"
+            ]
+          },
+          "valence": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "negative"
+            ]
+          },
+          "intensity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "high"
+            ]
+          },
+          "valence_open": {
+            "type": "string"
+          },
+          "valence_close": {
+            "type": "string"
+          },
+          "valence_arc_owner": {
+            "type": "string",
+            "enum": [
+              "ad",
+              "landing_page"
+            ]
+          },
+          "emotion_dominant": {
+            "type": "string",
+            "enum": [
+              "curiosity",
+              "urgency",
+              "fear",
+              "delight"
+            ]
+          },
+          "archetype": {
+            "type": "string",
+            "enum": [
+              "ai_ugc",
+              "licensed_montage",
+              "motion_graphics",
+              "founder_led",
+              "demo",
+              "creator_human"
+            ]
+          },
+          "funnel_position": {
+            "type": "string",
+            "enum": [
+              "TOF",
+              "MOF",
+              "BOF"
+            ]
+          },
+          "hook_swap_viable": {
+            "type": "boolean"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "video_ugc",
+              "video_demo",
+              "static_image",
+              "carousel",
+              "motion_graphic"
+            ]
+          },
+          "duration_target_seconds": {
+            "type": "number"
+          },
+          "edl_file": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "video_generation_mode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "word_count_spoken": {
+            "type": "integer"
+          },
+          "word_count_within_limit": {
+            "type": "boolean"
+          },
+          "hooks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "creative_n": {
+                  "type": "integer"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "angle": {
+                  "type": "string"
+                },
+                "valence": {
+                  "type": "string",
+                  "enum": [
+                    "positive",
+                    "negative"
+                  ]
+                },
+                "intensity": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "high"
+                  ]
+                },
+                "emotion_dominant": {
+                  "type": "string",
+                  "enum": [
+                    "curiosity",
+                    "urgency",
+                    "fear",
+                    "delight"
+                  ]
+                },
+                "call_out_label": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "voc_source": {
+                  "type": "object",
+                  "properties": {
+                    "ref_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "original_phrase": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "direct_quote",
+                        "paraphrase",
+                        "inferred_pattern"
+                      ]
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              },
+              "required": [
+                "text"
+              ],
+              "additionalProperties": true
+            }
+          },
+          "primary_texts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "variant": {
+                  "type": "string",
+                  "enum": [
+                    "A",
+                    "B"
+                  ]
+                },
+                "structure": {
+                  "type": "string"
+                },
+                "valence": {
+                  "type": "string",
+                  "enum": [
+                    "positive",
+                    "negative"
+                  ]
+                },
+                "intensity": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "high"
+                  ]
+                },
+                "voc_source": {
+                  "type": "object",
+                  "properties": {
+                    "ref_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "original_phrase": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "direct_quote",
+                        "paraphrase",
+                        "inferred_pattern"
+                      ]
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              },
+              "required": [
+                "text"
+              ],
+              "additionalProperties": true
+            }
+          },
+          "headlines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "frame": {
+                  "type": "string",
+                  "enum": [
+                    "benefit",
+                    "urgency",
+                    "offer",
+                    "question"
+                  ]
+                },
+                "voc_source": {
+                  "type": "object",
+                  "properties": {
+                    "ref_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "original_phrase": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "direct_quote",
+                        "paraphrase",
+                        "inferred_pattern"
+                      ]
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              },
+              "required": [
+                "text"
+              ],
+              "additionalProperties": true
+            }
+          },
+          "production_prompts": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "video": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string"
+                  },
+                  "director": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "preset": {
+                    "type": "string"
+                  },
+                  "tool_url": {
+                    "type": "string"
+                  },
+                  "rendered_files": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "creative_n": {
+                          "type": "integer"
+                        },
+                        "file": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "metadata_clean": {
+                          "type": "boolean"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "rendered_file": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "image": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string"
+                  },
+                  "director": {
+                    "type": "string"
+                  },
+                  "format": {
+                    "type": "string"
+                  },
+                  "tool": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "testing_method",
+          "angle",
+          "concept_type",
+          "awareness_level",
+          "emotion_dominant",
+          "archetype",
+          "format",
+          "hooks"
+        ],
+        "additionalProperties": true
+      },
+      "minItems": 1
+    },
+    "hooks_bank": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "angle": {
+            "type": "string"
+          },
+          "sub_avatar_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "valence": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "negative"
+            ]
+          },
+          "intensity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "high"
+            ]
+          },
+          "emotion_dominant": {
+            "type": "string",
+            "enum": [
+              "curiosity",
+              "urgency",
+              "fear",
+              "delight"
+            ]
+          },
+          "voc_source": {
+            "type": "object",
+            "properties": {
+              "ref_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "original_phrase": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "direct_quote",
+                  "paraphrase",
+                  "inferred_pattern"
+                ]
+              }
+            },
+            "additionalProperties": true
+          },
+          "word_count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "total_assets": {
+      "type": "integer"
+    },
+    "format": {
+      "type": "string"
+    },
+    "next_batch_ideas_applied": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "vocabulary_summary": {
+      "type": "object",
+      "properties": {
+        "em_dash_in_headlines": {
+          "type": "integer"
+        },
+        "absent_terms_used": {
+          "type": "integer"
+        },
+        "saturated_terms_in_headlines": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

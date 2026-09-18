@@ -1,0 +1,478 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine: offer-builder/dados.json",
+  "description": "Oferta: mecanismo único (UMP/UMS), pricing, custos variáveis, unit economics do primeiro pedido, garantia, alavancas de AOV, bônus e viabilidade de budget. Escrito pela skill `offer-builder`. Lido por: finance-engine, copy-engine, page-design, page-build, checkout-aov, bonus-delivery, retention-engine, creative-engine, creator-engine, agentic-readiness, consistency-audit, ad-strategy, ad-analysis, scale-engine, promo-engine, content-recycler. Campos `required` são só os que outra skill lê; qualquer campo extra é aceito (`additionalProperties: true`). Validado por `python3 tools/manifest.py <slug> complete offer-builder` e por `python3 tools/aura-status.py <slug>`. O bloco `resumo` (opcional) abre o arquivo com o que a fase seguinte lê de primeira; ele espelha campos daqui e nunca substitui a leitura do campo de origem quando a etapa precisa do valor literal.",
+  "type": "object",
+  "required": [
+    "offer_id",
+    "product_slug",
+    "mechanism",
+    "pricing",
+    "subscription_architecture",
+    "cogs_breakdown",
+    "unit_economics",
+    "guarantee",
+    "offer_stack",
+    "aov_levers",
+    "bonuses",
+    "budget_viability"
+  ],
+  "properties": {
+    "resumo": {
+      "type": "object",
+      "description": "Bloco compacto que a fase seguinte lê primeiro: espelha campos que já existem neste arquivo, com no máximo doze entradas curtas, e é preenchido por último. Onde divergir do campo de origem, o campo de origem vence. Opcional: `dados.json` gravado antes desta convenção não tem o bloco, e quem lê cai no arquivo inteiro.",
+      "additionalProperties": true,
+      "properties": {
+        "mechanism_name": {
+          "type": "string"
+        },
+        "mechanism_one_line": {
+          "type": "string"
+        },
+        "price_main": {
+          "type": "number"
+        },
+        "aov_expected": {
+          "type": "number"
+        },
+        "guarantee_line": {
+          "type": "string"
+        },
+        "offer_stack_lines": {
+          "type": "array"
+        },
+        "bonuses_names": {
+          "type": "array"
+        },
+        "margin_per_order": {
+          "type": "number"
+        },
+        "breakeven_roas": {
+          "type": "number"
+        },
+        "target_cpa": {
+          "type": "number"
+        },
+        "subscription_model": {
+          "type": "string"
+        },
+        "budget_viability_verdict": {
+          "type": "string"
+        }
+      }
+    },
+    "offer_id": {
+      "type": "string"
+    },
+    "product_slug": {
+      "type": "string"
+    },
+    "mechanism": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "ump": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "logic": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": true
+        },
+        "ums": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "logic": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": true
+        },
+        "sin_score": {
+          "type": "object",
+          "properties": {
+            "simplicity": {
+              "type": "number"
+            },
+            "intuitiveness": {
+              "type": "number"
+            },
+            "novelty": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": true
+        },
+        "validation_source": {
+          "type": "string",
+          "enum": [
+            "improved_validated",
+            "crossed_validated",
+            "original"
+          ]
+        },
+        "copy_left_to_skill_06": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "ump",
+        "ums"
+      ],
+      "additionalProperties": true
+    },
+    "pricing": {
+      "type": "object",
+      "properties": {
+        "main_sku_price": {
+          "type": "number"
+        },
+        "aov_expected": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "main_sku_price",
+        "aov_expected"
+      ],
+      "additionalProperties": true
+    },
+    "subscription_architecture": {
+      "type": "string",
+      "enum": [
+        "subscription_first",
+        "onetime_plus_sub_no_reorder",
+        "no_subscription"
+      ]
+    },
+    "onetime_premium_pct": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "sub_discount_pct": {
+      "type": "number"
+    },
+    "cogs_breakdown": {
+      "type": "object",
+      "properties": {
+        "product_delivered": {
+          "type": "number"
+        },
+        "shipping_to_customer": {
+          "type": "number"
+        },
+        "pick_pack": {
+          "type": "number"
+        },
+        "payment_processing": {
+          "type": "number"
+        },
+        "taxes_and_duties": {
+          "type": "number"
+        },
+        "subscription_app_fee": {
+          "type": "number"
+        },
+        "agency_fee_variable": {
+          "type": "number"
+        },
+        "refund_chargeback_provision": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": true,
+      "description": "valores em dinheiro POR PEDIDO, nunca percentual; a ad-analysis soma o bloco"
+    },
+    "unit_economics": {
+      "type": "object",
+      "properties": {
+        "basis": {
+          "type": "string",
+          "enum": [
+            "first_order"
+          ]
+        },
+        "cac_basis": {
+          "type": "string",
+          "enum": [
+            "shopify_new_customer"
+          ]
+        },
+        "margin_per_unit": {
+          "type": "number"
+        },
+        "weighted_margin_per_order": {
+          "type": "number"
+        },
+        "contribution_margin_pct": {
+          "type": "number"
+        },
+        "breakeven_cpa": {
+          "type": "number"
+        },
+        "breakeven_roas": {
+          "type": "number"
+        },
+        "target_cpa_for_2x": {
+          "type": "number"
+        },
+        "target_cpa_for_3x": {
+          "type": "number"
+        },
+        "target_cpa_primary_2x": {
+          "type": "number"
+        },
+        "target_cpa_primary_3x": {
+          "type": "number"
+        },
+        "psm_theoretical": {
+          "type": "number"
+        },
+        "repeat_order": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "aov_blended": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "weighted_margin_per_order",
+        "breakeven_cpa",
+        "breakeven_roas",
+        "target_cpa_primary_2x",
+        "target_cpa_primary_3x",
+        "psm_theoretical"
+      ],
+      "additionalProperties": true
+    },
+    "guarantee": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "duration_days": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "duration_days"
+      ],
+      "additionalProperties": true
+    },
+    "offer_stack": {
+      "type": "string",
+      "description": "copy pública, inglês US, consumida literal pela copy-engine"
+    },
+    "aov_levers": {
+      "type": "object",
+      "properties": {
+        "bump": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "upsell": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "bundles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "qty": {
+                "type": "integer"
+              },
+              "price": {
+                "type": "number"
+              },
+              "label": {
+                "type": "string"
+              },
+              "savings_pct": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "bonuses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "value_anchored": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "gift_with_purchase",
+              "free_complementary_sku",
+              "free_ebook",
+              "gift_wrapping",
+              "digital_guide",
+              "discount_code",
+              "workbook",
+              "checklist",
+              "community_access",
+              "video_series",
+              "consultation_call",
+              "trial_extension"
+            ]
+          },
+          "format_hint": {
+            "type": "string",
+            "enum": [
+              "in_box",
+              "shopify_function",
+              "gift_app",
+              "pdf",
+              "notion",
+              "figma",
+              "wistia",
+              "klaviyo_email",
+              "shopify_discount",
+              "circle_invite"
+            ]
+          },
+          "condition": {
+            "type": "string",
+            "enum": [
+              "unconditional",
+              "cart_threshold",
+              "tier_specific"
+            ]
+          },
+          "delivery_trigger": {
+            "type": "string",
+            "enum": [
+              "post_purchase",
+              "on_signup",
+              "day_7_post_purchase",
+              "on_first_reorder"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "budget_viability": {
+      "type": "object",
+      "properties": {
+        "cac_ref": {
+          "type": "number"
+        },
+        "fixed_costs_monthly": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "fixed_costs_source": {
+          "type": "string",
+          "enum": [
+            "member",
+            "manifest",
+            "finance-engine",
+            "unknown"
+          ]
+        },
+        "contribution_margin_pct_measured": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "payback_window_days_measured": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "caveats": {
+          "type": "string"
+        },
+        "verdict": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "sanity_checks": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer"
+        },
+        "passed": {
+          "type": "integer"
+        },
+        "failed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

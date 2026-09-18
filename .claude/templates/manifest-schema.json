@@ -37,7 +37,7 @@
     },
     "setup_complete": {
       "type": "boolean",
-      "description": "True after skill 00-setup finished successfully."
+      "description": "True after skill setup finished successfully."
     },
     "budget_tier": {
       "enum": [
@@ -50,46 +50,51 @@
     },
     "budget_daily": {
       "type": "number",
-      "description": "CANONICAL daily ad budget in USD (numeric). Written by 00-setup from the member's BUDGET answer (budget_tier is derived from it); updated if the member declares a new budget in later skills. Read by member-stage-awareness.md (stage inference signal budget_daily < 50), skill 07c (analytics stack decision tree) and skill 10 (test budget context). Legacy manifests without it: fall back to budget_tier + the 'Budget diário' line in profile.md."
+      "description": "CANONICAL daily ad budget in USD (numeric). Written by setup from the member's BUDGET answer (budget_tier is derived from it); updated if the member declares a new budget in later skills. Read by member-stage-awareness.md (stage inference signal budget_daily < 50), skill `tracking-setup` (analytics stack decision tree) and skill `ad-strategy` (test budget context). Legacy manifests without it: fall back to budget_tier + the 'Budget diário' line in profile.md."
     },
     "skills_completed": {
       "type": "array",
       "items": {
         "enum": [
-          "00-setup",
-          "01-product-research",
-          "02-market-research",
-          "03-competitor-analysis",
-          "04-offer-builder",
-          "05-bonus-delivery",
-          "06-copy-engine",
-          "07a-page-design",
-          "07b-page-build",
-          "07c-tracking-setup",
-          "07d-checkout-aov",
-          "07e-agentic-readiness",
-          "08-creative-engine",
-          "09-consistency-audit",
-          "10-ad-strategy",
-          "11-ad-analysis",
-          "12-scale-engine",
-          "13-retention-engine",
-          "14-content-recycler",
-          "01b-sourcing",
-          "15-finance-engine",
-          "16-creator-engine",
-          "17-promo-engine",
-          "18-team-engine",
-          "19-ops-engine",
-          "20-marketplace-engine"
+          "setup",
+          "ops-engine",
+          "product-research",
+          "sourcing",
+          "market-research",
+          "competitor-analysis",
+          "offer-builder",
+          "finance-engine",
+          "copy-engine",
+          "page-design",
+          "page-build",
+          "tracking-setup",
+          "checkout-aov",
+          "bonus-delivery",
+          "retention-engine",
+          "creative-engine",
+          "creator-engine",
+          "agentic-readiness",
+          "consistency-audit",
+          "ad-strategy",
+          "ad-analysis",
+          "scale-engine",
+          "promo-engine",
+          "team-engine",
+          "content-recycler",
+          "marketplace-engine"
         ]
       },
-      "description": "Ordered list of canonical skill IDs already completed. These are the ONLY valid IDs — never invent variants (e.g. '07c-page-deploy' does not exist; the deploy skill is '07b-page-build' and 07c is tracking-setup). Downstream pre-flights match against these exact strings."
+      "description": "Ordered list of canonical skill IDs already completed: the `id` of each skill in `.claude/skills.json`, never the old numeric alias (the migration 001 of tools/migrate.py translates old manifests). These are the ONLY valid IDs. Never invent variants (e.g. 'page-deploy' does not exist; the deploy skill is 'page-build' and the pixel/CAPI skill is 'tracking-setup'). Downstream pre-flights match against these exact strings."
+    },
+    "framework_version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Version of the workspace layout this product follows (1 = numbered phase folders, before the 2026-09 migration; 2 = phase folders named after the skill id). Written by tools/migrate.py, never by hand; absent means 1."
     },
     "voc_count": {
       "type": "integer",
       "minimum": 0,
-      "description": "Number of unique, verbatim voice-of-customer phrases captured in skill 02."
+      "description": "Number of unique, verbatim voice-of-customer phrases captured in skill `market-research`."
     },
     "voc_adequacy": {
       "enum": [
@@ -97,7 +102,7 @@
         "medium",
         "insufficient"
       ],
-      "description": "Qualitative adequacy of the VOC corpus, written by skill 02 alongside voc_count. Read by skill 06 as a copy gate: 'insufficient' means copy should not anchor on VOC-driven claims until skill 02 is re-run with more sources."
+      "description": "Qualitative adequacy of the VOC corpus, written by skill `market-research` alongside voc_count. Read by skill `copy-engine` as a copy gate: 'insufficient' means copy should not anchor on VOC-driven claims until skill `market-research` is re-run with more sources."
     },
     "awareness_distribution": {
       "type": "object",
@@ -143,7 +148,7 @@
         "pdp_robust",
         "pdp_lean"
       ],
-      "description": "Page format chosen by dominant awareness level. Written by skill 07a (page-design); read by 07b and by skill 09 (consistency audit, coherence check against 02 awareness)."
+      "description": "Page format chosen by dominant awareness level. Written by skill `page-design`; read by `page-build` and by skill `consistency-audit` (consistency audit, coherence check against 02 awareness)."
     },
     "signals_source": {
       "enum": [
@@ -151,7 +156,7 @@
         "screenshot_vision",
         "manual"
       ],
-      "description": "Where the brand signals came from (07a ETAPA 2 cascade: Refero MCP -> screenshot->vision -> manual). Written by skill 07a."
+      "description": "Where the brand signals came from (`page-design` ETAPA 2 cascade: Refero MCP -> screenshot->vision -> manual). Written by skill `page-design`."
     },
     "psm_theoretical": {
       "type": "number",
@@ -159,14 +164,14 @@
     },
     "psm_real": {
       "type": "number",
-      "description": "PSM real = LTV / (CAC_real + COGS). CANONICAL formula and CANONICAL source. CAC_real = ad spend / clientes novos (Shopify); CPA de plataforma so como proxy declarado (ver psm_real_basis). Written ONLY by skill 11 (ad-analysis) from live performance; read by skill 12 (scale). Skill 12 must NOT recompute psm_real with a different formula."
+      "description": "PSM real = LTV / (CAC_real + COGS). CANONICAL formula and CANONICAL source. CAC_real = ad spend / clientes novos (Shopify); CPA de plataforma so como proxy declarado (ver psm_real_basis). Written ONLY by skill `ad-analysis` from live performance; read by skill `scale-engine` (scale). Skill `scale-engine` must NOT recompute psm_real with a different formula."
     },
     "psm_real_basis": {
       "enum": [
         "shopify_new_customer",
         "platform_cpa_proxy"
       ],
-      "description": "Base do denominador do psm_real. Gravado pela skill 11 junto com psm_real. Com 'platform_cpa_proxy' o numero e declaradamente otimista e a comparacao teorico-vs-real NAO libera escala — a skill 12 exige a base 'shopify_new_customer' pra comparar e liberar (campo ausente = tratar como proxy)."
+      "description": "Base do denominador do psm_real. Gravado pela skill `ad-analysis` junto com psm_real. Com 'platform_cpa_proxy' o numero e declaradamente otimista e a comparacao teorico-vs-real NAO libera escala — a skill `scale-engine` exige a base 'shopify_new_customer' pra comparar e liberar (campo ausente = tratar como proxy)."
     },
     "target_cpa": {
       "type": "number",
@@ -193,22 +198,22 @@
         "education",
         "other"
       ],
-      "description": "Product vertical (niche) of the winning product. Set during skill 00-setup or 01-product-research; refined by 02. Default 'other' if ambiguous."
+      "description": "Product vertical (niche) of the winning product. Set during skill setup or product-research; refined by 02. Default 'other' if ambiguous."
     },
     "copy_language": {
       "type": "string",
-      "description": "Language of CONSUMER-facing copy (ads, pages, PDPs, emails) — always 'en' for the US market regardless of report_language (CLAUDE.md rule 0). Member-facing report language lives in report_language, not here. Written by 00-setup."
+      "description": "Language of CONSUMER-facing copy (ads, pages, PDPs, emails) — always 'en' for the US market regardless of report_language (CLAUDE.md rule 0). Member-facing report language lives in report_language, not here. Written by setup."
     },
     "market": {
       "type": "string",
-      "description": "Primary market / geography (e.g. 'US', 'BR', 'EU'). Set during 00-setup. Required by skill 02 ([GEOGRAPHY] in the awareness/sophistication prompt)."
+      "description": "Primary market / geography (e.g. 'US', 'BR', 'EU'). Set during setup. Required by skill `market-research` ([GEOGRAPHY] in the awareness/sophistication prompt)."
     },
     "report_language": {
       "enum": [
         "pt-BR",
         "en"
       ],
-      "description": "Language for INTERNAL reports and member-facing conversation. Mirrored from profile.md by 00-setup so every skill can read it structurally (CLAUDE.md rule 0). Public copy (ads/pages) is always English regardless."
+      "description": "Language for INTERNAL reports and member-facing conversation. Mirrored from profile.md by setup so every skill can read it structurally (CLAUDE.md rule 0). Public copy (ads/pages) is always English regardless."
     },
     "stage": {
       "enum": [
@@ -216,7 +221,7 @@
         "validating",
         "scaling"
       ],
-      "description": "CANONICAL behavioral stage (member-stage-awareness.md). Written by 00-setup (situation A/B->starter, C->validating, D->scaling) and updated by 11/12. This is the single source of truth for stage; budget_tier is a separate economic field, NOT a stage vocabulary. Do not introduce other stage enums (traction/initial_scale/etc are deprecated)."
+      "description": "CANONICAL behavioral stage (member-stage-awareness.md). Written by setup (situation A/B->starter, C->validating, D->scaling) and updated by `ad-analysis`/`scale-engine`. This is the single source of truth for stage; budget_tier is a separate economic field, NOT a stage vocabulary. Do not introduce other stage enums (traction/initial_scale/etc are deprecated)."
     },
     "esp": {
       "enum": [
@@ -226,15 +231,15 @@
         "shopify_email",
         "none"
       ],
-      "description": "Email service provider. Captured in 00-setup ETAPA 3. Hard pre-flight input for skill 13 (retention). 'none' = member has no ESP yet."
+      "description": "Email service provider. Captured in setup ETAPA 3. Hard pre-flight input for skill `retention-engine` (retention). 'none' = member has no ESP yet."
     },
     "store_url": {
       "type": "string",
-      "description": "Canonical .myshopify.com (or custom domain) store handle. Captured in 00-setup when a Shopify link is provided; otherwise written by skill 07b (page-build) at deploy. Consumed by 07b/07c/07d + skill 13."
+      "description": "Canonical .myshopify.com (or custom domain) store handle. Captured in setup when a Shopify link is provided; otherwise written by skill `page-build` at deploy. Consumed by `page-build`/`tracking-setup`/`checkout-aov` + skill `retention-engine`."
     },
     "tracking": {
       "type": "object",
-      "description": "Tracking status block. Written by skill 07c (tracking-setup); read by skills 08 and 10 pre-flights via manifest.tracking.tracking_ready and manifest.tracking.analytics_stack (canonical paths — never flat top-level variants like manifest.tracking_stack).",
+      "description": "Tracking status block. Written by skill `tracking-setup`; read by skills `creative-engine` and `ad-strategy` pre-flights via manifest.tracking.tracking_ready and manifest.tracking.analytics_stack (canonical paths — never flat top-level variants like manifest.tracking_stack).",
       "properties": {
         "pixel_installed": {
           "type": "boolean",
@@ -260,17 +265,17 @@
             "triple_whale",
             "aimerce"
           ],
-          "description": "Attribution stack chosen in 07c ETAPA 4. Read by skills 10 and 11 to orient data reading."
+          "description": "Attribution stack chosen in `tracking-setup` ETAPA 4. Read by skills `ad-strategy` and `ad-analysis` to orient data reading."
         },
         "tracking_ready": {
           "type": "boolean",
-          "description": "True only when Pixel + CAPI are validated with EMQ >= 6.0 (or the member explicitly accepted degraded signal via escape path ES1). Hard pre-flight for skills 08 and 10."
+          "description": "True only when Pixel + CAPI are validated with EMQ >= 6.0 (or the member explicitly accepted degraded signal via escape path ES1). Hard pre-flight for skills `creative-engine` and `ad-strategy`."
         }
       }
     },
     "storefront": {
       "type": "object",
-      "description": "Published page block. Written by skill 07b (page-build) at deploy/publish; read by 07d (operates on the theme where the page lives) and by skill 10 (campaign destination URL — canonical source, NEVER taken from the 06 copy report).",
+      "description": "Published page block. Written by skill `page-build` at deploy/publish; read by `checkout-aov` (operates on the theme where the page lives) and by skill `ad-strategy` (campaign destination URL — canonical source, NEVER taken from the 06 copy report).",
       "properties": {
         "theme_id": {
           "type": [
@@ -281,7 +286,7 @@
         },
         "page_url": {
           "type": "string",
-          "description": "Final public URL of the published page. Skill 10 reads this as the campaign destination URL."
+          "description": "Final public URL of the published page. Skill `ad-strategy` reads this as the campaign destination URL."
         },
         "published_at": {
           "type": "string",
@@ -292,7 +297,7 @@
     },
     "agentic": {
       "type": "object",
-      "description": "Agentic readiness block. Written by skill 07e (agentic-readiness) after the AEO checklist runs against the live store; read by skill 09 as informative context (NOT a launch gate) and by skill 12 to treat AI-referral traffic as an incremental scale source.",
+      "description": "Agentic readiness block. Written by skill `agentic-readiness` after the AEO checklist runs against the live store; read by skill `consistency-audit` as informative context (NOT a launch gate) and by skill `scale-engine` to treat AI-referral traffic as an incremental scale source.",
       "properties": {
         "ready": {
           "type": "boolean",
@@ -306,22 +311,22 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 100,
-          "description": "AI visibility score (passed items / applicable items, in %). Full checklist detail lives in 07e-agentic-readiness/dados.json."
+          "description": "AI visibility score (passed items / applicable items, in %). Full checklist detail lives in agentic-readiness/dados.json."
         },
         "checked_at": {
           "type": "string",
           "format": "date-time",
-          "description": "ISO-8601 timestamp of the last 07e run."
+          "description": "ISO-8601 timestamp of the last `agentic-readiness` run."
         }
       }
     },
     "10_campaign_name": {
       "type": "string",
-      "description": "Campaign name (naming convention) generated by skill 10. Read by skill 11 and by the Meta sync recipe (sync-campaign-from-meta.md) to match Meta data."
+      "description": "Campaign name (naming convention) generated by skill `ad-strategy`. Read by skill `ad-analysis` and by the Meta sync recipe (sync-campaign-from-meta.md) to match Meta data."
     },
     "10_campaign_id": {
       "type": "string",
-      "description": "Meta campaign ID, written by skill 10 when the campaign is created via MCP. Skill 11 pulls insights by ID (more robust than by name)."
+      "description": "Meta campaign ID, written by skill `ad-strategy` when the campaign is created via MCP. Skill `ad-analysis` pulls insights by ID (more robust than by name)."
     },
     "10_ad_set_id": {
       "type": "string",
@@ -329,43 +334,43 @@
     },
     "aov_baseline": {
       "type": "number",
-      "description": "Average order value baseline in USD. Captured in 00-setup for situation C/D (already selling); otherwise computed in skill 04. Feeds breakeven_roas / PSM so 10/11/12 do not re-ask."
+      "description": "Average order value baseline in USD. Captured in setup for situation C/D (already selling); otherwise computed in skill `offer-builder`. Feeds breakeven_roas / PSM so `ad-strategy`/`ad-analysis`/`scale-engine` do not re-ask."
     },
     "cogs_estimate": {
       "type": "number",
-      "description": "Approximate per-order COGS+shipping in USD. Captured in 00-setup for C/D; refined in skill 04 (cogs_breakdown). Used for PSM = LTV / (CAC_real + COGS) — CAC_real = ad spend / clientes novos (Shopify); CPA de plataforma so como proxy declarado."
+      "description": "Approximate per-order COGS+shipping in USD. Captured in setup for C/D; refined in skill `offer-builder` (cogs_breakdown). Used for PSM = LTV / (CAC_real + COGS) — CAC_real = ad spend / clientes novos (Shopify); CPA de plataforma so como proxy declarado."
     },
     "batch_count": {
       "type": "integer",
       "minimum": 0,
-      "description": "Number of creative batches launched. Written by skill 08. Read by member-stage-awareness.md for stage inference."
+      "description": "Number of creative batches launched. Written by skill `creative-engine`. Read by member-stage-awareness.md for stage inference."
     },
     "analysis_count": {
       "type": "integer",
       "minimum": 0,
-      "description": "Number of skill 11 (ad-analysis) runs on this product. Incremented by skill 11 at wrap-up (skills_completed only records '11-ad-analysis' once); tracks analysis cadence."
+      "description": "Number of skill `ad-analysis` runs on this product. Incremented by skill `ad-analysis` at wrap-up (skills_completed only records 'ad-analysis' once); tracks analysis cadence."
     },
     "champions": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "LEGADO. Post IDs vencedores ativos. Escrito pelas skills 11/08. ATENCAO: pode conter `kpi_winner` (bate KPI sem puxar spend), que o canone trata como loser para decisao. `member-stage-awareness.md` NAO le mais este campo — passou a ler `ad_classification[].class == 'breakthrough'`."
+      "description": "LEGADO. Post IDs vencedores ativos. Escrito pelas skills `ad-analysis`/`creative-engine`. ATENCAO: pode conter `kpi_winner` (bate KPI sem puxar spend), que o canone trata como loser para decisao. `member-stage-awareness.md` NAO le mais este campo — passou a ler `ad_classification[].class == 'breakthrough'`."
     },
     "winners": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "LEGADO (alias). Lista de IDs identica a `breakthroughs[]` — a skill 11 grava exatamente os mesmos ids, nunca kpi_winner/spend_winner. Leitores novos usam `breakthroughs[]` + `ad_classification[]`. Produtos antigos podem conter objetos com metricas; leitores devem aceitar ambos os shapes."
+      "description": "LEGADO (alias). Lista de IDs identica a `breakthroughs[]` — a skill `ad-analysis` grava exatamente os mesmos ids, nunca kpi_winner/spend_winner. Leitores novos usam `breakthroughs[]` + `ad_classification[]`. Produtos antigos podem conter objetos com metricas; leitores devem aceitar ambos os shapes."
     },
     "margin_warning": {
       "type": "boolean",
-      "description": "True if skill 04 flagged weighted margin < $20. Read by 10/12 as a scaling caution."
+      "description": "True if skill `offer-builder` flagged weighted margin < $20. Read by `ad-strategy`/`scale-engine` as a scaling caution."
     },
     "product_research": {
       "type": "object",
-      "description": "Written by skill 01. {source: 'trendtrack_mcp'|'manual'|'mixed', notion_url: string|null, winner_play_id: string, base_brands: string[]} — where the brand bank lives and which recombination play won."
+      "description": "Written by skill `product-research`. {source: 'trendtrack_mcp'|'manual'|'mixed', notion_url: string|null, winner_play_id: string, base_brands: string[]} — where the brand bank lives and which recombination play won."
     },
     "skipped_preflight": {
       "type": "array",
@@ -418,22 +423,22 @@
           }
         }
       },
-      "description": "Classificacao canonica de criativos nas 4 classes (canone .claude/lib/ad-taxonomy/README.md §2). Escrito pela skill 11. Lido pela 12 (so `breakthrough` libera escala; `kpi_winner` e tratado como loser para decisao) e pela 14 (so `breakthrough` entra na reciclagem). Substitui `winners[]` como fonte de verdade."
+      "description": "Classificacao canonica de criativos nas 4 classes (canone .claude/lib/ad-taxonomy/README.md §2). Escrito pela skill `ad-analysis`. Lido pela `scale-engine` (so `breakthrough` libera escala; `kpi_winner` e tratado como loser para decisao) e pela `content-recycler` (so `breakthrough` entra na reciclagem). Substitui `winners[]` como fonte de verdade."
     },
     "click_based_purchase_share": {
       "type": "number",
-      "description": "Fracao das purchases atribuidas em 7-day click. Gate de escala: >= 0.60 (canone .claude/lib/ad-taxonomy §5). Escrito pela skill 11; lido pela 12. NUNCA estimar — faltando, o gate fica bloqueado."
+      "description": "Fracao das purchases atribuidas em 7-day click. Gate de escala: >= 0.60 (canone .claude/lib/ad-taxonomy §5). Escrito pela skill `ad-analysis`; lido pela `scale-engine`. NUNCA estimar — faltando, o gate fica bloqueado."
     },
     "fixed_costs_monthly": {
       "type": "number",
-      "description": "Custo fixo mensal da operacao (nao varia com volume). Necessario para qualquer decisao de cortar spend por queda de ROAS (canone .claude/lib/unit-economics/README.md §4): sem ele, a recomendacao vira pergunta, nao instrucao. Informado pelo membro; lido pelas skills 11, 12 e 15. NUNCA estimar."
+      "description": "Custo fixo mensal da operacao (nao varia com volume). Necessario para qualquer decisao de cortar spend por queda de ROAS (canone .claude/lib/unit-economics/README.md §4): sem ele, a recomendacao vira pergunta, nao instrucao. Informado pelo membro; lido pelas skills `ad-analysis`, `scale-engine` e `finance-engine`. NUNCA estimar."
     },
     "breakthroughs": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "IDs dos criativos de classe `breakthrough` (KPI do ad melhor que o da campanha E puxa spend). Escrito pela skill 11; e o gatilho de escala (12) e de reciclagem (14). Espelha `ad_classification[]` filtrado. Fonte canonica: `.claude/lib/ad-taxonomy/README.md` §2."
+      "description": "IDs dos criativos de classe `breakthrough` (KPI do ad melhor que o da campanha E puxa spend). Escrito pela skill `ad-analysis`; e o gatilho de escala (`scale-engine`) e de reciclagem (`content-recycler`). Espelha `ad_classification[]` filtrado. Fonte canonica: `.claude/lib/ad-taxonomy/README.md` §2."
     },
     "kpi_winners": {
       "type": "array",
@@ -447,29 +452,29 @@
       "items": {
         "type": "string"
       },
-      "description": "IDs de classe `spend_winner` — puxam spend mas KPI abaixo do da campanha. Entram apenas em iteracao (movimento 1 da skill 14), nunca em escala. Fonte canonica: `.claude/lib/ad-taxonomy/README.md` §2."
+      "description": "IDs de classe `spend_winner` — puxam spend mas KPI abaixo do da campanha. Entram apenas em iteracao (movimento 1 da skill `content-recycler`), nunca em escala. Fonte canonica: `.claude/lib/ad-taxonomy/README.md` §2."
     },
     "10_ad_set_ids": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "IDs de TODOS os ad sets da campanha de teste (1 por conceito, estrutura CBO). Escrito pela skill 10 / recipe full-deploy; lido por creative-loop e sync. Fonte canonica da estrutura atual."
+      "description": "IDs de TODOS os ad sets da campanha de teste (1 por conceito, estrutura CBO). Escrito pela skill `ad-strategy` / recipe full-deploy; lido por creative-loop e sync. Fonte canonica da estrutura atual."
     },
     "retention": {
       "type": "object",
       "properties": {
         "phase_a_done": {
           "type": "boolean",
-          "description": "Fase A (flows de recuperacao) concluida. Escrito pela skill 13; lido pela 13 (deteccao de fase) e pela 10 (pre-flight)."
+          "description": "Fase A (flows de recuperacao) concluida. Escrito pela skill `retention-engine`; lido pela `retention-engine` (deteccao de fase) e pela `ad-strategy` (pre-flight)."
         }
       },
       "additionalProperties": true,
-      "description": "Estado da retencao por fases. Escrito pela skill 13."
+      "description": "Estado da retencao por fases. Escrito pela skill `retention-engine`."
     },
     "finance": {
       "type": "object",
-      "description": "Resumo financeiro gravado pela skill 15 (mode, breakeven_roas_with_fixed, cut_spend_recommendation_allowed, cash_needed_90d, runway_months, payback_window_days_measured, scale_ceiling_monthly_spend, checked_at). Consumidoras leem preferencialmente os paths do 15-finance-engine/dados.json; este bloco e o atalho de leitura rapida.",
+      "description": "Resumo financeiro gravado pela skill `finance-engine` (mode, breakeven_roas_with_fixed, cut_spend_recommendation_allowed, cash_needed_90d, runway_months, payback_window_days_measured, scale_ceiling_monthly_spend, checked_at). Consumidoras leem preferencialmente os paths do finance-engine/dados.json; este bloco e o atalho de leitura rapida.",
       "additionalProperties": true
     }
   },

@@ -1,0 +1,370 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine: copy-engine/dados.json",
+  "description": "Copy da página: lead, hero com headlines ranqueadas, benefícios, prova, FAQ, specs, ganchos de email, cobertura de VOC, espécime e audit de markup. Escrito pela skill `copy-engine`. Lido por: page-design, page-build, retention-engine, creative-engine, agentic-readiness, consistency-audit, ad-analysis. Campos `required` são só os que outra skill lê; qualquer campo extra é aceito (`additionalProperties: true`). Validado por `python3 tools/manifest.py <slug> complete copy-engine` e por `python3 tools/aura-status.py <slug>`. O bloco `resumo` (opcional) abre o arquivo com o que a fase seguinte lê de primeira; ele espelha campos daqui e nunca substitui a leitura do campo de origem quando a etapa precisa do valor literal.",
+  "type": "object",
+  "required": [
+    "lead_type",
+    "hero",
+    "benefits",
+    "social_proof",
+    "offer_stack",
+    "faq",
+    "specs",
+    "email_hooks",
+    "voc_forced_continue",
+    "specimen_primary",
+    "specimen_secondary",
+    "specimen_block_map",
+    "markup_audit"
+  ],
+  "properties": {
+    "resumo": {
+      "type": "object",
+      "description": "Bloco compacto que a fase seguinte lê primeiro: espelha campos que já existem neste arquivo, com no máximo doze entradas curtas, e é preenchido por último. Onde divergir do campo de origem, o campo de origem vence. Opcional: `dados.json` gravado antes desta convenção não tem o bloco, e quem lê cai no arquivo inteiro.",
+      "additionalProperties": true,
+      "properties": {
+        "lead_type": {
+          "type": "string"
+        },
+        "headline_primary": {
+          "type": "string"
+        },
+        "subheadline": {
+          "type": "string"
+        },
+        "mechanism_sentence": {
+          "type": "string"
+        },
+        "top3_benefits": {
+          "type": "array"
+        },
+        "primary_cta": {
+          "type": "string"
+        },
+        "guarantee_line": {
+          "type": "string"
+        },
+        "proof_highlights": {
+          "type": "array"
+        },
+        "urgency_line": {
+          "type": "string"
+        },
+        "faq_count": {
+          "type": "integer"
+        },
+        "voc_coverage_pct": {
+          "type": "number"
+        },
+        "specimen_primary": {
+          "type": "string"
+        }
+      }
+    },
+    "copy_id": {
+      "type": "string"
+    },
+    "product_slug": {
+      "type": "string"
+    },
+    "offer_id": {
+      "type": "string"
+    },
+    "lead_type": {
+      "type": "string",
+      "enum": [
+        "story",
+        "big_idea",
+        "problem_agitation",
+        "mechanism",
+        "secret",
+        "proclamation",
+        "offer",
+        "direct"
+      ]
+    },
+    "hero": {
+      "type": "object",
+      "properties": {
+        "headlines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "score": {
+                "type": "number"
+              },
+              "reasoning": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "text"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "top_5_ranked": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ab_test_picks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "subheadline": {
+          "type": "string"
+        },
+        "cta_primary": {
+          "type": "string"
+        },
+        "cta_secondary": {
+          "type": "string"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "headlines",
+        "subheadline",
+        "cta_primary"
+      ],
+      "additionalProperties": true
+    },
+    "cta_variants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "hypothesis": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "mechanism_copy": {
+      "type": "string"
+    },
+    "benefits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "voc_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "body"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "social_proof": {
+      "type": "object",
+      "properties": {
+        "testimonials": {
+          "type": "array"
+        },
+        "proof_stack": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": true
+    },
+    "offer_stack": {
+      "type": "string"
+    },
+    "guarantee_copy": {
+      "type": "string"
+    },
+    "faq": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string"
+          },
+          "a": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "q",
+          "a"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "specs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "urgency": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "email_hooks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "voc_coverage": {
+      "type": "object",
+      "properties": {
+        "total_checked": {
+          "type": "integer"
+        },
+        "literal_hits": {
+          "type": "integer"
+        },
+        "paraphrased": {
+          "type": "integer"
+        },
+        "missing": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": true
+    },
+    "voc_forced_continue": {
+      "type": "boolean"
+    },
+    "decision_modalities_covered": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "specimen_primary": {
+      "type": "string"
+    },
+    "specimen_secondary": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "specimen_block_map": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "n": {
+            "type": "integer"
+          },
+          "bloco": {
+            "type": "string"
+          },
+          "trabalho": {
+            "type": "string"
+          },
+          "conteudo_origem": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "markup_audit": {
+      "type": "object",
+      "properties": {
+        "four_us": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "ideal_prospect": {
+          "type": "boolean"
+        },
+        "big_promise": {
+          "type": "boolean"
+        },
+        "first_page_test": {
+          "type": "boolean"
+        },
+        "four_emotions": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "makepeace_4": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "defects_found": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "rewrite_lead"
+          ]
+        }
+      },
+      "required": [
+        "verdict"
+      ],
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,13 @@
+# Promo Engine · Referência: Leitura pós-promo e o cofre sazonal (ETAPA 10)
+
+> O handoff nomeado pra ad-analysis com as duas lentes, o handoff pra finance-engine com o cohort da janela, o forecast do ano seguinte e o cofre sazonal com o timing de religar. Abra na ETAPA 10.
+
+### ETAPA 10 — Leitura pós-promo e o cofre sazonal
+
+**Handoff nomeado pra `ad-analysis` (a leitura):** a análise datada da janela é da `ad-analysis` — esta skill entrega a janela demarcada (`window`) e o ad-log completo (é ele que separa "efeito da promo" de "mudança sem efeito"). Duas lentes obrigatórias no brief pra `ad-analysis`: (a) CPM de temporada — novembro encarece tudo, queda de eficiência pós-janela não é fadiga automática; (b) **Lucky vs Durable** (rode `lucky wins vs durable wins spend concentration promote to control`) — winner de promo nasceu em condição temporária (oferta + urgência + demanda de data): **não promova a control evergreen automaticamente**; o que sobrevive com a oferta normal é durable, o resto é sazonal.
+
+**Handoff nomeado pra `finance-engine` (o cohort da promo):** clientes adquiridos em nov/dez se comportam diferente — compram presente, e o LTV é atípico (pior, na experiência da fonte). Ao fechar o mês: (a) o mês da janela entra nas `monthly_notes[]` da `finance-engine` ("promoção no site inteiro" é literalmente o exemplo canônico da `finance-engine`); (b) o cohort da janela é marcado pra **não calibrar o decay** sem a nota — comparar cohort de promo com cohort de junho quebra o modelo; (c) assinaturas vendidas na janela sem histórico de LTV → a decisão foi por lucro no pedido, e a régua de payback normal volta a valer nos meses seguintes. Rode `cohort de promo novembro dezembro LTV atípico clientes de presente calibragem`.
+
+**Forecast do ano seguinte (o dado da SUA marca vence o da fonte):** grave em `result` o que funcionou — oferta (se dollar-off ganhou de percentage-off NA SUA marca, ano que vem use o seu dado), criativos, datas reais de abertura, curva por dia, novos vs. recorrentes. É a primeira coisa que a próxima rodada desta skill lê.
+
+**O cofre sazonal (`seasonal_vault[]`):** todo criativo que performou na janela entra com `creative_id`, época, mês de religar e nota — porque **ads sazonais que morreram voltam no mesmo período do ano** (rode a query de Revival do núcleo). O timing de religar vem do **Desire Calendar**: outubro-dezembro pro Q4; meados de janeiro pro Valentine's (a compra é FOR, não ON); e assim por diante. Religar = re-banner (a oferta do ano novo é outra). A `scale-engine` e a `content-recycler` leem o cofre — é o handoff que transforma uma janela boa em patrimônio recorrente.

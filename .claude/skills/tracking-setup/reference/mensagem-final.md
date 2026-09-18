@@ -1,0 +1,17 @@
+# Tracking Setup · Referência: Mensagem final e self-audit silencioso
+
+> O texto integral da mensagem final, com a variante pending_traffic e a ordem dos próximos passos, e os sete itens do self-audit silencioso. Abra ao encerrar.
+
+## Mensagem Final
+
+(idioma = `report_language`)
+
+> "Tracking pronto. Pixel `[Dataset ID]` conectado (data sharing 'Always on'), CAPI ON com Advanced Matching, e os 5 eventos do funil disparando. Event Match Quality em **[X]/10** (`[pass/warn]`) [SE `pending_traffic`: "Event Match Quality ainda **sem escore** — normal em loja pré-launch, o EMQ só calcula com tráfego real. Validei o Purchase de ponta a ponta com o pedido-teste, então o launch está destravado (`emq_pending`); no dia 3 de tráfego a análise re-lê o escore e corrige se vier abaixo de 6"]. Janela de atribuição fixada no baseline (7 dias pós-clique / 1 dia pós-visualização) e Click ID chegando junto do Purchase. Analytics stack: **[stack escolhido]** (escolhido pelo seu stage `[stage]` + budget). E o combinado de leitura já vale: o resultado do NEGÓCIO é a receita do Shopify dividida pelo spend total (Blended ROAS) — o painel da plataforma serve pra otimizar, não pra dizer se dá lucro.
+>
+> Isso destrava os criativos e a campanha — eles exigem exatamente esse pixel + CAPI com EMQ ≥ 6/10 que a gente acabou de validar.
+>
+> Próximo passo: diga **'checkout'** pra configurar upsell/bump/bundle (Skill `checkout-aov` — ela ajusta o AOV e o CPA que o briefing de ad usa, então vem ANTES dos criativos). Depois dela, a ordem de launch segue: **'bonus delivery'** (`bonus-delivery` Fase A, se a oferta tem bônus) → **'retention'** (`retention-engine` Fase A — flows de recuperação: abandoned cart + post-purchase, a infraestrutura que se arma ANTES de ligar tráfego) → **'creatives'** (`creative-engine`).
+>
+> Primeira versão dos próximos passos como referência — se quiser ajustar a stack de tracking ou re-medir o EMQ depois de rodar tráfego, é só me chamar."
+
+> **Self-audit silencioso (rule 9 + `.claude/rules/post-task-self-audit.md`):** antes de declarar pronto, confirmar inline e sem mostrar bloco: (1) `manifest.tracking.tracking_ready` reflete o status REAL do EMQ (não gravar `true` com escore < 6.0 MEDIDO sem o membro ter aceitado o risco; o caminho `pending_traffic` só grava `true` com os 5 eventos confirmados + Purchase validado por pedido-teste + `emq_pending: true`); (2) `manifest.tracking.analytics_stack` é uma das 4 opções canônicas e bate com o stage; (3) `tracking-setup/dados.json` + `tracking-setup.md` + `tracking-setup.html` salvos, `.html` gerado pelo `render_report.py`, `emq.score` na escala 0-10, bloco `attribution` preenchido (janela baseline + click ID + camadas); (4) Dataset ID do pixel é consistente com o ad account que a Skill `ad-strategy` vai usar; (5) manifest atualizado (`skills_completed`, bloco aninhado `tracking` completo — `pixel_installed`/`capi_active`/`emq_score`/`analytics_stack`/`tracking_ready` —, `updated_at`); (6) data sharing do pixel confirmado em "Always on" e sem fonte CAPI duplicada; (7) consulta pelo índice cumprida: a lista impressa pelo `kb_lookup.py --skill tracking-setup` foi lida e cada entrada relevante à sessão foi puxada pela `best_query` exata (as 3 entradas cujo ponto de uso é a `retention-engine` ficam com a `retention-engine`). Issue dentro do escopo → fix inline. Conflito que exige decisão do membro (ex: dois pixels ativos, qual manter) → surface curto.

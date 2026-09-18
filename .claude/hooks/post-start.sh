@@ -2,7 +2,9 @@
 # Aura Engine — SessionStart hook
 #
 # Toda sessão: instala o pre-commit guard (barato e idempotente — se o hook git
-# sumiu num re-clone/git clean, volta na próxima sessão, não no dia seguinte).
+# sumiu num re-clone/git clean, volta na próxima sessão, não no dia seguinte) e
+# aplica as migrações de layout pendentes do workspace (tools/migrate.py: silencioso
+# quando não há nada pendente, uma linha por produto migrado).
 # 1x por dia POR CLONE: configura o alias `aura` no shell do membro + auto-update
 # do framework (fetch + merge fast-forward only, ver auto_update abaixo).
 set -euo pipefail
@@ -133,8 +135,8 @@ setup_alias() {
 #
 # TRANSPARÊNCIA (essencial): quando há update disponível mas alguma condição
 # bloqueia, o membro é AVISADO com o motivo específico — nunca silêncio.
-# O agente da sessão vê o aviso e resolve com segurança (protocolo no CLAUDE.md,
-# seção AUTO-UPDATE). Silêncio total só em: já atualizado, opt-out, ou rede
+# O agente da sessão vê o aviso e resolve com segurança (protocolo completo em
+# .claude/lib/auto-update/README.md). Silêncio total só em: já atualizado, opt-out, ou rede
 # indisponível (aí tenta de novo no dia seguinte).
 auto_update() {
   [ -f "$AURA_HOME/.claude/.no-auto-update" ] && return 0
@@ -205,10 +207,24 @@ notice_limpador() {
   fi
 }
 
+# Migrações do workspace: cada produto guarda em manifest.framework_version a versão
+# do layout que segue; tools/migrate.py aplica o que falta (a 001 renomeia as pastas
+# numeradas de fase para o nome da skill). Roda toda sessão porque é barato (lê um
+# manifest por produto) e não imprime nada quando está tudo em dia. Nunca derruba o
+# hook: erro vira aviso.
+run_migrations() {
+  local script="$AURA_HOME/tools/migrate.py"
+  [ -f "$script" ] || return 0
+  [ -d "$AURA_HOME/workspace" ] || return 0
+  command -v python3 >/dev/null 2>&1 || return 0
+  python3 "$script" --all 2>&1 || echo "[aura] Aviso: a migração do workspace acusou erro (linhas acima). Peça na sessão: \"aura, roda a migração do workspace\"."
+}
+
 run_hook() {
-  # Guard + atalhos do limpador rodam TODA sessão (idempotentes e baratos)
+  # Guard + atalhos do limpador + migrações do workspace rodam TODA sessão (idempotentes e baratos)
   install_pre_commit_guard "$AURA_HOME"
   setup_limpador
+  run_migrations
 
   # Alias + auto-update + aviso do limpador: 1x por dia por clone
   [ -f "$FLAG_DAILY" ] && return 0

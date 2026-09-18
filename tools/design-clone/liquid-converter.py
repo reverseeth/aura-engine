@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-liquid-converter.py — Aura Engine design-clone pipeline (conversor canônico da 07b) · v3
+liquid-converter.py — Aura Engine design-clone pipeline (conversor canônico da `page-build`) · v3
 
 Recebe uma seção (HTML+CSS) e converte em Shopify Liquid section editável via
 theme editor. Substitui textos fixos por {{ section.settings.* }}, imagens por
@@ -22,7 +22,7 @@ v3 melhorias (auditoria 2026-07):
 - :root/html/body rescopados pro root da section (custom properties resolvem)
 - Tokens migrados ANTES das cores (shadow com hex não vira setting morto)
 
-Uso (Modo C — HTML fresh aprovado na 07a, padrão da skill 07b-page-build):
+Uso (Modo C — HTML fresh aprovado na `page-design`, padrão da skill page-build):
     python3 liquid-converter.py \\
         --html /tmp/fresh-<produto>/<tipo>.html \\
         --css /tmp/fresh-<produto>/<tipo>.css \\
@@ -566,8 +566,8 @@ def strip_shopify_artifacts(soup):
         tag.decompose()
 
     # Remove scripts, noscript, iframe — COM WARNING listando o que foi removido,
-    # pra 07b poder reimplementar a interação (ex: <details> nativo) em vez de
-    # perder silenciosamente algo aprovado pelo membro na 07a.
+    # pra `page-build` poder reimplementar a interação (ex: <details> nativo) em vez de
+    # perder silenciosamente algo aprovado pelo membro na `page-design`.
     removed_scripts = []
     for tag in soup.find_all(["script", "noscript", "iframe"]):
         if tag.name == "script":
@@ -1537,7 +1537,7 @@ def main():
                 "ERRO: o Modo B converte HTML BRUTO da página de origem — copy e markup "
                 "do concorrente virariam defaults do SEU tema.\n"
                 "Isso viola o princípio 'zero código do concorrente no output final'.\n"
-                "Use o Modo C (--html/--css com o design próprio aprovado na 07a).\n"
+                "Use o Modo C (--html/--css com o design próprio aprovado na `page-design`).\n"
                 "Se a página de origem é SUA (ex: migração entre lojas próprias), re-rode "
                 "com --allow-competitor-markup.",
                 file=sys.stderr,

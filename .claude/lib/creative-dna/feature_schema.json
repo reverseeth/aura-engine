@@ -41,7 +41,7 @@
         "peer_validation",
         "none"
       ],
-      "description": "Archetype do hook declarado na geração (Skill 08 ETAPA 4.5.E) — ids de .claude/lib/hook-taxonomy/archetypes.json. Fecha o loop de aprendizado: quando a Skill 11 marca winners, o padrão por archetype emerge no dna-profile."
+      "description": "Archetype do hook declarado na geração (Skill `creative-engine` ETAPA 4.5.E) — ids de .claude/lib/hook-taxonomy/archetypes.json. Fecha o loop de aprendizado: quando a Skill `ad-analysis` marca winners, o padrão por archetype emerge no dna-profile."
     },
     "hook_duration_seconds": {
       "type": "number",
@@ -133,7 +133,7 @@
         "static_image",
         "carousel"
       ],
-      "description": "Formato primário de produção. Vocabulário CANÔNICO de formatos — o format_fit do hook-taxonomy/archetypes.json usa esses mesmos valores. NOTA sobre 'stolen_ugc_stitch': valor DESCRITIVO de análise de concorrente (registrar que um concorrente usa stitch de UGC alheio é análise de mercado, não recomendação) — a skill 08 NUNCA recomenda produzir com footage sem Usage Rights (a rota licenciada é 'licensed_montage' no creator archetype)"
+      "description": "Formato primário de produção. Vocabulário CANÔNICO de formatos — o format_fit do hook-taxonomy/archetypes.json usa esses mesmos valores. NOTA sobre 'stolen_ugc_stitch': valor DESCRITIVO de análise de concorrente (registrar que um concorrente usa stitch de UGC alheio é análise de mercado, não recomendação) — a skill `creative-engine` NUNCA recomenda produzir com footage sem Usage Rights (a rota licenciada é 'licensed_montage' no creator archetype)"
     },
     "duration_total_seconds": {
       "type": "number",

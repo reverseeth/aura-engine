@@ -8,7 +8,7 @@ Localização: `/workspace/[produto]/brand.md`
 
 ## 1. Posicionamento (1 frase)
 
-> [Frase curta que resume o ângulo estratégico — vem da Etapa 7 do 03-competitor-analysis e do 04-offer mechanism]
+> [Frase curta que resume o ângulo estratégico — vem da Etapa 7 da `competitor-analysis` e do mecanismo da `offer-builder`]
 
 ## 2. Tom de voz
 
@@ -106,4 +106,4 @@ SVG inline sempre (nunca emoji em UI consumidor final — regra 7 CLAUDE.md).
 
 ---
 
-**Regra:** qualquer skill que gera output consumidor-final (06 copy, 07a/07b/07c page chain, 08 creatives, 10 ad-strategy) DEVE carregar este arquivo ANTES de gerar. Mudanças aqui são propagadas automaticamente no próximo render (não há duplicação de cor/fonte em código).
+**Regra:** qualquer skill que gera output consumidor-final (`copy-engine`, a cadeia de página `page-design`/`page-build`/`tracking-setup`, `creative-engine`, `ad-strategy`) DEVE carregar este arquivo ANTES de gerar. Mudanças aqui são propagadas automaticamente no próximo render (não há duplicação de cor/fonte em código).

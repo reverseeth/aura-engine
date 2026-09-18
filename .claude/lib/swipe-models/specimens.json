@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-01",
-  "purpose": "Catalogo de ESPECIMES estruturais provados (swipe files reais) que a skill 06 usa para MODELAR a copy antes de escrever. Frameworks dizem o que fazer; especimes mostram como uma peca que ja converteu foi montada, bloco a bloco.",
-  "regra_de_uso": "A skill 06 seleciona 1 especime PRIMARIO pelo seletor e (opcionalmente) 1 SECUNDARIO para emprestar um bloco especifico. Roda a best_query de cada um em search_knowledge, extrai a sequencia de blocos, e escreve a copy seguindo essa sequencia com o research do membro. NUNCA copiar frase do especime — modelar ESTRUTURA e MECANICA, nunca conteudo.",
+  "purpose": "Catalogo de ESPECIMES estruturais provados (swipe files reais) que a skill `copy-engine` usa para MODELAR a copy antes de escrever. Frameworks dizem o que fazer; especimes mostram como uma peca que ja converteu foi montada, bloco a bloco.",
+  "regra_de_uso": "A skill `copy-engine` seleciona 1 especime PRIMARIO pelo seletor e (opcionalmente) 1 SECUNDARIO para emprestar um bloco especifico. Roda a best_query de cada um em search_knowledge, extrai a sequencia de blocos, e escreve a copy seguindo essa sequencia com o research do membro. NUNCA copiar frase do especime — modelar ESTRUTURA e MECANICA, nunca conteudo.",
   "seletor": {
     "eixos": ["page_type", "dominant_awareness", "sophistication_stage", "product_vertical"],
     "precedencia": "page_type restringe primeiro; depois awareness; sophistication desempata (4-5 empurra para especimes de identidade/mecanismo); vertical so refina."

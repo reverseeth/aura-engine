@@ -1,17 +1,17 @@
 # Recipe: Create Fixed Bundles (Admin GraphQL `productBundleCreate`)
 
-Automação CLI-first dos bundles fixos da oferta (tiers 3-pack/6-pack do 04/07d) via mutation nativa do Shopify — **sem app de terceiro, sem painel**. É o único pedaço do stack de AOV 100% automatizável por API hoje: o bundle nasce como produto de verdade (componentes + inventário calculado deles), rastreável em analytics e utilizável no block `pricing_tier` da PDP buildada pela 07b. Funciona em **qualquer plano** (não é Plus-only).
+Automação CLI-first dos bundles fixos da oferta (tiers 3-pack/6-pack do `offer-builder`/`checkout-aov`) via mutation nativa do Shopify — **sem app de terceiro, sem painel**. É o único pedaço do stack de AOV 100% automatizável por API hoje: o bundle nasce como produto de verdade (componentes + inventário calculado deles), rastreável em analytics e utilizável no block `pricing_tier` da PDP buildada pela `page-build`. Funciona em **qualquer plano** (não é Plus-only).
 
 ## Triggers
 - "cria os bundles no Shopify" / "bundle nativo"
-- Skill 07d (checkout-aov), Alavanca 3 — caminho 2 (bundle fixo nativo)
+- Skill `checkout-aov`, Alavanca 3 — caminho 2 (bundle fixo nativo)
 - Depois da recipe `deploy-shopify-product.md` (o produto principal precisa existir)
 
 ## Input
 - `product_slug` — do manifest
-- `bundle_tiers` — do `07d-checkout-aov/dados.json` → `levers.bundles.tiers` (array `{qty, price, label}`). Fallback 1: `04-offer-builder/dados.json` → `aov_levers.bundles[]` (`{qty, price, label, savings_pct}`). Fallback 2 (legado): Etapa 3 do `04-offer-builder/offer-builder.md`. **Só tiers com `qty > 1` viram bundle** (o Solo É o produto principal — não criar bundle de 1).
+- `bundle_tiers` — do `checkout-aov/dados.json` → `levers.bundles.tiers` (array `{qty, price, label}`). Fallback 1: `offer-builder/dados.json` → `aov_levers.bundles[]` (`{qty, price, label, savings_pct}`). Fallback 2 (legado): Etapa 3 do `offer-builder/offer-builder.md`. **Só tiers com `qty > 1` viram bundle** (o Solo É o produto principal — não criar bundle de 1).
 - `main_product_gid` — GID do produto principal (`gid://shopify/Product/...`), do log da recipe `deploy-shopify-product.md` (`automation-log.jsonl`) ou perguntado ao membro (1 mensagem).
-- `main_sku_price` — do `04-offer-builder/dados.json` → `pricing.main_sku_price` (usado no `compareAtPrice` = âncora "was" = N× o solo).
+- `main_sku_price` — do `offer-builder/dados.json` → `pricing.main_sku_price` (usado no `compareAtPrice` = âncora "was" = N× o solo).
 
 ## Cascade (detecção de prefixo — ver `.claude/lib/mcp-detect/README.md`)
 
@@ -73,7 +73,7 @@ Poll a cada 2s (backoff até 30s, timeout 2min). `status == "COMPLETE"` → capt
 
 ### 3. Preço + âncora do bundle
 
-O bundle nasce com preço derivado dos componentes — aplicar o preço do tier (charm pricing do 04/07d) e a âncora:
+O bundle nasce com preço derivado dos componentes — aplicar o preço do tier (charm pricing do `offer-builder`/`checkout-aov`) e a âncora:
 
 ```graphql
 mutation SetBundlePrice($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {

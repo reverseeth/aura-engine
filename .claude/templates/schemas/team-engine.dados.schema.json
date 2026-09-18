@@ -1,0 +1,490 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine: team-engine/dados.json",
+  "description": "Time: veredito de estágio, auditoria de tempo do fundador, decisão de contratação, org chart, vagas, pipeline, onboarding, KPIs, reviews, incentivos e folha. Escrito pela skill `team-engine`. Lido por: creative-engine, consistency-audit, ad-analysis, scale-engine, finance-engine, creator-engine. Campos `required` são só os que outra skill lê; qualquer campo extra é aceito (`additionalProperties: true`). Validado por `python3 tools/manifest.py <slug> complete team-engine` e por `python3 tools/aura-status.py <slug>`.",
+  "type": "object",
+  "required": [
+    "stage_check",
+    "hiring_decision",
+    "org",
+    "team_kpis",
+    "onboarding",
+    "payroll",
+    "pending_inputs"
+  ],
+  "properties": {
+    "team_id": {
+      "type": "string"
+    },
+    "product_slug": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "ISO-8601"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "doors_run": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "decide",
+          "hire",
+          "run"
+        ]
+      }
+    },
+    "hiring_language": {
+      "type": "string"
+    },
+    "stage_check": {
+      "type": "object",
+      "properties": {
+        "stage": {
+          "type": "string",
+          "enum": [
+            "starter",
+            "validating",
+            "scaling"
+          ]
+        },
+        "recommended": {
+          "type": "boolean"
+        },
+        "not_yet_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reopen_signal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "exception_applied": {
+          "type": "string",
+          "enum": [
+            "none",
+            "project_editor"
+          ]
+        }
+      },
+      "required": [
+        "stage",
+        "recommended"
+      ],
+      "additionalProperties": true
+    },
+    "founder_time": {
+      "type": "object",
+      "properties": {
+        "annual_income": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "hourly_rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "buyback_rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "audit_source": {
+          "type": "string"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "hiring_decision": {
+      "type": "object",
+      "properties": {
+        "constraint": {
+          "type": "string"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "hire",
+            "not_yet",
+            "outsource",
+            "upgrade_existing"
+          ]
+        },
+        "build_vs_buy": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "sequence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "decision_memo": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "constraint",
+        "verdict"
+      ],
+      "additionalProperties": true
+    },
+    "org": {
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "future_6_12m": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "engines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "pods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "max_direct_reports_ok": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "key_man_risk": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "person": {
+                "type": "string"
+              },
+              "what_breaks": {
+                "type": "string"
+              },
+              "patch": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "weekly_rhythm_installed": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "open_roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "role_type": {
+            "type": "string"
+          },
+          "scorecard": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "salary_band": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "posting": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "sourcing": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "role"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "candidate_pipeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "candidate": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "source_channel": {
+            "type": "string"
+          },
+          "headhunted": {
+            "type": "boolean"
+          },
+          "stage": {
+            "type": "string"
+          },
+          "assessment": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "verdict_notes": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "funnel_metrics": {
+      "type": "object",
+      "properties": {
+        "time_to_hire_days": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "cost_to_hire": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "loss_by_stage": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "outcome_log": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "onboarding": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "person": {
+            "type": "string"
+          },
+          "week": {
+            "type": "integer"
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "i_do",
+              "we_do",
+              "you_do"
+            ]
+          },
+          "qa_review_pct": {
+            "type": "number"
+          },
+          "meeting_cadence": {
+            "type": "string"
+          },
+          "two_week_diagnosis": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "team_kpis": {
+      "type": "object",
+      "properties": {
+        "goal": {
+          "type": "string"
+        },
+        "strategy_bet": {
+          "type": "string"
+        },
+        "dashboard": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "by_person": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "naming_suffix_by_person": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "reviews": {
+      "type": "object",
+      "properties": {
+        "cadence": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "nine_box": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "pips": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "time_audit": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "incentives": {
+      "type": "object",
+      "properties": {
+        "gravy": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "kpi_bonus_pct_of_salary": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "career_ladders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "promotions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "payroll": {
+      "type": "object",
+      "properties": {
+        "current_monthly_total": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "payroll_delta_monthly": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "fits_cash": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "finance_source": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "current_monthly_total",
+        "payroll_delta_monthly"
+      ],
+      "additionalProperties": true
+    },
+    "pending_inputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "sanity_checks": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer"
+        },
+        "passed": {
+          "type": "integer"
+        },
+        "failed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

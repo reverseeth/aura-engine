@@ -12,7 +12,7 @@ Aura usa **cascade resiliente** com 2 MCPs Meta em paralelo. Você instala os do
 | **Pipeboard MCP** (`pipeboard-co/meta-ads-mcp`) | Fallback automático quando o oficial não responde ou está disabled | 3rd party, GA |
 | **Shopify AI Toolkit** (plugin Claude Code) | Operações Shopify (produto, theme, store execute) + validação Liquid/GraphQL | Oficial, abril/2026 — **ver alerta de telemetria no passo 4** |
 
-Opcionais que enriquecem skills específicas: `GROQ_API_KEY` (1.5 — transcrição de criativos na Skill 03), Refero (3.5), Klaviyo (3.6), **Higgsfield** (3.7 — render de vídeo in-session na Skill 08), **Foreplay** (3.8 — ad spy nas Skills 03/08/11), Shopify Dev + Stripe (4.5).
+Opcionais que enriquecem skills específicas: `GROQ_API_KEY` (1.5 — transcrição de criativos na Skill `competitor-analysis`), Refero (3.5), Klaviyo (3.6), **Higgsfield** (3.7 — render de vídeo in-session na Skill `creative-engine`), **Foreplay** (3.8 — ad spy nas Skills `competitor-analysis`/`creative-engine`/`ad-analysis`), Shopify Dev + Stripe (4.5).
 
 ## 1. Instalar dependências (2min)
 
@@ -34,9 +34,9 @@ brew install ffmpeg            # Mac
 winget install Gyan.FFmpeg     # Windows (depois feche e abra o terminal)
 ```
 
-## 1.5. (Opcional) GROQ_API_KEY — transcrição de criativos (Skill 03 ETAPA 3C)
+## 1.5. (Opcional) GROQ_API_KEY — transcrição de criativos (Skill `competitor-analysis` ETAPA 3C)
 
-Não é MCP, mas mora aqui porque é setup de integração: a análise profunda de criativos escalados dos concorrentes (Skill 03 ETAPA 3C) transcreve os vídeos com um cascade de 3 degraus — **Groq API (`whisper-large-v3-turbo`) → Whisper local → transcript colado pelo membro**. O degrau 1 é o preferencial: rápido, ~$0.02-0.04 por hora de áudio, zero instalação.
+Não é MCP, mas mora aqui porque é setup de integração: a análise profunda de criativos escalados dos concorrentes (Skill `competitor-analysis` ETAPA 3C) transcreve os vídeos com um cascade de 3 degraus — **Groq API (`whisper-large-v3-turbo`) → Whisper local → transcript colado pelo membro**. O degrau 1 é o preferencial: rápido, ~$0.02-0.04 por hora de áudio, zero instalação.
 
 ```bash
 # 1. Criar key grátis em https://console.groq.com/keys
@@ -46,7 +46,7 @@ export GROQ_API_KEY=gsk_...
 test -n "$GROQ_API_KEY" && echo "ok"
 ```
 
-Sem a key, nada trava — a Skill 03 cai pro Whisper local (se instalado) ou pede o transcript ao membro. Detalhes do cascade completo na própria Skill 03 (ETAPA 3C).
+Sem a key, nada trava — a Skill `competitor-analysis` cai pro Whisper local (se instalado) ou pede o transcript ao membro. Detalhes do cascade completo na própria Skill `competitor-analysis` (ETAPA 3C).
 
 ## 2. Conectar Meta MCP oficial (3min — caminho preferencial)
 
@@ -120,7 +120,7 @@ claude mcp add meta-ads --env META_ACCESS_TOKEN=<TOKEN_NOVO> --env META_DEFAULT_
 
 ## 3.5. Conectar Refero MCP (opcional, 2min — design system curado)
 
-Se o membro quer alimentar a skill 07a Brand Discovery com design systems curados de top sites (~200 sites premium tipo Cursor, Linear, Vercel), conecte o Refero MCP. Sem ele, Aura cai pro `tools/design-clone/` (Playwright) ou pergunta manual.
+Se o membro quer alimentar a skill `page-design` Brand Discovery com design systems curados de top sites (~200 sites premium tipo Cursor, Linear, Vercel), conecte o Refero MCP. Sem ele, Aura cai pro `tools/design-clone/` (Playwright) ou pergunta manual.
 
 ```bash
 claude mcp add refero -- npx -y fidgetcoding-refero-mcp
@@ -147,7 +147,7 @@ Detalhes completos em `.claude/lib/refero-integration/README.md`.
 
 ## 3.6. Conectar Klaviyo MCP (opcional, 3min — automação de retention flows)
 
-Se o membro usa Klaviyo e quer que a **Skill 13 (retention-engine)** crie os flows direto (welcome / abandoned-cart / post-purchase / win-back / replenishment) com contrato estável — em vez de só gerar HTML + setup-guide pra importar à mão — conecte o **MCP oficial da Klaviyo**.
+Se o membro usa Klaviyo e quer que a **Skill `retention-engine`** crie os flows direto (welcome / abandoned-cart / post-purchase / win-back / replenishment) com contrato estável — em vez de só gerar HTML + setup-guide pra importar à mão — conecte o **MCP oficial da Klaviyo**.
 
 ### Claude Desktop (servidor remoto, OAuth)
 1. Settings → Connectors → "+ Add custom connector"
@@ -172,11 +172,11 @@ claude mcp add klaviyo \
 Claude, lista meus flows no Klaviyo.
 ```
 
-Se retornar lista → conectado (tools `mcp__klaviyo__*` disponíveis). Sem ele, a Skill 13 cai pro caminho de **assets + setup-guide** (HTML pronto + guia manual), que continua sendo o fallback confiável. Os flows criados via MCP ficam SEMPRE em draft — o membro revisa e ativa no Klaviyo UI (a skill nunca ativa sozinha, pra não arriscar spam).
+Se retornar lista → conectado (tools `mcp__klaviyo__*` disponíveis). Sem ele, a Skill `retention-engine` cai pro caminho de **assets + setup-guide** (HTML pronto + guia manual), que continua sendo o fallback confiável. Os flows criados via MCP ficam SEMPRE em draft — o membro revisa e ativa no Klaviyo UI (a skill nunca ativa sozinha, pra não arriscar spam).
 
 ## 3.7. Conectar Higgsfield MCP (opcional, 2min — render de vídeo in-session)
 
-Fecha o único passo manual do pipeline de criativos: sem ele, a **Skill 08** entrega prompts prontos pra você colar no Higgsfield; com ele, a skill gera o prompt E **renderiza o vídeo na própria sessão**, salvando o `.mp4` em `workspace/[produto]/08-creative-engine/renders/`.
+Fecha o único passo manual do pipeline de criativos: sem ele, a **Skill `creative-engine`** entrega prompts prontos pra você colar no Higgsfield; com ele, a skill gera o prompt E **renderiza o vídeo na própria sessão**, salvando o `.mp4` em `workspace/[produto]/creative-engine/renders/`.
 
 É o MCP oficial hospedado da Higgsfield (lançado 2026-04-30): OAuth via browser, sem API key, usa os créditos do plano que você já tem. Expõe 30+ modelos (Kling 3.x, Veo 3.1, Sora 2, Seedance, MiniMax Hailuo), output sem watermark em plano pago.
 
@@ -188,11 +188,11 @@ Settings → Connectors → "+ Add custom connector" → nome `higgsfield`, URL 
 claude mcp add --transport http higgsfield https://mcp.higgsfield.ai/mcp
 ```
 
-Reinicie. Tools com prefixo `mcp__higgsfield__` aparecem — a Skill 08 (ETAPA 0.7) detecta sozinha e **pergunta antes de gastar créditos** ("quer que eu renderize os N vídeos ou prefere só os prompts?"). Sem o MCP, nada muda: a skill entrega os prompts como sempre.
+Reinicie. Tools com prefixo `mcp__higgsfield__` aparecem — a Skill `creative-engine` (ETAPA 0.7) detecta sozinha e **pergunta antes de gastar créditos** ("quer que eu renderize os N vídeos ou prefere só os prompts?"). Sem o MCP, nada muda: a skill entrega os prompts como sempre.
 
 ## 3.8. Conectar Foreplay MCP (opcional, 2min — ad spy)
 
-Fonte de criativos escalados dos concorrentes (200M+ ads em Facebook/Instagram/TikTok/YouTube/LinkedIn, busca por marca e domain intelligence). Com ele conectado, a **Skill 03** puxa os criativos escalados sem pedir screenshots/uploads, e as **Skills 08/11** ganham sinal de hooks/formatos ativos no nicho. Requer conta Foreplay (usa o plano + créditos de API que você já tem).
+Fonte de criativos escalados dos concorrentes (200M+ ads em Facebook/Instagram/TikTok/YouTube/LinkedIn, busca por marca e domain intelligence). Com ele conectado, a **Skill `competitor-analysis`** puxa os criativos escalados sem pedir screenshots/uploads, e as **Skills `creative-engine`/`ad-analysis`** ganham sinal de hooks/formatos ativos no nicho. Requer conta Foreplay (usa o plano + créditos de API que você já tem).
 
 ### Claude Desktop
 Settings → Connectors → "+ Add custom connector" → nome `foreplay`, URL `https://public.api.foreplay.co/mcp` → sign-in com a conta Foreplay.
@@ -206,7 +206,7 @@ Reinicie. Tools com prefixo `mcp__foreplay__` aparecem; as skills detectam sozin
 
 ## 3.9. Conectar Notion MCP (opcional, 2min — banco de marcas da pesquisa de produto)
 
-A **Skill 01** salva o banco de marcas (uma página por marca com LP mais escalada, ads mais escalados, tráfego, oferta, mecanismos, Trustpilot, Trends e a jogada recomendada, mais uma página de ranking) direto no seu Notion. Sem ele, a skill salva o mesmo banco em HTML na pasta do produto.
+A **Skill `product-research`** salva o banco de marcas (uma página por marca com LP mais escalada, ads mais escalados, tráfego, oferta, mecanismos, Trustpilot, Trends e a jogada recomendada, mais uma página de ranking) direto no seu Notion. Sem ele, a skill salva o mesmo banco em HTML na pasta do produto.
 
 ### Claude Desktop / claude.ai
 Settings → Connectors → **Notion** (connector oficial) → conectar e autorizar o workspace. As tools aparecem com prefixo `mcp__claude_ai_Notion__` (o Claude Code logado na mesma conta enxerga as mesmas tools).
@@ -215,7 +215,7 @@ Settings → Connectors → **Notion** (connector oficial) → conectar e autori
 ```bash
 claude mcp add --transport http notion https://mcp.notion.com/mcp
 ```
-Reinicie e autorize no browser. Tools com prefixo `mcp__notion__` aparecem; a Skill 01 detecta qualquer prefixo com `notion` sozinha.
+Reinicie e autorize no browser. Tools com prefixo `mcp__notion__` aparecem; a Skill `product-research` detecta qualquer prefixo com `notion` sozinha.
 
 ## 4. Conectar Shopify (3min — plugin oficial AI Toolkit)
 
@@ -237,19 +237,19 @@ shopify auth login
 > export OPT_OUT_INSTRUMENTATION=true   # adicione ao ~/.zshrc pra valer em toda sessão
 > ```
 >
-> Se preferir não instalar o plugin, tudo continua funcionando: as skills 07b/07d usam o Shopify CLI puro (`shopify theme push`, etc.) como caminho default, e a validação de Liquid fica com o check interno do `liquid-converter.py`.
+> Se preferir não instalar o plugin, tudo continua funcionando: as skills `page-build`/`checkout-aov` usam o Shopify CLI puro (`shopify theme push`, etc.) como caminho default, e a validação de Liquid fica com o check interno do `liquid-converter.py`.
 
 ## 4.5. (Opcionais) Shopify Dev MCP + Stripe MCP
 
 Dois MCPs opcionais que enriquecem skills específicas. Sem eles tudo funciona — são puro upside.
 
-**Shopify Dev MCP** (`mcp__shopify_dev__*`) — docs + validação de Liquid/GraphQL. Reduz hallucination na **07b-page-build** (compile HTML→Liquid) ao validar schema/sintaxe contra a fonte oficial antes do push. É um servidor stdio local (não HTTP remoto). Se você já instalou o plugin AI Toolkit (passo 4), a validação já vem junto — este passo é só pra quem quer o Dev MCP sem o plugin:
+**Shopify Dev MCP** (`mcp__shopify_dev__*`) — docs + validação de Liquid/GraphQL. Reduz hallucination na **page-build** (compile HTML→Liquid) ao validar schema/sintaxe contra a fonte oficial antes do push. É um servidor stdio local (não HTTP remoto). Se você já instalou o plugin AI Toolkit (passo 4), a validação já vem junto — este passo é só pra quem quer o Dev MCP sem o plugin:
 
 ```bash
 claude mcp add shopify_dev -- npx -y @shopify/dev-mcp
 ```
 
-**Stripe MCP** (`mcp__stripe__*`) — leitura de revenue real (AOV histórico) pra calcular PSM/pricing de verdade em vez de teórico. Útil na **04-offer** (pricing) e **07d-checkout-aov** (thresholds de free-shipping / bundle):
+**Stripe MCP** (`mcp__stripe__*`) — leitura de revenue real (AOV histórico) pra calcular PSM/pricing de verdade em vez de teórico. Útil na **04-offer** (pricing) e **checkout-aov** (thresholds de free-shipping / bundle):
 
 ```bash
 claude mcp add --transport http stripe https://mcp.stripe.com
@@ -305,13 +305,13 @@ Vale pros dois lados: Admin da Shopify (criar Pages — `deploy-shopify-product.
 - [ ] Shopify CLI autenticado
 - [ ] Plugin Shopify AI Toolkit instalado **com `OPT_OUT_INSTRUMENTATION=true` exportado** (ou decisão consciente de ficar no CLI puro)
 - [ ] Claude Code lista campanhas via cascade
-- [ ] (Opcional) Klaviyo MCP conectado (`mcp__klaviyo__*`) — automação de retention flows na Skill 13
-- [ ] (Opcional) Higgsfield MCP conectado (`mcp__higgsfield__*`) — render de vídeo in-session na Skill 08
-- [ ] (Opcional) Foreplay MCP conectado (`mcp__foreplay__*`) — ad spy nas Skills 03/08/11
-- [ ] (Opcional) Notion MCP conectado (`mcp__claude_ai_Notion__*` ou `mcp__notion__*`) — banco de marcas da Skill 01
-- [ ] (Recomendado) TrendTrack MCP conectado (`mcp__trendtrack__*`) — motor de descoberta da Skill 01 (gasta créditos do plano; sem ele, a pesquisa roda manual no browser)
+- [ ] (Opcional) Klaviyo MCP conectado (`mcp__klaviyo__*`) — automação de retention flows na Skill `retention-engine`
+- [ ] (Opcional) Higgsfield MCP conectado (`mcp__higgsfield__*`) — render de vídeo in-session na Skill `creative-engine`
+- [ ] (Opcional) Foreplay MCP conectado (`mcp__foreplay__*`) — ad spy nas Skills `competitor-analysis`/`creative-engine`/`ad-analysis`
+- [ ] (Opcional) Notion MCP conectado (`mcp__claude_ai_Notion__*` ou `mcp__notion__*`) — banco de marcas da Skill `product-research`
+- [ ] (Recomendado) TrendTrack MCP conectado (`mcp__trendtrack__*`) — motor de descoberta da Skill `product-research` (gasta créditos do plano; sem ele, a pesquisa roda manual no browser)
 - [ ] (Opcional) Shopify Dev MCP (`mcp__shopify_dev__*`) + Stripe MCP (`mcp__stripe__*`)
-- [ ] (Opcional) `GROQ_API_KEY` exportado — degrau 1 da transcrição de criativos na Skill 03 ETAPA 3C
+- [ ] (Opcional) `GROQ_API_KEY` exportado — degrau 1 da transcrição de criativos na Skill `competitor-analysis` ETAPA 3C
 
 Pronto. A partir daqui, membro invoca receitas por linguagem natural.
 
@@ -360,4 +360,4 @@ Pronto. A partir daqui, membro invoca receitas por linguagem natural.
 | Token Pipeboard expirou | ✅ | ❌ | Oficial sozinho |
 | Ambos caem | ❌ | ❌ | Pergunta ao membro |
 
-Resultado: Skill 11 nunca trava por causa de MCP. Resiliência sem trabalho extra do membro.
+Resultado: Skill `ad-analysis` nunca trava por causa de MCP. Resiliência sem trabalho extra do membro.

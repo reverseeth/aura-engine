@@ -1,0 +1,30 @@
+# Offer Builder · Referência: Validação final (ETAPA 9)
+
+> Os 12 sanity checks com a alternativa por payback medido no check 8, o registro em `sanity_checks`, como as checagens aparecem no relatório (afirmações, nunca perguntas) e o bloqueio de save pelos checks críticos. Abra na ETAPA 9.
+
+### ETAPA 9 — Validação Final (Sanity Checks)
+
+Antes de salvar, responda HONESTAMENTE:
+
+1. **A oferta faz sentido pro awareness level dominante?** (se é Problem Aware, a oferta foca em educação; se é Product Aware, foca em diferenciação; etc)
+2. **O mecanismo é genuinamente diferente dos concorrentes?** (passa no filtro S.I.N. + não é commodity do estágio de sophistication)
+3. **As economics permitem escalar?** (PSM > 1.1 — escala estável; teto de CAC viável com budget do membro)
+4. **O stack de valor é convincente SEM inflar?** (cada bonus é real, útil, entregável — e cada item do stack passou na regra do `Not: "___"`: nenhum entregável aparece pela palavra de formato, todos aparecem pelo ativo nomeado)
+5. **A garantia quebra a objeção de risco identificada no market research?** (não é genérica — ataca o medo específico do avatar)
+6. **Pricing triangulado (as 3 âncoras convergem — `(máx−mín)/mediana ≤ 0.40`, régua da ETAPA 3)?**
+7. **COGS breakdown completo (COGS entregue + frete + pick&pack + processamento de pagamento + taxas + app de assinatura quando há assinatura + fee de agência quando é % do spend + provisão de reembolso), sem valor agregado?**
+8. **Margem de contribuição ≥ $20 em pelo menos uma variação do PRIMEIRO PEDIDO (tabela 5A)?** (senão o teto de CAC viável inviabiliza ads)
+
+   > **Alternativa por payback medido (só para membro em `scaling`, só com LTV medido).** Perder no primeiro pedido é decisão, não acidente — desde que o cohort devolva o dinheiro dentro de uma janela conhecida e o caixa aguente a janela. Se `manifest.stage == "scaling"` **E** `finance-engine/dados.json` traz `payback.payback_window_days_measured ≤ 90` com `cohorts.decay_source: "calculated"` e `cohorts.calibrated: true` (LTV medido, não estimado), **o check 8 passa por essa via** mesmo com margem de contribuição do primeiro pedido abaixo de $20: o gate deixa de ser a margem por pedido e passa a ser a janela de payback. Grave `budget_viability.payback_window_days_measured` e marque o check como aprovado por payback, dizendo isso no relatório em uma frase (o membro precisa saber que a oferta se sustenta no segundo pedido, não no primeiro). A segunda condição do cânone é **caixa que aguenta a janela**, e ela agora é verificável aqui: leia `cash.runway_months` do mesmo arquivo (a `finance-engine` passou a publicá-lo no `handoff.for_skill_04`). Regra: `runway_months × 30 ≥ payback_window_days_measured` → as duas condições fechadas, o check passa por payback. Se `runway_months` for `null` (a `finance-engine` rodou em Modo A, sem caixa medido) ou menor que a janela, **o check NÃO passa por essa via** — volta a valer o gate de margem, e o relatório diz em uma frase que o payback fecha mas o caixa não sustenta a janela (a diferença importa: a oferta é boa, o financiamento dela é que falta).
+   >
+   > **As três condições são cumulativas e nenhuma se estima.** Faltando qualquer uma — a `finance-engine` não rodou, o cohort não está calibrado, o `decay_source` é `assumed`, ou o stage é `starter`/`validating` — **o gate de margem mínima vale integralmente, como hoje**. É o mesmo recorte que o cânone aplica: sem LTV medido e sem caixa pra bancar a janela, a economia do primeiro pedido é a única que decide.
+9. **Bundle structure aumenta AOV sem canibalizar margem?** (rode o guardrail de net AOV da ETAPA 6: desconto que sobe AOV bruto mas derruba a margem de contribuição líquida reprova)
+10. **breakeven_roas < 3.0?** (se > 3.0, a oferta depende de um custo de aquisição baixo demais pra ser realista — trate como falha do check e volte pra ETAPA 7: aumentar AOV, reduzir COGS ou repricing, antes de salvar)
+11. **O banco de provas (ETAPA 2.5) tem ao menos 1 número pronto pra UMP e 1 pra UMS?** (não bloqueia — sem número, a copy sai com mecanismo e VOC; com número, sai mais específica)
+12. **O teto de CAC (2×) está acima do piso de US$ 25?** (piso físico de CAC no leilão: US$ 15–25, cânone §3. Teto abaixo disso exige um custo de aquisição que não existe em escala — bloqueante. Saídas, nesta ordem: subir AOV (ETAPA 6), subir preço (ETAPA 3), ou sustentar a conta com LTV de recompra **medido** — nunca estimado — e recalcular o PSM da ETAPA 7 com esse LTV real)
+
+Registre o resultado em `offer-builder/dados.json` → `sanity_checks` como `{ "total": 12, "passed": N, "failed": [<números dos checks que falharam>] }` (NÃO um inteiro hard-coded). Se alguma resposta for "não", **itere antes de salvar**. Uma oferta fraca que passa adiante vira ad ruim, copy genérica, e membro frustrado em 30 dias.
+
+**No relatório (.md/.html), as checagens aparecem como AFIRMAÇÕES do que está validado, com a evidência em 1 frase — nunca em formato de pergunta** (o formato de pergunta acima é ferramenta interna da skill; ver `.claude/rules/report-only-results.md`). Ex: "Margem de contribuição sustenta tráfego pago. X% por pedido no primeiro pedido; CAC de empate acima do mediano da categoria."
+
+**Bloqueio de save (checks críticos):** se o check 3 (economics/PSM viável) ou o check 12 (teto de CAC acima do piso de US$ 25) falhar — NÃO salve o `offer-builder/dados.json` final. O check 8 (margem de contribuição ≥ $20 em ao menos uma variação do primeiro pedido, **ou a alternativa por payback medido descrita nele**) é aviso, não bloqueio: é a mesma decisão que o membro já tomou no sanity check da ETAPA 1. Se ele escolheu prosseguir, o `dados.json` é salvo com `margin_warning: true` e o check 8 entra em `failed[]`, pra Skills `ad-strategy`/`scale-engine` alertarem escala agressiva. Itere até passar, ou aplique o escape-path correspondente (ETAPA 7 pra economics; ETAPA 1 sanity de margem; ETAPAs 3/6 pra teto de CAC abaixo do piso). Os demais checks que falharem entram em `failed[]` como aviso, mas não bloqueiam.

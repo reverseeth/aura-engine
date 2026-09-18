@@ -1,0 +1,1303 @@
+{
+  "$comment": [
+    "REGISTRO ÚNICO DAS SKILLS DA AURA. Fonte de verdade da identidade, da ordem e do roteamento de cada skill.",
+    "Regra daqui em diante: skill nova = uma entrada neste arquivo (com `position`) + rodar `python3 tools/gen_docs.py`.",
+    "Nada mais muda de nome. Inserir uma skill no meio da sequência só desloca o \"Passo N\" renderizado nas docs.",
+    "O gen_docs.py gera, a partir daqui: a tabela de skills do README.md, a lista de gatilhos e a linha ORDEM LÓGICA do",
+    ".claude/CLAUDE.md, a lista PHASES do build_index.py, o enum de skills_completed do manifest-schema.json, os",
+    "cabeçalhos das skills no §4 e a ordem canônica no §13 do OVERVIEW.md, a linha de título de cada arquivo de skill e o OVERVIEW.html (render do OVERVIEW.md pelo tools/render_report.py).",
+    "`python3 tools/gen_docs.py --check` falha (exit 1) se algum trecho gerado estiver desatualizado.",
+    "Campos: `id` é o slug sem número (identificador definitivo). `legacy_ids` são os números antigos, que continuam",
+    "roteando como apelido (se o membro disser um número, é o apelido antigo). Número de skill só vive aqui, em",
+    "`legacy_ids`/`legacy_folder`, no `use_in_skill` do índice e no changelog do OVERVIEW; em qualquer outro lugar do",
+    "framework, número como identificador de skill é falha do lint (`tools/aura-check.py`, regra `skill-ids`). `lane`: `sequence` ocupa um passo da",
+    "ordem canônica (`position`); `two-phase` ocupa dois (`position_a` pré-launch, `position_b` pós-launch);",
+    "`parallel` roda ao lado de um passo e `side` é consulta lateral — nesses dois, `position` só diz depois de",
+    "qual passo o card aparece no painel e nunca vira \"Passo N\". Ordem do painel e das listas: pela posição",
+    "(two-phase pelo passo B no painel e pelo passo A nas listas de gatilhos), sequência antes de paralela antes de",
+    "lateral, e a ordem deste arquivo como desempate. `folder` é a pasta no workspace SEM número (page-design e",
+    "page-build compartilham `page`); `legacy_folder` é a pasta numerada antiga: a migração 001 do tools/migrate.py renomeia, e o painel e as skills leem dela como fallback por um ciclo.",
+    "`reads`/`writes` são caminhos relativos a `workspace/<slug>/`, já com as pastas novas; `../profile.md` é o",
+    "profile global do membro em `workspace/`. `consumers` = skills que leem o que esta escreve. `panel_*` são os",
+    "dados do card no painel ABRIR-AQUI (`panel_card` agrupa page-design e page-build num card só). `summary_en` é a",
+    "coluna Output da tabela do README; `summary_pt` é o resumo em português da skill, guardado aqui como referência (a",
+    "lista de gatilhos do CLAUDE.md enxuto não o exibe); `order_note_pt`/`step_note_pt` são as notas curtas da",
+    "linha ORDEM LÓGICA e do §13 do OVERVIEW; `group_pt` agrupa passos consecutivos (STOREFRONT) nessa linha.",
+    "`file` é o arquivo da skill: `.claude/skills/<id>/SKILL.md` no formato nativo de skills do Claude Code (roteiro curto, com o material de apoio em `.claude/skills/<id>/reference/<tema>.md`) ou, nas skills ainda não migradas, o arquivo único `.claude/skills/<id>.md`.",
+    "Não mude etapas, réguas, cânones nem best_query por aqui — este arquivo é só mecânica."
+  ],
+  "version": 1,
+  "launch_after": "ad-strategy",
+  "skills": [
+    {
+      "id": "setup",
+      "legacy_ids": [
+        "00"
+      ],
+      "file": ".claude/skills/setup/SKILL.md",
+      "name": "Setup",
+      "title_pt": "Setup",
+      "title_en": "Setup",
+      "triggers": [
+        "setup"
+      ],
+      "lane": "sequence",
+      "position": 1,
+      "step_note_pt": "cria workspace, profile, manifest",
+      "folder": null,
+      "legacy_folder": null,
+      "report_stem": null,
+      "reads": [],
+      "writes": [
+        "manifest.json",
+        "../profile.md",
+        "../profile.html",
+        "brand.md",
+        "ABRIR-AQUI.html"
+      ],
+      "consumers": [
+        "ops-engine",
+        "product-research",
+        "sourcing",
+        "market-research",
+        "competitor-analysis",
+        "offer-builder",
+        "finance-engine",
+        "copy-engine",
+        "page-design",
+        "page-build",
+        "tracking-setup",
+        "checkout-aov",
+        "bonus-delivery",
+        "retention-engine",
+        "creative-engine",
+        "creator-engine",
+        "agentic-readiness",
+        "consistency-audit",
+        "ad-strategy",
+        "ad-analysis",
+        "scale-engine",
+        "promo-engine",
+        "team-engine",
+        "content-recycler",
+        "marketplace-engine"
+      ],
+      "panel_tag": null,
+      "panel_cmd": null,
+      "summary_pt": "",
+      "summary_en": "profile + first manifest + dashboard"
+    },
+    {
+      "id": "ops-engine",
+      "legacy_ids": [
+        "19"
+      ],
+      "file": ".claude/skills/ops-engine/SKILL.md",
+      "name": "Ops Engine",
+      "title_pt": "Operação (continuidade e risco)",
+      "title_en": "Ops (continuity & risk)",
+      "triggers": [
+        "ops",
+        "backup de conta",
+        "conta caiu",
+        "risco",
+        "processadora",
+        "constraint",
+        "gargalo",
+        "operação",
+        "continuidade",
+        "plano B",
+        "e se a conta for banida",
+        "memo",
+        "exit",
+        "moat"
+      ],
+      "lane": "side",
+      "position": 1,
+      "step_note_pt": "consulta lateral; a parte de backups (conta e Business Manager reserva, processadora redundante) vale desde o começo, porque conta nova é a mais frágil",
+      "folder": "ops-engine",
+      "legacy_folder": "19-ops-engine",
+      "report_stem": "ops-engine",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "sourcing/dados.json",
+        "finance-engine/dados.json"
+      ],
+      "writes": [
+        "ops-engine/ops-engine.md",
+        "ops-engine/ops-engine.html",
+        "ops-engine/dados.json",
+        "ops-engine/memos/AAAA-MM-DD-<assunto>.md"
+      ],
+      "consumers": [
+        "promo-engine"
+      ],
+      "panel_tag": "side",
+      "panel_cmd": "operação",
+      "summary_pt": "**consulta lateral — e a parte de backups vale desde o começo, porque conta nova é a mais frágil** — continuidade e risco estrutural da operação: a skill que pergunta \"o que mata esse negócio nos próximos 12 meses?\" e arma a resposta antes. Três frentes: (1) a constraint dos próximos 12 meses — o ÚNICO gargalo que limita o ano (estoque, caixa, plataforma ou pessoa-chave); (2) continuidade — checklist de backups com status confirmado pelo membro, nunca deduzido: conta e Business Manager reserva com campanhas pré-montadas desligadas, processadora de pagamento redundante, banco e domínio reserva, pre-order pronto pra ligar como válvula de estoque e caixa, risco de pessoa-chave medido em \"dores de cabeça por dólar\"; (3) negócio como ativo — memos de decisão (WAFM), teste de moat de produto e operação exit-ready. Não monta a estrutura anti-ban (isso é a `setup`), não calcula caixa (`finance-engine`) e não escolhe fornecedor (`sourcing`) — audita o status e aponta",
+      "summary_en": "side consult — 12-month constraint, continuity checklist with member-confirmed status (backup account/BM, redundant payment processor, backup bank and domain, pre-order valve, key-man risk) and the business as an asset (WAFM memos, moat test, exit-ready); the backups part matters from day one"
+    },
+    {
+      "id": "product-research",
+      "legacy_ids": [
+        "01"
+      ],
+      "file": ".claude/skills/product-research/SKILL.md",
+      "name": "Product Research",
+      "title_pt": "Pesquisa de produto",
+      "title_en": "Product research",
+      "triggers": [
+        "product research"
+      ],
+      "lane": "sequence",
+      "position": 2,
+      "step_note_pt": "acha as marcas que escalam no nicho (TrendTrack), valida (Trends + Trustpilot), monta as jogadas de recombinação e salva o banco de marcas (Notion ou HTML)",
+      "folder": "product-research",
+      "legacy_folder": "01-product-research",
+      "report_stem": "product-research",
+      "reads": [
+        "../profile.md",
+        "manifest.json"
+      ],
+      "writes": [
+        "product-research/product-research.md",
+        "product-research/product-research.html",
+        "product-research/dados.json",
+        "product-research/banco-de-marcas.md",
+        "product-research/banco-de-marcas.html"
+      ],
+      "consumers": [
+        "sourcing",
+        "market-research",
+        "competitor-analysis",
+        "consistency-audit"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "product research",
+      "summary_pt": "descoberta por **recombinação de elementos validados**: acha marcas DTC que já escalam no nicho via TrendTrack — MCP ou manual, com dois conjuntos fixos de filtros no Explorer → Meta Ads, native ads em imagem e em vídeo, AOV ≥ $60 contando bundle/upsell —, monta a ficha de cada marca (LP mais escalada, ads mais escalados, tráfego, oferta, mecanismos, ângulo), valida só com Google Trends (problema + ingrediente, 5 anos, US: queda de 12+ meses elimina; problema subindo + ingrediente estável é o melhor cenário; pico recente = trocar mecanismo; subida vertical = hype) e com as reviews de 1-2 estrelas do Trustpilot (reclamação de cobrança/entrega passa; maioria sobre eficácia elimina), decompõe cada marca em elementos, monta jogadas de recombinação — nunca clonar, nunca criar do zero, no máximo aprimorar um mecanismo validado —, rankeia pelos eixos de score e salva o banco de marcas no Notion (ou em HTML na pasta do produto",
+      "summary_en": "brand discovery on TrendTrack (native ads, image + video, fixed filters; MCP or manual), per-brand file (top LP, top ads, traffic, offer, mechanisms), Google Trends + Trustpilot 1-2★ validation, recombination plays (never clone, never from zero), 8-axis score, brand bank in Notion or HTML"
+    },
+    {
+      "id": "sourcing",
+      "legacy_ids": [
+        "01b"
+      ],
+      "file": ".claude/skills/sourcing/SKILL.md",
+      "name": "Sourcing",
+      "title_pt": "Fornecedor (sourcing)",
+      "title_en": "Sourcing",
+      "triggers": [
+        "sourcing",
+        "fornecedor",
+        "cotação",
+        "payment terms",
+        "defeito",
+        "QC",
+        "inspeção",
+        "MSA",
+        "Chinese New Year"
+      ],
+      "lane": "parallel",
+      "position": 2,
+      "order_note_pt": "opcional; roda em paralelo aos passos 3-4 e fecha o custo real antes da oferta",
+      "step_note_pt": "fornecedor, cotação e logística; roda em paralelo aos passos 3-4 e fecha o custo real antes da oferta",
+      "folder": "sourcing",
+      "legacy_folder": "sourcing",
+      "report_stem": "sourcing",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "product-research/dados.json"
+      ],
+      "writes": [
+        "sourcing/sourcing.md",
+        "sourcing/sourcing.html",
+        "sourcing/dados.json"
+      ],
+      "consumers": [
+        "ops-engine",
+        "offer-builder",
+        "scale-engine",
+        "promo-engine",
+        "team-engine"
+      ],
+      "panel_tag": "opt",
+      "panel_cmd": "sourcing",
+      "summary_pt": "opcional, roda em paralelo à `market-research` e à `competitor-analysis`: explica a operação em linguagem simples — pedido mínimo, fábrica própria vs intermediário, imposto incluso, operador logístico —, faz due diligence e identifica trade company disfarçada de fábrica, monta a mensagem de cotação em inglês, negocia condições de pagamento e incoterm, define o plano de qualidade com golden sample e a matemática do defeito sobre a margem, cobre compliance por categoria e contratos, planeja o calendário do Ano Novo Chinês, aciona os agentes parceiros da Aura e entrega o custo real pro COGS da skill `offer-builder`",
+      "summary_en": "supplier analysis + quote message + logistics route (DDP → 3PL) + real COGS for skill `offer-builder`"
+    },
+    {
+      "id": "market-research",
+      "legacy_ids": [
+        "02"
+      ],
+      "file": ".claude/skills/market-research/SKILL.md",
+      "name": "Market Research",
+      "title_pt": "Pesquisa de mercado",
+      "title_en": "Market research",
+      "triggers": [
+        "market research"
+      ],
+      "lane": "sequence",
+      "position": 3,
+      "step_note_pt": "VOC, awareness, drivers",
+      "folder": "market-research",
+      "legacy_folder": "02-market-research",
+      "report_stem": "market-research",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "product-research/product-research.md",
+        "product-research/dados.json"
+      ],
+      "writes": [
+        "market-research/market-research.md",
+        "market-research/market-research.html",
+        "market-research/dados.json"
+      ],
+      "consumers": [
+        "competitor-analysis",
+        "offer-builder",
+        "copy-engine",
+        "page-design",
+        "bonus-delivery",
+        "retention-engine",
+        "creative-engine",
+        "creator-engine",
+        "consistency-audit",
+        "content-recycler"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "market research",
+      "summary_pt": "",
+      "summary_en": "VOC, awareness, sophistication, root cause"
+    },
+    {
+      "id": "competitor-analysis",
+      "legacy_ids": [
+        "03"
+      ],
+      "file": ".claude/skills/competitor-analysis/SKILL.md",
+      "name": "Competitor Analysis",
+      "title_pt": "Análise de concorrência",
+      "title_en": "Competitor analysis",
+      "triggers": [
+        "competitor analysis"
+      ],
+      "lane": "sequence",
+      "position": 4,
+      "step_note_pt": "5-10 concorrentes, padrões, gaps",
+      "folder": "competitor-analysis",
+      "legacy_folder": "03-competitor-analysis",
+      "report_stem": "competitor-analysis",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "product-research/dados.json",
+        "market-research/market-research.md",
+        "market-research/dados.json"
+      ],
+      "writes": [
+        "competitor-analysis/competitor-analysis.md",
+        "competitor-analysis/competitor-analysis.html",
+        "competitor-analysis/dados.json",
+        "competitor-analysis/creative-patterns.json",
+        "competitor-analysis/creatives-inbox/transcripts/[id].json",
+        "competitor-analysis/ads-escalados.md",
+        "competitor-analysis/ads-escalados.html",
+        "competitor-analysis/ads-escalados-dados.json"
+      ],
+      "consumers": [
+        "offer-builder",
+        "copy-engine",
+        "page-design",
+        "creative-engine",
+        "consistency-audit",
+        "marketplace-engine"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "competitor analysis",
+      "summary_pt": "inclui análise profunda de criativos escalados dos concorrentes via transcrição de vídeo, cascade Groq API → Whisper local — ETAPA 3C",
+      "summary_en": "claims, gaps, creative patterns (Whisper transcription)"
+    },
+    {
+      "id": "offer-builder",
+      "legacy_ids": [
+        "04"
+      ],
+      "file": ".claude/skills/offer-builder/SKILL.md",
+      "name": "Offer Builder",
+      "title_pt": "Oferta",
+      "title_en": "Offer",
+      "triggers": [
+        "offer"
+      ],
+      "lane": "sequence",
+      "position": 5,
+      "step_note_pt": "mecanismo, pricing, stack, garantia, unit economics",
+      "folder": "offer-builder",
+      "legacy_folder": "04-offer-builder",
+      "report_stem": "offer-builder",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "brand.md",
+        "market-research/market-research.md",
+        "market-research/dados.json",
+        "competitor-analysis/competitor-analysis.md",
+        "competitor-analysis/dados.json",
+        "sourcing/dados.json",
+        "finance-engine/dados.json"
+      ],
+      "writes": [
+        "offer-builder/offer-builder.md",
+        "offer-builder/offer-builder.html",
+        "offer-builder/dados.json",
+        "offer-builder/research-foundation.json"
+      ],
+      "consumers": [
+        "finance-engine",
+        "copy-engine",
+        "page-design",
+        "page-build",
+        "checkout-aov",
+        "bonus-delivery",
+        "retention-engine",
+        "creative-engine",
+        "creator-engine",
+        "agentic-readiness",
+        "consistency-audit",
+        "ad-strategy",
+        "ad-analysis",
+        "scale-engine",
+        "promo-engine",
+        "content-recycler"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "offer",
+      "summary_pt": "inclui Research Foundation obrigatória — ETAPA 2.5",
+      "summary_en": "mechanism, proof bank, pricing, guarantee"
+    },
+    {
+      "id": "finance-engine",
+      "legacy_ids": [
+        "15"
+      ],
+      "file": ".claude/skills/finance-engine/SKILL.md",
+      "name": "Finance Engine",
+      "title_pt": "Finanças (modelo do negócio)",
+      "title_en": "Finance (business model)",
+      "triggers": [
+        "finance",
+        "finanças",
+        "números",
+        "quanto preciso de capital",
+        "projeção",
+        "cohort",
+        "fluxo de caixa",
+        "quanto vou faturar",
+        "quanto posso gastar em ads",
+        "payback",
+        "runway",
+        "quanto tempo meu caixa aguenta",
+        "meu negócio dá lucro"
+      ],
+      "lane": "side",
+      "position": 5,
+      "step_note_pt": "consulta lateral; a primeira consulta natural é logo depois da oferta (a oferta fecha a conta do negócio inteiro, com o custo fixo dentro? Modo A) e depois a cada mês fechado (Modo B)",
+      "folder": "finance-engine",
+      "legacy_folder": "15-finance-engine",
+      "report_stem": "finance-engine",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "offer-builder/dados.json",
+        "ad-analysis/dados.json"
+      ],
+      "writes": [
+        "finance-engine/finance-engine.md",
+        "finance-engine/finance-engine.html",
+        "finance-engine/dados.json",
+        "finance-engine/banking-sheet.csv",
+        "manifest.json"
+      ],
+      "consumers": [
+        "ops-engine",
+        "offer-builder",
+        "retention-engine",
+        "ad-strategy",
+        "ad-analysis",
+        "scale-engine",
+        "promo-engine",
+        "team-engine",
+        "marketplace-engine"
+      ],
+      "panel_tag": "side",
+      "panel_cmd": "finance",
+      "summary_pt": "**consulta lateral, não é etapa da sequência** — dona do modelo financeiro completo declarado no cânone `.claude/lib/unit-economics/README.md` §5. Roda em DOIS MODOS decididos pelos dados, sem pergunta extra: **Modo A — planejar** (sem mês fechado): monthly model com o custo fixo dentro, margem de contribuição, ponto de cobertura do fixo, piso de CAC, caixa pra 90 dias e benchmarks DTC; **Modo B — medir** (com ≥1 mês fechado, ad spend + clientes novos do Shopify): as 4 alavancas (AOV, CAC, ad spend, % de recorrentes), cohorts com decay factor e LTV medido, payback de 90 dias, first-order profitability, teto de escala, ciclo de conversão de caixa (~105 dias de float) e banking sheet semanal. É a skill que **calcula a espiral do ROAS** e publica `roas_spiral.breakeven_roas_with_fixed` + `cut_spend_recommendation_allowed` — a `ad-analysis` e a `scale-engine` consultam esses campos antes de recomendar qualquer corte de spend. Nunca chama de lucro um número que não subtraiu custo fixo; nunca estima custo fixo, CAC real nem contagem de clientes novos — pede",
+      "summary_en": "side consult, not a pipeline step — the brand's financial model in two data-decided modes: **A (plan**, no closed month: monthly model with fixed costs in, contribution margin, CAC floor, 90-day cash need, DTC benchmarks) and **B (measure**, ≥1 closed month: the 4 levers, cohorts with decay and measured LTV, 90-day payback, scale ceiling, ~105-day cash conversion cycle, weekly banking sheet). Computes the ROAS spiral and publishes the break-even ROAS with fixed costs that skills `ad-analysis` and `scale-engine` read before recommending any spend cut"
+    },
+    {
+      "id": "copy-engine",
+      "legacy_ids": [
+        "06"
+      ],
+      "file": ".claude/skills/copy-engine/SKILL.md",
+      "name": "Copy Engine",
+      "title_pt": "Copy",
+      "title_en": "Copy",
+      "triggers": [
+        "copy"
+      ],
+      "lane": "sequence",
+      "position": 6,
+      "step_note_pt": "copy completa pra cada section",
+      "folder": "copy-engine",
+      "legacy_folder": "06-copy-engine",
+      "report_stem": "copy-engine",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "market-research/market-research.md",
+        "market-research/dados.json",
+        "competitor-analysis/dados.json",
+        "offer-builder/offer-builder.md",
+        "offer-builder/dados.json"
+      ],
+      "writes": [
+        "copy-engine/copy-engine.md",
+        "copy-engine/copy-engine.html",
+        "copy-engine/dados.json"
+      ],
+      "consumers": [
+        "page-design",
+        "page-build",
+        "retention-engine",
+        "creative-engine",
+        "agentic-readiness",
+        "consistency-audit",
+        "ad-analysis"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "copy",
+      "summary_pt": "inclui modelagem por espécime de swipe file — ETAPA 2.5, escolhe 1 peça real que já converteu e modela a ESTRUTURA dela — e o sweep 9 de auditoria de markup no fim",
+      "summary_en": "headlines, leads, advertorial, PDP copy — structure modeled on a proven swipe-file specimen, then markup-audited"
+    },
+    {
+      "id": "page-design",
+      "legacy_ids": [
+        "07a"
+      ],
+      "file": ".claude/skills/page-design/SKILL.md",
+      "name": "Page Design",
+      "title_pt": "Design da página",
+      "title_en": "Page design",
+      "triggers": [
+        "page",
+        "página",
+        "design da página"
+      ],
+      "lane": "sequence",
+      "position": 7,
+      "group_pt": "STOREFRONT",
+      "order_label_pt": "page-design",
+      "step_note_pt": "design HTML-first da página, com a copy real inserida; o membro aprova o HTML antes de qualquer Liquid existir",
+      "folder": "page",
+      "legacy_folder": "07-page",
+      "report_stem": "design-system",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "brand.md",
+        "brand/logo.svg",
+        "copy-engine/copy-engine.md",
+        "copy-engine/dados.json",
+        "offer-builder/dados.json",
+        "market-research/dados.json",
+        "competitor-analysis/dados.json"
+      ],
+      "writes": [
+        "page/page-plan.json",
+        "page/design-system.md",
+        "page/design-system.html",
+        "page/design/page.html",
+        "page/design-tokens.json",
+        "page/design-signals.json",
+        "page/iterations-log.json"
+      ],
+      "consumers": [
+        "page-build",
+        "checkout-aov",
+        "consistency-audit"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "page",
+      "panel_card": "07",
+      "panel_title_pt": "Página (loja)",
+      "panel_title_en": "Page (storefront)",
+      "summary_pt": "PLAN + brand signals + menu de rotas de design; o membro aprova `design/page.html` antes de qualquer Liquid existir",
+      "summary_en": "HTML-first page design (brand signals + member-approved HTML)"
+    },
+    {
+      "id": "page-build",
+      "legacy_ids": [
+        "07b"
+      ],
+      "file": ".claude/skills/page-build/SKILL.md",
+      "name": "Page Build",
+      "title_pt": "Build e deploy da página",
+      "title_en": "Page build & deploy",
+      "triggers": [
+        "build page",
+        "deploy",
+        "subir página"
+      ],
+      "lane": "sequence",
+      "position": 8,
+      "group_pt": "STOREFRONT",
+      "order_label_pt": "page-build/deploy",
+      "step_note_pt": "compile determinístico HTML→Liquid + deploy seguro no Shopify",
+      "folder": "page",
+      "legacy_folder": "07-page",
+      "report_stem": "page-report",
+      "reads": [
+        "manifest.json",
+        "page/design/page.html",
+        "page/page-plan.json",
+        "page/design-tokens.json",
+        "copy-engine/dados.json",
+        "offer-builder/dados.json"
+      ],
+      "writes": [
+        "page/page-report.md",
+        "page/page-report.html",
+        "page/deploy-report.json",
+        "page/staging/",
+        "page/theme-clone/",
+        "manifest.json"
+      ],
+      "consumers": [
+        "tracking-setup",
+        "retention-engine",
+        "agentic-readiness"
+      ],
+      "panel_tag": null,
+      "panel_cmd": null,
+      "panel_card": "07",
+      "summary_pt": "compile determinístico HTML→Liquid + populate template JSON + deploy Shopify",
+      "summary_en": "deterministic HTML→Liquid compile + Shopify deploy"
+    },
+    {
+      "id": "tracking-setup",
+      "legacy_ids": [
+        "07c"
+      ],
+      "file": ".claude/skills/tracking-setup/SKILL.md",
+      "name": "Tracking Setup",
+      "title_pt": "Tracking (pixel + CAPI)",
+      "title_en": "Tracking (pixel + CAPI)",
+      "triggers": [
+        "tracking",
+        "pixel",
+        "capi",
+        "analytics setup"
+      ],
+      "lane": "sequence",
+      "position": 9,
+      "group_pt": "STOREFRONT",
+      "order_label_pt": "tracking-setup",
+      "step_note_pt": "Meta Pixel + CAPI (EMQ ≥ 6/10) + analytics stack por stage",
+      "folder": "tracking-setup",
+      "legacy_folder": "07c-tracking-setup",
+      "report_stem": "tracking-setup",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "page/deploy-report.json"
+      ],
+      "writes": [
+        "tracking-setup/tracking-setup.md",
+        "tracking-setup/tracking-setup.html",
+        "tracking-setup/dados.json",
+        "manifest.json"
+      ],
+      "consumers": [
+        "creative-engine",
+        "ad-strategy"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "tracking",
+      "summary_pt": "Meta Pixel + CAPI com EMQ ≥ 6/10 no Events Manager + analytics stack por stage",
+      "summary_en": "Meta Pixel + CAPI + analytics stack"
+    },
+    {
+      "id": "checkout-aov",
+      "legacy_ids": [
+        "07d"
+      ],
+      "file": ".claude/skills/checkout-aov/SKILL.md",
+      "name": "Checkout & AOV",
+      "title_pt": "Checkout & AOV",
+      "title_en": "Checkout & AOV",
+      "triggers": [
+        "checkout",
+        "upsell",
+        "aov",
+        "bump",
+        "bundle"
+      ],
+      "lane": "sequence",
+      "position": 10,
+      "group_pt": "STOREFRONT",
+      "order_label_pt": "checkout-aov",
+      "step_note_pt": "post-purchase upsell, cart bump, bundle, free-shipping threshold, checkout trust",
+      "folder": "checkout-aov",
+      "legacy_folder": "07d-checkout-aov",
+      "report_stem": "checkout-aov",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "offer-builder/dados.json",
+        "page/page-plan.json"
+      ],
+      "writes": [
+        "checkout-aov/checkout-aov.md",
+        "checkout-aov/checkout-aov.html",
+        "checkout-aov/dados.json",
+        "manifest.json"
+      ],
+      "consumers": [
+        "bonus-delivery",
+        "consistency-audit",
+        "ad-strategy"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "checkout",
+      "summary_pt": "post-purchase upsell, cart bump, bundle, free-shipping threshold, checkout trust",
+      "summary_en": "post-purchase upsell, cart bump, bundles, checkout trust"
+    },
+    {
+      "id": "bonus-delivery",
+      "legacy_ids": [
+        "05"
+      ],
+      "file": ".claude/skills/bonus-delivery/SKILL.md",
+      "name": "Bonus Delivery",
+      "title_pt": "Entrega de bônus",
+      "title_en": "Bonus delivery",
+      "triggers": [
+        "bonus delivery",
+        "bônus"
+      ],
+      "lane": "two-phase",
+      "position_a": 11,
+      "position_b": 20,
+      "order_note_pt": {
+        "a": "assets + config de GWP, só se a oferta tem bônus",
+        "b": "tracking de take-rate"
+      },
+      "step_note_pt": {
+        "a": "assets + config de GWP/entrega, só se a oferta tem bônus (todo bônus da PDP existe antes do primeiro ad)",
+        "b": "tracking de take-rate"
+      },
+      "folder": "bonus-delivery",
+      "legacy_folder": "05-bonus-delivery",
+      "report_stem": "bonus-delivery",
+      "reads": [
+        "manifest.json",
+        "offer-builder/dados.json",
+        "checkout-aov/dados.json",
+        "market-research/dados.json"
+      ],
+      "writes": [
+        "bonus-delivery/bonus-delivery.md",
+        "bonus-delivery/bonus-delivery.html",
+        "bonus-delivery/dados.json",
+        "bonus-delivery/bonuses/[bonus-id]/[bonus-id].pdf"
+      ],
+      "consumers": [
+        "consistency-audit"
+      ],
+      "panel_tag": "two",
+      "panel_cmd": "bonus delivery",
+      "summary_pt": "geração de asset de bônus de ecom + delivery; roda em DUAS fases: Fase A pré-launch, logo depois da `checkout-aov` e só se a oferta tem bônus — gera os assets e configura GWP/entrega, porque todo bônus prometido na PDP precisa existir antes do primeiro ad; Fase B pós-launch, junto da Fase B da `retention-engine` — tracking de take-rate/access rate",
+      "summary_en": "ecom bonus asset + delivery (Phase A pre-launch: assets + GWP config; Phase B post-launch: take-rate tracking)"
+    },
+    {
+      "id": "retention-engine",
+      "legacy_ids": [
+        "13"
+      ],
+      "file": ".claude/skills/retention-engine/SKILL.md",
+      "name": "Retention Engine",
+      "title_pt": "Retenção (email/SMS)",
+      "title_en": "Retention (email/SMS)",
+      "triggers": [
+        "retention",
+        "email flows",
+        "klaviyo"
+      ],
+      "lane": "two-phase",
+      "position_a": 12,
+      "position_b": 19,
+      "order_note_pt": {
+        "a": "flows de recuperação, abandoned cart + post-purchase; infraestrutura de launch, não campanhas de email",
+        "b": "win-back/replenishment, ≥50 compras"
+      },
+      "step_note_pt": {
+        "a": "flows de recuperação (abandoned cart + post-purchase); infraestrutura de cash flow do launch, custa zero no free tier",
+        "b": "win-back, replenishment e segmentação, a partir de 50 compras"
+      },
+      "folder": "retention-engine",
+      "legacy_folder": "13-retention-engine",
+      "report_stem": "retention-engine",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "offer-builder/dados.json",
+        "market-research/dados.json",
+        "copy-engine/dados.json",
+        "finance-engine/dados.json",
+        "page/deploy-report.json"
+      ],
+      "writes": [
+        "retention-engine/retention-engine.md",
+        "retention-engine/retention-engine.html",
+        "retention-engine/dados.json",
+        "retention-engine/[fluxo]/email-N.html",
+        "retention-engine/[fluxo]/flow-metadata.json",
+        "retention-engine/[fluxo]/setup-guide.md"
+      ],
+      "consumers": [
+        "consistency-audit"
+      ],
+      "panel_tag": "two",
+      "panel_cmd": "retention",
+      "summary_pt": "roda em DUAS fases: **Fase A pré-launch**, depois da `checkout-aov`/`bonus-delivery` e antes dos criativos — flows de recuperação (abandoned cart + post-purchase), infraestrutura de cash flow que todo operador de elite arma ANTES de ligar tráfego pago: é a receita mais barata que existe e custa zero no free tier do ESP; **Fase B pós-launch**, com ≥50 compras — win-back, replenishment e segmentação. Campanhas/newsletters de email continuam sempre pós-launch",
+      "summary_en": "Klaviyo/ESP lifecycle flows (Phase A pre-launch: abandoned cart + post-purchase recovery flows; Phase B post-launch: win-back/replenishment, ≥50 orders)"
+    },
+    {
+      "id": "creative-engine",
+      "legacy_ids": [
+        "08"
+      ],
+      "file": ".claude/skills/creative-engine/SKILL.md",
+      "name": "Creative Engine",
+      "title_pt": "Criativos",
+      "title_en": "Creatives",
+      "triggers": [
+        "creatives"
+      ],
+      "lane": "sequence",
+      "position": 13,
+      "step_note_pt": "conceitos com briefings, em pack 3-2-2; o número sai da capacidade de teste, não do stage",
+      "folder": "creative-engine",
+      "legacy_folder": "08-creative-engine",
+      "report_stem": "creative-engine",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "market-research/market-research.md",
+        "market-research/dados.json",
+        "competitor-analysis/dados.json",
+        "competitor-analysis/creative-patterns.json",
+        "offer-builder/dados.json",
+        "copy-engine/dados.json",
+        "ad-strategy/dados.json",
+        "ad-analysis/NEXT_BATCH_IDEAS.md",
+        "creative-dna/"
+      ],
+      "writes": [
+        "creative-engine/creative-engine.md",
+        "creative-engine/creative-engine.html",
+        "creative-engine/dados.json",
+        "creative-engine/concept-NN.md",
+        "creative-engine/concept-NN.html",
+        "creative-engine/concept-NN-edl.md",
+        "creative-engine/hooks-bank.md",
+        "creative-engine/hooks-bank.html",
+        "creative-engine/production-summary.md",
+        "creative-engine/production-summary.html",
+        "creative-engine/prompts/",
+        "creative-engine/renders/",
+        "creative-dna/"
+      ],
+      "consumers": [
+        "creator-engine",
+        "consistency-audit",
+        "ad-strategy",
+        "ad-analysis",
+        "content-recycler"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "creatives",
+      "summary_pt": "",
+      "summary_en": "ad briefings (scripts, hooks, prompts) + EDL"
+    },
+    {
+      "id": "creator-engine",
+      "legacy_ids": [
+        "16"
+      ],
+      "file": ".claude/skills/creator-engine/SKILL.md",
+      "name": "Creator Engine",
+      "title_pt": "Creators (conteúdo humano)",
+      "title_en": "Creators (human content)",
+      "triggers": [
+        "creators",
+        "ugc",
+        "seeding",
+        "influencer",
+        "whitelisting",
+        "ambassador",
+        "insense",
+        "conteúdo de creator"
+      ],
+      "lane": "side",
+      "position": 13,
+      "step_note_pt": "consulta lateral em duas fases; a Fase A (seeding + conteúdo humano) roda junto dos criativos e antes do launch, e a Fase B (contrato recorrente, whitelisting, partnership ads) só depois de um breakthrough confirmado pela análise de ads",
+      "folder": "creator-engine",
+      "legacy_folder": "16-creator-engine",
+      "report_stem": "creator-engine",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "market-research/dados.json",
+        "offer-builder/dados.json",
+        "ad-analysis/dados.json",
+        "creative-engine/dados.json"
+      ],
+      "writes": [
+        "creator-engine/creator-engine.md",
+        "creator-engine/creator-engine.html",
+        "creator-engine/dados.json",
+        "creator-engine/briefs/framework-[creator-slug].md",
+        "creator-engine/outreach/messages.md",
+        "creator-engine/contracts/ambassador-agreement-[variant].md",
+        "creator-engine/roster.csv"
+      ],
+      "consumers": [],
+      "panel_tag": "side",
+      "panel_cmd": "creators",
+      "summary_pt": "**consulta lateral em DUAS fases** — a operação completa de conteúdo humano: content é o arquivo bruto, creative é o content editado, e sem abundância de conteúdo não há volume de teste. **Fase A — Content Engine**, pode começar junto com a `creative-engine` e antes do launch: product seeding (enviar produto de graça em troca de conteúdo, em plataforma tipo Insense ou por outreach manual), casting com diversidade amarrada aos sub-avatares da `market-research`, framework de brief (nunca script fechado), follow-up e coleta, corte de cada vídeo em 3 hooks e o pipeline TikTok Shop como fábrica de volume — o objetivo é achar um brand ambassador, não um winning ad de primeira. **Fase B — Performance Program**, SÓ depois de breakthrough confirmado pela `ad-analysis`: o creator vencedor vira contrato recorrente, escada de embaixador com comissão em degraus, whitelisting (rodar ads do perfil do creator — só de quem já tem breakthrough com a marca), partnership ads, raw content campaign, creator farming e recrutamento pago de afiliados. A `creative-engine` continua dona do QUE dizer (conceitos, roteiros, produção IA); a `creator-engine` é dona de QUEM grava e da relação com quem grava — e nunca cria campanha nem mexe em budget (isso é `ad-strategy`/`scale-engine`). Material voltado ao creator sai sempre em inglês US",
+      "summary_en": "side consult, two phases — Phase A (can start alongside `creative-engine`, pre-launch): product seeding, creator casting tied to the `market-research` sub-avatars, brief frameworks, TikTok Shop content pipeline; Phase B (only after a breakthrough confirmed by `ad-analysis`): recurring contracts, ambassador ladder, whitelisting, partnership ads, creator farming"
+    },
+    {
+      "id": "agentic-readiness",
+      "legacy_ids": [
+        "07e"
+      ],
+      "file": ".claude/skills/agentic-readiness/SKILL.md",
+      "name": "Agentic Readiness",
+      "title_pt": "Visibilidade pra agentes de AI",
+      "title_en": "Agentic readiness (AI visibility)",
+      "triggers": [
+        "agentic readiness",
+        "aeo",
+        "ai visibility"
+      ],
+      "lane": "sequence",
+      "position": 14,
+      "order_note_pt": "checklist de descoberta por agentes de compra com AI, na loja viva",
+      "step_note_pt": "checklist de descoberta por agentes de AI na loja viva",
+      "folder": "agentic-readiness",
+      "legacy_folder": "07e-agentic-readiness",
+      "report_stem": "agentic-readiness",
+      "reads": [
+        "manifest.json",
+        "brand.md",
+        "page/deploy-report.json",
+        "copy-engine/dados.json",
+        "offer-builder/dados.json"
+      ],
+      "writes": [
+        "agentic-readiness/agentic-readiness.md",
+        "agentic-readiness/agentic-readiness.html",
+        "agentic-readiness/dados.json"
+      ],
+      "consumers": [
+        "consistency-audit"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "agentic readiness",
+      "summary_pt": "checklist de descoberta por agentes de compra com AI — canal Agentic Storefronts + policies, Knowledge Base app, dados estruturados da PDP, bloco de specs legível por agente, robots.txt liberando os robôs de AI, llms.txt, Perplexity Merchant Program, feed do Merchant Center; roda depois do deploy da página e antes do consistency audit",
+      "summary_en": "AEO checklist: Agentic Storefronts channel, structured data, AI crawler access, AI visibility score (post-deploy, pre-launch)"
+    },
+    {
+      "id": "consistency-audit",
+      "legacy_ids": [
+        "09"
+      ],
+      "file": ".claude/skills/consistency-audit/SKILL.md",
+      "name": "Consistency Audit",
+      "title_pt": "Auditoria de consistência",
+      "title_en": "Consistency audit",
+      "triggers": [
+        "consistency audit",
+        "audit"
+      ],
+      "lane": "sequence",
+      "position": 15,
+      "order_note_pt": "GATE de launch",
+      "step_note_pt": "cross-phase drift check (gate de launch)",
+      "folder": "consistency-audit",
+      "legacy_folder": "09-consistency-audit",
+      "report_stem": "consistency-audit",
+      "reads": [
+        "manifest.json",
+        "product-research/dados.json",
+        "market-research/dados.json",
+        "competitor-analysis/dados.json",
+        "offer-builder/dados.json",
+        "copy-engine/dados.json",
+        "page/page-plan.json",
+        "page/design-tokens.json",
+        "page/design/page.html",
+        "checkout-aov/dados.json",
+        "agentic-readiness/dados.json",
+        "bonus-delivery/dados.json",
+        "retention-engine/dados.json",
+        "creative-engine/dados.json"
+      ],
+      "writes": [
+        "consistency-audit/consistency-audit.md",
+        "consistency-audit/consistency-audit.html",
+        "consistency-audit/dados.json"
+      ],
+      "consumers": [
+        "ad-strategy"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "audit",
+      "summary_pt": "cross-phase drift detection antes de launch — gate de bloqueio pra `ad-strategy`/`retention-engine`",
+      "summary_en": "cross-phase drift detection + launch gate"
+    },
+    {
+      "id": "ad-strategy",
+      "legacy_ids": [
+        "10"
+      ],
+      "file": ".claude/skills/ad-strategy/SKILL.md",
+      "name": "Ad Strategy",
+      "title_pt": "Estratégia de ads",
+      "title_en": "Ad strategy",
+      "triggers": [
+        "ad strategy"
+      ],
+      "lane": "sequence",
+      "position": 16,
+      "step_note_pt": "capacidade de teste, estrutura (1 campanha com CBO → N ad sets, 1 = 1 conceito), naming, UTM, proteções",
+      "folder": "ad-strategy",
+      "legacy_folder": "10-ad-strategy",
+      "report_stem": "ad-strategy",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "offer-builder/dados.json",
+        "creative-engine/dados.json",
+        "consistency-audit/dados.json",
+        "checkout-aov/dados.json",
+        "finance-engine/dados.json",
+        "ad-log.md"
+      ],
+      "writes": [
+        "ad-strategy/ad-strategy.md",
+        "ad-strategy/ad-strategy.html",
+        "ad-strategy/dados.json",
+        "ad-log.md",
+        "manifest.json"
+      ],
+      "consumers": [
+        "creative-engine",
+        "ad-analysis",
+        "scale-engine",
+        "promo-engine"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "ad strategy",
+      "summary_pt": "estrutura 1 campanha com CBO → N ad sets broad/Advantage+, 1 ad set = 1 conceito, cada um com 3 criativos + 2 primary texts + 2 headlines; o nº de ad sets vem da capacidade de teste do cânone `.claude/lib/ad-taxonomy/README.md` §1 — `assets = budget diário ÷ target CPA` —, não do tamanho do batch. Criada em PAUSED via Meta MCP pro membro revisar e ativar; a escolha do analytics stack é da `tracking-setup`",
+      "summary_en": "1 CBO campaign → N ad sets (1 ad set = 1 concept, 3 creatives + 2 primary texts + 2 headlines), ad set count sized by testing capacity (budget ÷ target CPA)"
+    },
+    {
+      "id": "ad-analysis",
+      "legacy_ids": [
+        "11"
+      ],
+      "file": ".claude/skills/ad-analysis/SKILL.md",
+      "name": "Ad Analysis",
+      "title_pt": "Análise de ads",
+      "title_en": "Ad analysis",
+      "triggers": [
+        "ad analysis"
+      ],
+      "lane": "sequence",
+      "position": 17,
+      "step_note_pt": "4Pi, classificação nas 4 classes, diagnóstico e decisões, depois de 3-7 dias de veiculação",
+      "folder": "ad-analysis",
+      "legacy_folder": "11-ad-analysis",
+      "report_stem": "ad-analysis",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "ad-strategy/dados.json",
+        "creative-engine/dados.json",
+        "offer-builder/dados.json",
+        "copy-engine/dados.json",
+        "finance-engine/dados.json",
+        "ad-log.md",
+        "creative-dna/",
+        "scale-engine/scale-directives.md"
+      ],
+      "writes": [
+        "ad-analysis/ad-analysis.md",
+        "ad-analysis/ad-analysis.html",
+        "ad-analysis/dados.json",
+        "ad-analysis/[YYYYMMDD]-analysis.md",
+        "ad-analysis/[YYYYMMDD]-analysis.html",
+        "ad-analysis/NEXT_BATCH_IDEAS.md",
+        "ad-analysis/raw-pull-[ts].json",
+        "ad-analysis/mcp-errors.log",
+        "creative-dna/",
+        "manifest.json"
+      ],
+      "consumers": [
+        "finance-engine",
+        "creative-engine",
+        "creator-engine",
+        "scale-engine",
+        "promo-engine",
+        "team-engine",
+        "content-recycler",
+        "marketplace-engine"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "ad analysis",
+      "summary_pt": "",
+      "summary_en": "4Pi diagnostic + 4-class result taxonomy (loser / KPI winner / spend winner / breakthrough) + next batch ideas"
+    },
+    {
+      "id": "scale-engine",
+      "legacy_ids": [
+        "12"
+      ],
+      "file": ".claude/skills/scale-engine/SKILL.md",
+      "name": "Scale Engine",
+      "title_pt": "Escala",
+      "title_en": "Scale",
+      "triggers": [
+        "scale"
+      ],
+      "lane": "sequence",
+      "position": 18,
+      "step_note_pt": "Scaling Protocol vertical + horizontal, depois que aparece um breakthrough",
+      "folder": "scale-engine",
+      "legacy_folder": "12-scale-engine",
+      "report_stem": "scale-engine",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "ad-analysis/dados.json",
+        "ad-strategy/dados.json",
+        "offer-builder/dados.json",
+        "finance-engine/dados.json",
+        "sourcing/dados.json",
+        "ad-log.md"
+      ],
+      "writes": [
+        "scale-engine/scale-engine.md",
+        "scale-engine/scale-engine.html",
+        "scale-engine/dados.json",
+        "scale-engine/scale-directives.md",
+        "ad-log.md"
+      ],
+      "consumers": [
+        "ad-analysis"
+      ],
+      "panel_tag": null,
+      "panel_cmd": "scale",
+      "summary_pt": "",
+      "summary_en": "Scaling Protocol plan (+20% after 48-72h above target, −20% below breakeven, click-based gate) — vertical + horizontal"
+    },
+    {
+      "id": "promo-engine",
+      "legacy_ids": [
+        "17"
+      ],
+      "file": ".claude/skills/promo-engine/SKILL.md",
+      "name": "Promo Engine",
+      "title_pt": "Promoções (janelas sazonais)",
+      "title_en": "Promos (seasonal windows)",
+      "triggers": [
+        "black friday",
+        "bfcm",
+        "promo",
+        "promoção",
+        "sale",
+        "q4",
+        "cyber monday",
+        "desconto sazonal",
+        "mother's day",
+        "valentine's",
+        "flash sale"
+      ],
+      "lane": "side",
+      "position": 18,
+      "step_note_pt": "consulta lateral e sazonal; uma rodada por janela, sempre com o gate de números (breakeven ROAS e CPA recalculados com a margem promocional)",
+      "folder": "promo-engine",
+      "legacy_folder": "17-promo-engine",
+      "report_stem": "promo-engine",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "offer-builder/dados.json",
+        "finance-engine/dados.json",
+        "ad-analysis/dados.json",
+        "ad-strategy/dados.json",
+        "sourcing/dados.json",
+        "ops-engine/dados.json",
+        "ad-log.md"
+      ],
+      "writes": [
+        "promo-engine/promo-engine.md",
+        "promo-engine/promo-engine.html",
+        "promo-engine/dados.json",
+        "ad-log.md"
+      ],
+      "consumers": [],
+      "panel_tag": "side",
+      "panel_cmd": "promo",
+      "summary_pt": "**lateral e sazonal — dispara por época ou pedido, uma rodada por janela** — dona da janela promocional de ponta a ponta: calendário da janela (começar cedo é a tese central), preparação (momentum do evergreen antes da janela, decisão de lead-gen VIP pelo critério de returning customers, estoque via `sourcing` e backups via `ops-engine`), oferta da promo (hierarquia de ofertas BFCM, store credit, stacking e linguagem), o **GATE inegociável** de recalcular o breakeven ROAS e o CPA com a margem promocional antes de ligar qualquer campanha — sem os números recalculados, a skill PARA —, execução (Promo Campaign Broad/WARM60/HOT90 em paralelo ao evergreen intocado, criativos \"best ad + banner\" via handoff pra `creative-engine`, calendário de email/SMS que a `retention-engine` transforma em assets, surf scaling e reset da meia-noite pelo cânone ad-taxonomy §5, tudo logado no ad-log) e aterrissagem (regra de fim por horário, volta pro evergreen, leitura pós-promo com a `ad-analysis` e a `finance-engine`, revival sazonal de winners pelo calendário sazonal de desejos",
+      "summary_en": "seasonal side skill — owns the promo window end to end (Q4/BFCM, seasonal dates, flash sales): window calendar, promo offer, the non-negotiable gate of recalculating break-even ROAS/CPA with the promo margin before any campaign goes live, Broad/WARM60/HOT90 promo campaign alongside untouched evergreen, surf scaling + midnight reset, landing back on evergreen"
+    },
+    {
+      "id": "team-engine",
+      "legacy_ids": [
+        "18"
+      ],
+      "file": ".claude/skills/team-engine/SKILL.md",
+      "name": "Team Engine",
+      "title_pt": "Time (contratação e gestão)",
+      "title_en": "Team (hiring & management)",
+      "triggers": [
+        "contratar",
+        "quanto pagar",
+        "como demitir",
+        "time",
+        "equipe",
+        "editor",
+        "hiring",
+        "org",
+        "quem contratar",
+        "delegar",
+        "meu time não performa",
+        "preciso de um editor"
+      ],
+      "lane": "side",
+      "position": 18,
+      "step_note_pt": "consulta lateral de estágio scaling; pra starter/validating a resposta honesta costuma ser \"ainda não\", com o gargalo nomeado",
+      "folder": "team-engine",
+      "legacy_folder": "18-team-engine",
+      "report_stem": "team-engine",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "finance-engine/dados.json",
+        "ad-analysis/dados.json",
+        "sourcing/dados.json"
+      ],
+      "writes": [
+        "team-engine/team-engine.md",
+        "team-engine/team-engine.html",
+        "team-engine/dados.json"
+      ],
+      "consumers": [],
+      "panel_tag": "side",
+      "panel_cmd": "contratar",
+      "summary_pt": "**consulta lateral** — decide QUANDO contratar (pela restrição real do negócio, nunca por desespero: contrata-se porque QUER, nunca porque PRECISA — bad hire custa ~15× o salário anual), COMO contratar (scorecard antes da vaga, funil de 9 etapas, teste prático cronometrado, headhunting) e COMO rodar o time depois (onboarding de 8 semanas, KPIs por função com hit rate por editor, reviews com 9-box e PIP, incentivos, org design em engines e pods, frameworks de decisão DAI/RAPID/AAR). Pensada pro membro em estágio scaling — pra starter/validating a resposta certa costuma ser \"ainda não, sua restrição hoje é X\", entregue com o porquê. Nenhuma vaga sem gargalo nomeado; quando a pergunta é \"a folha cabe no caixa?\", o número vem da `finance-engine` ou do membro, nunca de estimativa; creator não é funcionário — creator é território da `creator-engine`",
+      "summary_en": "side consult — when to hire (by the real constraint, never out of desperation), how to hire (scorecard before the opening, 9-step funnel, timed practical test) and how to run the team (8-week onboarding, KPIs per role, 9-box reviews, incentives, org design); for starter/validating the honest answer is usually \"not yet\""
+    },
+    {
+      "id": "content-recycler",
+      "legacy_ids": [
+        "14"
+      ],
+      "file": ".claude/skills/content-recycler/SKILL.md",
+      "name": "Content Recycler",
+      "title_pt": "Amplificação e reciclagem",
+      "title_en": "Amplification & recycling",
+      "triggers": [
+        "content recycler",
+        "recycle"
+      ],
+      "lane": "sequence",
+      "position": 21,
+      "order_note_pt": "só depois de um breakthrough",
+      "step_note_pt": "Trilha 1 amplificação e, sob pedido, Trilha 2 (9 derivadas); só com breakthrough",
+      "folder": "content-recycler",
+      "legacy_folder": "14-content-recycler",
+      "report_stem": "content-recycler",
+      "reads": [
+        "manifest.json",
+        "ad-analysis/dados.json",
+        "creative-engine/dados.json",
+        "creative-engine/concept-NN.md",
+        "offer-builder/dados.json",
+        "market-research/dados.json"
+      ],
+      "writes": [
+        "content-recycler/content-recycler.md",
+        "content-recycler/content-recycler.html",
+        "content-recycler/[source-id]/README.md",
+        "content-recycler/[source-id]/README.html",
+        "content-recycler/[source-id]/essence.json"
+      ],
+      "consumers": [],
+      "panel_tag": "post",
+      "panel_cmd": "recycle",
+      "summary_pt": "gatilho é um criativo classificado como **breakthrough** pela `ad-analysis` — cânone `.claude/lib/ad-taxonomy/README.md` §2; `kpi_winner` é tratado como loser para decisão e nunca entra. Duas trilhas: **Trilha 1 Amplificação** (default, roda primeiro — 6 movimentos: iterar pelos 4 elementos, portar o ângulo pra outros formatos, LP/prelander dedicada, portar pra Axon/AppLovin e TikTok, duplicar em ad set ABO a ~10% do budget, creator report) e **Trilha 2** (sob pedido — as 9 derivadas de canal próprio, jogada de marca e LTV, não de escala",
+      "summary_en": "amplification plan for 1 breakthrough creative (Track 1, default); 9 channel derivatives on request (Track 2)"
+    },
+    {
+      "id": "marketplace-engine",
+      "legacy_ids": [
+        "20"
+      ],
+      "file": ".claude/skills/marketplace-engine/SKILL.md",
+      "name": "Marketplace Engine",
+      "title_pt": "Canais de venda (marketplace)",
+      "title_en": "Sales channels (marketplace)",
+      "triggers": [
+        "amazon",
+        "tiktok shop",
+        "marketplace",
+        "afiliados",
+        "expandir canal",
+        "vender fora do site"
+      ],
+      "lane": "side",
+      "position": 21,
+      "step_note_pt": "consulta lateral de estágio scaling; canal secundário só depois de breakthrough na análise de ads e conta fechando na finance engine",
+      "folder": "marketplace-engine",
+      "legacy_folder": "20-marketplace-engine",
+      "report_stem": "marketplace-engine",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "finance-engine/dados.json",
+        "ad-analysis/dados.json",
+        "competitor-analysis/dados.json"
+      ],
+      "writes": [
+        "marketplace-engine/marketplace-engine.md",
+        "marketplace-engine/marketplace-engine.html",
+        "marketplace-engine/dados.json"
+      ],
+      "consumers": [],
+      "panel_tag": "side",
+      "panel_cmd": "marketplace",
+      "summary_pt": "**consulta lateral de estágio scaling** — expansão de CANAL DE VENDA além do site próprio: decide quando (e se) a marca abre Amazon, TikTok Shop e programa de afiliados, e acompanha cada canal aberto. Roda um GATE antes de qualquer tática — Meta + site provados primeiro (breakthrough na `ad-analysis`, conta fechando na `finance-engine`) e sinal de demanda transbordando (busca de marca subindo, cliente procurando a marca na Amazon, revendedor aparecendo na listagem) — porque canal novo não conserta oferta quebrada; sem prova, o veredito honesto é \"ainda não, e falta X\". Amazon como captura da demanda que o ad já criou (SEO da listagem, defesa de marca, lances baixos, preço riscado, custom link, TACOS); TikTok Shop como canal de venda operado por afiliados — o conteúdo em si é da `creator-engine`; afiliados via tráfego pago (\"apply to be brand ambassador\", comissão decrescente por faixa) e clientes virando afiliados automaticamente. Portar campanha paga pra AppLovin/Axon/TikTok Ads é a skill `content-recycler`, Movimento 4",
+      "summary_en": "side consult — expansion gate first (proven Meta + site, demand overflowing), then Amazon, TikTok Shop and an affiliate program as secondary sales channels, each tracked per channel; porting paid campaigns to other ad platforms stays with skill `content-recycler`"
+    }
+  ]
+}

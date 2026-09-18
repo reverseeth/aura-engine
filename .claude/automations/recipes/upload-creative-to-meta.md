@@ -29,7 +29,7 @@
 - [ ] Video_path existe
 - [ ] Ad set existe no ad account
 - [ ] `facebook_page_id` + `pixel_id` resolvidos (ver Input — manifest ou pergunta única ao membro)
-- [ ] Primary text + headline + CTA já em `/workspace/[produto]/08-creative-engine/`
+- [ ] Primary text + headline + CTA já em `/workspace/[produto]/creative-engine/`
 - [ ] UTM convention definida no manifest (`utm_campaign` derivado do campaign_name da strategy)
 - [ ] Arquivo com nome `asset-xxxx.<ext>` (metadados já limpos) — senão o step 1.5 roda o limpador antes de qualquer upload
 
@@ -67,7 +67,7 @@ thumbnail_id = meta_ads.video.generate_thumbnail(video_id, frame_seconds=1)
 ```
 
 ### 4. Criar Ad Creative object
-Ler `/workspace/[produto]/08-creative-engine/concept-XX.md` pra pegar:
+Ler `/workspace/[produto]/creative-engine/concept-XX.md` pra pegar:
 - `primary_text_1` — primeiro Primary Text
 - `headline_1` — primeira headline
 - `cta_type` — default `LEARN_MORE` (ou mapear pelo briefing)

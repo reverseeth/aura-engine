@@ -2,7 +2,7 @@
 name: emergency-escape-paths
 description: Paths de saída de emergência quando skill falha ou estado do workspace fica corrupto. Garante que membro nunca fique "preso" sem caminho adiante.
 paths:
-  - .claude/skills/
+  - .claude/skills/**/SKILL.md
 ---
 
 # Emergency Escape Paths
@@ -31,9 +31,23 @@ Membro do Aura Engine não é dev. Se skill trava ou workspace fica em estado ru
 1. Skill tenta ler manifest → erro
 2. Em vez de abortar, oferece:
    - **(A) Rebuild manifest** — skill inspeciona `workspace/[produto]/` e reconstrói manifest com base nos arquivos presentes. Asks user questions pra preencher fields não-inferíveis (budget, stage, etc)
-   - **(B) Restore from backup** — se `workspace/[produto]/.manifest-backup-*.json` existe (dot-prefixed, sufixo `YYYYMMDD-HHMMSS` — é o padrão que a skill 00 cria), restaurar o mais recente
+   - **(B) Restore from backup** — se `workspace/[produto]/.manifest-backup-*.json` existe (dot-prefixed, sufixo `YYYYMMDD-HHMMSS` — é o padrão que a skill `setup` cria, e que o `tools/migrate.py` também cria antes de cada migração do workspace), restaurar o mais recente
    - **(C) Start fresh** — reinicializar workspace (membro explicitamente confirma data loss)
 3. Default = (A) se nenhum backup existe; (B) se backup < 24h
+
+### ES3 — Manifest desatualizado em relação aos artefatos
+
+**Sintoma**: a pasta do produto tem o relatório de uma fase (ex.: `offer-builder/offer-builder.md`), mas `skills_completed` do manifest não lista a skill. Ou o contrário: a skill está marcada e o artefato não existe. O painel e o pré-flight das skills seguintes leem o manifest e tomam a decisão errada.
+
+**Detecção**: `python3 tools/aura-status.py <slug>` cruza o manifest com os arquivos da pasta e lista as duas divergências ("artefato presente sem marca" e "marcada sem artefato"), além de `dados.json` que falha no schema da fase e arquivos fora do layout canônico. O hook `Stop` (`.claude/hooks/post-skill.sh`) roda o mesmo status sozinho depois de qualquer skill que mexeu no produto, então a divergência costuma aparecer na tela antes de alguém procurar.
+
+**Path**:
+1. Skill (ou o membro) percebe a divergência: pré-flight acusa "fase X não rodou" com o arquivo presente, o painel mostra fase concluída sem relatório, ou o `aura-status` lista a linha
+2. Em vez de re-rodar a fase, oferece:
+   - **(A) Reconciliar pelo artefato**: o arquivo é a verdade. Se o relatório e o `dados.json` da fase existem e parseiam, marcar a skill com `python3 tools/manifest.py <slug> complete <skill-id>` (faz backup em `.manifest-backup-*`, valida o `dados.json` contra o schema da fase e o manifest contra o `manifest-schema.json`, grava `updated_at`) e regenerar o painel com `python3 .claude/lib/workspace-index/build_index.py <slug>`. Se o `dados.json` falha no schema, o `complete` recusa e lista os campos: corrija o arquivo (é a saída certa) ou, quando o arquivo é de uma versão antiga da skill e não vai ser refeito agora, marque com `--skip-dados`
+   - **(B) Reconciliar pelo manifest**: se a skill está marcada mas o artefato não existe (apagado ou nunca salvo), remover a marca (`python3 tools/manifest.py <slug> set skills_completed '<lista sem o id>'`) e re-rodar a fase
+3. Default = (A) quando o artefato existe e parseia; (B) quando não existe
+4. Confirmar com `python3 tools/aura-status.py <slug>`: a linha da divergência some
 
 ### ES4 — Shopify push travado (silent rejection persistente)
 
@@ -49,14 +63,14 @@ Membro do Aura Engine não é dev. Se skill trava ou workspace fica em estado ru
 
 ### ES5 — Klaviyo MCP falha mid-skill (auth, rate limit, tool indisponível)
 
-**Sintoma**: Skill 13 (retention-engine) rodando o Caminho 1 (Klaviyo MCP oficial) e uma chamada `mcp__klaviyo__*` falha no meio
+**Sintoma**: Skill `retention-engine` rodando o Caminho 1 (Klaviyo MCP oficial) e uma chamada `mcp__klaviyo__*` falha no meio
 
 **Path**:
-1. Salvar progresso parcial em `workspace/[produto]/13-retention-engine/[fluxo]/.partial-state.json`
-2. Cair SILENCIOSAMENTE pro Caminho 2 da skill 13 (assets prontos + setup-guide pro membro importar no Klaviyo UI) — o membro recebe os fluxos completos do mesmo jeito
+1. Salvar progresso parcial em `workspace/[produto]/retention-engine/[fluxo]/.partial-state.json`
+2. Cair SILENCIOSAMENTE pro Caminho 2 da skill `retention-engine` (assets prontos + setup-guide pro membro importar no Klaviyo UI) — o membro recebe os fluxos completos do mesmo jeito
 3. Next run, skill lê `.partial-state.json` e continua do ponto salvo
 
-**FORBIDDEN**: pedir session cookie / login manual do Klaviyo pro membro. Não há caminho de session-cookie/internal-API — a skill 13 removeu essa rota por risco de segurança. Auth do MCP oficial é OAuth; se expirou, o fallback é o Caminho 2, nunca credencial colada no chat.
+**FORBIDDEN**: pedir session cookie / login manual do Klaviyo pro membro. Não há caminho de session-cookie/internal-API — a skill `retention-engine` removeu essa rota por risco de segurança. Auth do MCP oficial é OAuth; se expirou, o fallback é o Caminho 2, nunca credencial colada no chat.
 
 ### ES6 — API rate limit (qualquer serviço)
 
@@ -68,7 +82,7 @@ Membro do Aura Engine não é dev. Se skill trava ou workspace fica em estado ru
 3. Se persiste, oferece:
    - **(A) Pausar skill** — salva progresso, retoma em 1h
    - **(B) Continuar em modo offline** — processa com dados já carregados, pula calls restantes
-   - **(C) Switch pra fallback** — se o serviço tem alternativa (ex: Groq API ↔ Whisper local na transcrição da skill 03)
+   - **(C) Switch pra fallback** — se o serviço tem alternativa (ex: Groq API ↔ Whisper local na transcrição da skill `competitor-analysis`)
 
 ### ES7 — Conflito de edição em tema Shopify (outro user editou simultâneo)
 

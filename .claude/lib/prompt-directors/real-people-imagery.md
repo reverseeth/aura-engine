@@ -14,7 +14,7 @@ O prompt NUNCA usa "beautiful woman", "attractive model", "perfect skin". Use: *
 
 ### 2. Públicos mistos, distribuídos POR PESQUISA
 
-Nunca gere um lote de reviews com pessoas do mesmo gênero e da mesma idade — isso não existe em base de clientes real e o membro percebe na hora. Antes de gerar o lote, leia os avatares de `02-market-research/dados.json` e distribua os segmentos conforme o mercado REAL do produto (ex: 60% mulheres 45-65, 25% homens 40-60, 15% mulheres 30-40 — os números vêm da pesquisa, não de chute). Cada prompt do lote nomeia idade aproximada, gênero e um traço de contexto diferente.
+Nunca gere um lote de reviews com pessoas do mesmo gênero e da mesma idade — isso não existe em base de clientes real e o membro percebe na hora. Antes de gerar o lote, leia os avatares de `market-research/dados.json` e distribua os segmentos conforme o mercado REAL do produto (ex: 60% mulheres 45-65, 25% homens 40-60, 15% mulheres 30-40 — os números vêm da pesquisa, não de chute). Cada prompt do lote nomeia idade aproximada, gênero e um traço de contexto diferente.
 
 ### 3. Zero pele exposta (risco de reprovação e ban)
 

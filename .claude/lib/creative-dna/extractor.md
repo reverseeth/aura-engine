@@ -1,8 +1,8 @@
 # Creative DNA Feature Extractor — prompt structured
 
-Usado pela Skill 08 imediatamente após gerar um briefing completo. Extrai features em formato padronizado e salva no registry.
+Usado pela Skill `creative-engine` imediatamente após gerar um briefing completo. Extrai features em formato padronizado e salva no registry.
 
-## Fluxo de invocação (a Skill 08 executa isso internamente — ETAPA 7.6)
+## Fluxo de invocação (a Skill `creative-engine` executa isso internamente — ETAPA 7.6)
 
 1. Depois de completar ETAPA 5 (briefings) e ETAPA 7 (hooks bank), pra cada criativo gerado:
 2. Rodar este prompt de extração abaixo
@@ -26,7 +26,7 @@ Briefing do criativo: {conteúdo do concept-XX.md ou script}
 Contexto adicional:
 - Awareness level alvo (do market research): {awareness_dominant}
 - Funnel position (do próprio briefing): {TOF | MOF | BOF}
-- Hook archetype declarado na geração (ETAPA 4.5.E da Skill 08): {id de archetypes.json}
+- Hook archetype declarado na geração (ETAPA 4.5.E da Skill `creative-engine`): {id de archetypes.json}
 
 Retorne APENAS JSON neste formato (nenhum texto antes ou depois):
 
@@ -89,6 +89,6 @@ nunca é no-op silencioso). `dna` com menos de 10 criativos medidos imprime
 
 O pseudo-código de integração NÃO vive mais aqui (fonte dupla de verdade drifta):
 
-- **Skill 08 — ETAPA 7.6 (DNA Registry Extraction)**: extração inline + validação contra o schema + `registry.py add`. Falha de extração loga em `workspace/[produto]/creative-dna/extraction-errors.log` sem bloquear a skill.
-- **Skill 11 — DNA Update**: compõe `perf-[creative-id].json`, classifica outcome (winner/loser/neutral) e roda `registry.py update`; a cada rodada com dados suficientes, `registry.py dna` atualiza o `dna-profile.json`.
-- **Skill 08 — PRE-STEP (DNA aprendido)**: se `workspace/[produto]/creative-dna/dna-profile.json` existe com `total_creatives >= 10`, injeta as top 5 features com maior delta winners vs losers como constraint de geração, reservando ~20% de variação pra novelty.
+- **Skill `creative-engine` — ETAPA 7.6 (DNA Registry Extraction)**: extração inline + validação contra o schema + `registry.py add`. Falha de extração loga em `workspace/[produto]/creative-dna/extraction-errors.log` sem bloquear a skill.
+- **Skill `ad-analysis` — DNA Update**: compõe `perf-[creative-id].json`, classifica outcome (winner/loser/neutral) e roda `registry.py update`; a cada rodada com dados suficientes, `registry.py dna` atualiza o `dna-profile.json`.
+- **Skill `creative-engine` — PRE-STEP (DNA aprendido)**: se `workspace/[produto]/creative-dna/dna-profile.json` existe com `total_creatives >= 10`, injeta as top 5 features com maior delta winners vs losers como constraint de geração, reservando ~20% de variação pra novelty.

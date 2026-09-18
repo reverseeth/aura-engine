@@ -5,7 +5,7 @@
 <!--
   ═══════════════════════════════════════════════════════════════════════════
   AURA REPORT TEMPLATE — "Editorial Intelligence" (light)
-  Design system padrão de TODOS os relatórios .html da Aura (skills 00-20).
+  Design system padrão de TODOS os relatórios .html da Aura (todas as skills).
   Uma skill COPIA este <style> inteiro + a estrutura de componentes do <body>,
   troca só o conteúdo. NÃO invente classes novas — use as daqui.
 
@@ -693,17 +693,14 @@ Add-Content $PROFILE &#x27;function aura { Set-Location &quot;$HOME\aura-engine&
 <div class="subsection reveal"><div class="subsection-title">O que fundamenta as recomendações.</div>
 <p>A base de conhecimento reúne mais de 1.300 sistemas de marketing, copy e mídia paga prontos pra consulta. É ela que sustenta as decisões da Aura em cada fase.</p></div>
 <div class="subsection reveal" style="margin-top:34px"><div class="subsection-title" style="font-size:clamp(20px,2.2vw,26px)">No Claude Code (automático)</div>
-<p>O próprio Aura Engine já vem com a base registrada — falta só guardar a sua chave de acesso. Rode uma vez no terminal, fora de uma sessão do Claude (outra aba, ou Ctrl+C duas vezes pra sair):</p></div>
-<div class="codebox reveal"><div class="cb-head"><span class="cb-label">guardar a chave de acesso · mac · roda uma vez</span><button class="cb-copy" type="button">Copiar</button></div><pre>echo 'export AURA_KEY="AURADTCACCESS"' &gt;&gt; ~/.zshrc</pre></div>
-<div class="codebox reveal"><div class="cb-head"><span class="cb-label">guardar a chave de acesso · windows (powershell) · roda uma vez</span><button class="cb-copy" type="button">Copiar</button></div><pre>[System.Environment]::SetEnvironmentVariable('AURA_KEY','AURADTCACCESS','User')</pre></div>
-<div class="subsection reveal"><p>Depois abra um terminal <strong>novo</strong> e entre no Claude Code (comando <code>aura</code>). Na primeira vez vai aparecer um aviso perguntando se você aprova o servidor <strong>aura</strong> — aprove, e está conectado.</p>
+<p>O próprio Aura Engine já vem com a base registrada: não há nada pra configurar. Entre no Claude Code (comando <code>aura</code>). Na primeira vez vai aparecer um aviso perguntando se você aprova o servidor <strong>aura</strong>. Aprove, e está conectado.</p>
 <p>Recusou o aviso sem querer? Rode fora de uma sessão do Claude e abra o Claude Code de novo pra aprovar:</p></div>
 <div class="codebox reveal"><div class="cb-head"><span class="cb-label">reexibir o aviso de aprovação · claude code</span><button class="cb-copy" type="button">Copiar</button></div><pre>claude mcp reset-project-choices</pre></div>
 <div class="subsection reveal" style="margin-top:34px"><div class="subsection-title" style="font-size:clamp(20px,2.2vw,26px)">No aplicativo Claude Desktop</div></div>
 <ol class="steps reveal">
 <li>Abra <strong>Settings</strong> → <strong>Connectors</strong> (em versões antigas, "Integrations").</li>
 <li>Clique em <strong>Add custom connector</strong>.</li>
-<li>Cole a URL: <code>https://aura-mcp-production.up.railway.app/mcp?key=AURADTCACCESS</code></li>
+<li>Cole a URL: <code>https://aura-mcp-production.up.railway.app/mcp</code></li>
 <li>Salve. A base aparece como <strong>Aura</strong> na lista de conectores.</li>
 </ol>
 <div class="callout reveal"><strong>Como saber se conectou</strong> Você não precisa testar nada na mão: o <code>setup</code> (próxima seção) testa a conexão sozinho e avisa se algo estiver errado.</div>
@@ -730,9 +727,9 @@ Add-Content $PROFILE &#x27;function aura { Set-Location &quot;$HOME\aura-engine&
   <div class="fd-body">
     <div class="fd-row fd-r1"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>workspace/</span></div>
     <div class="fd-row fd-sub fd-r2"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>meu-produto/</span></div>
-    <div class="fd-row fd-sub fd-r3" style="padding-left:58px"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>01-product-research/</span></div>
-    <div class="fd-row fd-sub fd-r4" style="padding-left:58px"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>02-market-research/</span></div>
-    <div class="fd-row fd-sub fd-r5" style="padding-left:58px"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>03-competitor-analysis/</span></div>
+    <div class="fd-row fd-sub fd-r3" style="padding-left:58px"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>product-research/</span></div>
+    <div class="fd-row fd-sub fd-r4" style="padding-left:58px"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>market-research/</span></div>
+    <div class="fd-row fd-sub fd-r5" style="padding-left:58px"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>competitor-analysis/</span></div>
     <div class="fd-row fd-sub fd-hero" style="padding-left:58px"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span>ABRIR-AQUI.html</span><span class="fd-tag">o painel · abra no navegador</span></div>
   </div>
 </div>

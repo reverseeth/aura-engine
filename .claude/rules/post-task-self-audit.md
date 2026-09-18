@@ -26,7 +26,7 @@ Não é só "typo". É revisão crítica de qualidade. Procura tudo que pode est
 
 ## Quando dispara (automático)
 
-- Ao completar qualquer skill (00-20 — todas, incluindo 01b e a família 07a-07e)
+- Ao completar qualquer skill (todas as 26, incluindo `sourcing` e a família storefront)
 - Após deploy de código ou asset em produção (Shopify push, Klaviyo flow, ad campaign)
 - Após geração de artefato consumidor-final (copy, briefing, PDP, ad)
 - Após análise/diagnóstico que vai informar decisão ($ em jogo)
@@ -46,9 +46,9 @@ Antes de declarar conclusão, rodar mentalmente (e corrigir inline o que encontr
 
 Re-ler os artefatos relevantes das fases ANTERIORES e confirmar que o output atual **não contradiz, não duplica errado, não ignora**:
 
-- Se gerou copy (Skill 06): mecanismo nomeado bate literal com `04-offer-builder/dados.json`? VOC phrases vêm de `02-market-research/dados.json` (não inventadas)?
-- Se gerou ad (Skill 08): awareness level alinha com `02`? Gaps explorados vêm de `03`? Promise bate com `04-offer`?
-- Se rodou consistency audit (Skill 09): revisou TODOS os 9+ artefatos, não só os últimos 2?
+- Se gerou copy (Skill `copy-engine`): mecanismo nomeado bate literal com `offer-builder/dados.json`? VOC phrases vêm de `market-research/dados.json` (não inventadas)?
+- Se gerou ad (Skill `creative-engine`): awareness level alinha com `market-research`? Gaps explorados vêm de `competitor-analysis`? Promise bate com `offer-builder`?
+- Se rodou consistency audit (Skill `consistency-audit`): revisou TODOS os 9+ artefatos, não só os últimos 2?
 - Se modificou framework (rule, skill, lib): checou impacto em skills downstream que referenciam?
 
 **Drift detectado → auto-fix inline.** Realinhar nomes, substituir VOC inventada por VOC real, corrigir awareness reference. Sem mencionar.
@@ -90,10 +90,10 @@ Output escrito passa em:
 - Especificidade (Hopkins) — "47% de redução em 14 dias" > "resultados rápidos"
 - Zero travessão em headlines (rule 8a) — em copy longa, ≤2
 - Copy consumidor-final sem aviso, disclaimer ou suavização inserida por conta própria (rule 8b) — claim entra direto, na força que a pesquisa sustenta
-- Logo SVG presente (rule 6b) se é dual output HTML
+- `.html` companion gerado pelo `tools/render_report.py` (rule 6b), nunca escrito à mão
 - Componentes do design system usados (callout, note, danger, winner, etc) quando cabível
 
-**Falha de qualidade → reescrever inline.** Trocar "resultados rápidos" por número real, remover travessão, apagar aviso/disclaimer que entrou sem o membro pedir, adicionar logo SVG faltando. Sem mencionar.
+**Falha de qualidade → reescrever inline.** Trocar "resultados rápidos" por número real, remover travessão, apagar aviso/disclaimer que entrou sem o membro pedir, gerar o `.html` que faltou com o `render_report.py`. Sem mencionar.
 
 ### Gate 5 — Alinhamento com rules globais
 
@@ -104,15 +104,11 @@ Cross-check rápido contra rules que se aplicam:
 - `member-stage-awareness.md` — tom/recomendação adaptou ao stage (starter/validating/scaling)?
 - `emergency-escape-paths.md` (se falhou algo) — ofereci ≥2 paths adiante, não abortei?
 
-**Se uma skill nova entrou no pipeline OU uma skill mudou de posição/fase na ordem canônica**, TODOS estes lugares precisam refletir a ordem nova — checklist explícita, conferir um a um (é exatamente o tipo de drift que passa batido):
+**Se uma skill nova entrou no pipeline OU uma skill mudou de posição/fase na ordem canônica**, a mudança acontece em UM lugar só: o registro único `.claude/skills.json`. Skill nova = uma entrada nesse arquivo (com `position`) + rodar `python3 tools/gen_docs.py`. Nada mais muda de nome: inserir uma skill no meio da sequência só desloca o "Passo N" renderizado. O gen_docs regenera a lista de gatilhos e a linha "ORDEM LÓGICA DE EXECUÇÃO" do `.claude/CLAUDE.md`, a tabela de skills do `README.md`, a lista `PHASES` do `build_index.py`, o enum de `skills_completed` do `manifest-schema.json`, os cabeçalhos do §4 e a ordem canônica do §13 do `.claude/OVERVIEW.md`, a linha de título de cada skill e o `.claude/OVERVIEW.html` (render do `.md` pelo `tools/render_report.py`). `python3 tools/gen_docs.py --check` acusa (exit 1) qualquer trecho gerado que tenha sido editado à mão ou ficado para trás. Ao citar uma skill em qualquer texto do framework, escreva o id (`creative-engine`), nunca o número antigo: número como identificador de skill (a palavra skill seguida do número, preposição seguida do número, pasta ou arquivo com o número na frente, apelido com letra solto) só vive em `legacy_ids`/`legacy_folder` do registro, no `use_in_skill` do índice e no changelog do OVERVIEW; em qualquer outro lugar o `python3 tools/aura-check.py` (regra `skill-ids`) acusa e o pre-commit guard bloqueia.
 
-1. `.claude/CLAUDE.md` — linha "ORDEM LÓGICA DE EXECUÇÃO" **e** a lista de triggers ("COMO AS SKILLS FUNCIONAM")
-2. `.claude/OVERVIEW.md` **e** `.claude/OVERVIEW.html` — §4 (skills em detalhe), §9 (estrutura do workspace), §13 (ordem canônica da sessão) e o changelog do §14
-3. `README.md` — tabela de skills (se a skill/fase é citada lá)
-4. `.claude/lib/workspace-index/build_index.py` — lista `PHASES` (ordem dos cards, tags e a lógica de próximo-passo do painel)
-5. Skills vizinhas — os closings/"próximo passo" das skills imediatamente ANTES e DEPOIS da posição nova (e da posição antiga, se mudou de lugar)
+O que continua manual e precisa de conferência um a um: (a) os closings/"próximo passo" das skills vizinhas (imediatamente ANTES e DEPOIS da posição nova, e da posição antiga, se mudou de lugar); (b) o texto em prosa do `OVERVIEW.md` que cita a skill fora dos trechos gerados (§9 estrutura do workspace e o changelog do §14). O `.claude/OVERVIEW.html` nunca é editado à mão: o `gen_docs.py` o regenera do `.md`.
 
-**Desalinhamento → corrigir inline.** Adicionar marker, ajustar tom pro stage, oferecer paths, atualizar os lugares da checklist acima. Sem mencionar.
+**Desalinhamento → corrigir inline.** Adicionar marker, ajustar tom pro stage, oferecer paths, rodar o `gen_docs.py` e conferir os itens manuais acima. Sem mencionar.
 
 ## Quando surface (não corrige silencioso)
 
@@ -122,11 +118,11 @@ A AI **PARA o silent fix e avisa o membro** apenas nesses 3 casos:
 
 Exemplo: market research diz mecanismo "Lipid Barrier Repair", mas oferta diz "Ceramide Reset Protocol". Qual prevalece? AI não decide sozinha.
 
-**Surface curto:** "Detectei conflito entre 02 e 04 sobre nome do mecanismo (Lipid Barrier Repair vs Ceramide Reset Protocol). Qual mantenho?"
+**Surface curto:** "Detectei conflito entre `market-research` e `offer-builder` sobre nome do mecanismo (Lipid Barrier Repair vs Ceramide Reset Protocol). Qual mantenho?"
 
 ### 2. Fix expandiria escopo além do pedido
 
-Exemplo: você pediu copy. AI quer adicionar uma seção de proof que não estava no plano da skill 06. Adicionar seria scope creep silencioso.
+Exemplo: você pediu copy. AI quer adicionar uma seção de proof que não estava no plano da skill `copy-engine`. Adicionar seria scope creep silencioso.
 
 **Surface curto:** "Notei que faltaria seção de proof pra skill ficar mais forte, mas isso não estava no plano original. Adiciono?"
 
@@ -143,12 +139,12 @@ Exemplo: cálculo do PSM real depende de dado de Stripe que membro não passou. 
 
 ## Modo "deep audit" (skills peso crítico)
 
-Em Skills 04 (offer), 06 (copy), 07b (page-build/deploy), 08 (creatives), 09 (consistency-audit), 10 (ad-strategy), o silent audit é EXPANDIDO:
+Em `offer-builder`, `copy-engine`, `page-build`, `creative-engine`, `consistency-audit` e `ad-strategy`, o silent audit é EXPANDIDO:
 
 - Re-ler as skills anteriores da cadeia (não só artefatos JSON)
 - Verificar que todo claim forte tem prova apresentada perto dele (número, estudo do banco de provas, depoimento, demo) — prova reforça o claim, nunca o suaviza
-- Cruzar com `03-competitor-analysis/creative-patterns.json` (se existe) pra validar padrões de mercado
-- Conferir que todo criativo final passou pelo Limpador de Metadados (nome `asset-xxxx`) antes de qualquer upload (08/10)
+- Cruzar com `competitor-analysis/creative-patterns.json` (se existe) pra validar padrões de mercado
+- Conferir que todo criativo final passou pelo Limpador de Metadados (nome `asset-xxxx`) antes de qualquer upload (`creative-engine`/`ad-strategy`)
 - Testar mentalmente edge cases (member em stage 1 com $50/dia? ESP = "none"? Whisper ausente?)
 
 Deep audit é ~3-5 minutos adicionais de raciocínio. Vale porque esses são os momentos caros pra errar.

@@ -1,11 +1,11 @@
 ---
 name: shopify-theme-safety
-description: Regras inegociáveis pra qualquer operação em theme Shopify (pull, push, deploy, edit). Aplica na skill 07b-page-build (deploy da página), 07c-tracking-setup e 07d-checkout-aov (config de loja/checkout) e qualquer automação que toque tema LIVE.
+description: Regras inegociáveis pra qualquer operação em theme Shopify (pull, push, deploy, edit). Aplica na skill page-build (deploy da página), tracking-setup e checkout-aov (config de loja/checkout) e qualquer automação que toque tema LIVE.
 paths:
-  - .claude/skills/07b-page-build.md
-  - .claude/skills/07c-tracking-setup.md
-  - .claude/skills/07d-checkout-aov.md
-  - .claude/skills/14-content-recycler.md
+  - .claude/skills/page-build/SKILL.md
+  - .claude/skills/tracking-setup/SKILL.md
+  - .claude/skills/checkout-aov/SKILL.md
+  - .claude/skills/content-recycler/SKILL.md
 ---
 
 # Shopify Theme Safety (NON-NEGOTIABLE)
@@ -54,7 +54,7 @@ Se você acabou de rodar `shopify theme push` e o comando retornou sem erro MAS 
 
 **Verificação obrigatória antes de pull pós-push:**
 
-1. O marker de build é um ATRIBUTO DE DADOS no elemento raiz da section: `data-aura-build="<slug>-<hash8>"` (a skill 07b já gera esse atributo no compile). **NUNCA use comentário Liquid `{% comment %}` como marker de verificação** — o renderizador Liquid remove o bloco e ele jamais chega ao HTML servido, então o grep falharia SEMPRE, mesmo com push 100% ok. (Um comentário Liquid pode existir como marca no código-fonte do tema, verificável via `shopify theme pull` — mas a verificação pós-deploy usa o data-attribute, que renderiza no DOM.)
+1. O marker de build é um ATRIBUTO DE DADOS no elemento raiz da section: `data-aura-build="<slug>-<hash8>"` (a skill `page-build` já gera esse atributo no compile). **NUNCA use comentário Liquid `{% comment %}` como marker de verificação** — o renderizador Liquid remove o bloco e ele jamais chega ao HTML servido, então o grep falharia SEMPRE, mesmo com push 100% ok. (Um comentário Liquid pode existir como marca no código-fonte do tema, verificável via `shopify theme pull` — mas a verificação pós-deploy usa o data-attribute, que renderiza no DOM.)
 2. Após push, rode `curl -s "https://<shop>.myshopify.com/products/<handle>?preview_theme_id=<id>" | grep data-aura-build`
 3. Se grep encontra o marker (e o hash bate com o build atual) → push OK, seguro pullar
 4. Se grep NÃO encontra → push rejeitado silenciosamente, investigar (rate limit? theme lock? compile error?) antes de qualquer pull
@@ -77,7 +77,7 @@ Push silenciosamente rejeitado é cenário comum. Checklist de diagnóstico:
 
 Nunca assuma sucesso baseado apenas em exit code 0.
 
-**Nota — auto-upgrade do Shopify CLI 4.x (mai/2026+):** a CLI se atualiza sozinha via package manager entre sessões e a série 4.x removeu comandos/flags legados. Se um deploy que funcionava ontem quebra hoje com "command not found" ou flag inválida, o primeiro suspeito é upgrade automático da CLI — NÃO o tema. Rode `shopify version`, compare com o changelog oficial, e só depois debug o tema. A skill 07b já loga `shopify version` no início do deploy (ETAPA 6.1 da 07b) exatamente pra esse diff ser trivial.
+**Nota — auto-upgrade do Shopify CLI 4.x (mai/2026+):** a CLI se atualiza sozinha via package manager entre sessões e a série 4.x removeu comandos/flags legados. Se um deploy que funcionava ontem quebra hoje com "command not found" ou flag inválida, o primeiro suspeito é upgrade automático da CLI — NÃO o tema. Rode `shopify version`, compare com o changelog oficial, e só depois debug o tema. A skill `page-build` já loga `shopify version` no início do deploy (ETAPA 6.1 da `page-build`) exatamente pra esse diff ser trivial.
 
 ## Regra 6 — Backup antes de qualquer edit massivo
 

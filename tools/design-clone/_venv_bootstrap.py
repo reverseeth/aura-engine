@@ -6,7 +6,7 @@ terceiros (playwright/bs4/chardet) faltam no interpretador atual.
 Mesmo padrão do `.claude/lib/web-fetch/fetch.py` (bootstrap re-exec): o membro
 pode invocar qualquer entry-point do design-clone com o `python3` do sistema
 que o script se re-executa sozinho no venv certo (`tools/design-clone/.venv`,
-criado pela skill 00-setup; fallback `.claude/lib/web-fetch/.venv`). O python
+criado pela skill setup; fallback `.claude/lib/web-fetch/.venv`). O python
 do venv costuma ser SYMLINK pro python base (resolvem igual), então NÃO
 comparamos resolve(): a env var guarda a lista de venvs JÁ TENTADOS (evita
 loop e ainda tenta o próximo venv se o primeiro estiver quebrado).

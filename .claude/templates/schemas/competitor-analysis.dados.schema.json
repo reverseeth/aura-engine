@@ -1,0 +1,546 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine: competitor-analysis/dados.json",
+  "description": "Mapa competitivo: concorrentes, saturação de claims, gaps, criativos e formatos escalados, radar, validated library e posicionamento. Escrito pela skill `competitor-analysis`. Lido por: offer-builder, copy-engine, page-design, creative-engine, consistency-audit, ad-analysis, marketplace-engine. Campos `required` são só os que outra skill lê; qualquer campo extra é aceito (`additionalProperties: true`). Validado por `python3 tools/manifest.py <slug> complete competitor-analysis` e por `python3 tools/aura-status.py <slug>`. O bloco `resumo` (opcional) abre o arquivo com o que a fase seguinte lê de primeira; ele espelha campos daqui e nunca substitui a leitura do campo de origem quando a etapa precisa do valor literal.",
+  "type": "object",
+  "required": [
+    "claims_saturation",
+    "gaps",
+    "top_creatives",
+    "ad_formats",
+    "monitoring_radar",
+    "alternative_solutions",
+    "validated_library",
+    "swipe_adapt",
+    "positioning_recommendation",
+    "creative_deep_analysis"
+  ],
+  "properties": {
+    "resumo": {
+      "type": "object",
+      "description": "Bloco compacto que a fase seguinte lê primeiro: espelha campos que já existem neste arquivo, com no máximo doze entradas curtas, e é preenchido por último. Onde divergir do campo de origem, o campo de origem vence. Opcional: `dados.json` gravado antes desta convenção não tem o bloco, e quem lê cai no arquivo inteiro.",
+      "additionalProperties": true,
+      "properties": {
+        "competitors_count": {
+          "type": "integer"
+        },
+        "top_competitor": {
+          "type": "string"
+        },
+        "positioning_recommendation_line": {
+          "type": "string"
+        },
+        "saturated_claims_top3": {
+          "type": "array"
+        },
+        "open_gaps_top3": {
+          "type": "array"
+        },
+        "dominant_format": {
+          "type": "string"
+        },
+        "swipe_adapt_top3": {
+          "type": "array"
+        },
+        "swipe_avoid_top3": {
+          "type": "array"
+        },
+        "price_range_market": {
+          "type": "string"
+        },
+        "hook_archetypes_top3": {
+          "type": "array"
+        }
+      }
+    },
+    "competitors_analyzed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "accessible": {
+            "type": "boolean"
+          },
+          "price_base": {
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "número em USD quando é um preço só; texto quando é faixa, escada ou moeda estrangeira"
+          },
+          "mechanism": {
+            "type": "string"
+          },
+          "main_claim": {
+            "type": "string"
+          },
+          "positioning": {
+            "type": "string"
+          },
+          "strengths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "weaknesses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "competitors_discarded": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "fallbacks_tried": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "checked_at": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "claims_saturation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "claim": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "saturation": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW",
+              "ABSENT"
+            ]
+          }
+        },
+        "required": [
+          "claim",
+          "saturation"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "funnel_classification": {
+      "type": "object",
+      "properties": {
+        "TOF": {
+          "type": "number"
+        },
+        "MOF": {
+          "type": "number"
+        },
+        "BOF": {
+          "type": "number"
+        },
+        "classification_confidence": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "gaps": {
+      "type": "object",
+      "properties": {
+        "audience": {
+          "type": "array"
+        },
+        "messaging": {
+          "type": "array"
+        },
+        "format": {
+          "type": "array"
+        },
+        "offer": {
+          "type": "array"
+        },
+        "mechanism": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": true
+    },
+    "top_creatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "creative_id": {
+            "type": "string"
+          },
+          "competitor": {
+            "type": "string"
+          },
+          "angle": {
+            "type": "string"
+          },
+          "hook_literal": {
+            "type": "string"
+          },
+          "appearances": {
+            "type": "integer"
+          },
+          "funnel_position": {
+            "type": "string",
+            "enum": [
+              "TOF",
+              "MOF",
+              "BOF"
+            ]
+          },
+          "ad_library_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "ad_formats": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string"
+          },
+          "competitor": {
+            "type": "string"
+          },
+          "duration_s": {
+            "type": "number"
+          },
+          "structure_notes": {
+            "type": "string"
+          },
+          "iteration_pattern": {
+            "type": "string"
+          },
+          "scale_evidence": {
+            "type": "string"
+          },
+          "scale_signal": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "traffic_landings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "competitor": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "page_type": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "monitoring_radar": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "what": {
+            "type": "string"
+          },
+          "where": {
+            "type": "string"
+          },
+          "trigger_signal": {
+            "type": "string"
+          },
+          "action_if_triggered": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "alternative_solutions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "price_range": {
+            "type": "string"
+          },
+          "why_abandoned": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "validated_library": {
+      "type": "object",
+      "properties": {
+        "mechanisms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "competitor": {
+                "type": "string"
+              },
+              "mechanization_stage": {
+                "type": "string",
+                "enum": [
+                  "name",
+                  "describe",
+                  "feature"
+                ]
+              },
+              "sophistication_stage_represented": {
+                "type": "integer"
+              },
+              "angle_paired": {
+                "type": "string"
+              },
+              "validation_evidence": {
+                "type": "object",
+                "properties": {
+                  "days_running": {
+                    "type": "integer"
+                  },
+                  "creatives_same_angle": {
+                    "type": "integer"
+                  },
+                  "appearances_top10": {
+                    "type": "integer"
+                  },
+                  "scale_signal": {
+                    "type": "string",
+                    "enum": [
+                      "high",
+                      "medium",
+                      "low"
+                    ]
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "angles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "angle": {
+                "type": "string"
+              },
+              "competitors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "creatives_count": {
+                "type": "integer"
+              },
+              "appearances_total": {
+                "type": "integer"
+              },
+              "funnel_position": {
+                "type": "string",
+                "enum": [
+                  "TOF",
+                  "MOF",
+                  "BOF"
+                ]
+              },
+              "scale_signal": {
+                "type": "string",
+                "enum": [
+                  "high",
+                  "medium",
+                  "low"
+                ]
+              }
+            },
+            "required": [
+              "angle"
+            ],
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "mechanisms",
+        "angles"
+      ],
+      "additionalProperties": true
+    },
+    "swipe_adapt": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "why": {
+            "type": "string"
+          },
+          "how_to_adapt": {
+            "type": "string"
+          },
+          "where_to_use": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "swipe_avoid": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "why_avoid": {
+            "type": "string"
+          },
+          "alternative": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "positioning_recommendation": {
+      "type": "object",
+      "properties": {
+        "angle": {
+          "type": "string"
+        },
+        "mechanism": {
+          "type": "string"
+        },
+        "avatar_segment": {
+          "type": "string"
+        },
+        "page_type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "creative_deep_analysis": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "completed",
+            "skipped",
+            "whisper_unavailable"
+          ]
+        },
+        "creatives_analyzed_count": {
+          "type": "integer"
+        },
+        "patterns_file": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "sources": {
+      "type": "object",
+      "properties": {
+        "collected_at": {
+          "type": "string"
+        },
+        "competitors_analyzed": {
+          "type": "integer"
+        },
+        "meta_ad_library_ads_count": {
+          "type": "integer"
+        },
+        "trendtrack_calls": {
+          "type": "integer"
+        },
+        "wayback_hits": {
+          "type": "integer"
+        },
+        "archive_today_hits": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

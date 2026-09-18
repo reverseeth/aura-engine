@@ -1,187 +1,108 @@
-# Aura HTML Components — v5 "Premium / Liquid Glass"
+# Aura HTML Components: as convenções de Markdown do render
 
-Referência dos componentes do design system Aura. Usado por TODA skill que gera `.html` dual output de relatório (regra 6b do CLAUDE.md — arquivos operacionais de handoff como `dados.json`/`scale-directives.md` são isentos).
+Todo relatório `.md` voltado ao membro ganha um `.html` companion (regra 6b do CLAUDE.md). O `.html` nunca é escrito à mão: o `tools/render_report.py` lê o `.md` e monta o `.html` sobre `.claude/templates/aura-report-template.html` (design "Editorial Intelligence": o `<style>` completo, a topbar com a logo SVG canônica, o hero, a meta-bar, o sumário gerado dos `##`, as bandas escuras alternadas, o rodapé e o script de interação). Este arquivo lista o que o conversor entende e como cada construção de Markdown vira um componente do design system.
 
-A fonte única de verdade é **`aura-report-template.html`** (v5). Esta doc é o mapa: lista cada classe e quando usar. **Não reinvente CSS** — copie o `<head>` + `<style>` + `<script>` do template e adapte só o conteúdo.
-
-> Estética v5: moderno, light, premium (Apple / Human Academy / academypass.ai). Sans geométrica (Satoshi → Inter). Fundo com **glow ambiente** sutil. Cards em **liquid glass** (frosted, `backdrop-blur`). Stats gigantes com divisores. **Animações**: reveal no scroll, count-up nos números, hover-lift nos cards. Tudo com progressive enhancement (visível sem JS).
-
----
-
-## Como montar um report (3 cópias literais + 1 logo)
-
-Todo `.html` de report é montado copiando **literalmente** do template, nesta ordem:
-
-1. **O `<head>` inteiro** — inclui os `<link>` das fontes (Satoshi via Fontshare + Inter via Google), a meta CSP, e o `<style>` completo do design system. Não edite o CSS.
-2. **A logo** no topo do `<body>` — bloco SVG de `.claude/templates/aura-logo-snippet.html`, com a classe `logo-wrap reveal`. NUNCA texto (regra 6b).
-3. **O conteúdo** — dentro de `<div class="container">`, usando as classes abaixo. Adapte só o conteúdo.
-4. **O `<script>` no fim do `<body>`** — copiado literal. Liga as animações (reveal + count-up). Sem ele, tudo aparece estático (progressive enhancement), mas com ele o report ganha vida.
-
-Estrutura final: `<head>` (fontes+CSP+style) → `<body>` → `.container` → logo → header → seções → `.footer` → `<script>`.
-
----
-
-## Convenções de animação (v5 — não esquecer)
-
-São o que separa um report v5 de um report "morto". Três regras:
-
-1. **Classe `reveal`** — adicione em CADA bloco de primeiro nível que deve entrar animado: logo, `h1.page-title`, `p.page-subtitle`, `.meta-bar`, `.toc`, cada `.section-label`, cada `.subsection`, `.kpi-grid`, `.table-wrap`, `.quote`, `.note`, `.callout`, `.opportunity`, `.danger`, `.winner`, `.faq`, `.check-row`, etc. O `<script>` observa esses elementos e revela no scroll.
-2. **`data-count` nos números gigantes** — todo `.big-num` recebe `data-count="58"` + opcional `data-suffix="%"` / `data-prefix="$"`, e o texto visível como fallback. Ex: `<div class="big-num" data-count="58" data-suffix="%">58%</div>`. O count-up anima de 0 ao valor quando entra na viewport. Sem JS, mostra o fallback.
-3. **Progressive enhancement** — o `<script>` adiciona `class="js"` no `<html>`; o CSS só esconde `.reveal` quando `.js` está presente. Logo: sem JS, nada fica invisível. `prefers-reduced-motion` desliga tudo automaticamente.
-
----
-
-## Tokens (já no `:root` do template — referência)
-
-- Cores: `--bg:#EFF1F5` (fundo cool light), `--surface:#FFFFFF`, `--ink:#14161D` (texto forte), `--ink-2:#3A3E4A`, `--muted:#565B68`, `--faint:#9499A5`, `--line:#E5E7EE`.
-- Accent: `--accent:#2D5BFF` (indigo), `--accent-2:#7C5CFF` (violeta — o tom dos glows/halos; no CSS os glows usam esse tom em rgba literal).
-- Semânticas: `--green:#0E9F6E`, `--red:#E5484D`, `--amber:#B7791F` (+ variantes `-soft`).
-- Glass: `--glass:rgba(255,255,255,.62)`, `--glass-line:rgba(255,255,255,.75)`.
-- Tipografia: `--display:'Satoshi'` (títulos/números), `--sans:'Inter'` (corpo), `--mono` (código/VOC).
-- Raio/sombra: `--r:22px`, `--r-sm:16px`, `--shadow`, `--shadow-sm`, `--shadow-lift` (hover).
-
----
-
-## Componentes
-
-### Estrutura & header
-
-- `.container` — wrapper max-width 840px, centralizado. Tudo vai dentro.
-- `.page-title` — H1 gigante (clamp 40-62px, Satoshi). O título do report.
-- `.page-subtitle` — deck abaixo do título (19px, muted, max 60ch).
-- `.meta-bar` — barra de metadados em **grid glass** (auto-fit minmax 160px). Cada `<div><strong>Label</strong> valor</div>`; o `strong` vira overline uppercase. Use pra Produto · Mercado · Data · Alimenta (report em `en`: Product · Market · Date · Feeds).
-- `.toc` / `.toc-title` — sumário com `<ol>` numerado (decimal-leading-zero), hover desliza.
-- `.section` — bloco de seção (margin-bottom grande). Use `id` pra ancorar do TOC.
-- `.section-label` — label da seção com `<span class="num">01</span>Título` + régua que esvai.
-- `.subsection` / `.subsection-title` — subdivisão (Satoshi 27px).
-- `hr` — divisor sutil entre grandes blocos.
-
-### Texto
-
-- `p`, `p strong`, `ul`/`ol`/`li`, `code` (inline mono, `overflow-wrap:anywhere` pra não quebrar mobile).
-
-### Call-outs (cards glass com overline-label + glow leve)
-
-Em todos, o **primeiro `<strong>` vira o rótulo** (uppercase, display:block). Ex: `<div class="callout"><strong>Recomendação</strong> texto...</div>`.
-
-- `.note` — nota auxiliar neutra.
-- `.callout` — destaque informativo/recomendação (glow indigo).
-- `.opportunity` — gap/oportunidade (glow verde).
-- `.danger` — alerta crítico, erro a evitar (glow vermelho).
-
-### Winner (conceito vencedor — dark glass + halo violeta)
-
-```html
-<div class="winner reveal">
-  <div class="winner-label">Winner</div>
-  <div class="winner-name">Nome do mecanismo</div>
-  <p>Por que vence.</p>
-</div>
+```
+python3 tools/render_report.py workspace/<slug>/market-research/market-research.md
+python3 tools/render_report.py <arquivo.md> --lang en --out <saida.html>
+python3 tools/render_report.py <arquivo.md> --no-dark
 ```
 
-### KPIs / stats gigantes (painel glass com divisores)
+Sem `--out`, o `.html` nasce ao lado do `.md`, com o mesmo nome. Sem `--lang`, o idioma do chrome (sumário, rótulos da meta-bar, textos de acessibilidade) vem do frontmatter (`lang`), depois do `report_language` do manifest do produto, e por fim `pt-BR`. A copy do relatório sai exatamente como está no `.md`: o render só troca o chrome de idioma.
 
-```html
-<div class="kpi-grid reveal">
-  <div class="kpi-card"><div class="big-num" data-count="58" data-suffix="%">58%</div><div class="big-num-label">label da métrica</div></div>
-  <div class="kpi-card"><div class="big-num" data-count="34" data-suffix="%">34%</div><div class="big-num-label">label</div></div>
-</div>
+## O que o render faz sozinho
+
+| Parte do `.html` | De onde vem |
+|---|---|
+| Título (hero) | O primeiro `# Título` do `.md` (ou `titulo` no frontmatter) |
+| Deck abaixo do título | O primeiro parágrafo depois do `#` (ou `subtitulo` no frontmatter) |
+| Eyebrow (linha pequena acima do título) | `eyebrow` no frontmatter; sem ele, "Aura Engine / nome da skill", reconhecida pela pasta onde o `.md` está |
+| Selo da topbar ("Relatório · 2026") | `tipo` no frontmatter; sem ele, o nome da skill; o ano vem de `data` ou da data de hoje |
+| Meta-bar | O frontmatter (`produto`, `mercado`, `data`, `alimenta`); sem frontmatter, o manifest do produto (`product_name`, `market`), a data de hoje e os consumidores da skill no `.claude/skills.json` |
+| Sumário | Um item por `##`, com âncora `#s1`, `#s2`... |
+| Seções numeradas | Cada `##` vira uma seção com o número (`01`, `02`...); um "1. " na frente do título é removido, porque o número já aparece |
+| Bandas escuras | As seções pares saem em banda escura (`--no-dark` desliga) |
+| Logo | A topbar do template, com o mesmo `<svg>` de `.claude/templates/aura-logo-snippet.html`; o render avisa se os dois divergirem |
+| Rodapé | "Aura © ano" |
+| Robustez mobile | Vem do `<style>` do template: sem `backdrop-filter` abaixo de 860px, reveal com failsafe, zero overflow horizontal |
+
+## Frontmatter (opcional)
+
+Linhas `chave: valor` entre duas linhas `---` no topo do `.md`. Sem frontmatter, a meta-bar sai do manifest.
+
 ```
-`.big-num` e `.big-num-label` se auto-ordenam (número em cima, label embaixo) via `order` — independe da ordem no HTML.
-
-### Prova & citação
-
-- `.quote` + `.quote-source` — VOC / frase exata do cliente em card glass mono. `.quote-source` é a fonte (Reddit, review, etc).
-- `.voc-words` (wrapper) com `<span>` por palavra — nuvem de termos exatos do mercado.
-- `.script-block` — bloco de script/roteiro (mono, pre-wrap).
-
-### Pills / badges (liquid glass) & scores
-
-- `.pill` + variante: `.pill-win`/`.pill-rare`/`.pill-ok` (verde), `.pill-saturated`/`.pill-bof`/`.pill-pending` (vermelho), `.pill-common`/`.pill-mof` (âmbar), `.pill-absent`/`.pill-tof` (indigo).
-- `.score` + `.score-high`/`.score-mid`/`.score-low` — nota inline.
-
-### Tabelas
-
-- `.table-wrap` (overflow-x mobile) envolvendo `table`/`th`/`td`. Use `.pill` na célula de status.
-
-### Cards de domínio
-
-- `.brand-card`, `.concept-card` — cards de marca/conceito (radius `--r`, hover-lift).
-- `.tier-card` (+ `.popular` pra destacar plano) — card de pricing/tier.
-- `.timeline-day` (+ `.timeline-day-label` — badge do dia) + `.timeline`/`.timeline-row`/`.timeline-time`/`.timeline-label`/`.timeline-content` — cronograma.
-- `.primary-text-box` + `.pt-label` — bloco de Primary Text de ad.
-- `.faq` + `.faq-q`/`.faq-a` — perguntas/objeções.
-- `.hook-row` + `.hook-label`/`.hook-text`/`.hook-use` — hooks de criativo.
-- `.headline-card` (+ `.top`) + `.hl-num`/`.hl-justify` — headlines com justificativa.
-- `.ascii-map` — diagrama ASCII (mono, scroll-x).
-- `.check-row` + `.check-icon` — sanity checks / itens validados.
-
-### Advertorial
-
-- `.advertorial` (card glass grande) + `.adv-kicker`, `.adv-headline`, `.adv-deck`, `.adv-byline`, `.adv-section-label`, `.advertorial p`, `.adv-cta` (botão escuro).
-
-### Logo & footer
-
-- `.logo-wrap` (`reveal`) — SVG da logo, height 28px. SEMPRE SVG, NUNCA texto.
-- `.footer` — rodapé. Texto: **`Aura © [ano corrente da geração do report]`** (ex: `Aura © 2026` num report gerado em 2026), nada mais.
-
 ---
+produto: Creme de barreira para pele seca
+mercado: Estados Unidos
+data: 24 jul 2026
+alimenta: Competitor Analysis · Offer Builder · Copy Engine
+---
+```
 
-## Regras de uso
+Chaves reconhecidas: `produto`, `mercado`, `data`, `alimenta` (a meta-bar, com os rótulos traduzidos em `en`: Product, Market, Date, Feeds); `titulo`, `subtitulo`, `eyebrow`, `tipo` (o hero e o selo da topbar); `lang` (`pt-BR` ou `en`). Qualquer outra chave vira um item extra da meta-bar, com a própria chave como rótulo (inicial maiúscula). Quando o frontmatter existe, a meta-bar mostra só o que está nele; nada é preenchido por fora.
 
-1. **Logo no topo do `<body>`** — bloco SVG de `aura-logo-snippet.html`, literal, com `reveal`. Proibido texto.
-2. **`<head>` + `<style>` + `<script>` copiados literais** do template — self-contained, fontes via `<link>`, sem editar CSS.
-3. **`reveal` nos blocos de topo + `data-count` nos `.big-num`** — senão o report fica estático.
-4. **Emojis ✅ ⚠️ ❌ OK em report interno** (exceção regra 7) — NUNCA em página pro consumidor final.
-5. **Mobile** — `overflow-wrap:anywhere` em `code`, `.quote` e nos callouts (`.note`/`.callout`/`.opportunity`/`.danger`) — o CSS do template já aplica; o `@media (max-width:640px)` já trata `.kpi-grid`, `.winner`, `.timeline` etc.
-6. **Footer = `Aura © [ano corrente]`** — o ano da geração do report (o mesmo da meta-bar Data), nada mais.
-7. **Idioma do chrome segue o `report_language`** — pra membro `en`: `<html lang="en">`, toc-title "Contents", meta-bar "Product/Market/Date/Feeds". Pra `pt-BR` (default), mantenha o chrome do template como está.
+## Convenções que viram componentes
+
+| No `.md` | No `.html` | Quando usar |
+|---|---|---|
+| `## Título` | Seção numerada com label e régua | Toda seção de primeiro nível do relatório |
+| `### Título` | Subseção com título grande | Divisão dentro da seção |
+| `#### Título` | Parágrafo em negrito | Divisão menor (sem estilo próprio no design system) |
+| `> **Nota:** texto` | Card `.note` (neutro) | Contexto auxiliar, pendência, observação |
+| `> **Atenção:** texto` | Card `.callout` (marca preta) | Recomendação, ponto de atenção, decisão |
+| `> **Oportunidade:** texto` | Card `.opportunity` | Lacuna de mercado, espaço aberto |
+| `> **Risco:** texto` | Card `.danger` (vermelho) | Risco, erro a evitar; o único componente com cor |
+| `> **Vencedor:** Nome` + parágrafo | Card `.winner` com o nome em destaque | Mecanismo ou conceito vencedor |
+| `> "frase do cliente"` | Citação `.quote` (VOC) | Frase exata de cliente; a linha `Tradução livre: ...` vira a tradução pequena e a linha `Fonte: ...` (ou `— origem`) vira a fonte |
+| Tabela `KPI \| Valor` (duas colunas) | `.kpi-grid` com números grandes | Até 3 ou 6 números que resumem a seção; o valor anima quando é numérico (`58%`, `$67.90`, `2.4`) |
+| Qualquer outra tabela | `.table-wrap` com a tabela do design system | Comparações, checklists, mapas de alavancas |
+| Lista `-` ou `1.` | `<ul>` / `<ol>`, com aninhamento por recuo | Itens paralelos; uma citação recuada dentro do item vira `.quote` dentro dele |
+| `- [ ]` e `- [x]` | Item com ☐ ou ☑ | Checklists |
+| Bloco entre ` ``` ` | `<pre>` com rolagem horizontal | Árvores de pastas, comandos, JSON |
+| `---` | Régua horizontal | Separação forte dentro da seção |
+| `**negrito**`, `*itálico*`, `` `código` ``, `[texto](url)`, `![alt](src)`, `~~riscado~~` | O equivalente em HTML | Texto corrido |
+
+Os rótulos dos cards são aceitos em português e em inglês, sem distinção de maiúsculas: `Nota`/`Note`, `Atenção`/`Attention`/`Warning`/`Aviso`, `Oportunidade`/`Opportunity`, `Risco`/`Risk`/`Perigo`/`Danger`, `Vencedor`/`Winner`. O rótulo escrito no `.md` é o que aparece no card.
+
+Um card pode ter mais de um parágrafo e listas dentro: basta manter o `>` em todas as linhas (linha `>` vazia separa parágrafos).
+
+```
+> **Oportunidade:** nenhum concorrente cita um estudo pelo nome.
+>
+> Ser o único com o estudo na página ataca essa lacuna de uma vez.
+> - Andersen 2016 (meia-vida da melatonina oral)
+> - Gooneratne 2012 (timing, não dose)
+```
+
+Citação de cliente completa:
+
+```
+> *"My skin feels tight and flaky an hour after I moisturize."*
+> Tradução livre: minha pele fica repuxada e descamando uma hora depois de passar hidratante.
+> Fonte: Reddit r/SkincareAddiction
+```
+
+Números grandes:
+
+```
+| KPI | Valor |
+|---|---|
+| frases reais de cliente coletadas | 199 |
+| da população acorda 3+ noites por semana | 31% |
+| meia-vida da pílula de melatonina | 54 min |
+```
+
+Uma parte dos componentes do template não tem convenção de Markdown e o render não os produz: `faq`, `check-row`, `pill`, `score`, `voc-words`, `script-block`. No `.md`, o mesmo conteúdo sai como lista, tabela ou texto com negrito; o resultado continua dentro do design system.
+
+## Regras
+
+1. **Nunca escrever o `.html` à mão.** Nem copiar `<style>`, nem topbar, nem logo: o render faz tudo isso a partir do template, e é o único caminho que garante a logo SVG em todo relatório.
+2. **Nunca truncar conteúdo.** O render nunca corta texto; o `.md` também não deve cortar célula, hook ou claim com "...". Célula longa se resolve com quebra de linha ou com um card.
+3. **HTML cru no `.md` vira texto.** O conversor escapa tudo que não é Markdown reconhecido; comentários HTML (`<!-- -->`) são descartados.
+4. **Emojis ✅ ⚠️ ❌ são aceitos** em relatório interno (exceção da regra 7 do CLAUDE.md); em página voltada ao consumidor final valem ícones SVG, e essa página não passa por este render.
+5. **Idioma do chrome segue o `report_language`.** Membro `en`: `lang="en"`, "Contents", Product/Market/Date/Feeds. A copy do relatório sai como está no `.md`.
+6. **O `.claude/OVERVIEW.html` é gerado pelo mesmo render**, via `python3 tools/gen_docs.py` (alvo `overview-html`), a partir do `OVERVIEW.md`; nunca é editado à mão, e o `gen_docs.py --check` acusa se ficar para trás.
 
 ## Extensão
 
-Pra adicionar componente novo: (1) adiciona o CSS em `aura-report-template.html` dentro do `<style>`; (2) documenta aqui (classe + propósito); (3) NÃO crie componente one-off sem adicionar ao template — fragmenta o design system.
-
----
-
-## Esqueleto mínimo (v5)
-
-```html
-<!DOCTYPE html>
-<html lang="pt-BR"> <!-- report_language "en" → lang="en" + chrome em inglês (regra 7 acima) -->
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>[Título] — Aura Engine</title>
-  <!-- COPIAR LITERAL de aura-report-template.html: <link> das fontes + meta CSP + <style> inteiro -->
-</head>
-<body>
-  <div class="container">
-
-    <!-- LOGO — copiar literal de aura-logo-snippet.html -->
-    <div class="logo-wrap reveal" role="img" aria-label="Aura Engine">
-      <svg viewBox="0 0 1789.33 925.59" ...><title>Aura Engine</title><path d="..." fill="#14161D"/></svg>
-    </div>
-
-    <h1 class="page-title reveal">[Título]</h1>
-    <p class="page-subtitle reveal">[Deck]</p>
-    <div class="meta-bar reveal">
-      <div><strong>Produto</strong> [nome]</div>
-      <div><strong>Mercado</strong> [mercado]</div>
-      <div><strong>Data</strong> [data]</div>
-      <div><strong>Alimenta</strong> [próxima fase]</div>
-    </div>
-
-    <div class="section" id="s1">
-      <div class="section-label reveal"><span class="num">01</span>[Seção]</div>
-      <p>Conteúdo...</p>
-      <div class="callout reveal"><strong>Recomendação</strong> insight-chave.</div>
-    </div>
-
-    <p class="footer">Aura © [ano corrente]</p>
-  </div>
-
-  <!-- ANIMAÇÃO — copiar literal o <script> de aura-report-template.html -->
-  <script>/* reveal + count-up */</script>
-</body>
-</html>
-```
+Componente novo entra em três lugares: (1) o CSS em `aura-report-template.html`, dentro do `<style>`; (2) a convenção de Markdown correspondente no `tools/render_report.py`; (3) a linha desta tabela. Componente sem convenção no conversor não existe para as skills, porque nenhuma skill escreve HTML.

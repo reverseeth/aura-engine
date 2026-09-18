@@ -1,6 +1,6 @@
 # theme-verify — gate visual e comportamental pós-deploy
 
-Três scripts Playwright que verificam a página PUBLICADA da loja (a URL real que o visitante abre, não o preview local). É o gate de verificação da skill 07b (page-build) nas etapas 6.8/6.11, e roda de novo sempre que uma seção animada ou uma fonte custom entra no tema. O deploy só é declarado bom depois que os scripts aplicáveis à mudança passam.
+Três scripts Playwright que verificam a página PUBLICADA da loja (a URL real que o visitante abre, não o preview local). É o gate de verificação da skill `page-build` nas etapas 6.8/6.11, e roda de novo sempre que uma seção animada ou uma fonte custom entra no tema. O deploy só é declarado bom depois que os scripts aplicáveis à mudança passam.
 
 | Script | O que verifica | Falha (exit 1) quando |
 |---|---|---|
@@ -24,7 +24,7 @@ O mesmo venv Playwright da lib web-fetch: `.claude/lib/web-fetch/.venv`. Rode co
 Pra cada viewport (desktop 1440x1000 e mobile 390x844, ou só um com `--desktop-only`/`--mobile-only`):
 
 - **Overflow horizontal** (`scrollWidth - clientWidth`) tem que ser 0 — qualquer pixel a mais significa que a página "anda de lado" no celular.
-- **Altura total** e **presença + altura de cada seção** marcada com o atributo de `--sections-attr` (default `data-aura-section`, o atributo que o compile da 07b carimba em cada section; num tema de terceiros, aponte pro atributo que existir, ex. `data-section-id`). Seção presente com altura 0 = section renderizou vazia = falha.
+- **Altura total** e **presença + altura de cada seção** marcada com o atributo de `--sections-attr` (default `data-aura-section`, o atributo que o compile da `page-build` carimba em cada section; num tema de terceiros, aponte pro atributo que existir, ex. `data-section-id`). Seção presente com altura 0 = section renderizou vazia = falha.
 - **Erros de console e de página**, filtrando o ruído de trackers de terceiros (pixels, apps de analytics) que não é problema do tema.
 - **Screenshot full-page + um recorte por seção** na pasta de `--shots-dir`, pra conferência visual depois dos números.
 

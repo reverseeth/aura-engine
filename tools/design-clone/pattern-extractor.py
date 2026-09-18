@@ -5,7 +5,7 @@ pattern-extractor.py — Aura Engine design-clone pipeline · Brand Signals
 Lê o output do downloader (computed-styles.json) e extrai APENAS os sinais de
 design agregados de um site de referência (cores, fontes, radius, shadow,
 densidade de spacing). NÃO copia código. NÃO preserva HTML do concorrente.
-Produz patterns.json com o bloco `design_system` que a skill 07a-page-design
+Produz patterns.json com o bloco `design_system` que a skill page-design
 (ETAPA 2 — Brand Signals) consome como caminho 3 de signals.
 
 Não requer o analyzer.py: o único input é o computed-styles.json do downloader.
@@ -264,14 +264,14 @@ def main():
     if design_system_source == "defaults_fallback":
         logger.warning(
             "computed-styles.json está vazio — o design_system abaixo contém DEFAULTS "
-            "genéricos, NÃO sinais do site. A 07a não deve usar isso como brand signals."
+            "genéricos, NÃO sinais do site. A `page-design` não deve usar isso como brand signals."
         )
 
     output = {
         "source": str(clone_dir),
         "design_system": design_system,
         # "extracted" = sinais reais do site; "defaults_fallback" = valores genéricos
-        # (a 07a DEVE ignorar o bloco nesse caso e cair pro próximo caminho de signals).
+        # (a `page-design` DEVE ignorar o bloco nesse caso e cair pro próximo caminho de signals).
         "design_system_source": design_system_source,
         "meta": {
             "computed_styles_elements": len(computed),
@@ -288,7 +288,7 @@ def main():
     print(f"  - shape: radius={design_system['shape']['border_radius_px']}px · shadow={design_system['shape']['shadow_style']}")
     print(f"  - density: {design_system['spacing']['density']} (avg padding {design_system['spacing']['avg_padding_px']}px)")
     print(f"[pattern-extractor] salvo em {out_path}")
-    print("\n[pattern-extractor] próximo passo: a skill 07a-page-design (ETAPA 2 — Brand Signals) lê o bloco design_system deste patterns.json")
+    print("\n[pattern-extractor] próximo passo: a skill page-design (ETAPA 2 — Brand Signals) lê o bloco design_system deste patterns.json")
 
 
 if __name__ == "__main__":

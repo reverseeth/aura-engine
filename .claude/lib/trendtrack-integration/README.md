@@ -1,10 +1,10 @@
 # TrendTrack Integration (opcional)
 
-Integração com TrendTrack MCP. Read-only, OAuth 2.1, ~24h refresh. É o **motor de descoberta da Skill 01** e substitui scraping manual + Meta Ad Library público em várias outras skills quando o membro tem assinatura TrendTrack.
+Integração com TrendTrack MCP. Read-only, OAuth 2.1, ~24h refresh. É o **motor de descoberta da Skill `product-research`** e substitui scraping manual + Meta Ad Library público em várias outras skills quando o membro tem assinatura TrendTrack.
 
 ## Quando usar
 
-Membro tem TrendTrack pago E conectou via MCP. Detecção automática: se tools com prefixo `mcp__trendtrack__` existirem na sessão, usar; senão, fallback pro método da skill (na 01, o membro aplica os mesmos filtros no browser do TrendTrack e cola o resultado; nas demais, Meta Ad Library público + scraping).
+Membro tem TrendTrack pago E conectou via MCP. Detecção automática: se tools com prefixo `mcp__trendtrack__` existirem na sessão, usar; senão, fallback pro método da skill (na `product-research`, o membro aplica os mesmos filtros no browser do TrendTrack e cola o resultado; nas demais, Meta Ad Library público + scraping).
 
 **Default = não-integrado.** Aura Engine funciona sem TrendTrack MCP. Integração é upside, não dependência.
 
@@ -23,7 +23,7 @@ O MCP gasta créditos do plano do membro por chamada. Regra em toda skill que us
 
 - **01 product research**: descoberta 4-8 chamadas (2 pesquisas × 2-3 páginas + lookup de nicho) + ficha por marca 2-3 chamadas × 15-25 marcas.
 - **03 competitor analysis**: 1-2 chamadas por concorrente (brief + ads em lote).
-- **08 / 11 / 13**: 1-3 chamadas por rodada.
+- **`creative-engine` / `ad-analysis` / `retention-engine`**: 1-3 chamadas por rodada.
 
 ## Runtime-discovery: NÃO assuma nomes de tool fixos
 
@@ -40,7 +40,7 @@ A tabela abaixo lista as tools que o TrendTrack expõe HOJE (referência, não c
 
 | Tool (hoje) | Intenção / categoria (estável) | O que faz |
 |------|-----------|-----------|
-| `search_ads` | **Discover → ads em lote (filtros da UI)** | Busca Meta ads com os mesmos filtros do Explorer → Meta Ads: status, media type, days running, data de criação, idioma, ad rank (percentil), growth rank, tamanho da copy, países, nicho (`category_ids`), tráfego da loja, Trustpilot, ordenações (`longestRunning`, `mostDuplicates`, `adOrder`, `reachDelta*`). Motor da descoberta da 01 e da ETAPA 3F da 03 |
+| `search_ads` | **Discover → ads em lote (filtros da UI)** | Busca Meta ads com os mesmos filtros do Explorer → Meta Ads: status, media type, days running, data de criação, idioma, ad rank (percentil), growth rank, tamanho da copy, países, nicho (`category_ids`), tráfego da loja, Trustpilot, ordenações (`longestRunning`, `mostDuplicates`, `adOrder`, `reachDelta*`). Motor da descoberta da `product-research` e da ETAPA 3F da `competitor-analysis` |
 | `lookup_filter_ids` | **Lookup → ids de filtro / landing pages** | Resolve ids de nicho/categoria, apps, pixels, temas; com `type: "landing_pages"` + `scope_domain`, devolve as URLs de destino de uma marca com contagem de ads ativos (= LP mais escalada) |
 | `search_shops` | **Discover → lojas** | Busca no universo de lojas indexado; `match_mode: "exact"` + domínio devolve visitas/mês, nota e nº de reviews no Trustpilot, data de criação, apps/tema |
 | `search_advertisers` | **Discover → anunciantes** | Anunciantes por marca/domínio/copy com ads ativos, reach e lançamentos |

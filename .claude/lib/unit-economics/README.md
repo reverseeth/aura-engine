@@ -1,6 +1,6 @@
 # Unit Economics — cânone único
 
-Fonte de verdade para margem, CAC, ROAS e decisão de spend. Skills 04, 11, 12 e 15 leem **daqui**; nenhuma redefine esses conceitos localmente.
+Fonte de verdade para margem, CAC, ROAS e decisão de spend. Skills `sourcing`, `offer-builder`, `ad-analysis`, `scale-engine`, `finance-engine` e `promo-engine` leem **daqui**; nenhuma redefine esses conceitos localmente.
 
 Origem: fonte primária high-ticket 2026 (P1) + módulo de finanças da fonte primária (fontes prioritárias da base). Queries: `contribution margin stack custos variaveis first order repeat order`, `espiral do ROAS custos fixos cortar spend piora`, `projections 4 levers AOV CAC ad spend returning customers cohorts`.
 
@@ -18,7 +18,7 @@ O stack de custos variáveis, completo:
 | Apps de assinatura | 0,5–1% quando há subscription |
 | Fee de agência | quando é % do ad spend, é variável — entra aqui |
 | Ad spend | o maior deles |
-| Reembolso/chargeback esperado | provisão, não zero — *adição da engine: no material, refund aparece como guardrail/stress test ("+2%"), não como linha do stack; mantida aqui por prudência, contada UMA vez só (regra anti-dupla-contagem da skill 04)* |
+| Reembolso/chargeback esperado | provisão, não zero — *adição da engine: no material, refund aparece como guardrail/stress test ("+2%"), não como linha do stack; mantida aqui por prudência, contada UMA vez só (regra anti-dupla-contagem da skill `offer-builder`)* |
 
 > **Regra de nomenclatura (obrigatória em todo output):** nunca escreva "Lucro" sobre um número que não subtraiu custos fixos. O rótulo correto é **"Margem de contribuição"**. Se o membro não informou os fixos, diga isso explicitamente em vez de omitir — "CM de US$ X; sem os custos fixos informados não dá para dizer se há lucro".
 
@@ -47,8 +47,18 @@ Benchmarks DTC de referência: margem bruta ~70%, CM 10–20%, fixos <10% da rec
 
 | Skill | Uso |
 |---|---|
-| 04 offer-builder | monta o stack de custos variáveis completo; rotula CM corretamente; aplica piso de CAC como gate |
+| `sourcing` sourcing | checa o teto de custo desembarcado (§6) ao comparar cotações, antes de a oferta existir |
+| 04 offer-builder | monta o stack de custos variáveis completo; rotula CM corretamente; aplica piso de CAC como gate; mira o alvo de preço do §6 |
 | 11 ad-analysis | antes de recomendar corte por ROAS, aplica a seção 4 |
 | 12 scale-engine | decisão de escala considera diluição de fixo, não só ROAS |
 | 15 finance-engine | dono do modelo completo (4 alavancas, cohorts, ciclo de caixa) |
 | 17 promo-engine | recalcula o breakeven com a margem promocional antes de ligar campanha de promo (gate da janela) |
+
+## 6. Custo desembarcado × preço de venda (régua única)
+
+Duas réguas, e elas não se contradizem: uma é o alvo de preço, a outra é o teto de custo.
+
+- **Alvo (âncora de preço):** preço de venda = **4 a 6 × o custo desembarcado** (produto + embalagem + frete de entrada + tarifa). Isso deixa o custo entre 16% e 25% do preço, que é o que viabiliza aquisição paga em direct response. É a âncora que a skill `offer-builder` usa na ETAPA 3.
+- **Teto (limite de conforto):** custo desembarcado **acima de cerca de 30% do preço de venda** aperta a margem de contribuição a ponto de o tráfego pago não fechar; abaixo disso é confortável. É a checagem de sanidade que a skill `sourcing` faz ao comparar cotações, antes de a oferta existir.
+
+A `sourcing` checa o teto ao cotar; a `offer-builder` mira o alvo ao precificar. Quando o custo cai entre 25% e 30% do preço, quem decide é a conta completa da `offer-builder` (ETAPA 5), nunca a régua isolada.

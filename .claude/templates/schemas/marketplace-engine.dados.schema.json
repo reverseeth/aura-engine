@@ -1,0 +1,239 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine: marketplace-engine/dados.json",
+  "description": "Canais além do site: gate de prova do canal primário, avaliação de Amazon, TikTok Shop e programa de afiliados, sequência recomendada e status por canal. Escrito pela skill `marketplace-engine`. Lido por: scale-engine, retention-engine, finance-engine, creator-engine. Campos `required` são só os que outra skill lê; qualquer campo extra é aceito (`additionalProperties: true`). Validado por `python3 tools/manifest.py <slug> complete marketplace-engine` e por `python3 tools/aura-status.py <slug>`.",
+  "type": "object",
+  "required": [
+    "gate",
+    "channels"
+  ],
+  "properties": {
+    "marketplace_id": {
+      "type": "string"
+    },
+    "product_slug": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "ISO-8601"
+    },
+    "run_type": {
+      "type": "string",
+      "enum": [
+        "evaluation",
+        "status_update"
+      ]
+    },
+    "gate": {
+      "type": "object",
+      "properties": {
+        "meta_site_proven": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "proof_source": {
+          "type": "string"
+        },
+        "signals": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "anti_signal_flight_from_meta": {
+          "type": "boolean"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "expand",
+            "not_yet",
+            "blocked_pending_proof"
+          ]
+        },
+        "verdict_reason": {
+          "type": "string"
+        },
+        "next_review_trigger": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "verdict"
+      ],
+      "additionalProperties": true
+    },
+    "channels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "type": "string",
+            "enum": [
+              "amazon",
+              "tiktok_shop",
+              "affiliate_program"
+            ]
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "go",
+              "no_go",
+              "not_yet",
+              "not_evaluated"
+            ]
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "not_evaluated",
+              "preparing",
+              "live",
+              "paused"
+            ]
+          },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "opened_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "entry_requirements": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "fees_and_commissions": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "owner": {
+            "type": "string"
+          },
+          "commission_organic_pct": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "commission_ads_pct": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "samples_policy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "bootstrap_plan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "content_dependency": {
+            "type": "string"
+          },
+          "paid_recruitment": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "customer_affiliates": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "commission_ladder": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "commission_base": {
+            "type": "string"
+          },
+          "monthly_cap_usd": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "attribution": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel",
+          "verdict",
+          "status"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "sequence_recommendation": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "out_of_scope_redirects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "request": {
+            "type": "string"
+          },
+          "goto": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "pending_inputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sanity_checks": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer"
+        },
+        "passed": {
+          "type": "integer"
+        },
+        "failed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

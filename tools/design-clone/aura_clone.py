@@ -8,7 +8,7 @@ Dois modos:
      OPCIONAL nesse modo: roda só pra produzir analysis.json de contexto; o
      pattern-extractor lê direto o computed-styles.json e não depende dele).
      Produz `patterns.json` (design_system abstrato) pra rota de brand-signals
-     da 07a-page-design. NÃO copia código do concorrente.
+     da page-design. NÃO copia código do concorrente.
 
   2) clone-and-adapt — orquestra captura → analyzer → skeleton-builder.
      Dada uma URL de referência, captura a ESTRUTURA de sections (ordem + tipo +
@@ -18,7 +18,7 @@ Dois modos:
      disponíveis), cada section do `skeleton.json` carrega também um bloco
      `hierarchy` com sinais NUMÉRICOS de hierarquia visual (proporção heading/
      body, padding-block real, densidade, alinhamento dominante, proporção de
-     área de mídia). A 07a entrega esse esqueleto ao Claude, que o preenche com
+     área de mídia). A `page-design` entrega esse esqueleto ao Claude, que o preenche com
      a copy/brand/produto do membro (06-copy / 04-offer) gerando
      `design/page.html`. Herda a hierarquia de conversão validada, não o conteúdo.
 
@@ -29,7 +29,7 @@ Cascade de captura (--engine=auto, default):
                      ref.ai.html; sem computed-styles → serve pro clone-and-adapt,
                      mas o modo signals falha honesto: sem CSS computado real
                      não há design_system — nada de paleta inventada)
-  3. screenshot-fallback do downloader → rota screenshot→visão da 07a
+  3. screenshot-fallback do downloader → rota screenshot→visão da `page-design`
   4. MANUAL: membro salva a página com a extensão SingleFile no Chrome dele
      (vence Cloudflare/login) e a Aura ingere via --from-file
 
@@ -60,7 +60,7 @@ Output (modo clone-and-adapt):
         analysis.json  (sections detectadas — ordem + tipo + layout + hierarchy)
         skeleton.html  (ESQUELETO estrutural: placeholders, zero conteúdo do concorrente)
         skeleton.json  (mesma estrutura em dados + sinais de hierarquia visual
-                        por section, pra a 07a/Claude consumir)
+                        por section, pra a `page-design`/Claude consumir)
         manifest.json  (URL, timestamp, versão, engine, status de cada passo)
 
 Robustez: se o DOM falha em todas as engines automatizadas, o wrapper reporta o
@@ -317,7 +317,7 @@ def _abort_screenshot_fallback(
             file=sys.stderr,
         )
         print(
-            "[aura_clone] → siga pela rota screenshot→visão da 07a "
+            "[aura_clone] → siga pela rota screenshot→visão da `page-design` "
             "(Claude lê a imagem e reconstrói a estrutura).",
             file=sys.stderr,
         )
@@ -335,7 +335,7 @@ def _abort_screenshot_fallback(
 # --------------------------- skeleton builder (clone-and-adapt) ------------- #
 
 # Placeholder neutro por tipo semântico — descreve o PAPEL da section, nunca
-# repete copy do concorrente. A 07a/Claude substitui pelo conteúdo do membro.
+# repete copy do concorrente. A `page-design`/Claude substitui pelo conteúdo do membro.
 _SKELETON_ROLE = {
     "header": "Navegação / topo do site",
     "hero": "Hero — promessa principal + CTA primário",
@@ -380,7 +380,7 @@ def _layout_hint(section: dict) -> dict:
     elif count >= 2 and sem in _list_types:
         layout = "list"
     elif count >= 2:
-        cols = min(count, 4)  # clamp visual; a 07a decide o número final
+        cols = min(count, 4)  # clamp visual; a `page-design` decide o número final
         layout = f"grid-{cols}col" if cols >= 2 else "stack"
     else:
         layout = "stack"
@@ -442,7 +442,7 @@ def build_skeleton(analysis: dict, url: str, product: Optional[str]) -> tuple[st
     Quando o analyzer extraiu `hierarchy` (computed-styles disponíveis), cada
     section do skeleton.json carrega os sinais de hierarquia visual da
     referência (proporção heading/body, padding-block, densidade, alinhamento,
-    proporção de mídia) — a 07a usa isso como direção ao preencher, pra não
+    proporção de mídia) — a `page-design` usa isso como direção ao preencher, pra não
     achatar a hierarquia que fazia a página converter.
     """
     sections_in = analysis.get("sections", []) or []
@@ -517,7 +517,7 @@ def build_skeleton(analysis: dict, url: str, product: Optional[str]) -> tuple[st
         "sections": skel_sections,
         "notice": (
             "Esqueleto ESTRUTURAL apenas. Nenhuma copy/imagem/marca do concorrente. "
-            "A 07a preenche cada placeholder com o conteúdo do membro (06-copy / 04-offer). "
+            "A `page-design` preenche cada placeholder com o conteúdo do membro (06-copy / 04-offer). "
             "O bloco `hierarchy` de cada section (quando presente) traz sinais NUMÉRICOS "
             "de hierarquia visual da referência (proporções, espaçamento, densidade) — "
             "direção de ênfase pro preenchimento, nunca CSS/conteúdo do concorrente. "
@@ -640,7 +640,7 @@ def _run_clone_and_adapt(
         )
     print(f"[aura_clone] manifest:     {manifest_path}")
     print(
-        "[aura_clone] NOTA: esqueleto é ESTRUTURA apenas. A 07a preenche com a "
+        "[aura_clone] NOTA: esqueleto é ESTRUTURA apenas. A `page-design` preenche com a "
         "copy/brand do membro. Zero conteúdo do concorrente vai pro tema."
     )
     return 0 if skeleton_ok else 2
@@ -664,7 +664,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         description=(
             "Aura Engine design-clone pipeline wrapper. "
             "Modo 'signals' (default): design_system abstrato. "
-            "Modo 'clone-and-adapt': esqueleto HTML estrutural pra 07a preencher. "
+            "Modo 'clone-and-adapt': esqueleto HTML estrutural pra `page-design` preencher. "
             "Captura em cascade: downloader (Playwright stealth) → snapshot "
             "(single-file-cli) → screenshot-fallback → --from-file (manual)."
         ),
@@ -780,7 +780,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             f"[aura_clone] engine '{acq['engine']}' não extrai computed-styles — o modo "
             "signals exige eles pra sinais reais (nada de paleta inventada). "
             "Use --engine=downloader (ou o default auto com o site acessível), "
-            "ou a rota screenshot→visão da 07a. Esta captura continua útil pro "
+            "ou a rota screenshot→visão da `page-design`. Esta captura continua útil pro "
             "modo clone-and-adapt (estrutura).",
             file=sys.stderr,
         )

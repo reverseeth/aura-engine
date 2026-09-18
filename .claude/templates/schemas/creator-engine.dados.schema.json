@@ -1,0 +1,522 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine: creator-engine/dados.json",
+  "description": "Operação de conteúdo humano em duas fases: canais, campanhas de seeding, roster de creators, briefs, inventário de conteúdo, performance por creator e economia. Escrito pela skill `creator-engine`. Lido por: ad-analysis, creative-engine, ad-strategy, scale-engine, content-recycler. Campos `required` são só os que outra skill lê; qualquer campo extra é aceito (`additionalProperties: true`). Validado por `python3 tools/manifest.py <slug> complete creator-engine` e por `python3 tools/aura-status.py <slug>`.",
+  "type": "object",
+  "required": [
+    "phase",
+    "channels",
+    "roster",
+    "briefs",
+    "content",
+    "performance_by_creator"
+  ],
+  "properties": {
+    "creator_engine_id": {
+      "type": "string"
+    },
+    "product_slug": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "ISO-8601"
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "A_content",
+        "B_performance"
+      ]
+    },
+    "phase_reason": {
+      "type": "string"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "operator": {
+      "type": "string",
+      "enum": [
+        "member",
+        "va",
+        "other"
+      ]
+    },
+    "channels": {
+      "type": "object",
+      "properties": {
+        "platform": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "brand_added": {
+              "type": "boolean"
+            },
+            "license_active": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": true
+        },
+        "manual_outreach": {
+          "type": "boolean"
+        },
+        "film_yourself": {
+          "type": "boolean"
+        },
+        "tiktok_shop": {
+          "type": "object",
+          "properties": {
+            "active": {
+              "type": "boolean"
+            },
+            "affiliates_count": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "commission_pct": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "commission_note": {
+              "type": "string"
+            },
+            "dedicated_accounts": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "seeding_campaigns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "seeding",
+              "paid_per_video"
+            ]
+          },
+          "sub_avatar_target": {
+            "type": "string"
+          },
+          "pay_per_video_usd": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "retail_value_check_passed": {
+            "type": "boolean"
+          },
+          "screening_questions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "live",
+              "closed"
+            ]
+          },
+          "applications_count": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "campaign_id",
+          "status"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "roster": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "creator_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "handle": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "sub_avatar_match": {
+            "type": "string"
+          },
+          "diversity_axes": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "applied",
+              "shortlisted",
+              "approved",
+              "hired",
+              "product_sent",
+              "filming",
+              "content_received",
+              "complete",
+              "dropped"
+            ]
+          },
+          "tier": {
+            "type": "string",
+            "enum": [
+              "seeding",
+              "paid_per_video",
+              "retainer",
+              "ambassador_performance",
+              "bounty"
+            ]
+          },
+          "rate_per_video_usd": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "retainer_monthly_usd": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "videos_per_week_due": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "performance_terms": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "whitelisting": {
+            "type": "object",
+            "properties": {
+              "eligible": {
+                "type": "boolean"
+              },
+              "access_granted": {
+                "type": "boolean"
+              },
+              "access_via": {
+                "type": "string"
+              },
+              "monthly_fee_usd": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": true
+          },
+          "partnership_access": {
+            "type": "object",
+            "properties": {
+              "granted": {
+                "type": "boolean"
+              },
+              "expires_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": true
+          },
+          "contract": {
+            "type": "object",
+            "properties": {
+              "variant": {
+                "type": "string"
+              },
+              "signed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "legal_disclaimer_included": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": true
+          },
+          "report_visibility": {
+            "type": "string",
+            "enum": [
+              "spend_only",
+              "full"
+            ]
+          },
+          "favorite": {
+            "type": "boolean"
+          },
+          "shipping": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "creator_id",
+          "status",
+          "tier"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "briefs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "brief_id": {
+            "type": "string"
+          },
+          "creator_id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "concepts_total": {
+            "type": "integer"
+          },
+          "curated": {
+            "type": "boolean"
+          },
+          "concepts_from_08": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "angles_from_02": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sent_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "brief_id",
+          "creator_id"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "content": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "content_id": {
+            "type": "string"
+          },
+          "creator_id": {
+            "type": "string"
+          },
+          "received_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "files_count": {
+            "type": "integer"
+          },
+          "dct_ready": {
+            "type": "boolean"
+          },
+          "cut_hooks_timestamps": {
+            "type": "array"
+          },
+          "license_source": {
+            "type": "string",
+            "enum": [
+              "contract",
+              "platform_terms",
+              "none"
+            ]
+          },
+          "used_in": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "content_id",
+          "creator_id",
+          "dct_ready"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "performance_by_creator": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "creator_id": {
+            "type": "string"
+          },
+          "ad_naming_pattern": {
+            "type": "string"
+          },
+          "ads": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "classes_from_11": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "spend_90d_usd": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "soft_metrics": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "last_report_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "winning_creator": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "creator_id",
+          "ad_naming_pattern"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "economics": {
+      "type": "object",
+      "properties": {
+        "monthly_content_budget_usd": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "creative_production_pct_of_ad_spend": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "hit_rate_reference": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "roi_audit": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "recruitment": {
+      "type": "object",
+      "properties": {
+        "farming_active": {
+          "type": "boolean"
+        },
+        "paid_recruitment_ads": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "affiliate_attribution": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "pending_inputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "sanity_checks": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer"
+        },
+        "passed": {
+          "type": "integer"
+        },
+        "failed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

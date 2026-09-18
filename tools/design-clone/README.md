@@ -1,15 +1,15 @@
 # Design Clone — Aura Engine (ferramenta auxiliar)
 
-**Status:** ferramenta auxiliar usada pela 07a-page-design em **dois cenários distintos**:
+**Status:** ferramenta auxiliar usada pela page-design em **dois cenários distintos**:
 
-1. **Brand signals (caminho 3, opcional):** extrair sinais de paleta/tipografia de um site de referência quando o membro quer **hex exato** e passa um link na **07a-page-design ETAPA 2 (Brand Signals)**. Os signals alimentam o `frontend-design` via `design-signals.json`.
-2. **Clone-and-adapt (rota de design recomendada por velocidade):** quando o membro indica uma PDP/landing de concorrente que acha bonita, a 07a captura a **ESTRUTURA** dela (ordem + tipo + layout de cada section, mais sinais numéricos de hierarquia visual quando há computed-styles) e gera um **esqueleto HTML** vazio que o Claude preenche com a copy/brand/produto do **MEMBRO** (06-copy / 04-offer). Herda a hierarquia de conversão validada, não o conteúdo.
+1. **Brand signals (caminho 3, opcional):** extrair sinais de paleta/tipografia de um site de referência quando o membro quer **hex exato** e passa um link na **page-design ETAPA 2 (Brand Signals)**. Os signals alimentam o `frontend-design` via `design-signals.json`.
+2. **Clone-and-adapt (rota de design recomendada por velocidade):** quando o membro indica uma PDP/landing de concorrente que acha bonita, a `page-design` captura a **ESTRUTURA** dela (ordem + tipo + layout de cada section, mais sinais numéricos de hierarquia visual quando há computed-styles) e gera um **esqueleto HTML** vazio que o Claude preenche com a copy/brand/produto do **MEMBRO** (06-copy / 04-offer). Herda a hierarquia de conversão validada, não o conteúdo.
 
 **Em ambos os cenários, nenhum código/copy/imagem/marca do concorrente vai pro tema.** O cenário 1 só extrai signals agregados; o cenário 2 só extrai estrutura (placeholders vazios). Adaptar estrutura + trocar todo o conteúdo é defensável; copiar 1:1 não.
 
-## Posição na cascade de brand signals (07a ETAPA 2)
+## Posição na cascade de brand signals (`page-design` ETAPA 2)
 
-A skill 07a-page-design ETAPA 2 monta o `design-signals.json` por cascade unificada:
+A skill page-design ETAPA 2 monta o `design-signals.json` por cascade unificada:
 
 1. **Refero MCP** (`mcp__refero__`) — catálogo curado de ~200 sites premium, preferencial.
 2. **Screenshot → visão (fallback PRIMÁRIO)** — o membro tira um print full-page da loja de referência (ou a Aura captura 1 screenshot via Playwright só pro print, sem extrair DOM) e o Claude **lê a imagem com visão nativa** pra extrair paleta/tipografia/vibe. Imune a Cloudflare/JS/markup bagunçado — exatamente o que faz o scraping de computed-styles travar.
@@ -22,7 +22,7 @@ Independente do modo (signals ou clone-and-adapt), a captura segue esta ordem:
 
 1. **`downloader.py`** — Playwright headless **com stealth** (mesmo init-script do `fetch.py` da lib web-fetch). Único caminho que extrai `computed-styles.json` (fidelidade máxima pro design_system).
 2. **`snapshot.py`** — wrapper do `single-file-cli` (SingleFile). Entra automaticamente quando o downloader não consegue DOM (`--engine=auto`, default). Produz HTML self-contained; o wrapper promove a versão AI-readable pra `page.html` e o pipeline segue. **Atenção:** essa engine não extrai computed-styles — serve pro **clone-and-adapt** (estrutura); no modo **signals** o pipeline falha honesto (o pattern-extractor recusa gerar design_system sem CSS computado real — nada de paleta inventada).
-3. **Screenshot-fallback** — o downloader salva `raw/fallback-screenshot.png` pra rota screenshot→visão da 07a. Se o screenshot capturou uma **página de challenge** (Cloudflare/Turnstile), o `fallback.json` marca `challenge_detected: true` e o wrapper avisa que ele NÃO serve pra rota visão.
+3. **Screenshot-fallback** — o downloader salva `raw/fallback-screenshot.png` pra rota screenshot→visão da `page-design`. Se o screenshot capturou uma **página de challenge** (Cloudflare/Turnstile), o `fallback.json` marca `challenge_detected: true` e o wrapper avisa que ele NÃO serve pra rota visão.
 4. **MANUAL (vence Cloudflare/login):** o membro instala a [extensão SingleFile](https://chromewebstore.google.com/detail/singlefile/mpiodijhokgodhhofbcjdecpffjipkle) no Chrome dele, abre a página normalmente, clica no ícone da extensão (1 clique salva o .html completo em Downloads) e entrega o arquivo. A Aura ingere com `aura_clone.py --from-file=<arquivo.html>` — mesmo pipeline, browser real do membro, imune a anti-bot.
 
 ## Pré-requisitos
@@ -36,13 +36,13 @@ python3 -m venv .venv
 .venv/bin/playwright install chromium
 ```
 
-(a skill 00-setup faz isso automaticamente)
+(a skill setup faz isso automaticamente)
 
 **Bootstrap automático (não precisa ativar o venv):** todos os entry-points (`aura_clone.py`, `downloader.py`, `analyzer.py`, `pattern-extractor.py`, `liquid-converter.py`) usam o mesmo padrão de re-exec do `fetch.py` da lib web-fetch — se o `python3` do sistema não tiver as deps, o script se re-executa sozinho no `.venv` (deste diretório, com fallback pro venv da web-fetch). Ou seja: `python3 aura_clone.py ...` direto FUNCIONA, desde que o venv exista. Sem venv nenhum, os scripts degradam graciosamente (ingestão `--from-file` segue funcionando; os passos que precisam de browser/bs4 imprimem o comando de setup).
 
 **Opcional — captura via SingleFile (`snapshot.py` com URL):** precisa de Node.js >= 20 (`brew install node`). O `single-file-cli` baixa on-demand via `npx -y -p single-file-cli`; instalação global opcional: `npm install -g single-file-cli`. A **ingestão de arquivo local** (`--from-file`) não precisa de Node nem de browser.
 
-## Uso no fluxo da 07a-page-design (cenário de signals)
+## Uso no fluxo da page-design (cenário de signals)
 
 Quando o membro quer hex exato e passa um site de referência visual na ETAPA 2 (Brand Signals), o caminho canônico é o wrapper (orquestra os 3 passos e a cascade de captura):
 
@@ -63,7 +63,7 @@ python3 analyzer.py /tmp/ref-<produto>
 python3 pattern-extractor.py /tmp/ref-<produto>
 ```
 
-A 07a-page-design lê apenas o bloco `design_system` de `/tmp/ref-<produto>/patterns.json` (que vira fonte de `design-signals.json`):
+A page-design lê apenas o bloco `design_system` de `/tmp/ref-<produto>/patterns.json` (que vira fonte de `design-signals.json`):
 
 ```json
 {
@@ -76,7 +76,7 @@ A 07a-page-design lê apenas o bloco `design_system` de `/tmp/ref-<produto>/patt
 }
 ```
 
-Esse bloco vira input pro `frontend-design` da 07a (signals de cor/tipografia/vibe). O resto do `patterns.json` é ignorado — a estrutura da página vem sempre da copy do membro, não do concorrente.
+Esse bloco vira input pro `frontend-design` da `page-design` (signals de cor/tipografia/vibe). O resto do `patterns.json` é ignorado — a estrutura da página vem sempre da copy do membro, não do concorrente.
 
 ## Scripts
 
@@ -86,10 +86,10 @@ Esse bloco vira input pro `frontend-design` da 07a (signals de cor/tipografia/vi
 | `snapshot.py` | Snapshot fiel via `single-file-cli` (subprocess — AGPL, nunca vendorizado) OU ingestão de .html salvo pela extensão SingleFile. Gera `ref.full.html` + `ref.ai.html`. |
 | `analyzer.py` | Detecta sections semanticamente (atravessa o wrapper `<main>` de temas Shopify; match de hints por token, não substring). Taxonomia cobre as genéricas de landing (hero, features, testimonials, faq, pricing…) **e as típicas de PDP/landing DTC**: `guarantee`, `before-after`, `comparison-table`, `ingredients`, `how-it-works`, `founder-story` (heurísticas de classe + conteúdo + estrutura, ex: `<table>` com check/cross = comparison-table). Se `computed-styles.json` existe, extrai também os **sinais de hierarquia visual por section** (ver schema abaixo). Input obrigatório do skeleton-builder (clone-and-adapt); no modo signals é opcional (só agrega o `analysis.json` de contexto) |
 | `pattern-extractor.py` | **Core do caminho de signals.** Produz `design_system` abstrato (cores, fontes, radius, shadow, density). Input único: o `computed-styles.json` do downloader — não requer o analyzer |
-| `liquid-converter.py` | Conversor canônico HTML→Liquid. **NÃO é usado pela 07a** (que só extrai signals); é o conversor obrigatório da **07b-page-build** (compile determinístico). Detalhes no fluxo da 07b. |
+| `liquid-converter.py` | Conversor canônico HTML→Liquid. **NÃO é usado pela `page-design`** (que só extrai signals); é o conversor obrigatório da **page-build** (compile determinístico). Detalhes no fluxo da `page-build`. |
 | `preview.py` | Renderiza `.liquid` como HTML standalone pra debug |
 
-O **modo `clone-and-adapt`** do `aura_clone.py` reusa a captura + `analyzer.py` e monta o esqueleto in-process (não há script separado). `liquid-converter.py` vive no fluxo da 07b, não aqui.
+O **modo `clone-and-adapt`** do `aura_clone.py` reusa a captura + `analyzer.py` e monta o esqueleto in-process (não há script separado). `liquid-converter.py` vive no fluxo da `page-build`, não aqui.
 
 ## CLI unificado (`aura_clone.py`)
 
@@ -174,9 +174,9 @@ Exit codes: `0` ok · `1` input/output inválido · `2` captura/pós-processamen
 
 O arquivo salvo é referência de concorrente = material de trabalho do membro — vive em `workspace/`/`tmp`, **jamais é commitado** (rule 11 do CLAUDE.md).
 
-## Modo `clone-and-adapt` (esqueleto estrutural pra 07a)
+## Modo `clone-and-adapt` (esqueleto estrutural pra `page-design`)
 
-Captura a **ESTRUTURA** de uma URL de referência (ordem + tipo semântico + layout de cada section, mais o bloco `hierarchy` com os sinais de hierarquia visual quando a captura veio do downloader) e produz um **esqueleto HTML** com sections vazias/placeholder. Esse esqueleto é o ponto de partida da rota *Clone-and-adapt* da 07a-page-design (ETAPA 3): o Claude preenche cada placeholder com a copy/brand/imagens do **membro** (06-copy / 04-offer), gerando `design/page.html`. **Zero copy/imagem/marca do concorrente entra no esqueleto** — só a hierarquia/layout.
+Captura a **ESTRUTURA** de uma URL de referência (ordem + tipo semântico + layout de cada section, mais o bloco `hierarchy` com os sinais de hierarquia visual quando a captura veio do downloader) e produz um **esqueleto HTML** com sections vazias/placeholder. Esse esqueleto é o ponto de partida da rota *Clone-and-adapt* da page-design (ETAPA 3): o Claude preenche cada placeholder com a copy/brand/imagens do **membro** (06-copy / 04-offer), gerando `design/page.html`. **Zero copy/imagem/marca do concorrente entra no esqueleto** — só a hierarquia/layout.
 
 ```bash
 python3 aura_clone.py clone-and-adapt <url> --output=<dir> [--product=<slug>]
@@ -194,13 +194,13 @@ Estrutura de output:
     raw/            HTML/CSS/screenshot do concorrente (referência LOCAL, não vai pro tema)
     analysis.json   Sections detectadas (ordem + tipo + layout + hierarchy)
     skeleton.html   ESQUELETO estrutural: placeholders comentados, zero conteúdo do concorrente
-    skeleton.json   Mesma estrutura em dados + sinais de hierarquia visual (a 07a/Claude consome este pra preencher)
+    skeleton.json   Mesma estrutura em dados + sinais de hierarquia visual (a `page-design`/Claude consome este pra preencher)
     manifest.json   URL, timestamp, versão, engine, status de cada passo, clone_mode
 ```
 
 Cada section do esqueleto vira um `<section class="section-NN-<tipo>" data-semantic data-layout>` com `placeholder-heading`, `placeholder-body`, `placeholder-media` (N slots) e `placeholder-grid` (N cards repetíveis) conforme o layout detectado. O layout coarse é derivado só dos campos estruturais do analyzer (`repeating_pattern` → grid de N colunas; FAQ/steps viram lista vertical; `comparison-table` → `table`; `before-after` com 2 mídias → `split-2col`) — **nenhum hex, fonte ou texto do concorrente** entra no esqueleto.
 
-### Schema do `skeleton.json` (o que a 07a consome)
+### Schema do `skeleton.json` (o que a `page-design` consome)
 
 ```json
 {
@@ -240,7 +240,7 @@ Cada section do esqueleto vira um `<section class="section-NN-<tipo>" data-seman
 
 O bloco **`hierarchy`** é o que impede o clone-and-adapt de achatar a hierarquia visual que fazia a página converter (um hero com H1 3.3x o body e 120px de respiro não é o mesmo hero com H1 1.4x e 24px). Semântica de cada campo:
 
-| Campo | O que diz pra 07a |
+| Campo | O que diz pra `page-design` |
 |---|---|
 | `font_scale` | Proporções de font-size da referência (`h1_to_body`, `h2_to_body`, `heading_to_body` = maior heading da section ÷ mediana do body). Use as PROPORÇÕES ao preencher — os px absolutos são só contexto. |
 | `padding_block_px` | Respiro vertical real da section (padding-top/bottom computado). Direção de espaçamento, não valor obrigatório. |
@@ -248,14 +248,14 @@ O bloco **`hierarchy`** é o que impede o clone-and-adapt de achatar a hierarqui
 | `dominant_alignment` | Alinhamento de texto dominante (`left`/`center`/`right`/`justify`). |
 | `media_text_balance` | `media_area_ratio` = fração da área da section coberta por mídia (0-1) + contagens. Diz se a section é image-led ou copy-led. |
 
-**Todos os valores são numéricos/categóricos agregados** — proporções e medidas espaciais, zero copy/hex/fonte do concorrente (paleta e tipografia continuam vindo da cascade de brand signals da 07a, nunca daqui). `hierarchy` fica **null** quando a captura não veio do downloader (engines `singlefile`/`--from-file` não extraem computed-styles) ou quando a section não pôde ser casada com o computed-styles — nesses casos a 07a preenche com a hierarquia default do tipo semântico. O `skeleton.html` repete os sinais como comentário compacto por section (`<!-- Hierarquia da referência: ... -->`).
+**Todos os valores são numéricos/categóricos agregados** — proporções e medidas espaciais, zero copy/hex/fonte do concorrente (paleta e tipografia continuam vindo da cascade de brand signals da `page-design`, nunca daqui). `hierarchy` fica **null** quando a captura não veio do downloader (engines `singlefile`/`--from-file` não extraem computed-styles) ou quando a section não pôde ser casada com o computed-styles — nesses casos a `page-design` preenche com a hierarquia default do tipo semântico. O `skeleton.html` repete os sinais como comentário compacto por section (`<!-- Hierarquia da referência: ... -->`).
 
 ## Fallbacks (anti-bot/Cloudflare)
 
 Se o scraping de DOM falha (challenge anti-bot, timeout, 4xx), o fluxo degrada em ordem:
 
 1. **single-file-cli** (`--engine=auto`): o wrapper tenta o `snapshot.py` automaticamente — motor de captura diferente, mesma máquina.
-2. **Screenshot full-page**: o `downloader` salva `raw/fallback-screenshot.png` + `raw/fallback.json`. O wrapper não gera esqueleto/patterns e aponta o membro pra **rota screenshot→visão da 07a**. O manifest ganha `"mode": "screenshot_fallback"` (top-level) e `"skeleton": null`.
+2. **Screenshot full-page**: o `downloader` salva `raw/fallback-screenshot.png` + `raw/fallback.json`. O wrapper não gera esqueleto/patterns e aponta o membro pra **rota screenshot→visão da `page-design`**. O manifest ganha `"mode": "screenshot_fallback"` (top-level) e `"skeleton": null`.
 3. **Challenge detectado**: antes de aceitar o screenshot, o downloader confere se a tela é o interstitial ("Just a moment…", Turnstile) e espera até ~14s pelo auto-resolve. Se persistir, `fallback.json` ganha `challenge_detected: true`, o exit code do downloader é `5` e o wrapper avisa que o screenshot **não serve** pra rota visão — a saída é a rota manual (extensão SingleFile + `--from-file`).
 
 Exit codes do `downloader.py`: `0` DOM completo · `1` erro fatal/deps · `3` fallback com screenshot utilizável · `4` nem screenshot saiu · `5` screenshot é página de challenge.
@@ -291,7 +291,7 @@ Todos os scripts aplicam validação defensiva antes de qualquer I/O ou fetch de
 
 ## Princípios
 
-- **Zero código do concorrente no output final.** A 07a só extrai signals agregados (paleta + fontes + tokens) ou o esqueleto estrutural com placeholders vazios (clone-and-adapt); o HTML da página nasce da rota de design escolhida na 07a, sempre com copy/imagens/marca 100% do membro. No `liquid-converter.py`, o único caminho que injetaria markup da página de origem no tema (Modo B legacy, `--sections-json`) é **BLOQUEADO por default** e exige `--allow-competitor-markup` — permitido só quando a página de origem é PRÓPRIA do membro.
+- **Zero código do concorrente no output final.** A `page-design` só extrai signals agregados (paleta + fontes + tokens) ou o esqueleto estrutural com placeholders vazios (clone-and-adapt); o HTML da página nasce da rota de design escolhida na `page-design`, sempre com copy/imagens/marca 100% do membro. No `liquid-converter.py`, o único caminho que injetaria markup da página de origem no tema (Modo B legacy, `--sections-json`) é **BLOQUEADO por default** e exige `--allow-competitor-markup` — permitido só quando a página de origem é PRÓPRIA do membro.
 - **A IA nunca lê snapshot cru.** `ref.full.html` é verdade visual (browser/screenshot); leitura sempre via `ref.ai.html` segmentado ou extração programática.
 - **Theme-agnostic.** Sections geradas no fluxo storefront têm namespacing próprio (`page-<produto>-<tipo>`), zero dependência do tema pai.
 - **Validação obrigatória.** Toda section .liquid gerada passa pela skill `shopify-plugin:shopify-liquid` antes de instalar no tema.

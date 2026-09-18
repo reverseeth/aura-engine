@@ -4,11 +4,11 @@ Sistema de memória que aprende, a cada criativo produzido e medido, **qual comb
 
 ## O que faz
 
-1. **Extract** — quando Skill 08 gera briefing, extrai 26 features estruturadas (22 do criativo + 4 contextuais — ver `feature_schema.json`)
+1. **Extract** — quando Skill `creative-engine` gera briefing, extrai 23 features estruturadas (21 do criativo + 2 contextuais — ver `feature_schema.json`)
 2. **Store** — salva em SQLite local no workspace do produto
-3. **Update** — quando Skill 11 roda, atualiza cada criativo com performance real
+3. **Update** — quando Skill `ad-analysis` roda, atualiza cada criativo com performance real
 4. **Learn** — calcula correlações entre features e outcome (winner/loser)
-5. **Inject** — próxima Skill 08 recebe DNA aprendido como constraint no briefing
+5. **Inject** — próxima Skill `creative-engine` recebe DNA aprendido como constraint no briefing
 
 ## Arquitetura
 
@@ -16,16 +16,16 @@ Sistema de memória que aprende, a cada criativo produzido e medido, **qual comb
 workspace/[produto]/creative-dna/
 ├── registry.db                    # SQLite com criativos + features + performance
 ├── dna-profile.json               # Perfil DNA atualizado a cada N criativos
-├── features-[creative-id].json    # Features extraídas por criativo (Skill 08)
-├── perf-[creative-id].json        # Performance por criativo (Skill 11)
+├── features-[creative-id].json    # Features extraídas por criativo (Skill `creative-engine`)
+├── perf-[creative-id].json        # Performance por criativo (Skill `ad-analysis`)
 └── extraction-errors.log          # Log de falhas de extração (não bloqueia a skill)
 ```
 
 ## Integração silenciosa com Skills
 
-- **Skill 08 (generate briefing)** → extrai features + salva no DB (sem membro ver)
-- **Skill 11 (ad analysis)** → atualiza performance + outcome (sem membro ver)
-- **Skill 08 (próxima rodada)** → carrega dna-profile.json e enviesa briefing
+- **Skill `creative-engine` (generate briefing)** → extrai features + salva no DB (sem membro ver)
+- **Skill `ad-analysis`** → atualiza performance + outcome (sem membro ver)
+- **Skill `creative-engine` (próxima rodada)** → carrega dna-profile.json e enviesa briefing
 
 Silent end-to-end. Membro só vê o benefício via criativos que performam melhor.
 

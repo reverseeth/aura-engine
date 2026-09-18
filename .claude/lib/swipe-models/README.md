@@ -1,12 +1,12 @@
 # Swipe Models — modelagem por espécime
 
-Camada que faz a skill 06 (copy engine) **modelar contra uma peça real que já converteu** antes de escrever, em vez de escrever só a partir de frameworks teóricos.
+Camada que faz a skill `copy-engine` **modelar contra uma peça real que já converteu** antes de escrever, em vez de escrever só a partir de frameworks teóricos.
 
 ## O problema que resolve
 
 O `kb-index` entrega **frameworks** — o que fazer (Caples, Schwartz, Cialdini, Hopkins). Isso é necessário e não muda. Mas nenhum copywriter de verdade escreve só com framework na mesa: ele escolhe a peça provada mais próxima do caso dele e **modela a estrutura** — a sequência de blocos, onde entra prova, onde entra credencial, onde o mecanismo é batizado, como a ponte pro preço é feita.
 
-Até 2026-09-01 a skill 06 não tinha essa etapa. Ela decidia estratégia (ETAPA 2) e ia direto pra headline (ETAPA 3), sem nunca olhar como uma peça vencedora do mesmo tipo foi montada.
+Até 2026-09-01 a skill `copy-engine` não tinha essa etapa. Ela decidia estratégia (ETAPA 2) e ia direto pra headline (ETAPA 3), sem nunca olhar como uma peça vencedora do mesmo tipo foi montada.
 
 ## Como funciona
 
@@ -18,7 +18,7 @@ Até 2026-09-01 a skill 06 não tinha essa etapa. Ela decidia estratégia (ETAPA
 - **`blocos_chave`** — a sequência que a copy deve seguir
 - **`base_empirica`** — de quantas peças aquele padrão foi medido (honestidade sobre a força da evidência)
 
-A skill 06 seleciona **1 espécime primário** e, opcionalmente, **1 secundário** pra emprestar um bloco específico (ex.: primário = advertorial de 7 seções da masterclass interna, secundário = escada de prova do chassi Haddad).
+A skill `copy-engine` seleciona **1 espécime primário** e, opcionalmente, **1 secundário** pra emprestar um bloco específico (ex.: primário = advertorial de 7 seções da masterclass interna, secundário = escada de prova do chassi Haddad).
 
 ## A regra inegociável
 
@@ -28,7 +28,7 @@ Copiar frase, claim, número ou nome de mecanismo de um espécime é plágio. O 
 
 ## A auditoria (sweep 9 da ETAPA 6)
 
-O nó `auditoria` do JSON transforma o método de markup do Kyle Milligan numa rubrica de QA reproduzível — as 5 camadas (estrutura+4 U's, 4 emoções, lead de 4 passos, psicologia, oferta/preço), o loop `Objection → Claim → Proof (3x) → Benefit` rastreado parágrafo a parágrafo, e a folha de 12 defeitos recorrentes com o nome que o próprio auditor usa.
+O nó `auditoria` do JSON transforma o método de markup do Kyle Milligan numa rubrica de QA reproduzível — as 6 camadas (estrutura+4 U's, 4 emoções, lead de 4 passos, psicologia, oferta/preço e a regra do "Not: ___", que proíbe a palavra genérica da categoria em toda a pilha de entregáveis), o loop `Objection → Claim → Proof (3x) → Benefit` rastreado parágrafo a parágrafo, e a folha de 14 defeitos recorrentes com o nome que o próprio auditor usa.
 
 A regra de veredito é dura de propósito: **se a headline reprova em 3 dos 4 U's e falha em ideal prospect ou big promise, não vale auditar o corpo — reescreve o lead antes.** No arquivo original, o auditor abandona a anotação na página 4 de 21 quando isso acontece; o abandono é o veredito.
 

@@ -1,6 +1,6 @@
 # Resilient Fetch (NON-NEGOTIABLE)
 
-> Aplica a TODA skill que busca dados na web (02 market research, 03 competitor analysis, 01 product research, 08/11/13/14 quando minerar social/reviews). Objetivo: **a Aura não trava nem inventa quando um site bloqueia.** Bloqueio é tratado, não é erro.
+> Aplica a TODA skill que busca dados na web (`market-research`, `competitor-analysis`, `product-research`; `creative-engine`, `ad-analysis`, `retention-engine` e `content-recycler` quando minerar social/reviews). Objetivo: **a Aura não trava nem inventa quando um site bloqueia.** Bloqueio é tratado, não é erro.
 
 ## A cascade (ordem obrigatória)
 
@@ -33,7 +33,7 @@ Pra qualquer dado que precise vir da web (VOC, PDP, ads, reviews):
 
 ## Dependência
 
-O fetcher precisa de Playwright + Chromium (instalado pela skill 00 — setup, ou pelo comando no `.claude/lib/web-fetch/README.md`). Se ausente, o fetcher imprime o comando de setup; a skill informa o membro e segue com WebSearch/WebFetch enquanto isso.
+O fetcher precisa de Playwright + Chromium (instalado pela skill `setup`, ou pelo comando no `.claude/lib/web-fetch/README.md`). Se ausente, o fetcher imprime o comando de setup; a skill informa o membro e segue com WebSearch/WebFetch enquanto isso.
 
 ## Anti-patterns (FORBIDDEN)
 

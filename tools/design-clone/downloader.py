@@ -237,7 +237,7 @@ def _path_allowlist() -> list[Path]:
         Path(tempfile.gettempdir()).resolve(),
         (repo_root / "workspace").resolve(),
     ]
-    # /tmp é o destino canônico documentado (README/skill 07a) — no macOS ele
+    # /tmp é o destino canônico documentado (README/skill `page-design`) — no macOS ele
     # NÃO é o tempfile.gettempdir() ($TMPDIR aponta pra /var/folders/...).
     tmp_root = Path("/tmp")
     if tmp_root.exists():
@@ -626,7 +626,7 @@ async def _capture_screenshot_fallback(url: str, output_dir: Path) -> int:
 
     Usado quando o scraping de DOM falha (anti-bot/Cloudflare, timeout, 4xx em
     challenge). Não tenta extrair markup/computed-styles — o screenshot serve à
-    rota screenshot→visão da 07a (o Claude lê a imagem com visão nativa). Gera um
+    rota screenshot→visão da `page-design` (o Claude lê a imagem com visão nativa). Gera um
     `fallback.json` sinalizando que só o screenshot está disponível.
 
     Antes de fotografar, detecta se a tela é um interstitial de challenge
@@ -671,7 +671,7 @@ async def _capture_screenshot_fallback(url: str, output_dir: Path) -> int:
 
     note = (
         "DOM scraping falhou (anti-bot/Cloudflare/timeout). Só o screenshot "
-        "full-page está disponível — use a rota screenshot→visão da 07a."
+        "full-page está disponível — use a rota screenshot→visão da `page-design`."
     )
     if challenge:
         note = (

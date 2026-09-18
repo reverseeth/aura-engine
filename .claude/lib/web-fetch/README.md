@@ -45,7 +45,7 @@ Detalhes em `.claude/rules/resilient-fetch.md`.
 
 ## Setup (uma vez)
 
-O script faz **bootstrap automático**: se o python atual não tem Playwright, ele re-executa usando o venv do framework. A skill 00 (setup) cria o venv:
+O script faz **bootstrap automático**: se o python atual não tem Playwright, ele re-executa usando o venv do framework. A skill `setup` cria o venv:
 
 ```bash
 python3 -m venv .claude/lib/web-fetch/.venv

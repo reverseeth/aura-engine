@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "note": "Tokens COMPLETOS e FIXOS dos 8 presets de design da 07a (Caminho 4 dos brand signals). A skill LÊ este arquivo e mapeia o preset escolhido pro shape do design-signals.json — NUNCA inventa tokens de preset por run. Todas as fontes são Google Fonts (a 07b provisiona o carregamento via preconnect+link ou @font-face). Palette é role-tagged: background/surface/foreground/primary/on_primary/accent/muted/border.",
+  "note": "Tokens COMPLETOS e FIXOS dos 8 presets de design da `page-design` (Caminho 4 dos brand signals). A skill LÊ este arquivo e mapeia o preset escolhido pro shape do design-signals.json — NUNCA inventa tokens de preset por run. Todas as fontes são Google Fonts (a `page-build` provisiona o carregamento via preconnect+link ou @font-face). Palette é role-tagged: background/surface/foreground/primary/on_primary/accent/muted/border.",
   "presets": {
     "modern-clean": {
       "name": "Modern Clean",

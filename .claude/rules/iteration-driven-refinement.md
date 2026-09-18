@@ -2,7 +2,7 @@
 name: iteration-driven-refinement
 description: Princípio operacional pra toda skill — preferir iteração rápida com feedback do membro sobre geração "perfeita na primeira rodada". Membro não consegue articular todo requisito de antemão; iteração revela o que faltava.
 paths:
-  - .claude/skills/
+  - .claude/skills/**/SKILL.md
 ---
 
 # Iteration-Driven Refinement
@@ -23,7 +23,7 @@ NÃO dizer "pronto!" ou "pode lançar" — esse framing bloqueia feedback honest
 
 ### 2. Checkpoint mid-run quando skill é longa
 
-Skills que rodam > 5 minutos (ex: cadeia 07a/07b/07c page, 08-creative-engine com 8+ conceitos) têm checkpoints:
+Skills que rodam > 5 minutos (ex: cadeia `page-design`/`page-build`/`tracking-setup` page, creative-engine com 8+ conceitos) têm checkpoints:
 
 - Antes de gerar Liquid, mostrar blueprint: "Aprova a direção ou ajusto?"
 - Depois de 2-3 conceitos de ad, mostrar um: "Tom e ângulo tão OK ou roda diferente?"
@@ -42,7 +42,7 @@ Feedback binário ("sim/não") não melhora a próxima rodada.
 
 ### 4. Estado preservado entre iterações
 
-Toda iteração salva versão nova com suffix `-v2`, `-v3`, não sobrescreve. Membro pode voltar pra versão anterior se mudar de ideia. Skill mantém log **per-fase** em `workspace/[produto]/[fase]/iterations-log.json` (ex: a 07a usa `workspace/[produto]/07-page/iterations-log.json`) — escopo por skill facilita a auditoria de cada fase e evita um log único misturando iterações de copy com iterações de página. Não existe log global na raiz do produto.
+Toda iteração salva versão nova com suffix `-v2`, `-v3`, não sobrescreve. Membro pode voltar pra versão anterior se mudar de ideia. Skill mantém log **per-fase** em `workspace/[produto]/[fase]/iterations-log.json` (ex: a `page-design` usa `workspace/[produto]/page/iterations-log.json`) — escopo por skill facilita a auditoria de cada fase e evita um log único misturando iterações de copy com iterações de página. Não existe log global na raiz do produto.
 
 ### 5. Max 3 iterações antes de escalate
 

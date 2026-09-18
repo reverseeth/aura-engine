@@ -1,0 +1,562 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine: market-research/dados.json",
+  "description": "Unified Research Brief: awareness, sofisticação, VOC ranqueada, avatar central, sub-avatares, apelidos do mercado e vocabulário. Escrito pela skill `market-research`. Lido por: competitor-analysis, offer-builder, copy-engine, page-design, creative-engine, creator-engine, consistency-audit, content-recycler, ad-analysis (sub_avatars via winning_sub_avatar_id). Campos `required` são só os que outra skill lê; qualquer campo extra é aceito (`additionalProperties: true`). Validado por `python3 tools/manifest.py <slug> complete market-research` e por `python3 tools/aura-status.py <slug>`. O bloco `resumo` (opcional) abre o arquivo com o que a fase seguinte lê de primeira; ele espelha campos daqui e nunca substitui a leitura do campo de origem quando a etapa precisa do valor literal.",
+  "type": "object",
+  "required": [
+    "awareness_distribution",
+    "dominant_awareness",
+    "sophistication_stage",
+    "voc_phrases",
+    "voc_top20",
+    "voc_count",
+    "voc_adequacy",
+    "core_avatar",
+    "sub_avatars",
+    "labels",
+    "market_vocabulary",
+    "alternative_solutions"
+  ],
+  "properties": {
+    "resumo": {
+      "type": "object",
+      "description": "Bloco compacto que a fase seguinte lê primeiro: espelha campos que já existem neste arquivo, com no máximo doze entradas curtas, e é preenchido por último. Onde divergir do campo de origem, o campo de origem vence. Opcional: `dados.json` gravado antes desta convenção não tem o bloco, e quem lê cai no arquivo inteiro.",
+      "additionalProperties": true,
+      "properties": {
+        "dominant_awareness": {
+          "type": "string"
+        },
+        "sophistication_stage": {
+          "type": "integer"
+        },
+        "core_avatar_line": {
+          "type": "string"
+        },
+        "core_problem": {
+          "type": "string"
+        },
+        "core_desire": {
+          "type": "string"
+        },
+        "top_objection": {
+          "type": "string"
+        },
+        "voc_top5": {
+          "type": "array"
+        },
+        "sub_avatar_ids": {
+          "type": "array"
+        },
+        "market_labels": {
+          "type": "array"
+        },
+        "alternative_solutions_top3": {
+          "type": "array"
+        },
+        "voc_adequacy": {
+          "type": "string"
+        },
+        "blocked_skills": {
+          "type": "array"
+        }
+      }
+    },
+    "awareness_distribution": {
+      "type": "object",
+      "properties": {
+        "unaware": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "problem_aware": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "solution_aware": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "product_aware": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "most_aware": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "unaware",
+        "problem_aware",
+        "solution_aware",
+        "product_aware",
+        "most_aware"
+      ],
+      "additionalProperties": true
+    },
+    "awareness_distribution_source": {
+      "type": "string",
+      "enum": [
+        "default",
+        "user_estimate",
+        "hybrid",
+        "web_signals"
+      ]
+    },
+    "dominant_awareness": {
+      "type": "string",
+      "enum": [
+        "unaware",
+        "problem_aware",
+        "solution_aware",
+        "product_aware",
+        "most_aware"
+      ]
+    },
+    "dominant_awareness_secondary": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "unaware",
+        "problem_aware",
+        "solution_aware",
+        "product_aware",
+        "most_aware",
+        null
+      ],
+      "description": "só existe no empate de dois níveis adjacentes"
+    },
+    "sophistication_stage": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "sophistication_confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "voc_phrases": {
+      "type": "object",
+      "properties": {
+        "problem": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "desire": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "frustration": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "voc_top20": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^voc-\\d{3,}$"
+          },
+          "rank": {
+            "type": "integer"
+          },
+          "phrase": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "problem",
+              "desire",
+              "frustration"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "phrase"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "voc_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "voc_adequacy": {
+      "type": "string",
+      "enum": [
+        "ok",
+        "medium",
+        "insufficient"
+      ]
+    },
+    "skills_blocked": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sources": {
+      "type": "object",
+      "properties": {
+        "voc_sources": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "awareness_distribution_source": {
+          "type": "string"
+        },
+        "blocked_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "core_avatar": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "surface_desire": {
+          "type": "string"
+        },
+        "core_desire_behind": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "urgency": {
+          "type": "string"
+        },
+        "staying_power": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "voc_evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "quote": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "surface_desire"
+      ],
+      "additionalProperties": true
+    },
+    "sub_avatars": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "categories_used": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "desire": {
+            "type": "string"
+          },
+          "experience": {
+            "type": "string"
+          },
+          "emotion": {
+            "type": "string"
+          },
+          "behavior": {
+            "type": "string"
+          },
+          "demographic": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "angle": {
+            "type": "string"
+          },
+          "voc_evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "quote": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "required": [
+          "id",
+          "desire",
+          "angle"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "refers_to": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "voc_quote": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "market_vocabulary": {
+      "type": "object",
+      "properties": {
+        "words_used": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "term": {
+                "type": "string"
+              },
+              "count": {
+                "type": "integer"
+              },
+              "category": {
+                "type": "string"
+              },
+              "saturated_in_market": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "term"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "words_absent": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "term": {
+                "type": "string"
+              },
+              "used_by": {
+                "type": "string"
+              },
+              "occurrences_in_research": {
+                "type": "integer"
+              },
+              "market_says_instead": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "term"
+            ],
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "words_used",
+        "words_absent"
+      ],
+      "additionalProperties": true
+    },
+    "avatar": {
+      "type": "object",
+      "properties": {
+        "psychographics": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "pain_hierarchy": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "desire_hierarchy": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "demographics": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "trigger_events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "voc_quote": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "objections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "quote": {
+            "type": "string"
+          },
+          "break_strategy": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "alternative_solutions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "perceived_benefit": {
+            "type": "string"
+          },
+          "weakness_exploited": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "root_cause_candidates": {
+      "type": "array"
+    },
+    "strategic_implications": {
+      "type": "object",
+      "properties": {
+        "page_type": {
+          "type": "string"
+        },
+        "lead_type": {
+          "type": "string"
+        },
+        "mechanism_type": {
+          "type": "string"
+        },
+        "top_angles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

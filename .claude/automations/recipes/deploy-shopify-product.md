@@ -7,8 +7,8 @@
 
 ## Input
 - `product_slug` — do manifest
-- `bundle_tiers` — do `07d-checkout-aov/dados.json` → `levers.bundles.tiers` (array `{qty, price, label}` — ex: Solo qty 1 / 3-pack "Popular" / 6-pack "Best Value"). **Se a 07d não rodou ou `bundles.active == false`:** produto single-variant no `pricing.main_sku_price` do `04-offer-builder/dados.json`.
-- `description_md` — caminho do `06-copy-engine/copy-engine.md` (seção PDP ou description; se não existir, use o legado `relatorio.md`)
+- `bundle_tiers` — do `checkout-aov/dados.json` → `levers.bundles.tiers` (array `{qty, price, label}` — ex: Solo qty 1 / 3-pack "Popular" / 6-pack "Best Value"). **Se a `checkout-aov` não rodou ou `bundles.active == false`:** produto single-variant no `pricing.main_sku_price` do `offer-builder/dados.json`.
+- `description_md` — caminho do `copy-engine/copy-engine.md` (seção PDP ou description; se não existir, use o legado `relatorio.md`)
 - `images` — array de paths locais. Não há convenção de pasta de imagens no workspace — se vazio, perguntar ao membro os paths (ou confirmar stock placeholders).
 
 **Dados operacionais que NENHUMA skill grava (perguntar ao membro na 1ª run, 1 mensagem só):** SKU base, estoque inicial e peso da unidade. Derivar por tier: `sku = <SKU_BASE>-<qty>pk`, `inventory = estoque ÷ mix esperado`, `weight = peso_unidade × qty`. Gravar as respostas em `manifest.shopify_product_ops` (`{sku_base, initial_inventory, unit_weight_kg}`) pra não perguntar de novo.
@@ -25,9 +25,9 @@
 
 ## Pre-flight
 - [ ] Shopify MCP conectado (`mcp__shopify__*`) OU Playwright disponível como fallback (ver cascade acima)
-- [ ] `07d-checkout-aov/dados.json` com `levers.bundles.tiers` (OU decisão explícita de single-variant via 04)
-- [ ] `06-copy-engine/copy-engine.md` existe
-- [ ] `manifest.storefront.theme_id` preenchido (gravado pela 07b no deploy da página)
+- [ ] `checkout-aov/dados.json` com `levers.bundles.tiers` (OU decisão explícita de single-variant via `offer-builder`)
+- [ ] `copy-engine/copy-engine.md` existe
+- [ ] `manifest.storefront.theme_id` preenchido (gravado pela `page-build` no deploy da página)
 - [ ] SKU base / estoque / peso confirmados (ver Input)
 - [ ] Imagens disponíveis (ou stock placeholders marcados)
 
@@ -38,7 +38,7 @@
 product = shopify.product.create({
   title: product_name,           // lê do manifest.product_name
   vendor: brand_name,            // lê do manifest.brand_name
-  product_type: derived_from_category,  // da skill 01
+  product_type: derived_from_category,  // da skill `product-research`
   status: "draft",               // sempre draft, humano publica
   tags: derived_tags_from_category_and_brand,
   body_html: extract_description_from_copy(description_md)
@@ -47,12 +47,12 @@ product = shopify.product.create({
 
 ### 2. Criar variants (1 por tier de bundle)
 ```
-for tier in bundle_tiers:        // do 07d-checkout-aov/dados.json (levers.bundles.tiers)
+for tier in bundle_tiers:        // do checkout-aov/dados.json (levers.bundles.tiers)
     tier_name = tier.label or f"{tier.qty}-pack" if tier.qty > 1 else "Solo"
     variant = shopify.variant.create(product.id, {
       title: tier_name,
       price: tier.price,
-      compare_at_price: round(main_sku_price * tier.qty, 2) if tier.qty > 1 else null,  // "was" = N× o preço solo (âncora da 07d)
+      compare_at_price: round(main_sku_price * tier.qty, 2) if tier.qty > 1 else null,  // "was" = N× o preço solo (âncora da `checkout-aov`)
       sku: f"{ops.sku_base}-{tier.qty}pk",
       inventory_quantity: derived_inventory(tier),
       inventory_management: "shopify",
@@ -73,13 +73,13 @@ for img_path in images:
 ```
 
 ### 4. Wire Variant IDs no template.json
-Ler o template gerado pela skill 07b (caminho derivado do product_slug do manifest). **Backup local ANTES de mexer** (workspace é local-only, sem git — o backup é a única rota de rollback):
+Ler o template gerado pela skill `page-build` (caminho derivado do product_slug do manifest). **Backup local ANTES de mexer** (workspace é local-only, sem git — o backup é a única rota de rollback):
 
 ```
-template_path = f"/workspace/{product_slug}/07-page/staging/templates/page.{product_slug}.json"
+template_path = f"/workspace/{product_slug}/page/staging/templates/page.{product_slug}.json"
 copy(template_path, f"{template_path}.bak-{timestamp}")
 
-# A 07b emite blocks `pricing_tier` na section de pricing, cada um com um
+# A `page-build` emite blocks `pricing_tier` na section de pricing, cada um com um
 # setting `variant_id`. Casar block ↔ variant pela quantidade (qty do tier):
 for block in template.pricing_section.blocks where block.type == "pricing_tier":
     block.settings.variant_id = wire_variant_ids[block.settings.qty]
@@ -88,7 +88,7 @@ for block in template.pricing_section.blocks where block.type == "pricing_tier":
 Salvar template atualizado:
 ```
 shopify.theme.asset.update(
-  theme_id=manifest.storefront.theme_id,   // fonte canônica — gravado pela 07b
+  theme_id=manifest.storefront.theme_id,   // fonte canônica — gravado pela `page-build`
   key=f"templates/page.{product_slug}.json",
   value=json.dumps(template)
 )
@@ -138,4 +138,4 @@ shopify.theme.asset.update(...)      # re-push do template restaurado
 - **Imagens já existentes**: MCP detecta hash; não duplica
 - **SKU conflito**: falha explicitamente, não sobrescreve
 - **Theme published**: requer `--allow-live` flag; por default usa tema unpublished
-- **Oferta single-SKU (sem bundles da 07d)**: 1 variant no `pricing.main_sku_price`; o wire do step 4 preenche o único `variant_id`
+- **Oferta single-SKU (sem bundles da `checkout-aov`)**: 1 variant no `pricing.main_sku_price`; o wire do step 4 preenche o único `variant_id`

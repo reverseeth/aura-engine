@@ -1,0 +1,29 @@
+# Checkout & AOV · Referência: Alavanca 3, bundle e quantity-break
+
+> A renderização com pricing psychology (3 tiers, decoy, charm pricing, savings segregado), os sistemas a puxar, os quatro caminhos no Shopify com a nuance de plano, o gate anti-Shopify-Scripts e o guardrail de margem líquida. Abra ao especificar a Alavanca 3.
+
+### Alavanca 3 — Bundle / quantity-break
+
+O `offer-builder` já definiu a tabela (Solo / 3-pack "Popular" / 6-pack "Best Value") com savings. Aqui você a renderiza com pricing psychology aplicada:
+
+- **3 tiers sempre** (extremeness aversion — Simonson/Tversky): o do meio (3-pack) é o alvo, marcado **Popular**; o 6-pack é o âncora premium que faz o 3-pack parecer razoável; o Solo é o budget que faz o 3-pack parecer esperto. Se a oferta tiver só 2 tiers, sugira adicionar um terceiro — o tier que ninguém compra pode ser o elemento mais lucrativo da arquitetura (decoy).
+- **Decoy quando aplicável** — se o objetivo é empurrar o 3-pack, garantir que ele domine claramente o vizinho em $/unidade e savings (o "Economist effect": o tier que ninguém escolhe move 84% pro combo).
+- **Charm pricing** nos preços de bundle (terminação em 9) — exceto se o posicionamento for premium (aí round numbers). Mostrar sempre o "was" (3× solo riscado) ao lado do preço do bundle: transaction utility = a alegria da pechincha vem do gap entre a âncora e o preço real.
+- **Savings segregado** ("You save $Z (28%)") — mental accounting: ganho listado à parte é um ganho a mais.
+
+(A psicologia dos 4 bullets acima vem da **Pricing Psychology Suite** — query no item 3 de "Antes de Começar", não re-puxe.) Puxe os SISTEMAS NOMEADOS específicos da renderização:
+- **AOV Builders (Bundles, GWP, Thresholds, Order Bump, Upsell)** (rode `checkout optimization AOV order bump upsell gift with purchase bundle threshold money close`) — o cardápio completo de construtores de AOV e o money close do fechamento.
+- **Mecânica visual de pricing table + prioridades de A/B do checkout** (rode `preço baixo grande preço alto pequeno, remover cifrão em produto caro, ordem de ROI dos testes de checkout`) — a anatomia visual da buy box: preço baixo em fonte grande, preço de âncora pequeno, remover o cifrão em produto caro, e a ordem de ROI dos testes de checkout (reaparece na Fase B).
+- **3 Tipos de Desconto Shopify + funil de sale congruente** (rode `automatic discount aparece no carrinho, only apply discount once per order, economia visível em cada etapa`) — automatic discount aparece no carrinho (código digitado não), "only apply once per order" na config, e a economia visível em CADA etapa do funil.
+
+**Caminho real Shopify:**
+1. **Variantes de bundle** (3-pack e 6-pack como variantes ou produtos separados com seu próprio SKU/preço) renderizadas no bloco de pricing-tier da PDP (o block type `pricing_tier` da `page-build`, com settings `qty` + `variant_id`). Caminho mais simples, no-code, e o que casa diretamente com a página já buildada.
+2. **Bundle fixo nativo via Admin GraphQL `productBundleCreate`** — o ÚNICO pedaço do stack de AOV 100% automatizável via API/CLI: cria o bundle como produto de verdade (componentes + inventário calculado deles), em qualquer plano, sem app de terceiro. Automação pronta na recipe `.claude/automations/recipes/create-fixed-bundles.md` (cria os tiers do `offer-builder` e devolve os variant IDs pro wire da PDP). Recomendado quando há Admin API/MCP conectado.
+3. **Quantity-break / volume discount via Shopify Function** (discount "buy X get Y% off" / tiered) — preço por unidade cai conforme a quantidade. **Nuance de plano:** custom function via CLI (`shopify app generate extension --type product_discounts`) só roda em **Shopify Plus** (custom app com Function é Plus-only); pra não-Plus, o caminho é **app público da App Store com Functions embutidas** ou o app nativo **Shopify Bundles**. NUNCA sugira a rota CLI custom pra starter/validating.
+4. **App de bundle** (ex: Shopify Bundles nativo, Fast Bundle, Bundler) — gera o bundle product + desconto sem código.
+
+Recomendar o caminho 1 (variantes na PDP) pra starter/validating — zero app, zero função, e o pricing block do tema já existe; o caminho 2 quando houver Admin API/MCP (mesmo resultado, automatizado). Function/app só quando o membro quer quantity-break dinâmico ou mix-and-match.
+
+**Gate anti-Shopify-Scripts (OBRIGATÓRIO ao validar app já instalado):** Shopify Scripts (Ruby) morreram em 30/jun/2026 (edição congelada desde abr/2026). Se o membro já tem app de desconto/bundle/shipping instalado, confirme que ele NÃO roda sobre Scripts — app legado baseado em Script = desconto que desaparece no checkout sem aviso. Como checar: página do app na App Store menciona "Shopify Functions"/"Checkout Extensibility"? App atualizado depois de 2024? Em dúvida, teste um pedido: o desconto aparece no checkout? Se o app é Script-based, migre pro equivalente com Functions ANTES de configurar qualquer alavanca sobre ele.
+
+**Guardrail de margem (net AOV, não AOV bruto):** desconto de 15% num bundle que sobe o AOV em 30% derruba a margem de contribuição 6-7 pontos percentuais, A MENOS que >20% dos pedidos do bundle sejam incrementais de verdade (gente que não compraria o solo full-price). A `offer-builder` ETAPA 5/6 já roda esse check — se você mudar preço/savings de tier aqui, re-valide contra a `weighted_margin_per_order` antes de aplicar (bundle se avalia por margem de contribuição líquida, nunca por AOV bruto).

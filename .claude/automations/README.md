@@ -13,7 +13,7 @@ Receitas Meta usam **cascade resiliente** — tenta o MCP oficial primeiro, cai 
 | **Meta MCP oficial** (preferencial) | `https://mcp.facebook.com/ads` | Open beta desde 2026-04-29, rollout gradual sem GA, 29 tools |
 | Pipeboard Meta MCP (fallback) | https://github.com/pipeboard-co/meta-ads-mcp | 3rd party, GA, dispara quando oficial está disabled no ad account |
 | Shopify AI Toolkit (plugin Claude Code) | https://github.com/Shopify/shopify-ai-toolkit | Oficial, abril 2026 — **exportar `OPT_OUT_INSTRUMENTATION=true`** (ver alerta de telemetria no `setup-mcps.md` passo 4) |
-| Higgsfield MCP (opcional) | `https://mcp.higgsfield.ai/mcp` | Oficial, render de vídeo in-session (Skill 08 + creative-loop) |
+| Higgsfield MCP (opcional) | `https://mcp.higgsfield.ai/mcp` | Oficial, render de vídeo in-session (Skill `creative-engine` + creative-loop) |
 | Playwright (fallback final) | `pip install playwright` | Pra operações que MCPs não cobrem |
 | Claude Code | tua assinatura | — |
 
@@ -32,10 +32,10 @@ Em `recipes/`:
 
 - `sync-campaign-from-meta.md` — puxa estado completo da campanha com **cascade interno** (MCP oficial → Pipeboard → manual). No caminho oficial inclui industry benchmarks, dataset quality, auction ranking e anomaly signal; no Pipeboard, mesmo shape sem esses blocos.
 - `upload-creative-to-meta.md` — sobe vídeo aprovado pro Meta Ads Manager com UTM + pixel wired, modo pausado (humano ativa). Roda via Pipeboard ou Playwright porque o MCP oficial não aceita arquivo local.
-- `pause-ad-set.md` — pausa ad set por decisão humana (réguas de kill do cânone `.claude/lib/ad-taxonomy/README.md` §3, lidas pela Skill 11 — nunca por threshold automático de performance). Cascade oficial → Pipeboard.
-- `deploy-shopify-product.md` — cria produto + variants pelos tiers de bundle da 07d (Solo/3-pack/6-pack) + wire Variant IDs no template da PDP
-- `create-fixed-bundles.md` — cria os bundles FIXOS da oferta (tiers `qty > 1` do 04/07d) via Admin GraphQL `productBundleCreate` — bundle nasce como produto nativo, sem app de terceiro, qualquer plano. Cascade: Shopify MCP → Admin API `client_credentials` (token de app do Dev Dashboard) → app nativo Shopify Bundles manual. Invocada pela 07d Alavanca 3 caminho 2; roda DEPOIS de `deploy-shopify-product.md` (o produto principal precisa existir).
-- `rotate-winning-creative.md` — rotaciona criativo classificado como `breakthrough` pela Skill 11 (cânone `ad-taxonomy` §2 — KPI winner não rotaciona), gera variações via Skill 08 preservando DNA, sobe paused
+- `pause-ad-set.md` — pausa ad set por decisão humana (réguas de kill do cânone `.claude/lib/ad-taxonomy/README.md` §3, lidas pela Skill `ad-analysis` — nunca por threshold automático de performance). Cascade oficial → Pipeboard.
+- `deploy-shopify-product.md` — cria produto + variants pelos tiers de bundle da `checkout-aov` (Solo/3-pack/6-pack) + wire Variant IDs no template da PDP
+- `create-fixed-bundles.md` — cria os bundles FIXOS da oferta (tiers `qty > 1` do `offer-builder`/`checkout-aov`) via Admin GraphQL `productBundleCreate` — bundle nasce como produto nativo, sem app de terceiro, qualquer plano. Cascade: Shopify MCP → Admin API `client_credentials` (token de app do Dev Dashboard) → app nativo Shopify Bundles manual. Invocada pela `checkout-aov` Alavanca 3 caminho 2; roda DEPOIS de `deploy-shopify-product.md` (o produto principal precisa existir).
+- `rotate-winning-creative.md` — rotaciona criativo classificado como `breakthrough` pela Skill `ad-analysis` (cânone `ad-taxonomy` §2 — KPI winner não rotaciona), gera variações via Skill `creative-engine` preservando DNA, sobe paused
 - `creative-loop.md` — **loop semi-autônomo** ad → performance → variação com 2 gates humanos e guardrails (spend cap, piso de ROAS, incrementos < 20%, nunca publish autônomo). Ritual de ~15min pós-teste.
 - `full-deploy.md` — orquestra full launch (Shopify product + campanha no Meta na estrutura canônica 1 campanha CBO → N ad sets, 1 por conceito → 3 ads cada, tudo paused)
 

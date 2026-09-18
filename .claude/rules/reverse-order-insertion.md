@@ -2,8 +2,8 @@
 name: reverse-order-insertion
 description: Segurança em inserções múltiplas num mesmo arquivo. Em arrays indexados por posição (order[], block_order de templates Shopify), inserir em ordem reversa pra não deslocar índices pendentes. Em edits por anchor de texto (Edit tool), o risco real é anchor ambíguo/sobreposto — planejar anchors disjuntos antes.
 paths:
-  - .claude/skills/07b-page-build.md
-  - .claude/skills/14-content-recycler.md
+  - .claude/skills/page-build/SKILL.md
+  - .claude/skills/content-recycler/SKILL.md
 ---
 
 # Multi-Insert Safety (Technical Rule)
@@ -30,7 +30,7 @@ Executa (reverse): C na 8 → B na 5 → A na 2
 Resultado: todas nas posições corretas do array original.
 ```
 
-No modo batch da skill 07b o conversor já cuida disso; a regra vale quando o Claude ajusta o JSON à mão.
+No modo batch da skill `page-build` o conversor já cuida disso; a regra vale quando o Claude ajusta o JSON à mão.
 
 ## Caso 2 — Edits por ANCHOR de texto (Edit tool)
 
