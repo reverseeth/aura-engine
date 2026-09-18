@@ -70,7 +70,7 @@ Mesmo arquivo. Escolha N conceitos cobrindo funil, verticais, gaps e diversidade
 
 ### ETAPA 4.5 · Regras estruturais globais (todo briefing)
 
-Leia `reference/regras-estruturais.md` (método de teste e as 4 hard rules do 3-2-2; ângulo é frase, conceito é embalagem; awareness lock; 9:16; Meta × TikTok; word count por duração e limite por modelo; jargão só em overlay; origem da VOC; hook-swap; estilo; limpeza de metadados) e `reference/zona-emocional.md` (4 zonas de Valence × Intensity, arco que abre em valência baixa e fecha em alta, 4 Hook Emotions derivadas, hook archetype). Grave por conceito `testing_method`, `angle`, `concept_type`, `valence`, `intensity`, `valence_open`, `valence_close`, `emotion_dominant` e `hook_swap_viable`.
+Leia `reference/regras-estruturais.md` (método de teste e as 4 hard rules do 3-2-2; ângulo é frase, conceito é embalagem; awareness lock; 9:16; Meta × TikTok; word count por duração e limite por modelo; jargão só em overlay; origem da VOC; hook-swap; estilo; limpeza de metadados) e `reference/zona-emocional.md` (4 zonas de Valence × Intensity, arco que abre em valência baixa e fecha em alta, 4 Hook Emotions derivadas, hook archetype). Grave por conceito `testing_method`, `angle`, `concept_type`, `valence`, `intensity`, `valence_open`, `valence_close`, `emotion_dominant`, `hook_swap_viable`, `mold_id` e `mold_source`.
 
 ### ETAPA 5 · Briefings completos (um por conceito)
 

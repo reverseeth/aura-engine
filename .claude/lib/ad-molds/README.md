@@ -96,8 +96,12 @@ Cada slot carrega um `words_budget`: quantas palavras couberam ali no vídeo ori
 | `.claude/lib/ad-molds/molds.json` | O cânone: schema do molde, os três vocabulários controlados e as regras de injeção em forma legível por máquina |
 | `.claude/lib/ad-molds/README.md` | Este arquivo, a versão humana das mesmas regras |
 | `workspace/[produto]/competitor-analysis/ad-molds.json` | Os moldes extraídos de verdade, um por vídeo, no schema do cânone |
+| `workspace/[produto]/creative-engine/dados.json` | `concepts[].mold_id` e `mold_source`: qual molde deu a estrutura de cada conceito, e `null` quando ele foi escrito sem molde |
+| `workspace/[produto]/ad-analysis/dados.json` | `breakthroughs[].winning_mold_id` e `mold_concepts_in_batch`: qual molde estava atrás do criativo que estourou, e quantos conceitos daquele batch rodaram o mesmo molde |
 
 Os moldes extraídos são pesquisa do membro: nomeiam concorrente, anúncio e nicho. Por isso vivem no workspace do produto e nunca no framework, como manda a regra 11 do `CLAUDE.md`.
+
+Os dois últimos fecham o ciclo. Sem eles, um criativo estoura e ninguém sabe se a estrutura modelada teve parte nisso. Com eles, a resposta chega devagar e honesta: um vencedor sozinho não prova a estrutura, e a contagem de conceitos que rodaram o mesmo molde é o que separa padrão de coincidência.
 
 ## O vocabulário
 

@@ -62,7 +62,7 @@ Leia `reference/diagnostico-de-losers.md`. 19-Point em cinco camadas para todo `
 
 ### ETAPA 5 · Diagnóstico de breakthroughs
 
-Leia `reference/breakthroughs.md`. Learnings só de `breakthrough`: o que, por que, qual variável do mapa da `creative-engine`, como replicar, iteração de UMA variável, onde ganhou (hook ou hold), `winning_sub_avatar_id`, learning sobre o CLIENTE, AI Ad Review como segunda opinião. Recomende a mini-passada da `market-research` no ângulo vencedor.
+Leia `reference/breakthroughs.md`. Learnings só de `breakthrough`: o que, por que, qual variável do mapa da `creative-engine`, como replicar, iteração de UMA variável, onde ganhou (hook ou hold), `winning_sub_avatar_id`, `winning_mold_id` com a contagem de conceitos no mesmo molde, learning sobre o CLIENTE, AI Ad Review como segunda opinião. Recomende a mini-passada da `market-research` no ângulo vencedor.
 
 ### ETAPA 6 · Saúde do funil
 

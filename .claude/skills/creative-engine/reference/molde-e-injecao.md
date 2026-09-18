@@ -36,6 +36,8 @@ Com mais conceitos do que moldes, o mesmo molde pode servir a dois. Três roteir
 
 Declare no briefing, em uma linha: o `mold_id`, o concorrente, o sinal de escala do `evidence` e a frase do encaixe.
 
+E grave no `dados.json`, dentro do conceito: `mold_id` com o id do molde e `mold_source` com o `competitor` e o `scale_signal` do item correspondente de `ad_molds.molds[]`, no `competitor-analysis/dados.json` (formato em `reference/dados-json.md`). Conceito que saiu sem molde grava `null` nos dois, nunca omite o campo. É esse par que deixa a `ad-analysis` perguntar, quando um criativo estoura, qual molde estava atrás dele; sem ele o batch vira um conjunto de roteiros sem linhagem, e a estrutura modelada nunca aparece como causa candidata.
+
 #### 3. O pack 3-2-2 em cima de um molde só
 
 O molde é do conceito, então os três criativos compartilham a mesma linha de slots. O que varia entre eles continua sendo só o que as hard rules mandam variar (ETAPA 4.5):
@@ -112,3 +114,4 @@ Elas não aumentam o batch. Se o membro quiser rodá-las, entram como as três e
 - Toda palavra passou pelo filtro do `market_vocabulary`: zero termo de `words_absent[]`, nenhum termo saturado em hook ou headline.
 - Nenhuma frase, afirmação, número ou nome de mecanismo do concorrente aparece na saída. A checagem é direta: abra o transcript em `competitor-analysis/creatives-inbox/transcripts/` e confirme que nenhuma linha do roteiro é aquele texto com as palavras trocadas.
 - Todo slot preenchido tem origem nomeada na tabela, e todo slot vazio está na nota técnica.
+- O conceito tem `mold_id` e `mold_source` gravados no `dados.json` (`null` nos dois quando saiu sem molde).

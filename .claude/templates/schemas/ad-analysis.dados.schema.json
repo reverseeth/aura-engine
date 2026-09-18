@@ -169,6 +169,20 @@
               "string",
               "null"
             ]
+          },
+          "winning_mold_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "`mold_id` do conceito que produziu este breakthrough, copiado de `creative-engine/dados.json` → `concepts[].mold_id`; null quando o conceito não usou molde"
+          },
+          "mold_concepts_in_batch": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "quantos conceitos deste batch usaram o mesmo `winning_mold_id` — o denominador que impede tratar uma vitória como prova da estrutura; null quando não há molde"
           }
         },
         "required": [

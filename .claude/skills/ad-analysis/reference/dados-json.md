@@ -1,6 +1,6 @@
 # Ad Analysis · Referência: Schema do dados.json e atualização do manifest
 
-> O handoff pra `scale-engine` e `content-recycler`: o schema completo do `ad-analysis/dados.json` com as notas de cada campo (`ad_class`, `breakthroughs[]`, `winners[]` legado, `roas_spiral_check`, `winning_sub_avatar_id`, `test_capacity_check`, `iteration_zone_check[]`, `click_based_purchase_share`) e a lista canônica dos campos do manifest gravados por `tools/manifest.py`. Abra ao gravar.
+> O handoff pra `scale-engine` e `content-recycler`: o schema completo do `ad-analysis/dados.json` com as notas de cada campo (`ad_class`, `breakthroughs[]`, `winners[]` legado, `roas_spiral_check`, `winning_sub_avatar_id`, `winning_mold_id`, `test_capacity_check`, `iteration_zone_check[]`, `click_based_purchase_share`) e a lista canônica dos campos do manifest gravados por `tools/manifest.py`. Abra ao gravar.
 
 ### Panorama para skill `scale-engine` e skill `content-recycler` — handoff
 
@@ -38,7 +38,7 @@ O arquivo de análise é `workspace/[produto]/ad-analysis/dados.json` (cópia do
   "active_breakthroughs_count": 0,
   "active_losers_count": 0,
   "breakthroughs": [
-    { "creative_id": "c-01", "ad_set_id": "...", "ad_class": "breakthrough", "cpa": 0, "roas": 0, "spend_total": 0, "spend_share_7d": 0, "ad_kpi_vs_campaign": true, "hook_rate": 0, "hold_rate": 0, "days_active": 0, "winning_sub_avatar_id": "sa-01|null" }
+    { "creative_id": "c-01", "ad_set_id": "...", "ad_class": "breakthrough", "cpa": 0, "roas": 0, "spend_total": 0, "spend_share_7d": 0, "ad_kpi_vs_campaign": true, "hook_rate": 0, "hold_rate": 0, "days_active": 0, "winning_sub_avatar_id": "sa-01|null", "winning_mold_id": "mold-slug|null", "mold_concepts_in_batch": 0 }
   ],
   "spend_winners": [
     { "creative_id": "c-02", "ad_class": "spend_winner", "cpa": 0, "roas": 0, "spend_total": 0, "spend_share_7d": 0, "ad_kpi_vs_campaign": false, "hook_rate": 0, "hold_rate": 0, "days_active": 0, "next_action": "iterate" }
@@ -103,6 +103,7 @@ O arquivo de análise é `workspace/[produto]/ad-analysis/dados.json` (cópia do
 - `psm_real` é o mesmo valor gravado em `manifest.psm_real`, e `psm_real_basis` diz em que base ele foi calculado (`shopify_new_customer` = comparável com o `psm_theoretical` da `offer-builder`; `platform_cpa_proxy` = otimista, **não** comparável e não libera escala).
 - **`roas_spiral_check` registra de ONDE veio a decisão de spend.** Com `finance-engine/dados.json` na mão, `source: "finance-engine"` e os quatro campos vêm copiados de lá (`breakeven_roas_with_fixed`, `spend_to_breakeven_with_fixed`, `finance_verdict`, mais `fixed_costs_monthly` de `monthly_model`) — esta skill não recalcula nenhum deles. Sem o arquivo, `source: "offer-builder"` (ou `"none"`), os três campos novos ficam `null` e o `blocked_reason` volta a operar como hoje. `recommended_action: "raise_spend_accept_lower_roas"` só pode ser gravado quando `finance_verdict == "scale_up_accept_lower_roas"` — nunca por leitura própria de ROAS.
 - **`winning_sub_avatar_id`** (por item de `breakthroughs[]`) fecha o loop com a pesquisa: aponta o item de `sub_avatars[]` da `market-research` que produziu o vencedor (num Marksman, o do item de `angles[]` do criativo vencedor). `null` em batch legado sem o campo. É o alvo da mini-passada de re-research da ETAPA 5.
+- **`winning_mold_id`** e **`mold_concepts_in_batch`** (por item de `breakthroughs[]`) dizem qual molde de vídeo escalado deu a ESTRUTURA do conceito vencedor e quantos conceitos daquele batch rodaram o mesmo molde. Os dois saem de `creative-engine/dados.json` → `concepts[].mold_id`/`mold_source`, e são `null` quando o conceito não usou molde ou o batch é anterior ao campo. A contagem existe para segurar a conclusão: com um conceito só no molde, a vitória não separa o esqueleto do ângulo, e o molde entra no relatório como variável candidata, nunca como causa (ETAPA 5).
 - **`test_capacity_check`** copia `binding_constraint` e `below_floor_directional_only` da `ad-strategy`; `directional_only_analysis: true` marca que ESTA análise inteira saiu direcional (gate de piso) — as skills `scale-engine` e `content-recycler` não devem tratar `breakthroughs[]` vazio dessa análise como veredito. `source: "none"` = estratégia legada sem `test_capacity`.
 - **`iteration_zone_check[]`** registra o diagnóstico de valência da ETAPA 4 (iteração que trocou de zona emocional); `original_ref` vem de `concepts[].iteration_of` da `creative-engine` quando presente (linhagem declarada), com fallback = pareamento por prosa do briefing (batch legado); `verdict: "no_data"` quando o batch é anterior ao schema de `valence`/`intensity` da `creative-engine`.
 - **`click_based_purchase_share`** espelha o que vai pro manifest (bloco da ETAPA 2): fração das purchases da janela em 7-day click. `null` = breakdown indisponível — **nunca estimado**; o gate de escala da `scale-engine` fica bloqueado até existir.

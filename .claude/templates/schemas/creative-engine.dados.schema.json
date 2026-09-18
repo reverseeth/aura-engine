@@ -155,6 +155,35 @@
               "null"
             ]
           },
+          "mold_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "`mold_id` do molde de `competitor-analysis/ad-molds.json` que deu a estrutura deste conceito; null quando o conceito não usou molde"
+          },
+          "mold_source": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "competitor": {
+                "type": "string"
+              },
+              "scale_signal": {
+                "type": "string",
+                "enum": [
+                  "rank_do_anuncio",
+                  "longest_running",
+                  "aparicoes_repetidas",
+                  "metrica_direta_de_spend"
+                ]
+              }
+            },
+            "additionalProperties": true,
+            "description": "cópia literal de `competitor-analysis/dados.json` → `ad_molds.molds[]` (`competitor` e `scale_signal`), que espelha `source.concorrente` e `evidence.sinal` do `ad-molds.json`; null junto com `mold_id`"
+          },
           "persona": {
             "type": "string"
           },
