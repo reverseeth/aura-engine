@@ -1,0 +1,13 @@
+# Page Design · Referência: Normalização de HTML que veio de fora (sub-etapa 3.6)
+
+> O procedimento real de normalização (Tailwind e utilities viram CSS plano por estilos computados, JS de runtime fora, assets locais, validação self-contained), aplicado a todo HTML que a skill ingere em vez de escrever. Abra nas rotas 2 e 3, e na rota 1 quando o canvas devolver HTML com utilities ou script.
+
+### 3.6 Normalização de HTML externo (procedimento real, não "normalize" vago)
+
+Página salva de um site, export de ferramenta de design e HTML de gerador chegam com utilities (Tailwind e afins, por CDN ou build) e JS de framework (React/Vue, hydration). O `design/page.html` precisa ser **HTML+CSS plano e self-contained** — é o contrato que o SPLIT/COMPILE da `page-build` assume. Procedimento:
+
+1. **Utilities → CSS plano via render computado.** Renderize o HTML original no Playwright (`file://` ou server local, com o CSS de origem ainda ativo). Pra cada elemento estrutural (sections, headings, parágrafos, botões, cards, grids), leia os **computed styles** (`getComputedStyle`) e materialize as propriedades relevantes (display/grid/flex, spacing, tipografia, cor, radius, shadow, breakpoints via re-render em 390px e 1440px) em **classes semânticas próprias** (`.hero`, `.hero-title`, `.tier-card`...) num `<style>` único no `<head>`. Troque as classes utilitárias pelas semânticas no markup e remova o `<script src="...">`/`<link>` do framework CSS. (Página pequena com poucas utilities? Traduzir manualmente as classes usadas é aceitável — mesmo resultado.)
+2. **JS de runtime → fora.** Remova bundles e hydration de framework (`<script>` de React/Next/Vue, chunks). O HTML final é estático; interações (accordion, tabs, FAQ) são reimplementadas com `<details><summary>`/CSS puro — mesma regra que a `page-build` aplica no compile.
+3. **Assets → locais ou estáveis.** Baixe as imagens que ficam (as do membro, nunca as da referência) pra `design/assets/` e reescreva os `src` (self-contained de verdade), ou mantenha URL absoluta só se for CDN estável do próprio membro. Nunca deixe `src` apontando pro sandbox temporário de um gerador (expira, e a página é aprovada com imagem que vai sumir).
+4. **Validação de self-contained (obrigatória):** abra o HTML normalizado no Playwright com requests externos bloqueados (exceto Google Fonts) e confirme por screenshot que renderiza igual nos dois breakpoints; console sem erros; `grep -c '<script'` no arquivo = 0 (zero JS de runtime).
+5. Injete os markers `data-aura-section` (um por section do `sections_plan`, com o mesmo id) e siga pra 3.7.

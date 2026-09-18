@@ -1475,7 +1475,7 @@ def main():
     parser.add_argument("--allow-competitor-markup", action="store_true",
                         help="(Modo B) Confirma que você ENTENDE que copy/markup do HTML de origem "
                              "(concorrente) entrará no tema como defaults — só use com página própria")
-    parser.add_argument("--html", help="(Modo C) Path to fresh HTML file from frontend-design")
+    parser.add_argument("--html", help="(Modo C) Path to fresh HTML file from page-design")
     parser.add_argument("--css", help="(Modo C) Path to fresh CSS file (injected into the stylesheet block)")
     parser.add_argument("--type", help="(Modo C) Semantic type of the section (hero/features/faq/etc)")
     parser.add_argument("--output", help="Path to output .liquid file (single-section mode)")
@@ -1509,7 +1509,7 @@ def main():
 
     # Decide modo pelo input fornecido
     if args.html:
-        # Modo C — HTML fresh do frontend-design
+        # Modo C — HTML fresh da page-design
         html_path = Path(args.html).expanduser().resolve()
         if not html_path.exists():
             print(f"ERRO: {html_path} não encontrado", file=sys.stderr)

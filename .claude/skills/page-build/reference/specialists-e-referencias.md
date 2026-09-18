@@ -1,13 +1,12 @@
 # Page Build · Referência: Referência técnica, specialists e referências cruzadas
 
-> Os specialists invocados (validação Liquid, `frontend-design`, `webapp-testing`) e as referências cruzadas da skill (anterior, conversor, contrato de publicação, próxima no fluxo, gate de launch, camada GEO). Abra quando precisar do mapa.
+> Os specialists invocados (validação Liquid, `webapp-testing`) e as referências cruzadas da skill (anterior, conversor, contrato de publicação, próxima no fluxo, gate de launch, camada GEO). Abra quando precisar do mapa.
 
 ## Como invocar specialists
 
 | Specialist | Skill name |
 |---|---|
 | **Validação Liquid** (crítico) | `shopify-plugin:shopify-liquid` |
-| Geração/ajuste de HTML (`page-design`; iteration) | `frontend-design` |
 | Captura de screenshot (signals `page-design`; fidelity check 6.11) | `webapp-testing` |
 
 A validação Liquid é parte do plugin Shopify AI Toolkit (`/plugin marketplace add Shopify/shopify-ai-toolkit` + `/plugin install shopify-plugin@shopify-plugin`). Sem ele, instrua a instalar antes.

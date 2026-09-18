@@ -4,11 +4,11 @@
 
 ## ETAPA 1 — SPLIT (HTML aprovado → fragmentos por section)
 
-O `design/page.html` aprovado tem cada section marcada com `<section data-aura-section="hero">` etc (a `page-design` garante esses markers em QUALQUER rota de design — §3.7 dela, inclusive handoff do canvas, clone-and-adapt e site-builders). Splite:
+O `design/page.html` aprovado tem cada section marcada com `<section data-aura-section="hero">` etc (a `page-design` garante esses markers nas três rotas de design — §3.7 dela). Splite:
 
 1. Parse do `design/page.html`. Pra cada `<section data-aura-section="X">`, extraia o fragmento HTML completo daquela section → salve em `${STAGING_DIR}/html/<X>.html`. Os ids `X` batem com `sections_plan[].id` de `page-plan.json`.
 2. Extraia o CSS (do `<style>` do documento, ou do `.css` companion se houver) → `${STAGING_DIR}/html/page.css`. O conversor injeta isso no `{% stylesheet %}` de cada section (namespaced).
-3. **Se os marcadores `data-aura-section` faltarem** (HTML antigo ou editado à mão): splite por âncoras/headings de section seguindo o `section_order` de `page-plan.json`, ou peça à `frontend-design` pra re-emitir o HTML com os marcadores. Não chute fronteiras de section.
+3. **Se os marcadores `data-aura-section` faltarem** (HTML antigo ou editado à mão): splite por âncoras/headings de section seguindo o `section_order` de `page-plan.json`, ou peça à `page-design` pra re-emitir o HTML com os marcadores pela rota que gerou a página. Não chute fronteiras de section.
 
 Resultado: N fragmentos HTML (1 por section do plano) + 1 CSS compartilhado.
 

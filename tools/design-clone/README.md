@@ -2,8 +2,8 @@
 
 **Status:** ferramenta auxiliar usada pela page-design em **dois cenários distintos**:
 
-1. **Brand signals (caminho 3, opcional):** extrair sinais de paleta/tipografia de um site de referência quando o membro quer **hex exato** e passa um link na **page-design ETAPA 2 (Brand Signals)**. Os signals alimentam o `frontend-design` via `design-signals.json`.
-2. **Clone-and-adapt (rota de design recomendada por velocidade):** quando o membro indica uma PDP/landing de concorrente que acha bonita, a `page-design` captura a **ESTRUTURA** dela (ordem + tipo + layout de cada section, mais sinais numéricos de hierarquia visual quando há computed-styles) e gera um **esqueleto HTML** vazio que o Claude preenche com a copy/brand/produto do **MEMBRO** (06-copy / 04-offer). Herda a hierarquia de conversão validada, não o conteúdo.
+1. **Brand signals (caminho 3, opcional):** extrair sinais de paleta/tipografia de um site de referência quando o membro quer **hex exato** e passa um link na **page-design ETAPA 2 (Brand Signals)**. Os signals alimentam a rota de design escolhida na ETAPA 3, via `design-signals.json`.
+2. **Clone com o SingleFile (rota 2 do menu de design, modo `clone-and-adapt` do script):** quando o membro indica uma página de referência que acha bonita, a `page-design` captura a **ESTRUTURA** dela (ordem + tipo + layout de cada section, mais sinais numéricos de hierarquia visual quando há computed-styles) e gera um **esqueleto HTML** vazio que o Claude preenche com a copy/brand/produto do **MEMBRO** (`copy-engine` e `offer-builder`). Herda a hierarquia de conversão validada, não o conteúdo.
 
 **Em ambos os cenários, nenhum código/copy/imagem/marca do concorrente vai pro tema.** O cenário 1 só extrai signals agregados; o cenário 2 só extrai estrutura (placeholders vazios). Adaptar estrutura + trocar todo o conteúdo é defensável; copiar 1:1 não.
 
@@ -76,7 +76,7 @@ A page-design lê apenas o bloco `design_system` de `/tmp/ref-<produto>/patterns
 }
 ```
 
-Esse bloco vira input pro `frontend-design` da `page-design` (signals de cor/tipografia/vibe). O resto do `patterns.json` é ignorado — a estrutura da página vem sempre da copy do membro, não do concorrente.
+Esse bloco vira input pros brand signals da `page-design` (cor, tipografia, vibe). O resto do `patterns.json` é ignorado — a estrutura da página vem sempre da copy do membro, não do concorrente.
 
 ## Scripts
 
@@ -176,7 +176,7 @@ O arquivo salvo é referência de concorrente = material de trabalho do membro �
 
 ## Modo `clone-and-adapt` (esqueleto estrutural pra `page-design`)
 
-Captura a **ESTRUTURA** de uma URL de referência (ordem + tipo semântico + layout de cada section, mais o bloco `hierarchy` com os sinais de hierarquia visual quando a captura veio do downloader) e produz um **esqueleto HTML** com sections vazias/placeholder. Esse esqueleto é o ponto de partida da rota *Clone-and-adapt* da page-design (ETAPA 3): o Claude preenche cada placeholder com a copy/brand/imagens do **membro** (06-copy / 04-offer), gerando `design/page.html`. **Zero copy/imagem/marca do concorrente entra no esqueleto** — só a hierarquia/layout.
+Captura a **ESTRUTURA** de uma URL de referência (ordem + tipo semântico + layout de cada section, mais o bloco `hierarchy` com os sinais de hierarquia visual quando a captura veio do downloader) e produz um **esqueleto HTML** com sections vazias/placeholder. Esse esqueleto é o ponto de partida da rota de clone com o SingleFile da page-design (ETAPA 3): o Claude preenche cada placeholder com a copy/brand/imagens do **membro** (`copy-engine` e `offer-builder`), gerando `design/page.html`. **Zero copy/imagem/marca do concorrente entra no esqueleto** — só a hierarquia/layout.
 
 ```bash
 python3 aura_clone.py clone-and-adapt <url> --output=<dir> [--product=<slug>]
@@ -291,7 +291,7 @@ Todos os scripts aplicam validação defensiva antes de qualquer I/O ou fetch de
 
 ## Princípios
 
-- **Zero código do concorrente no output final.** A `page-design` só extrai signals agregados (paleta + fontes + tokens) ou o esqueleto estrutural com placeholders vazios (clone-and-adapt); o HTML da página nasce da rota de design escolhida na `page-design`, sempre com copy/imagens/marca 100% do membro. No `liquid-converter.py`, o único caminho que injetaria markup da página de origem no tema (Modo B legacy, `--sections-json`) é **BLOQUEADO por default** e exige `--allow-competitor-markup` — permitido só quando a página de origem é PRÓPRIA do membro.
+- **Zero código da página de origem no output final.** A `page-design` só extrai signals agregados (paleta + fontes + tokens) ou o esqueleto estrutural com placeholders vazios (`clone-and-adapt`); o HTML da página nasce da rota de design escolhida na `page-design`, sempre com copy/imagens/marca 100% do membro. No `liquid-converter.py`, o único caminho que injetaria markup da página de origem no tema (Modo B legacy, `--sections-json`) é **BLOQUEADO por default** e exige `--allow-competitor-markup` — permitido só quando a página de origem é PRÓPRIA do membro.
 - **A IA nunca lê snapshot cru.** `ref.full.html` é verdade visual (browser/screenshot); leitura sempre via `ref.ai.html` segmentado ou extração programática.
 - **Theme-agnostic.** Sections geradas no fluxo storefront têm namespacing próprio (`page-<produto>-<tipo>`), zero dependência do tema pai.
 - **Validação obrigatória.** Toda section .liquid gerada passa pela skill `shopify-plugin:shopify-liquid` antes de instalar no tema.

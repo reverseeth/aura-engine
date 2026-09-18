@@ -42,8 +42,8 @@
     "signals_source": "refero | screenshot_vision | design_clone | manual",
     "reference": "Linear | print loja X | hex de competitor.com | preset Atelier Document"
   },
-  "design_route": "clone-and-adapt | claude-design | aidesigner | frontend-design | site-builder",
-  "design_route_ref": "URL do concorrente (clone-and-adapt) | path do export (claude-design/site-builder) | null",
+  "design_route": "claude-design | singlefile-clone | section-puzzle",
+  "design_route_ref": "URL do Artifact do canvas (claude-design) | URL da página de referência (singlefile-clone) | mapa fonte→section (section-puzzle) | null",
   "destination_ref": "SÓ quando page_type=advertorial ou listicle: destino do soft CTA — handle/URL da pdp_lean gerada numa 2ª passada da cadeia, PDP existente trabalhada, ou checkout direto. null nos demais page_types",
   "design_signals_ref": "design-signals.json",
   "design_tokens_ref": "design-tokens.json",

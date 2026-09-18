@@ -4,7 +4,7 @@
 
 ## Acessibilidade — checklist WCAG 2.1 AA (quality standard universal)
 
-Regras universais que NÃO restringem design — garantem que qualquer página seja usável por todos. O `frontend-design` (`page-design`) já respeita; valide no output compilado:
+Regras universais que NÃO restringem design — garantem que qualquer página seja usável por todos. A régua de qualidade da `page-design` já respeita; valide no output compilado:
 
 - **Semântica:** `<h1>` 1×/página (hero); heading order sem pular níveis; `<section>/<article>/<header>/<main>` onde aplicável; `<button>` pra ações, `<a href>` pra navegação; FAQ com `<details><summary>` nativo.
 - **Alt/labels:** todo `<img>` com `alt` descritivo (ou `alt=""` decorativo); `<button>` só-ícone com `aria-label`; ícone decorativo `aria-hidden="true"`; links com texto descritivo (nunca "clique aqui"); `<label for>` em forms.

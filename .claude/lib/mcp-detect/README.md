@@ -16,7 +16,6 @@ A detecção é sempre por **prefixo de tool disponível na sessão**. Se não h
 | **Meta Ads oficial** | `mcp__meta__ads_*` | Caminho preferencial pra ads (campaign mgmt, insights, datasets, benchmarks) | Oficial → Pipeboard → manual |
 | **Meta Ads Pipeboard** | `mcp__meta-ads__` | Fallback 3rd party quando o oficial está disabled/indisponível | (é o 2º degrau do cascade Meta) |
 | **Refero** | `mcp__refero__` | Design system curado (~200 sites premium) pra brand signals da `page-design` | Refero → screenshot→visão → design-clone → manual |
-| **AIDesigner** | `mcp__aidesigner__` | Rota 3 do menu de rotas de design da `page-design` (geração de página via MCP) | AIDesigner → demais rotas do menu da `page-design` (clone-and-adapt / Claude Design handoff / frontend-design) |
 | **Higgsfield** | `mcp__higgsfield__` | Render de vídeo AI in-session na `creative-engine` (30+ modelos: Kling 3.x, Veo 3.1, Sora 2; OAuth via browser, créditos do plano do membro) | Higgsfield MCP → prompts salvos pro membro gerar manualmente |
 | **Foreplay** | `mcp__foreplay__` | Ad spy (200M+ ads; criativos escalados dos concorrentes) nas skills `competitor-analysis`/`creative-engine`/`ad-analysis` | Foreplay → TrendTrack (se houver) → Meta Ad Library público / uploads do membro |
 | **Shopify AI Toolkit** | `mcp__shopify__` | Operações de produto/tema (usado por `deploy-shopify-product.md` e `full-deploy.md`) | Shopify MCP → Playwright → manual |
@@ -62,7 +61,6 @@ Toda skill/receita que produz output a partir de MCP grava qual caminho foi usad
 | `shopify_mcp` | Shopify AI Toolkit MCP (operações de produto/tema) |
 | `admin_api_client_credentials` | Admin GraphQL direto via token de app do Dev Dashboard (grant `client_credentials`) — caminho SEM MCP, usado quando o Shopify MCP está ausente (ex: `create-fixed-bundles.md` Caminho 2) |
 | `refero` | Refero MCP |
-| `aidesigner` | AIDesigner MCP (rota 3 de design da `page-design` — valor de `design_route` no `page-plan.json`) |
 | `screenshot_vision` | Print lido por visão nativa (fallback de signals da `page-design`) |
 | `design_clone` | `tools/design-clone/` Playwright (caminho de extração de hex exato) |
 | `klaviyo_mcp` | Klaviyo MCP oficial |
@@ -82,7 +80,6 @@ Onde gravar:
 |---|---|
 | TrendTrack | `.claude/lib/trendtrack-integration/README.md` |
 | Refero | `.claude/lib/refero-integration/README.md` |
-| AIDesigner | skill `page-design.md` (rota 3 do menu de rotas de design) |
 | Higgsfield | skill `creative-engine` (detecção + confirmação de créditos antes de renderizar) + setup em `.claude/automations/setup-mcps.md` (3.7) |
 | Foreplay | skills `competitor-analysis` / `creative-engine` / `ad-analysis` + setup em `.claude/automations/setup-mcps.md` (3.8) |
 | Meta (oficial/Pipeboard) | receita única `sync-campaign-from-meta.md` (cascade interno oficial → Pipeboard → manual), `pause-ad-set.md`, `upload-creative-to-meta.md` + setup em `.claude/automations/setup-mcps.md` |

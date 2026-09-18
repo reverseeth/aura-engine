@@ -19,7 +19,7 @@ Dois modos:
      `hierarchy` com sinais NUMÉRICOS de hierarquia visual (proporção heading/
      body, padding-block real, densidade, alinhamento dominante, proporção de
      área de mídia). A `page-design` entrega esse esqueleto ao Claude, que o preenche com
-     a copy/brand/produto do membro (06-copy / 04-offer) gerando
+     a copy/brand/produto do membro (`copy-engine` e `offer-builder`) gerando
      `design/page.html`. Herda a hierarquia de conversão validada, não o conteúdo.
 
 Cascade de captura (--engine=auto, default):
@@ -437,7 +437,7 @@ def build_skeleton(analysis: dict, url: str, product: Optional[str]) -> tuple[st
     O esqueleto preserva ORDEM + TIPO + layout coarse de cada section, mas cada
     section é um PLACEHOLDER vazio: zero copy, zero imagem, zero marca do
     concorrente. Comentários e data-attributes guiam o Claude a preencher com o
-    conteúdo do membro (06-copy / 04-offer).
+    conteúdo do membro (`copy-engine` e `offer-builder`).
 
     Quando o analyzer extraiu `hierarchy` (computed-styles disponíveis), cada
     section do skeleton.json carrega os sinais de hierarquia visual da
@@ -517,7 +517,7 @@ def build_skeleton(analysis: dict, url: str, product: Optional[str]) -> tuple[st
         "sections": skel_sections,
         "notice": (
             "Esqueleto ESTRUTURAL apenas. Nenhuma copy/imagem/marca do concorrente. "
-            "A `page-design` preenche cada placeholder com o conteúdo do membro (06-copy / 04-offer). "
+            "A `page-design` preenche cada placeholder com o conteúdo do membro (`copy-engine` e `offer-builder`). "
             "O bloco `hierarchy` de cada section (quando presente) traz sinais NUMÉRICOS "
             "de hierarquia visual da referência (proporções, espaçamento, densidade) — "
             "direção de ênfase pro preenchimento, nunca CSS/conteúdo do concorrente. "

@@ -4,7 +4,7 @@
 
 ### Gerar `design-tokens.json` (programaticamente)
 
-Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não "extraídos do HTML por reasoning"). A `page-build` consome isto pra mapear cada token → CSS var + setting. `variant_chosen` registra a variação na rota 4 (A/B/C ou mix); nas rotas 1/2/3/5, use o nome da rota (ex: `"clone-and-adapt"`, `"claude-design"`, `"aidesigner"`, `"site-builder"`):
+Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não "extraídos do HTML por reasoning"). A `page-build` consome isto pra mapear cada token → CSS var + setting. `variant_chosen` registra o nome da rota (`"claude-design"`, `"singlefile-clone"`, `"section-puzzle"`); quando a rodada ofereceu mais de uma variação, registre a escolhida (ex: `"claude-design-B"`):
 
 ```json
 {

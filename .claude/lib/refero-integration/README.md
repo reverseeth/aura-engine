@@ -4,7 +4,7 @@ Integração com o **Refero Design MCP** (package canônico: `fidgetcoding-refer
 
 ## Quando usar
 
-Membro tem o Refero MCP conectado E está rodando a skill **page-design ETAPA 2 (Brand Signals)**. Aura procura na biblioteca curada um estilo que case com a vibe pedida (do `profile.md` ou da descrição do membro) e usa o `designSystem` retornado pra alimentar o `frontend-design` via `design-signals.json` (heading/body font, palette role-tagged, radius, shadow, density).
+Membro tem o Refero MCP conectado E está rodando a skill **page-design ETAPA 2 (Brand Signals)**. Aura procura na biblioteca curada um estilo que case com a vibe pedida (do `profile.md` ou da descrição do membro) e usa o `designSystem` retornado pra alimentar a rota de design escolhida na ETAPA 3, via `design-signals.json` (heading/body font, palette role-tagged, radius, shadow, density).
 
 **Default = não-integrado.** Aura funciona 100% sem Refero (cai pro screenshot→visão, ou `tools/design-clone/` pra hex exato, ou estilo pré-definido). Integração é puro upside.
 
@@ -49,7 +49,7 @@ Integração focada na **skill page-design ETAPA 2 (Brand Signals)**. Cascade re
 
 | Skill | Tools usadas | O que melhora |
 |-------|--------------|---------------|
-| **page-design (ETAPA 2)** | `refero_search` + `refero_get` (+ opcional `refero_design_md`) | Sinais de cor/typography/spacing vêm de curadoria humana de design systems top, não scraping bruto. Convergem todos pro mesmo `design-signals.json` que alimenta o `frontend-design`. |
+| **page-design (ETAPA 2)** | `refero_search` + `refero_get` (+ opcional `refero_design_md`) | Sinais de cor/typography/spacing vêm de curadoria humana de design systems top, não scraping bruto. Convergem todos pro mesmo `design-signals.json` que alimenta a rota de design escolhida. |
 
 **Quando NÃO usar Refero:** quando o membro passa URL de concorrente nichado fora do catálogo (Refero é generalista top-200, não tem PDPs nichadas de skincare/microneedling). Nesses casos, o fallback é screenshot→visão (caminho 2) ou design-clone pra hex exato (caminho 3).
 
@@ -88,19 +88,19 @@ Refero MCP é local (npm package). Não há tokens persistidos no Aura nem no wo
 
 Cache local em `~/.cache/refero-mcp/` (default) com TTL 24h.
 
-## Refero vs frontend-design (quem faz o quê)
+## Refero vs rota de design (quem faz o quê)
 
-O design da página é **HTML-first**: nasce in-session via a skill nativa `frontend-design`, que gera a página inteira como HTML+CSS self-contained com a copy real já inserida — essa é a fonte única de verdade visual que o membro aprova antes de qualquer Liquid existir. O Claude Design (app claude.ai) **saiu do caminho crítico**.
+O design da página é **HTML-first**: nasce in-session pela rota que o membro escolhe na ETAPA 3 (do zero no canvas do Claude Design, clone de uma página salva com o SingleFile, ou quebra-cabeça de seções), e vira `design/page.html` — a fonte única de verdade visual que o membro aprova antes de qualquer Liquid existir.
 
-O Refero não compete com o `frontend-design`: ele só **alimenta os signals** que o `frontend-design` aplica.
+O Refero não compete com a rota: ele só **alimenta os signals** que a rota aplica.
 
-| Aspecto | Refero MCP (`page-design` ETAPA 2) | frontend-design (`page-design` ETAPA 3) |
+| Aspecto | Refero MCP (`page-design` ETAPA 2) | Rota de design (`page-design` ETAPA 3) |
 |---------|--------------------------|-------------------------------|
-| O que entrega | `design-signals.json` (cores role-tagged, typography, spacing, radius, shadow, density) | A página inteira como HTML+CSS (2-3 variações navegáveis), copy real aplicada |
+| O que entrega | `design-signals.json` (cores role-tagged, typography, spacing, radius, shadow, density) | A página inteira como HTML+CSS navegável, copy real aplicada |
 | Quando roda | Brand Signals, antes do design | Geração do design HTML-first aprovado pelo membro |
 | Papel | Fonte de inspiração + signals técnicos | Fonte única de verdade visual |
 
-Sequência: Refero (ou screenshot→visão / design-clone) fornece os signals da vibe → `frontend-design` gera a página HTML aplicando esses signals → membro aprova → page-build compila em Liquid determinístico.
+Sequência: Refero (ou screenshot→visão / design-clone) fornece os signals da vibe → a rota escolhida gera a página HTML aplicando esses signals → membro aprova → page-build compila em Liquid determinístico.
 
 ## Roadmap (não implementado, ideias futuras)
 

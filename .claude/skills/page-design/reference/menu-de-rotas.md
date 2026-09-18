@@ -1,44 +1,42 @@
 # Page Design · Referência: Escolha da fonte de design, rotas viáveis e menu ao membro (ETAPA 3, sub-etapas 3.1 e 3.2)
 
-> A detecção em runtime das cinco rotas, a tabela completa do menu (como funciona, qualidade, custo, automação, quando usar), a pergunta ao membro, o default sugerido sem imposição e as notas sobre Sidekick e prontidão pra IA de busca. Abra nas sub-etapas 3.1 e 3.2.
+> A detecção em runtime das três rotas, a tabela do menu (como funciona, qualidade, o que o membro precisa ter, quando usar), a pergunta ao membro, o default sugerido sem imposição e as notas sobre Sidekick e prontidão pra IA de busca. Abra nas sub-etapas 3.1 e 3.2.
 
 ## ETAPA 3 — ESCOLHA DA FONTE DE DESIGN (o membro escolhe a rota)
 
-Aqui o design nasce. A causa raiz de página "horrível" é gerar do zero sem referência concreta: sai genérico. Por isso a `page-design` NÃO escolhe a rota por você. Ela **apresenta as opções e o MEMBRO escolhe.** Todas as rotas convergem pro MESMO arquivo: `workspace/[produto]/page/design/page.html` — a **FONTE ÚNICA DE VERDADE visual**, aprovada pelo membro antes de qualquer Liquid existir. O resto da skill (tokens, plan, `page-build`) segue idêntico, independente da rota escolhida.
+Aqui o design nasce. São **três rotas**, e a `page-design` NÃO escolhe por você: ela **apresenta as opções e o MEMBRO escolhe.** Todas convergem pro MESMO arquivo: `workspace/[produto]/page/design/page.html` — a **FONTE ÚNICA DE VERDADE visual**, aprovada pelo membro antes de qualquer Liquid existir. O resto da skill (tokens, plan, `page-build`) segue idêntico, independente da rota.
+
+A régua de qualidade da 3.7 é **bloqueante nas três**: a página não chega ao membro sem passar. Rota que entregou HTML violando a régua é corrigida inline aqui, nunca devolvida pro membro consertar.
 
 ### 3.1 Detectar rotas viáveis (runtime)
 
-Antes de apresentar o menu, detecte o que está disponível NESTA sessão e só ofereça as rotas viáveis:
+Antes de apresentar o menu, detecte o que está disponível NESTA sessão e nesta máquina; só ofereça as rotas viáveis:
 
 | Rota | Disponível quando |
 |---|---|
-| **1. Clone-and-adapt** | `tools/design-clone/` existe no repo (sempre presente no framework). O membro precisa ter uma URL de concorrente cuja página ele ache boa (ou um .html da página salvo com a extensão SingleFile — ver degrau 4 da cascade na §3.3). |
-| **2. Claude Design (handoff)** | Sempre ofertável — depende só do membro ter acesso ao canvas do `claude.ai/design` (Claude Pro/Max). Não há tool a detectar; é um handoff manual de arquivo. |
-| **3. AIDesigner MCP** | Há tools com prefixo `mcp__aidesigner__` na sessão. Se ausente, NÃO liste como rota ativa — mencione em 1 linha "rota paga opcional, conecte o MCP se quiser" e siga. |
-| **4. frontend-design (fallback)** | Sempre disponível (skill nativa). É a rota de menor qualidade — só quando o membro não tem referência nem quer desenhar. |
-| **5. AI site-builders (v0 / Lovable / Manus)** | Rota EXTERNA — só entra no menu se o membro mencionar que usa algum deles (não ofereça espontaneamente). O membro descreve a página num desses geradores, eles criam o HTML. Ponto de atenção: trazem **runtime próprio** (stack/hospedagem deles), não Liquid nativo do Shopify — então serve como landing externa OU o membro exporta o HTML e a `page-build` reintegra ao tema. |
+| **1. Do zero, com o Claude Design** *(padrão)* | A tool `Artifact` existe na sessão — é ela que abre o canvas de design dentro do Claude Code (padrão do Claude Code atual). Ausente: a rota some do menu e o default passa a ser a rota 2. |
+| **2. Clonar uma página inteira com o SingleFile** | O membro tem uma marca de referência cuja página ele acha boa E a loja Shopify conectada (`shopify theme list --store "$STORE"` responde). Sem a loja conectada, mostre a rota com o pré-requisito em uma linha e ofereça instalar e logar a CLI agora (o mesmo passo 6.1 da `page-build`) ou seguir por outra rota. |
+| **3. Quebra-cabeça de seções** | O membro tem pelo menos duas fontes de referência: arquivos `.html` de páginas diferentes, prints de seções (Pinterest, Figma, Dribbble) ou os dois misturados. |
 
-> Refero (`mcp__refero__`), se presente, já foi usado na ETAPA 2 pra brand signals — NÃO é uma rota de design de página aqui, é fonte de signals que alimenta qualquer rota.
+> Refero (`mcp__refero__`), se presente, já foi usado na ETAPA 2 pra brand signals — NÃO é rota de design aqui, é fonte de signals que alimenta qualquer rota.
 
 ### 3.2 Apresentar o menu ao membro (no `report_language`)
 
 Mostre esta tabela (traduzida pro idioma do membro, listando só as rotas viáveis da 3.1):
 
-| Rota | Como funciona | Qualidade de design | Custo | Automação | Quando usar |
-|---|---|---|---|---|---|
-| **1. Clone-and-adapt** *(padrão recomendado p/ velocidade)* | Você indica 1 PDP/landing de concorrente que acha bonita. A Aura captura só a **estrutura/layout** dela e adapta com a SUA copy (`copy-engine`), oferta (`offer-builder`) e imagens. Herda hierarquia e fluxo de conversão já validados no mercado. | Alta — parte de um layout que já converte | Zero | Alta | Você viu uma página de concorrente que funciona e quer velocidade sem reinventar layout |
-| **2. Claude Design (handoff)** | Você desenha/itera a página no canvas visual do `claude.ai/design`, exporta como HTML standalone, e cola o arquivo aqui. A Aura consome esse HTML como `page.html`. | Alta — controle visual fino, aprovação no canvas | Incluso no Claude Pro/Max (consome mais token, mesmo limite) | Média (design semi-manual no canvas — isso é feature: você aprova visualmente antes do Liquid) | Você quer controle visual total e gosta de iterar num canvas |
-| **3. AIDesigner MCP** *(se conectado)* | Roda dentro do Claude Code injetando padrões de design premium; cospe HTML/CSS limpo direto como `page.html`. | Alta | ~$20/mês (MCP pago) | Alta | Você já tem o MCP e quer design premium automatizado sem sair do Claude Code |
-| **4. frontend-design** *(fallback)* | Gera a página via skill nativa, **com direção forte** (brand-signals da ETAPA 2 + referência concreta + estilo nomeado). | A mais baixa do menu — única gerada do zero, sem referência | Zero | Total | Você NÃO tem página de referência nem quer desenhar no canvas. É o fallback. |
-| **5. AI site-builders (v0 / Lovable / Manus)** *(rota externa — só aparece se você usa um deles)* | Você descreve a página num desses geradores, ele cria o HTML, e você cola aqui como `page.html`. Eles trazem **runtime próprio** (não é Liquid nativo do Shopify) — então serve como landing externa OU a `page-build` exporta/reintegra ao tema. Consumida igual à rota 2 (você traz o HTML; a Aura injeta os markers `data-aura-section` e segue pra 3.7). | Alta — geradores modernos | Free tier / pago conforme uso | Média (gera no app deles; você traz o HTML) | Você já usa v0/Lovable/Manus e prefere desenhar lá fora, ciente de que o runtime é deles |
+| Rota | Como funciona | Qualidade de design | O que você precisa ter | Quando usar |
+|---|---|---|---|---|
+| **1. Do zero, com o Claude Design** *(padrão)* | A página nasce inteira aqui dentro, no canvas de design do Claude Code (a tela onde ela aparece montada): suas seções na ordem do plano, sua copy real, a paleta e a tipografia escolhidas na ETAPA 2 e suas imagens nos slots. Você vê a página montada, pede ajuste, eu refaço. | Alta — desenho sob medida pro seu produto, com a régua de design como gate | Nada. Já está tudo aqui | Você quer a página desenhada do zero pro seu produto, sem depender de referência de terceiro |
+| **2. Clonar uma página inteira com o SingleFile** | Você salva a página da marca que acha boa com a extensão SingleFile e me diz onde o arquivo está. Eu pego só o **esqueleto de layout**, encaixo no seu plano de seções, troco 100% do conteúdo pelo seu (copy, oferta, imagens, paleta) e a `page-build` compila em seções editáveis no editor da Shopify, direto na sua loja. | Alta — parte de um layout que já converte no seu mercado | A extensão SingleFile no Chrome, a URL da página de referência e a loja Shopify já conectada aqui | Você viu uma página que funciona e quer a mesma estrutura, com o seu conteúdo e velocidade |
+| **3. Quebra-cabeça de seções** | Você me manda várias referências: arquivos `.html` de páginas diferentes, prints de seções que achou no Pinterest, Figma ou Dribbble, ou os dois. Eu leio os prints, extraio a estrutura de cada seção e monto **uma página só**, com espaçamento, tipografia e paleta unificados. Cada seção vira uma seção editável no editor da Shopify. | Alta — o melhor de cada referência, unificado. Não pode parecer colagem: isso é gate | Duas ou mais referências (arquivo, print ou os dois) | Você gostou do hero de uma página, da prova social de outra e da oferta de uma terceira |
 
 Pergunte direto, sem decidir por ele:
-> "Qual rota você prefere pro design da página? A **1 (clone-and-adapt)** é a mais rápida e costuma sair melhor, porque parte de um layout de concorrente que já converte — você só me indica uma página que acha boa. Mas escolhe a que fizer sentido pra você."
+> "Qual rota você prefere pro design da página? A **1 (do zero, com o Claude Design)** é o padrão: a página nasce aqui inteira, desenhada pro seu produto, e você ajusta o que quiser vendo pronto. A **2** parte do layout de uma marca que você acha boa. A **3** junta várias referências numa página só. Escolhe a que fizer sentido pra você."
 
-Auto-sugira a rota 1 como **default** (não imposição) por velocidade e qualidade, mas respeite a escolha do membro. Se o membro estiver em stage starter (member-stage-awareness) e sem referência em mente, explique a rota 4 sem empurrar custo.
+Auto-sugira a rota 1 como **default** (não imposição). Se o membro já chegou com uma referência forte na cabeça ("quero igual à página da marca X"), diga em uma linha que a rota 2 entrega isso mais rápido e deixe ele decidir.
 
-Depois da escolha, vá pra sub-etapa correspondente (rota 1 → 3.3 · rota 2 → 3.4 · rota 3 → 3.5 · rota 4 → 3.6 · rota 5 → 3.6b). **Toda rota termina gerando `design/page.html` + indo pra 3.7 (regras de qualidade comuns) + checkpoint de aprovação.** Crie o dir com `mkdir -p workspace/[produto]/page/design`.
+Depois da escolha, vá pra sub-etapa correspondente (rota 1 → 3.3 · rota 2 → 3.4 · rota 3 → 3.5). **Toda rota termina gerando `design/page.html` + passando pela 3.7 (regras de qualidade comuns e self-review) + checkpoint de aprovação.** As rotas 2 e 3 passam antes pela normalização da 3.6, porque ingerem HTML de fora. Crie o dir com `mkdir -p workspace/[produto]/page/design`.
 
-> **Ajustes rápidos no admin (Sidekick) — pós-launch:** depois que a página estiver no ar (pós-07b), o membro pode usar o **Sidekick** (a IA dentro do admin do Shopify) pra microajustes pontuais — trocar uma imagem, ajustar um texto, mexer numa cor — sem voltar pro Claude Code. Não substitui a `page-design`/`page-build` (que constroem a página inteira com a copy real e fazem o deploy versionado e seguro): é só pro retoque rápido depois. Mencione isso ao membro só se for útil no contexto, não como rota de design.
+> **Ajustes rápidos no admin (Sidekick) — pós-launch:** depois que a página estiver no ar (pós-`page-build`), o membro pode usar o **Sidekick** (a IA dentro do admin do Shopify) pra microajustes pontuais — trocar uma imagem, ajustar um texto, mexer numa cor — sem voltar pro Claude Code. Não substitui a `page-design`/`page-build` (que constroem a página inteira com a copy real e fazem o deploy versionado e seguro): é só pro retoque rápido depois. Mencione isso ao membro só se for útil no contexto, não como rota de design.
 
 > **Prontidão pra IA de busca (GEO):** independente da rota escolhida aqui, a `page-build` adiciona a camada GEO/Schema.org (`product-schema.json` + `agent-facts.html`) pra a página ser entendida e citada quando alguém pesquisa o produto no ChatGPT, Claude ou Perplexity (search/shopping). A rota desta etapa é só decisão **visual** — a prontidão pra IA de busca é garantida no build (`page-build`), não depende da rota.

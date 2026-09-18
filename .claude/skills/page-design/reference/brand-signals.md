@@ -4,7 +4,7 @@
 
 ## ETAPA 2 — BRAND SIGNALS (cascade unificada → `design-signals.json`)
 
-Isto NÃO é a fonte do layout. É só extração de signals (paleta, tipografia, vibe) que vão alimentar QUALQUER rota de design escolhida na ETAPA 3 (clone-and-adapt aplica esses signals sobre o esqueleto de layout do concorrente; frontend-design e AIDesigner geram com eles; no handoff do canvas eles dirigem o membro). O layout em si vem da rota escolhida na ETAPA 3 — aqui só sai a direção de cor/tipografia/densidade.
+Isto NÃO é a fonte do layout. É só extração de signals (paleta, tipografia, vibe) que vão alimentar QUALQUER rota de design escolhida na ETAPA 3 (a rota 1 desenha com eles; a rota 2 os aplica sobre o esqueleto de layout da página de referência; a rota 3 os usa como o token único que unifica as seções de fontes diferentes). O layout em si vem da rota escolhida na ETAPA 3 — aqui só sai a direção de cor/tipografia/densidade.
 
 Os 4 caminhos convergem TODOS pro MESMO arquivo `workspace/[produto]/page/design-signals.json`:
 
@@ -57,7 +57,7 @@ Substitui o scraping de computed-styles do design-clone como fallback principal.
    - Radius (cantos retos vs arredondados vs pill), profundidade de shadow, densidade (airy vs compact)
 3. Preencha `design-signals.json` com `source: "screenshot_vision"`.
 
-> Hex extraído de imagem é aproximado — está OK. São signals de direção, não pixel-exato. O `frontend-design` ajusta pra garantir contraste WCAG e hierarquia.
+> Hex extraído de imagem é aproximado — está OK. São signals de direção, não pixel-exato. A rota de design da ETAPA 3 ajusta pra garantir contraste WCAG e hierarquia.
 
 ### Caminho 3 (opcional) — design-clone para hex exato
 

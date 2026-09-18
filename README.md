@@ -52,7 +52,7 @@ Plus an intelligence layer (`.claude/lib/`) providing:
 - **MCP detect + TrendTrack / Notion / Refero integrations** — auto-detect optional MCPs; TrendTrack drives product discovery, Notion stores the brand bank, Refero feeds brand signals
 - **Automation recipes** — MCP-based deploy/sync through the Meta Ads + Shopify MCPs
 
-> The page (`page-design` → `page-build`) is HTML-first: the design is generated and approved in-session as self-contained HTML+CSS (the single source of visual truth), then compiled deterministically to Liquid — no mandatory Claude Design step.
+> The page (`page-design` → `page-build`) is HTML-first: the design is generated and approved in-session as self-contained HTML+CSS (the single source of visual truth), then compiled deterministically to Liquid. Three design routes: from scratch on the Claude Design canvas (default), cloning a full page saved with SingleFile, or assembling one page out of several references.
 
 And operational rules in `.claude/rules/` (auto-loaded when relevant):
 
