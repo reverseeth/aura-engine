@@ -6,7 +6,7 @@ A oferta (Skill `offer-builder`) DEFINIU os bumps, upsells e bundles. Esta skill
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (mapa skill→domínio no README). Os domínios desta skill são `page-landing-cro` (as famílias Checkout/Cart Friction Reduction, AOV Builders e Profit Optimization), `brand-building-bonus-aov` e `offer-pricing-guarantee`. Sempre que uma etapa mandar "consulte a base", rode `search_knowledge` com a `best_query` NOMEADA de cada framework relevante (`deep=true`) — **NUNCA query genérica**. As queries de maior impacto estão embutidas byte-exatas no item 3 de "Antes de Começar" e no ponto de uso de cada alavanca abaixo.
 >
-> **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill checkout-aov --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 6 buscas por etapa. As queries já embutidas na etapa são o mínimo garantido. Não repita busca de framework já puxado na sessão.
+> **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill checkout-aov --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 6 buscas adicionais por etapa. As queries já embutidas na etapa são piso obrigatório: rodam sempre e não contam no teto, que vale só para as buscas adicionais que a etapa pedir. Não repita busca de framework já puxado na sessão.
 
 ### Pré-flight (OBRIGATÓRIO)
 

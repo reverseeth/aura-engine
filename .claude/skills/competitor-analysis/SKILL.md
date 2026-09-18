@@ -23,7 +23,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 
 1. `report_language` do profile (default `pt-BR`); copy consumidor-final e VOC literal sempre em inglês US; copy literal de concorrente (headlines, hooks, claims, transcrições) fica no idioma original do ad, porque é evidência.
 2. `product-research/product-research.md`, `banco-de-marcas.md` e `dados.json` (`validated_elements[]` é a semente da `validated_library` da ETAPA 7: aprofunde, não refaça); `market-research/market-research.md` (legado `relatorio.md`).
-3. Base pelo índice (domínio `competitor-positioning`): `python3 .claude/lib/kb-index/kb_lookup.py --skill competitor-analysis --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas por etapa; as queries embutidas nos arquivos de `reference/` são o mínimo garantido; nunca query genérica nem busca repetida.
+3. Base pelo índice (domínio `competitor-positioning`): `python3 .claude/lib/kb-index/kb_lookup.py --skill competitor-analysis --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas adicionais por etapa; as queries embutidas nos arquivos de `reference/` são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida.
 
 ## Fluxo da skill
 

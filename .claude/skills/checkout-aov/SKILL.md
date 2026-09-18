@@ -24,7 +24,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 
 1. `report_language` do profile (default `pt-BR`) em todo output interno; a copy do checkout e do cart (bump, upsell, trust, barra de frete) fica sempre em inglês US.
 2. `offer-builder/offer-builder.md` (legado `relatorio.md`) e o `dados.json`: bundles, bump, upsell, stack, garantia e unit economics; os números de aceitação projetados e o AOV projetado são a fonte única, aqui viram config real sem re-somar.
-3. Base pelo índice (domínios `page-landing-cro`, `brand-building-bonus-aov`, `offer-pricing-guarantee`): `python3 .claude/lib/kb-index/kb_lookup.py --skill checkout-aov --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 6 buscas por etapa; os cinco sistemas de `reference/contexto.md` e os embutidos em cada alavanca são o mínimo garantido; nunca query genérica nem busca repetida. Não consulte o membro sobre estratégia (tier âncora, % de savings), só sobre input externo.
+3. Base pelo índice (domínios `page-landing-cro`, `brand-building-bonus-aov`, `offer-pricing-guarantee`): `python3 .claude/lib/kb-index/kb_lookup.py --skill checkout-aov --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 6 buscas adicionais por etapa; os cinco sistemas de `reference/contexto.md` e os embutidos em cada alavanca são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida. Não consulte o membro sobre estratégia (tier âncora, % de savings), só sobre input externo.
 
 ## As 5 alavancas e o caminho real no Shopify
 

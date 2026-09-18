@@ -25,7 +25,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 1. `report_language` do profile (default `pt-BR`) no relatório e na conversa; todo material que vai pro creator (brief, outreach, contrato, report) fica sempre em inglês US.
 2. `profile.md` (starter e validating com seeding grátis e filmar você mesmo, nunca creator pago; scaling com campanha paga, retainers e a Fase B), `creative-engine/dados.json` se existir, `ad-analysis/dados.json` e `NEXT_BATCH_IDEAS.md` na Fase B, `scale-engine/dados.json` e `content-recycler/`.
 3. As sete regras que não se negociam, em `reference/regras-e-sistemas.md`: material de creator em inglês; whitelisting só de creator com breakthrough próprio e só com os ads dele; transparência por tier; contrato é referência, não aconselhamento jurídico; conteúdo de terceiro sem licença não vai ao ar; remuneração nunca inventada; campanha é território da `ad-strategy` e da `scale-engine`.
-4. Base pelo índice: `python3 .claude/lib/kb-index/kb_lookup.py --skill creator-engine --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas por etapa; o mínimo da Fase A e o adicional da Fase B estão em `reference/regras-e-sistemas.md`; nunca query genérica nem busca repetida.
+4. Base pelo índice: `python3 .claude/lib/kb-index/kb_lookup.py --skill creator-engine --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas adicionais por etapa (as queries embutidas na etapa são piso obrigatório, rodam sempre e não contam no teto); o mínimo da Fase A e o adicional da Fase B estão em `reference/regras-e-sistemas.md`; nunca query genérica nem busca repetida.
 
 ## Fluxo da skill
 

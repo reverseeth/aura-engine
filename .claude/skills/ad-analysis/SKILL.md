@@ -34,7 +34,7 @@ Leia nesta ordem (detalhe em `reference/contexto.md`). Em todo `dados.json` de f
 3. `ad-analysis/` anterior, se existir
 4. Se existirem: `copy-engine/dados.json` (`voc_forced_continue`, `specimen_primary`, `markup_audit`), `finance-engine/dados.json` (`roas_spiral`, que ela produz e esta skill só lê), `creative-engine/dados.json → concepts[]` (`testing_method`, `angles[]`, `sub_avatar_id`, zona emocional, `iteration_of`) e `creator-engine/dados.json → performance_by_creator`
 5. `workspace/[produto]/ad-log.md`, SEMPRE (cânone `.claude/lib/ad-log/README.md`): cruzar a janela com as mudanças executadas; mudança relatada pelo membro entra no log na hora com executor `membro`
-6. Base pelo índice: `python3 .claude/lib/kb-index/kb_lookup.py --skill ad-analysis --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas por etapa; as queries embutidas em `reference/` são o mínimo garantido; nunca query genérica nem busca repetida
+6. Base pelo índice: `python3 .claude/lib/kb-index/kb_lookup.py --skill ad-analysis --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas adicionais por etapa; as queries embutidas em `reference/` são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida
 
 Batch anterior a esses contratos: leitura por execução, zona `unknown`, sub-avatar `null`; nada trava, nada é inventado. Idioma: output interno e conversa no `report_language`; copy e VOC literal sempre em inglês US.
 

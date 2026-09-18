@@ -31,7 +31,7 @@ Arquivo crítico ausente (ES1 e ES2): (A) re-rodar a skill que o gera ou (B) seg
 3. `finance-engine/dados.json` se existir, bloco `cac` (`cac_floor_reference_usd`, `cac_max_first_order`, `target_reachable_vs_floor`): esta skill lê e aplica, nunca recalcula; ausente ou `unknown`, o target entra direto.
 4. O cânone (§1, §6, §7), a URL canônica `manifest.storefront.page_url` (nunca a do relatório da `copy-engine`), `creative-engine/dados.json` com o mapeamento de congruência da ETAPA 6 dela, e o stage do membro, que define tom e não número de criativos.
 5. Analytics stack é decisão da `tracking-setup`: `manifest.tracking.tracking_ready` e `analytics_stack` precisam existir, senão parar e mandar pra 'tracking'.
-6. Base pelo índice (domínios `meta-ads-strategy` e `persuasion-psychology`): `python3 .claude/lib/kb-index/kb_lookup.py --skill ad-strategy --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas por etapa; as queries embutidas em `reference/` são o mínimo garantido; nunca query genérica nem busca repetida. Os quatro sistemas de leitura estão em `reference/contexto.md`.
+6. Base pelo índice (domínios `meta-ads-strategy` e `persuasion-psychology`): `python3 .claude/lib/kb-index/kb_lookup.py --skill ad-strategy --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas adicionais por etapa; as queries embutidas em `reference/` são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida. Os quatro sistemas de leitura estão em `reference/contexto.md`.
 
 ## Fluxo da skill
 

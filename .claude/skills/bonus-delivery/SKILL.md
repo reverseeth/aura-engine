@@ -23,7 +23,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 
 1. `report_language` do profile (default `pt-BR`) em toda doc interna e conversa; o asset entregável ao consumidor (PDF, email) é sempre em inglês.
 2. `market-research/dados.json` (VOC e desejo) e `offer-builder/dados.json` (mecanismo, `guarantee`, `bonuses[]`) pra ancorar o asset no dream outcome.
-3. Base pelo índice (domínio `brand-building-bonus-aov`): `python3 .claude/lib/kb-index/kb_lookup.py --skill bonus-delivery --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 6 buscas por etapa; as queries embutidas nos arquivos de `reference/` são o mínimo garantido; nunca query genérica nem busca repetida.
+3. Base pelo índice (domínio `brand-building-bonus-aov`): `python3 .claude/lib/kb-index/kb_lookup.py --skill bonus-delivery --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 6 buscas adicionais por etapa; as queries embutidas nos arquivos de `reference/` são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida.
 4. Os tipos de bônus e o princípio do stack de 2 (`reference/tipos-e-stack-de-dois.md`): os 4 tipos primários que movem AOV num DTC (gift-with-purchase, e-book ou guide rumo ao dream outcome, SKU complementar grátis, gift wrapping em Q4); com mais de um bônus, o primeiro presupõe sucesso no produto (razor-blade, fit natural) e o segundo é o hit hedônico; "free" precisa aparecer visualmente na PDP. Puxe os três sistemas do arquivo antes de modelar o stack.
 
 ## Fluxo da skill

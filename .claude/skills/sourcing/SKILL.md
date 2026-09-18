@@ -26,7 +26,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 1. `report_language` do profile (default `pt-BR`); a mensagem de cotação pro fornecedor é em inglês (comunicação comercial, não copy).
 2. `workspace/profile.md` (seção de sourcing) e o output da `product-research` (produto, formato, mecanismo pretendido): a cotação pergunta exatamente o que o posicionamento promete.
 3. Categoria do produto (skincare, suplemento, eletrônico, vestuário, pet, casa): decide os testes de conformidade (ETAPA 5), a rota realista (ETAPA 3) e a taxa de defeito esperada (ETAPA 10). Data de hoje contra o calendário chinês (ETAPA 12).
-4. Base pelo índice (domínio `supply-chain-sourcing`): `python3 .claude/lib/kb-index/kb_lookup.py --skill sourcing --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas por etapa; as queries embutidas em `reference/` são o mínimo garantido; nunca query genérica nem busca repetida. Dado de verificação não confirmado na web vira pendência, nunca invenção.
+4. Base pelo índice (domínio `supply-chain-sourcing`): `python3 .claude/lib/kb-index/kb_lookup.py --skill sourcing --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas adicionais por etapa; as queries embutidas em `reference/` são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida. Dado de verificação não confirmado na web vira pendência, nunca invenção.
 
 ## Fluxo da skill
 

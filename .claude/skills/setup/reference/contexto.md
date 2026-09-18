@@ -12,7 +12,7 @@ Esta skill roda quando o membro digita "setup" ou quando é a primeira vez usand
 
 ## Antes de Começar
 
-> **Índice da base (kb-index):** esta skill NÃO usa query genérica ("fundamentos DTC", "onboarding"). Ela puxa SISTEMAS NOMEADOS pelo índice `.claude/lib/kb-index/`, e as entradas dela vivem espalhadas por vários domínios (o mapa do README aponta os principais). **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill setup --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 6 buscas por etapa. As queries já embutidas na etapa são o mínimo garantido. Não repita busca de framework já puxado na sessão.
+> **Índice da base (kb-index):** esta skill NÃO usa query genérica ("fundamentos DTC", "onboarding"). Ela puxa SISTEMAS NOMEADOS pelo índice `.claude/lib/kb-index/`, e as entradas dela vivem espalhadas por vários domínios (o mapa do README aponta os principais). **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill setup --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 6 buscas adicionais por etapa. As queries já embutidas na etapa são piso obrigatório: rodam sempre e não contam no teto, que vale só para as buscas adicionais que a etapa pedir. Não repita busca de framework já puxado na sessão.
 
 **Núcleo mínimo do roteamento (rode a `best_query` exata):**
 

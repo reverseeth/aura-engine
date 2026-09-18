@@ -4,7 +4,7 @@
 
 ### Puxe os SISTEMAS NOMEADOS da base
 
-Rode `search_knowledge` (deep=true) com a `best_query` exata de cada sistema. O domínio principal é `team-hiring-ops` no `.claude/lib/kb-index/`. **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill team-engine --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 10 buscas por etapa. As queries já embutidas na etapa são o mínimo garantido. Não repita busca de framework já puxado na sessão.
+Rode `search_knowledge` (deep=true) com a `best_query` exata de cada sistema. O domínio principal é `team-hiring-ops` no `.claude/lib/kb-index/`. **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill team-engine --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 10 buscas adicionais por etapa. As queries já embutidas na etapa são piso obrigatório: rodam sempre e não contam no teto, que vale só para as buscas adicionais que a etapa pedir. Não repita busca de framework já puxado na sessão.
 
 **PORTA 1 — Decidir (ETAPAs 1-4):**
 

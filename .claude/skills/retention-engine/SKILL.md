@@ -23,7 +23,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 ## Contexto a carregar
 
 1. `report_language` do profile (default `pt-BR`) no relatório, no setup-guide e na conversa; a copy dos emails (subject, preview, body, CTA) fica sempre em inglês US.
-2. Base pelo índice (domínios `retention-email` e `persuasion-psychology`, mais Desire Calendar e Subscription Economics Playbook embutidos): `python3 .claude/lib/kb-index/kb_lookup.py --skill retention-engine --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas por etapa; as queries embutidas nos arquivos de `reference/` são o mínimo garantido; nunca query genérica nem busca repetida.
+2. Base pelo índice (domínios `retention-email` e `persuasion-psychology`, mais Desire Calendar e Subscription Economics Playbook embutidos): `python3 .claude/lib/kb-index/kb_lookup.py --skill retention-engine --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas adicionais por etapa; as queries embutidas nos arquivos de `reference/` são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida.
 3. TrendTrack opcional: padrões de cadência e subject lines de 1 a 3 concorrentes como referência de timing, nunca copiados (`reference/papeis-e-bonuses.md`).
 
 ## Fluxo da skill

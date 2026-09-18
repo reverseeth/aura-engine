@@ -27,7 +27,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 1. `report_language` do profile (default `pt-BR`) em todo output interno e na conversa; copy pro consumidor final fica sempre em inglês US, inclusive o nome da sale e o texto de banner.
 2. `profile.md` (stage muda o apetite, nunca os gates) e `manifest.json` (`target_cpa` e `breakeven_roas` mais recentes prevalecem sobre a oferta, mais `budget_daily`, `stage`, `ad_classification[]`, `fixed_costs_monthly`, `esp` e `storefront.page_url`).
 3. `offer-builder/dados.json` (o stack de custos, o que encolhe com o desconto e o que não encolhe), `finance-engine/dados.json`, `sourcing/dados.json`, `ad-analysis/dados.json` mais o `ad-log.md`, `scale-engine/dados.json`, `ad-strategy/dados.json`, `retention-engine/dados.json` e as rodadas anteriores em `promo-engine/`, em especial o `seasonal_vault[]`.
-4. Base pelo índice (a skill cruza vários domínios e não tem domínio próprio): `python3 .claude/lib/kb-index/kb_lookup.py --skill promo-engine --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas por etapa; o núcleo mínimo, com as queries exatas, está em `reference/gate-e-sistemas.md`; nunca query genérica nem busca repetida.
+4. Base pelo índice (a skill cruza vários domínios e não tem domínio próprio): `python3 .claude/lib/kb-index/kb_lookup.py --skill promo-engine --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas adicionais por etapa (as queries embutidas na etapa são piso obrigatório, rodam sempre e não contam no teto); o núcleo mínimo, com as queries exatas, está em `reference/gate-e-sistemas.md`; nunca query genérica nem busca repetida.
 
 ## Fluxo da skill
 

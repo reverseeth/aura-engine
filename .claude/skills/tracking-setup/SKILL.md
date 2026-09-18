@@ -24,7 +24,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 
 1. `report_language` do profile (default `pt-BR`), com a régua de linguagem simples (EMQ, CAPI, MMM e NCPA explicadas na primeira vez); esta skill não gera copy consumidor-final.
 2. `manifest.stage` e `budget_daily`: o stage define o analytics stack, o budget refina (detecção automática pela rule `member-stage-awareness`).
-3. Base pelo índice (21 entradas em 6 domínios): `python3 .claude/lib/kb-index/kb_lookup.py --skill tracking-setup --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 6 buscas por etapa; as queries embutidas nos arquivos de `reference/` são o mínimo garantido; carregue já o sistema-espinha CAPI & Pixel Data / Event Match Quality (query em `reference/contexto.md`). Três entradas do índice ficam com a `retention-engine` (arquitetura de flow, hot-time anchor, métricas de SMS).
+3. Base pelo índice (21 entradas em 6 domínios): `python3 .claude/lib/kb-index/kb_lookup.py --skill tracking-setup --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 6 buscas adicionais por etapa; as queries embutidas nos arquivos de `reference/` são piso obrigatório, rodam sempre e não contam no teto; carregue já o sistema-espinha CAPI & Pixel Data / Event Match Quality (query em `reference/contexto.md`). Três entradas do índice ficam com a `retention-engine` (arquitetura de flow, hot-time anchor, métricas de SMS).
 4. Cascade de MCP pra ler o EMQ: MCP oficial da Meta (`mcp__meta__ads_*`), Pipeboard (`mcp__meta-ads__*`), manual (print do Events Manager); logue o caminho em `source`. Sem MCP, o manual é o normal, não degradação.
 
 ## Fluxo da skill

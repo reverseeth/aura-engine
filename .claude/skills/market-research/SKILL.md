@@ -25,7 +25,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 
 1. `report_language` do profile (default `pt-BR`), com a regra 0 em todo output interno (VOC em inglês ganha "tradução livre:" ao lado em pt-BR); copy consumidor-final e VOC literal sempre em inglês US.
 2. `product-research/product-research.md` e `product-research/banco-de-marcas.md` quando existirem (jogada vencedora, elementos validados, awareness preliminar, VOC das reviews de 1 a 2 estrelas).
-3. Base pelo índice (domínios `market-research-voc` e `persuasion-psychology`): `python3 .claude/lib/kb-index/kb_lookup.py --skill market-research --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas por etapa; as queries embutidas em cada arquivo de `reference/` são o mínimo garantido; nunca query genérica nem busca repetida.
+3. Base pelo índice (domínios `market-research-voc` e `persuasion-psychology`): `python3 .claude/lib/kb-index/kb_lookup.py --skill market-research --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 10 buscas adicionais por etapa; as queries embutidas em cada arquivo de `reference/` são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida.
 
 ## Fluxo da skill
 

@@ -20,7 +20,7 @@ O que justifica a `bonus-delivery` como skill standalone é o trabalho operacion
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (mapa skill→domínio no `README.md`). O domínio desta skill é **brand-building-bonus-aov**. Sempre que uma ETAPA mandar "puxar da base", rode `search_knowledge` com a `best_query` NOMEADA do framework relevante daquela fase — **nunca query genérica**.
 >
-> **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill bonus-delivery --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 6 buscas por etapa. As queries já embutidas na etapa são o mínimo garantido. Não repita busca de framework já puxado na sessão.
+> **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill bonus-delivery --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 6 buscas adicionais por etapa. As queries já embutidas na etapa são piso obrigatório: rodam sempre e não contam no teto, que vale só para as buscas adicionais que a etapa pedir. Não repita busca de framework já puxado na sessão.
 
 ## Pré-flight
 

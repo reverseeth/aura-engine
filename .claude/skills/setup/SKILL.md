@@ -22,7 +22,7 @@ Material de apoio em `reference/`; abra só o arquivo da etapa atual.
 
 ## Contexto a carregar
 
-1. Base pelo índice: `python3 .claude/lib/kb-index/kb_lookup.py --skill setup --domain <domínio desta etapa>` (sem `--domain` quando a etapa cruza vários domínios); `best_query` exata com `deep=true`, no máximo 6 buscas por etapa; as queries embutidas nos arquivos de `reference/` são o mínimo garantido; nunca query genérica nem busca repetida na sessão.
+1. Base pelo índice: `python3 .claude/lib/kb-index/kb_lookup.py --skill setup --domain <domínio desta etapa>` (sem `--domain` quando a etapa cruza vários domínios); `best_query` exata com `deep=true`, no máximo 6 buscas adicionais por etapa; as queries embutidas nos arquivos de `reference/` são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida na sessão.
 2. Núcleo mínimo do roteamento: o sistema ECommerce Bootstrapping (query exata em `reference/contexto.md`), que diz o que cada estágio de membro precisa priorizar e onde cada um quebra; informa a classificação da ETAPA 3 e o roteamento da ETAPA 6.
 
 ## Fluxo da skill

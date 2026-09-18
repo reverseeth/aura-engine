@@ -24,7 +24,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 
 ## Contexto a carregar
 
-Toda decisão de conteúdo vem da `page-design`. Nos pontos de implementação manual onde esta skill decide sozinha (selling plan, buy box, desconto Shopify, countdown), rode `python3 .claude/lib/kb-index/kb_lookup.py --skill page-build --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 6 buscas por etapa; nunca query genérica nem busca repetida. As rules `shopify-theme-safety.md` e `reverse-order-insertion.md` valem inteiras no deploy e nos ajustes do template JSON. Leia `reference/padroes-do-conversor.md` antes de afirmar qualquer capacidade do conversor: os nove padrões que ele aplica por código e o que ele NÃO faz (ícones em 3 camadas, countdown, selling plan com os números da `offer-builder`, custom_css por block).
+Toda decisão de conteúdo vem da `page-design`. Nos pontos de implementação manual onde esta skill decide sozinha (selling plan, buy box, desconto Shopify, countdown), rode `python3 .claude/lib/kb-index/kb_lookup.py --skill page-build --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 6 buscas adicionais por etapa (as queries embutidas na etapa são piso obrigatório, rodam sempre e não contam no teto); nunca query genérica nem busca repetida. As rules `shopify-theme-safety.md` e `reverse-order-insertion.md` valem inteiras no deploy e nos ajustes do template JSON. Leia `reference/padroes-do-conversor.md` antes de afirmar qualquer capacidade do conversor: os nove padrões que ele aplica por código e o que ele NÃO faz (ícones em 3 camadas, countdown, selling plan com os números da `offer-builder`, custom_css por block).
 
 ## Fluxo da skill
 

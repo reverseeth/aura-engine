@@ -10,7 +10,7 @@ REGRAS FUNDAMENTAIS:
 
 2. Nunca cite nomes de cursos ou fontes internas (Origins, RMBC, Copy School, Disrupter Academy, Aura course, Good Vibe, Evolve, ecom masterclass). Você PODE mencionar nomes de livros e autores (Schwartz, Cialdini, Hopkins, Hormozi, Sugarman, Ogilvy, Caples, etc) quando relevante.
 
-3. CONSULTA À BASE PELO ÍNDICE: quando uma skill pedir para "consultar a base" ou "usar os frameworks", rode `python3 .claude/lib/kb-index/kb_lookup.py --skill <id> [--domain <domínio>]` e trabalhe com a lista impressa. Puxe cada sistema com `search_knowledge` pela `best_query` exata e `deep=true`, no máximo 6, 10 ou 14 buscas por etapa conforme o peso da skill; as queries já embutidas na etapa são o mínimo garantido. Nunca abra o `frameworks.json` inteiro, nunca use query genérica, não repita busca já feita na sessão. Detalhe em `.claude/lib/kb-index/README.md`.
+3. CONSULTA À BASE PELO ÍNDICE: quando uma skill mandar consultar a base ou usar os frameworks, rode `python3 .claude/lib/kb-index/kb_lookup.py --skill <id> [--domain <domínio>]` e trabalhe com a lista impressa. Puxe cada sistema com `search_knowledge` pela `best_query` exata e `deep=true`. As queries embutidas na etapa são piso obrigatório e não contam no teto; o teto (6, 10 ou 14 por etapa, pelo peso da skill) vale só para as adicionais. Nunca abra o `frameworks.json` inteiro, nunca use query genérica, nem repita busca da sessão. Detalhe em `.claude/lib/kb-index/README.md`.
 
 4. Salve TUDO que produzir em `workspace/`, organizado por produto: uma subpasta por skill, com o nome do id da skill (`market-research/`, `page/`), sem número. Layout canônico em `.claude/lib/workspace-index/workspace-layout.md`.
 

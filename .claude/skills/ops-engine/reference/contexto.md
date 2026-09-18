@@ -4,7 +4,7 @@
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (domínio `ops-scale-risk`, mapa skill→domínio no README). Esta skill puxa os SISTEMAS NOMEADOS por `search_knowledge` com a `best_query` curada de cada um. NUNCA query genérica. **Esta skill é a consumidora que faltava** de 5 sistemas do domínio marcados como dormant no índice (`use_in_skill: "—"`) — a partir dela, eles são puxáveis. As 2 entradas do domínio que já transferem pra outras skills (expectativa de winning ad → `creative-engine`/`scale-engine`; mini-memo de criativo → `creative-engine`) continuam lá e NÃO são desta skill. O restante do domínio segue dormant de propósito (ver "O que esta skill NÃO faz").
 >
-> **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill ops-engine --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 6 buscas por etapa. As queries já embutidas na etapa são o mínimo garantido. Não repita busca de framework já puxado na sessão.
+> **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill ops-engine --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 6 buscas adicionais por etapa. As queries já embutidas na etapa são piso obrigatório: rodam sempre e não contam no teto, que vale só para as buscas adicionais que a etapa pedir. Não repita busca de framework já puxado na sessão.
 
 ## Quando Usar
 

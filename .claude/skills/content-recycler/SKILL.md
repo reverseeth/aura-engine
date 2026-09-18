@@ -27,7 +27,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 ## Contexto a carregar
 
 1. A fonte da Trilha 2 é a lib, nunca a base: a estrutura de um criativo pra nove formatos vem inteira de `.claude/lib/content-recycler/`. A Trilha 1 vem do cânone de ad-taxonomy (§2 classes, §5 escala, §7 Sniper) mais os movimentos do arquivo de apoio.
-2. Base pelo índice (domínios `creatives-hooks-formats`, principal, e `page-landing-cro` pra página e pras derivadas de texto longo): `python3 .claude/lib/kb-index/kb_lookup.py --skill content-recycler --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 6 buscas por etapa; as queries embutidas nas etapas, listadas em `reference/essencia-e-framework.md` e `reference/trilha-2-derivadas.md`, são o mínimo garantido; nunca query genérica nem busca repetida.
+2. Base pelo índice (domínios `creatives-hooks-formats`, principal, e `page-landing-cro` pra página e pras derivadas de texto longo): `python3 .claude/lib/kb-index/kb_lookup.py --skill content-recycler --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 6 buscas adicionais por etapa; as queries embutidas nas etapas, listadas em `reference/essencia-e-framework.md` e `reference/trilha-2-derivadas.md`, são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida.
 3. `offer-builder/dados.json` (o `mechanism_name` literal), `creative-engine/dados.json` e `market-research/dados.json` (as VOC de onde a essência herda referência), `manifest.budget_daily` (base do cálculo do ad set próprio) e `manifest.target_cpa`.
 
 ## Fluxo da skill

@@ -61,7 +61,7 @@ Se algum arquivo de pré-flight faltar, não aborte seco (rule `emergency-escape
 
 6. **Puxe os SISTEMAS NOMEADOS da base — NUNCA query genérica** (índice em `.claude/lib/kb-index/`, mapa skill→domínio no README):
    - Os domínios desta skill são `scaling` e `finance-projections`; entradas de outros domínios marcadas pra esta skill (ex: `ops-scale-risk`, `affiliate-creator-channels`) contam igual.
-   - **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill scale-engine --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 10 buscas por etapa. As queries já embutidas na etapa são o mínimo garantido. Não repita busca de framework já puxado na sessão.
+   - **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill scale-engine --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 10 buscas adicionais por etapa. As queries já embutidas na etapa são piso obrigatório: rodam sempre e não contam no teto, que vale só para as buscas adicionais que a etapa pedir. Não repita busca de framework já puxado na sessão.
 
    Mínimo a carregar antes de montar qualquer plano:
    - **Scaling Protocol & Decision Tree (fonte primária 2026)** (rode `scaling protocol 48-72 hours above target KPI scale every 24 hours decision tree new reason promo`) — **a espinha única** de quando subir, segurar e descer (ETAPA 3.5). Carregue este primeiro.

@@ -24,7 +24,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 Em todo `dados.json` de fase anterior, leia primeiro o objeto `resumo` e abra o arquivo inteiro só na etapa que precisar; sem `resumo`, leia inteiro.
 
 1. `copy-engine/copy-engine.md` e `dados.json` (obrigatório: seções canônicas, `lead_type`, `specs[]`), `offer-builder` (preço, stack, garantia, mecanismo nomeado LITERAL), `market-research` (awareness, sophistication, ceticismo, VOC), `competitor-analysis` (gaps, claims saturados), `workspace/profile.md` (estilo de marca, stage) e `workspace/[produto]/brand.md` (paleta, tipografia e tom já respondidos).
-2. Base pelo índice (domínio `page-landing-cro`): `python3 .claude/lib/kb-index/kb_lookup.py --skill page-design --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 14 buscas por etapa; as queries embutidas em `reference/` são o mínimo garantido; nunca query genérica nem busca repetida na sessão.
+2. Base pelo índice (domínio `page-landing-cro`): `python3 .claude/lib/kb-index/kb_lookup.py --skill page-design --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 14 buscas adicionais por etapa; as queries embutidas em `reference/` são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida na sessão.
 
 ## Fluxo da skill
 

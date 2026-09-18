@@ -34,7 +34,7 @@ Leia nesta ordem e depois abra `reference/contexto.md` (contrato de sub-avatar e
 4. `competitor-analysis/competitor-analysis.md` (mais `creative-patterns.json` e `dados.json`, se existirem)
 5. `offer-builder/offer-builder.md` e `copy-engine/copy-engine.md`
 6. DNA aprendido, silent: `creative-dna/dna-profile.json` com `total_creatives >= 10` vira viés soft na ideação, com ~20% do batch pra novelty
-7. Base pelo índice: `python3 .claude/lib/kb-index/kb_lookup.py --skill creative-engine --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 14 buscas por etapa; as queries embutidas em `reference/` são o mínimo garantido; nunca query genérica nem busca repetida
+7. Base pelo índice: `python3 .claude/lib/kb-index/kb_lookup.py --skill creative-engine --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 14 buscas adicionais por etapa; as queries embutidas em `reference/` são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida
 
 Idioma: output interno e conversa no `report_language`; copy pro consumidor e VOC literal sempre em inglês US.
 

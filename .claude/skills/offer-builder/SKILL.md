@@ -32,7 +32,7 @@ Leia nesta ordem (detalhe em `reference/contexto.md`). Em todo `dados.json` de f
 4. `brand.md` se existir: o mecanismo reforça o posicionamento, nunca compete com ele; conflito real entre o posicionamento e o mecanismo mais forte é decisão do membro, não sua
 5. `finance-engine/dados.json` se existir: `fixed_costs_monthly` (ETAPA 8), `contribution_margin_pct`, `payback_window_days_measured` e `runway_months` (check 8 da ETAPA 9); ausente, tudo funciona como antes, ela nunca é pré-requisito
 6. O cânone `.claude/lib/unit-economics/README.md` (§1 margem de contribuição não é lucro; §2 primeiro pedido vs recompra; §3 CAC vs CPA e piso de CAC; §4 espiral do ROAS); onde a skill divergir, o cânone vence
-7. Base pelo índice: `python3 .claude/lib/kb-index/kb_lookup.py --skill offer-builder --domain <domínio desta etapa>` (domínios `offer-mechanism`, `offer-pricing-guarantee`, `brand-building-bonus-aov` e as entradas de `finance-projections` desta skill); `best_query` exata com `deep=true`, no máximo 14 buscas por etapa; as queries embutidas em `reference/` são o mínimo garantido; nunca query genérica nem busca repetida
+7. Base pelo índice: `python3 .claude/lib/kb-index/kb_lookup.py --skill offer-builder --domain <domínio desta etapa>` (domínios `offer-mechanism`, `offer-pricing-guarantee`, `brand-building-bonus-aov` e as entradas de `finance-projections` desta skill); `best_query` exata com `deep=true`, no máximo 14 buscas adicionais por etapa; as queries embutidas em `reference/` são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida
 
 ## Fluxo da skill
 

@@ -10,7 +10,7 @@ Decisão de design: a `page-design` NÃO escolhe sozinha COMO o design nasce. El
 
 > **Índice completo dos frameworks desta skill (domínio page-landing-cro):** `.claude/lib/kb-index/` (mapa skill→domínio no README). Sempre que esta skill mandar "consulte a base", isso significa: **puxe os SISTEMAS NOMEADOS da base — rode `search_knowledge` com a `best_query` de cada framework relevante PRA AQUELA ETAPA, com `deep=true`.** NUNCA use query genérica.
 >
-> **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill page-design --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 14 buscas por etapa. As queries já embutidas na etapa são o mínimo garantido. Não repita busca de framework já puxado na sessão.
+> **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill page-design --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 14 buscas adicionais por etapa. As queries já embutidas na etapa são piso obrigatório: rodam sempre e não contam no teto, que vale só para as buscas adicionais que a etapa pedir. Não repita busca de framework já puxado na sessão.
 
 **O que esta skill faz:**
 

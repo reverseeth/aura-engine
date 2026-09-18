@@ -11,7 +11,7 @@ A teoria de diagnóstico (PSM, 4Pi, ROAS targets) continua viva como **leitura**
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (mapa skill→domínio no README). Os domínios desta skill são `meta-ads-strategy` (estrutura/budget/escala) e `persuasion-psychology` (credibilidade/gestão de comentários).
 >
-> **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill ad-strategy --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 10 buscas por etapa. As queries já embutidas na etapa são o mínimo garantido. Não repita busca de framework já puxado na sessão. NUNCA use query genérica ("ads strategy", "como configurar campanha").
+> **Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill ad-strategy --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 10 buscas adicionais por etapa. As queries já embutidas na etapa são piso obrigatório: rodam sempre e não contam no teto, que vale só para as buscas adicionais que a etapa pedir. Não repita busca de framework já puxado na sessão. NUNCA use query genérica ("ads strategy", "como configurar campanha").
 
 ### Pré-flight (OBRIGATÓRIO)
 

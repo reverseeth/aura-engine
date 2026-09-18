@@ -23,7 +23,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 
 Em todo `dados.json` de fase anterior, leia primeiro o objeto `resumo` e abra o arquivo inteiro só na etapa que precisar; sem `resumo`, leia inteiro. Os checks que comparam valor literal (mecanismo, garantia, bônus) abrem o campo de origem, nunca só o `resumo`.
 
-Base pelo índice (domínios `copy-proof-persuasion-structure` e `page-landing-cro`): `python3 .claude/lib/kb-index/kb_lookup.py --skill consistency-audit --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 6 buscas por etapa; as queries embutidas nos checks (nos arquivos `reference/checks-*.md`) são o mínimo garantido; o critério de relevância é por check (só entra a entrada que muda o veredito); nunca query genérica nem busca repetida. Escrita é da `copy-engine` e design da `page-design`; aqui é julgamento de auditoria.
+Base pelo índice (domínios `copy-proof-persuasion-structure` e `page-landing-cro`): `python3 .claude/lib/kb-index/kb_lookup.py --skill consistency-audit --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 14 buscas adicionais por etapa; as queries embutidas nos checks (nos arquivos `reference/checks-*.md`) são piso obrigatório, rodam sempre e não contam no teto; o critério de relevância é por check (só entra a entrada que muda o veredito); nunca query genérica nem busca repetida. Escrita é da `copy-engine` e design da `page-design`; aqui é julgamento de auditoria.
 
 ## Fluxo da skill
 

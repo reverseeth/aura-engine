@@ -21,7 +21,7 @@ Esta skill puxa SISTEMAS NOMEADOS de email lifecycle e psicologia de persuasão 
 
 Os domínios desta skill são `retention-email` e `persuasion-psychology`. Duas entradas de OUTROS domínios também pertencem a esta skill e já estão embutidas no ponto de uso: **Desire Calendar** em `market-research-voc` e **Subscription Economics Playbook** em `finance-projections`.
 
-**Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill retention-engine --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 10 buscas por etapa. As queries já embutidas na etapa são o mínimo garantido. Não repita busca de framework já puxado na sessão.
+**Consulta à base pelo índice:** rode `python3 .claude/lib/kb-index/kb_lookup.py --skill retention-engine --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 10 buscas adicionais por etapa. As queries já embutidas na etapa são piso obrigatório: rodam sempre e não contam no teto, que vale só para as buscas adicionais que a etapa pedir. Não repita busca de framework já puxado na sessão.
 
 ## Pré-flight
 
