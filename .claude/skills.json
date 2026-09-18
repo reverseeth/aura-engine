@@ -523,6 +523,8 @@
         "page/design-system.html",
         "page/design/page.html",
         "page/design/assets/",
+        "page/design/brief-codex.md",
+        "page/design/page-codex.html",
         "page/design-tokens.json",
         "page/design-signals.json",
         "page/iterations-log.json"

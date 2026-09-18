@@ -17,6 +17,7 @@ Dois momentos, o mesmo arquivo:
 - Qualquer reprova bloqueia o checkpoint. Corrija inline e refaça o placar INTEIRO, porque a correção de um item costuma quebrar outro (subir o respiro entre seções mexe no ritmo, trocar o peso do título mexe na hierarquia).
 - **Teto de 3 rodadas de correção.** O que continuar reprovado na terceira vai pro membro no checkpoint, em uma linha por item: o que está errado, o que você tentou e o que depende dele. Essas rodadas são silenciosas e acontecem ANTES de ele ver a página; não se confundem com as 3 iterações COM o membro que a 3.7 governa depois.
 - O placar não vira arquivo. Ele existe pra decidir se a página passa, e o que sobrevive à terceira rodada é dito ao membro em uma linha.
+- **Com duas versões da mesma página** (a segunda opinião da sub-etapa 3.8, `reference/brief-codex.md`), o placar é este mesmo, com uma coluna por versão e os mesmos ids. A comparação não muda nenhum item nem inventa critério novo: quem decide é a contagem de reprovas, e o desempate está escrito lá.
 
 Os comandos abaixo rodam de dentro de `workspace/[produto]/page/`.
 

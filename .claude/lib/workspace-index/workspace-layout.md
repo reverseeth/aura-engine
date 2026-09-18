@@ -57,8 +57,10 @@ copy-engine/
   copy-engine.md   copy-engine.html   dados.json
 page/                                ← storefront (`page-design` design + `page-build` build)
   page-plan.json   design-system.md   design-system.html
-  design/page.html                      (só page.html fica dentro de design/)
+  design/page.html                      (a página aprovada, a fonte única de verdade visual)
   design/assets/fonts/                  (cópia dos arquivos da fonte local usados na página, quando há)
+  design/brief-codex.md                 (segunda opinião, sub-etapa 3.8: o briefing que o membro cola no Codex)
+  design/page-codex.html                (segunda opinião: a versão que voltou de lá, quando o membro roda)
   design-tokens.json   design-signals.json   (na raiz do page/, NÃO em design/)
   iterations-log.json
   page-report.md   page-report.html     (relatório humano da página — escrito pela `page-build` PÓS-deploy)
@@ -126,6 +128,7 @@ entre skills, que o membro não abre no browser):
 - `banking-sheet.csv` (`finance-engine`: planilha operacional do Modo B)
 - `briefs/`, `outreach/messages.md`, `contracts/` e `roster.csv` (`creator-engine`: material operacional voltado ao creator, sempre em inglês US — não usa o design system Aura)
 - `memos/AAAA-MM-DD-<assunto>.md` (`ops-engine`: memos de decisão WAFM)
+- `design/brief-codex.md` (`page-design`: briefing pra colar num agente externo, não relatório que se abre no browser)
 
 Na dúvida: se o arquivo é lido pela PRÓXIMA skill (não pelo membro), não precisa de .html.
 

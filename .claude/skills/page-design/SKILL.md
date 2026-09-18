@@ -60,6 +60,7 @@ Três rotas, e a skill nunca escolhe por ele; todas convergem pro mesmo `design/
 - **3.5, rota 3, quebra-cabeça de seções** (`reference/rota-section-puzzle.md`). Regra legal inegociável nas rotas 2 e 3: das referências sai só estrutura e layout, nunca copy, imagem, logo, marca ou claim.
 - **3.6, normalização** (`reference/normalizacao-html-externo.md`): obrigatória em todo HTML que a skill ingere em vez de escrever.
 - **3.7, régua de design, self-review e checkpoint** (`reference/qualidade-e-checkpoint.md`): pontue item a item a régua de `reference/regua-de-design.md` (tipografia, espaço, cor, movimento e os sinais de "feito por IA"), corrija inline em até 3 rodadas junto com o self-review visual (screenshots de 1440 e 390 lidos por visão) e feche no checkpoint de draft navegável; a aprovação consolida `design/page.html`.
+- **3.8, segunda opinião no Codex** (`reference/brief-codex.md`): opcional, oferecida uma vez no checkpoint. O briefing sai autossuficiente e o HTML que voltar passa pela 3.6 e pela mesma régua, em placar de duas colunas; a escolha é do membro.
 - **Tokens** (`reference/design-tokens.md`): consolide `design-tokens.json` por código, a partir do HTML aprovado.
 
 ### ETAPA 4 · Persistir `page-plan.json`, relatórios e manifest
