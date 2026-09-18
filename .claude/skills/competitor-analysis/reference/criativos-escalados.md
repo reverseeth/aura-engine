@@ -115,4 +115,6 @@ Esse arquivo vira input crítico pra Skill `creative-engine` (Creative Engine) �
 
 Quando esta etapa rodar até o fim, grave no JSON companion `creative_deep_analysis.status: "completed"`, `creative_deep_analysis.creatives_analyzed_count` (N transcritos) e `creative_deep_analysis.patterns_file` (path do `competitor-analysis/creative-patterns.json`). Assim as skills `creative-engine`/`consistency-audit` leem o status direto, sem adivinhar a existência do arquivo.
 
+**Molde da peça escalada:** a agregação acima é estatística do mercado. Com a transcrição cronometrada em mão, extraia também o molde de 1 a 3 peças — a anatomia slot a slot de UM vídeo que escala, com tempo e função de imagem. Método em `reference/molde-de-criativo.md`, cânone em `.claude/lib/ad-molds/README.md`. As duas saídas convivem: `creative-patterns.json` diz como o mercado costuma abrir, `ad-molds.json` diz o que uma peça vencedora faz, nesta ordem, nestes segundos.
+
 **Se membro NÃO enviar criativos**: pular essa etapa e prosseguir, gravando `creative_deep_analysis.status: "skipped"`. A skill `creative-engine` roda em modo "cold" (sem patterns de referência) — funciona, mas com menos sinal de mercado.

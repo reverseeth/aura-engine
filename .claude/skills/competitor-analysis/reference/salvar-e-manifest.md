@@ -1,6 +1,6 @@
 # Competitor Analysis · Referência: SALVAR, os artefatos, a estrutura do relatório e o manifest
 
-> A regra do dual output, os sete artefatos, a estrutura do `.md` em onze seções, as regras de escrita (texto integral, posicionamento como a frase de como o concorrente se vende) e a atualização do manifest pelo script. Abra ao fechar a skill.
+> A regra do dual output, os oito artefatos, a estrutura do `.md` em onze seções, as regras de escrita (texto integral, posicionamento como a frase de como o concorrente se vende) e a atualização do manifest pelo script. Abra ao fechar a skill.
 
 ## SALVAR (dual output — rule 6b do CLAUDE.md)
 
@@ -11,17 +11,18 @@
 Salvar os seguintes artefatos:
 
 1. **`workspace/[produto]/competitor-analysis/competitor-analysis.md`**
-2. **`workspace/[produto]/competitor-analysis/competitor-analysis.html`** — gerado a partir do item 1 com `python3 tools/render_report.py workspace/[produto]/competitor-analysis/competitor-analysis.md` (o mesmo vale pro `ads-escalados.html` do item 6)
+2. **`workspace/[produto]/competitor-analysis/competitor-analysis.html`** — gerado a partir do item 1 com `python3 tools/render_report.py workspace/[produto]/competitor-analysis/competitor-analysis.md` (o mesmo vale pro `ads-escalados.html` do item 7)
 3. **`workspace/[produto]/competitor-analysis/dados.json`** — JSON companion estruturado (ver abaixo)
 4. **`workspace/[produto]/competitor-analysis/creative-patterns.json`** — SE membro forneceu criativos pra análise profunda (Etapa 3C); senão, pular. Schema definido na própria Etapa 3C.
-5. **`workspace/[produto]/competitor-analysis/creatives-inbox/transcripts/[creative-id].json`** — transcripts Whisper individuais (um por criativo).
-6. **`workspace/[produto]/competitor-analysis/ads-escalados.md`** + **`ads-escalados.html`** — SE a Etapa 3F rodou (tabela dos ads mais escalados por marca, com links; texto integral).
-7. **`workspace/[produto]/competitor-analysis/ads-escalados-dados.json`** — SE a Etapa 3F rodou (schema na própria Etapa 3F).
+5. **`workspace/[produto]/competitor-analysis/ad-molds.json`** — SE a extração de molde rodou na Etapa 3C (1 a 3 moldes de vídeo escalado, slot a slot; schema em `reference/molde-de-criativo.md`); senão, pular.
+6. **`workspace/[produto]/competitor-analysis/creatives-inbox/transcripts/[creative-id].json`** — transcripts Whisper individuais (um por criativo).
+7. **`workspace/[produto]/competitor-analysis/ads-escalados.md`** + **`ads-escalados.html`** — SE a Etapa 3F rodou (tabela dos ads mais escalados por marca, com links; texto integral).
+8. **`workspace/[produto]/competitor-analysis/ads-escalados-dados.json`** — SE a Etapa 3F rodou (schema na própria Etapa 3F).
 
 Estrutura do `.md`:
 1. Lista de concorrentes analisados + links
 2. PDP analysis por concorrente (Etapa 2)
-3. Meta Ad Library findings + top creatives transcritos (Etapa 3)
+3. Meta Ad Library findings + top creatives transcritos, com a linha dos moldes extraídos — quantos, de quais concorrentes e por qual sinal de escala (Etapas 3 e 3C)
 4. Classificação de posição de funil (Etapa 3B)
 5. Análise de formato dos criativos escalados (Etapa 3D)
 6. Páginas de destino com tráfego, com o formato de cada uma na mesma tabela (link, formato, quantos ads caem nela e o que decidiu a classificação), a linha do formato dominante e o radar de monitoramento (Etapa 3E)

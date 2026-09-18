@@ -5,7 +5,7 @@
   "regra_de_uso": "Modelar ESTRUTURA e MECANICA, nunca conteudo. Copiar frase, afirmacao, numero ou nome de mecanismo do concorrente e plagio. Nenhum arquivo de molde guarda o texto falado: a fala fica no transcript, o molde guarda a funcao.",
   "onde_vivem_as_instancias": {
     "canone": ".claude/lib/ad-molds/molds.json (este arquivo): schema, vocabularios e regras de injecao.",
-    "moldes_extraidos": "workspace/[produto]/competitor-analysis/ad-molds.json: um objeto por molde, no schema deste arquivo.",
+    "moldes_extraidos": "workspace/[produto]/competitor-analysis/ad-molds.json: `generated` com o timestamp mais `molds[]`, um objeto por molde, no schema deste arquivo.",
     "motivo": "Molde extraido nomeia concorrente, anuncio e nicho, entao e pesquisa do membro e vive no workspace, nunca no framework (regra 11 do CLAUDE.md)."
   },
   "schema": {

@@ -1,6 +1,6 @@
 # Competitor Analysis · Referência: JSON companion, o schema do dados.json
 
-> O schema completo do `competitor-analysis/dados.json` (concorrentes analisados e descartados, saturação de claims, funil, gaps, top criativos, formatos de ad, landings com o formato de cada página, radar, soluções alternativas, validated library, swipe, recomendação de posicionamento, status da análise profunda e fontes). Abra ao gravar o `dados.json`.
+> O schema completo do `competitor-analysis/dados.json` (concorrentes analisados e descartados, saturação de claims, funil, gaps, top criativos, formatos de ad, landings com o formato de cada página, radar, soluções alternativas, validated library, swipe, recomendação de posicionamento, status da análise profunda, status dos moldes de criativo e fontes). Abra ao gravar o `dados.json`.
 
 ## O `resumo`, o bloco que a próxima fase lê primeiro
 
@@ -62,6 +62,14 @@ O `dados.json` abre com um objeto `resumo`: até doze campos curtos com o que a 
   "swipe_avoid": [ { "item": "", "why_avoid": "", "alternative": "" } ],
   "positioning_recommendation": { "angle": "", "mechanism": "", "avatar_segment": "", "page_type": "" },
   "creative_deep_analysis": { "status": "completed|skipped|whisper_unavailable", "creatives_analyzed_count": 0, "patterns_file": "workspace/[produto]/competitor-analysis/creative-patterns.json" },
+  "ad_molds": {
+    "status": "completed|skipped|no_timed_transcript",
+    "molds_count": 0,
+    "molds": [
+      { "mold_id": "", "competitor": "", "scale_signal": "rank_do_anuncio|longest_running|aparicoes_repetidas|metrica_direta_de_spend", "days_running": 0 }
+    ],
+    "molds_file": "workspace/[produto]/competitor-analysis/ad-molds.json"
+  },
   "sources": { "collected_at": "", "competitors_analyzed": 0, "meta_ad_library_ads_count": 0, "trendtrack_calls": 0, "wayback_hits": 0, "archive_today_hits": 0 }
 }
 ```

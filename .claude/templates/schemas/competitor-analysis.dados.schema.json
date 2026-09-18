@@ -570,6 +570,58 @@
       },
       "additionalProperties": true
     },
+    "ad_molds": {
+      "type": "object",
+      "description": "Status da extracao de molde de criativo na ETAPA 3C: a anatomia slot a slot de 1 a 3 videos escalados do concorrente, no schema de `.claude/lib/ad-molds/molds.json`. Opcional: a extracao e opcional como a propria 3C, e sem o bloco a skill `creative-engine` escreve os briefings sem molde.",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "completed",
+            "skipped",
+            "no_timed_transcript"
+          ]
+        },
+        "molds_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "molds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "mold_id": {
+                "type": "string"
+              },
+              "competitor": {
+                "type": "string"
+              },
+              "scale_signal": {
+                "type": "string",
+                "enum": [
+                  "rank_do_anuncio",
+                  "longest_running",
+                  "aparicoes_repetidas",
+                  "metrica_direta_de_spend"
+                ]
+              },
+              "days_running": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "mold_id"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "molds_file": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
     "sources": {
       "type": "object",
       "properties": {
