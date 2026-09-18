@@ -522,6 +522,7 @@
         "page/design-system.md",
         "page/design-system.html",
         "page/design/page.html",
+        "page/design/assets/",
         "page/design-tokens.json",
         "page/design-signals.json",
         "page/iterations-log.json"

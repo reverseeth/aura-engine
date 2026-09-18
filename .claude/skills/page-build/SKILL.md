@@ -30,7 +30,7 @@ Toda decisão de conteúdo vem da `page-design`. Nos pontos de implementação m
 
 ### ETAPA 1 · SPLIT (HTML aprovado → fragmentos por section)
 
-Leia `reference/split-e-compile.md`. Um fragmento por `<section data-aura-section="X">` em `staging/html/<X>.html` (ids iguais a `sections_plan[].id`) e o CSS em `staging/html/page.css`. Sem marcadores, splite pelo `section_order` ou peça o HTML re-emitido; nunca chute fronteira de section.
+Leia `reference/split-e-compile.md`. Um fragmento por `<section data-aura-section="X">` em `staging/html/<X>.html` (ids iguais a `sections_plan[].id`) e o CSS em `staging/html/page.css`, tirando de fora o bloco `<style data-aura-fonts>` (carregamento de fonte pelo caminho do arquivo de design, que não existe na loja; a família dele é provisionada no 6.4b). Sem marcadores, splite pelo `section_order` ou peça o HTML re-emitido; nunca chute fronteira de section.
 
 ### ETAPA 2 · COMPILE+POPULATE (liquid-converter.py, uma invocação)
 
@@ -54,7 +54,7 @@ Leia `reference/gate-de-launch.md`. Passada de estilo (zero travessão em headli
 
 ### ETAPA 6 · DEPLOY (shopify-theme-safety integral)
 
-Leia `reference/deploy.md` e siga os onze passos com os comandos do arquivo: 6.1 CLI e detecção da loja (logue `shopify version`); 6.2 duplicate do tema live; 6.3 pull com `--nodelete`; 6.4 instalar sections e template mais o marker `data-aura-build` no elemento raiz do hero; 6.4b provisionar web fonts (Google Fonts só com as famílias e pesos usados, ou self-host) e confirmar no HTML servido; 6.5 push com `--nodelete` (`--allow-live` só no tema live) lendo `errors` do `--json`; 6.6 criar a página no admin com o handle exato; 6.7 marker verification (nunca pull depois de push não verificado); 6.8 smoke test; 6.9 preview links e aprovação; 6.10 PUBLISH só com aprovação explícita, backup do live, atribuição do template e `manifest.storefront` gravado; 6.11 fidelity check por visão (screenshots da página no ar e do design aprovado, desktop e mobile), corrigindo divergência real antes de encerrar.
+Leia `reference/deploy.md` e siga os onze passos com os comandos do arquivo: 6.1 CLI e detecção da loja (logue `shopify version`); 6.2 duplicate do tema live; 6.3 pull com `--nodelete`; 6.4 instalar sections e template mais o marker `data-aura-build` no elemento raiz do hero; 6.4b provisionar web fonts pelo `provision` de cada família em `type.families[]` (Google Fonts por `<link>`, arquivo local do membro como asset do tema com o `@font-face` do `local_fonts.py --mode asset`), só com os pesos usados, e confirmar no HTML servido; 6.5 push com `--nodelete` (`--allow-live` só no tema live) lendo `errors` do `--json`; 6.6 criar a página no admin com o handle exato; 6.7 marker verification (nunca pull depois de push não verificado); 6.8 smoke test; 6.9 preview links e aprovação; 6.10 PUBLISH só com aprovação explícita, backup do live, atribuição do template e `manifest.storefront` gravado; 6.11 fidelity check por visão (screenshots da página no ar e do design aprovado, desktop e mobile), corrigindo divergência real antes de encerrar.
 
 ### ETAPA 7 · Reports e iteration loop
 

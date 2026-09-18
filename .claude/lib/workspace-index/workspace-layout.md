@@ -23,7 +23,7 @@ Cada fase do pipeline mora numa **subpasta própria** cujo nome é **o stem da s
 
 **Compat legado (pastas numeradas):** produtos criados antes da reforma de 2026-09 guardam cada fase numa pasta com prefixo numérico (o `legacy_folder` de cada skill no `.claude/skills.json`). O `tools/migrate.py` (migração `001_slug_folders`) renomeia essas pastas para o nome novo e traduz `skills_completed` para os ids; o hook de início de sessão roda `python3 tools/migrate.py --all` toda sessão, então em condição normal nenhuma skill encontra pasta numerada. Enquanto um produto não estiver migrado, o `build_index.py` e as skills leem da pasta numerada como fallback (por um ciclo, como o `relatorio.md`); a escrita é sempre na pasta nova. O manifest ganha `framework_version` (versão do layout; ausente = 1) e a pasta do produto ganha `.migrations.log`.
 
-Arquivos de **infra/fundação** ficam na raiz do produto (não são fase): `manifest.json`, `brand.md`, `brand/logo.svg`, `creative-dna/` (compartilhado entre `creative-engine` e `ad-analysis`), `ABRIR-AQUI.html`, backups. O `profile.md`/`profile.html` do membro são **globais** em `workspace/` (não por produto).
+Arquivos de **infra/fundação** ficam na raiz do produto (não são fase): `manifest.json`, `brand.md`, `brand/logo.svg`, `creative-dna/` (compartilhado entre `creative-engine` e `ad-analysis`), `ABRIR-AQUI.html`, backups. O `profile.md`/`profile.html` do membro são **globais** em `workspace/` (não por produto), e o mesmo vale para `fontes/`: a pasta onde o membro guarda os arquivos de fonte que baixou da fundição, que a `page-design` lê na sub-etapa 2.1 e serve a qualquer produto. Ela é local-only como todo o resto do `workspace/`, e o pre-commit guard recusa arquivo de fonte no staging.
 
 **Artefatos de runtime de rules** (criados sob demanda pelas rules, também na raiz do produto): `troubleshooting-log.md` (troubleshooting-patterns), `escape-paths-log.json` e `.snapshots/[timestamp]/` (emergency-escape-paths), `.manifest-backup-*.json` (skill `setup` / ES2); e **per-fase**, `[fase]/iterations-log.json` (iteration-driven-refinement — não existe log global de iterações na raiz).
 
@@ -58,6 +58,7 @@ copy-engine/
 page/                                ← storefront (`page-design` design + `page-build` build)
   page-plan.json   design-system.md   design-system.html
   design/page.html                      (só page.html fica dentro de design/)
+  design/assets/fonts/                  (cópia dos arquivos da fonte local usados na página, quando há)
   design-tokens.json   design-signals.json   (na raiz do page/, NÃO em design/)
   iterations-log.json
   page-report.md   page-report.html     (relatório humano da página — escrito pela `page-build` PÓS-deploy)

@@ -1,11 +1,12 @@
-# Design Presets (gerador de paletas + os 8 presets que servem de base)
+# Design Presets (paleta e tipografia da página)
 
-A lib do **Caminho 4 dos brand signals** da skill **page-design** (ETAPA 2), o caminho que roda quando não há Refero, nem print, nem URL de referência. Dois arquivos:
+A lib dos tokens de design da skill **page-design** (ETAPA 2): a cor que sai do Caminho 4 dos brand signals (o que roda quando não há Refero, nem print, nem URL de referência) e a tipografia que abre a etapa. Três arquivos:
 
 | Arquivo | O que é |
 |---|---|
-| `palette_engine.py` | O gerador. Devolve **exatamente 3 paletas candidatas** pro produto, cada uma com nome curto, motivo em uma frase e a relação de matiz declarada. |
-| `presets.json` | Os **8 presets completos e fixos**. Cada candidata nasce de um deles: herda o perfil de claridade e saturação dos neutros, a tipografia, o radius, a sombra e a densidade, e troca só o matiz. |
+| `palette_engine.py` | O gerador de cor. Devolve **exatamente 3 paletas candidatas** pro produto, cada uma com nome curto, motivo em uma frase e a relação de matiz declarada. |
+| `presets.json` | Os **8 presets completos e fixos**, base de cada candidata (perfil de claridade e saturação dos neutros, tipografia de reserva, radius, sombra, densidade; só o matiz muda), e o bloco **`suggested_typefaces`**, o registro das 2 famílias que a skill sugere antes de qualquer outra. |
+| `local_fonts.py` | O inventário das fontes que o membro baixou (`workspace/fontes/`): lê o peso real de cada arquivo, escolhe o formato, embute a fonte no HTML de design e emite o `@font-face` do tema. |
 
 **Por que a lib existe:** antes, cada run da `page-design` "inventava" os tokens do preset escolhido na hora, e dois membros escolhendo "Warm Lifestyle" recebiam paletas diferentes. O `presets.json` resolveu isso congelando os tokens. Sobrou o outro problema: um menu de 8 opções fixas deixa a página com a paleta do preset mais próximo, nunca com a paleta daquele produto, e escolher por amostra de cor solta é escolher às cegas. O gerador resolve os dois de uma vez: a cor nasce da vertical, do avatar e do ceticismo daquele mercado, sai em 3 opções com motivo, e a mesma entrada devolve sempre a mesma saída.
 
@@ -76,13 +77,54 @@ Shape de cada entrada (superset do `design-signals.json` que a `page-design` gra
 
 - **`palette` é role-tagged** — mesmas roles do `design-signals.json`/`design-tokens.json` (a `page-build` mapeia direto pra CSS vars + settings). `on_primary` é a cor do texto sobre o `primary` (botões).
 - **`google_fonts`** lista família + pesos usados — é o que a **`page-build` (passo de web fonts)** usa pra montar o `<link>` do Google Fonts (só os pesos listados; cada peso extra é KB no LCP).
-- Todas as fontes são **Google Fonts** de propósito: o provisionamento na `page-build` é padronizado e sem arquivo de fonte pra licenciar.
+- Todas as fontes **dos presets** são Google Fonts de propósito: o provisionamento na `page-build` é padronizado e sem arquivo nenhum pra gerenciar. Família de arquivo local existe só quando o membro escolhe uma na sub-etapa 2.1, e aí quem cuida dela é o `local_fonts.py`.
+
+## As duas famílias sugeridas (`suggested_typefaces`)
+
+A `page-design` abre a ETAPA 2 mostrando duas famílias e só duas, lidas deste bloco. O membro pode recusar as duas; aí a tipografia vem da cascade de cor, como antes.
+
+| Key | Família | Como carrega | O que o membro faz |
+|---|---|---|---|
+| `abc-oracle` | ABC Oracle, da fundição Dinamo | arquivo local (`provision: "local_files"`) | Baixa no site da fundição e põe a pasta em `workspace/fontes/` |
+| `geist` | Geist, da Vercel | Google Fonts (`provision: "google_fonts"`) | Nada |
+
+Cada entrada tem `name`, `foundry`, `url`, `provision`, `stack` (a font stack completa, com os fallbacks), `vibe`, `use_when`, `page_weights` (os pesos que a página usa) e `member_step`. A família do Google Fonts traz também `google_fonts`, no mesmo formato dos presets.
+
+**A Aura não baixa, não hospeda e não copia fonte de um membro pra outro**, e nenhum texto sobre licença entra no que o membro lê: a skill sugere, dá o link e continua. O binário nunca entra no repositório — o pre-commit guard recusa `.woff`, `.woff2`, `.otf` e `.ttf` no staging.
+
+## O inventário de fontes locais (`local_fonts.py`)
+
+```bash
+# o que tem na pasta
+python3 .claude/lib/design-presets/local_fonts.py scan workspace/fontes
+
+# o bloco pro design/page.html (arquivos ao lado do HTML)
+python3 .claude/lib/design-presets/local_fonts.py css <pasta do design> --mode relative --family "ABC Oracle"
+
+# o bloco pro <head> do theme.liquid (asset do tema)
+python3 .claude/lib/design-presets/local_fonts.py css <pasta> --mode asset --family "ABC Oracle"
+
+# o bloco com a fonte embutida em base64, pra quando o HTML precisa abrir sozinho
+python3 .claude/lib/design-presets/local_fonts.py css <pasta> --mode inline --family "ABC Oracle"
+
+# levar só os pesos usados pra outra pasta
+python3 .claude/lib/design-presets/local_fonts.py copy workspace/fontes --to <destino> --weights 400,700
+```
+
+Três coisas que ele resolve, e que não se fazem por leitura de texto:
+
+1. **O peso de cada arquivo.** Sai do metadado do próprio arquivo (`usWeightClass` da tabela OS/2, lido direto do `.otf`, `.ttf` ou `.woff`) e só cai pro nome quando o formato não permite ler. Um `.woff2` sozinho não é legível sem Brotli, então ele empresta o metadado do irmão de mesmo nome; sem irmão, vale o apelido do nome do arquivo, e o relatório diz que foi assim. Importa porque uma família de nove pesos tem Book, Heavy e Ultra, que ninguém traduz de cabeça pro número do CSS.
+2. **O carregamento da fonte no HTML de design**, sempre num bloco `<style data-aura-fonts="[família]">`. O modo `relative` (padrão) aponta pros arquivos ao lado do HTML, do mesmo jeito que as imagens da página já funcionam; o modo `inline` embute a fonte em base64, pra quando o arquivo precisa abrir longe da pasta. O atributo é o que a `page-build` procura pra tirar o bloco antes de compilar e trocar pelo asset do tema.
+3. **O `@font-face` do tema**, com o `format()` certo pra extensão e o `asset_url` do arquivo. Vai no `<head>` do `theme.liquid`, onde o Liquid é processado (dentro de `{% stylesheet %}` de section o `asset_url` sairia literal).
+
+Quando o mesmo peso existe em mais de um formato, a ordem de preferência é `.woff2`, `.woff`, `.otf`, `.ttf`. Testes em `tools/tests/test_local_fonts.py`, com arquivos SFNT sintéticos montados byte a byte — nenhum binário de fonte no repositório.
 
 ## Como a `page-design` consome
 
-1. Caminho 4 da ETAPA 2: a skill roda o gerador com a vertical, o avatar e o ceticismo lidos das fases anteriores.
-2. Monta a página comparadora com as 3 candidatas aplicadas às seções reais do produto (os blocos de token saem do `--format css`) e mostra nome e motivo ao lado de cada aba.
-3. Com a escolha do membro, grava no `design-signals.json`: `source: "manual"`, `source_detail: "paleta gerada [Nome] · harmonia [harmony] · base [base_preset]"`, a `palette` inteira e os campos de `non_color_tokens` **literais**. O preset base fica no `source_detail` porque é por ele que a `page-build` encontra os pesos de fonte em `presets.json`.
+1. Sub-etapa 2.1: a skill lê `suggested_typefaces` e mostra as duas famílias; se o membro escolhe a de arquivo local, roda o `local_fonts.py scan` e depois o `css --mode inline`.
+2. Caminho 4 da 2.2: a skill roda o gerador de paletas com a vertical, o avatar e o ceticismo lidos das fases anteriores.
+3. Sub-etapa 2.3: monta a comparadora com as candidatas aplicadas às seções reais do produto (os blocos de cor saem do `--format css`, um seletor por eixo) e mostra nome e motivo ao lado de cada opção.
+4. Com a escolha do membro, grava no `design-signals.json`: `source: "manual"`, `source_detail: "paleta gerada [Nome] · harmonia [harmony] · base [base_preset]"`, a `palette` inteira e os campos de `non_color_tokens` **literais**. O preset base fica no `source_detail` porque é por ele que a `page-build` encontra os pesos de fonte em `presets.json`.
 
 ## Regras
 

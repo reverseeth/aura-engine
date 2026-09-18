@@ -16,7 +16,7 @@ Decisão de design: a `page-design` NÃO escolhe sozinha COMO o design nasce. El
 
 1. Pré-flight + PLAN — detecta produto, lê copy/offer/research, escolhe `page_type` pelos três sinais (consciência dominante, tipo de abertura da copy, formato dos concorrentes escalados), monta o plano de sections, escolhe `hero_type`, persiste o bloco `strategy` completo em `page-plan.json` + eyebrows criativos.
 2. ASSETS DE IMAGEM — inventário do que o membro tem (fotos de fornecedor/próprias/UGC), mapa de necessidade de mídia POR SECTION (o `hero_type` amarra o requisito do hero), rota de geração AI pra lifestyle (doutrina foto-real-primeiro da skill `creative-engine` — NUNCA gerar rótulo/embalagem por texto). Tudo registrado em `sections_plan[].media`.
-3. BRAND SIGNALS — lê `workspace/[produto]/brand.md` PRIMEIRO (só pergunta o que faltar), depois cascade (Refero MCP → screenshot→visão → design-clone opcional pra hex exato → gerador de 3 paletas candidatas em `.claude/lib/design-presets/palette_engine.py`, provadas na comparadora), tudo convergindo pro mesmo `design-signals.json`.
+3. BRAND SIGNALS — lê `workspace/[produto]/brand.md` PRIMEIRO (só pergunta o que faltar). Tipografia (2.1): abre com as duas famílias sugeridas do `suggested_typefaces` de `.claude/lib/design-presets/presets.json`, uma do Google Fonts e uma que o membro baixa e guarda em `workspace/fontes/`, inventariada pelo `local_fonts.py`. Cor (2.2): cascade Refero MCP → screenshot→visão → design-clone opcional pra hex exato → gerador de 3 paletas candidatas em `.claude/lib/design-presets/palette_engine.py`. Comparadora (2.3): os dois eixos provados na página real, um seletor cada. Tudo convergindo pro mesmo `design-signals.json`.
 4. MENU DE ROTAS DE DESIGN — apresenta as rotas viáveis (detectadas em runtime), o membro escolhe; a rota gera a PÁGINA INTEIRA em `design/page.html` com a copy real inserida, os signals aplicados e as imagens reais nos slots. SELF-REVIEW VISUAL obrigatório (Playwright + visão) antes do checkpoint; member aprova. Gera `design-tokens.json`.
 5. Dual output dos relatórios (.md + .html gerado pelo `render_report.py`) + framing de draft + atualiza manifest.
 
@@ -26,7 +26,7 @@ Decisão de design: a `page-design` NÃO escolhe sozinha COMO o design nasce. El
 - `design/page.html` — **a página inteira aprovada (FONTE ÚNICA DE VERDADE visual)**
 - `design/assets/` — imagens reais da página (inventário/geração da ETAPA 1.6)
 - `design-tokens.json` — tokens consolidados da variação escolhida (consumido pela `page-build`)
-- `design-signals.json` — signals de marca (heading_font, body_font, palette role-tagged, radius, shadow, density)
+- `design-signals.json` — signals de marca (heading_font, body_font, o bloco `typography` com a origem e os pesos de cada família, palette role-tagged, radius, shadow, density)
 
 Depois desta skill, rode **page-build** pra compilar o HTML aprovado em Liquid + deployar.
 

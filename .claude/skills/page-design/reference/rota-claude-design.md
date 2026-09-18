@@ -8,7 +8,7 @@ A página nasce inteira aqui dentro: as sections do plano na ordem, a copy real 
 
 **Nunca de tela em branco.** Gerar do zero sem direção concreta é a causa raiz de página genérica. Antes de escrever uma linha de HTML, tenha na mão (e use, item por item):
 
-- **(a) Os signals da ETAPA 2:** a paleta escolhida com os 8 roles e os tokens que não são de cor (tipografia, radius, sombra, densidade) LITERAIS do preset base — nada digitado de cabeça.
+- **(a) Os signals da ETAPA 2:** a paleta escolhida com os 8 roles, o radius, a sombra e a densidade LITERAIS do preset base, e a tipografia como a 2.1 fechou (com o bloco `data-aura-fonts` no `<head>` quando a família é de arquivo local) — nada digitado de cabeça.
 - **(b) O plano da ETAPA 1:** `section_order`, `sections_plan` com blocks e eyebrows, `page_type` e `hero_type`. A estrutura não é escolha de desenho: já foi decidida pelo awareness e pela copy.
 - **(c) A copy REAL da `copy-engine`,** section por section. Zero lorem ipsum, zero frase inventada pra caber no layout.
 - **(d) As imagens do mapa de mídia da 1.6** (`design/assets/`), com o requisito de hero que o `hero_type` amarra.

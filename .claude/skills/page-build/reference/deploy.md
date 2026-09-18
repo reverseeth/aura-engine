@@ -51,22 +51,35 @@ O atributo é inerte, identifica o build, e **fica no arquivo** (não há re-pus
 
 ### 6.4b Provisionar web fonts (a tipografia aprovada TEM que carregar de verdade)
 
-O CSS das sections declara `font-family` — mas declarar não carrega a fonte. Se `heading_font`/`body_font` de `design-tokens.json` são web fonts e o tema não as serve, a tipografia aprovada no `design/page.html` **cai silenciosamente pro fallback do sistema** (Georgia onde devia ser Fraunces) e ninguém percebe até a página estar no ar. Protocolo:
+O CSS das sections declara `font-family` — mas declarar não carrega a fonte. Se as famílias de `design-tokens.json` são web fonts e o tema não as serve, a tipografia aprovada no `design/page.html` **cai silenciosamente pro fallback do sistema** (Georgia onde devia ser Geist) e ninguém percebe até a página estar no ar. Protocolo:
 
-1. Leia `heading_font` e `body_font` de `design-tokens.json`. Fontes de sistema (`-apple-system`, Georgia, Arial, `system-ui`...) → nada a fazer, pule.
-2. Pra cada web font (o caminho padrão dos presets/signals é Google Fonts): confira se o tema clonado JÁ carrega a família — `grep -ri 'fonts.googleapis\|@font-face' "$THEME_DIR"/layout/theme.liquid "$THEME_DIR"/assets/*.css | grep -i "<família>"`. Já carrega → pule.
-3. **Não carrega → provisione por um dos dois caminhos:**
-   - **Caminho A — Google Fonts (default):** injete no `<head>` do `$THEME_DIR/layout/theme.liquid` (antes do primeiro `<link rel="stylesheet">`):
-     ```html
-     <link rel="preconnect" href="https://fonts.googleapis.com">
-     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Inter:wght@400;500;600&display=swap">
-     ```
-     Só as famílias e SÓ OS PESOS que a página usa (o campo `google_fonts` do preset base lista exatamente isso: o `source_detail` do `design-signals.json` nomeia o preset, e os pesos estão em `.claude/lib/design-presets/presets.json` — cada peso extra é KB no LCP). `display=swap` obrigatório.
-   - **Caminho B — self-host:** baixe os `.woff2` das famílias/pesos, suba em `assets/` do tema, e declare `@font-face` no CSS da(s) section(s) (ou num snippet incluído pelo theme.liquid). Use quando o membro não quer dependência do Google ou o tema tem CSP restritiva.
-4. **Validação (obrigatória):** no smoke test (6.8), `curl -s` a preview e confirme que o `<link>` do Google Fonts (ou o `@font-face`) da família está presente no HTML servido; no fidelity check (6.11), o screenshot confirma visualmente que o heading NÃO caiu pra fallback. Sem os dois checks, este passo é teatro.
+1. Leia `type.families[]` de `design-tokens.json` (espelho do bloco `typography` do `design-signals.json`, gravado na sub-etapa 2.1 da `page-design`). Cada entrada traz `name`, `provision`, `weights` e, quando `provision` é `local_files`, o `files_dir`. Família com `provision: "system"` (`-apple-system`, Georgia, Arial, `system-ui`) → nada a fazer, pule. `design-tokens.json` legado, sem `families[]`: leia `heading_font`/`body_font` e trate como Google Fonts.
+2. Pra cada família, confira se o tema clonado JÁ a carrega — `grep -ri 'fonts.googleapis\|@font-face' "$THEME_DIR"/layout/theme.liquid "$THEME_DIR"/assets/*.css | grep -i "<família>"`. Já carrega → pule.
+3. **Não carrega → provisione pelo caminho que o `provision` daquela família manda.**
 
-> `theme.liquid` é template crítico (afeta a loja inteira) — o backup do 6.2 já cobre; a edição é aditiva (só `<link>` no `<head>`), nunca remova nada do arquivo.
+   **Caminho A — `google_fonts`:** injete no `<head>` do `$THEME_DIR/layout/theme.liquid` (antes do primeiro `<link rel="stylesheet">`):
+   ```html
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap">
+   ```
+   Só as famílias e SÓ OS PESOS de `weights` (cada peso extra é KB no LCP). `display=swap` obrigatório. Fonte que veio de preset: os pesos estão no `google_fonts` do preset base, nomeado no `source_detail` do `design-signals.json`, dentro de `.claude/lib/design-presets/presets.json`.
+
+   **Caminho B — `local_files`** (arquivos que o membro baixou e a `page-design` copiou pra `files_dir`): suba os arquivos como asset do tema e declare o `@font-face` apontando pra eles.
+   ```bash
+   FONTS_DIR="workspace/${PRODUTO}/page/design/assets/fonts"   # o files_dir da família
+   cp "$FONTS_DIR"/* "$THEME_DIR/assets/"
+   python3 .claude/lib/design-presets/local_fonts.py css "$FONTS_DIR" \
+     --mode asset --family "<nome da família>" --weights 400,500,700
+   ```
+   O comando devolve o bloco `<style>` com um `@font-face` por arquivo, cada um com o `format()` certo pra extensão e `font-display:swap`. **Esse bloco vai no `<head>` do `theme.liquid`**, junto do Caminho A: dentro de `{% stylesheet %}` de section o Liquid não é processado, e o `asset_url` sairia literal na página. Prefira `.woff2` quando a pasta tiver (carrega mais rápido); `.otf` e `.ttf` funcionam, declarados com o `format()` que o script já escolhe.
+
+   > Arquivo de computador (`.otf`/`.ttf`) é bem mais pesado que arquivo de web (`.woff2`). O GATE 1 mede isso no peso da página; se o orçamento estourar por causa da fonte, avise o membro em uma linha, com o número, e diga que baixar o pacote web da fundição resolve.
+
+4. **O bloco `data-aura-fonts` do design nunca vai pro tema.** Ele carrega a fonte pelo caminho do arquivo de design (`assets/fonts/...`, ou a fonte inteira em base64 quando a `page-design` usou o modo `inline`), e nenhum dos dois existe na loja. O bloco é removido antes do split (ETAPA 1) e substituído aqui pelo asset do tema. Bloco sobrevivente = caminho quebrado no CSS de cada section, ou a fonte inteira duplicada em todas elas.
+5. **Validação (obrigatória):** no smoke test (6.8), `curl -s` a preview e confirme que o `<link>` do Google Fonts (ou o `@font-face` do asset) da família está presente no HTML servido; pra família local, confirme também que o arquivo responde (`curl -sI` na URL do `asset_url` renderizado, esperando 200). No fidelity check (6.11), o screenshot confirma visualmente que o heading NÃO caiu pra fallback. Sem esses checks, este passo é teatro.
+
+> `theme.liquid` é template crítico (afeta a loja inteira) — o backup do 6.2 já cobre; a edição é aditiva (só `<link>` e `<style>` no `<head>`), nunca remova nada do arquivo.
 
 ### 6.5 Push (Regra 3 — `--nodelete`; `--allow-live` só no tema live)
 

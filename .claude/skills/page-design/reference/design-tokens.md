@@ -16,8 +16,11 @@ Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não 
     "muted": "#B0A99F", "border": "#E3DAC9"
   },
   "type": {
-    "heading_font": "'Fraunces', Georgia, serif",
-    "body_font": "'Inter', -apple-system, sans-serif",
+    "heading_font": "'Geist', -apple-system, sans-serif",
+    "body_font": "'Geist', -apple-system, sans-serif",
+    "families": [
+      { "name": "Geist", "role": "both", "provision": "google_fonts", "weights": [400, 500, 600, 700] }
+    ],
     "scale_ratio": 1.25,
     "h1": "clamp(2.5rem, 5vw, 4rem)",
     "h2": "clamp(1.75rem, 3vw, 2.5rem)",
@@ -35,3 +38,5 @@ Do `design/page.html` aprovado, consolide os tokens **programaticamente** (não 
 ```
 
 `spacing.base` é 4 ou 8 (base-4/8). `components_by_section` lista, por section, os block types que a `page-build` vai criar — cruza com `sections_plan` do `page-plan.json`.
+
+`type.families[]` é o espelho do bloco `typography` do `design-signals.json` (sub-etapa 2.1) e é o que a `page-build` abre no passo de web fonts: `provision` (`google_fonts`, `local_files` ou `system`) diz por qual caminho cada família é carregada, `weights` lista só os pesos que a página usa e, em `local_files`, `files_dir` aponta pra cópia guardada dentro da pasta do produto. Sem esse bloco, a `page-build` não tem como saber que a tipografia aprovada vem de arquivo e a página sobe com a fonte de fallback.

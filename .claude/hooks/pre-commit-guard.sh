@@ -2,7 +2,8 @@
 # Aura Engine — pre-commit guard
 #
 # Bloqueia commits que misturem framework (.claude/, tools/, raiz) com workspace
-# (workspace/[produto]/) ou que contenham segredos. Esta é uma camada mecânica de
+# (workspace/[produto]/), que contenham segredos ou que tragam binário de fonte.
+# Esta é uma camada mecânica de
 # proteção — mesmo se o agent ignorar a regra 11 do CLAUDE.md, o git não deixa o
 # commit passar.
 #
@@ -89,6 +90,36 @@ if [ -n "$SECRET_VIOLATIONS" ]; then
   echo "  1. Tira do staging: git restore --staged <arquivo>"
   echo "  2. Confirma que está no .gitignore"
   echo "  3. Roda 'git commit' de novo"
+  echo ""
+  exit 1
+fi
+
+# ============================================================================
+# CHECK 2b — Arquivos de fonte
+# ============================================================================
+# O framework não versiona binário de fonte: as famílias dos presets vêm do Google Fonts por
+# link, e a família que o membro baixa fica em workspace/fontes/ (local-only). Um .woff2/.otf
+# staged é, na prática, a pasta pessoal de um membro entrando no repo público.
+FONT_VIOLATIONS=""
+for f in "${STAGED_FILES[@]}"; do
+  case "$f" in
+    *.woff|*.woff2|*.otf|*.ttf|*.WOFF|*.WOFF2|*.OTF|*.TTF)
+      FONT_VIOLATIONS+="  - $f"$'\n'
+      ;;
+  esac
+done
+
+if [ -n "$FONT_VIOLATIONS" ]; then
+  echo ""
+  echo "✋  AURA ENGINE — pre-commit guard BLOQUEOU este commit"
+  echo ""
+  echo "Arquivo de fonte no staging:"
+  echo ""
+  echo "$FONT_VIOLATIONS"
+  echo "O framework não versiona binário de fonte. Fonte do Google Fonts carrega por link;"
+  echo "fonte baixada da fundição fica em workspace/fontes/, que é local-only."
+  echo ""
+  echo "  git restore --staged <arquivo>"
   echo ""
   exit 1
 fi

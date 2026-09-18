@@ -1,10 +1,12 @@
-# Page Design · Referência: Brand signals, a cascade unificada até o design-signals.json (ETAPA 2)
+# Page Design · Referência: Brand signals, a cascade unificada até o design-signals.json (sub-etapas 2.2 e 2.3)
 
-> O shape do `design-signals.json`, a leitura do `brand.md` antes de qualquer pergunta, os quatro caminhos da cascade (Refero MCP, screenshot lido por visão, design-clone pra hex exato, gerador de 3 paletas), a prova de paletas na página real com tokens em trio R,G,B, a regra de dois temas e o resumo ao membro. Abra na ETAPA 2.
+> O shape do `design-signals.json`, a leitura do `brand.md` antes de qualquer pergunta, os quatro caminhos da cascade de cor (Refero MCP, screenshot lido por visão, design-clone pra hex exato, gerador de 3 paletas), a comparadora que prova paleta e tipografia na página real com tokens em trio R,G,B, a regra de dois temas e o resumo ao membro. Abra depois da 2.1.
 
 ## ETAPA 2 — BRAND SIGNALS (cascade unificada → `design-signals.json`)
 
 Isto NÃO é a fonte do layout. É só extração de signals (paleta, tipografia, vibe) que vão alimentar QUALQUER rota de design escolhida na ETAPA 3 (a rota 1 desenha com eles; a rota 2 os aplica sobre o esqueleto de layout da página de referência; a rota 3 os usa como o token único que unifica as seções de fontes diferentes). O layout em si vem da rota escolhida na ETAPA 3 — aqui só sai a direção de cor/tipografia/densidade.
+
+A etapa tem três sub-etapas, nesta ordem: **2.1 tipografia** (`reference/tipografia.md`, as duas famílias sugeridas), **2.2 cor** (a cascade de quatro caminhos abaixo) e **2.3 a comparadora**, onde o membro escolhe os dois vendo a página real.
 
 Os 4 caminhos convergem TODOS pro MESMO arquivo `workspace/[produto]/page/design-signals.json`:
 
@@ -12,8 +14,14 @@ Os 4 caminhos convergem TODOS pro MESMO arquivo `workspace/[produto]/page/design
 {
   "source": "refero | screenshot_vision | design_clone | manual",
   "source_detail": "Linear (via Refero) | print da loja X | hex extraído de competitor.com | paleta gerada Verde de Farmácia · harmonia analogous · base apothecary-calm",
-  "heading_font": "'Fraunces', Georgia, serif",
-  "body_font": "'Inter', -apple-system, sans-serif",
+  "heading_font": "'Geist', -apple-system, sans-serif",
+  "body_font": "'Geist', -apple-system, sans-serif",
+  "typography": {
+    "provision": "google_fonts | local_files | system | mixed",
+    "families": [
+      { "name": "Geist", "role": "both", "provision": "google_fonts", "weights": [400, 500, 600, 700] }
+    ]
+  },
   "palette": {
     "background": "#FDFAF4",
     "surface": "#F5EDE0",
@@ -31,6 +39,8 @@ Os 4 caminhos convergem TODOS pro MESMO arquivo `workspace/[produto]/page/design
 ```
 
 Antes de começar, **leia `workspace/[produto]/brand.md` PRIMEIRO** — as skills `setup` (ETAPA 5A) e 01 (etapa SALVAR) criam esse arquivo e prometem ao membro literalmente que "a `page-design` lê esse arquivo na brand discovery e só pergunta o que faltar". O que já estiver preenchido lá (posicionamento, arquétipo/tom, paleta com hex reais, tipografia, do/don'ts) entra DIRETO como brand discovery — não pergunte de novo o que o arquivo já responde (hex reais do brand.md alimentam a paleta dos signals sem cascade). Depois, pergunte em UMA mensagem SÓ o que estiver ausente ou marcado `[preencher]` (estilo visual desejado: minimalist editorial / bold modern / clinical premium / wellness organic / custom; cores da marca se houver, ou "escolhe pra mim"; tem site de referência cujo visual ele curte?). Se `brand.md` não existir, faça a brand discovery mínima completa nessa mesma mensagem única. Use as respostas pra dirigir a cascade.
+
+**A tipografia da 2.1 vence a tipografia de qualquer caminho abaixo.** Os quatro trazem família junto com a cor; quando a 2.1 já fechou uma, deles entram apenas `palette`, `radius`, `shadow` e `density`, e a família que vier junto é descartada. Se a 2.1 terminou sem família (o membro recusou as duas sugestões), a tipografia vem do caminho que rodar aqui.
 
 ### Caminho 1 — Refero MCP (preferencial, catálogo curado)
 
@@ -85,19 +95,23 @@ Quando Refero não tem match E o membro não tem print nem URL. Não é mais um 
    Saem exatamente 3 candidatas: nome curto, o motivo em uma frase (o que aquela família de cor comunica naquela vertical, pra aquele avatar), a relação de matiz declarada (análoga, complementar dividida ou tríade) e a paleta role-tagged inteira, com os trios R,G,B já prontos.
 3. O script confere sozinho, antes de imprimir: saturação viva no `primary` e no `accent` (nunca cinza), harmonia que bate com a distância real de matiz, contraste WCAG AA no texto e no texto secundário contra o fundo e contra a superfície dos cartões, e no texto do botão contra o botão, 3:1 na cor de apoio sobre o fundo, e as 3 candidatas distintas entre si. **Paleta que não passa é corrigida ou o script sai com erro** — nenhuma sai com aviso. Se sair com erro, reporte a mensagem e siga pela descrição livre.
 4. **Prove as 3 na página real** (bloco abaixo). Nunca peça a escolha por amostra de cor solta.
-5. Com a escolha do membro, grave no `design-signals.json`: `source: "manual"`, `source_detail: "paleta gerada [Nome] · harmonia [harmony] · base [base_preset]"` (o preset base precisa aparecer: é por ele que a `page-build` acha os pesos de fonte em `presets.json`), a `palette` inteira da candidata, e `heading_font`, `body_font`, `radius`, `shadow` e `density` **LITERAIS** do bloco `non_color_tokens` dela.
+5. Com a escolha do membro, grave no `design-signals.json`: `source: "manual"`, `source_detail: "paleta gerada [Nome] · harmonia [harmony] · base [base_preset]"` (o preset base precisa aparecer: é por ele que a `page-build` acha os pesos de fonte em `presets.json`), a `palette` inteira da candidata e `radius`, `shadow` e `density` **LITERAIS** do bloco `non_color_tokens` dela. O `heading_font` e o `body_font` do `non_color_tokens` só entram quando a 2.1 terminou sem família; com família decidida, valem os campos da 2.1 e o bloco `typography` que ela gravou.
 
-**Os 8 presets continuam vivos como base do gerador, não como menu.** Cada candidata herda de um preset o perfil de claridade e saturação dos neutros, a tipografia e a forma, e troca só o matiz. Não ofereça a lista dos 8 ao membro, e não copie cor de `presets.json` à mão.
+**Os 8 presets continuam vivos como base do gerador, não como menu.** Cada candidata herda de um preset o perfil de claridade e saturação dos neutros, a forma (radius, sombra, densidade) e a tipografia de reserva, e troca só o matiz. Não ofereça a lista dos 8 ao membro, e não copie cor de `presets.json` à mão.
 
 Mesma entrada devolve sempre as mesmas 3 candidatas: re-rodar a skill no mesmo produto não troca a paleta debaixo do membro. Se ele pedir ajuste depois de escolher, aplique e registre como `"paleta gerada [Nome] (customizado)"`.
 
 Se o membro passou nomes de cor por extenso (ex: "sage green"), valide via regex de hex `^#([0-9A-Fa-f]{3,8})$` ou converta por nome (sage green `#9CAF88`, dusty rose `#D4A5A5`, off-white `#FDFAF4`, navy `#14213D`, terracotta `#C66B3D`, olive `#6B7040`, etc). Se a cor não for reconhecível, peça o hex.
 
-### Prova de paletas na página real (obrigatória no Caminho 4)
+### 2.3 — A comparadora: paleta e tipografia provadas na página real
 
-Paleta não se escolhe por swatch (a amostra de cor isolada). Sempre que a cascade deixou mais de uma candidata viva, e no Caminho 4 são sempre 3, gere uma página comparadora self-contained: a MESMA página (ou as 2-3 seções mais representativas: hero, oferta e uma seção escura) renderizada em CADA paleta candidata, com navegação por abas ou âncoras, pro membro decidir VENDO a cor aplicada no contexto real. Ao lado de cada aba, o nome e o motivo daquela candidata, pra escolha ser informada.
+Nem cor nem fonte se escolhem por amostra solta. Sempre que sobrar mais de uma candidata em QUALQUER um dos dois eixos — e no Caminho 4 são sempre 3 paletas, e na 2.1 são até 2 famílias — gere uma página comparadora self-contained: a MESMA página (ou as 2-3 seções mais representativas: hero, oferta e uma seção escura) com **dois seletores independentes**, um de paleta e um de tipografia, pro membro ver qualquer combinação sem multiplicar páginas. Ao lado de cada opção, o nome e o motivo daquela candidata, pra escolha ser informada.
 
-A implementação usa o sistema de tokens por snippet: todo valor de cor entra como trio R,G,B (ex: `--tk-bg: 246,245,241` pra um fundo areia, `--tk-ink: 34,34,36` pra um grafite) e é consumido como `rgb(var(--tk-bg))` ou `rgba(var(--tk-bg), .5)`. Trocar a paleta inteira significa trocar 1 bloco de tokens, e o formato em trio dá transparência (alpha) sem duplicar a paleta. No Caminho 4 os blocos saem prontos do gerador (`--format css` devolve um `[data-palette="p1"]` por candidata, com todos os roles): copie os blocos, nunca converta hex a hex na mão. A paleta vencedora vira o `design-signals.json`/`design-tokens.json` normalmente.
+A implementação usa o sistema de tokens por snippet: todo valor de cor entra como trio R,G,B (ex: `--tk-bg: 246,245,241` pra um fundo areia, `--tk-ink: 34,34,36` pra um grafite) e é consumido como `rgb(var(--tk-bg))` ou `rgba(var(--tk-bg), .5)`. Trocar a paleta inteira significa trocar 1 bloco de tokens, e o formato em trio dá transparência (alpha) sem duplicar a paleta. No Caminho 4 os blocos saem prontos do gerador (`--format css` devolve um `[data-palette="p1"]` por candidata, com todos os roles): copie os blocos, nunca converta hex a hex na mão.
+
+A tipografia usa o mesmo mecanismo, num atributo próprio: `[data-type="t1"]` define `--tk-heading` e `--tk-body`, e o seletor troca só esse atributo. As fontes de arquivo local entram pelo bloco `data-aura-fonts` da 2.1.3, no `<head>` da comparadora, com os arquivos na pasta que o bloco aponta — sem os dois a comparadora renderiza na fonte de fallback e a escolha vira chute.
+
+As escolhas vencedoras viram o `design-signals.json`/`design-tokens.json` normalmente.
 
 **Dois temas, duas paletas:** quando o membro mantém 2 ou mais temas com paletas diferentes (teste A/B de identidade visual), o snippet de tokens é POR-TEMA — as sections são as mesmas, muda só o snippet de paleta de cada tema. A disciplina de push por-tema está na rule `shopify-theme-safety.md`: nunca pushar snippet de paleta em lote genérico (um push amplo leva a paleta de um tema pro outro sem ninguém perceber), conferir o tema alvo antes de cada push, e `--allow-live` exige atenção redobrada porque o tema publicado é a loja no ar.
 
@@ -105,7 +119,7 @@ A implementação usa o sistema de tokens por snippet: todo valor de cor entra c
 
 Salve `design-signals.json` e mostre ao membro um resumo curto:
 > "Peguei a vibe [da Linear via Refero / do print da loja X via visão / da paleta [Nome] que você escolheu]:
-> - Fontes: **[heading_font]** (títulos) + **[body_font]** (corpo)
+> - Fontes: **[heading_font]** (títulos) + **[body_font]** (corpo) [· carregada dos arquivos que você baixou, quando for o caso]
 > - Paleta: fundo **[background]** · texto **[foreground]** · accent **[primary]**
 > - Radius **[radius]px** · shadow **[shadow]** · density **[density]**
 > Vou usar isso como direção visual. O layout e a estrutura vêm da sua copy — só a paleta/tipografia é inspirada."
