@@ -17,6 +17,7 @@ Página lenta mata o CPA antes do criativo ter chance: cada segundo de LCP a mai
 - [ ] A imagem do hero SEM lazy (é o candidato a LCP) e COM `width`/`height` no `<img>` (o `image_tag` já emite — confira que ninguém removeu).
 - [ ] Zero `<script>` de runtime nos `.liquid` das sections (grep; única exceção: `application/ld+json` da ETAPA 4.5 — não é runtime).
 - [ ] CSS filtrado por section (padrão 7 do conversor) — sem N cópias do `page.css` no tema.
+- [ ] **`page_type: quiz`:** o funil inteiro está no mesmo documento, então toda imagem que não é a da tela de abertura renderiza com `loading: 'lazy'`, e o HTML servido continua dentro do alvo com todas as telas dentro (estourou: reduza a `width:` do `image_url` das telas de resultado). O check de zero `<script>` vale igual e aqui vale dobrado: o funil foi desenhado pra não precisar de JavaScript.
 
 **Check de peso (pós-push, junto do smoke test 6.8):**
 ```bash

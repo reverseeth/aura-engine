@@ -70,7 +70,7 @@ Sections opcionais podem entrar DEPOIS da espinha (ex: `social-proof` se a copy 
 
 O `listicle` usa o MESMO mapa: a copy é a mesma, o que muda é o tratamento. `background-story`, `root-cause`, `mechanism-reveal` e `product-buildup` viram os itens numerados da lista, cada um com o próprio subtítulo e a própria prova, e o `hero` anuncia quantos itens vêm ("7 razões..."). Nada de reescrever a copy pra caber na lista: quem decide o conteúdo é a `copy-engine`.
 
-**Se `page_type = quiz`:** o `sections_plan` deixa de ser o menu de sections da 1.2 e passa a ser o mapa de telas do funil — abertura, cada pergunta, a tela de leitura do resultado, cada perfil de resultado e a oferta ancorada nele. O fechamento acontece na própria tela de resultado, então `destination_ref` fica `null`.
+**Se `page_type = quiz`:** a 1.2 (menu de sections) dá lugar à sub-etapa 1.7, em `reference/quiz-funnel.md` — o funil inteiro: abertura, perguntas com a que roteia, ramificação, leitura do resultado, um perfil de resultado por sub-avatar e a oferta ancorada nele. O mapa de telas vive no bloco `quiz` do `page-plan.json`; o `sections_plan` continua sendo a lista de sections do split e tem a entry `quiz`, que é o funil inteiro numa section só. O fechamento acontece na própria tela de resultado, então `destination_ref` fica `null`.
 
 **Frameworks que sustentam essa decisão** (puxe os nomeados, não query genérica):
 - **Schwartz 5 Stages of Awareness** (rode `Schwartz five stages of awareness unaware problem aware solution aware product aware most aware`) + **Schwartz 5 Stages of Market Sophistication** (rode `market sophistication five stages Schwartz mechanism claim escalation jaded market`) — confirme que o awareness lido da `market-research` casa com o lead type da `copy-engine`.

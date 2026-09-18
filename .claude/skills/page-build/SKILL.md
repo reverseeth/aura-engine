@@ -30,7 +30,7 @@ Toda decisão de conteúdo vem da `page-design`. Nos pontos de implementação m
 
 ### ETAPA 1 · SPLIT (HTML aprovado → fragmentos por section)
 
-Leia `reference/split-e-compile.md`. Um fragmento por `<section data-aura-section="X">` em `staging/html/<X>.html` (ids iguais a `sections_plan[].id`) e o CSS em `staging/html/page.css`, tirando de fora o bloco `<style data-aura-fonts>` (carregamento de fonte pelo caminho do arquivo de design, que não existe na loja; a família dele é provisionada no 6.4b). Sem marcadores, splite pelo `section_order` ou peça o HTML re-emitido; nunca chute fronteira de section.
+Leia `reference/split-e-compile.md`. Um fragmento por `<section data-aura-section="X">` em `staging/html/<X>.html` (ids iguais a `sections_plan[].id`) e o CSS em `staging/html/page.css`, tirando de fora o bloco `<style data-aura-fonts>` (carregamento de fonte pelo caminho do arquivo de design, que não existe na loja; a família dele é provisionada no 6.4b). Sem marcadores, splite pelo `section_order` ou peça o HTML re-emitido; nunca chute fronteira de section. `page_type: quiz` no plano: o funil inteiro é UMA section (`reference/quiz-sections.md`), que governa o split, os blocks por tela, o CSS estático que faz o funil andar, o formulário de compra de cada resultado e o que muda no check de IDs, no GATE 1 e no smoke test.
 
 ### ETAPA 2 · COMPILE+POPULATE (liquid-converter.py, uma invocação)
 

@@ -12,6 +12,8 @@ O `design/page.html` aprovado tem cada section marcada com `<section data-aura-s
 
 Resultado: N fragmentos HTML (1 por section do plano) + 1 CSS compartilhado.
 
+> **Funil de quiz:** com `page_type: quiz`, o funil inteiro vive dentro de um `<section data-aura-section="quiz">` e sai num fragmento só. **Nunca splite por tela:** as regras de CSS que fazem o funil andar têm a tela como alvo e o contêiner do funil como sujeito, e o conversor filtra e reescopa o CSS por section (padrão 7). Uma tela por section quebra o funil no primeiro clique. O resto é `reference/quiz-sections.md`.
+
 ## ETAPA 2 — COMPILE+POPULATE (liquid-converter.py, UMA invocação)
 
 O `liquid-converter.py` é o conversor **CANÔNICO e OBRIGATÓRIO** (não é mais "legacy/draft" — é o caminho determinístico). O que ele aplica por código está na seção **Padrões aplicados pelo conversor** abaixo: text→settings (everything-editable), color settings inline no root + `| escape`, tokens (shadow/radius/font) como `var(--x)`+setting com migração de hardcoded, form `/cart/add` nativo, blocks inline com copy real por instância, CSS filtrado e rescopado por section, POPULATE do template JSON.

@@ -21,6 +21,10 @@ Detecção por prefixo de tool na sessão, como manda o canon `.claude/lib/mcp-d
 | `before_after_pair` | Não. O par antes e depois é prova, e prova gerada é prova inventada. Par real, ou a seção sai do plano. |
 | `diagram` | Não por geração de imagem. Diagrama de mecanismo é SVG desenhado na página, que fica nítido em qualquer tela e o membro consegue corrigir depois. |
 
+**Telas de quiz** (`page_type: quiz`, sub-etapa 1.7): os slots das telas estão em `quiz.screens[].media` e entram nesta mesma rodada, com a mesma tabela e a mesma régua. A tela de abertura pede a cena do resultado desejado; as telas de pergunta em geral não pedem imagem, porque a imagem compete com a pergunta.
+
+**Movimento em arquivo** (a demonstração do produto numa tela de resultado, quando o MCP renderiza vídeo): ele entra na página como `<video>` com `poster` e `controls`, nunca com reprodução automática e **nunca como GIF**. O GIF roda em laço e nenhuma folha de estilo o pausa, então ele atropela o item M6 da régua e quem pediu menos movimento. O `poster` é a primeira imagem que a pessoa vê e passa pela régua abaixo como qualquer outra imagem. Vídeo de anúncio continua sendo da `creative-engine`.
+
 ## Confirme antes de gastar crédito
 
 O crédito é do plano do membro. Antes da primeira chamada, uma mensagem só, com número:

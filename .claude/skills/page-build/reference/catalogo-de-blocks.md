@@ -34,6 +34,7 @@ Este catálogo é o **vocabulário de conteúdo** pro rename semântico (ETAPA 2
 - Before-after → `comparison_pair` (before_image + after_image + label)
 - Ingredients → `ingredient` (name + role + dosage + image)
 - How-it-works → `step` (number + title + description + image)
+- Quiz (`page_type: quiz`, uma section pro funil inteiro) → `quiz_intro` (1) · `quiz_question` (1 por pergunta, com até 4 pares `answer_N_label`/`answer_N_to`) · `quiz_result` (1 por perfil, com **`qty` + `variant_id`**, mesmo contrato do `pricing_tier`). Destino de tela é setting `text` com a `key` da tela de destino, NUNCA setting `url` (limitação 2). Detalhe em `reference/quiz-sections.md`
 
 **Regra dos 4 headers (organização manual opcional):** Content (o quê) · Style (como) · Spacing (onde) · Advanced (custom_css com `id="pu-{{ block.id }}"` + `<style>` scoped). O conversor NÃO emite isso automaticamente — é padrão de organização pro Claude aplicar à mão quando um block precisa de controle fino.
 

@@ -37,7 +37,7 @@ Princípio: **conversão determinística mata as traduções lossy e o drift.** 
 3. Valide os inputs (sob `workspace/[produto]/page/`):
    - [ ] `design/page.html` existe (HTML aprovado da `page-design` — **sem ele, PARE e direcione pra `page-design`**; não existe modo "gera Liquid direto")
    - [ ] `design-tokens.json` existe e parseia
-   - [ ] `page-plan.json` existe com bloco `strategy` + `sections_plan` + `section_order` (plans novos trazem `sections_plan[].media` — o mapa de mídia que o check bloqueante da ETAPA 4 usa; plan legado sem `media` é tolerado, o check degrada pro mínimo)
+   - [ ] `page-plan.json` existe com bloco `strategy` + `sections_plan` + `section_order` (plans novos trazem `sections_plan[].media` — o mapa de mídia que o check bloqueante da ETAPA 4 usa; plan legado sem `media` é tolerado, o check degrada pro mínimo); com `page_type: quiz`, ele traz também o bloco `quiz` (telas, perfis e ramificações), e o funil compila numa section só por `reference/quiz-sections.md`
    - [ ] `manifest.json` tem `page-design` em `skills_completed`
    - [ ] Plugin `shopify-plugin:shopify-liquid` disponível (se falhar, instrua `/plugin install shopify-plugin@shopify-plugin`)
 4. Dirs de staging: `workspace/[produto]/page/staging/{html,sections,templates,geo}/` (criar com `mkdir -p`).

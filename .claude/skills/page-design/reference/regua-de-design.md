@@ -101,6 +101,18 @@ grep -oE 'animation[^;]*|transition[^;]*' design/page.html | sort -u
 
 **M7 · Só `opacity` e `transform` são animados.** Animar `height`, `top`, `margin` ou `width` reprova, porque recalcula o layout a cada quadro e engasga no celular.
 
+**M8 · Transição entre telas, só no `page_type: quiz`.** A troca de tela não é entrada de seção e tem régua própria, mais curta, porque a pessoa está esperando a resposta:
+
+- A tela que entra faz opacidade de 0 a 1 com deslocamento de no máximo 12px, entre 150ms e 300ms, com a mesma curva de saída do M2. Nada mais se move na troca.
+- **Zero salto de altura entre as perguntas.** As telas de pergunta dividem o mesmo `min-height`, e a diferença medida entre elas é zero nas duas larguras. Tela que encolhe e cresce a cada pergunta faz o dedo errar a alternativa.
+- A barra de progresso aparece em toda tela de pergunta e nunca anda para trás.
+- A leitura do resultado dura entre 1,2s e 2,5s, preenche uma vez e para (não é laço, então o M6 continua valendo), e `prefers-reduced-motion` a zera: o resultado aparece de uma vez, nunca invisível.
+
+```bash
+# a altura de cada tela, na mesma sessão do Playwright que tira os screenshots
+# (percorra as telas pelo endereço: #q1, #q2, ... e meça [data-aura-screen])
+```
+
 ## Bloco S — Os sinais de "feito por IA" que reprovam
 
 Cada um destes reprova sozinho. São os padrões que fazem qualquer pessoa reconhecer a página como gerada, mesmo sem saber explicar por quê.

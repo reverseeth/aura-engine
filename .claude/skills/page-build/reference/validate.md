@@ -78,7 +78,7 @@ Se qualquer erro → **ABORTE o push**, corrija (adicione o block type faltante 
 
 Dois vazamentos históricos que esta validação mata antes do deploy: página no ar com slot de imagem vazio, e placeholder de template (`{{TESTIMONIAL_1}}`, `{{IMAGE_URL}}`) renderizando literal pro consumidor.
 
-**1. Imagens do mapa de mídia (bloqueante).** Leia `page-plan.json.sections_plan[].media`:
+**1. Imagens do mapa de mídia (bloqueante).** Leia `page-plan.json.sections_plan[].media` — e, com `page_type: quiz`, também o `media` de cada tela em `page-plan.json.quiz.screens[]`, que obedece às mesmas duas regras abaixo:
 - Qualquer section com `media.status: "placeholder"` → **BLOCK**: o plano de obtenção da `page-design` não foi cumprido. Fix paths (ES1-style): **(A)** membro fornece a imagem agora (salvar em `design/assets/`, atualizar o HTML aprovado + re-COMPILE da section, ou subir via admin → Files e apontar a setting), ou **(B)** voltar à `page-design` ETAPA 1.6 pra redecidir a mídia daquela section (ex: rebaixar pra `required: false` se a section vive de ícone). Não existe path (C) "deploya assim mesmo".
 - Pra toda section com `media.required: true` e `status: "ready"`: confira que a setting de imagem correspondente no template JSON não está vazia (valor `shopify://shop_images/...` ou asset real). Setting `image_picker` vazia numa section que exige imagem = **BLOCK** com os mesmos fix paths. (Plano legado sem campo `media`: aplique o check no mínimo ao hero — hero sem imagem em landing/pdp é sempre erro.)
 

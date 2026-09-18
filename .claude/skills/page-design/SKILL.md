@@ -42,6 +42,7 @@ A página não tem estrutura fixa; a `copy-engine` já tomou as decisões e esta
 - **1.2 a 1.5** (`reference/sections-e-hero.md`): escolha as sections pelo menu, o `hero_type` entre os 5 canônicos e os block types por section, e mostre o plano ao membro (o que entra, o que fica de fora e por quê); só siga com a confirmação.
 - **Eyebrows** (`reference/eyebrows.md`): tag criativa e específica do produto, em inglês, nunca rótulo de framework; gravada em `sections_plan[].eyebrow`.
 - **1.6 Assets de imagem** (`reference/assets-de-imagem.md`): inventário do que o membro tem, mapa de mídia por section no campo `media`, geração AI só pra lifestyle e sempre ancorada na foto real do produto. Gate: o HTML só é aprovado com imagem real no slot ou placeholder EXPLÍCITO com `acquisition_plan` registrado.
+- **1.7 Funil de quiz** (`reference/quiz-funnel.md`): só com `page_type: quiz`, e substitui a 1.2. Mapa de telas, uma pergunta que roteia pelos sub-avatares e as demais pelas objeções ranqueadas, um perfil de resultado por sub-avatar com pacote real da `offer-builder`, e o funil andando sem JavaScript e sem app (o caminho é o estado). Grava o bloco `quiz` no plano.
 
 ### ETAPA 2 · Brand signals (cascade unificada → `design-signals.json`)
 

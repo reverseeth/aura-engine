@@ -76,7 +76,7 @@ O template em `staging/templates/page.[produto].json` sai da ETAPA 2 com um bloc
 
 1. **Backup antes de escrever**, no padrão da recipe: uma cópia do template com a hora no nome. A pasta do membro não tem histórico, então o backup é a única volta atrás.
 2. **Case pelo campo de quantidade**, nunca pela ordem dos blocos: cada bloco de preço diz qual quantidade representa, e é essa quantidade que encontra a variante certa. Ordem de bloco muda no editor do tema; quantidade não.
-3. **Cada superfície de compra, não só a tabela de preço.** O botão do topo, o botão fixo no rodapé e o botão do fim da página também mandam um ID. Todos passam pela mesma regra, e a lista deles é o `commerce.buy_surfaces` do plano.
+3. **Cada superfície de compra, não só a tabela de preço.** O botão do topo, o botão fixo no rodapé e o botão do fim da página também mandam um ID. Todos passam pela mesma regra, e a lista deles é o `commerce.buy_surfaces` do plano. Com `page_type: quiz`, cada entrada traz também o campo `screen`: a superfície é a tela de resultado daquele perfil, e o formulário dela vive no block `quiz_result` (`reference/quiz-sections.md`). Tela de resultado fora do `buy_surfaces` é o furo clássico do funil, e ele só aparece como botão quebrado no ar.
 4. **Assinatura**, quando a página mostra: o formulário leva também o ID do plano de venda ao lado do ID da variante.
 5. **Grave os IDs no manifest**, pelo script, nunca editando o arquivo à mão:
 

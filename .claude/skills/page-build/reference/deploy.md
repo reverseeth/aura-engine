@@ -128,6 +128,7 @@ curl -sI "https://$STORE/cart.js"   # esperar 200
 - 404 aqui = página não criada no admin (6.6) — instrução ao membro, NÃO rollback.
 - 500/`Liquid error` no corpo, ou `cart.js` fora do ar → falha real: rollback pro backup duplicado (Regra 6) e reporte antes de tentar de novo (ES4 oferece paths alternativos).
 - Cobertura ampliada numa rodada só: `python3 .claude/lib/theme-verify/verify_page.py` checa overflow horizontal, presença das seções e erros de console em desktop+mobile de uma vez.
+- **`page_type: quiz`:** carregar a página não é testar o funil. Ande o funil no preview, um caminho por perfil: abertura sozinha, uma tela por clique, o endereço mudando a cada resposta, o botão voltar do navegador andando uma tela, a leitura do resultado saindo no tempo do plano, o link direto pra tela de resultado abrindo nela, e o botão de compra devolvendo o carrinho com a variante certa (`reference/quiz-sections.md`).
 
 ### 6.9 Preview links + aprovação do membro
 
@@ -166,7 +167,7 @@ Se o membro NÃO quiser publicar ainda (loja em construção), tudo bem — mas 
 
 1. **Screenshot full-page da página no ar** via Playwright (skill `webapp-testing`), em desktop (1440px) e mobile (390px). Publicou → use a URL pública (`manifest.storefront.page_url`); não publicou → rode sobre a preview URL (6.9) mesmo assim — o check não é opcional.
 2. **Screenshot do `design/page.html` aprovado** (file://) nas MESMAS larguras (reuse os screenshots do self-review da `page-design` se ainda refletirem a versão aprovada).
-3. **Compare os pares POR VISÃO**, ponto a ponto: ordem e presença das sections; tipografia (heading caiu pra serif/sans genérica? → o 6.4b falhou, volte lá); cores/tokens (CTA na cor errada = setting não populada); imagens (slot vazio, placeholder vazado, imagem esticada/cortada); spacing/hierarquia (section colada, padding sumido); FAQ/accordion funcionando (`<details>` renderizado).
+3. **Compare os pares POR VISÃO**, ponto a ponto (com `page_type: quiz`, o par é por TELA, percorrendo o funil pelo endereço nos dois lados, e a altura entre as telas de pergunta entra na comparação: variou no ar e não variava no design = o `min-height` se perdeu na compilação): ordem e presença das sections; tipografia (heading caiu pra serif/sans genérica? → o 6.4b falhou, volte lá); cores/tokens (CTA na cor errada = setting não populada); imagens (slot vazio, placeholder vazado, imagem esticada/cortada); spacing/hierarquia (section colada, padding sumido); FAQ/accordion funcionando (`<details>` renderizado).
 4. **Divergência real → corrigir ANTES de encerrar a skill** (via iteration loop: ajuste no HTML aprovado + re-COMPILE da section, ou fix pontual no `.liquid`/template JSON + re-push + re-screenshot). Diferença trivial de rendering (anti-aliasing, scrollbar, fonte com hinting levemente diferente) não conta. **Nunca declare "no ar" com a página divergente do design que o membro aprovou.**
 5. Se a página usa fonte custom, rode `python3 .claude/lib/theme-verify/font_census.py` — censo da fonte COMPUTADA elemento a elemento (declarar a família não é carregar); se tem seção animada (marquee/carrossel), rode `motion_check.py` com `--throttle` — bug de animação em mobile real só aparece com rede lenta + cache frio.
 6. Registre no `deploy-report.json`: `"fidelity_check": {"passed": true, "compared_at": "<ISO>", "divergences_fixed": ["..."]}`.
