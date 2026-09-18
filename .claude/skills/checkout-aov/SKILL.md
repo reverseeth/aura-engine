@@ -55,7 +55,7 @@ Mesmo arquivo. `pricing.aov_expected` já inclui bump e upsell: realize a proje�
 
 ### ETAPA 5 · Aplicar na loja ou entregar o blueprint
 
-Leia `reference/aplicar-e-stage.md`. Com loja e blueprint aprovado (checkpoint de iteração): caminhos do tema no `theme_id` do `manifest.storefront` com `shopify-theme-safety` integral (pull, marker `data-aura-build`, push com `--path` e `--nodelete`, verificação e smoke test); caminhos de admin com os passos exatos; bundles fixos pela recipe nativa; apps com config spec e IDs de variante reais. Sem loja, blueprint completo com cada alavanca `pending`.
+Leia `reference/aplicar-e-stage.md`. Com loja e blueprint aprovado (checkpoint de iteração): caminhos do tema no `theme_id` do `manifest.storefront` com `shopify-theme-safety` integral (pull, marker `data-aura-build`, push com `--path` e `--nodelete`, verificação e smoke test); caminhos de admin com os passos exatos; bundles fixos pela recipe nativa; apps com config spec e IDs de variante reais (os IDs saem de `manifest.storefront`, gravados pela `page-build`). Carrinho e gaveta lateral são uma superfície só, por `reference/carrinho-e-drawer.md`: identidade da página, barra de frete grátis, item sugerido, prova social, garantia e quantidade sem recarregar; nunca pedido de rascunho. O que mudou na loja vai pro bloco `store_config` do `dados.json`. Sem loja, blueprint completo com cada alavanca `pending`.
 
 ### ETAPA 6 · Profundidade por stage
 

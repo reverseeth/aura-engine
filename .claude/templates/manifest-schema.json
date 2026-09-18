@@ -277,7 +277,7 @@
     },
     "storefront": {
       "type": "object",
-      "description": "Published page block. Written by skill `page-build` at deploy/publish; read by `checkout-aov` (operates on the theme where the page lives) and by skill `ad-strategy` (campaign destination URL — canonical source, NEVER taken from the 06 copy report).",
+      "description": "Published page + store objects block. Written by skill `page-build` (6.1b product/offer setup and deploy/publish); read by `checkout-aov` (same theme, and the real variant IDs for bump/upsell/bundle config), by `bonus-delivery` (gift trigger) and by skill `ad-strategy` (campaign destination URL — canonical source, NEVER taken from the 06 copy report).",
       "properties": {
         "theme_id": {
           "type": [
@@ -294,6 +294,43 @@
           "type": "string",
           "format": "date-time",
           "description": "ISO-8601 timestamp of when the page went live."
+        },
+        "product_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Shopify product GID of the hero product the page sells (gid://shopify/Product/...). Written in page-build 6.1b, after the product is created or verified."
+        },
+        "product_handle": {
+          "type": "string",
+          "description": "Shopify product handle (the product URL slug). Usually equals product_slug."
+        },
+        "product_status": {
+          "enum": [
+            "draft",
+            "active",
+            "archived"
+          ],
+          "description": "Shopify product status as of the last page-build run. `active` alone does not mean sellable: the product must also be published to the Online Store sales channel (see published_online_store)."
+        },
+        "published_online_store": {
+          "type": "boolean",
+          "description": "True when the product is published to the Online Store sales channel. False means the buy buttons return an error even with status active."
+        },
+        "variant_ids": {
+          "type": "object",
+          "description": "Variant GID per bundle quantity, keyed by the tier qty as a string ({\"1\": \"gid://shopify/ProductVariant/...\", \"3\": ...}). Every qty offered by the page (page-plan.json commerce.buy_surfaces[].tiers_qty) must appear here. Read by `checkout-aov` and the automation recipes instead of asking the member again.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "selling_plan_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Selling plan GID when the offer has a subscription and the page shows it. The buy form must send this alongside the variant ID, otherwise the order is charged once and never renews. null when subscription_architecture is no_subscription."
         }
       }
     },
@@ -478,6 +515,24 @@
       "type": "object",
       "description": "Resumo financeiro gravado pela skill `finance-engine` (mode, breakeven_roas_with_fixed, cut_spend_recommendation_allowed, cash_needed_90d, runway_months, payback_window_days_measured, scale_ceiling_monthly_spend, checked_at). Consumidoras leem preferencialmente os paths do finance-engine/dados.json; este bloco e o atalho de leitura rapida.",
       "additionalProperties": true
+    },
+    "shopify_product_ops": {
+      "type": "object",
+      "description": "Operational product data no skill can derive: asked once to the member in page-build 6.1b (or by the deploy-shopify-product recipe) and reused from here on every later run.",
+      "properties": {
+        "sku_base": {
+          "type": "string",
+          "description": "Base SKU; each tier becomes <sku_base>-<qty>pk."
+        },
+        "initial_inventory": {
+          "type": "number",
+          "description": "Units in stock at launch, split across tiers by the expected mix."
+        },
+        "unit_weight_kg": {
+          "type": "number",
+          "description": "Weight of one unit in kg; each tier weighs unit_weight_kg × qty. Feeds shipping rates."
+        }
+      }
     }
   },
   "additionalProperties": true

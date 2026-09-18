@@ -1,6 +1,6 @@
 # Page Build · Referência: DEPLOY com shopify-theme-safety integral (ETAPA 6)
 
-> Os onze passos do deploy com os comandos exatos: CLI e detecção da loja, backup e duplicate, pull com `--nodelete`, instalação dos arquivos e marker `data-aura-build`, provisionamento de web fonts, push, criação da página no admin, marker verification, smoke test, preview e aprovação, PUBLISH com gravação de `manifest.storefront` e o fidelity check por visão. Abra na ETAPA 6.
+> Os doze passos do deploy com os comandos exatos: CLI e detecção da loja, produto e oferta de pé na loja com os IDs ligados à página, backup e duplicate, pull com `--nodelete`, instalação dos arquivos e marker `data-aura-build`, provisionamento de web fonts, push, criação da página no admin, marker verification, smoke test, preview e aprovação, PUBLISH com gravação de `manifest.storefront` e o fidelity check por visão. Abra na ETAPA 6.
 
 ## ETAPA 6 — DEPLOY (shopify-theme-safety INTEGRAL)
 
@@ -14,6 +14,12 @@ Se não instalado, instrua (`brew install shopify-cli` ou `npm i -g @shopify/cli
 **Logue a versão no deploy-report.** O Shopify CLI 4.x (mai/2026+) se **auto-atualiza** via package manager entre sessões e removeu comandos legados (`theme serve` → `theme dev`). Se um deploy que funcionava ontem quebrar hoje com "command not found"/flag inválida, o primeiro suspeito é upgrade automático da CLI — cheque o changelog do release antes de debugar o tema. (Os comandos desta skill — `push/pull/duplicate/list/publish` com `--nodelete`/`--allow-live`/`--json` — continuam válidos no 4.x.)
 
 Detecte `STORE`: leia `manifest.json` (`product_url`/`store_url`), extraia `.myshopify.com`. Se custom domain ou ausente, pergunte: "Qual seu store handle `.myshopify.com`?". Todos os `shopify theme ...` usam `--store "$STORE"`.
+
+### 6.1b Produto e oferta de pé na loja (antes de duplicar o tema)
+
+Leia `reference/produto-e-oferta.md` e siga as seis partes: o que a página promete (bloco `commerce` do `page-plan.json` mais a oferta), o produto criado ou conferido com variante por quantidade, cada formato de oferta pelo caminho nativo (pacote, assinatura, desconto automático, cupom; brinde e frete grátis ficam com a `bonus-delivery` e a `checkout-aov`, registrados como pendência), os IDs de variante ligados a **todas** as superfícies de compra do template em `staging/`, os IDs gravados em `manifest.storefront` pelo script, e o check bloqueante de IDs.
+
+A ordem importa: os IDs entram no template de staging aqui, e é esse template que o 6.4 instala no tema clonado. O check bloqueante de IDs roda antes do 6.5 — push com botão apontando pra ID de exemplo é página no ar que não vende.
 
 ### 6.2 Backup + duplicate (Regra 6)
 
@@ -82,6 +88,8 @@ O CSS das sections declara `font-family` — mas declarar não carrega a fonte. 
 > `theme.liquid` é template crítico (afeta a loja inteira) — o backup do 6.2 já cobre; a edição é aditiva (só `<link>` e `<style>` no `<head>`), nunca remova nada do arquivo.
 
 ### 6.5 Push (Regra 3 — `--nodelete`; `--allow-live` só no tema live)
+
+> Antes do push, o check bloqueante de IDs da 6.1b já passou (nenhum ID de exemplo, todo ID existe na loja e está à venda).
 
 Fluxo padrão = cópia unpublished (`NEW_THEME_ID`). `--allow-live` só quando o push é no tema LIVE (ex: hotfix pós-publicação).
 ```bash

@@ -23,8 +23,9 @@ A alavanca de AOV mais direta. Add um item de baixo COGS quando o cart subtotal 
 **2. Sourcing low-COGS:** o brinde precisa ter percepção de valor alta e custo real baixo (sample size do próprio catálogo, item complementar barato, kit emocional). O `value_anchored` na PDP ancora no preço de varejo do item ou de itens comparáveis no mercado.
 
 **3. Implementação Shopify (caminho real — NÃO draft order):**
-   - **Caminho A — App de gift-with-purchase** (BOLD, Gift Box, Free Gifts BOGO, etc): config no admin do app "free product when cart ≥ $threshold". Mais rápido pra starter, sem código.
-   - **Caminho B — Shopify Functions** (cart transform / discount function): regra "add free variant / 100% off quando cart subtotal ≥ threshold". Mais robusto e sem mensalidade de app, mas exige a function publicada na loja. Coordenar com **checkout-aov** (é config de checkout/store, mora lá).
+   - **Caminho A — desconto automático nativo do tipo compre-e-leve** (`discountAutomaticBxgyCreate`, ou Admin → Discounts → Buy X get Y): é nativo, grátis, sem app e cobre as três `condition` — `unconditional` (o gatilho é 1 unidade do principal), `cart_threshold` (o gatilho é o valor do carrinho) e `tier_specific` (o gatilho é a variante daquele tier). **Primeiro caminho a tentar.**
+   - **Caminho B — App de gift-with-purchase** (BOLD, Gift Box, Free Gifts BOGO, etc): config no admin do app "free product when cart ≥ $threshold". Para o que o compre-e-leve não faz (ex: o cliente escolher entre vários brindes).
+   - **Caminho C — Shopify Functions** (cart transform / discount function): regra "add free variant / 100% off quando cart subtotal ≥ threshold". Para regra que nem o compre-e-leve nem o app resolvem; exige a function publicada na loja. Coordenar com **checkout-aov** (é config de checkout/store, mora lá).
    - **NUNCA** usar draft order pra GWP — não escala, quebra com self-checkout, e não dispara no fluxo normal de compra.
 
 **4. Congruência "free" na PDP:** garantir que o brinde **apareça** visualmente (imagem do gift, badge "FREE GIFT over $X"). Coordenar com a página (`page-design`/`page-build`) — ícone SVG, nunca emoji (rule 7).
@@ -52,7 +53,7 @@ O e-book/guide que ajuda o cliente a **alcançar o resultado** que o produto pro
 Um SKU do catálogo que **vai bem com o principal** dado grátis (não um threshold genérico). Funciona como GWP atrelado a um produto específico ("compre o sérum, ganhe o cleanser travel-size").
 
 **1. Confirmar o fit:** o complementary precisa potencializar o resultado do principal (razor-blade). Se for só "outro produto qualquer", questionar o membro.
-**2. Implementação:** mesma mecânica do GWP (app ou Function, NÃO draft order), mas o gatilho é o **produto** no cart, não o subtotal. Coordenar com `checkout-aov`.
+**2. Implementação:** mesma mecânica do GWP (compre-e-leve nativo primeiro, depois app ou Function; NÃO draft order), mas o gatilho é o **produto** no cart, não o subtotal. Coordenar com `checkout-aov`.
 **3. In-box vs auto-add:** se o complementary já é estoque físico, pode ser **in-box gift** — documentar pro fulfillment incluir em toda caixa do SKU principal. Se for via cart, app/Function.
 **4. KPI = take-rate + attach impact** (sobe o reorder do complementary depois?).
 

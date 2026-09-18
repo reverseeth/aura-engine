@@ -8,7 +8,7 @@ Empurra o cliente a adicionar mais um item pra cruzar a linha. Funciona por **ze
 
 **Caminho real Shopify:**
 1. **Shipping rate condicional** — Settings → Shipping and delivery → criar rate "Free" com condição "Order price ≥ $X" na zona do target market — o mesmo $X que a barra e a copy anunciam.
-2. **Barra de progresso de free-shipping** no cart/drawer — bloco do tema ("You're $12 away from free shipping") que atualiza via JS conforme o subtotal. Editável como block (copy default do `offer-builder`, em inglês US). Caminho do tema, dentro de `shopify-theme-safety`.
+2. **Barra de progresso de free-shipping** no cart/drawer — bloco do tema ("You're $12 away from free shipping") que atualiza via JS conforme o subtotal. Editável como block (copy default do `offer-builder`, em inglês US). O valor anunciado é o MESMO da rate do item 1 (divergência = promessa na barra e frete cobrado no checkout). Como ela entra no carrinho e na gaveta, junto das outras peças da superfície, está em `reference/carrinho-e-drawer.md`.
 3. **App de progress bar** (ex: Hextom Free Shipping Bar) — no-code se o membro preferir.
 
 ### Alavanca 5 — Checkout trust (badges / garantia / reviews)
@@ -17,6 +17,6 @@ Reduz a ansiedade no momento mais nervoso do funil (digitar o cartão). Pós-`ch
 
 1. **Checkout UI Extension** nos blocks do checkout — trust badges (secure payment, money-back), a garantia do `offer-builder` (ex: "90-day money-back"), e 1-2 reviews curtos. **Shopify Plus only** (customização in-checkout via extension exige Plus) + app container. Sem Plus, pule direto pros caminhos 2-3.
 2. **Checkout branding** (Settings → Checkout → customize / brand) — logo, cores, e os trust elements suportados nativamente sem extension. Caminho no-code pro que o branding API expõe.
-3. **Trust row na PDP/cart** (caminho do tema) — como o checkout em si é restrito, a maior parte da prova de confiança vive na PDP e no cart (trust badges com **ícones SVG, nunca emoji** — regra 7 do CLAUDE.md: cadeado, caminhão, escudo de garantia, estrelas de review em SVG inline 16-18px). É onde o membro tem controle total e onde 80% do efeito acontece antes do checkout.
+3. **Trust row na PDP/cart** (caminho do tema; no cart e na gaveta, pela superfície única de `reference/carrinho-e-drawer.md`) — como o checkout em si é restrito, a maior parte da prova de confiança vive na PDP e no cart (trust badges com **ícones SVG, nunca emoji** — regra 7 do CLAUDE.md: cadeado, caminhão, escudo de garantia, estrelas de review em SVG inline 16-18px). É onde o membro tem controle total e onde 80% do efeito acontece antes do checkout.
 
 A garantia exibida vem da `guarantee` do `offer-builder` (e a policy page da loja diz os mesmos dias). Os números de review ("Rated 4.8 by 2,300 customers") vêm do review app (Judge.me/Loox/Yotpo).

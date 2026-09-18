@@ -569,6 +569,7 @@
         "page/design/page.html",
         "page/page-plan.json",
         "page/design-tokens.json",
+        "copy-engine/copy-engine.md",
         "copy-engine/dados.json",
         "offer-builder/dados.json"
       ],
@@ -662,7 +663,8 @@
         "../profile.md",
         "manifest.json",
         "offer-builder/dados.json",
-        "page/page-plan.json"
+        "page/page-plan.json",
+        "page/design-tokens.json"
       ],
       "writes": [
         "checkout-aov/checkout-aov.md",

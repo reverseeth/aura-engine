@@ -1,6 +1,6 @@
 # Page Design · Referência: Persistir page-plan.json, relatórios e manifest (ETAPA 4)
 
-> O schema completo do `page-plan.json` com o bloco `strategy`, os três sinais do `page_type`, o `sections_plan` com o campo `media` obrigatório e as refs de design, as notas sobre `mechanism_name` literal e `page_type` duplicado, o dual output do `design-system.md` e a atualização do manifest pelo script. Abra na ETAPA 4.
+> O schema completo do `page-plan.json` com o bloco `strategy`, os três sinais do `page_type`, o `sections_plan` com o campo `media` obrigatório, o bloco `commerce` com o que a página promete e as refs de design, as notas sobre `mechanism_name` literal e `page_type` duplicado, o dual output do `design-system.md` e a atualização do manifest pelo script. Abra na ETAPA 4.
 
 ## ETAPA 4 — Persistir `page-plan.json` + relatórios + manifest
 
@@ -36,6 +36,16 @@
      "media": {"required": false, "kind": "icon_svg", "source": "none", "status": "ready", "asset": null, "acquisition_plan": null}}
   ],
   "section_order": ["hero","mechanism","benefits","social-proof","offer","guarantee","faq","cta-final"],
+  "commerce": {
+    "buy_surfaces": [
+      {"section": "hero", "kind": "single_cta", "tiers_qty": [1]},
+      {"section": "offer", "kind": "pricing_tiers", "tiers_qty": [1, 3, 6]},
+      {"section": "cta-final", "kind": "single_cta", "tiers_qty": [3]}
+    ],
+    "subscription_shown": true,
+    "promised_on_page": ["gwp-travel-size", "free_shipping_over_75"],
+    "discount_code_shown": null
+  },
   "brand_discovery": {
     "style": "minimalist-editorial",
     "brand_colors": ["#...","#..."],
@@ -56,6 +66,8 @@
 > `mechanism_name` é o nome **LITERAL** de `offer-builder/dados.json` — não invente, não parafraseie. A skill `consistency-audit` compara esse campo cross-fase; drift aqui falha o gate.
 > `page_type` aparece tanto no top-level quanto dentro de `strategy` (downstream lê de ambos) — mantenha idênticos.
 > `page_type_signals` guarda os três sinais da 1.1 como eles foram lidos, mesmo quando concordam: `resolved_by` diz o que fechou a decisão — `consensus` (os três na mesma variante), `competitor_variant` (a skill adotou a variante do concorrente dentro da mesma família), `member` (famílias diferentes e o membro escolheu, ou ele pediu o formato direto — é sempre o caso do `quiz`) ou `no_competitor_data` (`dominant_landing_format` nulo ou fase não rodada). `competitor_ads_count` é a soma de `ads_count` das landings do formato dominante.
+> **Bloco `commerce`: o que a página promete e a loja precisa ter.** É uma declaração, não uma configuração — a `page-design` não cria nada no Shopify. `buy_surfaces[]` lista TODO lugar da página com botão de compra (`section`, `kind` em `pricing_tiers | single_cta | sticky_cta`, e `tiers_qty` com as quantidades que aquela superfície oferece); `subscription_shown` diz se a página mostra opção de assinatura, e tem que bater com o `subscription_architecture` do `offer-builder` (`no_subscription` obriga `false`); `promised_on_page[]` traz o id de cada bônus de `bonuses[]` que a página anuncia, mais o limite de frete grátis quando ele aparece; `discount_code_shown` é o código que a página exibe, ou `null`. A `page-build` lê esse bloco na sub-etapa 6.1b para criar o produto com uma variante por quantidade, ligar cada botão ao ID certo e reprovar no check bloqueante de IDs qualquer quantidade sem variante à venda.
+>
 > **Campo `media` (ETAPA 1.6) é obrigatório em toda entry de `sections_plan`**: `required` (bool), `kind` (`lifestyle | packshot | before_after_pair | review_faces | diagram | icon_svg | none`), `source` (`member_photo | supplier_photo | ugc | ai_lifestyle | none`), `status` (`ready | placeholder`), `asset` (path em `design/assets/` ou null), `acquisition_plan` (null quando `ready`; **obrigatório e específico** quando `placeholder` — ex: "foto lifestyle com modelo, membro fotografa até sexta"). A `page-build` bloqueia deploy enquanto houver `status: "placeholder"`.
 
 ### 4.2 Relatórios (dual output — rule 6b)

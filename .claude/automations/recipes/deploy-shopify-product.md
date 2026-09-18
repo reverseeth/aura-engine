@@ -7,11 +7,11 @@
 
 ## Input
 - `product_slug` — do manifest
-- `bundle_tiers` — do `checkout-aov/dados.json` → `levers.bundles.tiers` (array `{qty, price, label}` — ex: Solo qty 1 / 3-pack "Popular" / 6-pack "Best Value"). **Se a `checkout-aov` não rodou ou `bundles.active == false`:** produto single-variant no `pricing.main_sku_price` do `offer-builder/dados.json`.
+- `bundle_tiers` — do `offer-builder/dados.json` → `aov_levers.bundles[]` (array `{qty, price, label, savings_pct}`) — a fonte na primeira rodada, porque esta recipe roda dentro da `page-build` (6.1b) e a `checkout-aov` só vem dois passos depois. Quando a `checkout-aov` já rodou, `checkout-aov/dados.json` → `levers.bundles.tiers` manda, porque é a versão já aplicada na loja. **Sem tiers nos dois:** produto single-variant no `pricing.main_sku_price` do `offer-builder/dados.json`. As quantidades que a página de fato oferece estão em `page/page-plan.json` → `commerce.buy_surfaces[].tiers_qty`: toda quantidade dali precisa virar variante, senão o check bloqueante de IDs da `page-build` reprova.
 - `description_md` — caminho do `copy-engine/copy-engine.md` (seção PDP ou description; se não existir, use o legado `relatorio.md`)
 - `images` — array de paths locais. Não há convenção de pasta de imagens no workspace — se vazio, perguntar ao membro os paths (ou confirmar stock placeholders).
 
-**Dados operacionais que NENHUMA skill grava (perguntar ao membro na 1ª run, 1 mensagem só):** SKU base, estoque inicial e peso da unidade. Derivar por tier: `sku = <SKU_BASE>-<qty>pk`, `inventory = estoque ÷ mix esperado`, `weight = peso_unidade × qty`. Gravar as respostas em `manifest.shopify_product_ops` (`{sku_base, initial_inventory, unit_weight_kg}`) pra não perguntar de novo.
+**Dados operacionais que nenhuma fase anterior produz (perguntar ao membro na 1ª run, 1 mensagem só):** SKU base, estoque inicial e peso da unidade. Derivar por tier: `sku = <SKU_BASE>-<qty>pk`, `inventory = estoque ÷ mix esperado`, `weight = peso_unidade × qty`. Gravar as respostas em `manifest.shopify_product_ops` (`{sku_base, initial_inventory, unit_weight_kg}`) pra não perguntar de novo.
 
 ## Cascade (detecção de prefixo — ver `.claude/lib/mcp-detect/README.md`)
 
@@ -25,9 +25,9 @@
 
 ## Pre-flight
 - [ ] Shopify MCP conectado (`mcp__shopify__*`) OU Playwright disponível como fallback (ver cascade acima)
-- [ ] `checkout-aov/dados.json` com `levers.bundles.tiers` (OU decisão explícita de single-variant via `offer-builder`)
+- [ ] Tiers disponíveis: `offer-builder/dados.json` → `aov_levers.bundles[]` (ou `checkout-aov/dados.json` → `levers.bundles.tiers`, quando essa fase já rodou), OU decisão explícita de single-variant
 - [ ] `copy-engine/copy-engine.md` existe
-- [ ] `manifest.storefront.theme_id` preenchido (gravado pela `page-build` no deploy da página)
+- [ ] Template em `page/staging/templates/` existe (saiu da ETAPA 2 da `page-build`). O `manifest.storefront.theme_id` só é exigido quando o wire vai direto pro tema; rodando dentro da 6.1b, o wire é no staging e o push acontece no 6.5
 - [ ] SKU base / estoque / peso confirmados (ver Input)
 - [ ] Imagens disponíveis (ou stock placeholders marcados)
 
@@ -47,7 +47,7 @@ product = shopify.product.create({
 
 ### 2. Criar variants (1 por tier de bundle)
 ```
-for tier in bundle_tiers:        // do checkout-aov/dados.json (levers.bundles.tiers)
+for tier in bundle_tiers:        // do offer-builder (aov_levers.bundles[]) ou, se já rodou, do checkout-aov
     tier_name = tier.label or f"{tier.qty}-pack" if tier.qty > 1 else "Solo"
     variant = shopify.variant.create(product.id, {
       title: tier_name,
@@ -85,7 +85,8 @@ for block in template.pricing_section.blocks where block.type == "pricing_tier":
     block.settings.variant_id = wire_variant_ids[block.settings.qty]
 ```
 
-Salvar template atualizado:
+Salvar o template atualizado. **Rodando dentro da `page-build` (6.1b), pare aqui**: o arquivo de staging fica gravado com os IDs e sobe no push da 6.5, junto do resto. Só quando a recipe roda sozinha, com a página já no ar, o template vai direto pro tema:
+
 ```
 shopify.theme.asset.update(
   theme_id=manifest.storefront.theme_id,   // fonte canônica — gravado pela `page-build`
@@ -93,6 +94,23 @@ shopify.theme.asset.update(
   value=json.dumps(template)
 )
 ```
+
+> Pull antes de escrever no template que está no ar (`shopify-theme-safety.md` Regra 6b): regenerar por cima apaga o que o membro configurou no editor do tema.
+
+### 4b. Gravar os IDs no manifest
+
+Os IDs são contrato entre fases: a `checkout-aov` configura bump, upsell e bundle com eles, e a `bonus-delivery` tira deles o gatilho do brinde. Pelo script, nunca editando o JSON à mão:
+
+```bash
+python3 tools/manifest.py <slug> set \
+  storefront.product_id '"<gid do produto>"' \
+  storefront.product_handle '"<handle>"' \
+  storefront.product_status '"draft"' \
+  storefront.published_online_store false \
+  storefront.variant_ids '{"1": "<gid da variante solo>", "3": "<gid do 3-pack>"}'
+```
+
+E, na primeira run, as respostas do membro: `python3 tools/manifest.py <slug> set shopify_product_ops '{"sku_base": "<sku>", "initial_inventory": 0, "unit_weight_kg": 0}'`.
 
 ### 5. Log + reportar
 ```json
@@ -138,4 +156,5 @@ shopify.theme.asset.update(...)      # re-push do template restaurado
 - **Imagens já existentes**: MCP detecta hash; não duplica
 - **SKU conflito**: falha explicitamente, não sobrescreve
 - **Theme published**: requer `--allow-live` flag; por default usa tema unpublished
+- **Produto ativo que não vende**: status `active` não basta — o produto precisa estar publicado no canal Online Store, senão o botão de compra devolve erro. Gravar o estado real em `storefront.published_online_store`
 - **Oferta single-SKU (sem bundles da `checkout-aov`)**: 1 variant no `pricing.main_sku_price`; o wire do step 4 preenche o único `variant_id`

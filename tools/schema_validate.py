@@ -3,10 +3,10 @@
 schema_validate.py: validador mínimo de JSON Schema (draft-07) só com biblioteca padrão.
 
 Cobre o subconjunto que os schemas da Aura usam: `type` (nome ou lista de nomes), `enum`,
-`const`, `properties`, `required`, `additionalProperties: false`, `items`, `minItems`,
-`maxItems`, `minimum`, `maximum`, `minLength`, `maxLength`, `pattern`, `anyOf`, `oneOf`,
-`allOf` e `not`. Palavras que não conhece (`format`, `$comment`, `description`...) são
-ignoradas, como um validador completo faria com anotações.
+`const`, `properties`, `required`, `additionalProperties` (`false`, ou o schema do valor das
+chaves livres), `items`, `minItems`, `maxItems`, `minimum`, `maximum`, `minLength`, `maxLength`,
+`pattern`, `anyOf`, `oneOf`, `allOf` e `not`. Palavras que não conhece (`format`, `$comment`,
+`description`...) são ignoradas, como um validador completo faria com anotações.
 
 Uso como módulo (o `tools/manifest.py`, o `tools/aura-status.py` e o `build_index.py` importam):
 
@@ -70,10 +70,16 @@ def validate(instance, schema, path="$"):
         for key, sub in props.items():
             if key in instance:
                 fails.extend(validate(instance[key], sub, f"{path}.{key}"))
-        if schema.get("additionalProperties") is False:
+        add = schema.get("additionalProperties")
+        if add is False:
             for key in instance:
                 if key not in props:
                     fails.append(f"{path}.{key}: campo não previsto (additionalProperties: false)")
+        elif isinstance(add, dict):
+            # mapa de chaves livres com valor tipado (ex.: storefront.variant_ids: qty → GID)
+            for key, value in instance.items():
+                if key not in props:
+                    fails.extend(validate(value, add, f"{path}.{key}"))
     if isinstance(instance, list):
         if "minItems" in schema and len(instance) < schema["minItems"]:
             fails.append(f"{path}: precisa de pelo menos {schema['minItems']} item(ns), tem {len(instance)}")
