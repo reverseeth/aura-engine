@@ -32,7 +32,7 @@ Pra cada section em `sections`:
 - [ ] Todo block tem `type` válido presente no schema da section `.liquid` correspondente
 - [ ] `order[]` lista todas as sections na sequência persuasiva (`section_order` de `page-plan.json`)
 - [ ] Copy REAL populada (hero headline, sub, CTAs, stats, benefits VOC, tiers, FAQ Q+A, CTA final) — tudo de `06-copy`
-- [ ] **Se `page_type = advertorial`:** o href dos soft CTAs aponta pro destino de `page-plan.json.destination_ref` (a `page-design` define obrigatoriamente: handle/URL da pdp_lean de 2ª passada, PDP existente trabalhada, ou checkout direto). Advertorial é pré-lander — o soft CTA é `<a href>` de navegação pro destino, NUNCA form `/cart/add` (o fechamento acontece na página de destino). Se `destination_ref` estiver `null` num advertorial, PARE e mande o membro de volta pra `page-design` ETAPA 1 — advertorial no ar com CTA sem destino manda tráfego pago pro vazio.
+- [ ] **Se `page_type = advertorial` ou `listicle`:** o href dos soft CTAs aponta pro destino de `page-plan.json.destination_ref` (a `page-design` define obrigatoriamente: handle/URL da pdp_lean de 2ª passada, PDP existente trabalhada, ou checkout direto). Os dois são pré-lander — o soft CTA é `<a href>` de navegação pro destino, NUNCA form `/cart/add` (o fechamento acontece na página de destino). Se `destination_ref` estiver `null` num dos dois, PARE e mande o membro de volta pra `page-design` ETAPA 1 — pré-lander no ar com CTA sem destino manda tráfego pago pro vazio.
 
 Snippet de validação cruzada (roda antes de todo push — cruza template JSON contra os schemas dos `.liquid`):
 

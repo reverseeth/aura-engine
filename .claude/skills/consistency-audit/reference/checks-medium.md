@@ -22,7 +22,8 @@
 - Script marcado pra 22s mas word count cabe em 15s (ou vice-versa) → `severity: medium`, `fix: ajustar duration ou cortar script`
 
 **M5. Page type vs awareness**
-- `page/page-plan.json.page_type` deve ser coerente com o awareness dominante de `market-research/dados.json` (Unaware/Problem Aware → advertorial; Solution Aware → landing; Product/Most Aware → pdp_robust/pdp_lean — mesma tabela da `page-design` ETAPA 1.1).
+- `page/page-plan.json.page_type` deve ser coerente com o awareness dominante de `market-research/dados.json` (Unaware/Problem Aware → advertorial ou listicle; Solution Aware → landing; Product/Most Aware → pdp_robust/pdp_lean — mesma tabela da `page-design` ETAPA 1.1).
+- O `page_type` também pode ter vindo do terceiro sinal da 1.1 (o formato dos concorrentes escalados). Antes de acusar mismatch, leia `page-plan.json.strategy.page_type_signals`: `resolved_by: "member"` ou `"competitor_variant"` com o `competitor_landing_format` batendo com o `page_type` no ar é decisão registrada, não drift → `"ok"`. Um `quiz` no ar sempre nasce assim, e sem `page_type_signals` que o sustente é finding.
 - Mismatch → `severity: medium` (a `page-design` confirma isso com o membro na criação; aqui é rede de segurança contra drift pós-iteração). `page-plan.json` ausente → `"skipped"`.
 - **Além do tipo, julgue o PRIMEIRO OLHAR e o mix de seções** (quando `page/design/page.html` existe — a página com a copy real inserida). Puxe:
   - **Grunt Test (5-Second Clarity Diagnostic)** (rode `StoryBrand grunt test 5 second clarity hero section three questions`) — o hero responde em 5 segundos: o que é, o que melhora na minha vida, o que eu faço pra comprar? Falhar qualquer uma das 3 → `severity: medium` no mesmo check.

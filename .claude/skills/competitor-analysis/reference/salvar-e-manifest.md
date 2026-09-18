@@ -24,7 +24,7 @@ Estrutura do `.md`:
 3. Meta Ad Library findings + top creatives transcritos (Etapa 3)
 4. Classificação de posição de funil (Etapa 3B)
 5. Análise de formato dos criativos escalados (Etapa 3D)
-6. Páginas de destino com tráfego (tabela com links) + radar de monitoramento (Etapa 3E)
+6. Páginas de destino com tráfego, com o formato de cada uma na mesma tabela (link, formato, quantos ads caem nela e o que decidiu a classificação), a linha do formato dominante e o radar de monitoramento (Etapa 3E)
 6b. Referência ao doc dedicado de ads escalados com links (`ads-escalados.md`, Etapa 3F — se rodou)
 7. Claims compilation table + Claims Saturation matrix (Etapa 4)
 8. Alternative solutions map (Etapa 5)

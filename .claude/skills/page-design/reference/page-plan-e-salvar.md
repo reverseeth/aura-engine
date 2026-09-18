@@ -1,6 +1,6 @@
 # Page Design · Referência: Persistir page-plan.json, relatórios e manifest (ETAPA 4)
 
-> O schema completo do `page-plan.json` com o bloco `strategy`, o `sections_plan` com o campo `media` obrigatório e as refs de design, as notas sobre `mechanism_name` literal e `page_type` duplicado, o dual output do `design-system.md` e a atualização do manifest pelo script. Abra na ETAPA 4.
+> O schema completo do `page-plan.json` com o bloco `strategy`, os três sinais do `page_type`, o `sections_plan` com o campo `media` obrigatório e as refs de design, as notas sobre `mechanism_name` literal e `page_type` duplicado, o dual output do `design-system.md` e a atualização do manifest pelo script. Abra na ETAPA 4.
 
 ## ETAPA 4 — Persistir `page-plan.json` + relatórios + manifest
 
@@ -9,7 +9,7 @@
 ```json
 {
   "produto": "[slug]",
-  "page_type": "advertorial | landing | pdp_robust | pdp_lean",
+  "page_type": "advertorial | listicle | landing | pdp_robust | pdp_lean | quiz",
   "strategy": {
     "awareness_level": "Problem-Aware | Solution-Aware | Product-Aware | Most-Aware",
     "sophistication_stage": 4,
@@ -19,7 +19,14 @@
     "mechanism_name": "[LITERAL do offer-builder/dados.json — nome exato do mecanismo nomeado]",
     "hero_type": "[1 dos 5 canônicos da base]",
     "decision_modalities_served": ["spontaneous", "competitive", "humanistic", "methodical"],
-    "page_type": "advertorial | landing | pdp_robust | pdp_lean",
+    "page_type": "advertorial | listicle | landing | pdp_robust | pdp_lean | quiz",
+    "page_type_signals": {
+      "awareness": "[o page_type que a consciência dominante pede]",
+      "copy_lead": "[o page_type que o lead_type da copy-engine confirma, ou null quando o campo não existe]",
+      "competitor_landing_format": "[dominant_landing_format da competitor-analysis, ou null]",
+      "competitor_ads_count": 0,
+      "resolved_by": "consensus | competitor_variant | member | no_competitor_data"
+    },
     "hybrid": false
   },
   "sections_plan": [
@@ -37,7 +44,7 @@
   },
   "design_route": "clone-and-adapt | claude-design | aidesigner | frontend-design | site-builder",
   "design_route_ref": "URL do concorrente (clone-and-adapt) | path do export (claude-design/site-builder) | null",
-  "destination_ref": "SÓ quando page_type=advertorial: destino do soft CTA — handle/URL da pdp_lean gerada numa 2ª passada da cadeia, PDP existente trabalhada, ou checkout direto. null nos demais page_types",
+  "destination_ref": "SÓ quando page_type=advertorial ou listicle: destino do soft CTA — handle/URL da pdp_lean gerada numa 2ª passada da cadeia, PDP existente trabalhada, ou checkout direto. null nos demais page_types",
   "design_signals_ref": "design-signals.json",
   "design_tokens_ref": "design-tokens.json",
   "design_html_ref": "design/page.html",
@@ -48,6 +55,7 @@
 
 > `mechanism_name` é o nome **LITERAL** de `offer-builder/dados.json` — não invente, não parafraseie. A skill `consistency-audit` compara esse campo cross-fase; drift aqui falha o gate.
 > `page_type` aparece tanto no top-level quanto dentro de `strategy` (downstream lê de ambos) — mantenha idênticos.
+> `page_type_signals` guarda os três sinais da 1.1 como eles foram lidos, mesmo quando concordam: `resolved_by` diz o que fechou a decisão — `consensus` (os três na mesma variante), `competitor_variant` (a skill adotou a variante do concorrente dentro da mesma família), `member` (famílias diferentes e o membro escolheu, ou ele pediu o formato direto — é sempre o caso do `quiz`) ou `no_competitor_data` (`dominant_landing_format` nulo ou fase não rodada). `competitor_ads_count` é a soma de `ads_count` das landings do formato dominante.
 > **Campo `media` (ETAPA 1.6) é obrigatório em toda entry de `sections_plan`**: `required` (bool), `kind` (`lifestyle | packshot | before_after_pair | review_faces | diagram | icon_svg | none`), `source` (`member_photo | supplier_photo | ugc | ai_lifestyle | none`), `status` (`ready | placeholder`), `asset` (path em `design/assets/` ou null), `acquisition_plan` (null quando `ready`; **obrigatório e específico** quando `placeholder` — ex: "foto lifestyle com modelo, membro fotografa até sexta"). A `page-build` bloqueia deploy enquanto houver `status: "placeholder"`.
 
 ### 4.2 Relatórios (dual output — rule 6b)

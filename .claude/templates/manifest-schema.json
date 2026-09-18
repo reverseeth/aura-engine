@@ -144,11 +144,13 @@
     "page_type": {
       "enum": [
         "advertorial",
+        "listicle",
         "landing",
         "pdp_robust",
-        "pdp_lean"
+        "pdp_lean",
+        "quiz"
       ],
-      "description": "Page format chosen by dominant awareness level. Written by skill `page-design`; read by `page-build` and by skill `consistency-audit` (consistency audit, coherence check against 02 awareness)."
+      "description": "Page format chosen from three signals (dominant awareness, copy lead type, dominant landing format of scaled competitors). Written by skill `page-design`; read by `page-build` and by skill `consistency-audit` (coherence check against market-research awareness)."
     },
     "signals_source": {
       "enum": [

@@ -14,7 +14,7 @@ Decisão de design: a `page-design` NÃO escolhe sozinha COMO o design nasce. El
 
 **O que esta skill faz:**
 
-1. Pré-flight + PLAN — detecta produto, lê copy/offer/research, escolhe `page_type` pelo awareness, monta o plano de sections, escolhe `hero_type`, persiste o bloco `strategy` completo em `page-plan.json` + eyebrows criativos.
+1. Pré-flight + PLAN — detecta produto, lê copy/offer/research, escolhe `page_type` pelos três sinais (consciência dominante, tipo de abertura da copy, formato dos concorrentes escalados), monta o plano de sections, escolhe `hero_type`, persiste o bloco `strategy` completo em `page-plan.json` + eyebrows criativos.
 2. ASSETS DE IMAGEM — inventário do que o membro tem (fotos de fornecedor/próprias/UGC), mapa de necessidade de mídia POR SECTION (o `hero_type` amarra o requisito do hero), rota de geração AI pra lifestyle (doutrina foto-real-primeiro da skill `creative-engine` — NUNCA gerar rótulo/embalagem por texto). Tudo registrado em `sections_plan[].media`.
 3. BRAND SIGNALS — lê `workspace/[produto]/brand.md` PRIMEIRO (só pergunta o que faltar), depois cascade (Refero MCP → screenshot→visão → design-clone opcional pra hex exato → manual/presets de `.claude/lib/design-presets/presets.json`), tudo convergindo pro mesmo `design-signals.json`.
 4. MENU DE ROTAS DE DESIGN — apresenta as rotas viáveis (detectadas em runtime), o membro escolhe; a rota gera a PÁGINA INTEIRA em `design/page.html` com a copy real inserida, os signals aplicados e as imagens reais nos slots. SELF-REVIEW VISUAL obrigatório (Playwright + visão) antes do checkpoint; member aprova. Gera `design-tokens.json`.
@@ -39,8 +39,8 @@ Depois desta skill, rode **page-build** pra compilar o HTML aprovado em Liquid +
    - [ ] `manifest.json` existe e tem `copy-engine` em `skills_completed`
    - [ ] `copy-engine/dados.json` + `copy-engine/copy-engine.md` existem e parseiam (se o `.md` novo não existir, use o legado `relatorio.md` — mesmo fallback vale pras outras fases)
    - [ ] `offer-builder/dados.json` + `offer-builder/offer-builder.md` existem (preço, stack, garantia, mecanismo nomeado)
-   - [ ] `market-research/dados.json`/`market-research.md` existe (awareness, sophistication, ceticismo, VOC) — usado pra detectar `page_type`
-   - [ ] `competitor-analysis/competitor-analysis.md` existe (opcional, mas alimenta gaps/diferenciação)
+   - [ ] `market-research/dados.json`/`market-research.md` existe (awareness, sophistication, ceticismo, VOC) — primeiro sinal do `page_type`
+   - [ ] `competitor-analysis/competitor-analysis.md` e `dados.json` existem (opcional, mas alimentam gaps/diferenciação e o terceiro sinal do `page_type`, o `dominant_landing_format`)
    - [ ] Dir de output: `workspace/[produto]/page/` (criar com `mkdir -p` se não existir)
 
 **Se algum input obrigatório faltar** (regra `emergency-escape-paths` ES1) — não aborte seco. Ofereça:

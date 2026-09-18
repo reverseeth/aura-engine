@@ -1,6 +1,6 @@
 # Competitor Analysis · Referência: JSON companion, o schema do dados.json
 
-> O schema completo do `competitor-analysis/dados.json` (concorrentes analisados e descartados, saturação de claims, funil, gaps, top criativos, formatos, landings, radar, soluções alternativas, validated library, swipe, recomendação de posicionamento, status da análise profunda e fontes). Abra ao gravar o `dados.json`.
+> O schema completo do `competitor-analysis/dados.json` (concorrentes analisados e descartados, saturação de claims, funil, gaps, top criativos, formatos de ad, landings com o formato de cada página, radar, soluções alternativas, validated library, swipe, recomendação de posicionamento, status da análise profunda e fontes). Abra ao gravar o `dados.json`.
 
 ## O `resumo`, o bloco que a próxima fase lê primeiro
 
@@ -15,6 +15,7 @@ O `dados.json` abre com um objeto `resumo`: até doze campos curtos com o que a 
     "saturated_claims_top3": ["claim que o mercado inteiro já diz"],
     "open_gaps_top3": ["a lacuna aberta, com a dimensão entre parênteses"],
     "dominant_format": "o formato de ad que domina o nicho",
+    "dominant_landing_format": "o formato de página pra onde os ads escalados mandam o tráfego, ou null com menos de três landings classificadas",
     "swipe_adapt_top3": ["o que vale modelar, com a fonte"],
     "swipe_avoid_top3": ["o que não vale, e por quê"],
     "price_range_market": "faixa de preço praticada",
@@ -38,7 +39,10 @@ O `dados.json` abre com um objeto `resumo`: até doze campos curtos com o que a 
     { "format": "", "competitor": "", "duration_s": 0, "structure_notes": "", "iteration_pattern": "", "scale_evidence": "", "scale_signal": "high|medium|low" }
   ],
   "traffic_landings": [
-    { "competitor": "", "url": "", "page_type": "advertorial|landing|pdp|quiz|listicle", "evidence": "", "source": "" }
+    { "competitor": "", "url": "", "evidence": "", "source": "" }
+  ],
+  "landing_formats": [
+    { "url": "", "competitor": "", "format": "advertorial|listicle|landing|pdp_robust|pdp_lean|quiz|vsl|home", "ads_count": 0, "evidence": "o elemento da página que decidiu a classificação" }
   ],
   "monitoring_radar": [
     { "what": "", "where": "", "trigger_signal": "", "action_if_triggered": "" }

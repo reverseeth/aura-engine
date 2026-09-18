@@ -46,7 +46,7 @@ Baseado em toda a análise, a recomendação estratégica:
 - **Qual mecanismo único perseguir** (sugestão alinhada com gaps)
 - **Qual avatar focar** (segmento underserved)
 - **Qual ângulo principal de comunicação** (hook dominante)
-- **Qual tipo de página** (advertorial / LP dedicada / PDP robusta) baseado em awareness + concorrência
+- **Qual tipo de página**, num dos seis valores que a `page-design` usa (`advertorial`, `listicle`, `landing`, `pdp_robust`, `pdp_lean`, `quiz`), cruzando o awareness com o `dominant_landing_format` da ETAPA 3E. É o campo `positioning_recommendation.page_type` do `dados.json`
 
 **5. Swipe File**
 

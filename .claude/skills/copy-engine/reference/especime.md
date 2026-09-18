@@ -8,7 +8,7 @@
 
 **2.5A — Selecionar o espécime primário.**
 
-Leia `.claude/lib/swipe-models/specimens.json`. Cruze o seletor de cada espécime (`aplica_a`: `page_type` × `dominant_awareness` × `sophistication_stage` × `product_vertical`) com as decisões que a ETAPA 2 já tomou. Precedência: `page_type` restringe primeiro; depois awareness; `sophistication` desempata (4-5 empurra pra espécimes de identidade/mecanismo); vertical só refina.
+Leia `.claude/lib/swipe-models/specimens.json`. Cruze o seletor de cada espécime (`aplica_a`: `page_type` × `dominant_awareness` × `sophistication_stage` × `product_vertical`) com as decisões que a ETAPA 2 já tomou. Precedência: `page_type` restringe primeiro; depois awareness; `sophistication` desempata (4-5 empurra pra espécimes de identidade/mecanismo); vertical só refina. O eixo `page_type` do catálogo tem quatro valores e a `page-design` trabalha com seis: a correspondência fixa (`listicle` como `advertorial`, `pdp_robust` e `pdp_lean` como `pdp`, `quiz` sem espécime) está no `.claude/lib/swipe-models/README.md`.
 
 Leia a `regra_diagnostica` do candidato antes de fechar — ela existe pra vetar escolha errada (ex.: Identity Lead só serve estágio 4-5; discovery story exige evento dramático real ou defensável, senão use problem-agitation em vez de fabricar história).
 

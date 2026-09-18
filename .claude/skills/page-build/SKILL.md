@@ -42,7 +42,7 @@ Leia `reference/validate.md`. Cada `.liquid` no `shopify-plugin:shopify-liquid`:
 
 ### ETAPA 4 · Validação do template JSON populado
 
-Mesmo arquivo. Section block-based precisa de `blocks{}` e `block_order[]` explícitos (senão renderiza zero blocks); monolítica tem `blocks: {}` legítimo. Rode o snippet de validação cruzada contra os schemas dos `.liquid` antes de todo push; advertorial exige `destination_ref`. Check bloqueante: nenhuma section com `media.status: "placeholder"` ou imagem exigida vazia, e zero placeholder `{{MAIÚSCULA}}` residual (grep do arquivo); não existe path "deploya assim mesmo".
+Mesmo arquivo. Section block-based precisa de `blocks{}` e `block_order[]` explícitos (senão renderiza zero blocks); monolítica tem `blocks: {}` legítimo. Rode o snippet de validação cruzada contra os schemas dos `.liquid` antes de todo push; advertorial e listicle exigem `destination_ref`. Check bloqueante: nenhuma section com `media.status: "placeholder"` ou imagem exigida vazia, e zero placeholder `{{MAIÚSCULA}}` residual (grep do arquivo); não existe path "deploya assim mesmo".
 
 ### ETAPA 4.5 · GEO / Schema (agent-readability)
 

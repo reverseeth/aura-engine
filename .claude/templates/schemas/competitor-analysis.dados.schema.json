@@ -37,7 +37,26 @@
           "type": "array"
         },
         "dominant_format": {
-          "type": "string"
+          "type": "string",
+          "description": "Formato dos ADS que domina o nicho (ETAPA 3D). Nao confundir com dominant_landing_format."
+        },
+        "dominant_landing_format": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "advertorial",
+            "listicle",
+            "landing",
+            "pdp_robust",
+            "pdp_lean",
+            "quiz",
+            "vsl",
+            "home",
+            null
+          ],
+          "description": "Formato das PAGINAS de destino dos ads escalados, pela maior soma de ads_count em landing_formats[] (ETAPA 3E); `home` fora da conta. `null` com menos de tres landings classificadas. Terceiro sinal do page_type na skill `page-design`."
         },
         "swipe_adapt_top3": {
           "type": "array"
@@ -271,6 +290,7 @@
     },
     "traffic_landings": {
       "type": "array",
+      "description": "Para onde os ads escalados apontam e as paginas de maior trafego, com o link para o membro abrir. O formato de cada pagina vive so em landing_formats[], casado pela url.",
       "items": {
         "type": "object",
         "properties": {
@@ -280,13 +300,46 @@
           "url": {
             "type": "string"
           },
-          "page_type": {
-            "type": "string"
-          },
           "evidence": {
             "type": "string"
           },
           "source": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "landing_formats": {
+      "type": "array",
+      "description": "Uma entrada por landing page de destino de ad escalado, com o formato classificado (ETAPA 3E). Ads diferentes que caem na mesma url somam em ads_count. Lido pela skill `page-design` (terceiro sinal do page_type).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "competitor": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "advertorial",
+              "listicle",
+              "landing",
+              "pdp_robust",
+              "pdp_lean",
+              "quiz",
+              "vsl",
+              "home"
+            ]
+          },
+          "ads_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "evidence": {
             "type": "string"
           }
         },

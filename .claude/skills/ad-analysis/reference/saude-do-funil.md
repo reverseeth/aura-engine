@@ -35,7 +35,7 @@ Quando a leitura acima aponta a **página** como gargalo (checkout→compra ou A
 
 **(a) O espécime escolhido era o certo pro avatar?**
 - Leia `specimen_primary` (e `specimen_secondary`, se houver) e abra a entrada correspondente em `.claude/lib/swipe-models/specimens.json`.
-- Compare o `aplica_a` do espécime (`page_type` × `awareness` × `sophistication` × `vertical`) com o avatar e o awareness reais do produto (`market-research/dados.json`) e com o `page_type` que de fato foi ao ar (`page`).
+- Compare o `aplica_a` do espécime (`page_type` × `awareness` × `sophistication` × `vertical`) com o avatar e o awareness reais do produto (`market-research/dados.json`) e com o `page_type` que de fato foi ao ar (`page`). Traduza antes de comparar, pela correspondência fixa do `.claude/lib/swipe-models/README.md`: `listicle` conta como `advertorial`, `pdp_robust` e `pdp_lean` contam como `pdp`, e um `quiz` no ar nunca é `mismatch_page_type` (não existe espécime de quiz).
 - Confira a `regra_diagnostica` do espécime: ela descreve a condição sob a qual aquela estrutura funciona. Se a condição não se sustenta no caso do membro, **a estrutura estava errada desde antes do tráfego** — nenhuma troca de criativo conserta isso.
 - Grave o veredito em `page_diagnosis.specimen_fit`: `fit` · `mismatch_awareness` · `mismatch_page_type` · `mismatch_sophistication` · `mismatch_vertical` · `unknown` (quando `specimen_primary` não existir — página anterior à skill `copy-engine` atual).
 

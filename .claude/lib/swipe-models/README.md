@@ -18,6 +18,8 @@ Até 2026-09-01 a skill `copy-engine` não tinha essa etapa. Ela decidia estrat�
 - **`blocos_chave`** — a sequência que a copy deve seguir
 - **`base_empirica`** — de quantas peças aquele padrão foi medido (honestidade sobre a força da evidência)
 
+> **Correspondência do eixo `page_type`.** O seletor usa quatro valores (`advertorial`, `landing`, `pdp`, `vsl`); a `page-design` trabalha com seis. A tradução é fixa e vale para quem consulta o catálogo: `listicle` seleciona como `advertorial` (mesma espinha editorial, o que muda é o tratamento), `pdp_robust` e `pdp_lean` selecionam como `pdp`, e `quiz` não tem espécime — a copy de um quiz é por tela, não por página corrida, e forçar um espécime nele impõe a estrutura errada.
+
 A skill `copy-engine` seleciona **1 espécime primário** e, opcionalmente, **1 secundário** pra emprestar um bloco específico (ex.: primário = advertorial de 7 seções da masterclass interna, secundário = escada de prova do chassi Haddad).
 
 ## A regra inegociável

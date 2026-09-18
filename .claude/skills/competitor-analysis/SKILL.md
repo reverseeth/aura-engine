@@ -63,9 +63,9 @@ Leia `reference/criativos-escalados.md`. Fonte: Foreplay, ou os criativos que o 
 
 Leia `reference/formato-landings-e-radar.md`. Pra cada criativo do top 10 e dos transcritos, o formato como objeto próprio: tipo estrutural, duração com o ponto em que o hook termina, padrão de iteração do concorrente (o que congela e o que troca) e evidência de escala; consolide em `ad_formats[]`, que a `creative-engine` lê pra montar o batch com formatos já validados.
 
-### ETAPA 3E · Páginas de destino com tráfego e radar de monitoramento
+### ETAPA 3E · Páginas de destino, formato de cada uma e radar
 
-Mesmo arquivo. `traffic_landings[]` com a URL literal de destino dos ads escalados e as páginas de maior tráfego (tabela com links no `.md`); `monitoring_radar[]` com o que vigiar depois do launch, onde, o sinal e a ação (a `ad-analysis` relê).
+Mesmo arquivo. `traffic_landings[]` com a URL literal de destino dos ads escalados e as páginas de maior tráfego (tabela com links no `.md`); `landing_formats[]` com o formato de cada página de destino (os oito valores do arquivo), os ads que caem nela e o que decidiu a classificação, mais `dominant_landing_format` no `resumo` (terceiro sinal do `page_type` na `page-design`); `monitoring_radar[]` com o que vigiar depois do launch, onde, o sinal e a ação (a `ad-analysis` relê).
 
 ### ETAPA 3F · Ads escalados com link (doc dedicado)
 
