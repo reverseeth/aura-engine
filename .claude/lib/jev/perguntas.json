@@ -23,13 +23,15 @@
         }
       },
       "corte": {
-        "medido_em": "2026-09-19, 50 células pelos dois caminhos",
+        "medido_em": "2026-09-19, 50 células nas duas formulações (item a item e agrupada)",
         "age_sozinha_acima_de": 0.85,
         "so_do_lado_da_ausencia": true,
-        "abaixo_disso_volta_pro_raciocinio": true
+        "abaixo_disso_volta_pro_raciocinio": true,
+        "celulas_utilizaveis_na_forma_agrupada": "30 de 50, todas dentro de 1 degrau do caminho de raciocínio"
       },
       "por_que_o_corte": "Acima de 0,85 o erro médio cai pra 0,18 degrau e o sim/não bateu em 14 de 14. Nenhuma lacuna real foi apagada e nenhuma lacuna foi inventada.",
-      "regra": "Confiança alta só existe do lado da AUSÊNCIA: nas 14 células confiantes da medição, 14 eram 'não está lá' e nenhuma era 'está lá'. Nunca use este primitivo pra confirmar presença. Nota 1 e 2 são o material mais valioso da rodada e vão SEMPRE pro modelo de raciocínio, qualquer que seja a confiança: na medição, quase metade do mercado caiu nesses dois degraus. O sim/não saiu da aplicação: a nota com régua ordenada carrega mais informação."
+      "regra": "Confiança alta só existe do lado da AUSÊNCIA: nas 14 células confiantes da medição, 14 eram 'não está lá' e nenhuma era 'está lá'. Nunca use este primitivo pra confirmar presença. Nota 1 e 2 são o material mais valioso da rodada e vão SEMPRE pro modelo de raciocínio, qualquer que seja a confiança: na medição, quase metade do mercado caiu nesses dois degraus. O sim/não saiu da aplicação: a nota com régua ordenada carrega mais informação.",
+      "forma_da_chamada": "AGRUPADA, obrigatoriamente. Estado = objeto com as páginas reduzidas num array; uma pergunta de nota por par página×dor, citando `paginas[n].texto` no enunciado. Uma chamada resolve a matriz inteira em pouco mais de um segundo. Uma célula por chamada derruba a confiança mediana de noventa centésimos para setenta, e o número de células utilizáveis cai de trinta para catorze."
     },
     "saturacao-claims": {
       "skill": "competitor-analysis",

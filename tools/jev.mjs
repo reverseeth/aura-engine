@@ -10,6 +10,11 @@
  *   node tools/jev.mjs --check
  *   node tools/jev.mjs --job caminho/do/job.json
  *   cat job.json | node tools/jev.mjs
+ *   node tools/jev.mjs --job j.json --pausa 50000 --saida parciais.jsonl
+ *
+ * --saida grava cada resposta assim que ela chega, uma linha JSON por item, e
+ * na próxima execução pula o que já está lá. Lote longo deixa de perder tudo
+ * quando é interrompido.
  *
  * Formato do job:
  *   {
@@ -167,12 +172,33 @@ async function main() {
   // Pausa entre itens. O tier gratuito do gateway libera poucas chamadas por
   // janela, então lote sem pausa queima a cota nas primeiras linhas e o resto
   // volta vazio. Medido em 19/09/2026: cinco chamadas passam, a sexta barra.
+  // Saída incremental. Lote grande no tier gratuito leva quase uma hora, e o
+  // resultado só existia no fim: qualquer interrupção perdia tudo. Com --saida,
+  // cada item é gravado assim que responde, uma linha JSON por item.
+  const iSaida = args.indexOf('--saida');
+  const caminhoSaida = iSaida >= 0 && args[iSaida + 1] ? args[iSaida + 1] : null;
+  const fs = caminhoSaida ? await import('node:fs') : null;
+  const anota = (obj) => {
+    if (!fs) return;
+    try { fs.appendFileSync(caminhoSaida, JSON.stringify(obj) + '\n'); } catch {}
+  };
+
+  // Retomada: o que já está no arquivo não é perguntado de novo.
+  const jaRespondidos = new Set();
+  if (fs && fs.existsSync(caminhoSaida)) {
+    for (const linha of fs.readFileSync(caminhoSaida, 'utf8').split('\n')) {
+      if (!linha.trim()) continue;
+      try { const o = JSON.parse(linha); if (o.ok && o.id) jaRespondidos.add(o.id); } catch {}
+    }
+  }
+
   const iPausa = args.indexOf('--pausa');
   const pausaMs = iPausa >= 0 && args[iPausa + 1] ? Number(args[iPausa + 1]) : 1200;
   const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
 
   for (let i = 0; i < itens.length; i++) {
     const item = itens[i];
+    if (item.id && jaRespondidos.has(item.id)) continue;
     if (i > 0 && pausaMs > 0) await dormir(pausaMs);
 
     let resolvido = false;
@@ -183,7 +209,9 @@ async function main() {
       if (recuo) await dormir(recuo);
       try {
         const r = await sdk.evaluate({ model: MODELO, state: item.state, questions: job.questions });
-        respostas.push({ id: item.id ?? null, ok: true, respostas: normalizar(r) });
+        const linha = { id: item.id ?? null, ok: true, respostas: normalizar(r) };
+        respostas.push(linha);
+        anota(linha);
         barradasSeguidas = 0;
         resolvido = true;
         break;
@@ -193,7 +221,9 @@ async function main() {
           // Regra dura 3 do cânone: falha no meio do lote vira CASO DO MEIO,
           // nunca descarte por omissão. O item volta marcado pra releitura.
           falhas++;
-          respostas.push({ id: item.id ?? null, ok: false, caso_do_meio: true, motivo: msg.slice(0, 400) });
+          const linha = { id: item.id ?? null, ok: false, caso_do_meio: true, motivo: msg.slice(0, 400) };
+          respostas.push(linha);
+          anota(linha);
           resolvido = true;
           break;
         }
@@ -203,7 +233,9 @@ async function main() {
     if (!resolvido) {
       barradas++;
       barradasSeguidas++;
-      respostas.push({ id: item.id ?? null, ok: false, barrado_por_cota: true, caso_do_meio: true });
+      const linha = { id: item.id ?? null, ok: false, barrado_por_cota: true, caso_do_meio: true };
+      respostas.push(linha);
+      anota(linha);
       // Cota esgotada de verdade: insistir item a item levaria horas. Para o
       // lote e devolve o que já respondeu, dizendo onde parou.
       if (barradasSeguidas >= 3) {
@@ -227,9 +259,12 @@ async function main() {
   // Lote inteiro sem resposta é indisponibilidade, não resultado.
   const responderam = respostas.filter((r) => r.ok).length;
   if (responderam === 0) {
+    const ultimoMotivo = [...respostas].reverse().find((r) => r.motivo)?.motivo ?? null;
     indisponivel(
-      barradas ? `as ${itens.length} chamadas do lote foram barradas por cota` : `as ${falhas} chamadas do lote falharam`,
-      barradas ? 'o tier gratuito do gateway limita as chamadas por janela' : null
+      barradas
+        ? `as ${itens.length} chamadas do lote foram barradas por cota`
+        : `as ${falhas} chamadas do lote falharam: ${ultimoMotivo ?? 'motivo não reportado'}`,
+      barradas ? 'o tier gratuito do gateway limita as chamadas por janela' : pista(ultimoMotivo ?? '')
     );
   }
 

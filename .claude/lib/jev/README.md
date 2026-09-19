@@ -40,6 +40,26 @@ Rodado em 19 de setembro de 2026, com chave real. Estes não são números de fo
 
 **O estado precisa chegar limpo.** Texto cru de scraper é de 13% a 73% moldura: banner de cookie, carrinho, grade de produto, rodapé, letreiro repetido. Com a moldura junto, a confiança despenca a zero, porque metade do estado é ruído. Passe a página pelo `.claude/lib/web-fetch/reduzir.py` antes de montar o estado. Isso é degrau zero, e vale também pro modelo de raciocínio.
 
+## A regra que mais muda o resultado: agrupar
+
+**Uma chamada leva UM estado e MUITAS perguntas, e pergunta a mais custa quase nada.** Errar isso não degrada um pouco: degrada tudo.
+
+Medido em 19 de setembro de 2026, a mesma matriz de 5 dores × 10 páginas, o mesmo material, as duas formas:
+
+| | Chamadas | Tempo | Confiança mediana | Células acima de 0,85 |
+|---|---|---|---|---|
+| uma célula por chamada | 50 | 53 minutos no tier gratuito | 0,70 | 14 de 50 |
+| **tudo numa chamada** | **1** | **1,15 segundo** | **0,90** | **30 de 50** |
+
+A versão agrupada **dobrou a fatia utilizável** e resolveu a matriz inteira em pouco mais de um segundo, com 16.351 tokens de entrada. As 30 células de confiança alta ficaram todas dentro de um degrau do caminho de raciocínio: **30 de 30**.
+
+Como montar, seguindo a documentação do modelo:
+
+- **estado é objeto com campos nomeados**, não texto corrido. Array quando forem vários registros.
+- **a pergunta cita o campo pelo caminho, entre crases**: ``Com que profundidade `paginas[3].texto` trata esta dor?``
+- **o orçamento é de 32 mil tokens, compartilhado entre estado e perguntas.** Cabem 10 páginas reduzidas e 50 perguntas com folga.
+- **só o contexto que aquelas perguntas precisam.** A documentação do modelo chama o excesso de "context rot", e a medição confirma: estado cru de scraper derruba a confiança a zero.
+
 ## A cascade, em quatro degraus
 
 Mesmo padrão dos outros MCPs (`.claude/lib/mcp-detect/README.md`): existe, usa; não existe, desce um degrau em silêncio, sem avisar o membro e sem travar nada.
@@ -79,9 +99,9 @@ Daí o corte:
 
 **Ele fica confiante para dizer que NÃO está lá. Nunca para dizer que ESTÁ.**
 
-Das 14 células de confiança alta, 14 eram de ausência e nenhuma de presença. E a confiança alta se concentra na pergunta lexical: numa dor que se resolve por vocabulário, 9 das 10 células passaram de 0,85; nas dores de leitura fina, 1 de 10.
+Medido duas vezes, nas duas formulações: das 14 células de confiança alta da versão item a item, 14 eram de ausência; das 30 da versão agrupada, **30 eram de ausência e nenhuma de presença**. E a confiança alta se concentra na pergunta lexical: numa dor que se resolve por vocabulário, 9 das 10 células passaram de 0,85; nas dores de leitura fina, 1 de 10.
 
-Isso redesenha o papel da camada. Ela **não classifica**: ela **elimina o óbvio ausente** e devolve o resto. Na medição, limpou 12 das 24 células genuinamente vazias, todas certas, o que tira 24% da matriz da mesa sem risco. O julgamento que decide oferta continua inteiro com o modelo de raciocínio.
+Isso redesenha o papel da camada. Ela **não classifica**: ela **elimina o óbvio ausente** e devolve o resto. Na versão agrupada, resolveu **30 das 50 células** com confiança alta, todas dentro de um degrau do caminho de raciocínio. O julgamento que decide oferta continua inteiro com o modelo de raciocínio.
 
 Uma regra prática cai daí: **nunca pergunte ao Jev se algo está presente.** Pergunte se está ausente, e use só a resposta confiante.
 
@@ -110,6 +130,12 @@ node tools/jev.mjs --check
 ```
 
 Saída `0` com `"disponivel": true` é camada ligada. Saída `3` diz o que falta e **não é erro**: é o degrau três, e a Aura segue inteira sem ela.
+
+## O limite que nenhuma formulação mexeu
+
+Em 100 células, nas duas formulações, **ele não pegou uma única coisa que o modelo de raciocínio tivesse deixado passar.** Concordância de 49 em 50 dentro de um degrau quer dizer que ele confirma, não que ele descobre.
+
+O que a camada compra é **velocidade e custo**. Ela não compra pesquisa melhor. Quem esperar resposta mais fina vai se decepcionar; quem esperar a mesma resposta em um segundo, não.
 
 ## O que não passa pelo Jev
 
