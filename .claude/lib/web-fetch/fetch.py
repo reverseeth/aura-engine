@@ -326,6 +326,12 @@ def _mask_client_hints(ctx, page):
 HARD_SIGNS = [
     "just a moment", "verify you are human", "enable javascript and cookies",
     "checking your browser", "attention required", "cf-error", "px-captcha",
+    # Muro da Amazon: devolve 200 e ~160 caracteres de boilerplate, que passavam
+    # tanto pelo piso de página vazia quanto pelas palavras-chave. Sem isto, uma
+    # skill lê "a página não menciona X" a partir de um interstitial de robô e
+    # registra lacuna que não existe.
+    "click the button below to continue shopping",
+    "to discuss automated access to amazon data",
 ]
 SOFT_SIGNS = [
     "are you a robot", "captcha", "unusual traffic", "access denied",
