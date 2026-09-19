@@ -80,7 +80,11 @@
   .brand-mark svg{width:auto;height:21px;}
   .brand-mark path{fill:var(--ink);}
   .system-state{display:inline-flex;align-items:center;justify-self:end;min-height:38px;padding:0 14px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,0.6);color:var(--muted);font-family:var(--mono);font-size:9.5px;letter-spacing:0.11em;text-transform:uppercase;}
-  @media(max-width:560px){.system-state{display:none;}}
+  @media(max-width:560px){
+    .system-state{border:0;background:transparent;padding:0;min-height:0;}
+    .system-state #estadoFfmpeg{display:none;}   /* o estado é decorativo */
+    .idioma{margin-left:0;}                      /* o seletor de idioma, não */
+  }
 
   /* ---------- container + hero ---------- */
   .container{width:min(100% - 40px,940px);margin:0 auto;padding-top:calc(env(safe-area-inset-top,0px) + 116px);padding-bottom:64px;}
@@ -170,6 +174,17 @@
   @media(prefers-reduced-motion:reduce){
     *,*::before,*::after{transition:none !important;animation:none !important;}
   }
+
+  /* Seletor de idioma no topo. Dois botões, não um menu: são dois idiomas. */
+  .idioma{display:inline-flex;gap:2px;margin-left:14px;padding:2px;
+          border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.5);}
+  .lang-btn{appearance:none;border:0;background:transparent;cursor:pointer;
+            font:inherit;font-size:10.5px;font-weight:500;letter-spacing:.09em;
+            color:var(--muted);padding:3px 9px;border-radius:999px;line-height:1.5;
+            transition:background .25s var(--ease),color .25s var(--ease);}
+  .lang-btn:hover{color:var(--ink);}
+  .lang-btn[aria-pressed="true"]{background:var(--ink);color:#fff;}
+  .lang-btn:focus-visible{outline:2px solid var(--red);outline-offset:2px;}
 </style>
 </head>
 <body>
@@ -181,70 +196,239 @@
     </span>
     <span>Aura Engine</span>
   </span>
-  <div class="system-state"><span id="estadoFfmpeg">Roda só na sua máquina</span></div>
+  <div class="system-state">
+    <span id="estadoFfmpeg" data-i18n="estado.local">Roda só na sua máquina</span>
+    <span class="idioma" role="group" aria-label="Idioma / Language">
+      <button type="button" class="lang-btn" data-lang="pt">PT</button>
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+    </span>
+  </div>
 </header>
 
 <main class="container">
 
   <header class="hero">
-    <p class="eyebrow">Limpador de Metadados</p>
-    <h1 class="page-title">Metadados fora</h1>
+    <p class="eyebrow" data-i18n="hero.eyebrow">Limpador de Metadados</p>
+    <h1 class="page-title" data-i18n="hero.titulo">Metadados fora</h1>
     <p class="page-subtitle">
-      Todo arquivo de imagem e de vídeo carrega dados escondidos sobre quem o criou: o aparelho, o programa, a data e a marca que os geradores de inteligência artificial deixam gravada.<br>
-      As plataformas de anúncio leem esses dados.<br>
-      Este programa <strong>tira tudo, sem mudar um pixel do que você vê</strong>.
+      <span data-i18n="hero.p1">Todo arquivo de imagem e de vídeo carrega dados escondidos sobre quem o criou: o aparelho, o programa, a data e a marca que os geradores de inteligência artificial deixam gravada.</span><br>
+      <span data-i18n="hero.p2">As plataformas de anúncio leem esses dados.</span><br>
+      <span data-i18n="hero.p3">Este programa</span> <strong data-i18n="hero.p3forte">tira tudo, sem mudar um pixel do que você vê</strong>.
     </p>
   </header>
 
   <div id="avisoFfmpeg" class="danger" style="display:none">
-    <strong>Falta o ffmpeg</strong>
-    Imagens já limpam normalmente. Pra limpar vídeo e áudio, instale com <code id="cmdFfmpeg"></code>, feche esta janela e abra o Limpador de novo.
+    <strong data-i18n="ffmpeg.titulo">Falta o ffmpeg</strong>
+    <span data-i18n="ffmpeg.antes">Imagens já limpam normalmente. Pra limpar vídeo e áudio, instale com</span> <code id="cmdFfmpeg"></code><span data-i18n="ffmpeg.depois">, feche esta janela e abra o Limpador de novo.</span>
   </div>
 
   <div class="card">
-    <div id="drop" class="drop" role="button" tabindex="0" aria-label="Soltar arquivos ou pastas">
-      <span class="drop-title">Solte aqui os arquivos ou a pasta</span>
-      <span class="drop-sub">Uma pasta limpa tudo que está dentro dela, inclusive o que estiver nas subpastas.</span>
+    <div id="drop" class="drop" role="button" tabindex="0" aria-label="Soltar arquivos ou pastas" data-i18n-aria="aria.soltar">
+      <span class="drop-title" data-i18n="drop.titulo">Solte aqui os arquivos ou a pasta</span>
+      <span class="drop-sub" data-i18n="drop.sub">Uma pasta limpa tudo que está dentro dela, inclusive o que estiver nas subpastas.</span>
       <span class="drop-formats">PNG · JPG · WebP · GIF · MP4 · MOV · WebM · MP3 · WAV</span>
     </div>
     <div class="acoes">
       <button class="btn" id="btnArquivos" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v5h5"/><path d="M19 8v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7z"/></svg>
-        Escolher arquivos
+        <span data-i18n="btn.arquivos">Escolher arquivos</span>
       </button>
       <button class="btn ghost" id="btnPasta" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-        Escolher pasta
+        <span data-i18n="btn.pasta">Escolher pasta</span>
       </button>
       <button class="btn ghost" id="btnAbrir" type="button" style="display:none">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12V5a2 2 0 0 1 2-2h4l2 2h4a2 2 0 0 1 2 2v5"/><path d="M3 19l2.5-7h16L19 19z"/></svg>
-        Abrir a pasta
+        <span data-i18n="btn.abrir">Abrir a pasta</span>
       </button>
     </div>
   </div>
 
   <div class="note">
-    <strong>Antes de começar</strong>
-    O arquivo limpo fica no lugar do original, na mesma pasta, com o nome <code>asset-xxxx</code>. O original é substituído.
+    <strong data-i18n="nota.titulo">Antes de começar</strong>
+    <span data-i18n="nota.antes">O arquivo limpo fica no lugar do original, na mesma pasta, com o nome</span> <code>asset-xxxx</code><span data-i18n="nota.depois">. O original é substituído.</span>
   </div>
 
   <div class="table-wrap" id="cardLista" style="display:none">
     <table>
-      <caption>Arquivos limpos nesta sessão</caption>
-      <thead><tr><th>Arquivo</th><th>Novo nome</th><th>O que saiu</th><th>Estado</th></tr></thead>
+      <caption data-i18n="tabela.legenda">Arquivos limpos nesta sessão</caption>
+      <thead><tr><th data-i18n="tabela.arquivo">Arquivo</th><th data-i18n="tabela.novoNome">Novo nome</th><th data-i18n="tabela.oQueSaiu">O que saiu</th><th data-i18n="tabela.estado">Estado</th></tr></thead>
       <tbody id="lista" aria-live="polite"></tbody>
     </table>
   </div>
   <div class="resumo" id="resumo" style="display:none"></div>
 
   <p class="footer">
-    Imagem: o arquivo é reescrito mantendo só os blocos de pixel e de cor, então o perfil de cor continua e nada é comprimido de novo. Vídeo e áudio: o container é recriado por cópia direta do fluxo, sem re-codificar um frame sequer.<br>
-    O programa roda só na sua máquina, no endereço 127.0.0.1. Pra fechar, feche a janela do terminal ou <a href="#" id="sair">clique aqui</a>.
+    <span data-i18n="rodape.tecnico">Imagem: o arquivo é reescrito mantendo só os blocos de pixel e de cor, então o perfil de cor continua e nada é comprimido de novo. Vídeo e áudio: o container é recriado por cópia direta do fluxo, sem re-codificar um frame sequer.</span><br>
+    <span data-i18n="rodape.local">O programa roda só na sua máquina, no endereço 127.0.0.1. Pra fechar, feche a janela do terminal ou</span> <a href="#" id="sair" data-i18n="rodape.clique">clique aqui</a>.
   </p>
 
 </main>
 
 <script>
+window.AURA_IDIOMA = '__AURA_IDIOMA__';   // o servidor preenche com o report_language do profile.md
+
+/* ───────────────────────────── Idiomas ─────────────────────────────────
+   Duas línguas, uma chave por texto. A escolha vem, nesta ordem: o que o
+   membro já escolheu aqui, o `report_language` do profile.md que o servidor
+   manda, e por último o idioma do navegador. */
+const T = {
+  pt: {
+    'doc.titulo':'Limpador de Metadados — Aura Engine',
+    'estado.local':'Roda só na sua máquina',
+    'hero.eyebrow':'Limpador de Metadados',
+    'hero.titulo':'Metadados fora',
+    'hero.p1':'Todo arquivo de imagem e de vídeo carrega dados escondidos sobre quem o criou: o aparelho, o programa, a data e a marca que os geradores de inteligência artificial deixam gravada.',
+    'hero.p2':'As plataformas de anúncio leem esses dados.',
+    'hero.p3':'Este programa',
+    'hero.p3forte':'tira tudo, sem mudar um pixel do que você vê',
+    'ffmpeg.titulo':'Falta o ffmpeg',
+    'ffmpeg.antes':'Imagens já limpam normalmente. Pra limpar vídeo e áudio, instale com',
+    'ffmpeg.depois':', feche esta janela e abra o Limpador de novo.',
+    'aria.soltar':'Soltar arquivos ou pastas',
+    'drop.titulo':'Solte aqui os arquivos ou a pasta',
+    'drop.sub':'Uma pasta limpa tudo que está dentro dela, inclusive o que estiver nas subpastas.',
+    'btn.arquivos':'Escolher arquivos',
+    'btn.pasta':'Escolher pasta',
+    'btn.abrir':'Abrir a pasta',
+    'nota.titulo':'Antes de começar',
+    'nota.antes':'O arquivo limpo fica no lugar do original, na mesma pasta, com o nome',
+    'nota.depois':'. O original é substituído.',
+    'tabela.legenda':'Arquivos limpos nesta sessão',
+    'tabela.arquivo':'Arquivo',
+    'tabela.novoNome':'Novo nome',
+    'tabela.oQueSaiu':'O que saiu',
+    'tabela.estado':'Estado',
+    'rodape.tecnico':'Imagem: o arquivo é reescrito mantendo só os blocos de pixel e de cor, então o perfil de cor continua e nada é comprimido de novo. Vídeo e áudio: o container é recriado por cópia direta do fluxo, sem re-codificar um frame sequer.',
+    'rodape.local':'O programa roda só na sua máquina, no endereço 127.0.0.1. Pra fechar, feche a janela do terminal ou',
+    'rodape.clique':'clique aqui',
+    'rot.texto':'texto escondido',
+    'rot.c2pa':'selo de origem que os geradores gravam (C2PA)',
+    'rot.photoshop':'dados do Photoshop',
+    'rot.programa':'dados do programa',
+    'rot.bloco':'bloco de aplicativo',
+    'rot.dataHora':'data e hora',
+    'rot.encoder':'marca do programa que exportou',
+    'est.semLocal':'sem localizar',
+    'est.conferir':'conferir',
+    'est.aindaAparece':'ainda aparece:',
+    'est.formatoDica':'exporte como PNG, JPG, WebP, GIF, MP4 ou MOV.',
+    'res.pendentes':'sem localizar',
+    'rot.exif':'dados da câmera e do programa (EXIF e XMP)',
+    'rot.camera':'dados da câmera',
+    'rot.comentario':'comentário',
+    'rot.blocoExtra':'bloco extra do arquivo',
+    'rot.video':'dados gravados no arquivo de vídeo',
+    'est.limpo':'limpo',
+    'est.erro':'erro',
+    'est.semMetadado':'não havia metadado',
+    'est.semCaminho':'o navegador não informa onde este arquivo está. Use o botão Escolher arquivos.',
+    'est.formato':'formato não suportado',
+    'est.nada':'nenhum arquivo de imagem, vídeo ou áudio encontrado',
+    'res.limpo':'limpo', 'res.limpos':'limpos', 'res.de':'de',
+    'res.erro':'com erro', 'res.ignorados':'de formato não suportado'
+  },
+  en: {
+    'doc.titulo':'Metadata Cleaner — Aura Engine',
+    'estado.local':'Runs only on your machine',
+    'hero.eyebrow':'Metadata Cleaner',
+    'hero.titulo':'Metadata gone',
+    'hero.p1':'Every image and video file carries hidden data about who made it: the device, the software, the date, and the mark that artificial intelligence generators leave behind.',
+    'hero.p2':'Ad platforms read that data.',
+    'hero.p3':'This program',
+    'hero.p3forte':'strips all of it, without changing a single pixel of what you see',
+    'ffmpeg.titulo':'ffmpeg is missing',
+    'ffmpeg.antes':'Images clean normally already. To clean video and audio, install it with',
+    'ffmpeg.depois':', close this window and open the Cleaner again.',
+    'aria.soltar':'Drop files or folders',
+    'drop.titulo':'Drop your files or folder here',
+    'drop.sub':'A folder cleans everything inside it, including whatever is in subfolders.',
+    'btn.arquivos':'Choose files',
+    'btn.pasta':'Choose folder',
+    'btn.abrir':'Open the folder',
+    'nota.titulo':'Before you start',
+    'nota.antes':'The clean file takes the place of the original, in the same folder, named',
+    'nota.depois':'. The original is replaced.',
+    'tabela.legenda':'Files cleaned in this session',
+    'tabela.arquivo':'File',
+    'tabela.novoNome':'New name',
+    'tabela.oQueSaiu':'What came out',
+    'tabela.estado':'Status',
+    'rodape.tecnico':'Images: the file is rewritten keeping only the pixel and color blocks, so the color profile survives and nothing is compressed again. Video and audio: the container is rebuilt by copying the stream directly, without re-encoding a single frame.',
+    'rodape.local':'The program runs only on your machine, at address 127.0.0.1. To close it, close the terminal window or',
+    'rodape.clique':'click here',
+    'rot.texto':'hidden text',
+    'rot.c2pa':'origin seal that generators write in (C2PA)',
+    'rot.photoshop':'Photoshop data',
+    'rot.programa':'software data',
+    'rot.bloco':'application block',
+    'rot.dataHora':'date and time',
+    'rot.encoder':'mark of the program that exported it',
+    'est.semLocal':'not located',
+    'est.conferir':'check it',
+    'est.aindaAparece':'still showing:',
+    'est.formatoDica':'export as PNG, JPG, WebP, GIF, MP4 or MOV.',
+    'res.pendentes':'not located',
+    'rot.exif':'camera and software data (EXIF and XMP)',
+    'rot.camera':'camera data',
+    'rot.comentario':'comment',
+    'rot.blocoExtra':'extra file block',
+    'rot.video':'data written into the video file',
+    'est.limpo':'clean',
+    'est.erro':'error',
+    'est.semMetadado':'there was no metadata',
+    'est.semCaminho':'the browser does not report where this file is. Use the Choose files button.',
+    'est.formato':'unsupported format',
+    'est.nada':'no image, video or audio file found',
+    'res.limpo':'cleaned', 'res.limpos':'cleaned', 'res.de':'of',
+    'res.erro':'with an error', 'res.ignorados':'in an unsupported format'
+  }
+};
+
+let idioma = 'pt';
+function txt(k){ return (T[idioma] && T[idioma][k]) || T.pt[k] || k; }
+
+function aplicarIdioma(novo){
+  idioma = (novo === 'en') ? 'en' : 'pt';
+  document.documentElement.lang = (idioma === 'en') ? 'en' : 'pt-BR';
+  document.title = txt('doc.titulo');
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    el.textContent = txt(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    el.setAttribute('aria-label', txt(el.getAttribute('data-i18n-aria')));
+  });
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.setAttribute('aria-pressed', String(b.dataset.lang === idioma));
+  });
+  try{ localStorage.setItem('aura-limpador-idioma', idioma); }catch(e){}
+}
+
+document.querySelectorAll('.lang-btn').forEach(function(b){
+  b.addEventListener('click', function(){ aplicarIdioma(b.dataset.lang); });
+});
+
+/* Ordem de decisão: o que o membro já escolheu aqui vence sempre; depois o
+   report_language do profile.md, que o servidor injeta; por último o idioma do
+   navegador. Assim quem configurou a Aura em inglês abre o Limpador em inglês
+   sem precisar clicar. */
+(function(){
+  var escolhido = null;
+  try{
+    var salvo = localStorage.getItem('aura-limpador-idioma');
+    if (salvo === 'pt' || salvo === 'en') escolhido = salvo;
+  }catch(e){}
+  if (!escolhido && window.AURA_IDIOMA === 'en') escolhido = 'en';
+  if (!escolhido && window.AURA_IDIOMA === 'pt') escolhido = 'pt';
+  if (!escolhido){
+    try{
+      var nav = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+      escolhido = /^pt\b/i.test(nav) ? 'pt' : 'en';
+    }catch(e){ escolhido = 'pt'; }
+  }
+  aplicarIdioma(escolhido);
+})();
+
 const TOKEN = '__AURA_TOKEN__';
 const $ = (id) => document.getElementById(id);
 const lista = $('lista'), cardLista = $('cardLista'), resumo = $('resumo');
@@ -272,10 +456,10 @@ function travar(v) {
 
 function atualizaResumo(extra) {
   resumo.style.display = 'flex';
-  const partes = [`<span class="contagem">${ok} de ${total} limpo${total === 1 ? '' : 's'}</span>`];
-  if (erros) partes.push(`${erros} com erro`);
-  if (ignorados) partes.push(`${ignorados} de formato não suportado`);
-  if (pendentes) partes.push(`${pendentes} sem localizar`);
+  const partes = [`<span class="contagem">${ok} ${txt('res.de')} ${total} ${total === 1 ? txt('res.limpo') : txt('res.limpos')}</span>`];
+  if (erros) partes.push(`${erros} ${txt('res.erro')}`);
+  if (ignorados) partes.push(`${ignorados} ${txt('res.ignorados')}`);
+  if (pendentes) partes.push(`${pendentes} ${txt('res.pendentes')}`);
   if (extra) partes.push(esc(extra));
   resumo.innerHTML = partes.join(' · ');
 }
@@ -290,27 +474,27 @@ function novaLinha(nome) {
 
 // o núcleo devolve o nome técnico do bloco removido; a janela mostra em português
 const NOMES = [
-  [/^tEXt|^iTXt|^zTXt/, 'texto escondido'],
-  [/^APP1 \(EXIF\/XMP\)/, 'dados da câmera e do programa (EXIF e XMP)'],
-  [/^APP11 \(C2PA\/JUMBF\)/, 'selo de origem que os geradores gravam (C2PA)'],
-  [/^APP13 \(IPTC\/Photoshop\)/, 'dados do Photoshop'],
-  [/^COM$/, 'comentário'],
-  [/^APP\d+$/, 'bloco extra do arquivo'],
-  [/^EXIF$/i, 'dados da câmera'],
-  [/^XMP$/i, 'dados do programa'],
-  [/^APP:/, 'bloco de aplicativo'],
-  [/^COMMENT$/, 'comentário'],
-  [/^PLAINTEXT$/, 'texto escondido'],
-  [/^EXT:/, 'bloco extra do arquivo'],
-  [/^tIME|^tRNS|^pHYs/, 'data e hora'],
-  [/^metadados do container/, 'dados gravados no arquivo de vídeo'],
-  [/^tags de encoder/, 'marca do programa que exportou'],
+  [/^tEXt|^iTXt|^zTXt/, 'rot.texto'],
+  [/^APP1 \(EXIF\/XMP\)/, 'rot.exif'],
+  [/^APP11 \(C2PA\/JUMBF\)/, 'rot.c2pa'],
+  [/^APP13 \(IPTC\/Photoshop\)/, 'rot.photoshop'],
+  [/^COM$/, 'rot.comentario'],
+  [/^APP\d+$/, 'rot.blocoExtra'],
+  [/^EXIF$/i, 'rot.camera'],
+  [/^XMP$/i, 'rot.programa'],
+  [/^APP:/, 'rot.bloco'],
+  [/^COMMENT$/, 'rot.comentario'],
+  [/^PLAINTEXT$/, 'rot.texto'],
+  [/^EXT:/, 'rot.blocoExtra'],
+  [/^tIME|^tRNS|^pHYs/, 'rot.dataHora'],
+  [/^metadados do container/, 'rot.video'],
+  [/^tags de encoder/, 'rot.encoder'],
 ];
 function emPortugues(removidos) {
   const vistos = [];
   for (const r of removidos) {
     const achado = NOMES.find(([re]) => re.test(r));
-    const nome = achado ? achado[1] : r;
+    const nome = achado ? txt(achado[1]) : r;
     if (!vistos.includes(nome)) vistos.push(nome);
   }
   return vistos.join(', ');
@@ -319,17 +503,17 @@ function emPortugues(removidos) {
 function preenche(tr, rel) {
   if (rel.erro) {
     erros++;
-    tr.children[3].innerHTML = `<span class="pill pill-erro">erro</span><span class="detalhe">${esc(rel.erro)}</span>`;
+    tr.children[3].innerHTML = `<span class="pill pill-erro">${txt('est.erro')}</span><span class="detalhe">${esc(rel.erro)}</span>`;
   } else {
     ok++;
     const nomeNovo = String(rel.destino).split(/[\\/]/).pop();
     ultimaPasta = String(rel.destino).slice(0, String(rel.destino).length - nomeNovo.length - 1);
     $('btnAbrir').style.display = 'inline-flex';
     tr.children[1].textContent = nomeNovo;
-    tr.children[2].textContent = rel.removidos.length ? emPortugues(rel.removidos) : 'não havia metadado';
+    tr.children[2].textContent = rel.removidos.length ? emPortugues(rel.removidos) : txt('est.semMetadado');
     tr.children[3].innerHTML = rel.residuos.length
-      ? `<span class="pill pill-atencao">conferir</span><span class="detalhe">ainda aparece: ${esc(rel.residuos.join(', '))}</span>`
-      : '<span class="pill pill-ok">limpo</span>';
+      ? `<span class="pill pill-atencao">${txt('est.conferir')}</span><span class="detalhe">${txt('est.aindaAparece')} ${esc(rel.residuos.join(', '))}</span>`
+      : `<span class="pill pill-ok">${txt('est.limpo')}</span>`;
   }
   atualizaResumo();
 }
@@ -337,7 +521,7 @@ function preenche(tr, rel) {
 function linhaSemLocal(nome) {
   pendentes++;
   const tr = novaLinha(nome);
-  tr.children[3].innerHTML = '<span class="pill pill-atencao">sem localizar</span><span class="detalhe">o navegador não informa onde este arquivo está. Use o botão Escolher arquivos.</span>';
+  tr.children[3].innerHTML = '<span class="pill pill-atencao">' + txt('est.semLocal') + '</span><span class="detalhe">' + txt('est.semCaminho') + '</span>';
   atualizaResumo();
 }
 
@@ -348,8 +532,8 @@ async function limparCaminhos(caminhos) {
   const trata = (obj) => {
     if (obj.inicio) {
       total += obj.total;
-      for (const n of obj.ignorados || []) { ignorados++; const tr = novaLinha(n); tr.children[3].innerHTML = '<span class="pill pill-erro">formato não suportado</span><span class="detalhe">exporte como PNG, JPG, WebP, GIF, MP4 ou MOV.</span>'; }
-      atualizaResumo(obj.total === 0 ? 'nenhum arquivo de imagem, vídeo ou áudio encontrado' : '');
+      for (const n of obj.ignorados || []) { ignorados++; const tr = novaLinha(n); tr.children[3].innerHTML = '<span class="pill pill-erro">' + txt('est.formato') + '</span><span class="detalhe">' + txt('est.formatoDica') + '</span>'; }
+      atualizaResumo(obj.total === 0 ? txt('est.nada') : '');
       return;
     }
     const tr = novaLinha(obj.nome_original);

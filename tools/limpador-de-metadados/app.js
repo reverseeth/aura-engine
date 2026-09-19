@@ -34,6 +34,20 @@ const UI = path.join(__dirname, 'ui.html');
 // consegue ler o HTML (o navegador bloqueia), então nunca tem o token.
 const TOKEN = crypto.randomBytes(16).toString('hex');
 
+// Idioma do membro: sai do report_language do profile.md, que a skill `setup`
+// grava. Só sugere — quem manda é o botão na janela, que fica guardado.
+function idiomaDoPerfil() {
+  try {
+    const raiz = path.resolve(__dirname, '..', '..');
+    const perfil = path.join(raiz, 'workspace', 'profile.md');
+    if (!fs.existsSync(perfil)) return '';
+    const m = fs.readFileSync(perfil, 'utf8').match(/report_language\s*[:=]\s*["'`]?\s*(pt-BR|pt|en)\b/i);
+    if (!m) return '';
+    return m[1].toLowerCase().startsWith('pt') ? 'pt' : 'en';
+  } catch (e) { return ''; }
+}
+
+const ING = idiomaDoPerfil() === 'en';
 const SUPORTADAS = new Set([...limpar.IMAGENS, ...limpar.VIDEOS, ...limpar.AUDIOS]);
 const ehSuportada = (p) => SUPORTADAS.has(path.extname(p).toLowerCase());
 
@@ -84,7 +98,7 @@ function binarioExiste(bin) {
 
 function escolherNoSistema(tipo) {
   const pasta = tipo === 'pasta';
-  const titulo = pasta ? 'Escolha a pasta com os criativos' : 'Escolha os criativos';
+  const titulo = pasta ? (ING ? 'Choose the folder with your creatives' : 'Escolha a pasta com os criativos') : (ING ? 'Choose your creatives' : 'Escolha os criativos');
 
   if (process.platform === 'darwin') {
     // `tell me to activate` traz o diálogo pra frente sem controlar outro aplicativo,
@@ -93,7 +107,7 @@ function escolherNoSistema(tipo) {
       ? `tell me to activate\nset alvo to choose folder with prompt "${titulo}"\nreturn POSIX path of alvo`
       : `tell me to activate\nset alvos to choose file with prompt "${titulo}" with multiple selections allowed\nset saida to ""\nrepeat with a in alvos\nset saida to saida & POSIX path of a & linefeed\nend repeat\nreturn saida`;
     const r = spawnSync('osascript', ['-e', script], { encoding: 'utf8' });
-    if (r.status !== 0) return { cancelado: /(-128)|User canceled/i.test(r.stderr || ''), caminhos: [], erro: r.status === null ? 'não consegui abrir o seletor do sistema' : null };
+    if (r.status !== 0) return { cancelado: /(-128)|User canceled/i.test(r.stderr || ''), caminhos: [], erro: r.status === null ? (ING ? 'could not open the system picker' : 'não consegui abrir o seletor do sistema') : null };
     return { caminhos: linhas(r.stdout) };
   }
 
@@ -115,7 +129,7 @@ if ($d.ShowDialog($topo) -eq [System.Windows.Forms.DialogResult]::OK) { $d.FileN
     const exe = binarioExiste('powershell') ? 'powershell' : 'pwsh';
     const b64 = Buffer.from(ps, 'utf16le').toString('base64');
     const r = spawnSync(exe, ['-NoProfile', '-NonInteractive', '-STA', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', b64], { encoding: 'utf8', windowsHide: true });
-    if (r.status !== 0) return { caminhos: [], erro: 'não consegui abrir o seletor do sistema' };
+    if (r.status !== 0) return { caminhos: [], erro: (ING ? 'could not open the system picker' : 'não consegui abrir o seletor do sistema') };
     const caminhos = linhas(r.stdout);
     return { caminhos, cancelado: caminhos.length === 0 };
   }
@@ -208,13 +222,15 @@ const servidor = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://127.0.0.1');
   try {
     if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/index.html')) {
-      const html = fs.readFileSync(UI, 'utf8').replaceAll('__AURA_TOKEN__', TOKEN);
+      const html = fs.readFileSync(UI, 'utf8')
+        .replaceAll('__AURA_TOKEN__', TOKEN)
+        .replaceAll('__AURA_IDIOMA__', idiomaDoPerfil());
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
       return res.end(html);
     }
 
     if (url.pathname.startsWith('/api/')) {
-      if (req.headers['x-aura-token'] !== TOKEN) return json(res, 403, { erro: 'sessão inválida — feche a janela e abra o Limpador de novo' });
+      if (req.headers['x-aura-token'] !== TOKEN) return json(res, 403, { erro: ING ? 'invalid session — close the window and open the Cleaner again' : 'sessão inválida — feche a janela e abra o Limpador de novo' });
     }
 
     if (req.method === 'GET' && url.pathname === '/api/status') {
@@ -271,7 +287,7 @@ const servidor = http.createServer(async (req, res) => {
     if (req.method === 'POST' && url.pathname === '/api/abrir') {
       const b = await corpoJson(req);
       const alvo = String(b.caminho || '');
-      if (!alvo || !fs.existsSync(alvo)) return json(res, 400, { erro: 'pasta não encontrada' });
+      if (!alvo || !fs.existsSync(alvo)) return json(res, 400, { erro: (ING ? 'folder not found' : 'pasta não encontrada') });
       abrirNoSistema(alvo);
       return json(res, 200, { ok: true });
     }
@@ -298,11 +314,19 @@ function iniciar(porta) {
   servidor.listen(porta, '127.0.0.1', () => {
     const url = `http://127.0.0.1:${porta}/`;
     console.log('');
-    console.log('  Aura — Limpador de Metadados');
-    console.log(`  Aberto em: ${url}`);
-    console.log('  Os arquivos limpos substituem os originais, renomeados asset-xxxx.');
-    console.log(`  ffmpeg (vídeo): ${limpar.temFfmpeg() ? 'ok' : 'NÃO encontrado — imagens funcionam; pra vídeo instale o ffmpeg'}`);
-    console.log('  Pra fechar: feche esta janela ou aperte Ctrl+C.');
+    if (ING) {
+      console.log('  Aura — Metadata Cleaner');
+      console.log(`  Open at: ${url}`);
+      console.log('  Clean files replace the originals, renamed asset-xxxx.');
+      console.log(`  ffmpeg (video): ${limpar.temFfmpeg() ? 'ok' : 'NOT found — images work; for video, install ffmpeg'}`);
+      console.log('  To close: close this window or press Ctrl+C.');
+    } else {
+      console.log('  Aura — Limpador de Metadados');
+      console.log(`  Aberto em: ${url}`);
+      console.log('  Os arquivos limpos substituem os originais, renomeados asset-xxxx.');
+      console.log(`  ffmpeg (vídeo): ${limpar.temFfmpeg() ? 'ok' : 'NÃO encontrado — imagens funcionam; pra vídeo instale o ffmpeg'}`);
+      console.log('  Pra fechar: feche esta janela ou aperte Ctrl+C.');
+    }
     console.log('');
     if (!process.env.AURA_LIMPADOR_NO_OPEN) abrirNoSistema(url);
   });

@@ -8,6 +8,8 @@ Remove todo metadado de proveniência dos criativos antes do upload (EXIF, XMP, 
 
 **Programa (arrastar e soltar)** — 2 cliques em `Limpador de Metadados` na pasta principal da Aura. Abre uma janela no navegador, só na sua máquina. Arraste arquivos ou uma pasta, ou clique em **Escolher arquivos** / **Escolher pasta** pra abrir o seletor do próprio sistema. Pasta limpa tudo que está dentro dela, inclusive as subpastas. Nenhum caminho é digitado e nada é copiado pra lugar nenhum, então vídeo grande roda na mesma velocidade.
 
+**Português e inglês.** A janela abre no idioma do `report_language` do `workspace/profile.md`; sem perfil, segue o idioma do navegador. O botão PT/EN no topo troca a qualquer momento, e a escolha fica guardada na máquina. O texto do terminal também sai nos dois idiomas.
+
 **Linha de comando** (o que as skills e receitas rodam):
 
 ```bash
