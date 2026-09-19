@@ -39,6 +39,25 @@ function indisponivel(motivo, comoResolver) {
   sai(INDISPONIVEL, { disponivel: false, motivo, como_resolver: comoResolver ?? null });
 }
 
+/** Traduz o erro do gateway na ação concreta, quando ela é conhecida. */
+function pista(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('credit card')) {
+    return 'a conta da Vercel precisa de um cartão cadastrado antes de liberar os créditos; '
+         + 'o cadastro é em vercel.com/dashboard, aba AI Gateway';
+  }
+  if (m.includes('401') || m.includes('unauthorized') || m.includes('invalid api key')) {
+    return 'a chave do AI Gateway não foi aceita; gere outra em vercel.com/dashboard, aba AI Gateway';
+  }
+  if (m.includes('429') || m.includes('rate limit')) {
+    return 'o limite de chamadas da conta foi atingido; espere e rode de novo';
+  }
+  if (m.includes('model') && m.includes('not found')) {
+    return 'o modelo saiu do catálogo do gateway ou a conta não tem acesso a ele';
+  }
+  return null;
+}
+
 async function carregarSdk() {
   // Import dinâmico: sem o pacote, isto é indisponibilidade, não quebra.
   try {
@@ -116,7 +135,8 @@ async function main() {
       });
       sai(0, { disponivel: true, modelo: MODELO, resposta_de_teste: normalizar(r) });
     } catch (e) {
-      indisponivel(`a chamada de teste falhou: ${String(e?.message ?? e).slice(0, 200)}`, null);
+      const msg = String(e?.message ?? e).slice(0, 400);
+      indisponivel(`a chamada de teste falhou: ${msg}`, pista(msg));
     }
   }
 
@@ -153,7 +173,7 @@ async function main() {
         id: item.id ?? null,
         ok: false,
         caso_do_meio: true,
-        motivo: String(e?.message ?? e).slice(0, 200),
+        motivo: String(e?.message ?? e).slice(0, 400),
       });
     }
   }
