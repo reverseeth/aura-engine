@@ -14,7 +14,18 @@ A extração é opcional, como a 3C inteira. Sem TrendTrack, sem crédito, sem m
 
 Com tools `mcp__trendtrack__*` na sessão, a descoberta é por TrendTrack. A intenção é **Discover → ads em lote** (hoje `search_ads`), casada em runtime pelo que a sessão expõe e nunca por nome fixo de tool (`.claude/lib/trendtrack-integration/README.md`). Antes da primeira chamada, rode a intenção **Account → créditos** e diga ao membro, em uma linha, quantas chamadas esta etapa vai fazer: **1 a 2 por concorrente, em no máximo 3 concorrentes**. Saldo que não cobre, chamada que falha ou MCP ausente: silent fallback pro parágrafo final deste bloco.
 
-Escopo no concorrente: `search_in: "brand"` com o nome da marca em `query`, ou `tracked_pages` com o id da página quando ele já é conhecido. Em toda passada, `media_type: "video"` e `status: "active"`.
+**Os concorrentes já estão na mão.** A lista sai da ETAPA 2 desta mesma skill: são as 5 a 10 marcas ativas já identificadas. Não descubra marca aqui. Pegue as de maior evidência de escala da própria ETAPA 3 e busque cada uma pelo nome.
+
+**Os quatro filtros fixos, em toda passada, sem exceção:**
+
+| Filtro | Valor | Por quê |
+|---|---|---|
+| `search_in` | `"brand"`, com o nome em `query` | escopo no concorrente (ou `tracked_pages` com o id da página, quando conhecido) |
+| `media_type` | `"video"` | molde é de vídeo; imagem não tem linha do tempo para cortar em slots |
+| `status` | `"active"` | anúncio no ar agora, não arquivo |
+| `ad_countries` | `{"include": ["US"]}` | **o mercado é os Estados Unidos, sempre** |
+
+**O mercado é os EUA por padrão e não se pergunta.** Só muda quando o membro disser, com todas as letras, que vende para outro mercado — e aí o `profile.md` dele manda, e os códigos de país entram no lugar do `US`. Sem esse filtro a busca devolve anúncio europeu, porque é de lá que vem a maior parte do índice: medido em 18/09/2026, a mesma busca sem recorte de país devolveu cinco linhas, todas de Grã-Bretanha, Romênia, Itália, Espanha e Eslovênia.
 
 **Passada 1 — vencedor recente. É o padrão.** `created_after` na data de 30 dias atrás, `sort_by: "longestRunning"`, `order: "desc"`. Entre os anúncios que nasceram no último mês, ela traz os que já sobreviveram quase o mês inteiro. É exatamente o que se quer modelar: estrutura de criativo envelhece, e o que escalou há um ano pode não escalar hoje.
 
