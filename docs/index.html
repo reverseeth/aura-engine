@@ -10,23 +10,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;450;500;550;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/entry.css">
+  <link rel="stylesheet" href="assets/entry.css?v=2">
   <script src="assets/entry.js" defer></script>
   <script src="assets/aura-motion.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#languages">Escolher idioma / Choose language</a>
-  <header class="masthead">
-    <a class="wordmark" href="./" aria-label="Aura Engine — início">
-      <svg viewBox="0 0 1789.33 925.59" aria-hidden="true"><path d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z"/></svg>
-      <span>aura<span class="wordmark-engine">ENGINE</span></span>
-    </a>
-    <span class="header-note"><span class="status-dot"></span> O próximo passo começa aqui.</span>
-    <a class="source-link" href="https://github.com/reverseeth/aura-engine" aria-label="Aura Engine no GitHub">
-      GitHub <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg>
-    </a>
-  </header>
-
   <main class="stage">
     <div class="artwork">
       <div class="sculpture" role="img" aria-label="Símbolo da Aura, esculpido em luz e metal">
@@ -50,27 +39,17 @@
     <section class="welcome" aria-labelledby="welcome-title">
       <p class="eyebrow">AURA ENGINE <span aria-hidden="true">/</span> SETUP</p>
       <h1 id="welcome-title">Escolha seu idioma.</h1>
-      <p class="intro" lang="en">Choose your language. Make it yours.</p>
+      <p class="intro" lang="en">Choose your language.</p>
       <nav class="languages" id="languages" aria-label="Idioma do guia / Guide language">
         <a class="language" id="lang-pt" href="aura-setup-pt.html" lang="pt-BR">
-          <span class="language-top"><span class="language-code" aria-hidden="true">PT</span><span class="language-suggestion">Sugerido</span></span>
-          <span class="language-body"><span><span class="language-name">Português</span><span class="language-note">Guia de instalação</span></span><span class="language-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></span>
+          <span class="language-body"><span class="language-copy"><span class="language-name">Português</span><span class="language-note">Guia de instalação</span></span><span class="language-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></span>
         </a>
         <a class="language" id="lang-en" href="aura-setup-en.html" lang="en">
-          <span class="language-top"><span class="language-code" aria-hidden="true">EN</span><span class="language-suggestion">Suggested</span></span>
-          <span class="language-body"><span><span class="language-name">English</span><span class="language-note">Installation guide</span></span><span class="language-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></span>
+          <span class="language-body"><span class="language-copy"><span class="language-name">English</span><span class="language-note">Installation guide</span></span><span class="language-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></span>
         </a>
       </nav>
     </section>
   </main>
 
-  <footer class="footer">
-    <p>Da ideia à operação.<span lang="en"> From idea to operation.</span></p>
-    <div class="motion-controls" hidden>
-      <button class="motion-button replay-button" id="motion-replay" type="button" aria-label="Repetir animação / Replay animation" title="Repetir animação / Replay animation"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.6 6.2A6 6 0 1 1 4 11M4.5 2.7v4h4"/></svg></button>
-      <span class="controls-divider" aria-hidden="true"></span>
-      <button class="motion-button" id="motion-toggle" type="button" data-paused="false" aria-label="Pausar animação / Pause animation"><svg class="pause-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5.5 4v8M10.5 4v8"/></svg><svg class="play-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m5.5 3.5 6 4.5-6 4.5z"/></svg><span id="motion-label">Pausar animação</span></button>
-    </div>
-  </footer>
 </body>
 </html>
