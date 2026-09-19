@@ -1,474 +1,76 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Aura Engine</title>
-<meta name="description" content="Instale a Aura Engine. Escolha o idioma do guia. · Install Aura Engine. Choose your language.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script>
-  // Liga o movimento só quando ele pode rodar. Sem esta classe a página já está
-  // inteira na tela: a animação é camada de cima, nunca requisito pra ver.
-  try{
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        && document.documentElement.animate) {
-      document.documentElement.className = 'anim';
-    }
-  }catch(e){}
-</script>
-<style>
-  /* ═══════════════════════════════════════════════════════════════════════
-     REGRA DE CUSTO
-     No CSS, só `transform` e `opacity` animam. `filter: blur()` existe com
-     valor fixo: o desfoque é rasterizado uma vez e depois só se move, o que o
-     compositor faz de graça. Animar o blur, ou escalar uma camada desfocada,
-     reabre a rasterização a cada quadro — era o que travava o celular.
-     O campo de luz dentro da marca é canvas, e a área dele é pequena
-     (~206×107 pontos), então o custo por quadro é baixo mesmo em telefone.
-     ═══════════════════════════════════════════════════════════════════════ */
-  :root{
-    color-scheme: light;
-    --bg:#F4F5F7;
-    --ink:#14161A;
-    --ink-2:#3A424A;
-    --muted:#5C656D;
-    --line:rgba(20,24,30,0.10);
-    --line-strong:rgba(20,24,30,0.17);
-    --red:#CF3D3A;
-    --red-line:rgba(207,61,58,0.26);
-    --font:"Geist","Helvetica Neue",Helvetica,Arial,sans-serif;
-    --ease:cubic-bezier(0.23,1,0.32,1);
-    --radius:20px;
-    --glass:linear-gradient(145deg,rgba(255,255,255,0.86) 0%,rgba(255,255,255,0.60) 42%,rgba(255,255,255,0.78) 100%);
-    --shadow-card:inset 0 1px 0 rgba(255,255,255,0.9),0 1px 2px rgba(24,30,40,0.05),0 20px 48px -28px rgba(24,34,48,0.22),0 4px 12px -8px rgba(24,34,48,0.12);
-    --shadow-lift:inset 0 1px 0 rgba(255,255,255,0.95),0 2px 4px rgba(24,30,40,0.06),0 34px 80px -40px rgba(24,34,48,0.30),0 10px 26px -14px rgba(24,34,48,0.18);
-  }
-
-  *{box-sizing:border-box;}
-  html,body{height:100%;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--ink);
-    font-family:var(--font);
-    -webkit-font-smoothing:antialiased;
-    display:grid;
-    place-items:center;
-    padding:48px 16px;
-    overflow:hidden;
-  }
-
-  /* ---- Aurora de fundo: desfoque fixo, só rotação ---------------------- */
-  .aura{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
-  .aura i{position:absolute;display:block;border-radius:50%;filter:blur(64px);transform-origin:50% 50%;}
-  .a1{width:78vmax;height:78vmax;left:-30vmax;top:-34vmax;
-      background:radial-gradient(closest-side,rgba(255,255,255,0.98),rgba(255,255,255,0) 72%);}
-  .a2{width:66vmax;height:66vmax;right:-28vmax;bottom:-30vmax;
-      background:radial-gradient(closest-side,rgba(207,61,58,0.13),rgba(207,61,58,0) 70%);}
-  .a3{width:54vmax;height:54vmax;left:52%;top:-16vmax;
-      background:radial-gradient(closest-side,rgba(58,66,74,0.09),rgba(58,66,74,0) 70%);}
-  .anim .aura i{will-change:transform;}
-  .anim .a1{animation:spin 46s linear infinite;}
-  .anim .a2{animation:spin 62s linear infinite reverse;}
-  .anim .a3{animation:spin 78s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-
-  .stage{position:relative;z-index:1;width:100%;max-width:560px;text-align:center;}
-
-  /* ---- A marca ---------------------------------------------------------
-     Três camadas empilhadas no mesmo espaço:
-       1. <svg>   a silhueta sólida — é o que aparece se tudo mais falhar
-       2. <canvas> o campo de luz correndo por dentro dela
-       3. <svg>   um fio de contorno por cima, pra a borda ficar cortada     */
-  .mark{position:relative;width:min(220px,58vw);margin:0 auto 40px;}
-  .mark svg{display:block;width:100%;height:auto;overflow:visible;}
-  .mark .solid{fill:var(--ink);}
-  .mark .draw{display:none;}
-  .field{
-    position:absolute;inset:0;width:100%;height:100%;
-    opacity:0;pointer-events:none;
-    transition:opacity .9s var(--ease);
-  }
-  .field.on{opacity:1;}
-  .edge{position:absolute;inset:0;pointer-events:none;}
-  .edge path{fill:none;stroke:var(--ink);stroke-width:2.5;opacity:.85;}
-
-  /* Entrada: o contorno se desenha, o preenchimento entra por baixo. */
-  .anim .mark{opacity:0;transform:translateY(8px);animation:markIn .45s var(--ease) both;}
-  .anim .mark .draw{
-    display:block;fill:none;stroke:var(--ink);stroke-width:6;
-    stroke-linejoin:round;stroke-linecap:round;
-    stroke-dasharray:var(--len,4990);stroke-dashoffset:var(--len,4990);
-    animation:draw .8s var(--ease) .12s both, strokeOut .28s var(--ease) .86s both;
-  }
-  .anim .mark .solid{opacity:0;animation:solidIn .34s var(--ease) .8s both;}
-  @keyframes markIn{to{opacity:1;transform:none;}}
-  @keyframes draw{to{stroke-dashoffset:0;}}
-  @keyframes strokeOut{to{opacity:0;}}
-  @keyframes solidIn{to{opacity:1;}}
-
-  /* A marca respira. Mora no wrapper de dentro, nunca no mesmo elemento da
-     entrada: duas shorthands de `animation` no mesmo nó, a segunda apaga a
-     primeira e a logo some. */
-  .anim .breath{animation:breathe 7s var(--ease) 1.3s infinite;}
-  @keyframes breathe{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
-
-  /* ---- Texto ----------------------------------------------------------- */
-  .anim .rise{opacity:0;transform:translateY(14px);animation:rise .55s var(--ease) both;}
-  @keyframes rise{to{opacity:1;transform:none;}}
-  /* A escada vem DEPOIS da shorthand, senão ela zera o delay. O título usa
-     h1.rise porque seletor de elemento perde pro de classe. */
-  .anim .eyebrow{animation-delay:.92s;}
-  .anim h1.rise{animation-delay:1.00s;}
-  .anim .sub{animation-delay:1.07s;}
-  .anim .langs{animation-delay:1.14s;}
-
-  .eyebrow{font-size:11.5px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;
-           color:var(--muted);margin:0 0 14px;}
-  h1{font-size:clamp(23px,4.6vw,30px);font-weight:500;letter-spacing:-0.022em;
-     line-height:1.25;margin:0 0 6px;text-wrap:balance;}
-  .sub{font-size:15px;font-weight:300;color:var(--muted);line-height:1.5;
-       margin:0 0 34px;text-wrap:balance;}
-
-  /* ---- Escolha de idioma ----------------------------------------------- */
-  .langs{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-  .lang{
-    position:relative;
-    display:block;text-decoration:none;color:inherit;text-align:left;
-    padding:20px 22px;border-radius:var(--radius);
-    border:1px solid var(--line);background:var(--glass);
-    box-shadow:var(--shadow-card);
-    transition:transform .45s var(--ease),box-shadow .45s var(--ease),border-color .45s var(--ease);
-  }
-  .lang:hover,.lang:focus-visible{
-    transform:translateY(-3px);box-shadow:var(--shadow-lift);border-color:var(--line-strong);
-  }
-  .lang:focus-visible{outline:2px solid var(--red);outline-offset:3px;}
-  .lang-name{display:block;font-size:17px;font-weight:500;letter-spacing:-0.012em;margin-bottom:3px;}
-  .lang-note{display:block;font-size:12.5px;font-weight:300;color:var(--muted);}
-  .lang[data-suggested]{border-color:var(--red-line);}
-  .lang[data-suggested] .lang-name::after{
-    content:attr(data-badge);
-    display:inline-block;margin-left:9px;vertical-align:2px;
-    font-size:9.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;
-    color:var(--red);border:1px solid var(--red-line);border-radius:999px;padding:2px 7px;
-  }
-
-  @media (max-width:430px){
-    .langs{grid-template-columns:1fr;}
-    .mark{margin-bottom:32px;}
-    body{overflow-y:auto;}
-  }
-  @media (max-height:680px){
-    .mark{width:min(172px,46vw);margin-bottom:26px;}
-    .sub{margin-bottom:26px;}
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f2">
+  <meta name="description" content="Instale a Aura Engine. Escolha o idioma do seu guia. · Install Aura Engine. Choose your guide’s language.">
+  <title>Aura Engine — Comece aqui</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;450;500;550;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/entry.css">
+  <script src="assets/entry.js" defer></script>
+  <script src="assets/aura-motion.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#languages">Escolher idioma / Choose language</a>
+  <header class="masthead">
+    <a class="wordmark" href="./" aria-label="Aura Engine — início">
+      <svg viewBox="0 0 1789.33 925.59" aria-hidden="true"><path d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z"/></svg>
+      <span>aura<span class="wordmark-engine">ENGINE</span></span>
+    </a>
+    <span class="header-note"><span class="status-dot"></span> O próximo passo começa aqui.</span>
+    <a class="source-link" href="https://github.com/reverseeth/aura-engine" aria-label="Aura Engine no GitHub">
+      GitHub <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg>
+    </a>
+  </header>
 
-<div class="aura" aria-hidden="true"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>
-
-<main class="stage">
-
-  <div class="mark" role="img" aria-label="Aura Engine">
-    <div class="breath">
-      <svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg">
-        <title>Aura Engine</title>
-        <path class="draw" d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z"/>
-        <path class="solid" d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z"/>
-      </svg>
-      <canvas class="field" aria-hidden="true"></canvas>
-      <svg class="edge" viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z"/>
-      </svg>
+  <main class="stage">
+    <div class="artwork">
+      <div class="sculpture" role="img" aria-label="Símbolo da Aura, esculpido em luz e metal">
+        <svg class="mark-fallback" viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="metal-fallback" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#17191d"/><stop offset=".32" stop-color="#6c727a"/>
+              <stop offset=".45" stop-color="#d8dce0"/><stop offset=".51" stop-color="#fafafa"/>
+              <stop offset=".59" stop-color="#5a5e66"/><stop offset=".8" stop-color="#202329"/>
+              <stop offset="1" stop-color="#555a60"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#metal-fallback)" d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z"/>
+        </svg>
+        <canvas id="aura-canvas" aria-hidden="true"></canvas>
+        <span class="mark-copyright" aria-hidden="true">©</span>
+      </div>
+      <div class="artwork-shadow" aria-hidden="true"></div>
     </div>
-  </div>
 
-  <p class="eyebrow rise">Aura Engine</p>
-  <h1 class="rise">Escolha o idioma do guia<br>Choose your language</h1>
-  <p class="sub rise">Guia de instalação completo, passo a passo.<br>Full installation guide, step by step.</p>
+    <section class="welcome" aria-labelledby="welcome-title">
+      <p class="eyebrow">AURA ENGINE <span aria-hidden="true">/</span> SETUP</p>
+      <h1 id="welcome-title">Escolha seu idioma.</h1>
+      <p class="intro" lang="en">Choose your language. Make it yours.</p>
+      <nav class="languages" id="languages" aria-label="Idioma do guia / Guide language">
+        <a class="language" id="lang-pt" href="aura-setup-pt.html" lang="pt-BR">
+          <span class="language-top"><span class="language-code" aria-hidden="true">PT</span><span class="language-suggestion">Sugerido</span></span>
+          <span class="language-body"><span><span class="language-name">Português</span><span class="language-note">Guia de instalação</span></span><span class="language-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></span>
+        </a>
+        <a class="language" id="lang-en" href="aura-setup-en.html" lang="en">
+          <span class="language-top"><span class="language-code" aria-hidden="true">EN</span><span class="language-suggestion">Suggested</span></span>
+          <span class="language-body"><span><span class="language-name">English</span><span class="language-note">Installation guide</span></span><span class="language-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></span>
+        </a>
+      </nav>
+    </section>
+  </main>
 
-  <div class="langs rise">
-    <a class="lang" id="lang-pt" href="aura-setup-pt.html" lang="pt-BR">
-      <span class="lang-name" data-badge="sugerido">Português</span>
-      <span class="lang-note">Guia de instalação completo</span>
-    </a>
-    <a class="lang" id="lang-en" href="aura-setup-en.html" lang="en">
-      <span class="lang-name" data-badge="suggested">English</span>
-      <span class="lang-note">Complete installation guide</span>
-    </a>
-  </div>
-
-</main>
-
-<script>
-(function(){
-  'use strict';
-
-  var CAMINHO = "M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z";
-  var VB_W = 1789.33, VB_H = 925.59;
-
-  // ── 1. Comprimento real do contorno, pro traço de entrada ──────────────
-  try{
-    var d = document.querySelector('.mark .draw');
-    if (d && d.getTotalLength){
-      var len = Math.ceil(d.getTotalLength());
-      if (len > 0) d.style.setProperty('--len', len);
-    }
-  }catch(e){}
-
-  // ── 2. Idioma sugerido. Destaque, não decisão: ninguém é redirecionado ──
-  (function(){
-    function sugerir(id){
-      document.querySelectorAll('.lang[data-suggested]').forEach(function(n){
-        n.removeAttribute('data-suggested');
-      });
-      var el = document.getElementById(id);
-      if (el) el.setAttribute('data-suggested','');
-    }
-    var alvo = 'lang-pt';
-    try{
-      var nav = (navigator.languages && navigator.languages[0]) || navigator.language || '';
-      alvo = /^pt\b/i.test(nav) ? 'lang-pt' : 'lang-en';
-    }catch(e){}
-    try{
-      var salvo = localStorage.getItem('aura-lang');
-      if (salvo === 'pt') alvo = 'lang-pt';
-      if (salvo === 'en') alvo = 'lang-en';
-    }catch(e){}
-    sugerir(alvo);
-    ['lang-pt','lang-en'].forEach(function(id){
-      var a = document.getElementById(id);
-      if (!a) return;
-      a.addEventListener('click', function(){
-        try{ localStorage.setItem('aura-lang', id === 'lang-pt' ? 'pt' : 'en'); }catch(e){}
-      });
-    });
-  })();
-
-  // ── 3. O campo de luz dentro da marca ──────────────────────────────────
-  //
-  // A ideia: a silhueta deixa de ser uma mancha sólida e vira uma janela pra
-  // um fluxo. Partículas correm por um campo vetorial e deixam rastro; o
-  // rastro some porque cada quadro pinta a tinta da marca por cima com
-  // opacidade baixa. Nada varre a logo de ponta a ponta: a luz nasce, corre e
-  // morre lá dentro, e a direção do fluxo gira devagar, então nunca se repete
-  // igual. O cursor entorta o campo à sua volta.
-  //
-  // Barato porque a área é pequena: ~220×114 pontos. O trabalho por quadro é
-  // proporcional a isso, não à tela.
-
-  var canvas = document.querySelector('.field');
-  if (!canvas || !canvas.getContext) return;
-  if (document.documentElement.className !== 'anim') return;
-
-  var ctx;
-  try{ ctx = canvas.getContext('2d', { alpha: true }); }catch(e){ return; }
-  if (!ctx) return;
-
-  var Path2Dok = (typeof Path2D === 'function');
-  if (!Path2Dok) return;          // sem recorte não há efeito: fica a logo sólida
-  var silhueta = new Path2D(CAMINHO);
-
-  var INK   = [20,22,26];
-  var W = 0, H = 0, dpr = 1, esc = 1;
-  var particulas = [], N = 0;
-  var t = 0, rodando = false, ultimo = 0, raf = 0;
-  var pmx = -999, pmy = -999, pforca = 0;   // posição do cursor no espaço do canvas
-
-  function medir(){
-    var r = canvas.getBoundingClientRect();
-    if (!r.width || !r.height) return false;
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = Math.round(r.width  * dpr);
-    H = Math.round(r.height * dpr);
-    canvas.width = W; canvas.height = H;
-    esc = W / VB_W;
-
-    // Densidade por área, com teto. Tela pequena ganha menos partícula porque
-    // a marca também é menor — a sensação de densidade fica igual.
-    var area = r.width * r.height;
-    N = Math.max(85, Math.min(260, Math.round(area / 82)));
-    semear();
-    return true;
-  }
-
-  function dentro(x, y){
-    // x,y em unidades do viewBox. O teste roda no espaço do canvas.
-    ctx.save();
-    ctx.setTransform(esc,0,0,esc,0,0);
-    var ok = ctx.isPointInPath(silhueta, x, y);
-    ctx.restore();
-    return ok;
-  }
-
-  function novaParticula(p){
-    // Nasce em qualquer ponto de dentro da silhueta. Até 24 tentativas: a
-    // forma ocupa boa parte da caixa, então quase sempre acerta de primeira.
-    var direita = Math.random() < 0.46;
-    for (var i = 0; i < 24; i++){
-      var x = direita
-        ? VB_W * 0.52 + Math.random() * VB_W * 0.48
-        : Math.random() * VB_W;
-      var y = Math.random() * VB_H;
-      if (dentro(x, y)){
-        p.x = x; p.y = y; p.px = x; p.py = y;
-        p.vida = 55 + Math.random() * 115;   // vida curta: renasce espalhado e cobre a forma
-        p.idade = 0;
-        p.vel = 0.5 + Math.random() * 1.9;
-        p.desvio = (Math.random() - 0.5) * 1.05;  // a linha de fluxo é dela, não do vizinho
-        p.fase = Math.random() * 6.283;
-        p.quente = Math.random() < 0.16;     // as poucas que puxam pro vermelho
-        p.esp = 0.55 + Math.random() * 1.5;
-        return true;
-      }
-    }
-    p.idade = p.vida;                        // desiste; tenta de novo no quadro seguinte
-    return false;
-  }
-
-  function semear(){
-    particulas.length = 0;
-    for (var i = 0; i < N; i++){
-      var p = { x:0,y:0,px:0,py:0,vida:1,idade:0,vel:1,desvio:0,fase:0,quente:false,esp:1 };
-      novaParticula(p);
-      p.idade = Math.random() * p.vida;      // espalha o ciclo de morte
-      particulas.push(p);
-    }
-  }
-
-  // Campo vetorial: soma de senos em escalas diferentes, girando com o tempo.
-  // Sem biblioteca de ruído — três oitavas já dão um fluxo que não se repete
-  // de forma perceptível, e custam três senos por partícula.
-  function angulo(x, y, tempo){
-    var a = Math.sin(x * 0.0095 + tempo * 0.28) * 1.15
-          + Math.sin(y * 0.0130 - tempo * 0.21) * 0.95
-          + Math.sin((x - y) * 0.0062 + tempo * 0.16) * 0.80
-          + Math.sin((x + y) * 0.0031 - tempo * 0.11) * 0.55;
-    // O viés leve é o que faz a luz virar filamento em vez de girar em círculo
-    // pequeno e se cancelar. Sem ele o efeito some.
-    return a * 0.95 - 0.25;
-  }
-
-  function quadro(agora){
-    if (!rodando) return;
-    raf = requestAnimationFrame(quadro);
-
-    var dt = Math.min((agora - ultimo) || 16, 48) / 16.67;   // trava saltos após aba oculta
-    ultimo = agora;
-    t += 0.0075 * dt;
-
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.save();
-    ctx.setTransform(esc,0,0,esc,0,0);
-    ctx.clip(silhueta);
-
-    // O rastro some sob a tinta da marca, não sob transparência: a silhueta
-    // continua sólida e o brilho parece vir de dentro dela.
-    ctx.globalCompositeOperation = 'source-over';
-    var apaga = 1 - Math.pow(1 - 0.055, dt);   // meia-vida constante em qualquer tela
-    ctx.fillStyle = 'rgba(' + INK[0] + ',' + INK[1] + ',' + INK[2] + ',' + apaga.toFixed(4) + ')';
-    ctx.fillRect(0, 0, VB_W, VB_H);
-
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.lineCap = 'round';
-
-    for (var i = 0; i < particulas.length; i++){
-      var p = particulas[i];
-      p.idade += dt;
-      if (p.idade >= p.vida){ novaParticula(p); continue; }
-
-      var ang = angulo(p.x, p.y, t) + p.desvio + Math.sin(t * 1.7 + p.fase) * 0.28;
-
-      // O cursor entorta o campo à volta dele. Cai com o quadrado da distância.
-      if (pforca > 0.01){
-        var dx = p.x - pmx, dy = p.y - pmy;
-        var d2 = dx*dx + dy*dy;
-        var r = 330;
-        if (d2 < r*r){
-          var f = (1 - Math.sqrt(d2)/r);
-          ang += Math.atan2(dy, dx) * f * 1.25 * pforca;
-        }
-      }
-
-      p.px = p.x; p.py = p.y;
-      p.x += Math.cos(ang) * p.vel * 3.4 * dt;
-      p.y += Math.sin(ang) * p.vel * 3.4 * dt;
-
-      if (p.x < -40 || p.x > VB_W + 40 || p.y < -40 || p.y > VB_H + 40){
-        novaParticula(p); continue;
-      }
-
-      // Nasce e morre em fade, pra nenhuma linha aparecer ou sumir de estalo.
-      var v = p.idade / p.vida;
-      var alfa = Math.sin(Math.PI * v);
-      alfa *= alfa;
-
-      ctx.strokeStyle = p.quente
-        ? 'rgba(242,120,104,' + (alfa * 0.92) + ')'
-        : 'rgba(255,255,255,' + (alfa * 0.80) + ')';
-      ctx.lineWidth = p.esp * (2.4 + alfa * 3.2);
-      ctx.beginPath();
-      ctx.moveTo(p.px, p.py);
-      ctx.lineTo(p.x, p.y);
-      ctx.stroke();
-    }
-
-    ctx.restore();
-    pforca *= 0.965;                          // o empurrão do cursor esfria sozinho
-  }
-
-  function ligar(){
-    if (rodando) return;
-    if (!W && !medir()) return;
-    rodando = true; ultimo = performance.now();
-    raf = requestAnimationFrame(quadro);
-    canvas.classList.add('on');
-  }
-  function desligar(){
-    rodando = false;
-    if (raf) cancelAnimationFrame(raf);
-    raf = 0;
-  }
-
-  // Só começa depois que o traço de entrada terminou de desenhar.
-  setTimeout(function(){ if (medir()) ligar(); }, 1180);
-
-  var remedir;
-  window.addEventListener('resize', function(){
-    clearTimeout(remedir);
-    remedir = setTimeout(function(){ medir(); }, 160);
-  }, { passive:true });
-
-  // Aba escondida não anima: poupa bateria e evita a fila de quadros atrasados
-  // que faz a volta pra aba parecer travada.
-  document.addEventListener('visibilitychange', function(){
-    document.hidden ? desligar() : ligar();
-    try{
-      document.getAnimations().forEach(function(a){
-        if (a.effect && a.effect.getTiming().iterations === Infinity){
-          document.hidden ? a.pause() : a.play();
-        }
-      });
-    }catch(e){}
-  });
-
-  function mover(cx, cy){
-    var r = canvas.getBoundingClientRect();
-    if (!r.width) return;
-    pmx = (cx - r.left) / r.width  * VB_W;
-    pmy = (cy - r.top)  / r.height * VB_H;
-    pforca = 1;
-  }
-  window.addEventListener('pointermove', function(ev){ mover(ev.clientX, ev.clientY); }, { passive:true });
-  window.addEventListener('touchmove', function(ev){
-    if (ev.touches && ev.touches[0]) mover(ev.touches[0].clientX, ev.touches[0].clientY);
-  }, { passive:true });
-})();
-</script>
-
+  <footer class="footer">
+    <p>Da ideia à operação.<span lang="en"> From idea to operation.</span></p>
+    <div class="motion-controls" hidden>
+      <button class="motion-button replay-button" id="motion-replay" type="button" aria-label="Repetir animação / Replay animation" title="Repetir animação / Replay animation"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.6 6.2A6 6 0 1 1 4 11M4.5 2.7v4h4"/></svg></button>
+      <span class="controls-divider" aria-hidden="true"></span>
+      <button class="motion-button" id="motion-toggle" type="button" data-paused="false" aria-label="Pausar animação / Pause animation"><svg class="pause-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5.5 4v8M10.5 4v8"/></svg><svg class="play-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m5.5 3.5 6 4.5-6 4.5z"/></svg><span id="motion-label">Pausar animação</span></button>
+    </div>
+  </footer>
 </body>
 </html>
