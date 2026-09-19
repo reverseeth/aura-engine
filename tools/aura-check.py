@@ -45,7 +45,9 @@ Regras:
                  cabeçalho (ETAPA/GATE no mesmo arquivo ou na skill citada ao lado; ES na rule de
                  escape paths, que também precisa ter numeração contígua; Regra no CLAUDE.md).
   skill-size     cada `SKILL.md` do registro cabe em 12 KB (12.288 bytes): é o roteiro curto, e o
-                 material longo vive em `reference/<tema>.md`.
+                 material longo vive em `reference/<tema>.md`. Quando a regra passa, ela ainda
+                 imprime um aviso por skill com 300 bytes ou menos de folga — serve pra quem VAI
+                 escrever saber antes de escrever, e não muda o código de saída.
   secrets        nenhum arquivo rastreado contém a chave antiga da base, `?key=` na URL da base
                  nem os padrões de token do pre-commit guard.
   member-data    nenhum arquivo rastreado contém nome de produto, loja ou marca do workspace do
@@ -657,6 +659,25 @@ def rule_sections(files, reg, index):
 
 
 SKILL_MAX_BYTES = 12 * 1024
+SKILL_NEAR_BYTES = 300
+
+
+def skills_near_cap(reg):
+    """Skills perto do teto. Não é falha: é aviso pra quem VAI escrever, antes de escrever."""
+    perto = []
+    for sk in reg.skills:
+        rel_ = sk.get("file")
+        if not rel_ or not rel_.endswith("SKILL.md"):
+            continue
+        f = ROOT / rel_
+        if not f.is_file():
+            continue
+        n = f.stat().st_size
+        folga = SKILL_MAX_BYTES - n
+        if 0 <= folga <= SKILL_NEAR_BYTES:
+            perto.append((folga, sk.get("id", rel_), n))
+    perto.sort()
+    return perto
 
 
 def rule_skill_size(files, reg, index):
@@ -817,6 +838,10 @@ def main():
     if fails:
         print(f"{len(fails)} falhas")
         return 1
+    if "skill-size" in selected:
+        for folga, sid, n in skills_near_cap(reg):
+            print(f"aviso  {sid}: SKILL.md com {n:,} bytes, {folga} livres do teto de "
+                  f"{SKILL_MAX_BYTES:,}. Texto novo nasce em reference/, com uma linha de roteiro aqui.")
     print("OK")
     return 0
 
