@@ -88,9 +88,14 @@
   svg{display:block;}
   :focus-visible{outline:2px solid rgba(20,24,30,0.55);outline-offset:3px;border-radius:4px;}
 
-  .skip-link{position:fixed;top:10px;left:10px;z-index:200;transform:translateY(-160%);padding:10px 14px;border-radius:10px;background:var(--ink);color:#F5F6F7;font-size:13px;transition:transform 180ms ease;}
-  .skip-link:focus{transform:translateY(0);}
-  .progress-line{position:fixed;inset:0 auto auto 0;z-index:180;width:100%;height:2px;transform:scaleX(var(--scroll-progress));transform-origin:left;background:linear-gradient(90deg,transparent,rgba(20,22,26,0.9));box-shadow:0 0 12px rgba(20,22,26,0.18);pointer-events:none;}
+  /* A fine reading rail, with a soft metallic edge in either section theme. */
+  .progress-line{position:fixed;inset:env(safe-area-inset-top,0px) 0 auto;z-index:180;height:3px;background:rgba(24,30,40,.055);pointer-events:none;transition:background-color 220ms ease;}
+  .progress-line::before,.progress-line::after{content:"";position:absolute;inset:0;border-radius:0 999px 999px 0;transform:scaleX(var(--scroll-progress));transform-origin:left;}
+  .progress-line::before{background:linear-gradient(90deg,#9BA3AF 0%,#566171 55%,#202630 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 1px 4px rgba(20,26,36,.12);}
+  .progress-line::after{background:linear-gradient(90deg,#586371 0%,#AEBAC9 55%,#F1F5FA 100%);box-shadow:0 1px 5px rgba(225,235,250,.12);opacity:0;transition:opacity 220ms ease;}
+  .reading-dark .progress-line{background:rgba(235,242,250,.08);}
+  .reading-dark .progress-line::after{opacity:1;}
+  @media(prefers-reduced-motion:reduce){.progress-line,.progress-line::after{transition:none;}}
 
   /* ---------- container ---------- */
   .container{width:min(100% - 40px,1120px);margin:0 auto;padding-top:calc(env(safe-area-inset-top,0px) + clamp(104px,13vh,152px));}
@@ -570,7 +575,6 @@
 </style>
 </head>
 <body id="top">
-<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
 <div class="progress-line" aria-hidden="true"></div>
 
 <header class="topbar" aria-label="Navegação">
@@ -887,6 +891,7 @@ Add-Content $PROFILE &#x27;function aura { Set-Location &quot;$HOME\aura-engine&
       root.style.setProperty('--scroll-progress', (maximum ? Math.min(1, scroll / maximum) : 0).toFixed(5));
       if (topbar && dark !== lastDark) {
         topbar.classList.toggle('on-dark', dark);
+        root.classList.toggle('reading-dark', dark);
         lastDark = dark;
       }
       if (active !== currentSection) {
