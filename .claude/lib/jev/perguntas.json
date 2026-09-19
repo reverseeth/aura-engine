@@ -1,9 +1,7 @@
 {
   "versao": 1,
   "nota": "Catálogo de perguntas prontas. Cada aplicação diz qual skill usa, qual etapa, o que entra como estado, as perguntas no formato do SDK e o corte de confiança. Vocabulário fechado sempre copiado do schema real da fase, nunca inventado aqui. Cânone em .claude/lib/jev/README.md.",
-
   "aplicacoes": {
-
     "lacunas": {
       "skill": "competitor-analysis",
       "etapa": "ETAPA 6 — gap analysis, dimensão messaging",
@@ -28,11 +26,19 @@
           ]
         }
       },
-      "corte": { "age_sozinha_acima_de": 0.9, "segunda_opiniao_entre": [0.65, 0.9] },
-      "por_que_o_corte": "O erro caro é declarar lacuna que não existe: a oferta, a headline e os criativos são construídos em cima, e o membro descobre no leilão. Corte alto de propósito.",
+      "corte": {
+        "tipo_de_sinal": "probabilidade, porque a pergunta principal é sim/não e sim/não não devolve confiança",
+        "age_sozinha_acima_de": 0.9,
+        "age_sozinha_abaixo_de": 0.1,
+        "segunda_opiniao_entre": [
+          0.1,
+          0.9
+        ],
+        "provisorio": true
+      },
+      "por_que_o_corte": "O erro caro é declarar lacuna que não existe: a oferta, a headline e os criativos são construídos em cima, e o membro descobre no leilão. Corte alto de propósito, nos dois lados: probabilidade baixa é um não confiante, e vale tanto quanto um sim confiante.",
       "regra": "Nota 1 e 2 são o material mais valioso da rodada, não ruído: lacuna parcial costuma ser melhor oportunidade que lacuna total. Vão SEMPRE para o modelo de raciocínio, qualquer que seja a confiança."
     },
-
     "saturacao-claims": {
       "skill": "competitor-analysis",
       "etapa": "ETAPA 4 — matriz de saturação",
@@ -47,11 +53,16 @@
           "instructions": "Esta página faz este claim, com estas palavras ou com outras que digam a mesma coisa?"
         }
       },
-      "corte": { "age_sozinha_acima_de": 0.85, "segunda_opiniao_entre": [0.6, 0.85] },
+      "corte": {
+        "age_sozinha_acima_de": 0.85,
+        "segunda_opiniao_entre": [
+          0.6,
+          0.85
+        ]
+      },
       "regra": "SOMAR as probabilidades e comparar a soma contra os cortes de saturação. Nunca arredondar cada célula para sim ou não antes de somar: com dez concorrentes, uma célula errada muda sete de dez para seis de dez, e o rótulo pula de evitar para usar com torção.",
       "escreve_em": "claims_saturation[].saturation, enum HIGH | MEDIUM | LOW | ABSENT"
     },
-
     "formato-landing": {
       "skill": "competitor-analysis",
       "etapa": "ETAPA 3E — formato das páginas de destino",
@@ -75,10 +86,15 @@
           }
         }
       },
-      "corte": { "age_sozinha_acima_de": 0.85, "segunda_opiniao_entre": [0.6, 0.85] },
+      "corte": {
+        "age_sozinha_acima_de": 0.85,
+        "segunda_opiniao_entre": [
+          0.6,
+          0.85
+        ]
+      },
       "escreve_em": "landing_formats[].format"
     },
-
     "funil-criativo": {
       "skill": "competitor-analysis",
       "etapa": "ETAPA 3 — classificação dos criativos do top 10",
@@ -97,10 +113,15 @@
           }
         }
       },
-      "corte": { "age_sozinha_acima_de": 0.85, "segunda_opiniao_entre": [0.6, 0.85] },
+      "corte": {
+        "age_sozinha_acima_de": 0.85,
+        "segunda_opiniao_entre": [
+          0.6,
+          0.85
+        ]
+      },
       "escreve_em": "top_creatives[].funnel_position"
     },
-
     "base-relevancia": {
       "skill": "todas as que consultam a base",
       "etapa": "logo depois do kb_lookup, antes de puxar cada sistema",
@@ -121,10 +142,15 @@
           ]
         }
       },
-      "corte": { "age_sozinha_acima_de": 0.9, "segunda_opiniao_entre": [0.7, 0.9] },
+      "corte": {
+        "age_sozinha_acima_de": 0.9,
+        "segunda_opiniao_entre": [
+          0.7,
+          0.9
+        ]
+      },
       "regra": "Regra dura 1 do cânone: isto ORDENA, nunca descarta. O piso de buscas embutidas na etapa continua obrigatório, e nenhuma entrada é pulada por nota baixa. O ganho é a ordem de leitura, não o corte."
     },
-
     "especificidade-claim": {
       "skill": "copy-engine",
       "etapa": "sweep de força",
@@ -145,7 +171,13 @@
           ]
         }
       },
-      "corte": { "age_sozinha_acima_de": 0.85, "segunda_opiniao_entre": [0.6, 0.85] },
+      "corte": {
+        "age_sozinha_acima_de": 0.85,
+        "segunda_opiniao_entre": [
+          0.6,
+          0.85
+        ]
+      },
       "regra": "Nota baixa significa CLAIM FRACO DEMAIS, e a ação é fortalecer com o número que a pesquisa sustenta. Esta aplicação nunca enfraquece, nunca marca claim como arriscado e nunca sugere ressalva. Regra 8b do CLAUDE.md."
     }
   }

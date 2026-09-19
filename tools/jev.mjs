@@ -39,6 +39,11 @@ function indisponivel(motivo, comoResolver) {
   sai(INDISPONIVEL, { disponivel: false, motivo, como_resolver: comoResolver ?? null });
 }
 
+/** Barrada por cota do tier gratuito, que é capacidade e não falha do item. */
+function eLimite(msg) {
+  return /rate.?limit|quota|too many requests|\b429\b/i.test(String(msg));
+}
+
 /** Traduz o erro do gateway na ação concreta, quando ela é conhecida. */
 function pista(msg) {
   const m = msg.toLowerCase();
@@ -156,39 +161,85 @@ async function main() {
 
   const respostas = [];
   let falhas = 0;
+  let barradas = 0;
+  let barradasSeguidas = 0;
 
-  for (const item of itens) {
-    try {
-      const r = await sdk.evaluate({
-        model: MODELO,
-        state: item.state,
-        questions: job.questions,
-      });
-      respostas.push({ id: item.id ?? null, ok: true, respostas: normalizar(r) });
-    } catch (e) {
-      // Regra dura 3 do cânone: falha no meio do lote vira CASO DO MEIO, nunca
-      // descarte por omissão. O item volta marcado pra releitura, não sumido.
-      falhas++;
-      respostas.push({
-        id: item.id ?? null,
-        ok: false,
-        caso_do_meio: true,
-        motivo: String(e?.message ?? e).slice(0, 400),
-      });
+  // Pausa entre itens. O tier gratuito do gateway libera poucas chamadas por
+  // janela, então lote sem pausa queima a cota nas primeiras linhas e o resto
+  // volta vazio. Medido em 19/09/2026: cinco chamadas passam, a sexta barra.
+  const iPausa = args.indexOf('--pausa');
+  const pausaMs = iPausa >= 0 && args[iPausa + 1] ? Number(args[iPausa + 1]) : 1200;
+  const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  for (let i = 0; i < itens.length; i++) {
+    const item = itens[i];
+    if (i > 0 && pausaMs > 0) await dormir(pausaMs);
+
+    let resolvido = false;
+    // Barrada por cota não é falha do item: é capacidade. Recua e tenta de novo
+    // antes de desistir, porque marcar o item como perdido aqui seria mentir
+    // sobre o texto dele.
+    for (const recuo of [0, 15000, 45000]) {
+      if (recuo) await dormir(recuo);
+      try {
+        const r = await sdk.evaluate({ model: MODELO, state: item.state, questions: job.questions });
+        respostas.push({ id: item.id ?? null, ok: true, respostas: normalizar(r) });
+        barradasSeguidas = 0;
+        resolvido = true;
+        break;
+      } catch (e) {
+        const msg = String(e?.message ?? e);
+        if (!eLimite(msg)) {
+          // Regra dura 3 do cânone: falha no meio do lote vira CASO DO MEIO,
+          // nunca descarte por omissão. O item volta marcado pra releitura.
+          falhas++;
+          respostas.push({ id: item.id ?? null, ok: false, caso_do_meio: true, motivo: msg.slice(0, 400) });
+          resolvido = true;
+          break;
+        }
+      }
+    }
+
+    if (!resolvido) {
+      barradas++;
+      barradasSeguidas++;
+      respostas.push({ id: item.id ?? null, ok: false, barrado_por_cota: true, caso_do_meio: true });
+      // Cota esgotada de verdade: insistir item a item levaria horas. Para o
+      // lote e devolve o que já respondeu, dizendo onde parou.
+      if (barradasSeguidas >= 3) {
+        sai(0, {
+          disponivel: true,
+          modelo: MODELO,
+          cota_esgotada: true,
+          total: itens.length,
+          responderam: respostas.filter((r) => r.ok).length,
+          casos_do_meio: falhas,
+          barrados_por_cota: barradas,
+          parou_no_item: i + 1,
+          como_resolver: 'o tier gratuito do gateway limita as chamadas por janela; '
+            + 'rode o resto mais tarde, ou compre crédito pra liberar o limite',
+          itens: respostas,
+        });
+      }
     }
   }
 
-  // Lote inteiro falhando é indisponibilidade, não resultado.
-  if (falhas === itens.length) {
-    indisponivel(`as ${falhas} chamadas do lote falharam`, null);
+  // Lote inteiro sem resposta é indisponibilidade, não resultado.
+  const responderam = respostas.filter((r) => r.ok).length;
+  if (responderam === 0) {
+    indisponivel(
+      barradas ? `as ${itens.length} chamadas do lote foram barradas por cota` : `as ${falhas} chamadas do lote falharam`,
+      barradas ? 'o tier gratuito do gateway limita as chamadas por janela' : null
+    );
   }
 
   sai(0, {
     disponivel: true,
     modelo: MODELO,
     total: itens.length,
-    responderam: itens.length - falhas,
+    responderam,
     casos_do_meio: falhas,
+    barrados_por_cota: barradas,
     itens: respostas,
   });
 }

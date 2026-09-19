@@ -10,7 +10,7 @@ O Jev é um modelo que **não escreve**. Ele faz três coisas, e só:
 |---|---|---|
 | `choice` | uma opção de um conjunto **fechado** que você define, com a probabilidade de cada opção e a confiança | classificar em categoria que o framework já tem |
 | `score` | um número **na escala que você define**: passe uma lista ordenada de critérios e a nota volta como posição nela, com a legenda | dar grau, força, saturação, prioridade |
-| `noul` | a probabilidade de um sim/não, de 0 a 1 | conferir item a item se uma condição vale |
+| `boolean` | a probabilidade de um sim/não, de 0 a 1 | conferir item a item se uma condição vale |
 
 Entrada é **só texto**. Nada de imagem, áudio ou vídeo. Quando a decisão depende de pixel, o Jev é cego: outro modelo transforma pixel em texto primeiro, e aí o Jev classifica o texto.
 
@@ -21,6 +21,22 @@ Várias perguntas cabem numa chamada só, avaliadas em paralelo e isoladas sobre
 Dizem que o Jev "não alucina". Isso quer dizer **apenas** que a resposta sempre cabe no formato pedido: quatro opções entram, uma das quatro volta, sempre.
 
 Não quer dizer que a opção está certa. **Uma nota perfeitamente válida pode estar perfeitamente errada**, e como não vem raciocínio junto, ninguém percebe olhando. Hoje quem põe o número é quem escreve o texto ao lado, então o disparate aparece. Terceirizando o número, ele para de aparecer. É por isso que existem as três regras duras abaixo.
+
+## O que a medição na máquina já mostrou
+
+Rodado em 19 de setembro de 2026, com chave real. Estes não são números de folheto:
+
+**Sim/não não devolve confiança.** O campo de confiança volta vazio quando a pergunta é de sim/não; ele só aparece em escolha e em nota. **Para sim/não, o sinal é a própria probabilidade, e a certeza é a distância até 0,5.** Probabilidade 0,95 e probabilidade 0,05 são igualmente confiantes: uma diz sim com força, a outra diz não com força. Um corte que olhe só o lado de cima joga fora metade das respostas boas.
+
+**A escala é comprimida.** Numa página que literalmente diz "repairs the skin barrier in 14 days", perguntado sobre a dor "a barreira da minha pele está destruída", a resposta foi **0,74**. Casal perfeito não deu 0,95. Quer dizer que um corte em 0,90 quase nunca dispara, e a camada inteira vira enfeite. **Os cortes têm de sair da medição, e o 0,90 escrito aqui é provisório.**
+
+**A resposta é estável.** A mesma pergunta repetida cinco vezes devolveu 0,47, 0,49, 0,49, 0,50 e 0,48. Variação de três centésimos. Isso é bom: dá pra comparar rodadas.
+
+**Nota volta fracionária.** Uma régua de cinco critérios devolve algo como 3,29, que é a média ponderada da distribuição, mais a distribuição inteira por índice. Regra escrita sobre "nota 1 ou 2" tem de olhar a distribuição, não o arredondamento.
+
+**É rápido.** De 450 a 800 milissegundos por chamada.
+
+**O tier gratuito do gateway barra cedo.** Cinco chamadas passam, a sexta é recusada, e a recusa não melhora com pausa de quatro segundos entre elas. Lote grande no tier gratuito não termina: o cliente pausa, recua duas vezes e para o lote quando a cota acaba, devolvendo o que já respondeu e dizendo em que item parou. **Medição de cem casos precisa de crédito comprado, ou de rodar em pedaços ao longo do dia.**
 
 ## A cascade, em quatro degraus
 
@@ -44,9 +60,11 @@ Mesmo padrão dos outros MCPs (`.claude/lib/mcp-detect/README.md`): existe, usa;
 
 Ficam em `perguntas.json`, por aplicação, porque a régua certa depende do custo do erro. O padrão, enquanto não houver medição:
 
-- acima de **0,90** a skill age sozinha
-- entre **0,65 e 0,90** o caso volta pro modelo de raciocínio
-- abaixo de **0,65** o caso sobe pro membro, quando a decisão é de negócio
+Em escolha e nota, a régua é a confiança. Em sim/não, é a distância da probabilidade até 0,5, contada dos dois lados:
+
+- confiança acima de **0,90**, ou probabilidade **acima de 0,90 ou abaixo de 0,10**: a skill age sozinha
+- na faixa do meio: o caso volta pro modelo de raciocínio
+- confiança abaixo de **0,65**: o caso sobe pro membro, quando a decisão é de negócio
 
 **Nenhum desses números vale antes da medição em espelho.** Rode a aplicação pelos dois caminhos com o mesmo material, confira na mão os casos de confiança alta, e veja se a taxa de acerto bate com a probabilidade que ele deu. Sem isso, qualquer corte é palpite com cara de medida.
 
