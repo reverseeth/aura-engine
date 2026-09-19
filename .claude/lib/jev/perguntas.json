@@ -6,20 +6,16 @@
       "skill": "competitor-analysis",
       "etapa": "ETAPA 6 — gap analysis, dimensão messaging",
       "arquivo": ".claude/skills/competitor-analysis/reference/gap-analysis.md",
-      "o_que_decide": "Para cada dor do avatar e cada página de concorrente, se aquela página aborda aquela dor.",
-      "estado": "O texto da PDP do concorrente, extraído na ETAPA 1.",
+      "o_que_decide": "Quais células da matriz dor × concorrente estão OBVIAMENTE vazias, pra que o modelo de raciocínio leia só o resto. Não classifica lacuna: elimina ausência óbvia.",
+      "estado": "O texto da PDP do concorrente REDUZIDO pelo .claude/lib/web-fetch/reduzir.py, mais a dor. Texto cru derruba a confiança a zero, porque metade dele é menu e rodapé.",
       "itens": "Produto cartesiano entre avatar.pain_hierarchy[] do market-research/dados.json e as PDPs lidas. De 32 a 150 por rodada.",
       "questions": {
-        "aborda": {
-          "type": "boolean",
-          "instructions": "Esta página de venda aborda a dor descrita? Responda pensando no que a página diz ao leitor, não no que o produto tecnicamente faz."
-        },
         "profundidade": {
           "type": "score",
-          "instructions": "Com que profundidade a página trata essa dor?",
+          "instructions": "Com que profundidade a página trata esta dor específica?",
           "criteria": [
             "Não menciona a dor em lugar nenhum",
-            "Menciona de raspão, numa lista ou numa palavra solta",
+            "Menciona de raspão, numa palavra solta",
             "Dedica uma frase ou um bullet a ela",
             "Dedica uma seção a ela",
             "A página inteira é construída em cima dessa dor"
@@ -27,17 +23,13 @@
         }
       },
       "corte": {
-        "tipo_de_sinal": "probabilidade, porque a pergunta principal é sim/não e sim/não não devolve confiança",
-        "age_sozinha_acima_de": 0.9,
-        "age_sozinha_abaixo_de": 0.1,
-        "segunda_opiniao_entre": [
-          0.1,
-          0.9
-        ],
-        "provisorio": true
+        "medido_em": "2026-09-19, 50 células pelos dois caminhos",
+        "age_sozinha_acima_de": 0.85,
+        "so_do_lado_da_ausencia": true,
+        "abaixo_disso_volta_pro_raciocinio": true
       },
-      "por_que_o_corte": "O erro caro é declarar lacuna que não existe: a oferta, a headline e os criativos são construídos em cima, e o membro descobre no leilão. Corte alto de propósito, nos dois lados: probabilidade baixa é um não confiante, e vale tanto quanto um sim confiante.",
-      "regra": "Nota 1 e 2 são o material mais valioso da rodada, não ruído: lacuna parcial costuma ser melhor oportunidade que lacuna total. Vão SEMPRE para o modelo de raciocínio, qualquer que seja a confiança."
+      "por_que_o_corte": "Acima de 0,85 o erro médio cai pra 0,18 degrau e o sim/não bateu em 14 de 14. Nenhuma lacuna real foi apagada e nenhuma lacuna foi inventada.",
+      "regra": "Confiança alta só existe do lado da AUSÊNCIA: nas 14 células confiantes da medição, 14 eram 'não está lá' e nenhuma era 'está lá'. Nunca use este primitivo pra confirmar presença. Nota 1 e 2 são o material mais valioso da rodada e vão SEMPRE pro modelo de raciocínio, qualquer que seja a confiança: na medição, quase metade do mercado caiu nesses dois degraus. O sim/não saiu da aplicação: a nota com régua ordenada carrega mais informação."
     },
     "saturacao-claims": {
       "skill": "competitor-analysis",

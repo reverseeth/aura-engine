@@ -28,7 +28,7 @@ Rodado em 19 de setembro de 2026, com chave real. Estes não são números de fo
 
 **Sim/não não devolve confiança.** O campo de confiança volta vazio quando a pergunta é de sim/não; ele só aparece em escolha e em nota. **Para sim/não, o sinal é a própria probabilidade, e a certeza é a distância até 0,5.** Probabilidade 0,95 e probabilidade 0,05 são igualmente confiantes: uma diz sim com força, a outra diz não com força. Um corte que olhe só o lado de cima joga fora metade das respostas boas.
 
-**A escala é comprimida.** Numa página que literalmente diz "repairs the skin barrier in 14 days", perguntado sobre a dor "a barreira da minha pele está destruída", a resposta foi **0,74**. Casal perfeito não deu 0,95. Quer dizer que um corte em 0,90 quase nunca dispara, e a camada inteira vira enfeite. **Os cortes têm de sair da medição, e o 0,90 escrito aqui é provisório.**
+**A escala do sim/não é comprimida.** Casal perfeito não dá 0,95: numa página que literalmente diz "repairs the skin barrier in 14 days", perguntado sobre a dor correspondente, a resposta foi 0,74. É mais uma razão pra perguntar por nota com régua ordenada em vez de por sim/não.
 
 **A resposta é estável.** A mesma pergunta repetida cinco vezes devolveu 0,47, 0,49, 0,49, 0,50 e 0,48. Variação de três centésimos. Isso é bom: dá pra comparar rodadas.
 
@@ -37,6 +37,8 @@ Rodado em 19 de setembro de 2026, com chave real. Estes não são números de fo
 **É rápido.** De 450 a 800 milissegundos por chamada.
 
 **O tier gratuito do gateway barra cedo.** Cinco chamadas passam, a sexta é recusada, e a recusa não melhora com pausa de quatro segundos entre elas. Lote grande no tier gratuito não termina: o cliente pausa, recua duas vezes e para o lote quando a cota acaba, devolvendo o que já respondeu e dizendo em que item parou. **Medição de cem casos precisa de crédito comprado, ou de rodar em pedaços ao longo do dia.**
+
+**O estado precisa chegar limpo.** Texto cru de scraper é de 13% a 73% moldura: banner de cookie, carrinho, grade de produto, rodapé, letreiro repetido. Com a moldura junto, a confiança despenca a zero, porque metade do estado é ruído. Passe a página pelo `.claude/lib/web-fetch/reduzir.py` antes de montar o estado. Isso é degrau zero, e vale também pro modelo de raciocínio.
 
 ## A cascade, em quatro degraus
 
@@ -58,15 +60,30 @@ Mesmo padrão dos outros MCPs (`.claude/lib/mcp-detect/README.md`): existe, usa;
 
 ## Os limites de corte
 
-Ficam em `perguntas.json`, por aplicação, porque a régua certa depende do custo do erro. O padrão, enquanto não houver medição:
+Medidos em 19 de setembro de 2026, sobre 50 células de matriz de lacunas rodadas pelos dois caminhos com o mesmo material. A confiança **prevê o acerto**, e a previsão é monotônica:
 
-Em escolha e nota, a régua é a confiança. Em sim/não, é a distância da probabilidade até 0,5, contada dos dois lados:
+| Faixa de confiança | Erro médio na nota | Sim/não bate |
+|---|---|---|
+| 0,00 – 0,50 | 0,53 degrau | 7 de 10 |
+| 0,50 – 0,70 | 0,41 degrau | 13 de 15 |
+| 0,70 – 0,85 | 0,39 degrau | 11 de 11 |
+| **0,85 – 1,00** | **0,18 degrau** | **14 de 14** |
 
-- confiança acima de **0,90**, ou probabilidade **acima de 0,90 ou abaixo de 0,10**: a skill age sozinha
-- na faixa do meio: o caso volta pro modelo de raciocínio
-- confiança abaixo de **0,65**: o caso sobe pro membro, quando a decisão é de negócio
+Daí o corte:
 
-**Nenhum desses números vale antes da medição em espelho.** Rode a aplicação pelos dois caminhos com o mesmo material, confira na mão os casos de confiança alta, e veja se a taxa de acerto bate com a probabilidade que ele deu. Sem isso, qualquer corte é palpite com cara de medida.
+- **confiança a partir de 0,85: a skill age sozinha.** Acerto de 14 em 14, nenhuma discordância de dois degraus, nenhuma lacuna real apagada.
+- **abaixo de 0,85: o caso volta pro modelo de raciocínio.** São cerca de 70% das células, e é aí que mora o trabalho que importa.
+- em escolha e nota a régua é a confiança; em sim/não, que não devolve confiança, é a distância da probabilidade até 0,5, contada dos dois lados. Fora da faixa de 0,1 a 0,9 o sim/não acertou 11 de 11, mas só 11 das 50 células chegaram lá — a nota com régua ordenada carrega mais informação, e é ela que deve ser perguntada.
+
+## A coisa mais importante que a medição mostrou
+
+**Ele fica confiante para dizer que NÃO está lá. Nunca para dizer que ESTÁ.**
+
+Das 14 células de confiança alta, 14 eram de ausência e nenhuma de presença. E a confiança alta se concentra na pergunta lexical: numa dor que se resolve por vocabulário, 9 das 10 células passaram de 0,85; nas dores de leitura fina, 1 de 10.
+
+Isso redesenha o papel da camada. Ela **não classifica**: ela **elimina o óbvio ausente** e devolve o resto. Na medição, limpou 12 das 24 células genuinamente vazias, todas certas, o que tira 24% da matriz da mesa sem risco. O julgamento que decide oferta continua inteiro com o modelo de raciocínio.
+
+Uma regra prática cai daí: **nunca pergunte ao Jev se algo está presente.** Pergunte se está ausente, e use só a resposta confiante.
 
 ## Chave: de cada membro, nunca compartilhada
 
