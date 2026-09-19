@@ -1,4 +1,5 @@
 {
+  "estado": "DESLIGADA — nenhuma skill chama esta camada. Catálogo preservado para o caso de a conta virar. Ver o aviso no topo de .claude/lib/jev/README.md.",
   "versao": 1,
   "nota": "Catálogo de perguntas prontas. Cada aplicação diz qual skill usa, qual etapa, o que entra como estado, as perguntas no formato do SDK e o corte de confiança. Vocabulário fechado sempre copiado do schema real da fase, nunca inventado aqui. Cânone em .claude/lib/jev/README.md.",
   "aplicacoes": {

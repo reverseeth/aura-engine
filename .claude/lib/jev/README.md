@@ -1,5 +1,13 @@
 # Jev — a camada de decisão
 
+> **ESTA CAMADA ESTÁ DESLIGADA. Nenhuma skill a chama, e nenhuma deve passar a chamar sem decisão explícita do membro.**
+>
+> Ela foi construída, medida duas vezes e documentada em setembro de 2026. Funciona, é segura com o corte de confiança, e **não muda nenhum resultado**: em 196 julgamentos medidos ela não pegou uma única coisa que o modelo de raciocínio tivesse deixado passar. O que ela compra é velocidade e custo dentro de etapas que o membro não vê, ao preço de cada membro precisar de conta na Vercel, chave, cartão e uma dependência de Node.
+>
+> A decisão de 19/09/2026 foi deixar pronta e desligada. As duas medições completas estão em `docs/historico/jev-2026-09/`.
+>
+> **O que faria a conta virar:** uma etapa nova com milhares de itens independentes, ou o modelo passar a ficar confiante também sobre presença (hoje só fica sobre ausência).
+
 Camada opcional que tira do modelo de raciocínio as decisões que são **classificação, nota ou sim/não** sobre muitos itens, e deixa ele livre pro que só ele faz: entender, sintetizar e escrever.
 
 ## O que o Jev é, e o que ele não é
