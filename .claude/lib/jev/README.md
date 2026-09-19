@@ -58,6 +58,7 @@ Como montar, seguindo a documentação do modelo:
 - **estado é objeto com campos nomeados**, não texto corrido. Array quando forem vários registros.
 - **a pergunta cita o campo pelo caminho, entre crases**: ``Com que profundidade `paginas[3].texto` trata esta dor?``
 - **o orçamento é de 32 mil tokens, compartilhado entre estado e perguntas.** Cabem 10 páginas reduzidas e 50 perguntas com folga.
+- **agrupe em BLOCOS, não tudo de uma vez.** Um empate num item derruba a chamada inteira: 96 perguntas numa chamada falharam por causa de uma review que reclamava de entrega e de atendimento em pé de igualdade, e as 96 respostas se perderam. Em blocos de 24 passou. **Bloco que falha, quebre ao meio e tente de novo** — isso recupera tudo sem perder item.
 - **só o contexto que aquelas perguntas precisam.** A documentação do modelo chama o excesso de "context rot", e a medição confirma: estado cru de scraper derruba a confiança a zero.
 
 ## A cascade, em quatro degraus
@@ -131,9 +132,26 @@ node tools/jev.mjs --check
 
 Saída `0` com `"disponivel": true` é camada ligada. Saída `3` diz o que falta e **não é erro**: é o degrau três, e a Aura segue inteira sem ela.
 
+## Medição 2: a triagem de reviews, e o número que decide
+
+96 reviews negativas de 6 marcas, classificadas em quatro temas pelos dois caminhos. A etapa de maior volume do framework.
+
+| | Chamadas | Tempo |
+|---|---|---|
+| Jev, em blocos de 24 | 4 | **3,01 segundos** |
+| raciocínio, 6 agentes | 6 agentes | 159 segundos |
+
+**A confiança separa o acerto do erro de forma limpa:** mediana de **0,93** nas concordâncias e de **0,54** nas discordâncias. Apenas 4 das 23 discordâncias ficaram acima de 0,85.
+
+E o teste que importa, porque é o que decide negócio: sem corte, comparando saída crua contra saída crua, **uma marca de seis mudaria de veredito** — uma que devia ser eliminada por falta de eficácia passaria. As quatro reviews que causaram a virada tinham confiança de 0,43 · 0,36 · 0,61 · 0,22.
+
+**Com o corte de 0,85 aplicado, os seis vereditos batem exatamente.** A camada resolve 54% das reviews e devolve o resto.
+
+É a validação do desenho inteiro: o valor não está em confiar na resposta, está em confiar na confiança.
+
 ## O limite que nenhuma formulação mexeu
 
-Em 100 células, nas duas formulações, **ele não pegou uma única coisa que o modelo de raciocínio tivesse deixado passar.** Concordância de 49 em 50 dentro de um degrau quer dizer que ele confirma, não que ele descobre.
+Em 196 julgamentos medidos, entre a matriz de lacunas e a triagem de reviews, **ele não pegou uma única coisa que o modelo de raciocínio tivesse deixado passar.** Concordância de 49 em 50 dentro de um degrau quer dizer que ele confirma, não que ele descobre.
 
 O que a camada compra é **velocidade e custo**. Ela não compra pesquisa melhor. Quem esperar resposta mais fina vai se decepcionar; quem esperar a mesma resposta em um segundo, não.
 
