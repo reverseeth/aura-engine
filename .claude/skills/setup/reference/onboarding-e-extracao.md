@@ -20,7 +20,8 @@ Formato da mensagem a enviar:
 >
 > **2. Budget diário pra ads** (em dólares — ex: `100`)
 >
-> **3. Ferramentas que você tem acesso** (marca as que se aplicam): TrendTrack · SpyBox · Higgsfield · Notion (pra guardar o banco de marcas da pesquisa de produto)
+> **3. Ferramentas que você tem acesso** (marca as que se aplicam): TrendTrack · Higgsfield · Notion (pra guardar o banco de marcas da pesquisa de produto)
+>  → Sem TrendTrack, que é o motor da pesquisa de produto: https://app.trendtrack.io/invite/tt-d0b18d189489 dá 20% de desconto nos 3 primeiros meses.
 >
 > **3b. Plataforma de email (ESP)** que você usa — escolha uma:
 > - A) Klaviyo
@@ -33,7 +34,7 @@ Formato da mensagem a enviar:
 Depois que o membro responder, parseie a resposta e extraia:
 - `SITUACAO` → A, B, C ou D
 - `BUDGET` → número em dólares
-- `TOOLS` → lista das ferramentas mencionadas (TrendTrack, SpyBox, Higgsfield, Notion)
+- `TOOLS` → lista das ferramentas mencionadas (TrendTrack, Higgsfield, Notion)
 - `ESP` → plataforma de email escolhida na 3b: `klaviyo` (A), `omnisend` / `mailerlite` / `shopify_email` conforme o que o membro citar (B), ou `none` (C) — tokens EXATOS do enum do manifest-schema (`shopify_email` com underscore, nunca hífen)
 - `LINK` → URL do produto principal (se SITUACAO ≠ A)
 - `SHOPIFY_LINK` → URL da loja Shopify (se o membro informar a loja na pergunta 4)

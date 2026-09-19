@@ -513,7 +513,7 @@ def main():
         if r.get("blocked") and not (out or "").strip():
             sys.stderr.write(f"[aura-fetch] BLOQUEADO status={r.get('status')} "
                              f"err={r.get('error','-')} — caia pro próximo fallback "
-                             f"(paste do membro / MCP TrendTrack/SpyBox).\n")
+                             f"(paste do membro / MCP TrendTrack).\n")
             sys.exit(2)
         print(out)
         if r.get("blocked"):

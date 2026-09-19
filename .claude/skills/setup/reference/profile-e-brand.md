@@ -27,7 +27,6 @@ Data do setup: [YYYY-MM-DD]
 
 ## Ferramentas
 - TrendTrack: [sim/não]
-- SpyBox: [sim/não]
 - Higgsfield: [sim/não]
 - Notion: [sim/não]
 - Shopify: [sim + link / não — vem da pergunta 4]

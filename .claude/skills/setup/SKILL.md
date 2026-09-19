@@ -53,7 +53,7 @@ Mesmo arquivo. Resumo de 30 segundos, no idioma escolhido, das cinco fases (pesq
 
 ### ETAPA 3 · Onboarding do membro (perguntas por texto)
 
-Leia `reference/onboarding-e-extracao.md`. Uma mensagem só com as 4 perguntas: situação (A sem produto, B tem produto e não lançou, C vende e não escala, D escala e quer otimizar), budget diário em dólares, ferramentas (TrendTrack, SpyBox, Higgsfield, Notion) mais a plataforma de email na pergunta 3b, e os links da loja e do produto. Parseie `SITUACAO`, `BUDGET`, `TOOLS`, `ESP` (tokens exatos do enum do manifest-schema; `shopify_email` com underscore), `LINK` e `SHOPIFY_LINK`; se faltou algo, pergunte só o que faltou. Classifique o budget sem mostrar: abaixo de 50 dólares por dia é starter, de 50 a 199 standard, de 200 a 999 escala-inicial, 1000 ou mais escala-avançada.
+Leia `reference/onboarding-e-extracao.md`. Uma mensagem só com as 4 perguntas: situação (A sem produto, B tem produto e não lançou, C vende e não escala, D escala e quer otimizar), budget diário em dólares, ferramentas (TrendTrack, Higgsfield, Notion) mais a plataforma de email na pergunta 3b, e os links da loja e do produto. Parseie `SITUACAO`, `BUDGET`, `TOOLS`, `ESP` (tokens exatos do enum do manifest-schema; `shopify_email` com underscore), `LINK` e `SHOPIFY_LINK`; se faltou algo, pergunte só o que faltou. Classifique o budget sem mostrar: abaixo de 50 dólares por dia é starter, de 50 a 199 standard, de 200 a 999 escala-inicial, 1000 ou mais escala-avançada.
 
 ### ETAPA 4 · Auto-extração de dados da loja
 

@@ -4,7 +4,7 @@
 
 ### ETAPA 3C — Scaled Creative Deep Analysis (opcional, mas recomendado)
 
-Se o **Foreplay MCP** estiver conectado (tools `mcp__foreplay__*` — ver ETAPA 0.5), puxe os criativos escalados direto por ele, sem pedir uploads ao membro. Senão: se o membro tiver acesso a plataformas de inteligência de criativos (Adsparo, SpyBox, Kalodata, Pipiads, Foreplay, Minea, Atria) ou listas curadas de criativos que ESCALARAM (não apenas "ativos"), peça pra enviar:
+Se o **Foreplay MCP** estiver conectado (tools `mcp__foreplay__*` — ver ETAPA 0.5), puxe os criativos escalados direto por ele, sem pedir uploads ao membro. Senão: se o membro tiver acesso a plataformas de inteligência de criativos (Adsparo, Kalodata, Pipiads, Foreplay, Minea, Atria) ou listas curadas de criativos que ESCALARAM (não apenas "ativos"), peça pra enviar:
 
 1. **URLs públicas** de vídeo ad (Meta Ad Library direct links, TikTok urls, ou assets hospedados)
 2. **Uploads de vídeo/imagem** diretamente pro workspace (salvar em `workspace/[produto]/competitor-analysis/creatives-inbox/`)

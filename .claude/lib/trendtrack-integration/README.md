@@ -86,7 +86,7 @@ Cada skill que se beneficia tem bloco assim no início:
 5. Se NÃO existir tool que case com a intenção, siga o caminho manual da skill.
 ```
 
-> **Regra dura de honestidade.** A AI só lê programaticamente o que tem MCP. Ferramenta paga sem MCP na sessão (SpyBox, Kalodata, SimilarWeb, ou o próprio TrendTrack quando o MCP não está conectado) a AI **nunca finge acessar**: diz exatamente o que olhar e onde, e trata o resultado como dado colado pelo membro. O dado colado entra no relatório como dado — sem rótulo de "manual" no texto (a procedência vai no `dados.json.source`).
+> **Regra dura de honestidade.** A AI só lê programaticamente o que tem MCP. Ferramenta paga sem MCP na sessão (Kalodata, SimilarWeb, ou o próprio TrendTrack quando o MCP não está conectado) a AI **nunca finge acessar**: diz exatamente o que olhar e onde, e trata o resultado como dado colado pelo membro. O dado colado entra no relatório como dado — sem rótulo de "manual" no texto (a procedência vai no `dados.json.source`).
 
 ## Falhas e fallback
 

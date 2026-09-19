@@ -42,7 +42,7 @@ access_rate = concorrentes_com_PDP_analisada / total_concorrentes_identificados
   >
   > Sem análise competitiva real, Skills `offer-builder` (Offer) e 06 (Copy) vão voar no escuro. Opções:
   > 1. Me manda screenshots dos concorrentes inacessíveis por WhatsApp/paste
-  > 2. Passa pra mim dados do SpyBox/Kalodata sobre claims e estrutura deles
+  > 2. Passa pra mim dados do Kalodata sobre claims e estrutura deles
   > 3. Adia competitor analysis até conseguir acesso (mudar IP, VPN, etc)
   >
   > O que prefere?

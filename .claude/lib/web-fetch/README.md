@@ -23,7 +23,7 @@ Em bloqueio irrecuperável: sai com código **2** e escreve um status claro no s
 1. **Descoberta** → ferramenta nativa **WebSearch** (acha URLs + snippets; não scrapear HTML de buscador, que cai em CAPTCHA).
 2. **Fetch simples** → ferramenta nativa **WebFetch**.
 3. **Se barrado (403/429/Cloudflare/JS/CAPTCHA soft)** → **este fetcher** (`fetch.py`, navegador real).
-4. **Se ainda barrar (hard-CAPTCHA tipo PerimeterX)** → MCP (TrendTrack/SpyBox) OU paste do membro. Nunca inventar dado.
+4. **Se ainda barrar (hard-CAPTCHA tipo PerimeterX)** → MCP (TrendTrack) OU paste do membro. Nunca inventar dado.
 
 Detalhes em `.claude/rules/resilient-fetch.md`.
 

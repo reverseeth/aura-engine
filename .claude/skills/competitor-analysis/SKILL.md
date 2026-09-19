@@ -41,7 +41,7 @@ Leia `reference/identificar-concorrentes.md`. Base: a lista da `product-research
 
 ### ETAPA 1B · Ads screenshots dos concorrentes
 
-Mesmo arquivo. Membro com SpyBox ou Adsparo no profile: peça os screenshots dos ads mais escalados, sem bloquear; sem eles, Meta Ad Library público na ETAPA 3.
+Mesmo arquivo. Membro com Adsparo no profile: peça os screenshots dos ads mais escalados, sem bloquear; sem eles, Meta Ad Library público na ETAPA 3.
 
 ### ETAPA 2 · Análise de PDPs dos concorrentes
 

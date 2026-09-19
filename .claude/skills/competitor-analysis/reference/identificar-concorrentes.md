@@ -1,6 +1,6 @@
 # Competitor Analysis · Referência: Identificar concorrentes e pedir screenshots de ads (ETAPAs 1 e 1B)
 
-> A base da product-research, a pergunta ao membro, a busca automática, a ampliação pra produtos adjacentes, a validação de URLs por HEAD com a cascade antes de descartar, o registro de `competitors_discarded[]` e o pedido opcional de screenshots do SpyBox ou Adsparo. Abra na ETAPA 1.
+> A base da product-research, a pergunta ao membro, a busca automática, a ampliação pra produtos adjacentes, a validação de URLs por HEAD com a cascade antes de descartar, o registro de `competitors_discarded[]` e o pedido opcional de screenshots do Adsparo. Abra na ETAPA 1.
 
 ### ETAPA 1 — Identificar Concorrentes
 
@@ -30,9 +30,9 @@ Concorrente que falhou em TODA a cascade vai pra `dados.json.competitors_discard
 
 ### ETAPA 1B — Ads Screenshots dos Concorrentes
 
-Verifique no `workspace/profile.md` se o membro tem SpyBox/Adsparo.
+Verifique no `workspace/profile.md` se o membro tem Adsparo.
 
 **SE TEM:**
-"Cola screenshots dos ads mais escalados dos concorrentes — se tiver acesso ao SpyBox ou Adsparo. Se não tiver esses screenshots em mãos agora, tudo bem: sigo com o Meta Ad Library público."
+"Cola screenshots dos ads mais escalados dos concorrentes — se tiver acesso ao Adsparo. Se não tiver esses screenshots em mãos agora, tudo bem: sigo com o Meta Ad Library público."
 
 **SE NÃO TEM:** pule a pergunta, use Meta Ad Library público direto na Etapa 3.
