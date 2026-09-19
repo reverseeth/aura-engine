@@ -8,7 +8,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>
+  // Liga o movimento só quando ele pode rodar bem. Sem esta classe a página já
+  // está inteira na tela: a animação é camada de cima, nunca requisito pra ver.
+  try{
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        && document.documentElement.animate) {
+      document.documentElement.className = 'anim';
+    }
+  }catch(e){}
+</script>
 <style>
+  /* ═══════════════════════════════════════════════════════════════════════
+     REGRA DE CUSTO DESTA PÁGINA
+     Só `transform` e `opacity` animam. `filter: blur()` existe, mas com valor
+     fixo: um desfoque é rasterizado uma vez e depois só se move, o que o
+     compositor faz de graça. Animar o próprio blur, ou escalar uma camada
+     desfocada, força re-rasterização a cada quadro — foi o que travava o
+     celular na primeira versão. Nada de backdrop-filter, nada de blend mode.
+     ═══════════════════════════════════════════════════════════════════════ */
   :root{
     color-scheme: light;
     --bg:#F4F5F7;
@@ -22,7 +40,6 @@
     --font:"Geist","Helvetica Neue",Helvetica,Arial,sans-serif;
     --ease:cubic-bezier(0.23,1,0.32,1);
     --radius:20px;
-    --radius-lg:30px;
     --glass:linear-gradient(145deg,rgba(255,255,255,0.86) 0%,rgba(255,255,255,0.60) 42%,rgba(255,255,255,0.78) 100%);
     --shadow-card:inset 0 1px 0 rgba(255,255,255,0.9),0 1px 2px rgba(24,30,40,0.05),0 20px 48px -28px rgba(24,34,48,0.22),0 4px 12px -8px rgba(24,34,48,0.12);
     --shadow-lift:inset 0 1px 0 rgba(255,255,255,0.95),0 2px 4px rgba(24,30,40,0.06),0 34px 80px -40px rgba(24,34,48,0.30),0 10px 26px -14px rgba(24,34,48,0.18);
@@ -39,50 +56,95 @@
     display:grid;
     place-items:center;
     padding:48px 16px;
-    overflow-x:hidden;
+    overflow:hidden;
   }
 
-  /* Luz ambiente pintada no próprio fundo: mesmo resultado, sem uma única
-     repintura depois da primeira. Blur animado em superfície grande era o que
-     travava o celular. */
-  .ambient{
-    position:fixed;inset:0;pointer-events:none;z-index:0;
-    background:
-      radial-gradient(60vmax 60vmax at 12% 0%,rgba(255,255,255,0.95) 0%,rgba(255,255,255,0) 62%),
-      radial-gradient(52vmax 52vmax at 92% 100%,rgba(207,61,58,0.09) 0%,rgba(207,61,58,0) 62%);
+  /* ---- Aurora de fundo ------------------------------------------------
+     Três camadas desfocadas com valor FIXO, girando devagar em sentidos
+     opostos. Só rotação: a mancha já está rasterizada, girar é transformação
+     de camada. Nunca escalar, porque escala reabre o desfoque. */
+  .aura{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+  .aura i{
+    position:absolute;display:block;border-radius:50%;
+    filter:blur(64px);
+    transform-origin:50% 50%;
   }
+  .a1{
+    width:78vmax;height:78vmax;left:-30vmax;top:-34vmax;
+    background:radial-gradient(closest-side,rgba(255,255,255,0.98),rgba(255,255,255,0) 72%);
+  }
+  .a2{
+    width:66vmax;height:66vmax;right:-28vmax;bottom:-30vmax;
+    background:radial-gradient(closest-side,rgba(207,61,58,0.13),rgba(207,61,58,0) 70%);
+  }
+  .a3{
+    width:54vmax;height:54vmax;left:52%;top:-16vmax;
+    background:radial-gradient(closest-side,rgba(58,66,74,0.09),rgba(58,66,74,0) 70%);
+  }
+  .anim .aura i{will-change:transform;}
+  .anim .a1{animation:spin 46s linear infinite;}
+  .anim .a2{animation:spin 62s linear infinite reverse;}
+  .anim .a3{animation:spin 78s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
 
   .stage{position:relative;z-index:1;width:100%;max-width:560px;text-align:center;}
 
-  /* ---- Logo ---- */
+  /* ---- A marca --------------------------------------------------------- */
   .mark{width:min(206px,54vw);margin:0 auto 40px;}
-  .anim .mark{opacity:0;transform:translateY(8px);animation:markIn .45s var(--ease) both;}
   .mark svg{display:block;width:100%;height:auto;overflow:visible;}
-  @keyframes markIn{to{opacity:1;transform:none;}}
-
-  /* O traço desenha o contorno; o preenchimento entra depois e o traço sai. */
+  .mark .solid{fill:var(--ink);}
   .mark .draw{display:none;}
+  .mark .gleam{display:none;}
+
+  /* Entrada: o contorno se desenha, o preenchimento entra por baixo dele. */
+  .anim .mark{opacity:0;transform:translateY(8px);animation:markIn .45s var(--ease) both;}
   .anim .mark .draw{
     display:block;fill:none;stroke:var(--ink);stroke-width:6;
     stroke-linejoin:round;stroke-linecap:round;
     stroke-dasharray:var(--len,4990);stroke-dashoffset:var(--len,4990);
     animation:draw .8s var(--ease) .12s both, strokeOut .28s var(--ease) .86s both;
   }
-  .mark .solid{fill:var(--ink);}
   .anim .mark .solid{opacity:0;animation:solidIn .34s var(--ease) .8s both;}
+  @keyframes markIn{to{opacity:1;transform:none;}}
   @keyframes draw{to{stroke-dashoffset:0;}}
   @keyframes strokeOut{to{opacity:0;}}
   @keyframes solidIn{to{opacity:1;}}
 
-  /* ---- Texto ---- */
+  /* Permanente 1: a marca respira. Três pixels em sete segundos — quase
+     imperceptível de propósito; o que se nota é que a página está viva.
+     Mora no <svg> de dentro, e não no .mark: duas declarações de `animation`
+     no mesmo elemento fazem a segunda apagar a primeira, e a entrada ficaria
+     presa em opacidade zero. */
+  .anim .mark svg{animation:breathe 7s var(--ease) 1.3s infinite;transform-origin:50% 50%;}
+  @keyframes breathe{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-3px);}
+  }
+
+  /* Permanente 2: uma luz atravessa a marca. O brilho é um retângulo com
+     gradiente, recortado pela própria silhueta e movido só por transform.
+     A pausa longa entre passagens é o que separa um detalhe caro de um
+     letreiro de loja. */
+  .anim .mark .gleam{display:block;}
+  .anim .gleam rect{
+    animation:gleam 7s cubic-bezier(0.45,0,0.15,1) 2.1s infinite;
+    will-change:transform;
+  }
+  @keyframes gleam{
+    0%  {transform:translateX(-100px);}
+    26% {transform:translateX(2550px);}
+    100%{transform:translateX(2550px);}
+  }
+
+  /* ---- Texto ----------------------------------------------------------- */
   .anim .rise{opacity:0;transform:translateY(14px);animation:rise .55s var(--ease) both;}
-  /* A escada vem DEPOIS da shorthand acima: a shorthand zera o delay, então
-     declarar antes não teria efeito. */
+  @keyframes rise{to{opacity:1;transform:none;}}
+  /* A escada vem DEPOIS da shorthand acima, senão ela zera o delay. O título
+     usa h1.rise porque seletor de elemento perde pro de classe. */
   .anim .eyebrow{animation-delay:.92s;}
   .anim h1.rise{animation-delay:1.00s;}
   .anim .sub{animation-delay:1.07s;}
   .anim .langs{animation-delay:1.14s;}
-  @keyframes rise{to{opacity:1;transform:none;}}
 
   .eyebrow{
     font-size:11.5px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;
@@ -90,20 +152,17 @@
   }
   h1{
     font-size:clamp(23px,4.6vw,30px);font-weight:500;letter-spacing:-0.022em;
-    line-height:1.25;margin:0 0 6px;
-    text-wrap:balance;
+    line-height:1.25;margin:0 0 6px;text-wrap:balance;
   }
   .sub{
     font-size:15px;font-weight:300;color:var(--muted);line-height:1.5;
-    margin:0 0 34px;
-    text-wrap:balance;
+    margin:0 0 34px;text-wrap:balance;
   }
 
-  /* ---- Escolha de idioma ---- */
-  .langs{
-    display:grid;grid-template-columns:1fr 1fr;gap:14px;
-  }
+  /* ---- Escolha de idioma ----------------------------------------------- */
+  .langs{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   .lang{
+    position:relative;overflow:hidden;
     display:block;text-decoration:none;color:inherit;text-align:left;
     padding:20px 22px;border-radius:var(--radius);
     border:1px solid var(--line);background:var(--glass);
@@ -127,35 +186,60 @@
     padding:2px 7px;
   }
 
+  /* Permanente 3: a mesma luz passa pelo cartão sugerido, bem mais fraca,
+     meio segundo depois da marca. Um elemento, só transform. */
+  .anim .lang[data-suggested]::after{
+    content:"";position:absolute;top:0;bottom:0;width:42%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,0.72),transparent);
+    transform:translateX(-260%);
+    animation:cardGleam 7s cubic-bezier(0.45,0,0.15,1) 2.6s infinite;
+    will-change:transform;pointer-events:none;
+  }
+  @keyframes cardGleam{
+    0%  {transform:translateX(-260%);}
+    26% {transform:translateX(360%);}
+    100%{transform:translateX(360%);}
+  }
 
   @media (max-width:430px){
     .langs{grid-template-columns:1fr;}
     .mark{margin-bottom:32px;}
+    body{overflow-y:auto;}
   }
 
-  /* Sem movimento: a classe nunca entra, então a página já nasce pronta. */
+  /* Tela curta: o movimento continua, o espaço é que encolhe. */
+  @media (max-height:680px){
+    .mark{width:min(168px,44vw);margin-bottom:26px;}
+    .sub{margin-bottom:26px;}
+  }
 </style>
-<script>
-  // Liga a animação só quando ela pode rodar bem. Sem isto a página já está
-  // legível: a animação é enfeite, nunca requisito pra ver o conteúdo.
-  try{
-    var ok = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-          && document.documentElement.animate;
-    if (ok) document.documentElement.className = 'anim';
-  }catch(e){}
-</script>
 </head>
 <body>
 
-<div class="ambient" aria-hidden="true"></div>
+<div class="aura" aria-hidden="true"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>
 
 <main class="stage">
 
   <div class="mark" role="img" aria-label="Aura Engine">
     <svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg">
       <title>Aura Engine</title>
+      <defs>
+        <linearGradient id="gl" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0"    stop-color="#fff" stop-opacity="0"/>
+          <stop offset="0.42" stop-color="#fff" stop-opacity="0.42"/>
+          <stop offset="0.5"  stop-color="#fff" stop-opacity="0.72"/>
+          <stop offset="0.58" stop-color="#fff" stop-opacity="0.42"/>
+          <stop offset="1"    stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+        <clipPath id="silhueta">
+          <path d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z"/>
+        </clipPath>
+      </defs>
       <path class="draw" d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z"/>
       <path class="solid" d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z"/>
+      <g class="gleam" clip-path="url(#silhueta)">
+        <rect x="-460" y="-80" width="460" height="1090" fill="url(#gl)" transform="skewX(-14)"/>
+      </g>
     </svg>
   </div>
 
@@ -174,12 +258,12 @@
     </a>
   </div>
 
-
 </main>
 
 <script>
 (function(){
-  // 1) O traço precisa do comprimento real do path pra desenhar certo em qualquer tela.
+  // 1) Comprimento real do contorno, pro traço desenhar certo em qualquer tela.
+  //    O CSS já tem um valor medido como reserva, então atraso aqui não estraga nada.
   try{
     var d = document.querySelector('.mark .draw');
     if (d && typeof d.getTotalLength === 'function'){
@@ -188,19 +272,27 @@
     }
   }catch(e){}
 
-  // 2) Sugere o idioma pelo navegador. É só um destaque: as duas opções seguem iguais.
+  // 2) Sugere o idioma pelo navegador. É destaque, não decisão: as duas opções
+  //    continuam iguais e ninguém é redirecionado.
+  function sugerir(id){
+    document.querySelectorAll('.lang[data-suggested]').forEach(function(n){
+      n.removeAttribute('data-suggested');
+    });
+    var el = document.getElementById(id);
+    if (el) el.setAttribute('data-suggested','');
+  }
+  var escolhido = 'lang-pt';
   try{
     var nav = (navigator.languages && navigator.languages[0]) || navigator.language || '';
-    var pt  = /^pt\b/i.test(nav);
-    var el  = document.getElementById(pt ? 'lang-pt' : 'lang-en');
-    if (el) el.setAttribute('data-suggested','');
-  }catch(e){
-    var fallback = document.getElementById('lang-pt');
-    if (fallback) fallback.setAttribute('data-suggested','');
-  }
+    escolhido = /^pt\b/i.test(nav) ? 'lang-pt' : 'lang-en';
+  }catch(e){}
+  try{
+    var salvo = localStorage.getItem('aura-lang');
+    if (salvo === 'pt') escolhido = 'lang-pt';
+    if (salvo === 'en') escolhido = 'lang-en';
+  }catch(e){}
+  sugerir(escolhido);
 
-  // 3) Guarda a escolha só pra sugerir melhor numa próxima visita. Nunca redireciona
-  //    sozinho: quem chega aqui veio escolher, e decidir por ele seria tirar a escolha.
   ['lang-pt','lang-en'].forEach(function(id){
     var a = document.getElementById(id);
     if (!a) return;
@@ -208,13 +300,20 @@
       try{ localStorage.setItem('aura-lang', id === 'lang-pt' ? 'pt' : 'en'); }catch(e){}
     });
   });
+
+  // 3) Aba escondida não anima. Poupa bateria no celular e evita a fila de
+  //    quadros atrasados que faz a volta pra aba parecer travada.
   try{
-    var saved = localStorage.getItem('aura-lang');
-    if (saved === 'pt' || saved === 'en'){
-      document.querySelectorAll('.lang[data-suggested]').forEach(function(n){ n.removeAttribute('data-suggested'); });
-      var pick = document.getElementById(saved === 'pt' ? 'lang-pt' : 'lang-en');
-      if (pick) pick.setAttribute('data-suggested','');
-    }
+    document.addEventListener('visibilitychange', function(){
+      var parado = document.hidden;
+      document.getAnimations().forEach(function(a){
+        try{
+          if (a.effect && a.effect.getTiming().iterations === Infinity){
+            parado ? a.pause() : a.play();
+          }
+        }catch(e){}
+      });
+    });
   }catch(e){}
 })();
 </script>
