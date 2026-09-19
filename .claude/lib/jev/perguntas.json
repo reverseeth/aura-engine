@@ -1,0 +1,152 @@
+{
+  "versao": 1,
+  "nota": "Catálogo de perguntas prontas. Cada aplicação diz qual skill usa, qual etapa, o que entra como estado, as perguntas no formato do SDK e o corte de confiança. Vocabulário fechado sempre copiado do schema real da fase, nunca inventado aqui. Cânone em .claude/lib/jev/README.md.",
+
+  "aplicacoes": {
+
+    "lacunas": {
+      "skill": "competitor-analysis",
+      "etapa": "ETAPA 6 — gap analysis, dimensão messaging",
+      "arquivo": ".claude/skills/competitor-analysis/reference/gap-analysis.md",
+      "o_que_decide": "Para cada dor do avatar e cada página de concorrente, se aquela página aborda aquela dor.",
+      "estado": "O texto da PDP do concorrente, extraído na ETAPA 1.",
+      "itens": "Produto cartesiano entre avatar.pain_hierarchy[] do market-research/dados.json e as PDPs lidas. De 32 a 150 por rodada.",
+      "questions": {
+        "aborda": {
+          "type": "boolean",
+          "instructions": "Esta página de venda aborda a dor descrita? Responda pensando no que a página diz ao leitor, não no que o produto tecnicamente faz."
+        },
+        "profundidade": {
+          "type": "score",
+          "instructions": "Com que profundidade a página trata essa dor?",
+          "criteria": [
+            "Não menciona a dor em lugar nenhum",
+            "Menciona de raspão, numa lista ou numa palavra solta",
+            "Dedica uma frase ou um bullet a ela",
+            "Dedica uma seção a ela",
+            "A página inteira é construída em cima dessa dor"
+          ]
+        }
+      },
+      "corte": { "age_sozinha_acima_de": 0.9, "segunda_opiniao_entre": [0.65, 0.9] },
+      "por_que_o_corte": "O erro caro é declarar lacuna que não existe: a oferta, a headline e os criativos são construídos em cima, e o membro descobre no leilão. Corte alto de propósito.",
+      "regra": "Nota 1 e 2 são o material mais valioso da rodada, não ruído: lacuna parcial costuma ser melhor oportunidade que lacuna total. Vão SEMPRE para o modelo de raciocínio, qualquer que seja a confiança."
+    },
+
+    "saturacao-claims": {
+      "skill": "competitor-analysis",
+      "etapa": "ETAPA 4 — matriz de saturação",
+      "arquivo": ".claude/skills/competitor-analysis/reference/claims.md",
+      "o_que_decide": "Para cada claim e cada concorrente, se aquele concorrente faz aquele claim.",
+      "estado": "O texto da PDP do concorrente.",
+      "itens": "Claims reduzidos vezes concorrentes. De 250 a 1000 por rodada.",
+      "pre_requisito": "ANTES de conferir, o modelo de raciocínio reduz os claims brutos a uma lista de 20 a 40, juntando as redações que dizem a mesma coisa. Sem isso o mesmo claim vira seis linhas de contagem baixa e o mercado parece aberto quando está saturado.",
+      "questions": {
+        "faz_o_claim": {
+          "type": "boolean",
+          "instructions": "Esta página faz este claim, com estas palavras ou com outras que digam a mesma coisa?"
+        }
+      },
+      "corte": { "age_sozinha_acima_de": 0.85, "segunda_opiniao_entre": [0.6, 0.85] },
+      "regra": "SOMAR as probabilidades e comparar a soma contra os cortes de saturação. Nunca arredondar cada célula para sim ou não antes de somar: com dez concorrentes, uma célula errada muda sete de dez para seis de dez, e o rótulo pula de evitar para usar com torção.",
+      "escreve_em": "claims_saturation[].saturation, enum HIGH | MEDIUM | LOW | ABSENT"
+    },
+
+    "formato-landing": {
+      "skill": "competitor-analysis",
+      "etapa": "ETAPA 3E — formato das páginas de destino",
+      "arquivo": ".claude/skills/competitor-analysis/reference/formato-landings-e-radar.md",
+      "o_que_decide": "Em qual formato a página de destino de um anúncio escalado se encaixa. Alimenta o terceiro sinal do page_type na page-design.",
+      "estado": "O texto da página de destino.",
+      "itens": "Uma por URL de destino distinta. Tipicamente 10 a 30 por rodada.",
+      "questions": {
+        "formato": {
+          "type": "choice",
+          "instructions": "Em qual formato esta página se encaixa?",
+          "criteria": {
+            "advertorial": "Lê como matéria editorial, educa primeiro e fecha noutra página",
+            "listicle": "Lista numerada ou comparativo, mesma espinha editorial do advertorial",
+            "landing": "Página de venda dedicada a uma oferta só, sem catálogo",
+            "pdp_robust": "Página de produto longa, com prova, FAQ e seções de conteúdo",
+            "pdp_lean": "Página de produto curta, foco no botão de compra",
+            "quiz": "Faz perguntas ao visitante antes de recomendar",
+            "vsl": "Página construída em volta de um vídeo de venda",
+            "home": "Página inicial da loja, sem destino dedicado"
+          }
+        }
+      },
+      "corte": { "age_sozinha_acima_de": 0.85, "segunda_opiniao_entre": [0.6, 0.85] },
+      "escreve_em": "landing_formats[].format"
+    },
+
+    "funil-criativo": {
+      "skill": "competitor-analysis",
+      "etapa": "ETAPA 3 — classificação dos criativos do top 10",
+      "arquivo": ".claude/skills/competitor-analysis/reference/ads-no-meta-ad-library.md",
+      "o_que_decide": "Se um criativo é topo, meio ou fundo de funil.",
+      "estado": "A transcrição do criativo mais o texto do anúncio. Texto, nunca o vídeo: o Jev é cego.",
+      "itens": "Top 10 por concorrente, com 5 a 10 concorrentes. De 50 a 100 por rodada.",
+      "questions": {
+        "funil": {
+          "type": "choice",
+          "instructions": "Em que posição do funil este criativo fala?",
+          "criteria": {
+            "TOF": "Interrompe um desconhecido, tom emocional, ainda não vende",
+            "MOF": "Fala com quem já conhece o problema, apresenta o mecanismo e a prova",
+            "BOF": "Fala com quem já quer comprar: oferta, preço, garantia, urgência"
+          }
+        }
+      },
+      "corte": { "age_sozinha_acima_de": 0.85, "segunda_opiniao_entre": [0.6, 0.85] },
+      "escreve_em": "top_creatives[].funnel_position"
+    },
+
+    "base-relevancia": {
+      "skill": "todas as que consultam a base",
+      "etapa": "logo depois do kb_lookup, antes de puxar cada sistema",
+      "arquivo": ".claude/lib/kb-index/README.md",
+      "o_que_decide": "Quanto cada entrada devolvida pelo índice serve à etapa que está rodando agora. Ordena a fila de leitura, para o modelo de raciocínio ler primeiro o que tem mais chance de servir.",
+      "estado": "O título e o resumo da entrada do índice, mais uma frase dizendo o que a etapa está tentando decidir.",
+      "itens": "Uma por entrada impressa, por etapa, em toda skill que consulta a base.",
+      "questions": {
+        "serve": {
+          "type": "score",
+          "instructions": "Quanto este sistema serve para a decisão que a etapa precisa tomar agora?",
+          "criteria": [
+            "Não tem relação com a decisão",
+            "Mesmo assunto geral, outra pergunta",
+            "Ajuda de lado, como contexto",
+            "Responde parte da decisão",
+            "Responde a decisão de frente"
+          ]
+        }
+      },
+      "corte": { "age_sozinha_acima_de": 0.9, "segunda_opiniao_entre": [0.7, 0.9] },
+      "regra": "Regra dura 1 do cânone: isto ORDENA, nunca descarta. O piso de buscas embutidas na etapa continua obrigatório, e nenhuma entrada é pulada por nota baixa. O ganho é a ordem de leitura, não o corte."
+    },
+
+    "especificidade-claim": {
+      "skill": "copy-engine",
+      "etapa": "sweep de força",
+      "arquivo": ".claude/skills/copy-engine/reference/sweeps.md",
+      "o_que_decide": "Quão específico é cada claim forte da peça, na régua de Hopkins. Serve para achar o claim vago que pode ficar mais forte, nunca para suavizar nada.",
+      "estado": "A frase do claim, mais o mecanismo nomeado e os números disponíveis no banco de provas.",
+      "itens": "De 20 a 40 claims por página.",
+      "questions": {
+        "especificidade": {
+          "type": "score",
+          "instructions": "Quão específico é este claim?",
+          "criteria": [
+            "Genérico: promete um bem sem dizer qual, quanto ou como",
+            "Nomeia o resultado, sem número nem prazo",
+            "Tem número ou prazo, mas não os dois",
+            "Tem número e prazo",
+            "Tem número, prazo e o mecanismo que explica o porquê"
+          ]
+        }
+      },
+      "corte": { "age_sozinha_acima_de": 0.85, "segunda_opiniao_entre": [0.6, 0.85] },
+      "regra": "Nota baixa significa CLAIM FRACO DEMAIS, e a ação é fortalecer com o número que a pesquisa sustenta. Esta aplicação nunca enfraquece, nunca marca claim como arriscado e nunca sugere ressalva. Regra 8b do CLAUDE.md."
+    }
+  }
+}

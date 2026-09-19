@@ -47,3 +47,8 @@ tools/design-clone/_*.py
 docs/historico/
 .claude/lib/kb-index/AUDITORIA-2026-09.md
 .claude/lib/kb-index/PROVENIENCIA-LOCAL.md
+
+# O lock das dependências opcionais das ferramentas é da máquina de cada membro.
+# Sem esta linha, um `npm i` dentro de tools/ deixaria o clone sujo e o
+# auto-update pararia de rodar pra quem instalou o cliente do Jev.
+tools/package-lock.json
