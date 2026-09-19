@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aura Engine</title>
+<meta name="description" content="Instale a Aura Engine. Escolha o idioma do guia. · Install Aura Engine. Choose your language.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#F4F5F7;
+    --ink:#14161A;
+    --ink-2:#3A424A;
+    --muted:#5C656D;
+    --line:rgba(20,24,30,0.10);
+    --line-strong:rgba(20,24,30,0.17);
+    --red:#CF3D3A;
+    --red-line:rgba(207,61,58,0.26);
+    --font:"Geist","Helvetica Neue",Helvetica,Arial,sans-serif;
+    --ease:cubic-bezier(0.23,1,0.32,1);
+    --radius:20px;
+    --radius-lg:30px;
+    --glass:linear-gradient(145deg,rgba(255,255,255,0.86) 0%,rgba(255,255,255,0.60) 42%,rgba(255,255,255,0.78) 100%);
+    --shadow-card:inset 0 1px 0 rgba(255,255,255,0.9),0 1px 2px rgba(24,30,40,0.05),0 20px 48px -28px rgba(24,34,48,0.22),0 4px 12px -8px rgba(24,34,48,0.12);
+    --shadow-lift:inset 0 1px 0 rgba(255,255,255,0.95),0 2px 4px rgba(24,30,40,0.06),0 34px 80px -40px rgba(24,34,48,0.30),0 10px 26px -14px rgba(24,34,48,0.18);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font);
+    -webkit-font-smoothing:antialiased;
+    display:grid;
+    place-items:center;
+    padding:48px 16px;
+    overflow-x:hidden;
+  }
+
+  /* Luz ambiente: dois focos que respiram devagar, na mesma paleta do guia. */
+  .ambient{position:fixed;inset:0;pointer-events:none;z-index:0;}
+  .ambient::before,.ambient::after{
+    content:"";position:absolute;border-radius:50%;filter:blur(90px);
+  }
+  .ambient::before{
+    width:60vmax;height:60vmax;left:-18vmax;top:-22vmax;
+    background:radial-gradient(circle,rgba(255,255,255,0.95) 0%,rgba(255,255,255,0) 70%);
+    animation:drift 22s var(--ease) infinite alternate;
+  }
+  .ambient::after{
+    width:48vmax;height:48vmax;right:-16vmax;bottom:-20vmax;
+    background:radial-gradient(circle,rgba(207,61,58,0.10) 0%,rgba(207,61,58,0) 70%);
+    animation:drift 27s var(--ease) infinite alternate-reverse;
+  }
+  @keyframes drift{from{transform:translate3d(0,0,0) scale(1);}to{transform:translate3d(4vmax,3vmax,0) scale(1.12);}}
+
+  .stage{position:relative;z-index:1;width:100%;max-width:560px;text-align:center;}
+
+  /* ---- Logo ---- */
+  .mark{
+    width:min(240px,62vw);margin:0 auto 40px;
+    opacity:0;transform:translateY(8px);
+    animation:markIn .9s var(--ease) .1s forwards;
+  }
+  .mark svg{display:block;width:100%;height:auto;overflow:visible;}
+  @keyframes markIn{to{opacity:1;transform:none;}}
+
+  /* O traço desenha o contorno; o preenchimento entra depois e o traço sai. */
+  .mark .draw{
+    fill:none;stroke:var(--ink);stroke-width:6;
+    stroke-linejoin:round;stroke-linecap:round;
+    stroke-dasharray:var(--len,6000);stroke-dashoffset:var(--len,6000);
+    animation:draw 1.5s var(--ease) .25s forwards, strokeOut .5s var(--ease) 1.65s forwards;
+  }
+  .mark .solid{
+    fill:var(--ink);opacity:0;
+    animation:solidIn .7s var(--ease) 1.5s forwards;
+  }
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  @keyframes strokeOut{to{opacity:0;}}
+  @keyframes solidIn{to{opacity:1;}}
+
+  /* Brilho curto que passa quando o preenchimento assenta. */
+  .sheen{
+    position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,0.85) 50%,transparent 62%);
+    mix-blend-mode:overlay;opacity:0;
+    animation:sheen 1.1s var(--ease) 1.95s;
+  }
+  @keyframes sheen{0%{opacity:0;transform:translateX(-60%);}35%{opacity:1;}100%{opacity:0;transform:translateX(60%);}}
+
+  /* ---- Texto ---- */
+  .rise{opacity:0;transform:translateY(14px);animation:rise .8s var(--ease) forwards;}
+  @keyframes rise{to{opacity:1;transform:none;}}
+
+  .eyebrow{
+    font-size:11.5px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 14px;animation-delay:2.15s;
+  }
+  h1{
+    font-size:clamp(23px,4.6vw,30px);font-weight:500;letter-spacing:-0.022em;
+    line-height:1.25;margin:0 0 6px;animation-delay:2.3s;
+  }
+  .sub{
+    font-size:15px;font-weight:300;color:var(--muted);line-height:1.5;
+    margin:0 0 34px;animation-delay:2.4s;
+  }
+
+  /* ---- Escolha de idioma ---- */
+  .langs{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;
+    animation-delay:2.5s;
+  }
+  .lang{
+    display:block;text-decoration:none;color:inherit;text-align:left;
+    padding:20px 22px;border-radius:var(--radius);
+    border:1px solid var(--line);background:var(--glass);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    box-shadow:var(--shadow-card);
+    transition:transform .45s var(--ease),box-shadow .45s var(--ease),border-color .45s var(--ease);
+  }
+  .lang:hover,.lang:focus-visible{
+    transform:translateY(-3px);
+    box-shadow:var(--shadow-lift);
+    border-color:var(--line-strong);
+  }
+  .lang:focus-visible{outline:2px solid var(--red);outline-offset:3px;}
+  .lang-name{display:block;font-size:17px;font-weight:500;letter-spacing:-0.012em;margin-bottom:3px;}
+  .lang-note{display:block;font-size:12.5px;font-weight:300;color:var(--muted);}
+  .lang[data-suggested]{border-color:var(--red-line);}
+  .lang[data-suggested] .lang-name::after{
+    content:attr(data-badge);
+    display:inline-block;margin-left:9px;vertical-align:2px;
+    font-size:9.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;
+    color:var(--red);border:1px solid var(--red-line);border-radius:999px;
+    padding:2px 7px;
+  }
+
+  footer{
+    margin-top:30px;font-size:12px;font-weight:300;color:var(--muted);
+    animation-delay:2.65s;
+  }
+  footer a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--line-strong);}
+  footer a:hover{color:var(--ink);}
+
+  @media (max-width:430px){
+    .langs{grid-template-columns:1fr;}
+    .mark{margin-bottom:32px;}
+  }
+
+  /* Sem movimento: tudo já nasce no lugar, nada pisca. */
+  @media (prefers-reduced-motion:reduce){
+    .mark,.rise,.langs{opacity:1;transform:none;animation:none;}
+    .mark .draw{display:none;}
+    .mark .solid{opacity:1;animation:none;}
+    .sheen,.ambient::before,.ambient::after{animation:none;}
+    .sheen{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient" aria-hidden="true"></div>
+
+<main class="stage">
+
+  <div class="mark" role="img" aria-label="Aura Engine">
+    <svg viewBox="0 0 1789.33 925.59" xmlns="http://www.w3.org/2000/svg">
+      <title>Aura Engine</title>
+      <path class="draw" d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z"/>
+      <path class="solid" d="M0,925.59h923.43l306.37-306.37h105.11c15.83,0,28.65,12.83,28.65,28.65v277.72h270.77v-308.53l-241.89,1.93c-15.91.13-28.88-12.74-28.88-28.65V0h-387.05c-33.3,0-65.23,13.24-88.76,36.8L0,925.59Z"/>
+    </svg>
+    <span class="sheen" aria-hidden="true"></span>
+  </div>
+
+  <p class="eyebrow rise">Aura Engine</p>
+  <h1 class="rise">Escolha o idioma do guia<br>Choose your language</h1>
+  <p class="sub rise">Instruções completas de instalação, passo a passo.<br>Full installation guide, step by step.</p>
+
+  <div class="langs rise">
+    <a class="lang" id="lang-pt" href="aura-setup-pt.html" lang="pt-BR">
+      <span class="lang-name" data-badge="sugerido">Português</span>
+      <span class="lang-note">Guia de instalação completo</span>
+    </a>
+    <a class="lang" id="lang-en" href="aura-setup-en.html" lang="en">
+      <span class="lang-name" data-badge="suggested">English</span>
+      <span class="lang-note">Complete installation guide</span>
+    </a>
+  </div>
+
+  <footer class="rise">
+    <a href="https://github.com/reverseeth/aura-engine">github.com/reverseeth/aura-engine</a>
+  </footer>
+
+</main>
+
+<script>
+(function(){
+  // 1) O traço precisa do comprimento real do path pra desenhar certo em qualquer tela.
+  try{
+    var d = document.querySelector('.mark .draw');
+    if (d && typeof d.getTotalLength === 'function'){
+      var len = Math.ceil(d.getTotalLength());
+      if (len > 0) d.style.setProperty('--len', len);
+    }
+  }catch(e){}
+
+  // 2) Sugere o idioma pelo navegador. É só um destaque: as duas opções seguem iguais.
+  try{
+    var nav = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+    var pt  = /^pt\b/i.test(nav);
+    var el  = document.getElementById(pt ? 'lang-pt' : 'lang-en');
+    if (el) el.setAttribute('data-suggested','');
+  }catch(e){
+    var fallback = document.getElementById('lang-pt');
+    if (fallback) fallback.setAttribute('data-suggested','');
+  }
+
+  // 3) Guarda a escolha só pra sugerir melhor numa próxima visita. Nunca redireciona
+  //    sozinho: quem chega aqui veio escolher, e decidir por ele seria tirar a escolha.
+  ['lang-pt','lang-en'].forEach(function(id){
+    var a = document.getElementById(id);
+    if (!a) return;
+    a.addEventListener('click', function(){
+      try{ localStorage.setItem('aura-lang', id === 'lang-pt' ? 'pt' : 'en'); }catch(e){}
+    });
+  });
+  try{
+    var saved = localStorage.getItem('aura-lang');
+    if (saved === 'pt' || saved === 'en'){
+      document.querySelectorAll('.lang[data-suggested]').forEach(function(n){ n.removeAttribute('data-suggested'); });
+      var pick = document.getElementById(saved === 'pt' ? 'lang-pt' : 'lang-en');
+      if (pick) pick.setAttribute('data-suggested','');
+    }
+  }catch(e){}
+})();
+</script>
+
+</body>
+</html>
