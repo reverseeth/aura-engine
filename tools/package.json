@@ -1,8 +1,0 @@
-{
-  "name": "aura-tools",
-  "private": true,
-  "description": "Dependências opcionais das ferramentas da Aura. Só o cliente do Jev precisa disto; sem instalar, a Aura roda inteira (tools/jev.mjs sai no degrau três).",
-  "dependencies": {
-    "ai": "^7.0.107"
-  }
-}

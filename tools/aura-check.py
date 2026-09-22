@@ -106,7 +106,7 @@ SECRET_RE = re.compile(
     r"|AIza[A-Za-z0-9_-]{35}|ghp_[A-Za-z0-9]{36}|xox[bp]-[A-Za-z0-9-]{20,}|shpat_[a-fA-F0-9]{32}"
     r"|shpss_[a-fA-F0-9]{32}|shpca_[a-fA-F0-9]{32}|sk-ant-[A-Za-z0-9_-]{20,}|sk-proj-[A-Za-z0-9_-]{20,}"
     r"|pk_[a-f0-9]{30,}|AURADTC[A-Z0-9]{4,}|railway\.app/mcp\?key="
-    # Chave do AI Gateway da Vercel (camada do Jev). Pega o prefixo conhecido e,
+    # Chave do AI Gateway da Vercel. Pega o prefixo conhecido e,
     # principalmente, a atribuição colada num arquivo — que é como a chave da base
     # vazou neste repositório antes.
     r"|vck_[A-Za-z0-9_-]{20,}"
