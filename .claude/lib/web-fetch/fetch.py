@@ -46,6 +46,11 @@ biblioteca padrão do python — funciona até sem o venv.)
 import sys, os, re, json, argparse
 from pathlib import Path
 
+if sys.platform == "win32":  # console padrão é cp1252/cp437; texto raspado é UTF-8
+    for _stream in (sys.stdout, sys.stderr):
+        if hasattr(_stream, "reconfigure"):
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+
 REPO = Path(__file__).resolve().parents[3]
 
 CHROME_MAJOR = "138"   # manter próximo do Chrome estável atual — versão velha demais
@@ -227,6 +232,12 @@ def fetch_trends_browser(raw, max_chars=20000):
 
 # ─────────────────────────────── bootstrap do venv ────────────────────────────────
 
+def _venv_candidates():
+    """venv python paths, POSIX (bin/) and Windows (Scripts/) layouts."""
+    subdir, exe = ("Scripts", "python.exe") if os.name == "nt" else ("bin", "python")
+    return [REPO / f".claude/lib/web-fetch/.venv/{subdir}/{exe}",
+            REPO / f"tools/design-clone/.venv/{subdir}/{exe}"]
+
 def _bootstrap():
     """Re-exec into a venv that has playwright, if the current python doesn't.
 
@@ -241,8 +252,7 @@ def _bootstrap():
     except ModuleNotFoundError:
         pass
     tried = set(filter(None, os.environ.get("AURA_FETCH_BOOTSTRAPPED", "").split(":")))
-    for cand in [REPO / ".claude/lib/web-fetch/.venv/bin/python",
-                 REPO / "tools/design-clone/.venv/bin/python"]:
+    for cand in _venv_candidates():
         if str(cand) in tried or not cand.exists():
             continue
         env = {**os.environ,
@@ -270,8 +280,7 @@ if _is_trends_mode():
         import playwright  # noqa
     except ModuleNotFoundError:
         tried = set(filter(None, os.environ.get("AURA_FETCH_BOOTSTRAPPED", "").split(":")))
-        for cand in [REPO / ".claude/lib/web-fetch/.venv/bin/python",
-                     REPO / "tools/design-clone/.venv/bin/python"]:
+        for cand in _venv_candidates():
             if str(cand) not in tried and cand.exists():
                 env = {**os.environ,
                        "AURA_FETCH_BOOTSTRAPPED": ":".join(sorted(tried | {str(cand)}))}
