@@ -1,6 +1,6 @@
 # Offer Builder · Referência: Índice, cânone, pré-flight, quando usar e contexto a carregar
 
-> O texto integral das notas de abertura (domínios do índice e cânone de economia unitária), do pré-flight (arquivos exigidos, idioma, escape ES1), de quando usar e dos itens de contexto: os arquivos a ler na ordem, o `brand.md` como gate qualitativo do mecanismo, os quatro campos da `finance-engine` com o ponto de uso e o fallback, e a consulta à base pelo índice. Abra antes da ETAPA 1.
+> O texto integral das notas de abertura (domínios do índice e cânone de economia unitária), do pré-flight (arquivos exigidos, idioma, escape ES1), de quando usar e dos itens de contexto: os arquivos a ler na ordem, o `brand.md` como gate qualitativo do mecanismo, os quatro campos da `finance-engine` com o ponto de uso e o fallback, e a consulta à base pelo índice. Abra antes da ETAPA 0.
 
 > **Índice completo dos frameworks desta skill:** `.claude/lib/kb-index/` (mapa skill→domínio no README). Os domínios desta skill são `offer-mechanism`, `offer-pricing-guarantee` e `brand-building-bonus-aov` (mais as entradas de `finance-projections` marcadas pra `offer-builder`, lidas nas ETAPAs de economics). Sempre que uma ETAPA mandar "puxar os sistemas da base", rode `search_knowledge` com a `best_query` NOMEADA de cada framework relevante — **NUNCA query genérica**. As queries embutidas nas ETAPAs abaixo são o núcleo mínimo garantido de cada etapa, nunca o teto; a consulta pelo índice segue o item 5 de "Antes de Começar".
 

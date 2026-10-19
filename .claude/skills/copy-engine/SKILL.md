@@ -1,6 +1,6 @@
 ---
 name: copy-engine
-description: Engine de escrita de copy completo a partir do market research, da competitor analysis e da oferta. Escreve PDP, landing page, advertorial ou long-form sales page com headlines pelo processo de 100 linhas condensado, lead tipado pelo awareness, hero patterns de ecom, frameworks de persuasão (Cialdini, Sugarman, Hopkins), proof stacking, CTAs como call to value, 9 sweeps de revisão (8 de revisão mais o markup audit) e a linguagem exata do cliente. Modela a estrutura contra espécimes reais de swipe file antes de escrever e audita o resultado pelo método de markup (4 U's, 4 emoções, loop Objection-Claim-Proof-Benefit). O sistema decide a estratégia de copy sozinho, sem consultar o membro sobre decisões estratégicas. Use quando o membro disser "copy", "escrever copy", "copy da página", "copy do ad", "PDP copy", "landing page copy", ou depois da skill de oferta.
+description: Engine de escrita de copy completo a partir do market research, da competitor analysis e da oferta. Escreve PDP, landing page, advertorial ou long-form sales page com headlines pelo processo de 100 linhas condensado, lead tipado pelo awareness, hero patterns de ecom, frameworks de persuasão (Cialdini, Sugarman, Hopkins), proof stacking, CTAs como call to value, 9 sweeps de revisão (8 de revisão mais o markup audit) e a linguagem exata do cliente. Modela a estrutura contra as páginas que estão vendendo agora (concorrentes escalados e marcas que mais vendem no TrendTrack) e contra espécimes reais de swipe file antes de escrever, com advertorial no formato story curto (uma página por problema e por sub-avatar) e audita o resultado pelo método de markup (4 U's, 4 emoções, loop Objection-Claim-Proof-Benefit). O sistema decide a estratégia de copy sozinho, sem consultar o membro sobre decisões estratégicas. Use quando o membro disser "copy", "escrever copy", "copy da página", "copy do ad", "PDP copy", "landing page copy", ou depois da skill de oferta.
 ---
 
 # Copy Engine · Passo 6 · apelido antigo: 06 <!-- gen:title -->
@@ -8,6 +8,8 @@ description: Engine de escrita de copy completo a partir do market research, da 
 ## Quando usar
 
 Quando o membro tem market research, competitor analysis e oferta prontos e precisa da copy da página que vai converter o tráfego pago. A copy nasce de decisões estratégicas derivadas dos documentos anteriores, nunca de opinião. O sistema decide e apresenta as decisões como fato; ao membro cabem só duas perguntas de entrada.
+
+A copy modela estruturas validadas (concorrentes escalados, top do TrendTrack) com a pesquisa da Aura como argumento. Claim que concorrente escalado usa, a Aura usa; nada sai por falta de evidência ou "política", sem fonte, aviso nem asterisco (regra 8b).
 
 Material de apoio em `reference/`; abra só o arquivo da etapa atual.
 
@@ -18,7 +20,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 - [ ] `workspace/[produto]/manifest.json` existe e `product_slug` não começa com `dev-placeholder-`
 - [ ] `market-research/dados.json`: `awareness_distribution`, `sophistication_stage`, `voc_top20`, `voc_phrases` (3 pools; achatar se precisar), `voc_count`, `voc_adequacy`
 - [ ] Gate de VOC: `voc_adequacy == "insufficient"` ou `voc_count < 15` = PARE e ofereça as três opções (re-rodar a `market-research` com mais fontes, o membro cola dez a quinze frases reais, prosseguir reconhecendo a limitação); a opção 3 grava `voc_forced_continue: true` pra `ad-analysis`
-- [ ] `competitor-analysis/competitor-analysis.md` (ou o legado `relatorio.md`)
+- [ ] `competitor-analysis/competitor-analysis.md` (ou o legado `relatorio.md`) e, do `dados.json`, `traffic_landings[]`, `landing_formats[]`, `top_creatives` e `validated_library`
 - [ ] `offer-builder/dados.json`: `mechanism` é objeto (use `mechanism.name`), `pricing`, `guarantee`, `bonuses[]` com `condition`; `research-foundation.json` (se existir): `proof_items[]` é munição, não teto
 - [ ] `manifest.copy_language` (default `en`): idioma da copy pública, sempre inglês US
 
@@ -40,9 +42,9 @@ Leia `reference/perguntas-ao-membro.md`. Tipo de página (PDP, landing, advertor
 
 Leia `reference/estrategia-de-copy.md`. Puxe os sistemas de seleção (awareness, lead dimensions, sophistication, Big Idea, hero sections, porta-voz, Rule of One). Decida: tipo de lead pela tabela awareness → lead (e o sistema que constrói cada lead), hero pattern de ecom cruzado com os 5 tipos canônicos, ângulo principal = o gap mais forte da `competitor-analysis` virando Big Idea, com o sub-avatar de `angle` correspondente como o "one reader", tom de voz pelo psicográfico e `core_desire_behind`, framework de organização por tipo de página, e como servir as 4 modalities (Spontaneous, Competitive, Humanistic, Methodical) com os princípios de influência. Apresente o brief em 6 a 8 linhas como fato, com placeholders vindos do Input Extraction, e siga sem pedir aprovação. Grave o `lead_type` top-level no `dados.json` (contrato com a `page-design`).
 
-### ETAPA 2.5 · Seleção de espécime (swipe modeling, obrigatória)
+### ETAPA 2.5 · Modelagem estrutural (páginas de mercado + espécime, obrigatória)
 
-Leia `reference/especime.md`. 2.5A: escolha 1 espécime primário (e no máximo 1 secundário) em `.claude/lib/swipe-models/specimens.json` pela precedência `page_type` → awareness → sophistication → vertical, lendo a `regra_diagnostica` antes de fechar. 2.5B: puxe a anatomia com a `best_query` do espécime e a régua dos 11 blocos; sem anatomia, próximo espécime. 2.5C: monte a tabela de blocos (bloco, trabalho, o que entra do research) e declare os 4 a 6 pilares; é essa tabela que vira a copy. 2.5D: o lead cumpre os 4 passos do Makepeace. Modelar estrutura, nunca conteúdo. Grave `specimen_primary`, `specimen_secondary` e `specimen_block_map`.
+Leia `reference/especime.md`. 2.5.0: escolha 1 a 3 páginas de destino escaladas do mesmo tipo de página (concorrentes da `competitor-analysis`; marcas que mais vendem no TrendTrack pelo MCP; sem MCP, Meta Ad Library ou links do membro), disseque cada uma (blocos, headline, ritmo, prova, oferta, CTA) e marque os elementos validados; quando divergem do catálogo, vence a ordem das páginas de mercado. 2.5A: 1 espécime primário (e no máximo 1 secundário) em `.claude/lib/swipe-models/specimens.json` pela precedência `page_type` → awareness → sophistication → vertical e a `regra_diagnostica`. 2.5B: anatomia pela `best_query` do espécime e a régua dos 11 blocos. 2.5C: tabela de blocos (bloco, trabalho, elemento validado, o que entra do research) e os 4 a 6 pilares; é ela que vira a copy. 2.5D: o lead cumpre os 4 passos do Makepeace. Modelar estrutura, nunca conteúdo. Grave `market_references[]`, `specimen_primary`, `specimen_secondary` e `specimen_block_map`.
 
 ### ETAPA 3 · Headlines (processo de 100 linhas, condensado)
 
@@ -52,9 +54,9 @@ Leia `reference/headlines.md`. Puxe os sistemas de headline. 3A: 20 a 30 variaç
 
 Leia `reference/pagina-hero-a-mecanismo.md`, depois `reference/pagina-prova-e-oferta.md` e `reference/pagina-garantia-a-adicionais.md`, cada um na seção correspondente. Ordem macro do pitch: payoff, belief, recomendação. Hero (headline número 1, sub-headline com o mecanismo, CTA como call to value, instrução visual); Trust Bar se há credenciais; Benefits em 3 a 5 bullets com a frase do consumidor, o benefício e o emocional; Unique Mechanism na versão de 1 parágrafo (2 a 3 em landing ou advertorial) adaptado ao awareness; Prova Social em stack (3 a 5 testimonials reais com nome, foto e resultado; sem depoimento real, `{{TESTIMONIAL_PLACEHOLDER_N}}` e a lista do que coletar, nunca depoimento fictício); Oferta com bundles, bump, stack ancorado e savings, e a copy de bônus seguindo `bonuses[].condition` (`cart_threshold` explícito, `unconditional`, `tier_specific` só no tier); Garantia em 2 a 3 frases; FAQ que quebra as top 5 objeções da `market-research`; CTA final como call to value repetido em 3 a 5 pontos; Urgency/Scarcity curta e com razão real, ou página sem urgência; seções adicionais quando cabem, com `## Specs` e `specs[]` recomendados em toda PDP.
 
-### ETAPA 5 · Advertorial (alternativa à ETAPA 4)
+### ETAPA 5 · Advertorial no formato story curto (alternativa à ETAPA 4)
 
-Leia `reference/advertorial.md`. Estrutura de 7 seções (headline editorial, lead com as 4 perguntas do leitor, background story, root cause da `market-research`, mechanism reveal, product build-up, reveal e close com urgência real), tom editorial, parágrafos curtos, nomes canônicos H2 do Output Schema.
+Leia `reference/advertorial.md`. Default de advertorial e listicle: story curto no modelo das páginas escaladas da Ryze (uma página por problema e sub-avatar, pergunta e resposta, blocos de 1 a 4 frases, produto só no meio como troca de hábito, linha do tempo de 4 semanas, um CTA no fim, 400 a 700 palavras), claim direto. Usa as 7 seções H2 canônicas.
 
 ### ETAPA 6 · Auto-revisão (9 sweeps)
 
@@ -66,7 +68,7 @@ Leia `reference/variacoes-ab.md`. 3 headlines (da 3C), 2 heros, 2 CTAs e 3 a 5 e
 
 ## SALVAR
 
-`mkdir -p workspace/[produto]/copy-engine/`. `copy-engine.md` com as seções canônicas de `reference/output-schema.md` (PDP e landing: `## Hero` a `## Email Follow-up Hooks`; advertorial: as 7 seções de `## Advertorial Headline` a `## Reveal + Close` mais `## Urgency/Scarcity` e `## Email Follow-up Hooks`), contendo brief, headlines, página, revisão dos sweeps e variações; `.html` por `python3 tools/render_report.py <md>` (convenções em `.claude/templates/aura-html-components.md`); `dados.json` no schema de `reference/dados-json.md` (`lead_type`, `voc_coverage`, `voc_forced_continue`, espécime, `markup_audit`), lido direto pela `page-design` e pela `page-build`. Depois `python3 tools/manifest.py <slug> complete copy-engine` e `python3 .claude/lib/workspace-index/build_index.py <slug>`. O `dados.json` abre pelo objeto `resumo`, até doze campos curtos com o que a fase seguinte lê de primeira; ele espelha campos que já estão no arquivo e é preenchido por último (formato em `reference/dados-json.md`).
+`mkdir -p workspace/[produto]/copy-engine/`. `copy-engine.md` com as seções canônicas de `reference/output-schema.md` (PDP e landing: `## Hero` a `## Email Follow-up Hooks`; advertorial: as 7 seções de `## Advertorial Headline` a `## Reveal + Close` mais `## Urgency/Scarcity` e `## Email Follow-up Hooks`), contendo brief, headlines, página, revisão dos sweeps e variações; `.html` por `python3 tools/render_report.py <md>` (convenções em `.claude/templates/aura-html-components.md`); `dados.json` no schema de `reference/dados-json.md` (`lead_type`, `voc_coverage`, `voc_forced_continue`, `market_references[]`, espécime, `markup_audit`), lido direto pela `page-design` e pela `page-build`. Depois `python3 tools/manifest.py <slug> complete copy-engine` e `python3 .claude/lib/workspace-index/build_index.py <slug>`. O `dados.json` abre pelo objeto `resumo`, até doze campos curtos com o que a fase seguinte lê de primeira; ele espelha campos que já estão no arquivo e é preenchido por último (formato em `reference/dados-json.md`).
 
 ## Mensagem final
 

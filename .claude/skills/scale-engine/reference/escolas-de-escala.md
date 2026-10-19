@@ -9,7 +9,7 @@ As três escolas abaixo são **variantes de intensidade do Scaling Protocol da E
 > **Bidding em escala — correção factual (a "regra de ouro" anterior desta skill estava errada):** escala **não** exige cost cap nem bid cap, e Max Conversion **não** é só pra teste. A campanha principal que escala alto roda **maximize number of conversions (highest volume), bid strategy padrão** — é com esse lance que uma campanha chega a **$40 mil/dia**. O que muda de teste pra escala é o volume de sinal e a régua de decisão, não o tipo de lance.
 > - **Highest volume** → default da campanha principal, em teste **e** em escala.
 > - **Cost per result goal (cost cap)** → ferramenta da **zombie/graveyard campaign** (extrair ROI de ads reprovados/mortos com teto de custo), não da campanha que escala. Se o membro quiser montar essa camada, rode `zombie graveyard campaign cost per result goal ads reprovados milk the creative`.
-> - **Bid cap** → opção com **ressalva declarada: bid caps têm issues.** Só com folga de margem, nunca como default. A Escola B usa bid cap por desenho — apresente-a com essa ressalva na mesa.
+> - **Bid cap** → rota oficial da Aura ao lado do highest volume, com a régua do cânone `.claude/lib/ad-taxonomy/README.md` §8: lance entre o target CPA e o breakeven, o lance segura o gasto, e criativo que não gastou no bid não migra pra campanha sem lance. A Escola B usa bid cap por desenho.
 >
 > As escolas A e B seguem disponíveis porque a mecânica de duplicação e de campanha única alimentada é real e útil. O que sai é a afirmação de que escala **obriga** um teto de lance.
 
@@ -44,7 +44,7 @@ A mecânica:
 
 #### Escola B — Bid Cap "Campanha Monstro" (mais controlada, mão menos pesada)
 
-> Variante de **intensidade média** do protocolo, construída sobre bid cap — e bid cap carrega a **ressalva declarada do bloco de bidding: bid caps têm issues.** Apresente a escola com essa ressalva explícita: ela troca upside por controle, e o controle vem de um mecanismo de lance reconhecidamente problemático. Se o membro quer só volume estável sem esse risco, a campanha em **highest volume** rodando o protocolo entrega o mesmo crescimento sem o teto de lance.
+> Variante de **intensidade média** do protocolo, construída sobre bid cap (régua no cânone `.claude/lib/ad-taxonomy/README.md` §8). Ela troca um pouco de volume por controle de custo: o lance garante que nenhum pedido sai acima do CPA máximo, e o que não gasta no lance foi testado de graça. Se o membro prefere volume sem teto de lance, a campanha em **highest volume** rodando o protocolo é a alternativa.
 
 A mecânica:
 
@@ -75,7 +75,7 @@ A mecânica:
 | Escola | Como funciona em 1 frase | Mão de obra | Volatilidade | Default pra stage |
 |---|---|---|---|---|
 | **C — Budget-doubling 3d** | Dobra a cada 3 dias até quebrar, volta pro último nível bom | Baixíssima | Baixa | **starter** |
-| **B — Bid cap monstro** | 1 campanha, budget 100× CPA, bid cap = CPA máx, alimenta com ad sets, nunca desativa | Baixa-média | Média | **validating** que quer controle — com a ressalva "bid caps têm issues" |
+| **B — Bid cap monstro** | 1 campanha, budget 100× CPA, bid cap = CPA máx, alimenta com ad sets, nunca desativa | Baixa-média | Média | **validating** que quer controle de custo |
 | **A — Cost-cap + surf** | Isola o breakthrough num 1-1-1, duplica com caps decrescentes, surfa de manhã e reseta à meia-noite sobre o gasto real | Alta (olhar 2-3×/dia) | Alta | **scaling** |
 
 Recomendação por stage (default, não trava): **starter → C**; **validating → C com passo do protocolo, ou B se quiser controle** (com a ressalva de bid cap); **scaling → A** (mais upside, mais atenção). Em qualquer stage, a campanha principal em **highest volume** rodando o protocolo puro é alternativa legítima — nenhuma escola é obrigatória pra escalar.

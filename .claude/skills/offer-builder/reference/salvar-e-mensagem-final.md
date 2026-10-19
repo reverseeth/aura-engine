@@ -1,33 +1,68 @@
 # Offer Builder · Referência: SALVAR e mensagem final
 
-> O texto integral da seção SALVAR (dual output e o conteúdo do `offer-builder.md` seção a seção) e da mensagem final. Abra ao fechar a oferta.
+> A estrutura do `offer-builder.md` (ficha da oferta primeiro, números numa tabela só, detalhes curtos depois), o dual output e a mensagem final. Abra ao fechar a oferta.
 
-## SALVAR (dual output — rule 6b do CLAUDE.md)
+## SALVAR (dual output, regra 6b do CLAUDE.md)
 
-**Toda skill que salva `.md` em `workspace/` DEVE gerar `.html` companion** com o mesmo nome (ex: `offer-builder/offer-builder.md` → `offer-builder/offer-builder.html`). O `.md` é fonte pra AI das fases seguintes; o `.html` é visualização humana e nunca é escrito à mão: gere com `python3 tools/render_report.py <caminho do .md>` (o script aplica o design system, a topbar com a logo e o sumário; cards, números grandes e citações nascem das convenções de Markdown de `.claude/templates/aura-html-components.md`).
+O `.md` é a fonte pras fases seguintes; o `.html` é o que o membro abre, gerado com `python3 tools/render_report.py offer-builder/offer-builder.md` (nunca escrito à mão; componentes em `.claude/templates/aura-html-components.md`). Salve também `offer-builder/research-foundation.json` (ETAPA 2.5) e o `dados.json` (schema em `reference/dados-json.md`).
 
+## O doc: claro, curto, na ordem em que o membro lê
 
-`workspace/[produto]/offer-builder/offer-builder.md` contendo:
-1. Mecanismo único recomendado — a LÓGICA de UMP e UMS com nomes e estudos citados (Etapa 2D; sem versões de copy)
-2. **Banco de provas** (Etapa 2.5) — os números, estudos e citações prontos pra copy usar como munição
-3. Estrutura de oferta completa (produto principal, bundles, arquitetura de assinatura se consumível, bump, upsell, stack de valor)
-4. Garantia recomendada + copy
-5. Unit economics em DUAS tabelas separadas — primeiro pedido (5A) e recompra (5B) — mais o AOV blended quando as duas existem (Etapa 5). Nenhum número desta seção é chamado de "lucro"
-6. AOV projetado (Etapa 6)
-7. LTV e PSM explicados como conceitos separados + PSM projetado, com a frase que separa CAC de CPA (Etapa 7)
-8. Simulação de budget em 2 níveis, com margem de contribuição e resultado após custos fixos como linhas distintas (Etapa 8)
-9. Checagens de sanidade como afirmações do que está validado (Etapa 9)
+O `offer-builder.md` é a oferta, não o caminho até ela. O detalhe técnico pesado (fórmulas, breakdown item a item, cenários) vive no `dados.json`; o doc mostra o resultado em frases curtas, com todo termo explicado na primeira vez (regra 0). Nenhuma seção repete outra. Segue `.claude/rules/report-only-results.md`.
 
-O doc segue `.claude/rules/report-only-results.md`: só o resultado — sem narração de processo, sem descrição de ausências, sem referência à conversa.
+**1. Ficha da oferta (uma tela)**
 
-Também salvar companion `offer-builder/research-foundation.json` conforme schema da Etapa 2.5.
+Um bloco só, que responde sem rolar a página:
+- **O que o cliente recebe:** o produto e cada item do stack pelo nome (regra do `Not: "___"`)
+- **Preço de cada opção:** Solo, Popular e Best Value, com o preço por unidade ao lado; assinatura, se existir, em uma linha
+- **Brindes e bônus:** nome e condição de cada um
+- **Garantia:** a frase como o cliente lê
+- **Envio:** modelo de estoque (com estoque, sem estoque ou sem estoque com migração) e prazo de entrega
+- **Por que é irrecusável:** as 3 frases do teste "burro de dizer não" (ETAPA 4.5), em inglês, com tradução livre ao lado
+- **Contra o concorrente principal:** a tabela lado a lado da ETAPA 4.5
 
-## Mensagem Final
+**2. Os números (uma tabela)**
 
-"Primeira versão da oferta pronta. Mecanismo único: **[Nome do Mecanismo]** (rota: [recombinação validada / criação original]). PSM projetado: [valor]. Viável pro seu budget: [sim/com ajustes].
+| Número | Valor | O que significa |
+|---|---|---|
+| Ticket médio esperado (AOV) | | o que cada pedido rende em média, com bump e upsell |
+| Margem por pedido | | o que sobra depois de todos os custos variáveis; ainda não é lucro |
+| Custo por cliente alvo (CPA alvo) | | o máximo pra pagar por cliente novo e dobrar o dinheiro |
+| ROAS de equilíbrio | | quanto cada dólar de anúncio precisa voltar pra empatar |
+| Viabilidade no seu budget | | viável, apertado ou inviável, em uma frase |
 
-Margem de contribuição por pedido: [valor] — é o que sobra depois dos custos variáveis. [SE os custos fixos não foram informados: "Sem os seus custos fixos mensais na conta, não dá pra dizer se há lucro; me passa esse número quando tiver e eu fecho a simulação."]
+Se os custos fixos não foram informados, uma frase embaixo da tabela: sem eles, a conta mostra margem, não lucro.
 
-Revisa antes de seguir: o nome do mecanismo gruda? O pricing e o stack fazem sentido pro seu avatar? A garantia ataca o medo certo? Me diz o que não fecha e eu itero.
+**3. Mecanismo único**
 
-Quando fechar: diga **'copy'** pra escrever a copy completa da página aplicando o mecanismo, stack, garantia, e linguagem do market research."
+Nome, a lógica do problema (por que o que o cliente já tentou falhou) e a da solução (por que a nossa funciona), em 3 a 5 frases, sem versões de copy.
+
+**4. Provas**
+
+Os 3 a 5 números mais fortes do banco de provas, cada um com a fonte em uma linha. A lista completa fica no `research-foundation.json`.
+
+**5. Como a oferta foi montada**
+
+Uma frase por peça: por que esse preço (as 3 âncoras), por que esses bundles, por que esse bump e esse upsell (a categoria do Gate de Complementaridade), por que essa garantia.
+
+**6. Economia completa**
+
+A tabela do primeiro pedido (5A) e, em consumível ou assinatura, a da recompra (5B). A palavra lucro não aparece nesta seção.
+
+**7. Simulação de budget**
+
+Os dois níveis numa tabela, com margem de contribuição e resultado depois dos custos fixos em linhas separadas.
+
+**8. O que está validado**
+
+As checagens da ETAPA 9 e o teste da ETAPA 4.5 como afirmações curtas, cada uma com a evidência em uma frase.
+
+## Mensagem final
+
+"Primeira versão da oferta pronta. Mecanismo: **[nome]**. Modelo de estoque: [com estoque / sem estoque / sem estoque com migração], entrega em [prazo]. Contra o [concorrente principal], a gente vence em [eixos] e só a gente tem [diferencial].
+
+Margem por pedido: [valor], o que sobra depois dos custos variáveis. CPA alvo: [valor]. Viável pro seu budget: [sim / com ajustes]. [SE os custos fixos não foram informados: "Sem os seus custos fixos mensais, não dá pra dizer se há lucro; me passa esse número e eu fecho a simulação."]
+
+Revisa a ficha: o nome do mecanismo gruda? Os preços e o stack fazem sentido pro seu cliente? A garantia ataca o medo certo? Me diz o que não fecha e eu ajusto.
+
+Quando fechar, diga **'copy'** pra escrever a página com essa oferta."

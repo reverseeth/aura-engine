@@ -4,17 +4,17 @@
 
 ### ETAPA 5 — Escrever o roteiro em cima de um esqueleto que já escala
 
-A `competitor-analysis` pode ter extraído o molde de um vídeo que roda e paga a própria conta: a peça inteira cortada em slots, cada slot com o trabalho que faz na cabeça de quem assiste, o segundo em que entra e sai, o que a tela faz ali e quantas palavras couberam dentro. Com o molde em mão, o roteiro do briefing não nasce de uma estrutura montada do zero. Ele nasce em cima de um esqueleto que o mercado já premiou.
+A ETAPA 0.5 (`reference/validados-trendtrack.md`) e a `competitor-analysis` extraem o molde de vídeos que rodam e pagam a própria conta: a peça inteira cortada em slots, cada slot com o trabalho que faz na cabeça de quem assiste, o segundo em que entra e sai, o que a tela faz ali e quantas palavras couberam dentro. Com o molde em mão, o roteiro do briefing não nasce de uma estrutura montada do zero. Ele nasce em cima de um esqueleto que o mercado já premiou.
 
-A regra que manda em tudo aqui é a do cânone: **o molde vem do concorrente, o conteúdo vem da Aura.** Estrutura e mecânica se modelam. Frase, afirmação, número e nome de mecanismo, não — copiar isso é plágio, e reprova o briefing.
+A regra que manda em tudo aqui é a do cânone: **o molde vem do ad validado, o conteúdo vem da Aura.** Estrutura e mecânica se modelam. Frase, afirmação, número e nome de mecanismo, não — copiar isso é plágio, e reprova o briefing.
 
 #### 1. Quando existe molde
 
-Leia o `competitor-analysis/dados.json`. O bloco `ad_molds` com `status` igual a `completed` e `molds_count` maior que zero significa que o arquivo `competitor-analysis/ad-molds.json` existe e tem molde dentro. Abra o arquivo e carregue junto os três vocabulários fechados de `.claude/lib/ad-molds/molds.json`, que são o que dá sentido a cada campo.
+Os moldes vêm de dois arquivos, com o mesmo schema: `creative-engine/validated-molds.json` (ETAPA 0.5, mercado inteiro e concorrentes) e `competitor-analysis/ad-molds.json` (o bloco `ad_molds` do `competitor-analysis/dados.json` com `status` igual a `completed`). Carregue junto os três vocabulários fechados de `.claude/lib/ad-molds/molds.json`, que são o que dá sentido a cada campo.
 
-Sem o bloco, com `status` igual a `skipped` ou `no_timed_transcript`, ou com o arquivo ausente: a ETAPA 5 segue exatamente como hoje, com a estrutura de quatro seções de `reference/briefing.md`. Nada muda no briefing e nada se avisa ao membro.
+Sem molde nenhum nos dois arquivos: a ETAPA 5 segue com a estrutura de quatro seções de `reference/briefing.md`, sem aviso ao membro.
 
-O molde só serve a conceito de vídeo, porque o eixo dele é o tempo. Conceito de imagem, carrossel ou motion graphics sem fala segue sem molde, no mesmo batch, sem ressalva nenhuma.
+O molde de vídeo serve a conceito de vídeo, porque o eixo dele é o tempo. Conceito de imagem usa o molde de estático da ETAPA 0.5 (a ordem dos blocos da imagem com as palavras de cada um); carrossel ou motion graphics sem peça equivalente segue sem molde, no mesmo batch.
 
 #### 2. Seleção — um molde por conceito
 
@@ -34,9 +34,9 @@ Molde e conceito que não se encaixam: o conceito sai sem molde, e os outros do 
 
 Com mais conceitos do que moldes, o mesmo molde pode servir a dois. Três roteiros com o mesmo ritmo só se sustentam quando os ângulos são mesmo distintos; havendo molde sobrando, use moldes diferentes.
 
-Declare no briefing, em uma linha: o `mold_id`, o concorrente, o sinal de escala do `evidence` e a frase do encaixe.
+Declare no briefing, em uma linha: o `mold_id`, a marca, o link do ad, o link da mídia, os dias no ar e a frase do encaixe.
 
-E grave no `dados.json`, dentro do conceito: `mold_id` com o id do molde e `mold_source` com o `competitor` e o `scale_signal` do item correspondente de `ad_molds.molds[]`, no `competitor-analysis/dados.json` (formato em `reference/dados-json.md`). Conceito que saiu sem molde grava `null` nos dois, nunca omite o campo. É esse par que deixa a `ad-analysis` perguntar, quando um criativo estoura, qual molde estava atrás dele; sem ele o batch vira um conjunto de roteiros sem linhagem, e a estrutura modelada nunca aparece como causa candidata.
+E grave no `dados.json`, dentro do conceito: `mold_id` com o id do molde, `mold_source` com a marca (`competitor`) e o sinal de escala (`scale_signal`) e `modeled_ad` com o bloco `ad` do molde (link, mídia, dias no ar, rank). Formato em `reference/dados-json.md`. Conceito que saiu sem molde grava `null` nos três, nunca omite o campo. É esse par que deixa a `ad-analysis` perguntar, quando um criativo estoura, qual molde estava atrás dele; sem ele o batch vira um conjunto de roteiros sem linhagem, e a estrutura modelada nunca aparece como causa candidata.
 
 #### 3. O pack 3-2-2 em cima de um molde só
 
@@ -112,6 +112,6 @@ Elas não aumentam o batch. Se o membro quiser rodá-las, entram como as três e
 - Slot `sem_fala` continua sem fala.
 - A duração alvo do criativo é o `duration_s` do molde.
 - Toda palavra passou pelo filtro do `market_vocabulary`: zero termo de `words_absent[]`, nenhum termo saturado em hook ou headline.
-- Nenhuma frase, afirmação, número ou nome de mecanismo do concorrente aparece na saída. A checagem é direta: abra o transcript em `competitor-analysis/creatives-inbox/transcripts/` e confirme que nenhuma linha do roteiro é aquele texto com as palavras trocadas.
+- Nenhuma frase, afirmação, número ou nome de mecanismo do ad modelado aparece na saída. A checagem é direta: abra o transcript (`creative-engine/validated-ads/transcripts/` ou `competitor-analysis/creatives-inbox/transcripts/`) e confirme que nenhuma linha do roteiro é aquele texto com as palavras trocadas.
 - Todo slot preenchido tem origem nomeada na tabela, e todo slot vazio está na nota técnica.
-- O conceito tem `mold_id` e `mold_source` gravados no `dados.json` (`null` nos dois quando saiu sem molde).
+- O conceito tem `mold_id`, `mold_source` e `modeled_ad` gravados no `dados.json` (`null` nos três quando saiu sem molde).

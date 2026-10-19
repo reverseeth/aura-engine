@@ -21,7 +21,6 @@ Este é o **gate que destrava `creative-engine` e `ad-strategy`**. O Event Match
 | **< 6.0 COM volume de eventos** | BLOCK. Pixel ou CAPI mal configurado (o escore existe e está baixo — é config, não falta de dados). **Escape (ES1):** ofereça **(A)** rodar o diagnóstico abaixo e re-medir, OU **(B)** prosseguir marcando `manifest.skipped_preflight += ["emq_gate"]` e avisando que `creative-engine`/`ad-strategy` vão herdar tracking fraco (`tracking_ready: false`, membro aceitou o risco). |
 
 **Diagnóstico de EMQ baixo** (rodar antes de qualquer "prosseguir mesmo assim"):
-- CAPI OFF ou sem Advanced Matching (Data sharing abaixo de Maximum) → ETAPAS 1-2.
-- Data sharing em "Optimized" pausou o envio (loja sem tráfego) → ETAPA 1 passo 3 ("Always on").
+- Servidor do Wetracked desligado, ou dado do cliente não passando pro Advanced Matching → ETAPA 2.
 - Sem volume: dataset novo precisa de ~algumas dezenas de eventos pra calcular o escore. Se a loja não teve tráfego ainda, o número pode estar vazio — não é erro, é falta de dados → caminho **`pending_traffic`** da tabela acima (exige o pedido-teste validando o Purchase).
-- Pixel duplicado (hardcoded + nativo, ou CAPI 1-clique por cima da nativa) → dedup quebrada → ETAPAS 1-2.
+- Fonte duplicada (data sharing do app Facebook & Instagram ligado, outro app de pixel, snippet no tema ou CAPI de 1 clique junto do Wetracked) → dedup quebrada → ETAPA 1.

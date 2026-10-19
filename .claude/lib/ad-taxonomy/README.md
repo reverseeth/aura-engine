@@ -95,3 +95,15 @@ Regra prática: imagens → Marksman; vídeos → Sniper; **toda iteração → 
 **Volume de referência:** agência de 5 pessoas = ~15 conceitos/semana. Solo ou time pequeno = **1 conceito por dia** — foi o ritmo dos dois operadores do material que bateram US$ 100k/dia. Volume certo é função de manpower e intenção, não de spam.
 
 **Ângulo ≠ conceito.** Ângulo é a razão de compra em frase ("para de virar de um lado pro outro a noite toda"). Conceito é a embalagem (comparação, depoimento, autoridade). Skill que pede "escolha o ângulo" e oferece uma lista de formatos está pedindo conceito.
+
+## 8. Rota de teste com bid cap
+
+O teste sobe por uma de duas rotas, escolha do membro na `ad-strategy`: **Max Conversion** (a estrutura do §1, default) ou **bid cap**. A estrutura é a mesma nas duas (CBO, 1 ad set = 1 conceito, pack 3:2:2, audiência broad); muda o lance.
+
+- **Lance inicial = target CPA** (`manifest.target_cpa`, senão `target_cpa_primary_2x` da `offer-builder`). **Teto do lance = breakeven CPA** (`weighted_margin_per_order`). Lance acima do breakeven compra prejuízo, então não existe.
+- **Budget da campanha alto, o lance segura o gasto:** 10× o lance por dia (lance US$ 30 → US$ 300/dia), confirmado pelo membro como o máximo que ele aceita ver gasto num dia. O Meta só entrega quando acha resultado abaixo do lance; o budget é espaço, não meta. A capacidade de teste (§1) continua calculada sobre o budget real do membro, não sobre o nominal.
+- **Gasto zero = teste de graça.** Ad que não gasta em bid cap não achou comprador abaixo do lance. As três causas, nessa ordem de checagem: (1) lance baixo demais, (2) criativo que não funciona, (3) oferta ruim.
+- **Escada quando nada gasta** (48h sem entrega na campanha inteira): sobe o lance **+10% do target CPA por degrau**, um degrau a cada 48h, até o teto do breakeven. Gastou no degrau, para de subir e lê pelas classes do §2. No teto e ainda sem gasto: quando alguns ad sets gastam e outros não, os que não gastaram são `loser` (graveyard, conceito novo no lugar); quando nada gasta no teto, o problema é a oferta ou a página antes de qualquer criativo (volta pra `offer-builder` e `copy-engine`, batch novo depois).
+- **Nunca migrar pra campanha sem lance** (Max Conversion) criativo que não gastou no bid cap. É muito improvável um criativo que não achou comprador abaixo do breakeven performar com ROAS alto sem o lance; migrar só compra o mesmo resultado mais caro.
+- **Gastou abaixo do lance e converte:** classificação normal do §2 (o lance garante o CPA, então o critério decisivo é puxar spend). Breakthrough segue pra `scale-engine` (Escola B nasce do mesmo mecanismo).
+- As réguas de kill do §3 valem na rota bid cap para quem gasta; quem não gasta não queima dinheiro e sai pela escada acima. As automações do §6 continuam obrigatórias.

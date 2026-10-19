@@ -26,6 +26,7 @@ Kennedy Five-Level Guarantee Hierarchy e Guarantee Power Statement Template est�
 - Margem da oferta (margem pequena não aguenta money-back generoso)
 - Ceticismo do avatar (market research — "já tentei X" → garantia forte converte)
 - Tipo de produto (consumível vs duradouro)
+- Modelo de estoque (ETAPA 0): sem estoque (`no_stock` ou `no_stock_then_stock`), o prazo conta da **entrega**, nunca da compra, e a copy diz isso ("90 days from the day it arrives")
 
 **Escreva a copy da garantia** (2-3 frases, tom confiante mas claro sobre condições):
 Exemplo: "90-day results guarantee. If you don't see visible improvement in the first 90 days, send us a photo — we'll refund every penny. No questions, no hoops."

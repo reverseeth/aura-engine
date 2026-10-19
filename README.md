@@ -22,10 +22,12 @@ Orchestrates the full product-to-ads-to-retention workflow through 26 skills (a 
 | 8 | Page Build (`page-build`) | 07b | deterministic HTML→Liquid compile + Shopify deploy |
 | 9 | Tracking Setup (`tracking-setup`) | 07c | Meta Pixel + CAPI + analytics stack |
 | 10 | Checkout & AOV (`checkout-aov`) | 07d | post-purchase upsell, cart bump, bundles, checkout trust |
+| side | Support Engine (`support-engine`) | — | side consult, pre-launch — explains Brandwise (AI help desk connected to Shopify resolving tracking, address changes, refunds, returns and cancellations, with email, chat, comments and DMs in one inbox), account setup steps and an English knowledge base built from the offer, guarantee and shipping time |
 | 11 · 20 (two-phase) | Bonus Delivery (`bonus-delivery`) | 05 | ecom bonus asset + delivery (Phase A pre-launch: assets + GWP config; Phase B post-launch: take-rate tracking) |
 | 12 · 19 (two-phase) | Retention Engine (`retention-engine`) | 13 | Klaviyo/ESP lifecycle flows (Phase A pre-launch: abandoned cart + post-purchase recovery flows; Phase B post-launch: win-back/replenishment, ≥50 orders) |
 | 13 | Creative Engine (`creative-engine`) | 08 | ad briefings (scripts, hooks, prompts) + EDL |
 | side | Creator Engine (`creator-engine`) | 16 | side consult, two phases — Phase A (can start alongside `creative-engine`, pre-launch): product seeding, creator casting tied to the `market-research` sub-avatars, brief frameworks, TikTok Shop content pipeline; Phase B (only after a breakthrough confirmed by `ad-analysis`): recurring contracts, ambassador ladder, whitelisting, partnership ads, creator farming |
+| side | Social Engine (`social-engine`) | — | side consult — brand Instagram on autopilot: Pinterest brand board, Higgsfield Marketing Studio image templates (or any image AI), 9 posts a day as a coherent 3x3 grid with English captions and hashtags, metadata cleaner, publishing cascade (Blotato or Metricool → Instagram API via the Meta System User → ready-to-post package) and a daily scheduled routine |
 | 14 | Agentic Readiness (`agentic-readiness`) | 07e | AEO checklist: Agentic Storefronts channel, structured data, AI crawler access, AI visibility score (post-deploy, pre-launch) |
 | 15 | Consistency Audit (`consistency-audit`) | 09 | cross-phase drift detection + launch gate |
 | 16 | Ad Strategy (`ad-strategy`) | 10 | 1 CBO campaign → N ad sets (1 ad set = 1 concept, 3 creatives + 2 primary texts + 2 headlines), ad set count sized by testing capacity (budget ÷ target CPA) |

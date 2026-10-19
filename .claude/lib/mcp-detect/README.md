@@ -14,9 +14,10 @@ A detecção é sempre por **prefixo de tool disponível na sessão**. Se não h
 |---|---|---|---|
 | **TrendTrack** | `mcp__trendtrack__` | Enrichment de research (product/competitor/creative/retention) | TrendTrack → método tradicional (web fetch + Meta Ad Library + scraping) |
 | **Meta Ads oficial** | `mcp__meta__ads_*` | Caminho preferencial pra ads (campaign mgmt, insights, datasets, benchmarks) | Oficial → Pipeboard → manual |
-| **Meta Ads Pipeboard** | `mcp__meta-ads__` | Fallback 3rd party quando o oficial está disabled/indisponível | (é o 2º degrau do cascade Meta) |
+| **Meta Marketing API (System User)** | `mcp__meta-ads__` | Fallback quando o oficial está disabled/indisponível: a API oficial da Meta com token de usuário de sistema que não expira, servida pelo MCP Pipeboard (setup no passo 3 de `setup-mcps.md`) | (é o 2º degrau do cascade Meta) |
 | **Refero** | `mcp__refero__` | Design system curado (~200 sites premium) pra brand signals da `page-design` | Refero → screenshot→visão → design-clone → manual |
-| **Higgsfield** | `mcp__higgsfield__` | Render in-session: vídeo na `creative-engine` e as imagens que faltam nos slots da página na `page-design` (1.6.3). 30+ modelos de vídeo e de imagem; OAuth via browser, créditos do plano do membro | Higgsfield MCP → prompts salvos pro membro gerar manualmente → (na `page-design`) placeholder explícito com `acquisition_plan` |
+| **Higgsfield** | `mcp__higgsfield__` | Render in-session: imagem e vídeo dos criativos na `creative-engine` (Marketing Studio, UGC, avatar fixo, virality predictor), as imagens que faltam nos slots da página na `page-design` (1.6.3) e as 9 imagens diárias do Instagram na `social-engine` (templates do Marketing Studio de imagem). 30+ modelos; OAuth via browser, créditos do plano do membro (`balance` e confirmação antes de gastar). Skills oficiais de apoio: `npx skills add higgsfield-ai/skills` | Higgsfield MCP → qualquer outra IA de imagem ou vídeo com os prompts autocontidos salvos → (na `page-design`) placeholder explícito com `acquisition_plan` |
+| **Publicação no Instagram** | Blotato (`mcp__blotato__` ou `mcp__claude_ai_Blotato__`, recomendado) ou Metricool (prefixo com `metricool`) | Postagem automática diária da `social-engine`. O Higgsfield MCP não publica no Instagram (só no TikTok) | Publicador → API do Instagram com o token do System User (conta Business ou Creator ligada a uma página do Facebook) → pacote do dia pronto pra postar em `social-engine/<data>/` |
 | **Foreplay** | `mcp__foreplay__` | Ad spy (200M+ ads; criativos escalados dos concorrentes) nas skills `competitor-analysis`/`creative-engine`/`ad-analysis` | Foreplay → TrendTrack (se houver) → Meta Ad Library público / uploads do membro |
 | **Shopify AI Toolkit** | `mcp__shopify__` | Operações de produto/tema (usado por `deploy-shopify-product.md` e `full-deploy.md`) | Shopify MCP → Playwright → manual |
 | **Klaviyo oficial** | `mcp__klaviyo__` | Criação de flows de retenção (welcome/abandoned-cart/post-purchase) | Klaviyo MCP → HTML+setup-guide |
@@ -56,7 +57,7 @@ Toda skill/receita que produz output a partir de MCP grava qual caminho foi usad
 |---|---|
 | `trendtrack` | Dado veio do TrendTrack MCP |
 | `meta_mcp_official` | Meta MCP oficial |
-| `meta_mcp_pipeboard` | Pipeboard MCP (fallback) — incluir `fallback_reason` |
+| `meta_mcp_pipeboard` | Marketing API com System User via Pipeboard MCP (fallback) — incluir `fallback_reason` |
 | `foreplay` | Dado veio do Foreplay MCP (ad spy) |
 | `shopify_mcp` | Shopify AI Toolkit MCP (operações de produto/tema) |
 | `admin_api_client_credentials` | Admin GraphQL direto via token de app do Dev Dashboard (grant `client_credentials`) — caminho SEM MCP, usado quando o Shopify MCP está ausente (ex: `create-fixed-bundles.md` Caminho 2) |
@@ -80,7 +81,8 @@ Onde gravar:
 |---|---|
 | TrendTrack | `.claude/lib/trendtrack-integration/README.md` |
 | Refero | `.claude/lib/refero-integration/README.md` |
-| Higgsfield | skills `creative-engine` (vídeo) e `page-design` (imagem da página, `reference/imagens-higgsfield.md`) — as duas confirmam antes de gastar crédito + setup em `.claude/automations/setup-mcps.md` (3.7) |
+| Higgsfield | skills `creative-engine` (imagem e vídeo dos criativos), `page-design` (imagem da página, `reference/imagens-higgsfield.md`) e `social-engine` (Instagram diário) — as três confirmam antes de gastar crédito + setup em `.claude/automations/setup-mcps.md` (3.7) |
+| Publicação no Instagram | skill `social-engine` + setup em `.claude/automations/setup-mcps.md` (3.10) |
 | Foreplay | skills `competitor-analysis` / `creative-engine` / `ad-analysis` + setup em `.claude/automations/setup-mcps.md` (3.8) |
 | Meta (oficial/Pipeboard) | receita única `sync-campaign-from-meta.md` (cascade interno oficial → Pipeboard → manual), `pause-ad-set.md`, `upload-creative-to-meta.md` + setup em `.claude/automations/setup-mcps.md` |
 | Shopify AI Toolkit | receitas `deploy-shopify-product.md` / `full-deploy.md` + setup em `.claude/automations/setup-mcps.md` (passo 4) |

@@ -12,6 +12,8 @@
   "target_cpa": 40,
   "breakeven_cpa": 80,
   "member_daily_budget": 240,
+  "test_route": "max_conversion|bid_cap",
+  "bid_cap": null,
   "test_capacity": {
     "max_assets": 6,
     "max_adsets": 2,
@@ -94,3 +96,5 @@
 > **`cadence.decision_checkpoint`** substitui o antigo `kill_by`: domingo é checkpoint de leitura (ETAPA 5), não data de execução. Kill de ad set é régua do cânone §3, decretada pela Skill `ad-analysis`; kill de PRODUTO exige ≥ 2 batches com learnings processados OU régua do cânone — nunca calendário sozinho.
 >
 > **`protections`:** substitui os antigos campos `pgs_*`. `automated_performance_kill`/`automated_performance_scaling` ficam `false` SEMPRE — não são configuráveis, são o registro explícito de que essa automação não existe nesta estrutura (cânone §6). **`pgs_enabled` permanece no schema apenas como campo de compatibilidade, fixo em `false`**, porque a receita `full-deploy.md` e a Skill `ad-analysis` ainda o leem pra decidir se prometem escala automática; com `false`, as duas degradam pro comportamento certo (não prometem). Nunca gravar `true`.
+
+**`test_route` e `bid_cap`:** a rota escolhida na ETAPA 3.0. Na rota `bid_cap`, o bloco segue o formato de `reference/rota-bid-cap.md` (`bid_initial`, `bid_ceiling`, `bid_step`, `step_interval_hours`, `campaign_daily_budget_nominal`, `member_daily_budget`); na rota `max_conversion`, `bid_cap: null`. Ausente (estratégia antiga) = `max_conversion`.

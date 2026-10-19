@@ -44,7 +44,7 @@ Se algum arquivo crítico sumiu/corrompeu, aplicar `.claude/rules/emergency-esca
    A EXECUÇÃO operacional (estrutura de campanha abaixo) é o playbook desta skill; os outros frameworks de `meta-ads-strategy` (escala, redistribuição de spend, lucky vs durable wins) estão no índice `.claude/lib/kb-index/` e entram via Skill `ad-analysis`/`scale-engine`.
 
 ### Analytics stack — quem decide
-A escolha da stack de atribuição (Meta App / Wetracked / Triple Whale / Aimerce) é da **Skill `tracking-setup`**, não desta. Aqui só **confirmamos** que existe stack validada antes de criar campanha: ler o bloco `manifest.tracking` gravado pela `tracking-setup`. Se `manifest.tracking.tracking_ready != true` OU `manifest.tracking.analytics_stack` estiver vazio → redirecionar pra `'tracking'` (`tracking-setup`) e parar. Sem atribuição confiável, a Skill `ad-analysis` lê dado ruim e mata criativo bom.
+A stack de tracking (Wetracked como fonte de eventos, mais Triple Whale ou Aimerce como leitura opcional em scaling) é da **Skill `tracking-setup`**, não desta. Aqui só **confirmamos** que existe stack validada antes de criar campanha: ler o bloco `manifest.tracking` gravado pela `tracking-setup`. Se `manifest.tracking.tracking_ready != true` OU `manifest.tracking.analytics_stack` estiver vazio → redirecionar pra `'tracking'` (`tracking-setup`) e parar. Sem atribuição confiável, a Skill `ad-analysis` lê dado ruim e mata criativo bom.
 
 ### Compatibilidade
 Testada em Meta Ads Manager **2026 Q2** e Meta Marketing API **v21.0+**. Se o membro usa interface legada (Business Suite antigo) ou API anterior, adaptar passos visuais manualmente.

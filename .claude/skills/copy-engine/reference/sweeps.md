@@ -38,7 +38,7 @@ Pra calibrar o que cada sweep procura, puxe os sistemas de edição (rode cada `
    - Depois do corte, re-rode os sweeps 2 (a taxa de VOC continua ≥ 60%?) e 4 (o fluxo continua deslizando sem os conectivos removidos?).
 5. **Objection sweep**: cada objeção do market research foi quebrada em algum lugar? Onde está omitida?
 6. **CTA sweep**: CTAs são call to VALUE? Aparecem em frequência certa (não muito, não pouco)?
-7. **Originality sweep**: comparar com os claims saturados do competitor analysis — onde estou usando um claim saturado? substitua por ângulo original.
+7. **Originality sweep**: comparar com os claims saturados do competitor analysis. Claim saturado sai da headline e do lead e troca por ângulo original; no corpo ele continua como prova. Originalidade é sobre o ângulo, nunca motivo pra cortar claim que o mercado escalado usa (regra de liberdade de claim da ETAPA 2.5.0).
 8. **Sweep de força (o inverso de suavizar)**: releia cada claim forte e pergunte "dá pra dizer com mais força e mais específico, com a prova ao lado?". Claim hedged ("may help", "designed to support") vira claim direto com número, mecanismo ou depoimento ao lado. Nenhum aviso, asterisco ou disclaimer entra por iniciativa da skill (rule 8b do CLAUDE.md).
 
 9. **Markup audit sweep (método Kyle Milligan)** — auditoria estrutural da peça, rodada DEPOIS dos sweeps 1-8:

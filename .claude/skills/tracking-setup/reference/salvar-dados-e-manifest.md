@@ -7,11 +7,11 @@
 **Garantir diretório:** `mkdir -p workspace/[produto]/tracking-setup/` antes de salvar.
 
 `workspace/[produto]/tracking-setup/tracking-setup.md` contendo:
-1. Status do pixel (Dataset ID, canal nativo, data sharing "Always on", eventos confirmados — incluindo evento customizado de lead engajado, se a loja captura lead)
-2. Status do CAPI (nível de Data sharing, Advanced Matching, dedup, fonte única server-side)
+1. Status do pixel (Dataset ID, Wetracked como fonte única, data sharing do app Facebook & Instagram desligado, eventos confirmados — incluindo evento customizado de lead engajado, se a loja captura lead)
+2. Status do CAPI (Conversions API do Wetracked, Advanced Matching, dedup, fonte única server-side)
 3. EMQ medido (escore 0-10 do Purchase) + caminho de verificação usado (MCP oficial / Pipeboard / manual)
 4. Janela de atribuição baseline (`7d-click/1d-view`), status do Click ID no Purchase, e o teste 7DC-only registrado como diagnóstico futuro da `scale-engine` (ETAPA 3B)
-5. Analytics stack escolhido + razão (stage + budget) + camadas complementares (survey pós-compra / on-site) + passos de setup/confirmação
+5. Analytics stack (Wetracked, mais a camada de atribuição em scaling quando houver, com a razão) + camadas complementares (survey pós-compra / on-site) + passos de setup/confirmação
 6. Contrato de leitura (ETAPA 4B): Blended ROAS como P&L, CAC ≠ CPA, ponto cego de branded search na atribuição de terceiro
 7. Checklist final da ETAPA 5
 8. Próximos passos (checkout/AOV → criativos)
@@ -28,8 +28,8 @@
   "report_language": "pt-BR",
   "pixel": {
     "dataset_id": "...",
-    "channel": "shopify_native_meta",
-    "data_sharing": "always_on",
+    "channel": "wetracked",
+    "shopify_fb_app_data_sharing": "off",
     "events_confirmed": ["PageView", "ViewContent", "AddToCart", "InitiateCheckout", "Purchase"]
   },
   "capi": {
@@ -49,7 +49,7 @@
     "status": "pass | warn | pending_traffic | block",
     "source": "mcp_meta_official | pipeboard | manual"
   },
-  "analytics_stack": "meta_app | wetracked | triple_whale | aimerce",
+  "analytics_stack": "wetracked | triple_whale | aimerce",
   "tracking_ready": true
 }
 ```
@@ -68,7 +68,7 @@ Após salvar, atualize o manifest pelo script `tools/manifest.py` (nunca editand
   "capi_active": true,
   "emq_score": 7.2,
   "emq_pending": false,
-  "analytics_stack": "meta_app",
+  "analytics_stack": "wetracked",
   "tracking_ready": true
 }
 ```

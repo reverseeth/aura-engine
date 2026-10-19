@@ -19,7 +19,7 @@ Pergunte ao membro (no `report_language`):
 
 "Como você quer produzir esses criativos? Tem 3 rotas:
 
-- **(A) Gerar com IA** — você roda os clipes no Higgsfield Marketing Studio (ou outro modelo) a partir de prompts prontos. Rápido, barato por variação, sem precisar de creator. Entrego **prompts prontos por clipe**. *(custo de referência: Higgsfield Ultra ~$129/mês; gera volume ilimitado de variações)*
+- **(A) Gerar com IA** — com o Higgsfield conectado, eu mesmo gero as imagens e os vídeos aqui na sessão (com o custo em créditos aprovado por você antes) e entrego os arquivos prontos. Sem Higgsfield, entrego **prompts prontos por clipe** pra qualquer IA de imagem e vídeo (Veo, Kling, Sora, Runway, Midjourney, GPT Image). Rápido, barato por variação, sem precisar de creator.
 - **(B) Modelar concorrente / montar clipes** — você (ou um editor) monta o ad juntando footage real: UGC licenciado (Billo, Insense), stock, ou material próprio, seguindo um **roteiro de montagem (EDL)** que eu entrego — tabela com timecode, tipo de clipe, fonte sugerida, text overlay, legenda exata e transição. Um criativo escalado de concorrente serve SÓ como referência de *timing/estrutura*, nunca pra reusar o clipe dele.
 - **(C) Mix** — alguns conceitos com IA, outros com montagem. Diversidade de produção ajuda na escala.
 
@@ -47,6 +47,8 @@ A escolha do modelo define **duração e estrutura de geração** (ETAPA 5.7, Ra
 - **Sora 2** (até 25s contínuo)
 - **Kling 3.x** (clipes longos contínuos; modelo de referência pra image-to-video de product shots)
 - Outro / não sei → assumo Higgsfield"
+
+Com o Higgsfield MCP conectado, não pergunte: o modelo de cada cena sai da tabela de `reference/mcps-opcionais.md` (e de `models_explore` com `action: "recommend"` quando a cena não cabe em preset), e `ai_video_model` grava `higgsfield`.
 
 Guarde em `creative-engine/dados.json → ai_video_model`. O impacto:
 

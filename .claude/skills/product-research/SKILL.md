@@ -1,6 +1,6 @@
 ---
 name: product-research
-description: Engine de pesquisa de produto por recombinação de elementos validados. Descobre marcas DTC que já escalam no nicho de health & supplements pelo TrendTrack (MCP ou manual, com dois conjuntos de filtros fixos, native ads em imagem e em vídeo), monta a ficha completa de cada marca (LP e ads mais escalados, tráfego, oferta, mecanismos, ângulo, avatar), valida com o Google Trends (problema e ingrediente, 5 anos, US) e com as reviews de 1 e 2 estrelas do Trustpilot, decompõe cada finalista em elementos validados, monta jogadas de recombinação pelos 4 padrões (nunca clonar, nunca criar do zero), rankeia pelos eixos de score com veredicto TESTAR, TALVEZ ou DESCARTAR, entrega o plano preliminar da oportunidade número 1 e salva o banco de marcas no Notion ou em HTML na pasta do produto. Use quando o membro disser "product research", "pesquisa de produto", "encontrar produto", "qual produto vender", ou quando estiver na situação A do setup (não tem produto).
+description: Engine de pesquisa de produto por recombinação de elementos validados. Descobre marcas DTC que já escalam nos nichos de beauty & care e health & supplements pelo TrendTrack (MCP ou manual, com o filtro fixo da Aura: tráfego de 200 mil visitas por mês ou mais, anúncio ativo entre 14 e 60 dias, ad rank top 5%, growth rising, 200 anúncios ativos ou mais, EUA, Canadá, Austrália e Reino Unido), monta a ficha completa de cada marca (LP e ads mais escalados, tráfego, oferta, mecanismos, ângulo, avatar), valida com o Google Trends (problema e ingrediente, 5 anos, US) e com as reviews de 1 e 2 estrelas do Trustpilot, decompõe cada finalista em elementos validados, monta jogadas de recombinação pelos 4 padrões (nunca clonar, nunca criar do zero), rankeia pelos eixos de score com veredicto TESTAR, TALVEZ ou DESCARTAR, entrega o plano preliminar da oportunidade número 1 e salva o banco de marcas no Notion ou em HTML na pasta do produto. Use quando o membro disser "product research", "pesquisa de produto", "encontrar produto", "qual produto vender", ou quando estiver na situação A do setup (não tem produto).
 ---
 
 # Product Research · Passo 2 · apelido antigo: 01 <!-- gen:title -->
@@ -18,7 +18,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 1. `workspace/profile.md`; ausente, oferecer rodar o `setup` inline.
 2. `manifest.json` com `setup_complete === true`; mais de um produto = perguntar qual em 1 linha; ausente, `setup` inline. O `product_slug` é o path de salvamento até o vencedor ser escolhido.
 3. `setup` em `skills_completed`; senão, re-rode o setup.
-4. Nicho: default health & supplements (o dos filtros fixos da ETAPA 0.5); outro nicho troca só o filtro de nicho.
+4. Nicho: default beauty & care + health & supplements (os do filtro fixo da ETAPA 0.5); outro nicho troca só o filtro de nicho.
 5. Destino do banco de marcas: com tools de Notion na sessão (qualquer prefixo com `notion`), Notion; sem elas, pergunte uma vez, em 1 linha, se conecta o Notion MCP ou prefere HTML na pasta do produto; grave `notion` ou `html` e siga (a pesquisa não espera o Notion).
 
 ## Contexto a carregar
@@ -35,7 +35,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 
 ### ETAPA 0.5 · Motor de descoberta, TrendTrack (MCP ou manual)
 
-Leia `reference/descoberta-trendtrack.md`. Fonte: TrendTrack, Explorer, Meta Ads, com os dois conjuntos de filtros fixos do arquivo (native ads em imagem, com copy longa, e em vídeo). Caminho A, MCP (gasta créditos): cheque os créditos e diga quanto a pesquisa gasta, resolva o id do nicho, rode as duas pesquisas com o mapeamento filtro a param da tabela (`sort_by` sempre, senão volta vazio pra ads só US; alcance zero não é gasto zero), pagine até 15 a 25 marcas distintas anotando por ad os campos do arquivo; chamada que falhar cai pro manual. Caminho B, manual: o membro aplica os filtros no browser e cola, por marca, os itens da mensagem do arquivo (nunca fingir que abriu o TrendTrack). Pré-seleção nos dois caminhos: DTC com loja própria, AOV de 60 dólares ou mais contando a oferta inteira, produto que faz sentido pro membro. Saída: 15 a 25 marcas pré-selecionadas.
+Leia `reference/descoberta-trendtrack.md`. Fonte: TrendTrack, Explorer, Meta Ads, com o filtro fixo do arquivo (um conjunto só, imagem e vídeo juntos). Caminho A, MCP (gasta créditos): cheque os créditos e diga quanto a pesquisa gasta, resolva os ids dos nichos, rode a pesquisa com o mapeamento filtro a param da tabela (`sort_by` sempre, senão volta vazio pra ads só US; alcance zero não é gasto zero), pagine até 15 a 25 marcas distintas anotando por ad os campos do arquivo; chamada que falhar cai pro manual. Caminho B, manual: o membro aplica os filtros no browser e cola, por marca, os itens da mensagem do arquivo (nunca fingir que abriu o TrendTrack). Pré-seleção nos dois caminhos: DTC com loja própria, AOV de 60 dólares ou mais contando a oferta inteira, produto que faz sentido pro membro. Saída: 15 a 25 marcas pré-selecionadas.
 
 ### ETAPA 1 · Ficha por marca (coleta profunda)
 

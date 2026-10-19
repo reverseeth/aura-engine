@@ -112,3 +112,5 @@ O mesmo bloco é espelhado em `type.families[]` no `design-tokens.json` (`refere
 ### 2.1.6 — Pendência, quando ela existe
 
 Membro escolheu a Oracle, a comparadora rodou com a Geist porque os arquivos não chegaram a tempo e ele seguiu assim: registre no `page-plan.json`, em `brand_discovery`, a família pendente e o caminho onde os arquivos são esperados, e diga a ele em uma linha que trocar a fonte depois é rodar a `page-design` de novo a partir da ETAPA 2 — a página é recompilada com a tipografia nova, e nada mais muda.
+
+A Aura não baixa nem hospeda fonte, e nada sobre licença entra no que o membro lê.

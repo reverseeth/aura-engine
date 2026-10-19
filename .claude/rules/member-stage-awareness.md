@@ -24,7 +24,7 @@ Aura Engine atende membros em 3 estágios bem diferentes. Mesma skill precisa ad
 **Como skill deve se comportar**:
 - **Quantos conceitos sobem é conta, não preferência.** O número vem da capacidade de teste do cânone `.claude/lib/ad-taxonomy/README.md` §1 (aplicada na Skill `ad-strategy` ETAPA 3.1), nunca do stage. Com budget de starter a capacidade costuma dar 1 conceito, e é comum o budget nem alcançar o piso operacional. O que o stage muda é a **apresentação**: pra starter abaixo do piso, o caminho recomendado é adiar e juntar caixa, dito sem rodeio — rodar mesmo assim dá resultado direcional, que não autoriza kill nem escala
 - Explicar o "porquê" de cada decisão (educação embutida)
-- Priorizar tools grátis/low-cost (Meta App, free tier Klaviyo, stock + AI UGC)
+- Priorizar tools grátis/low-cost (free tier Klaviyo, stock + AI UGC)
 - **Escala: passo pequeno e sem improviso.** O Scaling Protocol do cânone §5 vale igual pra todo stage (gates, +20% de subida, −20% abaixo do breakeven). O que muda aqui é a tolerância a risco DENTRO dele: o starter não precisa tomar todo passo que o protocolo libera — sobe um degrau, deixa a leitura fechar, e só então considera o próximo. Sem surf, sem duplicação de campanha. A Skill `scale-engine` recomenda a Escola C (budget-doubling) como intensidade default nesse stage
 - Linguagem: didática, sem jargão sem explicar primeira vez
 
@@ -42,9 +42,9 @@ Aura Engine atende membros em 3 estágios bem diferentes. Mesma skill precisa ad
 **Como skill deve se comportar**:
 - **Conceitos no ar continuam saindo da capacidade** (cânone §1). Nessa faixa de budget a restrição que costuma morder é a própria capacidade: o batch da Skill `creative-engine` quase sempre traz mais conceitos do que o budget consegue ler, e o excedente entra na fila do batch seguinte em vez de diluir o teste
 - Foco em iteração: "o que aprendemos no último batch?"
-- Introduzir tools intermediárias (Wetracked, creator humano 1-2)
+- Introduzir tools intermediárias (creator humano 1-2); o tracking é Wetracked desde o starter
 - Skill `ad-analysis` como núcleo do workflow
-- **Escala: passo do protocolo em sequência, ainda sem surf.** Com os dois gates verdes (48-72h acima do target e ≥60% das compras em 7-day click), pode encadear os +20% a cada 24h enquanto seguram — é a diferença prática pro starter. Escola C com o passo do protocolo é o default da Skill `scale-engine`; Escola B (bid cap) entra só se o membro quiser mais controle, e sempre com a ressalva declarada de que bid caps têm problemas conhecidos
+- **Escala: passo do protocolo em sequência, ainda sem surf.** Com os dois gates verdes (48-72h acima do target e ≥60% das compras em 7-day click), pode encadear os +20% a cada 24h enquanto seguram — é a diferença prática pro starter. Escola C com o passo do protocolo é o default da Skill `scale-engine`; Escola B (bid cap) entra quando o membro quer mais controle de custo, com a leitura do cânone `.claude/lib/ad-taxonomy/README.md` §8 (criativo que não gasta no bid não migra pra campanha sem lance)
 - Linguagem: técnica mas com context
 
 ### Stage 3 — Escalando ($5k+/mês em ads)

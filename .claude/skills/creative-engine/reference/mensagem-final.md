@@ -10,8 +10,8 @@ A mensagem se adapta à rota escolhida (ETAPA 1.0). Apresente como **draft** con
 
 "Primeira versão dos briefings pronta. Como gerar:
 
-- **Vídeos**: abra `workspace/[produto]/creative-engine/prompts/prompt-c0X-video.txt` — cole no [modelo escolhido] (link/instrução de generation no fim do prompt). Modelo longo (Veo/Sora/Kling) = 1 roteiro contínuo por conceito; Higgsfield = pode ter pasta `c0X-slug/` com 1 take por arquivo (gere na ordem e junte sob 1 voiceover). [Se o Higgsfield MCP rendeu in-session: "Os vídeos já estão renderizados em `renders/` — revise antes de editar."]
-- **Imagens**: abra `prompts/prompt-c0X-image.txt` — cole no GPT Image 2.0 (formato já ajustado ao tipo)
+- **Vídeos**: [Se o Higgsfield MCP rendeu in-session: "Os vídeos já estão renderizados e limpos em `renders/`, com o hook pontuado no Virality Predictor — revise antes de editar."] Sem render, abra `workspace/[produto]/creative-engine/prompts/prompt-c0X-video.txt` — cole no [modelo escolhido] (link/instrução de generation no fim do prompt). Modelo longo (Veo/Sora/Kling) = 1 roteiro contínuo por conceito; Higgsfield = pode ter pasta `c0X-slug/` com 1 take por arquivo (gere na ordem e junte sob 1 voiceover). Serve em qualquer gerador de vídeo.
+- **Imagens**: renderizadas em `renders/` quando o Higgsfield rodou; senão abra `prompts/prompt-c0X-image.txt` e cole no Higgsfield, GPT Image ou outro gerador de imagem (formato já ajustado ao tipo)
 - **Voiceovers** (se conceito tem): gere no ElevenLabs com os scripts marcados nos briefings
 - **Edição**: junte vídeo + voiceover + text overlays no CapCut/Submagic/Captions
 - **Limpar metadados (último passo)**: depois de editar, dê 2 cliques em `Limpador de Metadados` na pasta da Aura e arraste os criativos finais pra lá (ou a pasta inteira) — cada arquivo é substituído por uma versão sem nenhum metadado de IA, com a mesma qualidade, renomeada `asset-xxxx`, na mesma pasta. Suba só esses. [Se o Higgsfield MCP rendeu in-session: "Os renders em `renders/` já estão limpos."]

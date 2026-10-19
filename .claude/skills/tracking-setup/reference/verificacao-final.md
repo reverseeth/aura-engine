@@ -7,9 +7,9 @@
 Antes de declarar pronto, confirmar a checklist (responde `creative-engine`/`ad-strategy`):
 
 - [ ] Pixel conectado ao Dataset correto (bate com o ad account da `ad-strategy`)
-- [ ] Data sharing do pixel em **"Always on"** (não "Optimized")
+- [ ] Wetracked como fonte única: data sharing do app Facebook & Instagram desligado, nenhum outro app de pixel ou CAPI, nenhum snippet no tema
 - [ ] 5 eventos do funil disparando (PageView, ViewContent, AddToCart, InitiateCheckout, Purchase)
-- [ ] CAPI ON (Data sharing = Maximum) + Advanced Matching ON (dupla-coluna Browser + Server), sem fonte server-side duplicada (CAPI 1-clique)
+- [ ] CAPI do Wetracked ON + Advanced Matching (dupla-coluna Browser + Server), com o Wetracked como fonte server-side única (sem CAPI de 1 clique, sem Sonar ou container do Aimerce mandando pra Meta)
 - [ ] EMQ ≥ 6.0 no Purchase (ou `emq_warn` documentado; ou `pending_traffic` com Purchase validado por pedido-teste e `emq_pending: true` no manifest)
 - [ ] Janela baseline `7d-click/1d-view` documentada, Incremental Attribution desligado, Click ID conferido no Purchase (ETAPA 3B)
-- [ ] Analytics stack escolhido e instalado/confirmado + contrato de leitura fixado no relatório (Blended ROAS como P&L, CAC ≠ CPA — ETAPA 4B)
+- [ ] Wetracked instalado e confirmado (mais a camada de atribuição, se `scaling` com Triple Whale ou Aimerce) + contrato de leitura fixado no relatório (Blended ROAS como P&L, CAC ≠ CPA — ETAPA 4B)

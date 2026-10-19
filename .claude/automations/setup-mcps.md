@@ -9,10 +9,10 @@ Aura usa **cascade resiliente** com 2 MCPs Meta em paralelo. Você instala os do
 | MCP | Propósito | Status |
 |---|---|---|
 | **Meta MCP oficial** (`mcp.facebook.com/ads`) | Caminho preferencial — 29 tools, OAuth Business Suite, industry benchmarks, dataset quality | Open beta desde 2026-04-29, rollout gradual, ainda sem GA |
-| **Pipeboard MCP** (`pipeboard-co/meta-ads-mcp`) | Fallback automático quando o oficial não responde ou está disabled | 3rd party, GA |
+| **Marketing API com System User** (via `pipeboard-co/meta-ads-mcp`) | Fallback automático quando o oficial não responde ou está disabled. Token de usuário de sistema, que não expira | API oficial da Meta, GA |
 | **Shopify AI Toolkit** (plugin Claude Code) | Operações Shopify (produto, theme, store execute) + validação Liquid/GraphQL | Oficial, abril/2026 — **ver alerta de telemetria no passo 4** |
 
-Opcionais que enriquecem skills específicas: `GROQ_API_KEY` (1.5 — transcrição de criativos na Skill `competitor-analysis`), Refero (3.5), Klaviyo (3.6), **Higgsfield** (3.7 — vídeo in-session na Skill `creative-engine` e imagem da página na Skill `page-design`), **Foreplay** (3.8 — ad spy nas Skills `competitor-analysis`/`creative-engine`/`ad-analysis`), Shopify Dev + Stripe (4.5).
+Opcionais que enriquecem skills específicas: `GROQ_API_KEY` (1.5 — transcrição de criativos na Skill `competitor-analysis`), Refero (3.5), Klaviyo (3.6), **Higgsfield** (3.7 — vídeo in-session na Skill `creative-engine` e imagem da página na Skill `page-design`), **Foreplay** (3.8 — ad spy nas Skills `competitor-analysis`/`creative-engine`/`ad-analysis`), **publicação no Instagram** (3.10 — postagem automática da Skill `social-engine`), Shopify Dev + Stripe (4.5).
 
 ## 1. Instalar dependências (2min)
 
@@ -71,36 +71,51 @@ Claude, lista minhas Meta ad accounts.
 
 Se retornar lista → conectado. Se erro `account_disabled_in_official_beta` em alguma conta → essa conta ainda não foi liberada no rollout gradual. Não é problema: o fallback Pipeboard cobre.
 
-## 3. Conectar Pipeboard MCP (5min — fallback)
+## 3. Conectar a Marketing API oficial com System User (10min, caminho que não expira)
 
-Mesmo que o oficial funcione hoje, instale o Pipeboard. Quando alguma conta do membro estiver "disabled" no rollout da Meta, Aura cai aqui sem interrupção.
+A Marketing API é a API oficial da Meta pra anúncios. O acesso é por um **System User** (usuário de sistema) do Business Manager: um usuário técnico, sem login de pessoa, com um token que não expira e que só enxerga os ativos que você entregar pra ele. É esse token que roda o MCP `meta-ads` (Pipeboard). Mesmo que o oficial do passo 2 funcione hoje, faça este passo: quando alguma conta estiver "disabled" no rollout do oficial, a Aura cai aqui sem interrupção.
 
-### Gerar token Meta Marketing API
-1. https://developers.facebook.com/apps → Create App (tipo "Business")
-2. Adicionar produto "Marketing API"
-3. Settings → Basic → copiar App ID + App Secret
-4. Tools → Graph API Explorer → generate token com scopes:
-   - `ads_management`
-   - `ads_read`
-   - `business_management`
-   - `pages_read_engagement`
-5. Exchange pra long-lived token (dura 60 dias — anote pra renovar):
-   ```bash
-   curl "https://graph.facebook.com/v23.0/oauth/access_token?grant_type=fb_exchange_token&client_id=YOUR_APP_ID&client_secret=YOUR_APP_SECRET&fb_exchange_token=SHORT_LIVED_TOKEN"
-   ```
-   > A Meta aposenta versões da Graph API a cada ~2 anos. Se o curl retornar erro de versão, troque `v23.0` pela versão corrente listada em https://developers.facebook.com/docs/graph-api/changelog.
+### A. Conta de anúncios aquecida
 
-Guarde uma cópia do token em `~/.config/aura/meta-token` (modo 600) — é só backup seu pra renovação; o registro do MCP abaixo usa o valor literal.
+Use uma conta de anúncios que já tenha histórico de gasto e de pagamento. Conta recém-criada operada por API desde o primeiro dia tem mais chance de revisão e bloqueio.
 
-### Pegar Ad Account ID
-```bash
-curl "https://graph.facebook.com/v23.0/me/adaccounts?access_token=TEU_TOKEN"
-# resposta: "act_123456789" — esse é o ad_account_id
-```
+### B. Criar o System User no Business Manager
 
-### Registrar como `meta-ads`
+1. https://business.facebook.com/settings → **Usuários → Usuários do sistema → Adicionar**.
+2. Nome `aura`, função **Admin** (a função Funcionário não gera token com permissão de gestão de anúncios em todos os casos).
 
-Registre via `claude mcp add`, colando o token e o ad account reais no comando (NÃO use `$(cat ...)` — valores de env de MCP são passados literalmente ao processo, sem shell pra expandir; o servidor receberia a string `$(cat ...)` como token e toda chamada falharia com "Invalid OAuth access token"):
+### C. Criar o app no Meta for Developers
+
+1. https://developers.facebook.com/apps → **Criar app**, tipo **Business** (Empresa), vinculado ao seu Business Manager.
+2. No painel do app, adicione o produto **Marketing API**.
+3. Se for publicar no Instagram pela API (Skill `social-engine`), adicione também o produto **Instagram** (API com login do Facebook).
+
+O app começa no nível de acesso de desenvolvimento da Marketing API, com limite baixo de chamadas. Quando a operação crescer, peça o **Ads Management Standard Access** na Revisão do app; até lá, o limite de desenvolvimento dá conta de uma ou duas contas.
+
+### D. Entregar os ativos ao System User
+
+Em **Usuários do sistema → aura → Atribuir ativos**, entregue só o que a operação usa, com a permissão mínima:
+
+| Ativo | Permissão |
+|---|---|
+| Conta de anúncios | Gerenciar campanhas |
+| Página do Facebook da marca | Criar conteúdo + Anúncios |
+| Pixel / conjunto de dados | Usar |
+| Conta do Instagram (se for publicar) | Conteúdo |
+| O app criado no 3.3 | Desenvolver app |
+
+### E. Gerar o token
+
+1. **Usuários do sistema → aura → Gerar novo token**, escolha o app do passo C.
+2. Validade: **Nunca expira**.
+3. Permissões: `ads_management`, `ads_read`, `business_management`, `pages_read_engagement`, `pages_show_list`. Pra publicar no Instagram, some `instagram_basic` e `instagram_content_publish`.
+4. Copie o token **uma vez** e cole direto no comando do passo F.
+
+O token é segredo. Nunca cole no chat com o Claude, nunca salve dentro da pasta da Aura, nunca mande em print. Ele vive só no registro do MCP (que fica fora do repositório) ou num gerenciador de senhas seu.
+
+### F. Registrar como `meta-ads`
+
+Rode no **seu terminal**, fora do Claude (não use o `!` dentro da sessão: o comando apareceria na conversa), colando o token e o ID da conta reais. Não use `$(cat ...)`: valores de env de MCP são passados literalmente, sem shell pra expandir, e toda chamada falharia com "Invalid OAuth access token".
 
 ```bash
 claude mcp add meta-ads \
@@ -109,14 +124,13 @@ claude mcp add meta-ads \
   -- meta-ads-mcp
 ```
 
-Reinicie o Claude Code. **Renovação (a cada 60 dias):** gere o token novo (passo acima) e re-registre:
-
-```bash
-claude mcp remove meta-ads
-claude mcp add meta-ads --env META_ACCESS_TOKEN=<TOKEN_NOVO> --env META_DEFAULT_AD_ACCOUNT=act_123456789 -- meta-ads-mcp
-```
+O ID da conta (`act_` + número) está no Gerenciador de Anúncios, no seletor de contas. Reinicie o Claude Code e teste: "Claude, lista minhas Meta ad accounts." Se o token vazar ou um membro do time sair, gere um novo no passo E (o antigo é revogado) e re-registre com `claude mcp remove meta-ads` seguido do mesmo `claude mcp add`.
 
 > **Importante — naming:** o connector oficial usa `meta` (vira tools `mcp__meta__*`). O Pipeboard usa `meta-ads` (vira tools `mcp__meta-ads__*`). Não troque os nomes — as receitas detectam por prefixo.
+
+### G. Como a Aura opera a conta
+
+Regra de toda receita e skill que escreve na conta (`.claude/automations/README.md`, Segurança): uma operação por vez, na ordem das dependências (campanha → conjunto → criativo → anúncio), conferindo o resultado de cada uma antes da próxima; tudo nasce pausado; limite de chamadas respeitado com espera e nova tentativa só em leitura; erro de escrita para a sequência e volta pro membro, nunca é repetido às cegas.
 
 ## 3.5. Conectar Refero MCP (opcional, 2min — design system curado)
 
@@ -217,6 +231,32 @@ claude mcp add --transport http notion https://mcp.notion.com/mcp
 ```
 Reinicie e autorize no browser. Tools com prefixo `mcp__notion__` aparecem; a Skill `product-research` detecta qualquer prefixo com `notion` sozinha.
 
+## 3.10. Conectar a postagem automática no Instagram (opcional, 5min — Skill `social-engine`)
+
+O Higgsfield gera as imagens, mas não posta no Instagram. Quem posta é um publicador conectado ao Claude. Nos dois, a conta do Instagram precisa ser **Business ou Creator** e estar ligada a uma página do Facebook (exigência da Meta pra qualquer publicação por terceiros).
+
+| Publicador | Por que | Custo |
+|---|---|---|
+| **Blotato** (recomendado) | Posta feed, carrossel, Reels e Stories, aceita arquivo local ou URL e agenda do lado dele: o post sai no horário mesmo com o Claude fechado. Preço fixo, sem limite por volume | A partir de US$ 29 por mês, com até 20 contas. O MCP não entra no teste grátis |
+| **Metricool** | Connector no diretório do Claude, agenda no melhor horário do público e traz as métricas do perfil | MCP em todos os planos; o grátis limita a 20 posts agendados, então os 9 por dia pedem plano pago |
+
+### Blotato
+
+1. Crie a conta em https://www.blotato.com, assine o Starter e conecte o Instagram da marca no painel deles.
+2. **Claude Desktop / claude.ai:** Settings → Connectors → Add custom connector → URL `https://mcp.blotato.com/mcp`, login pela conta Blotato.
+3. **Claude Code:**
+   ```bash
+   claude mcp add --transport http blotato https://mcp.blotato.com/mcp
+   ```
+
+### Metricool
+
+Claude Desktop / claude.ai: Settings → Connectors → procure **Metricool** no diretório, faça login e escolha a marca que o Claude pode usar.
+
+### Sem publicador
+
+A `social-engine` publica pela API oficial do Instagram com o mesmo System User do passo 3 (produto Instagram no app e as permissões `instagram_basic` e `instagram_content_publish`). Sem nenhum dos dois, a rotina diária deixa as 9 imagens e as legendas prontas numa pasta pra agendar em lote no Meta Business Suite.
+
 ## 4. Conectar Shopify (3min — plugin oficial AI Toolkit)
 
 O caminho oficial é o **plugin Shopify AI Toolkit pro Claude Code** (não existe pacote npm `@shopify/ai-toolkit` — o toolkit é distribuído como plugin):
@@ -299,7 +339,7 @@ Vale pros dois lados: Admin da Shopify (criar Pages — `deploy-shopify-product.
 - [ ] Meta MCP oficial conectado (`claude mcp list` mostra `meta`)
 - [ ] OAuth Business Suite autorizado
 - [ ] Pelo menos 1 ad account aparece em `ads_get_ad_accounts`
-- [ ] Pipeboard token gerado e válido (fallback)
+- [ ] System User criado, com conta de anúncios, página e pixel atribuídos, e token sem validade gerado (passo 3)
 - [ ] Ad Account ID identificado
 - [ ] Pipeboard registrado (`claude mcp list` mostra `meta-ads`)
 - [ ] Shopify CLI autenticado
@@ -308,6 +348,7 @@ Vale pros dois lados: Admin da Shopify (criar Pages — `deploy-shopify-product.
 - [ ] (Opcional) Klaviyo MCP conectado (`mcp__klaviyo__*`) — automação de retention flows na Skill `retention-engine`
 - [ ] (Opcional) Higgsfield MCP conectado (`mcp__higgsfield__*`) — vídeo in-session na Skill `creative-engine` e imagem da página na Skill `page-design`
 - [ ] (Opcional) Foreplay MCP conectado (`mcp__foreplay__*`) — ad spy nas Skills `competitor-analysis`/`creative-engine`/`ad-analysis`
+- [ ] (Opcional) Publicador do Instagram conectado (Blotato `mcp__blotato__*` ou Metricool) — postagem diária da Skill `social-engine`
 - [ ] (Opcional) Notion MCP conectado (`mcp__claude_ai_Notion__*` ou `mcp__notion__*`) — banco de marcas da Skill `product-research`
 - [ ] (Recomendado) TrendTrack MCP conectado (`mcp__trendtrack__*`) — motor de descoberta da Skill `product-research` (gasta créditos do plano; sem ele, a pesquisa roda manual no browser). Quem ainda não assina: https://app.trendtrack.io/invite/tt-d0b18d189489 dá 20% de desconto nos 3 primeiros meses
 - [ ] (Opcional) Shopify Dev MCP (`mcp__shopify_dev__*`) + Stripe MCP (`mcp__stripe__*`)
@@ -324,10 +365,10 @@ Pronto. A partir daqui, membro invoca receitas por linguagem natural.
 → Mesmo motivo. Aguarde liberação ou use Pipeboard temporariamente.
 
 **Pipeboard "Invalid OAuth access token":**
-→ Duas causas comuns: (a) token expirou (long-lived dura 60 dias) — regenerar e re-registrar (passo 3); (b) o env foi registrado com `$(cat ...)` em vez do token literal — o valor não é expandido; re-registre colando o token real.
+→ Duas causas comuns: (a) token revogado (alguém gerou um novo no System User ou tirou o ativo dele) — gerar de novo e re-registrar (passo 3, E e F); (b) o env foi registrado com `$(cat ...)` em vez do token literal — o valor não é expandido; re-registre colando o token real.
 
 **Pipeboard "Missing permissions":**
-→ Scopes insuficientes. Refazer token com os 4 scopes listados.
+→ Permissão ou ativo faltando. Confira se a conta de anúncios, a página e o pixel estão atribuídos ao System User (passo 3, D) e gere o token de novo com as permissões do passo 3, E.
 
 **"MCP server not found" pro oficial:**
 → Confirmar que `mcp.facebook.com/ads` foi adicionado corretamente (`claude mcp list` / Settings→Connectors). Reiniciar Claude.
@@ -336,7 +377,7 @@ Pronto. A partir daqui, membro invoca receitas por linguagem natural.
 → Reiniciar Claude Code após o `claude mcp add`. Verificar `which meta-ads-mcp`.
 
 **"Rate limit exceeded" no Pipeboard:**
-→ Meta Marketing API tem limit 200 calls/hora/user + 100k/48h em dev. Esperar ou pedir aumento em https://developers.facebook.com/apps/.
+→ O app está no nível de desenvolvimento da Marketing API, que tem limite baixo. Esperar a janela zerar (a receita espera sozinha em leitura) ou pedir o Ads Management Standard Access na Revisão do app em https://developers.facebook.com/apps/.
 
 **Oficial sem rate limit documentado:**
 → A beta não publicou tetos. A hipótese de trabalho das receitas é herança da Marketing API (~200 calls/hora/ad account) — trate como estimativa, não como fato. Se ver erro 429 explícito, abrir issue em developers.facebook.com.
@@ -357,7 +398,7 @@ Pronto. A partir daqui, membro invoca receitas por linguagem natural.
 | Conta liberada no rollout | ✅ | ✅ | Oficial (mais features) |
 | Conta ainda disabled na beta | ❌ | ✅ | Pipeboard automático |
 | Oficial passa por outage | ❌ | ✅ | Pipeboard automático |
-| Token Pipeboard expirou | ✅ | ❌ | Oficial sozinho |
+| Token do System User revogado | ✅ | ❌ | Oficial sozinho |
 | Ambos caem | ❌ | ❌ | Pergunta ao membro |
 
 Resultado: Skill `ad-analysis` nunca trava por causa de MCP. Resiliência sem trabalho extra do membro.

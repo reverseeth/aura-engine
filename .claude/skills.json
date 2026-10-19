@@ -20,6 +20,7 @@
     "`reads`/`writes` são caminhos relativos a `workspace/<slug>/`, já com as pastas novas; `../profile.md` é o",
     "profile global do membro em `workspace/`. `consumers` = skills que leem o que esta escreve. `panel_*` são os",
     "dados do card no painel ABRIR-AQUI (`panel_card` agrupa page-design e page-build num card só). `summary_en` é a",
+    "`panel_desc_pt`/`panel_desc_en` são o resumo de uma ou duas frases, em linguagem simples, que o painel ABRIR-AQUI mostra embaixo do nome de cada skill (no card agrupado vale o da primeira skill do grupo).",
     "coluna Output da tabela do README; `summary_pt` é o resumo em português da skill, guardado aqui como referência (a",
     "lista de gatilhos do CLAUDE.md enxuto não o exibe); `order_note_pt`/`step_note_pt` são as notas curtas da",
     "linha ORDEM LÓGICA e do §13 do OVERVIEW; `group_pt` agrupa passos consecutivos (STOREFRONT) nessa linha.",
@@ -80,10 +81,14 @@
         "promo-engine",
         "team-engine",
         "content-recycler",
-        "marketplace-engine"
+        "marketplace-engine",
+        "support-engine",
+        "social-engine"
       ],
       "panel_tag": null,
       "panel_cmd": null,
+      "panel_desc_pt": "Cria a pasta do produto, o seu perfil e o registro de tudo que a Aura vai produzir.",
+      "panel_desc_en": "Creates the product folder, your profile and the record of everything Aura will produce.",
       "summary_pt": "",
       "summary_en": "profile + first manifest + dashboard"
     },
@@ -135,6 +140,8 @@
       ],
       "panel_tag": "side",
       "panel_cmd": "operação",
+      "panel_desc_pt": "Plano pra operação não parar: backup de conta de anúncio, de processadora de pagamento e de fornecedor, e o que fazer se uma conta cair.",
+      "panel_desc_en": "Keeps the business running: backup ad accounts, payment processors and suppliers, and what to do if an account goes down.",
       "summary_pt": "**consulta lateral — e a parte de backups vale desde o começo, porque conta nova é a mais frágil** — continuidade e risco estrutural da operação: a skill que pergunta \"o que mata esse negócio nos próximos 12 meses?\" e arma a resposta antes. Três frentes: (1) a constraint dos próximos 12 meses — o ÚNICO gargalo que limita o ano (estoque, caixa, plataforma ou pessoa-chave); (2) continuidade — checklist de backups com status confirmado pelo membro, nunca deduzido: conta e Business Manager reserva com campanhas pré-montadas desligadas, processadora de pagamento redundante, banco e domínio reserva, pre-order pronto pra ligar como válvula de estoque e caixa, risco de pessoa-chave medido em \"dores de cabeça por dólar\"; (3) negócio como ativo — memos de decisão (WAFM), teste de moat de produto e operação exit-ready. Não monta a estrutura anti-ban (isso é a `setup`), não calcula caixa (`finance-engine`) e não escolhe fornecedor (`sourcing`) — audita o status e aponta",
       "summary_en": "side consult — 12-month constraint, continuity checklist with member-confirmed status (backup account/BM, redundant payment processor, backup bank and domain, pre-order valve, key-man risk) and the business as an asset (WAFM memos, moat test, exit-ready); the backups part matters from day one"
     },
@@ -175,7 +182,9 @@
       ],
       "panel_tag": null,
       "panel_cmd": "product research",
-      "summary_pt": "descoberta por **recombinação de elementos validados**: acha marcas DTC que já escalam no nicho via TrendTrack — MCP ou manual, com dois conjuntos fixos de filtros no Explorer → Meta Ads, native ads em imagem e em vídeo, AOV ≥ $60 contando bundle/upsell —, monta a ficha de cada marca (LP mais escalada, ads mais escalados, tráfego, oferta, mecanismos, ângulo), valida só com Google Trends (problema + ingrediente, 5 anos, US: queda de 12+ meses elimina; problema subindo + ingrediente estável é o melhor cenário; pico recente = trocar mecanismo; subida vertical = hype) e com as reviews de 1-2 estrelas do Trustpilot (reclamação de cobrança/entrega passa; maioria sobre eficácia elimina), decompõe cada marca em elementos, monta jogadas de recombinação — nunca clonar, nunca criar do zero, no máximo aprimorar um mecanismo validado —, rankeia pelos eixos de score e salva o banco de marcas no Notion (ou em HTML na pasta do produto",
+      "panel_desc_pt": "Acha o produto certo: garimpa no TrendTrack as marcas que estão escalando agora, confere a demanda no Google Trends e nas reclamações do Trustpilot e monta a melhor oportunidade combinando o que já funciona.",
+      "panel_desc_en": "Finds the right product: mines TrendTrack for brands scaling right now, checks demand on Google Trends and Trustpilot complaints, and builds the best opportunity by combining what already works.",
+      "summary_pt": "descoberta por **recombinação de elementos validados**: acha marcas DTC que já escalam no nicho via TrendTrack — MCP ou manual, com o filtro fixo da Aura no Explorer → Meta Ads (tráfego ≥ 200k, ativo entre 14 e 60 dias, ad rank top 5%, growth rising, ≥ 200 ads ativos, US/CA/AU/UK, beauty & care + health & supplements), AOV ≥ $60 contando bundle/upsell —, monta a ficha de cada marca (LP mais escalada, ads mais escalados, tráfego, oferta, mecanismos, ângulo), valida só com Google Trends (problema + ingrediente, 5 anos, US: queda de 12+ meses elimina; problema subindo + ingrediente estável é o melhor cenário; pico recente = trocar mecanismo; subida vertical = hype) e com as reviews de 1-2 estrelas do Trustpilot (reclamação de cobrança/entrega passa; maioria sobre eficácia elimina), decompõe cada marca em elementos, monta jogadas de recombinação — nunca clonar, nunca criar do zero, no máximo aprimorar um mecanismo validado —, rankeia pelos eixos de score e salva o banco de marcas no Notion (ou em HTML na pasta do produto",
       "summary_en": "brand discovery on TrendTrack (native ads, image + video, fixed filters; MCP or manual), per-brand file (top LP, top ads, traffic, offer, mechanisms), Google Trends + Trustpilot 1-2★ validation, recombination plays (never clone, never from zero), 8-axis score, brand bank in Notion or HTML"
     },
     {
@@ -224,6 +233,8 @@
       ],
       "panel_tag": "opt",
       "panel_cmd": "sourcing",
+      "panel_desc_pt": "Fecha o fornecedor: cotação, amostra, qualidade, prazo e condição de pagamento, com o custo real do produto pra montar a oferta.",
+      "panel_desc_en": "Locks in the supplier: quote, samples, quality, lead time and payment terms, with the real product cost for the offer.",
       "summary_pt": "opcional, roda em paralelo à `market-research` e à `competitor-analysis`: explica a operação em linguagem simples — pedido mínimo, fábrica própria vs intermediário, imposto incluso, operador logístico —, faz due diligence e identifica trade company disfarçada de fábrica, monta a mensagem de cotação em inglês, negocia condições de pagamento e incoterm, define o plano de qualidade com golden sample e a matemática do defeito sobre a margem, cobre compliance por categoria e contratos, planeja o calendário do Ano Novo Chinês, aciona os agentes parceiros da Aura e entrega o custo real pro COGS da skill `offer-builder`",
       "summary_en": "supplier analysis + quote message + logistics route (DDP → 3PL) + real COGS for skill `offer-builder`"
     },
@@ -266,10 +277,14 @@
         "creative-engine",
         "creator-engine",
         "consistency-audit",
-        "content-recycler"
+        "content-recycler",
+        "social-engine",
+        "support-engine"
       ],
       "panel_tag": null,
       "panel_cmd": "market research",
+      "panel_desc_pt": "Entende quem compra: o que a pessoa sente, deseja e já tentou, com as frases reais dos clientes, o nível de consciência do mercado e os ângulos de venda.",
+      "panel_desc_en": "Understands the buyer: what they feel, want and have already tried, with real customer phrases, market awareness and selling angles.",
       "summary_pt": "",
       "summary_en": "VOC, awareness, sophistication, root cause"
     },
@@ -314,10 +329,13 @@
         "page-design",
         "creative-engine",
         "consistency-audit",
-        "marketplace-engine"
+        "marketplace-engine",
+        "social-engine"
       ],
       "panel_tag": null,
       "panel_cmd": "competitor analysis",
+      "panel_desc_pt": "Disseca os concorrentes: páginas, ofertas, preços e os anúncios que mais escalam, pra achar o que já está validado e as brechas que ninguém ocupa.",
+      "panel_desc_en": "Dissects competitors: pages, offers, prices and their most scaled ads, to find what is already proven and the gaps nobody owns.",
       "summary_pt": "inclui análise profunda de criativos escalados dos concorrentes via transcrição de vídeo, cascade Groq API → Whisper local — ETAPA 3C",
       "summary_en": "claims, gaps, creative patterns (Whisper transcription)"
     },
@@ -372,10 +390,14 @@
         "ad-analysis",
         "scale-engine",
         "promo-engine",
-        "content-recycler"
+        "content-recycler",
+        "social-engine",
+        "support-engine"
       ],
       "panel_tag": null,
       "panel_cmd": "offer",
+      "panel_desc_pt": "Monta a oferta: mecanismo único, preço, kits, bônus, garantia e a conta de margem, pra vencer a oferta do concorrente e ser difícil de recusar.",
+      "panel_desc_en": "Builds the offer: unique mechanism, price, bundles, bonuses, guarantee and the margin math, to beat the competitor's offer and be hard to refuse.",
       "summary_pt": "inclui Research Foundation obrigatória — ETAPA 2.5",
       "summary_en": "mechanism, proof bank, pricing, guarantee"
     },
@@ -435,6 +457,8 @@
       ],
       "panel_tag": "side",
       "panel_cmd": "finance",
+      "panel_desc_pt": "Faz a conta do negócio inteiro: capital necessário, fluxo de caixa, quanto dá pra gastar em anúncio e em quanto tempo o dinheiro volta.",
+      "panel_desc_en": "Runs the numbers for the whole business: capital needed, cash flow, how much you can spend on ads and how fast the money comes back.",
       "summary_pt": "**consulta lateral, não é etapa da sequência** — dona do modelo financeiro completo declarado no cânone `.claude/lib/unit-economics/README.md` §5. Roda em DOIS MODOS decididos pelos dados, sem pergunta extra: **Modo A — planejar** (sem mês fechado): monthly model com o custo fixo dentro, margem de contribuição, ponto de cobertura do fixo, piso de CAC, caixa pra 90 dias e benchmarks DTC; **Modo B — medir** (com ≥1 mês fechado, ad spend + clientes novos do Shopify): as 4 alavancas (AOV, CAC, ad spend, % de recorrentes), cohorts com decay factor e LTV medido, payback de 90 dias, first-order profitability, teto de escala, ciclo de conversão de caixa (~105 dias de float) e banking sheet semanal. É a skill que **calcula a espiral do ROAS** e publica `roas_spiral.breakeven_roas_with_fixed` + `cut_spend_recommendation_allowed` — a `ad-analysis` e a `scale-engine` consultam esses campos antes de recomendar qualquer corte de spend. Nunca chama de lucro um número que não subtraiu custo fixo; nunca estima custo fixo, CAC real nem contagem de clientes novos — pede",
       "summary_en": "side consult, not a pipeline step — the brand's financial model in two data-decided modes: **A (plan**, no closed month: monthly model with fixed costs in, contribution margin, CAC floor, 90-day cash need, DTC benchmarks) and **B (measure**, ≥1 closed month: the 4 levers, cohorts with decay and measured LTV, 90-day payback, scale ceiling, ~105-day cash conversion cycle, weekly banking sheet). Computes the ROAS spiral and publishes the break-even ROAS with fixed costs that skills `ad-analysis` and `scale-engine` read before recommending any spend cut"
     },
@@ -477,10 +501,13 @@
         "creative-engine",
         "agentic-readiness",
         "consistency-audit",
-        "ad-analysis"
+        "ad-analysis",
+        "support-engine"
       ],
       "panel_tag": null,
       "panel_cmd": "copy",
+      "panel_desc_pt": "Escreve a copy da página de venda e do advertorial, modelando estruturas que já vendem e usando as palavras exatas do cliente.",
+      "panel_desc_en": "Writes the sales page and advertorial copy, modeling structures that already sell and using the customer's exact words.",
       "summary_pt": "inclui modelagem por espécime de swipe file — ETAPA 2.5, escolhe 1 peça real que já converteu e modela a ESTRUTURA dela — e o sweep 9 de auditoria de markup no fim",
       "summary_en": "headlines, leads, advertorial, PDP copy — structure modeled on a proven swipe-file specimen, then markup-audited"
     },
@@ -532,10 +559,13 @@
       "consumers": [
         "page-build",
         "checkout-aov",
-        "consistency-audit"
+        "consistency-audit",
+        "social-engine"
       ],
       "panel_tag": null,
       "panel_cmd": "page",
+      "panel_desc_pt": "Desenha e publica a página da loja: board de referências, design aprovado por você e a página no ar na Shopify.",
+      "panel_desc_en": "Designs and ships the store page: reference board, a design you approve, and the page live on Shopify.",
       "panel_card": "07",
       "panel_title_pt": "Página (loja)",
       "panel_title_en": "Page (storefront)",
@@ -588,6 +618,8 @@
       ],
       "panel_tag": null,
       "panel_cmd": null,
+      "panel_desc_pt": "Desenha e publica a página da loja: board de referências, design aprovado por você e a página no ar na Shopify.",
+      "panel_desc_en": "Designs and ships the store page: reference board, a design you approve, and the page live on Shopify.",
       "panel_card": "07",
       "summary_pt": "compile determinístico HTML→Liquid + populate template JSON + deploy Shopify",
       "summary_en": "deterministic HTML→Liquid compile + Shopify deploy"
@@ -632,6 +664,8 @@
       ],
       "panel_tag": null,
       "panel_cmd": "tracking",
+      "panel_desc_pt": "Instala o rastreamento das vendas com o Pixel da Meta e o Wetracked, pra o algoritmo saber exatamente quem comprou.",
+      "panel_desc_en": "Sets up sales tracking with the Meta Pixel and Wetracked, so the algorithm knows exactly who bought.",
       "summary_pt": "Meta Pixel + CAPI com EMQ ≥ 6/10 no Events Manager + analytics stack por stage",
       "summary_en": "Meta Pixel + CAPI + analytics stack"
     },
@@ -675,12 +709,62 @@
       "consumers": [
         "bonus-delivery",
         "consistency-audit",
-        "ad-strategy"
+        "ad-strategy",
+        "support-engine"
       ],
       "panel_tag": null,
       "panel_cmd": "checkout",
+      "panel_desc_pt": "Aumenta o valor de cada pedido: kits, oferta no carrinho, oferta depois da compra e frete grátis a partir de um valor.",
+      "panel_desc_en": "Raises the value of each order: bundles, cart offer, post-purchase offer and a free-shipping threshold.",
       "summary_pt": "post-purchase upsell, cart bump, bundle, free-shipping threshold, checkout trust",
       "summary_en": "post-purchase upsell, cart bump, bundles, checkout trust"
+    },
+    {
+      "id": "support-engine",
+      "legacy_ids": [],
+      "file": ".claude/skills/support-engine/SKILL.md",
+      "name": "Support Engine",
+      "title_pt": "Suporte ao cliente",
+      "title_en": "Customer support",
+      "triggers": [
+        "suporte",
+        "atendimento",
+        "customer support",
+        "SAC",
+        "brandwise",
+        "helpdesk",
+        "responder cliente",
+        "comentários dos ads"
+      ],
+      "lane": "side",
+      "position": 10,
+      "step_note_pt": "consulta lateral pré-launch, junto do checkout e da retenção; explica a Brandwise, o suporte com IA ligado à Shopify, e entrega a base de conhecimento pronta",
+      "folder": "support-engine",
+      "legacy_folder": null,
+      "report_stem": "support-engine",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "brand.md",
+        "offer-builder/dados.json",
+        "copy-engine/copy-engine.md",
+        "market-research/dados.json",
+        "checkout-aov/dados.json"
+      ],
+      "writes": [
+        "support-engine/support-engine.md",
+        "support-engine/support-engine.html",
+        "support-engine/dados.json"
+      ],
+      "consumers": [],
+      "panel_tag": "side",
+      "panel_cmd": "suporte",
+      "panel_desc_pt": "Explica a Brandwise, o suporte com IA ligado à Shopify que resolve rastreio, troca, reembolso e DMs, e entrega o texto pronto pra ela responder certo.",
+      "panel_desc_en": "Explains Brandwise, the AI support desk connected to Shopify that handles tracking, exchanges, refunds and DMs, and delivers the ready-to-paste knowledge base.",
+      "panel_title_pt": "Suporte ao cliente",
+      "panel_title_en": "Customer support",
+      "summary_pt": "**consulta lateral pré-launch** — explica a Brandwise (helpdesk de IA ligado à Shopify que resolve sozinho rastreio, troca de endereço, reembolso, devolução e cancelamento, com email, chat, comentários e DMs numa caixa só), o passo a passo da conta e a base de conhecimento em inglês montada com a oferta, a garantia e o prazo de envio",
+      "summary_en": "side consult, pre-launch — explains Brandwise (AI help desk connected to Shopify resolving tracking, address changes, refunds, returns and cancellations, with email, chat, comments and DMs in one inbox), account setup steps and an English knowledge base built from the offer, guarantee and shipping time"
     },
     {
       "id": "bonus-delivery",
@@ -726,6 +810,8 @@
       ],
       "panel_tag": "two",
       "panel_cmd": "bonus delivery",
+      "panel_desc_pt": "Cria e entrega os bônus prometidos na oferta e, depois do lançamento, mede quantos clientes usam cada um.",
+      "panel_desc_en": "Creates and delivers the bonuses promised in the offer and, after launch, measures how many customers use each one.",
       "summary_pt": "geração de asset de bônus de ecom + delivery; roda em DUAS fases: Fase A pré-launch, logo depois da `checkout-aov` e só se a oferta tem bônus — gera os assets e configura GWP/entrega, porque todo bônus prometido na PDP precisa existir antes do primeiro ad; Fase B pós-launch, junto da Fase B da `retention-engine` — tracking de take-rate/access rate",
       "summary_en": "ecom bonus asset + delivery (Phase A pre-launch: assets + GWP config; Phase B post-launch: take-rate tracking)"
     },
@@ -779,6 +865,8 @@
       ],
       "panel_tag": "two",
       "panel_cmd": "retention",
+      "panel_desc_pt": "Monta os emails e SMS automáticos: carrinho abandonado e pós-compra antes de lançar, recompra e reconquista depois.",
+      "panel_desc_en": "Builds the automated emails and SMS: abandoned cart and post-purchase before launch, reorder and win-back after.",
       "summary_pt": "roda em DUAS fases: **Fase A pré-launch**, depois da `checkout-aov`/`bonus-delivery` e antes dos criativos — flows de recuperação (abandoned cart + post-purchase), infraestrutura de cash flow que todo operador de elite arma ANTES de ligar tráfego pago: é a receita mais barata que existe e custa zero no free tier do ESP; **Fase B pós-launch**, com ≥50 compras — win-back, replenishment e segmentação. Campanhas/newsletters de email continuam sempre pós-launch",
       "summary_en": "Klaviyo/ESP lifecycle flows (Phase A pre-launch: abandoned cart + post-purchase recovery flows; Phase B post-launch: win-back/replenishment, ≥50 orders)"
     },
@@ -837,6 +925,8 @@
       ],
       "panel_tag": null,
       "panel_cmd": "creatives",
+      "panel_desc_pt": "Cria os anúncios: modela os criativos mais validados do TrendTrack com o argumento da sua pesquisa e produz no Higgsfield ou em outra IA.",
+      "panel_desc_en": "Creates the ads: models TrendTrack's most proven creatives with your research as the argument and produces them on Higgsfield or another AI.",
       "summary_pt": "",
       "summary_en": "ad briefings (scripts, hooks, prompts) + EDL"
     },
@@ -885,8 +975,61 @@
       "consumers": [],
       "panel_tag": "side",
       "panel_cmd": "creators",
+      "panel_desc_pt": "Opera conteúdo com pessoas reais: criadores de UGC, envio de produto pra influenciadores e anúncios rodando no perfil deles.",
+      "panel_desc_en": "Runs content with real people: UGC creators, product seeding to influencers and ads running from their profiles.",
       "summary_pt": "**consulta lateral em DUAS fases** — a operação completa de conteúdo humano: content é o arquivo bruto, creative é o content editado, e sem abundância de conteúdo não há volume de teste. **Fase A — Content Engine**, pode começar junto com a `creative-engine` e antes do launch: product seeding (enviar produto de graça em troca de conteúdo, em plataforma tipo Insense ou por outreach manual), casting com diversidade amarrada aos sub-avatares da `market-research`, framework de brief (nunca script fechado), follow-up e coleta, corte de cada vídeo em 3 hooks e o pipeline TikTok Shop como fábrica de volume — o objetivo é achar um brand ambassador, não um winning ad de primeira. **Fase B — Performance Program**, SÓ depois de breakthrough confirmado pela `ad-analysis`: o creator vencedor vira contrato recorrente, escada de embaixador com comissão em degraus, whitelisting (rodar ads do perfil do creator — só de quem já tem breakthrough com a marca), partnership ads, raw content campaign, creator farming e recrutamento pago de afiliados. A `creative-engine` continua dona do QUE dizer (conceitos, roteiros, produção IA); a `creator-engine` é dona de QUEM grava e da relação com quem grava — e nunca cria campanha nem mexe em budget (isso é `ad-strategy`/`scale-engine`). Material voltado ao creator sai sempre em inglês US",
       "summary_en": "side consult, two phases — Phase A (can start alongside `creative-engine`, pre-launch): product seeding, creator casting tied to the `market-research` sub-avatars, brief frameworks, TikTok Shop content pipeline; Phase B (only after a breakthrough confirmed by `ad-analysis`): recurring contracts, ambassador ladder, whitelisting, partnership ads, creator farming"
+    },
+    {
+      "id": "social-engine",
+      "legacy_ids": [],
+      "file": ".claude/skills/social-engine/SKILL.md",
+      "name": "Social Engine",
+      "title_pt": "Instagram da marca",
+      "title_en": "Brand Instagram",
+      "triggers": [
+        "instagram",
+        "social",
+        "posts",
+        "feed",
+        "redes sociais",
+        "postar todo dia",
+        "marketing studio",
+        "conteúdo orgânico"
+      ],
+      "lane": "side",
+      "position": 13,
+      "step_note_pt": "consulta lateral depois da página ou dos criativos; board no Pinterest, 9 posts por dia pelo Marketing Studio do Higgsfield e rotina diária agendada",
+      "folder": "social-engine",
+      "legacy_folder": null,
+      "report_stem": "social-engine",
+      "reads": [
+        "../profile.md",
+        "manifest.json",
+        "brand.md",
+        "page/page-plan.json",
+        "page/design/design-tokens.json",
+        "offer-builder/dados.json",
+        "market-research/dados.json",
+        "competitor-analysis/dados.json"
+      ],
+      "writes": [
+        "social-engine/social-engine.md",
+        "social-engine/social-engine.html",
+        "social-engine/dados.json",
+        "social-engine/rotina-prompt.md"
+      ],
+      "consumers": [
+        "page-design"
+      ],
+      "panel_tag": "side",
+      "panel_cmd": "instagram",
+      "panel_desc_pt": "Cuida do Instagram da marca: board de branding no Pinterest, 9 imagens por dia com os templates do Higgsfield, legenda e hashtags escritas pela Aura e postagem automática todo dia.",
+      "panel_desc_en": "Runs the brand's Instagram: Pinterest brand board, 9 images a day from Higgsfield templates, captions and hashtags written by Aura and automatic daily posting.",
+      "panel_title_pt": "Instagram da marca",
+      "panel_title_en": "Brand Instagram",
+      "summary_pt": "**consulta lateral** — Instagram da marca no piloto automático: board de branding no Pinterest com a mesma direção da loja, templates de imagem do Marketing Studio do Higgsfield (ou qualquer IA de imagem), 9 posts por dia num grid 3x3 com legenda em inglês, hashtags e CTA, Limpador de Metadados antes de postar, publicação pela cascade (Blotato ou Metricool → API do Instagram → pacote pronto) e rotina diária agendada no Claude do membro",
+      "summary_en": "side consult — brand Instagram on autopilot: Pinterest brand board, Higgsfield Marketing Studio image templates (or any image AI), 9 posts a day as a coherent 3x3 grid with English captions and hashtags, metadata cleaner, publishing cascade (Blotato or Metricool → Instagram API via the Meta System User → ready-to-post package) and a daily scheduled routine"
     },
     {
       "id": "agentic-readiness",
@@ -926,6 +1069,8 @@
       ],
       "panel_tag": null,
       "panel_cmd": "agentic readiness",
+      "panel_desc_pt": "Prepara a loja pra ser achada e recomendada por assistentes de compra com IA, como ChatGPT, Perplexity e Google.",
+      "panel_desc_en": "Gets the store ready to be found and recommended by AI shopping assistants like ChatGPT, Perplexity and Google.",
       "summary_pt": "checklist de descoberta por agentes de compra com AI — canal Agentic Storefronts + policies, Knowledge Base app, dados estruturados da PDP, bloco de specs legível por agente, robots.txt liberando os robôs de AI, llms.txt, Perplexity Merchant Program, feed do Merchant Center; roda depois do deploy da página e antes do consistency audit",
       "summary_en": "AEO checklist: Agentic Storefronts channel, structured data, AI crawler access, AI visibility score (post-deploy, pre-launch)"
     },
@@ -975,6 +1120,8 @@
       ],
       "panel_tag": null,
       "panel_cmd": "audit",
+      "panel_desc_pt": "Confere, antes de lançar, se oferta, copy, página e anúncios contam a mesma história, sem promessa solta.",
+      "panel_desc_en": "Checks, before launch, that offer, copy, page and ads tell the same story, with no loose promises.",
       "summary_pt": "cross-phase drift detection antes de launch — gate de bloqueio pra `ad-strategy`/`retention-engine`",
       "summary_en": "cross-phase drift detection + launch gate"
     },
@@ -1021,6 +1168,8 @@
       ],
       "panel_tag": null,
       "panel_cmd": "ad strategy",
+      "panel_desc_pt": "Monta a campanha de teste no Meta Ads, na estrutura da Aura ou com bid cap, tudo pausado pra você revisar antes de ligar.",
+      "panel_desc_en": "Builds the Meta Ads test campaign, in Aura's structure or with bid cap, all paused for you to review before turning it on.",
       "summary_pt": "estrutura 1 campanha com CBO → N ad sets broad/Advantage+, 1 ad set = 1 conceito, cada um com 3 criativos + 2 primary texts + 2 headlines; o nº de ad sets vem da capacidade de teste do cânone `.claude/lib/ad-taxonomy/README.md` §1 — `assets = budget diário ÷ target CPA` —, não do tamanho do batch. Criada em PAUSED via Meta MCP pro membro revisar e ativar; a escolha do analytics stack é da `tracking-setup`",
       "summary_en": "1 CBO campaign → N ad sets (1 ad set = 1 concept, 3 creatives + 2 primary texts + 2 headlines), ad set count sized by testing capacity (budget ÷ target CPA)"
     },
@@ -1078,6 +1227,8 @@
       ],
       "panel_tag": null,
       "panel_cmd": "ad analysis",
+      "panel_desc_pt": "Lê os resultados depois de 3 a 7 dias: o que cortar, o que manter, qual criativo venceu de verdade e o que testar em seguida.",
+      "panel_desc_en": "Reads the results after 3 to 7 days: what to cut, what to keep, which creative truly won and what to test next.",
       "summary_pt": "",
       "summary_en": "4Pi diagnostic + 4-class result taxonomy (loser / KPI winner / spend winner / breakthrough) + next batch ideas"
     },
@@ -1121,6 +1272,8 @@
       ],
       "panel_tag": null,
       "panel_cmd": "scale",
+      "panel_desc_pt": "Escala o que venceu: quanto subir de orçamento, quando duplicar e como abrir ângulos novos sem quebrar o resultado.",
+      "panel_desc_en": "Scales what won: how much to raise budget, when to duplicate and how to open new angles without breaking results.",
       "summary_pt": "",
       "summary_en": "Scaling Protocol plan (+20% after 48-72h above target, −20% below breakeven, click-based gate) — vertical + horizontal"
     },
@@ -1172,6 +1325,8 @@
       "consumers": [],
       "panel_tag": "side",
       "panel_cmd": "promo",
+      "panel_desc_pt": "Planeja promoções de data, como Black Friday e Dia das Mães: calendário, oferta, copy e anúncios da janela.",
+      "panel_desc_en": "Plans seasonal promos like Black Friday and Mother's Day: calendar, offer, copy and ads for the window.",
       "summary_pt": "**lateral e sazonal — dispara por época ou pedido, uma rodada por janela** — dona da janela promocional de ponta a ponta: calendário da janela (começar cedo é a tese central), preparação (momentum do evergreen antes da janela, decisão de lead-gen VIP pelo critério de returning customers, estoque via `sourcing` e backups via `ops-engine`), oferta da promo (hierarquia de ofertas BFCM, store credit, stacking e linguagem), o **GATE inegociável** de recalcular o breakeven ROAS e o CPA com a margem promocional antes de ligar qualquer campanha — sem os números recalculados, a skill PARA —, execução (Promo Campaign Broad/WARM60/HOT90 em paralelo ao evergreen intocado, criativos \"best ad + banner\" via handoff pra `creative-engine`, calendário de email/SMS que a `retention-engine` transforma em assets, surf scaling e reset da meia-noite pelo cânone ad-taxonomy §5, tudo logado no ad-log) e aterrissagem (regra de fim por horário, volta pro evergreen, leitura pós-promo com a `ad-analysis` e a `finance-engine`, revival sazonal de winners pelo calendário sazonal de desejos",
       "summary_en": "seasonal side skill — owns the promo window end to end (Q4/BFCM, seasonal dates, flash sales): window calendar, promo offer, the non-negotiable gate of recalculating break-even ROAS/CPA with the promo margin before any campaign goes live, Broad/WARM60/HOT90 promo campaign alongside untouched evergreen, surf scaling + midnight reset, landing back on evergreen"
     },
@@ -1219,6 +1374,8 @@
       "consumers": [],
       "panel_tag": "side",
       "panel_cmd": "contratar",
+      "panel_desc_pt": "Decide quem contratar, quanto pagar e como gerir o time, do editor de vídeo ao gestor de tráfego.",
+      "panel_desc_en": "Decides who to hire, how much to pay and how to manage the team, from video editor to media buyer.",
       "summary_pt": "**consulta lateral** — decide QUANDO contratar (pela restrição real do negócio, nunca por desespero: contrata-se porque QUER, nunca porque PRECISA — bad hire custa ~15× o salário anual), COMO contratar (scorecard antes da vaga, funil de 9 etapas, teste prático cronometrado, headhunting) e COMO rodar o time depois (onboarding de 8 semanas, KPIs por função com hit rate por editor, reviews com 9-box e PIP, incentivos, org design em engines e pods, frameworks de decisão DAI/RAPID/AAR). Pensada pro membro em estágio scaling — pra starter/validating a resposta certa costuma ser \"ainda não, sua restrição hoje é X\", entregue com o porquê. Nenhuma vaga sem gargalo nomeado; quando a pergunta é \"a folha cabe no caixa?\", o número vem da `finance-engine` ou do membro, nunca de estimativa; creator não é funcionário — creator é território da `creator-engine`",
       "summary_en": "side consult — when to hire (by the real constraint, never out of desperation), how to hire (scorecard before the opening, 9-step funnel, timed practical test) and how to run the team (8-week onboarding, KPIs per role, 9-box reviews, incentives, org design); for starter/validating the honest answer is usually \"not yet\""
     },
@@ -1260,6 +1417,8 @@
       "consumers": [],
       "panel_tag": "post",
       "panel_cmd": "recycle",
+      "panel_desc_pt": "Multiplica o anúncio vencedor: novas versões do criativo que escalou e cortes pra outros canais.",
+      "panel_desc_en": "Multiplies the winning ad: new versions of the creative that scaled and cuts for other channels.",
       "summary_pt": "gatilho é um criativo classificado como **breakthrough** pela `ad-analysis` — cânone `.claude/lib/ad-taxonomy/README.md` §2; `kpi_winner` é tratado como loser para decisão e nunca entra. Duas trilhas: **Trilha 1 Amplificação** (default, roda primeiro — 6 movimentos: iterar pelos 4 elementos, portar o ângulo pra outros formatos, LP/prelander dedicada, portar pra Axon/AppLovin e TikTok, duplicar em ad set ABO a ~10% do budget, creator report) e **Trilha 2** (sob pedido — as 9 derivadas de canal próprio, jogada de marca e LTV, não de escala",
       "summary_en": "amplification plan for 1 breakthrough creative (Track 1, default); 9 channel derivatives on request (Track 2)"
     },
@@ -1301,6 +1460,8 @@
       "consumers": [],
       "panel_tag": "side",
       "panel_cmd": "marketplace",
+      "panel_desc_pt": "Leva a marca pra outros canais de venda, como Amazon, TikTok Shop e afiliados, quando o site já provou que vende.",
+      "panel_desc_en": "Takes the brand to other sales channels like Amazon, TikTok Shop and affiliates once the site has proven it sells.",
       "summary_pt": "**consulta lateral de estágio scaling** — expansão de CANAL DE VENDA além do site próprio: decide quando (e se) a marca abre Amazon, TikTok Shop e programa de afiliados, e acompanha cada canal aberto. Roda um GATE antes de qualquer tática — Meta + site provados primeiro (breakthrough na `ad-analysis`, conta fechando na `finance-engine`) e sinal de demanda transbordando (busca de marca subindo, cliente procurando a marca na Amazon, revendedor aparecendo na listagem) — porque canal novo não conserta oferta quebrada; sem prova, o veredito honesto é \"ainda não, e falta X\". Amazon como captura da demanda que o ad já criou (SEO da listagem, defesa de marca, lances baixos, preço riscado, custom link, TACOS); TikTok Shop como canal de venda operado por afiliados — o conteúdo em si é da `creator-engine`; afiliados via tráfego pago (\"apply to be brand ambassador\", comissão decrescente por faixa) e clientes virando afiliados automaticamente. Portar campanha paga pra AppLovin/Axon/TikTok Ads é a skill `content-recycler`, Movimento 4",
       "summary_en": "side consult — expansion gate first (proven Meta + site, demand overflowing), then Amazon, TikTok Shop and an affiliate program as secondary sales channels, each tracked per channel; porting paid campaigns to other ad platforms stays with skill `content-recycler`"
     }

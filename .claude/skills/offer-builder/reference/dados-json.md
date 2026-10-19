@@ -42,6 +42,8 @@ O `dados.json` abre com um objeto `resumo`: até doze campos curtos com o que a 
     "aov_expected": 118.00,
     "currency": "USD"
   },
+  "fulfillment_model": "stock | no_stock | no_stock_then_stock",
+  "delivery_days_estimate": { "min": 2, "max": 5 },
   "subscription_architecture": "subscription_first | onetime_plus_sub_no_reorder | no_subscription",
   "onetime_premium_pct": 15,
   "sub_discount_pct": 0,
@@ -77,6 +79,15 @@ O `dados.json` abre com um objeto `resumo`: até doze campos curtos com o que a 
     "aov_blended": 108.00
   },
   "guarantee": { "type": "...", "duration_days": 30 },
+  "competitor_comparison": {
+    "competitor": "...",
+    "competitor_url": "...",
+    "rows": [ { "axis": "price_per_unit", "competitor": "...", "ours": "...", "winner": "ours | competitor | tie" } ],
+    "wins_visible": 3,
+    "unique_differentiator": "...",
+    "no_brainer_lines": ["as 3 frases do teste, em inglês US"],
+    "no_brainer_test": "pass"
+  },
   "offer_stack": "Main product ($97 value) + Bonus 01 ($49 value) + Bonus 02 ($39 value) + Bonus 03 ($29 value) = $214 total value. Today: $97 (you save $117).",
   "aov_levers": {
     "bump": { "name": "...", "price": 14.00, "copy": "1 frase + 1 benefício (inglês US)", "take_projected": 0.20 },
@@ -122,6 +133,7 @@ O `dados.json` abre com um objeto `resumo`: até doze campos curtos com o que a 
 - `cogs_breakdown` traz o stack de custos variáveis item a item (§1). **Todo campo do bloco é valor em dinheiro POR PEDIDO, nunca percentual solto** — a Skill `ad-analysis` SOMA os valores deste bloco pra obter o COGS canônico, e um percentual no meio da soma corromperia o número. Fee que nasce como % (pagamento, app de assinatura, agência) entra aqui já convertido pro valor do pedido médio. `subscription_app_fee` = 0 quando não há assinatura; `agency_fee_variable` = 0 quando a agência cobra valor fixo (aí ela é custo FIXO e vai em `budget_viability.fixed_costs_monthly`) ou quando não há agência. **Ad spend nunca entra aqui** — ele é o CAC do PSM.
 - `unit_economics.basis: "first_order"` declara que todos os campos canônicos do bloco (margem, breakeven, tetos de CAC, PSM, `contribution_margin_pct`) são do PRIMEIRO PEDIDO. A economia da recompra vive só em `repeat_order` — com o próprio `contribution_margin_pct` dela —, e nenhum derivado de mídia sai de lá (§2).
 - `unit_economics.cac_basis: "shopify_new_customer"` declara que o custo de aquisição do modelo é CAC por cliente novo medido no Shopify (`new customer = TRUE`), não o CPA que a plataforma de ads reporta (§3). Os campos mantêm o nome `*_cpa_*` por contrato com as skills `checkout-aov`/`ad-strategy`/`ad-analysis` — o nome é legado, o conteúdo é CAC.
+- `fulfillment_model` e `delivery_days_estimate` vêm da ETAPA 0 (`reference/coletar-produto.md`): sem estoque, a garantia conta da entrega e a página diz o prazo real. `competitor_comparison` vem da ETAPA 4.5 (`reference/oferta-irrecusavel.md`) e só é salvo com `no_brainer_test: "pass"`.
 - `budget_viability` não tem nenhum campo chamado "profit". `contribution_margin_per_day/month` é margem de contribuição; `result_after_fixed_monthly` é o único número que pode ser chamado de lucro, e é `null` enquanto `fixed_costs_monthly` for `null` (§1).
 - `contribution_margin_pct_measured` e `payback_window_days_measured` são **cópias** do `finance-engine/dados.json` (`monthly_model.contribution_margin_pct` e `payback.payback_window_days_measured`) — esta skill lê, nunca calcula nem estima. Ficam `null` quando a `finance-engine` não rodou, e nesse estado a ETAPA 8 e o check 8 operam exatamente como antes. `fixed_costs_source` registra de onde veio o número dos fixos.
 

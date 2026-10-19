@@ -68,14 +68,15 @@ Os SKILL.md dos directors são canônicos. Não modificar conteúdo deles dentro
 
 **Render in-session (se Higgsfield MCP conectado — ETAPA 0.7):**
 
-Se há tools `mcp__higgsfield__*` na sessão E o membro aprovou o render, após salvar cada prompt:
+Se há tools `mcp__higgsfield__*` na sessão E o membro aprovou o render com o custo em créditos (`balance` + estimativa do batch, `reference/mcps-opcionais.md`), após salvar cada prompt:
 
-1. Chamar a tool de geração correspondente à rota da cena (I2V com a foto real do produto pra cenas com produto; lip-sync pra takes de avatar; T2V só pra B-roll)
+1. Chamar a tool de geração correspondente à cena pela tabela de `reference/mcps-opcionais.md` (Marketing Studio pra UGC, review, unboxing e TV spot; `generate_video` em I2V com a foto real do produto pra cenas com produto; avatar fixo do `ai_influencer` pra mesma pessoa; `generate_image` ou preset do Marketing Studio pros estáticos; T2V só pra B-roll)
 2. Salvar o vídeo resultante em `workspace/[produto]/creative-engine/renders/`, **com o índice da EXECUÇÃO no nome** — as 3 execuções do pack 3-2-2 são 3 arquivos distintos, e a `ad-strategy` sobe cada uma como um ad separado dentro do ad set do conceito: `c0X-[creative-n].mp4` na geração contínua, ou `c0X-[creative-n]-shot-N.mp4` quando o modelo exige split em takes (Pergunta 1.5 da ETAPA 1.0)
 3. **Limpar os metadados do render** antes de registrar: `bash tools/strip-metadata.sh workspace/[produto]/creative-engine/renders/` (regra 12 — o Higgsfield grava `hf-job-id` e C2PA no arquivo; o limpador remove sem re-encodar e renomeia pra `asset-xxxx.mp4`). Se o ffmpeg não estiver instalado, ofereça instalar (`brew install ffmpeg` / `winget install Gyan.FFmpeg`) e, enquanto isso, deixe o render em `renders/` marcado como `metadata_clean: false` no `dados.json` — ele NÃO sobe assim
-4. Registrar cada path (já com o nome `asset-xxxx.mp4`) em `production_prompts.video.rendered_files[]` no `dados.json`, **um item por execução** (`creative_n` de 1 a 3, na mesma ordem do pack e do `utm_content=[concept-id]-[creative-n]` da Skill `ad-strategy`), com `metadata_clean: true`. Execução ainda não renderizada fica com `file: null` — a lista sempre tem os 3 itens
+4. **Pontuar o hook** de cada vídeo pronto no `virality_predictor`: hook com retenção fraca nos primeiros segundos volta pra reescrita (troca de hook dentro do mesmo conceito) antes de virar ad
+5. Registrar cada path (já com o nome `asset-xxxx.mp4`) em `production_prompts.video.rendered_files[]` no `dados.json`, **um item por execução** (`creative_n` de 1 a 3, na mesma ordem do pack e do `utm_content=[concept-id]-[creative-n]` da Skill `ad-strategy`), com `metadata_clean: true`. Execução ainda não renderizada fica com `file: null` — a lista sempre tem os 3 itens
 
-Falha de render (créditos esgotados, timeout, tool error) NÃO bloqueia a skill — o prompt salvo continua sendo o entregável e o membro gera manualmente (escape-path: sempre ≥2 caminhos). Sem o MCP, o fluxo é o atual (prompts pra colar).
+Falha de render (créditos esgotados, timeout, tool error) NÃO bloqueia a skill — o prompt salvo continua sendo o entregável e o membro gera manualmente (escape-path: sempre ≥2 caminhos). Sem o MCP, os prompts autocontidos servem em qualquer IA de imagem e vídeo (Veo, Kling, Sora, Runway, Midjourney, GPT Image).
 
 **Output secundário — `prompts-index.json`:**
 

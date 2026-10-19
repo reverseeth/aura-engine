@@ -18,7 +18,8 @@
   >     3. Prossiga mesmo assim reconhecendo limitação (copy ficará abstrata)
 
   Se membro escolher 3, marca `"voc_forced_continue": true` no output pra Skill `ad-analysis` diagnosticar depois.
-- [ ] `competitor-analysis/competitor-analysis.md` existe (ou o legado `relatorio.md` — mesmo fallback vale pras outras fases)
+- [ ] `competitor-analysis/competitor-analysis.md` existe (ou o legado `relatorio.md` — mesmo fallback vale pras outras fases), e de `competitor-analysis/dados.json` extrair `traffic_landings[]`, `landing_formats[]`, `top_creatives` e `validated_library` (as páginas escaladas e os elementos validados que a ETAPA 2.5.0 modela), mais `creative-patterns.json` se existir
+- [ ] Tools `mcp__trendtrack__*` na sessão? Se sim, a ETAPA 2.5.0 também puxa as páginas das marcas que mais vendem no TrendTrack (créditos checados antes); se não, segue com os concorrentes e a Meta Ad Library
 - [ ] `offer-builder/dados.json` existe → extrair `mechanism` (objeto `{name, ...}` — usar `mechanism.name`, NÃO tratar como string), `pricing`, `guarantee`, `bonuses[]` (cada bonus tem `condition` — dirige a copy de GWP/stack, ver ETAPA 4)
 - [ ] `offer-builder/research-foundation.json` (se existir) → extrair `proof_items[]` — o banco de provas (estudos, números, citações) que vira munição de specificity na copy. É munição, não teto: a copy não fica limitada ao que está lá.
 - [ ] Ler `manifest.copy_language` (se presente; default `"en"`) — confirma o idioma da copy consumidor-final. Não confundir com `report_language` (idioma dos relatórios internos): a copy pública segue `copy_language`, que hoje é sempre inglês US pro mercado US

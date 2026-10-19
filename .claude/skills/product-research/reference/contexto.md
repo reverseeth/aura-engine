@@ -34,7 +34,7 @@ A tese que governa a skill inteira:
    - **Se houver MAIS de um** manifest com `setup_complete === true`, NÃO escolha silenciosamente: liste os `product_name` e pergunte em 1 linha qual é o alvo. Se o membro já nomeou o produto no trigger, use esse.
    - Se **não existir**, aborte com: `"Rode \`setup\` primeiro — manifest.json ausente."` (ofereça rodar o setup inline).
 3. Confirme que `setup` está em `skills_completed`. Caso contrário, re-rode o setup.
-4. **Nicho.** Default desta skill é **health & supplements** (é o nicho dos filtros fixos da ETAPA 0.5). Se o membro quer outro nicho, ele diz e você troca só o filtro de nicho — o resto do método é idêntico.
+4. **Nicho.** Default desta skill é **beauty & care + health & supplements** (os nichos do filtro fixo da ETAPA 0.5). Se o membro quer outro nicho, ele diz e você troca só o filtro de nicho — o resto do método é idêntico.
 5. **Onde salvar o banco de marcas.** Verifique se há tools de Notion na sessão (prefixo `mcp__claude_ai_Notion__` ou `mcp__notion__` — qualquer prefixo com `notion`). Se NÃO houver, pergunte UMA vez, em 1 linha:
 
    > "Quer que eu salve o banco de marcas no Notion (uma página por marca, com links dos ads, LP, tráfego, reviews e a jogada recomendada)? Se sim, conecta o Notion MCP agora — no claude.ai / Claude Desktop: Settings → Connectors → Notion → conectar; no Claude Code: `claude mcp add --transport http notion https://mcp.notion.com/mcp` e autorize no browser. Se preferir, eu salvo tudo em HTML na pasta do produto."

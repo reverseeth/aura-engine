@@ -10,7 +10,7 @@ Faça APENAS estas duas perguntas:
 "Que tipo de página vamos escrever?
 - PDP (Shopify)
 - Landing Page dedicada
-- Advertorial
+- Advertorial (story curto, uma página por problema)
 - Não sei (o sistema recomenda baseado no awareness level)"
 
 Se o membro disser "não sei", use o awareness level dominante do market research pra decidir:

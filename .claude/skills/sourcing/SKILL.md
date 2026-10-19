@@ -56,7 +56,7 @@ Leia `reference/compliance.md` e puxe a matriz de compliance. A lista real de te
 
 ### ETAPA 6 · Agentes de sourcing parceiros da Aura
 
-Leia `reference/agentes-parceiros.md`: os quatro contatos por WhatsApp, quando o agente vale a pena (customização, volume, inspeção, consolidação, herdar condições de pagamento) e como abordar (a mensagem da ETAPA 4 mais 1 parágrafo de contexto; perguntar o modelo de remuneração na primeira conversa).
+Leia `reference/agentes-parceiros.md`: os cinco contatos por WhatsApp, quando o agente vale a pena (customização, volume, inspeção, consolidação, herdar condições de pagamento) e como abordar (a mensagem da ETAPA 4 mais 1 parágrafo de contexto; perguntar o modelo de remuneração na primeira conversa).
 
 ### ETAPA 7 · Comparar cotações e decidir
 

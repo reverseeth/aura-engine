@@ -53,6 +53,9 @@ Schema:
   "voc_coverage": { "total_checked": 20, "literal_hits": 14, "paraphrased": 5, "missing": 1 },
   "voc_forced_continue": false,
   "decision_modalities_covered": ["spontaneous", "competitive", "humanistic", "methodical"],
+  "market_references": [
+    {"brand": "...", "url": "...", "page_type": "advertorial", "scale_evidence": "destino de 38 ads ativos, ad mais antigo com 52 dias", "block_sequence": ["hero em pergunta", "cena", "causa", "troca de habito", "linha do tempo", "depoimentos", "oferta"], "validated_elements": ["linha do tempo de 4 semanas", "bundle com brinde"], "source": "competitor-analysis|trendtrack|adlib|member"}
+  ],
   "specimen_primary": "agora-11-blocos",
   "specimen_secondary": null,
   "specimen_block_map": [
@@ -71,7 +74,7 @@ Schema:
 }
 ```
 
-> `specimen_primary`/`specimen_block_map` vêm da ETAPA 2.5 e `markup_audit` do sweep 9. A skill `ad-analysis` usa os dois pra diagnosticar: quando uma página converte mal, a primeira pergunta é se o espécime escolhido era o certo pro avatar, e a segunda é qual camada do audit já tinha reprovado antes do launch.
+> `market_references[]` vem da ETAPA 2.5.0 (as páginas escaladas que a copy modelou); `specimen_primary`/`specimen_block_map` vêm da ETAPA 2.5 e `markup_audit` do sweep 9. A skill `ad-analysis` usa os dois pra diagnosticar: quando uma página converte mal, a primeira pergunta é se o espécime escolhido era o certo pro avatar, e a segunda é qual camada do audit já tinha reprovado antes do launch.
 
 `lead_type` é o campo **top-level** decidido na ETAPA 2 — contrato com a `page-design` (que o lê pra confirmar `page_type`). `voc_forced_continue` é o flag do pré-flight (só `true` quando o membro escolheu prosseguir com VOC insuficiente).
 

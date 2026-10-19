@@ -1,6 +1,6 @@
 ---
 name: ad-strategy
-description: Configuração e criação da estrutura de teste no Meta Ads Manager. Uma campanha com CBO (Advantage+ broad, Max Conversion) → um ad set por conceito (3 criativos, 2 primary texts e 2 headlines), cada ad set com o testing_method do conceito lido da creative-engine e o destino de página do mapeamento de congruência (fallback na URL canônica do manifest), com o número de conceitos governado pela capacidade de teste do cânone ad-taxonomy (criativos = budget diário ÷ target CPA, piso e tetos), 3 dias sem mexer, uma conta por produto, warmup de conta nova e cadência de quarta a domingo, com o domingo como checkpoint de decisão informada pela ad-analysis. Cria tudo em PAUSED via Meta Ads MCP, com gates de pré-launch, leitura de credibilidade da loja e as proteções que funcionam em CBO. Use quando o membro disser "ad strategy", "estratégia de ads", "montar campanha", "setup Meta Ads", "configurar campanha", ou depois dos briefings de criativos prontos.
+description: Configuração e criação da estrutura de teste no Meta Ads Manager, em Max Conversion (padrão) ou bid cap (lance no target CPA, teto no breakeven). Uma campanha com CBO (Advantage+ broad) → um ad set por conceito (3 criativos, 2 primary texts e 2 headlines), cada ad set com o testing_method do conceito lido da creative-engine e o destino de página do mapeamento de congruência (fallback na URL canônica do manifest), com o número de conceitos governado pela capacidade de teste do cânone ad-taxonomy (criativos = budget diário ÷ target CPA, piso e tetos), 3 dias sem mexer, uma conta por produto, warmup de conta nova e cadência de quarta a domingo, com o domingo como checkpoint de decisão informada pela ad-analysis. Cria tudo em PAUSED via Meta Ads MCP, com gates de pré-launch, leitura de credibilidade da loja e as proteções que funcionam em CBO. Use quando o membro disser "ad strategy", "estratégia de ads", "montar campanha", "setup Meta Ads", "configurar campanha", ou depois dos briefings de criativos prontos.
 ---
 
 # Ad Strategy · Passo 16 · apelido antigo: 10 <!-- gen:title -->
@@ -9,7 +9,7 @@ description: Configuração e criação da estrutura de teste no Meta Ads Manage
 
 Quando o membro tem criativos prontos (`creative-engine`), página publicada (`page-design` e `page-build`), tracking validado (`tracking-setup`) e oferta ativa (`offer-builder`), e precisa configurar e criar a estrutura de teste no Meta Ads Manager. É a camada de execução: monta a campanha exata e a cria em PAUSED pro membro revisar e ativar.
 
-Cânone: `.claude/lib/ad-taxonomy/README.md`, §1 (capacidade de teste e estrutura), §6 (automações) e §7 (métodos de teste). Onde o texto divergir do cânone, o cânone vence. Material de apoio em `reference/`; abra só o arquivo da etapa atual.
+Cânone: `.claude/lib/ad-taxonomy/README.md`, §1 (capacidade de teste e estrutura), §6 (automações), §7 (métodos de teste) e §8 (rota bid cap). Onde o texto divergir do cânone, o cânone vence. Material de apoio em `reference/`; abra só o arquivo da etapa atual.
 
 ## Pré-flight (obrigatório)
 
@@ -37,7 +37,7 @@ Arquivo crítico ausente (ES1 e ES2): (A) re-rodar a skill que o gera ou (B) seg
 
 ### ETAPA 1 · Gates de pré-launch (bloqueantes)
 
-Leia `reference/gates-pre-launch.md`. `consistency-audit/dados.json`: `BLOCK` aborta (só segue com pedido explícito, registrado em `skipped_preflight`); `CAUTION` pede OK explícito; `GO` segue; arquivo ausente = rodar a `consistency-audit` inline por default, avisando o membro. Metadados limpos (regra 12): só sobe arquivo `asset-xxxx`; outro nome passa antes por `bash tools/strip-metadata.sh <arquivo>`.
+Leia `reference/gates-pre-launch.md`. `consistency-audit/dados.json`: `BLOCK` aborta (só segue com pedido explícito, registrado em `skipped_preflight`); `CAUTION` pede OK explícito; `GO` segue; arquivo ausente = rodar a `consistency-audit` inline, avisando o membro. Metadados limpos (regra 12): só sobe arquivo `asset-xxxx`; outro nome passa antes por `bash tools/strip-metadata.sh <arquivo>`.
 
 ### ETAPA 2 · Leitura de credibilidade da loja
 
@@ -47,17 +47,19 @@ Leia `reference/credibilidade-da-loja.md`. Checklist de leitura (WARN, não bloq
 
 Leia `reference/playbook-e-sistemas.md` e puxe os sistemas que ancoram a estrutura. Uma campanha com CBO, um conceito por ad set, audiência broad: onde o CBO concentra gasto é o sinal que a `ad-analysis` lê.
 
+- **3.0 Rota** (`reference/rota-bid-cap.md`): Max Conversion (default) ou bid cap (`test_route`).
+
 - **3.1 Capacidade** (`reference/capacidade-de-teste.md`): `max_assets = floor(budget ÷ target_cpa)` e `max_adsets = floor(budget ÷ (3 × target_cpa))`. Quatro restrições juntas: piso de US$ 100 a 150 por dia, teto de cerca de 3× o target CPA por ad set, no máximo 5 ad sets abaixo de US$ 1k por dia, ad sets nunca acima dos conceitos disponíveis. Ordem de cálculo gravada no `dados.json`: `target_cpa`; 1b, veredito `target_reachable_vs_floor` (`no` = calcular também a capacidade pelo piso de CAC, mostrar os dois números, apontar a correção pra `offer-builder` e rodar pela conservadora com `cac_floor_check.binding: true`); `budget_diário`; `max_assets` e `max_adsets`; `adsets_planejados = min(max_adsets, conceitos, 5 abaixo de US$ 1k)`; `test_budget_daily`; `assets_planejados`. Casos de contorno: `max_assets < 3` = um conceito por vez em fila; budget abaixo do piso = (a) adiar ou (b) um conceito só, resultado direcional que não autoriza kill nem escala; capacidade maior que o batch = mais conceitos na `creative-engine`, nunca budget a mais nos mesmos ad sets; `margin_warning` = piso e menos conceitos. O stage apresenta os caminhos, não define o número.
 - **3.2 Método** (`reference/metodo-de-teste.md`): o método se lê de `concepts[].testing_method`, conceito a conceito (batch misto vira `test_method: mixed`); batch legado sem o campo grava `sniper` em todos com `data_gap`, nunca reclassifica como Marksman. Marksman acontece dentro de um ad set (3 ângulos num pack); Sniper é um ângulo em 3 execuções. O método não muda o número de ad sets. Dois conceitos com a mesma embalagem da mesma razão de compra: o mais forte entra, o outro espera.
 - **3.3 Estrutura** (`reference/estrutura-da-campanha.md`): campanha `[Produto]_[YYYYMMDD]_Test`, objetivo Sales, CBO ligado com `daily_budget = test_budget_daily`, uma conta por produto. Ad sets `[Produto]_[concept_id]_[YYYYMMDD]`, otimização Purchase (sem descer pra ViewContent), sem budget próprio (só o daily maximum da ETAPA 6), um pack 3-2-2 por ad set, audiência idêntica e broad (Advantage+ sem interests, placements automáticos, 7-day click e 1-day view, sem Incremental Attribution). Ads `[concept_id]_[creative-n]_[YYYYMMDD]`, diversidade genuína entre conceitos, CTA Shop Now ou Learn More, URL = destino do conceito pelo mapeamento da `creative-engine` com fallback na URL canônica (sempre página publicada), UTM pelo schema do arquivo (`utm_content` por criativo, `utm_term` e `utm_id` por macro). Eixo de página 3:2:2:2 só com budget de US$ 2k por dia ou mais e 2 páginas publicadas, lido por KPI. Batch maior que a capacidade: priorizar ângulos distintos, guardar o resto, nunca comprimir dois conceitos num ad set.
 
 ### ETAPA 4 · Warmup de conta nova
 
-Leia `reference/warmup-e-cadencia.md`. Conta nova: 3 dias de campanha de engajamento (US$ 50 por dia ou o budget do membro, o menor) começando no domingo, pra que o Day 4 caia na quarta. Conta com histórico de Purchase pula. Warmup é higiene legítima; account farming e contingência pra driblar ban não existem aqui.
+Leia `reference/warmup-e-cadencia.md`. Conta nova: 3 dias de engajamento (US$ 50 por dia ou o budget do membro, o menor) a partir de domingo, pro Day 4 cair na quarta. Conta com histórico de Purchase pula. Warmup é higiene legítima; account farming e contingência contra ban não existem aqui.
 
 ### ETAPA 5 · Cadência de teste e janela de decisão
 
-Mesmo arquivo. Três dias sem mexer. Lançar quarta, deixar até domingo; 7 dias é o teto por ad set (cânone §3). Domingo é checkpoint de decisão informada com três coisas na mesa: réguas de kill do §3, checks de precedência da `ad-analysis` (funil, conta, entrega) e Execution Problem (um ângulo tem 3 tentativas). Produto só morre com 2 ou mais batches de learnings processados ou régua do cânone, nunca por calendário. Dias 1 a 3 só conferem entrega (ad set sem gasto sob CBO não é erro); a partir do dia 3, rodar a `ad-analysis`. Escala é da `scale-engine`, depois de um breakthrough.
+Mesmo arquivo. Três dias sem mexer: lançar quarta, deixar até domingo; teto de 7 dias por ad set (cânone §3). Domingo é checkpoint de decisão informada com três coisas na mesa: réguas de kill do §3, checks de precedência da `ad-analysis` (funil, conta, entrega) e Execution Problem (um ângulo tem 3 tentativas). Produto só morre com 2 ou mais batches de learnings processados ou régua do cânone, nunca por calendário. Dias 1 a 3 só conferem entrega (ad set sem gasto sob CBO não é erro); a partir do dia 3, rodar a `ad-analysis`. Escala é da `scale-engine`, depois de um breakthrough.
 
 ### ETAPA 6 · Criação em PAUSED via Meta Ads MCP
 
@@ -69,7 +71,7 @@ Leia `reference/erros-comuns.md` e inclua os doze erros no checklist do relatór
 
 ## SALVAR
 
-Leia `reference/salvar-e-manifest.md`. `mkdir -p workspace/[produto]/ad-strategy/`; `ad-strategy.md` com os doze itens do arquivo; `.html` por `python3 tools/render_report.py <md>`; `dados.json` no schema de `reference/dados-json.md` (`test_capacity` com `binding_constraint` e `below_floor_directional_only`, `cac_floor_check`, `ad_sets[]` como lista com `testing_method`, `landing_url` e `daily_max_spending_limit`, `protections`, `pgs_enabled: false`). Depois `python3 tools/manifest.py <slug> complete ad-strategy` e `set` com `strategy_id`, `creative_batch_ref`, `test_budget_daily`, `target_cpa`, `breakeven_cpa`, `10_campaign_name`, `10_campaign_id`, `10_ad_set_ids`, `10_ad_set_id` e `pgs_enabled: false`; então `python3 .claude/lib/workspace-index/build_index.py <slug>`.
+Leia `reference/salvar-e-manifest.md`. `mkdir -p workspace/[produto]/ad-strategy/`; `ad-strategy.md` com os doze itens do arquivo; `.html` por `python3 tools/render_report.py <md>`; `dados.json` no schema de `reference/dados-json.md` (`test_route` e `bid_cap`, `test_capacity` com `binding_constraint` e `below_floor_directional_only`, `cac_floor_check`, `ad_sets[]` como lista com `testing_method`, `landing_url` e `daily_max_spending_limit`, `protections`, `pgs_enabled: false`). Depois `python3 tools/manifest.py <slug> complete ad-strategy` e `set` com `strategy_id`, `creative_batch_ref`, `test_budget_daily`, `target_cpa`, `breakeven_cpa`, `10_campaign_name`, `10_campaign_id`, `10_ad_set_ids`, `10_ad_set_id` e `pgs_enabled: false`; então `python3 .claude/lib/workspace-index/build_index.py <slug>`.
 
 ## Mensagem final
 

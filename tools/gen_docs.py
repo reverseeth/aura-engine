@@ -157,7 +157,13 @@ def sort_by_panel(skills):
 
 
 def legacy_label(s):
-    return "/".join(s.get("legacy_ids") or []) or "sem apelido"
+    return "/".join(s.get("legacy_ids") or []) or "—"
+
+
+def alias_suffix(s):
+    """` · apelido antigo: NN` só pra skill que tem número antigo; skill nova não carrega o segmento."""
+    lg = "/".join(s.get("legacy_ids") or [])
+    return f" · apelido antigo: {lg}" if lg else ""
 
 
 def passo_pt(s):
@@ -210,7 +216,7 @@ def render_claude_triggers(data):
         trig = " / ".join(f'"{t}"' for t in s["triggers"])
         # Sem o resumo longo por skill: o CLAUDE.md enxuto (Fase 7) só roteia; a descrição
         # completa vive no frontmatter de cada skill e no §4 do OVERVIEW.md.
-        lines.append(f"- {trig} → **{s['id']}** [{s['name']} · {passo_pt(s)} · apelido antigo: {legacy_label(s)}]")
+        lines.append(f"- {trig} → **{s['id']}** [{s['name']} · {passo_pt(s)}{alias_suffix(s)}]")
     return "\n".join(lines)
 
 
@@ -280,11 +286,13 @@ def render_phases(data):
             seen_cards.add(card)
             sid = card
         else:
-            sid = s["legacy_ids"][0]
+            sid = (s.get("legacy_ids") or [s["id"]])[0]  # chave interna; o card mostra a posição
         folder = s.get("folder") or s["id"]
         names = {"pt-BR": s.get("panel_title_pt") or s["title_pt"], "en": s.get("panel_title_en") or s["title_en"]}
+        descs = {"pt-BR": s.get("panel_desc_pt") or "", "en": s.get("panel_desc_en") or ""}
         rows.append(f"    ({py_str(sid)}, {py_str(folder)}, {{\"pt-BR\": {py_str(names['pt-BR'])}, "
-                    f"\"en\": {py_str(names['en'])}}}, {py_str(s.get('panel_cmd'))}, {py_str(s.get('panel_tag'))}),")
+                    f"\"en\": {py_str(names['en'])}}}, {py_str(s.get('panel_cmd'))}, {py_str(s.get('panel_tag'))}, "
+                    f"{{\"pt-BR\": {py_str(descs['pt-BR'])}, \"en\": {py_str(descs['en'])}}}),")
     # pasta numerada antiga de cada fase: o painel lê dela por um ciclo (produto ainda não migrado)
     legacy = {}
     for s in sort_by_panel(data["skills"]):
@@ -310,7 +318,7 @@ def render_skill_header(data, ids_csv):
     group = [by_id[x] for x in ids]
     if len(group) == 1:
         s = group[0]
-        return f"### {s['name']} · {passo_pt(s)} · apelido antigo: {legacy_label(s)}"
+        return f"### {s['name']} · {passo_pt(s)}{alias_suffix(s)}"
     positions = [first_position(s) for s in group]
     title = (group[0].get("group_pt") or "Grupo").capitalize()
     names = " → ".join(s["name"] for s in group)
@@ -358,7 +366,7 @@ def render_overview_order(data):
 
 
 def render_title(s):
-    return f"# {s['name']} · {passo_pt(s)} · apelido antigo: {legacy_label(s)}"
+    return f"# {s['name']} · {passo_pt(s)}{alias_suffix(s)}"
 
 
 # ----------------------------------------------------------------------------- aplicação

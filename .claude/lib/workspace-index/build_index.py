@@ -39,8 +39,9 @@ STATUS = _load_status()
 # legado relatorio.html (produtos antigos). Produto ainda não migrado pelo tools/migrate.py
 # guarda a fase na pasta numerada antiga (LEGACY_FOLDERS): a leitura cai nela por um ciclo,
 # do mesmo jeito que cai no relatorio.html.
-# Primeiro campo = apelido antigo da skill (o número que o card mostra e a chave interna da
-# fase; page-design e page-build compartilham o card "07"). Último campo = tag do card: None
+# Primeiro campo = apelido antigo da skill (chave interna da fase; page-design e page-build
+# compartilham o card "07"; o card NÃO mostra esse número: mostra a posição do card na lista,
+# 01, 02, 03..., que é a ordem real em que as fases rodam). Quinto campo = tag do card: None
 # (core), "post" (pós-launch), "two" (skill de 2 fases: Fase A pré-launch + Fase B pós-launch,
 # bonus-delivery e retention-engine), "opt" (opcional: sourcing) e "side" (consulta lateral:
 # não é etapa da sequência, roda quando o membro precisa: finance-engine, creator-engine,
@@ -61,35 +62,39 @@ STATUS = _load_status()
 # A content-recycler cobre as DUAS trilhas da skill: Trilha 1 (amplificação do breakthrough,
 # o default, que é o que de fato escala a conta) e Trilha 2 (as 9 derivadas de canal, sob
 # pedido). Por isso o card se chama "Amplificação e reciclagem", não só "reciclagem".
+# Sexto campo = resumo de uma ou duas frases que aparece embaixo do nome da fase (panel_desc_*
+# do registro).
 # A lista PHASES e o mapa LEGACY_FOLDERS são gerados pelo tools/gen_docs.py a partir do
 # .claude/skills.json (não edite à mão; rode o gerador).
 # gen:phases:start
 PHASES = [
-    ("00", "setup", {"pt-BR": "Setup", "en": "Setup"}, None, None),
-    ("19", "ops-engine", {"pt-BR": "Operação (continuidade e risco)", "en": "Ops (continuity & risk)"}, "operação", "side"),
-    ("01", "product-research", {"pt-BR": "Pesquisa de produto", "en": "Product research"}, "product research", None),
-    ("01b", "sourcing", {"pt-BR": "Fornecedor (sourcing)", "en": "Sourcing"}, "sourcing", "opt"),
-    ("02", "market-research", {"pt-BR": "Pesquisa de mercado", "en": "Market research"}, "market research", None),
-    ("03", "competitor-analysis", {"pt-BR": "Análise de concorrência", "en": "Competitor analysis"}, "competitor analysis", None),
-    ("04", "offer-builder", {"pt-BR": "Oferta", "en": "Offer"}, "offer", None),
-    ("15", "finance-engine", {"pt-BR": "Finanças (modelo do negócio)", "en": "Finance (business model)"}, "finance", "side"),
-    ("06", "copy-engine", {"pt-BR": "Copy", "en": "Copy"}, "copy", None),
-    ("07", "page", {"pt-BR": "Página (loja)", "en": "Page (storefront)"}, "page", None),
-    ("07c", "tracking-setup", {"pt-BR": "Tracking (pixel + CAPI)", "en": "Tracking (pixel + CAPI)"}, "tracking", None),
-    ("07d", "checkout-aov", {"pt-BR": "Checkout & AOV", "en": "Checkout & AOV"}, "checkout", None),
-    ("08", "creative-engine", {"pt-BR": "Criativos", "en": "Creatives"}, "creatives", None),
-    ("16", "creator-engine", {"pt-BR": "Creators (conteúdo humano)", "en": "Creators (human content)"}, "creators", "side"),
-    ("07e", "agentic-readiness", {"pt-BR": "Visibilidade pra agentes de AI", "en": "Agentic readiness (AI visibility)"}, "agentic readiness", None),
-    ("09", "consistency-audit", {"pt-BR": "Auditoria de consistência", "en": "Consistency audit"}, "audit", None),
-    ("10", "ad-strategy", {"pt-BR": "Estratégia de ads", "en": "Ad strategy"}, "ad strategy", None),
-    ("11", "ad-analysis", {"pt-BR": "Análise de ads", "en": "Ad analysis"}, "ad analysis", None),
-    ("12", "scale-engine", {"pt-BR": "Escala", "en": "Scale"}, "scale", None),
-    ("17", "promo-engine", {"pt-BR": "Promoções (janelas sazonais)", "en": "Promos (seasonal windows)"}, "promo", "side"),
-    ("18", "team-engine", {"pt-BR": "Time (contratação e gestão)", "en": "Team (hiring & management)"}, "contratar", "side"),
-    ("13", "retention-engine", {"pt-BR": "Retenção (email/SMS)", "en": "Retention (email/SMS)"}, "retention", "two"),
-    ("05", "bonus-delivery", {"pt-BR": "Entrega de bônus", "en": "Bonus delivery"}, "bonus delivery", "two"),
-    ("14", "content-recycler", {"pt-BR": "Amplificação e reciclagem", "en": "Amplification & recycling"}, "recycle", "post"),
-    ("20", "marketplace-engine", {"pt-BR": "Canais de venda (marketplace)", "en": "Sales channels (marketplace)"}, "marketplace", "side"),
+    ("00", "setup", {"pt-BR": "Setup", "en": "Setup"}, None, None, {"pt-BR": "Cria a pasta do produto, o seu perfil e o registro de tudo que a Aura vai produzir.", "en": "Creates the product folder, your profile and the record of everything Aura will produce."}),
+    ("19", "ops-engine", {"pt-BR": "Operação (continuidade e risco)", "en": "Ops (continuity & risk)"}, "operação", "side", {"pt-BR": "Plano pra operação não parar: backup de conta de anúncio, de processadora de pagamento e de fornecedor, e o que fazer se uma conta cair.", "en": "Keeps the business running: backup ad accounts, payment processors and suppliers, and what to do if an account goes down."}),
+    ("01", "product-research", {"pt-BR": "Pesquisa de produto", "en": "Product research"}, "product research", None, {"pt-BR": "Acha o produto certo: garimpa no TrendTrack as marcas que estão escalando agora, confere a demanda no Google Trends e nas reclamações do Trustpilot e monta a melhor oportunidade combinando o que já funciona.", "en": "Finds the right product: mines TrendTrack for brands scaling right now, checks demand on Google Trends and Trustpilot complaints, and builds the best opportunity by combining what already works."}),
+    ("01b", "sourcing", {"pt-BR": "Fornecedor (sourcing)", "en": "Sourcing"}, "sourcing", "opt", {"pt-BR": "Fecha o fornecedor: cotação, amostra, qualidade, prazo e condição de pagamento, com o custo real do produto pra montar a oferta.", "en": "Locks in the supplier: quote, samples, quality, lead time and payment terms, with the real product cost for the offer."}),
+    ("02", "market-research", {"pt-BR": "Pesquisa de mercado", "en": "Market research"}, "market research", None, {"pt-BR": "Entende quem compra: o que a pessoa sente, deseja e já tentou, com as frases reais dos clientes, o nível de consciência do mercado e os ângulos de venda.", "en": "Understands the buyer: what they feel, want and have already tried, with real customer phrases, market awareness and selling angles."}),
+    ("03", "competitor-analysis", {"pt-BR": "Análise de concorrência", "en": "Competitor analysis"}, "competitor analysis", None, {"pt-BR": "Disseca os concorrentes: páginas, ofertas, preços e os anúncios que mais escalam, pra achar o que já está validado e as brechas que ninguém ocupa.", "en": "Dissects competitors: pages, offers, prices and their most scaled ads, to find what is already proven and the gaps nobody owns."}),
+    ("04", "offer-builder", {"pt-BR": "Oferta", "en": "Offer"}, "offer", None, {"pt-BR": "Monta a oferta: mecanismo único, preço, kits, bônus, garantia e a conta de margem, pra vencer a oferta do concorrente e ser difícil de recusar.", "en": "Builds the offer: unique mechanism, price, bundles, bonuses, guarantee and the margin math, to beat the competitor's offer and be hard to refuse."}),
+    ("15", "finance-engine", {"pt-BR": "Finanças (modelo do negócio)", "en": "Finance (business model)"}, "finance", "side", {"pt-BR": "Faz a conta do negócio inteiro: capital necessário, fluxo de caixa, quanto dá pra gastar em anúncio e em quanto tempo o dinheiro volta.", "en": "Runs the numbers for the whole business: capital needed, cash flow, how much you can spend on ads and how fast the money comes back."}),
+    ("06", "copy-engine", {"pt-BR": "Copy", "en": "Copy"}, "copy", None, {"pt-BR": "Escreve a copy da página de venda e do advertorial, modelando estruturas que já vendem e usando as palavras exatas do cliente.", "en": "Writes the sales page and advertorial copy, modeling structures that already sell and using the customer's exact words."}),
+    ("07", "page", {"pt-BR": "Página (loja)", "en": "Page (storefront)"}, "page", None, {"pt-BR": "Desenha e publica a página da loja: board de referências, design aprovado por você e a página no ar na Shopify.", "en": "Designs and ships the store page: reference board, a design you approve, and the page live on Shopify."}),
+    ("07c", "tracking-setup", {"pt-BR": "Tracking (pixel + CAPI)", "en": "Tracking (pixel + CAPI)"}, "tracking", None, {"pt-BR": "Instala o rastreamento das vendas com o Pixel da Meta e o Wetracked, pra o algoritmo saber exatamente quem comprou.", "en": "Sets up sales tracking with the Meta Pixel and Wetracked, so the algorithm knows exactly who bought."}),
+    ("07d", "checkout-aov", {"pt-BR": "Checkout & AOV", "en": "Checkout & AOV"}, "checkout", None, {"pt-BR": "Aumenta o valor de cada pedido: kits, oferta no carrinho, oferta depois da compra e frete grátis a partir de um valor.", "en": "Raises the value of each order: bundles, cart offer, post-purchase offer and a free-shipping threshold."}),
+    ("support-engine", "support-engine", {"pt-BR": "Suporte ao cliente", "en": "Customer support"}, "suporte", "side", {"pt-BR": "Explica a Brandwise, o suporte com IA ligado à Shopify que resolve rastreio, troca, reembolso e DMs, e entrega o texto pronto pra ela responder certo.", "en": "Explains Brandwise, the AI support desk connected to Shopify that handles tracking, exchanges, refunds and DMs, and delivers the ready-to-paste knowledge base."}),
+    ("08", "creative-engine", {"pt-BR": "Criativos", "en": "Creatives"}, "creatives", None, {"pt-BR": "Cria os anúncios: modela os criativos mais validados do TrendTrack com o argumento da sua pesquisa e produz no Higgsfield ou em outra IA.", "en": "Creates the ads: models TrendTrack's most proven creatives with your research as the argument and produces them on Higgsfield or another AI."}),
+    ("16", "creator-engine", {"pt-BR": "Creators (conteúdo humano)", "en": "Creators (human content)"}, "creators", "side", {"pt-BR": "Opera conteúdo com pessoas reais: criadores de UGC, envio de produto pra influenciadores e anúncios rodando no perfil deles.", "en": "Runs content with real people: UGC creators, product seeding to influencers and ads running from their profiles."}),
+    ("social-engine", "social-engine", {"pt-BR": "Instagram da marca", "en": "Brand Instagram"}, "instagram", "side", {"pt-BR": "Cuida do Instagram da marca: board de branding no Pinterest, 9 imagens por dia com os templates do Higgsfield, legenda e hashtags escritas pela Aura e postagem automática todo dia.", "en": "Runs the brand's Instagram: Pinterest brand board, 9 images a day from Higgsfield templates, captions and hashtags written by Aura and automatic daily posting."}),
+    ("07e", "agentic-readiness", {"pt-BR": "Visibilidade pra agentes de AI", "en": "Agentic readiness (AI visibility)"}, "agentic readiness", None, {"pt-BR": "Prepara a loja pra ser achada e recomendada por assistentes de compra com IA, como ChatGPT, Perplexity e Google.", "en": "Gets the store ready to be found and recommended by AI shopping assistants like ChatGPT, Perplexity and Google."}),
+    ("09", "consistency-audit", {"pt-BR": "Auditoria de consistência", "en": "Consistency audit"}, "audit", None, {"pt-BR": "Confere, antes de lançar, se oferta, copy, página e anúncios contam a mesma história, sem promessa solta.", "en": "Checks, before launch, that offer, copy, page and ads tell the same story, with no loose promises."}),
+    ("10", "ad-strategy", {"pt-BR": "Estratégia de ads", "en": "Ad strategy"}, "ad strategy", None, {"pt-BR": "Monta a campanha de teste no Meta Ads, na estrutura da Aura ou com bid cap, tudo pausado pra você revisar antes de ligar.", "en": "Builds the Meta Ads test campaign, in Aura's structure or with bid cap, all paused for you to review before turning it on."}),
+    ("11", "ad-analysis", {"pt-BR": "Análise de ads", "en": "Ad analysis"}, "ad analysis", None, {"pt-BR": "Lê os resultados depois de 3 a 7 dias: o que cortar, o que manter, qual criativo venceu de verdade e o que testar em seguida.", "en": "Reads the results after 3 to 7 days: what to cut, what to keep, which creative truly won and what to test next."}),
+    ("12", "scale-engine", {"pt-BR": "Escala", "en": "Scale"}, "scale", None, {"pt-BR": "Escala o que venceu: quanto subir de orçamento, quando duplicar e como abrir ângulos novos sem quebrar o resultado.", "en": "Scales what won: how much to raise budget, when to duplicate and how to open new angles without breaking results."}),
+    ("17", "promo-engine", {"pt-BR": "Promoções (janelas sazonais)", "en": "Promos (seasonal windows)"}, "promo", "side", {"pt-BR": "Planeja promoções de data, como Black Friday e Dia das Mães: calendário, oferta, copy e anúncios da janela.", "en": "Plans seasonal promos like Black Friday and Mother's Day: calendar, offer, copy and ads for the window."}),
+    ("18", "team-engine", {"pt-BR": "Time (contratação e gestão)", "en": "Team (hiring & management)"}, "contratar", "side", {"pt-BR": "Decide quem contratar, quanto pagar e como gerir o time, do editor de vídeo ao gestor de tráfego.", "en": "Decides who to hire, how much to pay and how to manage the team, from video editor to media buyer."}),
+    ("13", "retention-engine", {"pt-BR": "Retenção (email/SMS)", "en": "Retention (email/SMS)"}, "retention", "two", {"pt-BR": "Monta os emails e SMS automáticos: carrinho abandonado e pós-compra antes de lançar, recompra e reconquista depois.", "en": "Builds the automated emails and SMS: abandoned cart and post-purchase before launch, reorder and win-back after."}),
+    ("05", "bonus-delivery", {"pt-BR": "Entrega de bônus", "en": "Bonus delivery"}, "bonus delivery", "two", {"pt-BR": "Cria e entrega os bônus prometidos na oferta e, depois do lançamento, mede quantos clientes usam cada um.", "en": "Creates and delivers the bonuses promised in the offer and, after launch, measures how many customers use each one."}),
+    ("14", "content-recycler", {"pt-BR": "Amplificação e reciclagem", "en": "Amplification & recycling"}, "recycle", "post", {"pt-BR": "Multiplica o anúncio vencedor: novas versões do criativo que escalou e cortes pra outros canais.", "en": "Multiplies the winning ad: new versions of the creative that scaled and cuts for other channels."}),
+    ("20", "marketplace-engine", {"pt-BR": "Canais de venda (marketplace)", "en": "Sales channels (marketplace)"}, "marketplace", "side", {"pt-BR": "Leva a marca pra outros canais de venda, como Amazon, TikTok Shop e afiliados, quando o site já provou que vende.", "en": "Takes the brand to other sales channels like Amazon, TikTok Shop and affiliates once the site has proven it sells."}),
 ]
 LEGACY_FOLDERS = {
     "ops-engine": "19-ops-engine",
@@ -146,7 +151,7 @@ T = {
                 two_phase="2 fases",
                 optional="Opcional",
                 side="Consulta",
-                order_note="As fases aparecem na ordem em que rodam. O número ao lado de cada fase é o apelido antigo da skill: chame pelo nome ou por ele.",
+                order_note="As fases aparecem na ordem em que rodam. As marcadas como Consulta ou Opcional não são etapa: você chama quando precisar.",
                 bonus_a="Entrega de bônus — Fase A (assets + GWP)",
                 retention_a="Retenção — Fase A (flows de recuperação)",
                 issues="{n} ponto(s) a conferir: peça <code>aura-status {s}</code> na sessão.",
@@ -164,7 +169,7 @@ T = {
                 two_phase="2 phases",
                 optional="Optional",
                 side="On demand",
-                order_note="Phases appear in the order they run. The number next to each phase is the skill's old alias: call it by name or by the alias.",
+                order_note="Phases appear in the order they run. The ones tagged On demand or Optional are not steps: call them when you need them.",
                 bonus_a="Bonus delivery — Phase A (assets + GWP)",
                 retention_a="Retention — Phase A (recovery flows)",
                 issues="{n} item(s) to check: ask for <code>aura-status {s}</code> in the session.",
@@ -262,6 +267,7 @@ background-image:linear-gradient(currentColor,currentColor);background-size:0% 1
 .open span{transition:transform .25s var(--ease)}
 .open:hover{background-size:100% 1px} .open:hover span{transform:translateX(3px)}
 .run{color:var(--muted);font-size:13px;display:inline-block;margin-top:6px}
+.ph-desc{color:var(--ink-2);font-size:13.5px;line-height:1.5;margin-top:4px;max-width:62ch}
 .run code{font-family:var(--mono);background:rgba(20,22,26,.05);border:1px solid var(--line);padding:1px 8px;border-radius:6px;color:var(--ink-2);font-size:12px}
 .ph-badge{flex-shrink:0}
 .b-done,.b-pending{font-family:var(--mono);font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;padding:5px 11px;border-radius:8px;white-space:nowrap}
@@ -401,10 +407,11 @@ def build(slug, state=None):
     next_phase = None   # primeira fase core pendente
     post_next = None    # primeira fase pós-launch/2-fases pendente (fallback quando o core acabou)
     done_by_folder = {}
-    for sid, folder, names, cmd, tag in PHASES:
+    for sid, folder, names, cmd, tag, descs in PHASES:
         if folder == "setup":  # setup não vira card de relatório
             continue
         total += 1
+        num = f"{total:02d}"  # posição do card na ordem real, nunca o apelido antigo da skill
         # page-design (design) pronta mas page-build (build) pendente → o trigger certo é
         # "build page"; "page" re-executaria o design, que já foi aprovado.
         if folder == "page" and "page-design" in completed and "page-build" not in completed:
@@ -424,6 +431,7 @@ def build(slug, state=None):
         elif post_next is None and tag and tag not in NO_SUGGEST and cmd:
             post_next = (names[lang], cmd)
         name = html.escape(names[lang])
+        desc = f'<p class="ph-desc">{html.escape(descs[lang])}</p>' if descs.get(lang) else ''
         badge = (f'<span class="b-done">{tr["done"]}</span>' if is_done else f'<span class="b-pending">{tr["pending"]}</span>')
         badge_cls, badge_key = TAG_BADGE.get(tag, (None, None))
         post_tag = f'<span class="{badge_cls}">{tr[badge_key]}</span>' if badge_cls else ''
@@ -433,8 +441,8 @@ def build(slug, state=None):
                   else ('' if is_done
                         else (f'<span class="run">{tr["run"].format(cmd=html.escape(cmd))}</span>' if cmd else '')))
         rows.append(f'''<div class="phase {'is-done' if is_done else 'is-pending'} reveal">
-          <div class="ph-num">{sid}</div>
-          <div class="ph-body"><div class="ph-name">{name} {post_tag}</div>{action}</div>
+          <div class="ph-num">{num}</div>
+          <div class="ph-body"><div class="ph-name">{name} {post_tag}</div>{desc}{action}</div>
           <div class="ph-badge">{badge}</div></div>''')
 
     pct = round(done_count / total * 100) if total else 0

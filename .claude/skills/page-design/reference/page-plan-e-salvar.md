@@ -46,6 +46,11 @@
     "promised_on_page": ["gwp-travel-size", "free_shipping_over_75"],
     "discount_code_shown": null
   },
+  "reference_board": {
+    "references": [{ "url": "https://...", "source": "pinterest | competitor | refero | member", "takeaways": ["tipografia: ...", "grid: ..."], "screenshot": "design/references/ref-01.png" }],
+    "direction": { "feel": "sensação em uma frase", "signature": ["escolha reconhecível"], "forbidden": ["o que a página nunca faz"] },
+    "social_board_reused": false
+  },
   "brand_discovery": {
     "style": "minimalist-editorial",
     "brand_colors": ["#...","#..."],

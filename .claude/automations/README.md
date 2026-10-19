@@ -65,6 +65,16 @@ MCPs, e reporta de volta.
   `/workspace/[produto]/automation-log.jsonl`; toda MUDANÇA executada na conta de
   ads também apende uma linha em `workspace/[produto]/ad-log.md` (cânone
   `.claude/lib/ad-log/README.md` — leituras, como o sync, ficam de fora)
+- **Uma operação por vez, verificada**: a receita segue a ordem das dependências
+  (campanha → conjunto → criativo → anúncio) e confere o resultado de cada passo
+  antes de iniciar o próximo; passo que falhou para a sequência e volta pro membro
+- **Preservação da conta**: conta aquecida, nunca recém-criada; limite de chamadas
+  da Meta respeitado (erro de limite em leitura = esperar e tentar de novo com
+  intervalo crescente; erro em escrita = parar, nunca repetir às cegas, porque
+  pode duplicar campanha ou anúncio); nada fora das políticas da Meta
+- **Token é segredo**: o token do System User vive só no registro do MCP ou numa
+  variável de ambiente da máquina do membro; nunca em mensagem, log, print ou
+  arquivo dentro da pasta da Aura
 - **Dry-run**: `full-deploy.md` e `upload-creative-to-meta.md` suportam `--dry-run`
   (simula sem criar nada real). As demais receitas ou são read-only (sync) ou têm
   gates humanos embutidos (creative-loop, pause, rotate).

@@ -12,6 +12,7 @@ Quando o membro precisa de mais do que um anúncio do Alibaba — produto custom
 | Josie | +86 193 2642 1242 |
 | Brain Lee | +86 178 3718 2265 |
 | Mark | +86 193 9607 4873 |
+| Simon | +86 198 1979 2997 |
 
 **Quando o agente vale a pena:** (a) o produto exige customização que anúncio de estoque não cobre; (b) o volume justifica negociar direto com fábrica; (c) o membro quer inspeção antes do embarque (agente visita a fábrica e confere o lote); (d) vários itens de fornecedores diferentes num contêiner só; (e) o membro quer herdar condições de pagamento que sozinho não conseguiria (ETAPA 8).
 

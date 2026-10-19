@@ -15,6 +15,8 @@ A skill tem ~10 gates espalhados pelas ETAPAs. Antes de declarar o batch entregu
 - [ ] Todo criativo em 9:16 (1080×1920) como versão primária (ETAPA 4.5.A); crop 1:1/4:5 documentado quando aplicável
 - [ ] Plataforma primária calibrada (ETAPA 4.5.B); se roda em Meta E TikTok, briefing tem as 2 versões de script
 
+- [ ] Todo conceito nasceu de um ad validado da ETAPA 0.5 (ou declara por que saiu sem molde): `modeled_ad` com link do ad, link da mídia e dias no ar no briefing e no `dados.json`; nenhuma frase, afirmação, número ou nome de mecanismo do ad modelado na peça
+
 **Copy e script:**
 - [ ] Word count do spoken script dentro do range 2.8-3.0 palavras/s pra duração alvo (ETAPA 4.5.C); `word_count_within_limit: true` em todos
 - [ ] Siglas, números técnicos e compostos químicos SÓ em text overlay, nunca na fala (ETAPA 4.5.D)

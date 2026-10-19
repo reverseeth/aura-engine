@@ -44,7 +44,7 @@ A `consistency-audit` gateia o **launch** (Skill `ad-strategy`), não o tracking
 
 ### Detecção de MCP (cascade)
 
-A instalação do pixel é feita no Shopify admin (a Meta gerencia o snippet via integração nativa); o MCP entra na **verificação do Event Match Quality (EMQ)** e na leitura de datasets. Cascade:
+A instalação do pixel e da CAPI é feita pelo app Wetracked no Shopify admin; o MCP entra na **verificação do Event Match Quality (EMQ)** e na leitura de datasets. Cascade:
 
 - **Caminho 1 — MCP oficial Meta** (`mcp.facebook.com/ads`): tools `mcp__meta__ads_*`. Usar `ads_get_datasets` / equivalente de insights de dataset pra ler o EMQ programaticamente, sem screenshot manual.
 - **Caminho 2 — Pipeboard** (`mcp__meta-ads__*`): fallback automático quando o oficial está indisponível.
