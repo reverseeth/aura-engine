@@ -1028,8 +1028,8 @@
       "panel_desc_en": "Runs the brand's Instagram: Pinterest brand board, 9 images a day from Higgsfield templates, captions and hashtags written by Aura and automatic daily posting.",
       "panel_title_pt": "Instagram da marca",
       "panel_title_en": "Brand Instagram",
-      "summary_pt": "**consulta lateral** — Instagram da marca no piloto automático: board de branding no Pinterest com a mesma direção da loja, templates de imagem do Marketing Studio do Higgsfield (ou qualquer IA de imagem), 9 posts por dia num grid 3x3 com legenda em inglês, hashtags e CTA, Limpador de Metadados antes de postar, publicação pela cascade (Blotato ou Metricool → API do Instagram → pacote pronto) e rotina diária agendada no Claude do membro",
-      "summary_en": "side consult — brand Instagram on autopilot: Pinterest brand board, Higgsfield Marketing Studio image templates (or any image AI), 9 posts a day as a coherent 3x3 grid with English captions and hashtags, metadata cleaner, publishing cascade (Blotato or Metricool → Instagram API via the Meta System User → ready-to-post package) and a daily scheduled routine"
+      "summary_pt": "**consulta lateral** — Instagram da marca no piloto automático: board de branding no Pinterest com a mesma direção da loja, templates de imagem do Marketing Studio do Higgsfield (ou qualquer IA de imagem), 9 posts por dia num grid 3x3 com legenda em inglês, hashtags e CTA, Limpador de Metadados antes de postar, publicação pela cascade (API oficial do Instagram → Blotato ou Metricool → pacote pronto) e rotina diária agendada no Claude do membro",
+      "summary_en": "side consult — brand Instagram on autopilot: Pinterest brand board, Higgsfield Marketing Studio image templates (or any image AI), 9 posts a day as a coherent 3x3 grid with English captions and hashtags, metadata cleaner, publishing cascade (official Instagram API via the Meta System User → Blotato or Metricool → ready-to-post package) and a daily scheduled routine"
     },
     {
       "id": "agentic-readiness",

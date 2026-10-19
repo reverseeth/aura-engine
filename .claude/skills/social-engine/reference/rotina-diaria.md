@@ -18,14 +18,15 @@ O prompt manda a rotina checar o histórico recente antes de gerar (hoje `show_m
 
 ## 2. Onde agendar
 
-- **Rotina na nuvem pela skill `schedule`** (padrão): um agente agendado que roda todo dia no horário escolhido, mesmo com o computador desligado. Ele roda num clone do repositório da Aura, o que traz o `tools/strip-metadata.sh`. Funciona quando os conectores do Higgsfield e do publicador estão ligados na conta do Claude do membro (conectores do claude.ai), porque a rotina na nuvem só enxerga esses.
-- **Tarefa agendada local pelo CronCreate:** quando os conectores só existem no Claude Code da máquina do membro. Roda com o Claude Code aberto, enxerga o `workspace/` e salva o pacote do dia direto em `social-engine/<data>/`. Diga essa limitação em uma linha.
+- **Rotina na nuvem pela skill `schedule`** (padrão): um agente agendado que roda todo dia no horário escolhido, mesmo com o computador desligado. Ele roda num clone do repositório da Aura, o que traz o `tools/strip-metadata.sh`. Enxerga os conectores da conta do Claude do membro (Higgsfield, Shopify e, se houver, Blotato ou Metricool).
+- **O token da API do Instagram na rotina** é um **segredo de rede** do ambiente na nuvem, nunca texto do prompt nem variável comum (variável de ambiente fica legível pra quem usa o ambiente). O membro faz uma vez, em claude.ai/code: editar o ambiente da rotina → Network secrets → Add secret, tipo Bearer, site permitido `graph.facebook.com`, cabeçalho `Authorization` com prefixo `Bearer` e o token do System User como valor. O proxy da Anthropic põe o token na requisição depois que ela sai da máquina da rotina, então nem a rotina vê o valor. Disponível nos planos Pro, Max, Team e Enterprise.
+- **Tarefa agendada local pelo CronCreate:** só como teste. Vive enquanto a sessão do Claude Code estiver aberta e expira em 7 dias, então não serve de rotina diária.
 
-Horário padrão: de manhã no fuso do público (o `profile.md` diz o mercado; Estados Unidos por padrão, 7h no horário de Nova York), com a publicação espaçada até a noite quando o publicador aceita agendamento.
+Horário padrão: de manhã no fuso do público (o `profile.md` diz o mercado; Estados Unidos por padrão, 7h no horário de Nova York). Pela API oficial, os 9 saem na mesma execução, em ordem reversa, e o grid aparece montado; com Blotato ou Metricool, dá pra espaçar até a noite.
 
 ## 3. O que cada execução faz
 
-1. Checa o saldo do Higgsfield. Saldo abaixo do lote: para e avisa o membro, sem gerar nada.
+1. Checa o saldo do Higgsfield e, na API do Instagram, se o token responde (`GET /me/accounts`). Token recusado: para, deixa o pacote pronto e avisa. Saldo abaixo do lote: para e avisa o membro, sem gerar nada.
 2. Escolhe, pra cada uma das 9 posições, um template do banco que não rodou nos últimos 7 dias naquela posição.
 3. Gera as 9, confere por visão (produto fiel, texto certo, nada do "Proibido") e refaz o que falhar, até duas vezes.
 4. Escreve as 9 legendas pela estrutura da ETAPA 3, com hashtags sorteadas do banco.
@@ -36,7 +37,7 @@ Se a publicação falhar, a rotina não tenta de novo em loop: deixa o pacote pr
 
 ## 4. Teste na hora
 
-Depois de criar a rotina, rode uma execução manual na mesma sessão e confira o resultado com o membro: as 9 imagens, as legendas, o grid no perfil. Só então declare a rotina ligada. Se a execução manual falhou, ajuste o prompt antes de deixar agendado.
+Depois de criar a rotina, dispare uma execução agora (a skill `schedule` roda a rotina sob demanda) e confira o resultado com o membro: as 9 imagens, as legendas, o grid no perfil. Só então declare a rotina ligada. Se a execução manual falhou, ajuste o prompt antes de deixar agendado.
 
 ## 5. Revisão semanal
 
@@ -44,4 +45,4 @@ Uma vez por semana (pode ser uma segunda rotina, ou o membro dizendo "instagram"
 
 ## 6. Onde fica salvo
 
-`social-engine/rotina-prompt.md` e, no `dados.json`, `routine`: `{ "scheduler": "schedule | cron_local", "routine_id": "...", "time_local": "07:00", "timezone": "America/New_York", "daily_credit_cap": 0, "tested_at": "ISO-8601" }`.
+`social-engine/rotina-prompt.md` e, no `dados.json`, `routine`: `{ "scheduler": "schedule", "network_secret_host": "graph.facebook.com", "routine_id": "...", "time_local": "07:00", "timezone": "America/New_York", "daily_credit_cap": 0, "tested_at": "ISO-8601" }`.

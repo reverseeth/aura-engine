@@ -12,7 +12,7 @@ Aura usa **cascade resiliente** com 2 MCPs Meta em paralelo. Você instala os do
 | **Marketing API com System User** (via `pipeboard-co/meta-ads-mcp`) | Fallback automático quando o oficial não responde ou está disabled. Token de usuário de sistema, que não expira | API oficial da Meta, GA |
 | **Shopify AI Toolkit** (plugin Claude Code) | Operações Shopify (produto, theme, store execute) + validação Liquid/GraphQL | Oficial, abril/2026 — **ver alerta de telemetria no passo 4** |
 
-Opcionais que enriquecem skills específicas: `GROQ_API_KEY` (1.5 — transcrição de criativos na Skill `competitor-analysis`), Refero (3.5), Klaviyo (3.6), **Higgsfield** (3.7 — vídeo in-session na Skill `creative-engine` e imagem da página na Skill `page-design`), **Foreplay** (3.8 — ad spy nas Skills `competitor-analysis`/`creative-engine`/`ad-analysis`), **publicação no Instagram** (3.10 — postagem automática da Skill `social-engine`), Shopify Dev + Stripe (4.5).
+Opcionais que enriquecem skills específicas: `GROQ_API_KEY` (1.5 — transcrição de criativos na Skill `competitor-analysis`), Refero (3.5), Klaviyo (3.6), **Higgsfield** (3.7 — vídeo in-session na Skill `creative-engine` e imagem da página na Skill `page-design`), **Foreplay** (3.8 — ad spy nas Skills `competitor-analysis`/`creative-engine`/`ad-analysis`), **postagem no Instagram** (3.10 — API oficial pelo System User, ou Blotato e Metricool, na Skill `social-engine`), Shopify Dev + Stripe (4.5).
 
 ## 1. Instalar dependências (2min)
 
@@ -88,7 +88,7 @@ Use uma conta de anúncios que já tenha histórico de gasto e de pagamento. Con
 
 1. https://developers.facebook.com/apps → **Criar app**, tipo **Business** (Empresa), vinculado ao seu Business Manager.
 2. No painel do app, adicione o produto **Marketing API**.
-3. Se for publicar no Instagram pela API (Skill `social-engine`), adicione também o produto **Instagram** (API com login do Facebook).
+3. Pra postar no Instagram pela API (Skill `social-engine`, passo 3.10), adicione também o produto **Instagram** (API com login do Facebook).
 
 O app começa no nível de acesso de desenvolvimento da Marketing API, com limite baixo de chamadas. Quando a operação crescer, peça o **Ads Management Standard Access** na Revisão do app; até lá, o limite de desenvolvimento dá conta de uma ou duas contas.
 
@@ -231,31 +231,33 @@ claude mcp add --transport http notion https://mcp.notion.com/mcp
 ```
 Reinicie e autorize no browser. Tools com prefixo `mcp__notion__` aparecem; a Skill `product-research` detecta qualquer prefixo com `notion` sozinha.
 
-## 3.10. Conectar a postagem automática no Instagram (opcional, 5min — Skill `social-engine`)
+## 3.10. Postagem automática no Instagram (opcional, 5min — Skill `social-engine`)
 
-O Higgsfield gera as imagens, mas não posta no Instagram. Quem posta é um publicador conectado ao Claude. Nos dois, a conta do Instagram precisa ser **Business ou Creator** e estar ligada a uma página do Facebook (exigência da Meta pra qualquer publicação por terceiros).
+O Higgsfield gera as imagens, mas não posta no Instagram. O padrão da Aura é a **API oficial do Instagram**, pelo mesmo System User do passo 3: grátis, sem intermediário e sem mensalidade. A conta do Instagram precisa ser **Business ou Creator** e estar ligada à página do Facebook da marca.
+
+### API oficial do Instagram (padrão)
+
+1. No app do passo 3 (C), adicione o produto **Instagram** (API com login do Facebook).
+2. Em **Usuários do sistema → aura → Atribuir ativos**, entregue a conta do Instagram da marca com permissão de conteúdo.
+3. Gere o token de novo (passo 3, E) somando `instagram_basic` e `instagram_content_publish` às permissões. Re-registre o `meta-ads` com o token novo (passo 3, F).
+4. **Guarde o token como segredo da rotina:** em https://claude.ai/code, edite o ambiente na nuvem que a rotina usa → **Network secrets → Add secret** → tipo **Bearer**, site permitido `graph.facebook.com`, cabeçalho `Authorization` com prefixo `Bearer` e o token como valor. O proxy da Anthropic põe o token na requisição depois que ela sai da máquina da rotina: nem a rotina nem o Claude veem o valor. Disponível nos planos Pro, Max, Team e Enterprise.
+5. Pra testar no seu computador, deixe o token numa variável de ambiente, digitando no seu terminal (fora do Claude): `export META_ACCESS_TOKEN=<token>` no `~/.zshrc`.
+
+Limite da Meta: 50 posts por conta a cada 24 horas. A API publica na hora em que a rotina roda, então os 9 saem juntos e o grid aparece montado no perfil.
+
+### Alternativa: Blotato ou Metricool
+
+Pra quem quer os 9 posts espaçados ao longo do dia sem depender da rotina: o agendamento fica do lado deles.
 
 | Publicador | Por que | Custo |
 |---|---|---|
-| **Blotato** (recomendado) | Posta feed, carrossel, Reels e Stories, aceita arquivo local ou URL e agenda do lado dele: o post sai no horário mesmo com o Claude fechado. Preço fixo, sem limite por volume | A partir de US$ 29 por mês, com até 20 contas. O MCP não entra no teste grátis |
-| **Metricool** | Connector no diretório do Claude, agenda no melhor horário do público e traz as métricas do perfil | MCP em todos os planos; o grátis limita a 20 posts agendados, então os 9 por dia pedem plano pago |
+| **Blotato** | Posta feed, carrossel, Reels e Stories, aceita arquivo ou URL e agenda do lado dele. Preço fixo, sem limite por volume | A partir de US$ 29 por mês, com até 20 contas. A conexão com o Claude não entra no teste grátis |
+| **Metricool** | Connector no diretório do Claude, agenda no melhor horário do público e traz as métricas do perfil | Plano pago pra 9 posts por dia, porque o grátis limita a vinte agendados |
 
-### Blotato
+- **Blotato:** conta em https://www.blotato.com com o Instagram conectado; no Claude, Settings → Connectors → Add custom connector → `https://mcp.blotato.com/mcp`; no Claude Code, `claude mcp add --transport http blotato https://mcp.blotato.com/mcp`.
+- **Metricool:** no Claude, Settings → Connectors → procure **Metricool** no diretório e faça login.
 
-1. Crie a conta em https://www.blotato.com, assine o Starter e conecte o Instagram da marca no painel deles.
-2. **Claude Desktop / claude.ai:** Settings → Connectors → Add custom connector → URL `https://mcp.blotato.com/mcp`, login pela conta Blotato.
-3. **Claude Code:**
-   ```bash
-   claude mcp add --transport http blotato https://mcp.blotato.com/mcp
-   ```
-
-### Metricool
-
-Claude Desktop / claude.ai: Settings → Connectors → procure **Metricool** no diretório, faça login e escolha a marca que o Claude pode usar.
-
-### Sem publicador
-
-A `social-engine` publica pela API oficial do Instagram com o mesmo System User do passo 3 (produto Instagram no app e as permissões `instagram_basic` e `instagram_content_publish`). Sem nenhum dos dois, a rotina diária deixa as 9 imagens e as legendas prontas numa pasta pra agendar em lote no Meta Business Suite.
+Sem nenhum caminho ligado, a rotina deixa as 9 imagens e as legendas prontas numa pasta pra agendar em lote no Meta Business Suite.
 
 ## 4. Conectar Shopify (3min — plugin oficial AI Toolkit)
 
@@ -348,7 +350,7 @@ Vale pros dois lados: Admin da Shopify (criar Pages — `deploy-shopify-product.
 - [ ] (Opcional) Klaviyo MCP conectado (`mcp__klaviyo__*`) — automação de retention flows na Skill `retention-engine`
 - [ ] (Opcional) Higgsfield MCP conectado (`mcp__higgsfield__*`) — vídeo in-session na Skill `creative-engine` e imagem da página na Skill `page-design`
 - [ ] (Opcional) Foreplay MCP conectado (`mcp__foreplay__*`) — ad spy nas Skills `competitor-analysis`/`creative-engine`/`ad-analysis`
-- [ ] (Opcional) Publicador do Instagram conectado (Blotato `mcp__blotato__*` ou Metricool) — postagem diária da Skill `social-engine`
+- [ ] (Opcional) Postagem no Instagram: produto Instagram no app, `instagram_content_publish` no token e o token como segredo de rede do ambiente da rotina (ou Blotato/Metricool) — Skill `social-engine`
 - [ ] (Opcional) Notion MCP conectado (`mcp__claude_ai_Notion__*` ou `mcp__notion__*`) — banco de marcas da Skill `product-research`
 - [ ] (Recomendado) TrendTrack MCP conectado (`mcp__trendtrack__*`) — motor de descoberta da Skill `product-research` (gasta créditos do plano; sem ele, a pesquisa roda manual no browser). Quem ainda não assina: https://app.trendtrack.io/invite/tt-d0b18d189489 dá 20% de desconto nos 3 primeiros meses
 - [ ] (Opcional) Shopify Dev MCP (`mcp__shopify_dev__*`) + Stripe MCP (`mcp__stripe__*`)

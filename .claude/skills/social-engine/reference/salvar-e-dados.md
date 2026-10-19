@@ -21,8 +21,8 @@ Outputs em `workspace/[produto]/social-engine/`:
   "resumo": {
     "feed_feel": "a sensação do feed em uma frase",
     "posts_per_day": 9,
-    "publishing_path": "mcp | graph_api | package",
-    "scheduler": "schedule | cron_local",
+    "publishing_path": "instagram_api | publisher | package",
+    "scheduler": "schedule",
     "daily_credit_cap": 0,
     "templates_in_bank": 0
   },
