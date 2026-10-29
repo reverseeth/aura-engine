@@ -10,8 +10,10 @@ página que você nunca viu, feita por outra pessoa. Você não sabe nada do pro
 está nos arquivos abaixo. Seja exigente: a barra é a das 3 referências, não a média da web.
 
 Leia, com a tool Read (as imagens por visão):
-- Página em 1440px: <workspace/[produto]/page/qa-shots/desktop-full.png>
-- Página em 390px: <workspace/[produto]/page/qa-shots/mobile-full.png>
+- Página em 1440px, em fatias de cima para baixo: <workspace/[produto]/page/qa-shots/desktop-01.png> até a última
+  desktop-NN.png da mesma pasta
+- Página em 390px, em fatias de cima para baixo: <workspace/[produto]/page/qa-shots/mobile-01.png> até a última
+  mobile-NN.png da mesma pasta
 - Referências que o dono da marca escolheu seguir:
   <workspace/[produto]/page/references/1/desktop-full.png>
   <workspace/[produto]/page/references/2/desktop-full.png>
@@ -67,6 +69,7 @@ Responda só "review.md gravado" depois de gravar.
 
 ## Regras
 
+- **Fatias, não a captura inteira:** a página inteira passa de 10 mil px e, lida por visão, fica pequena demais para julgar. O `verify_page.py` grava as fatias junto da captura inteira; informe no prompt o número da última de cada largura.
 - **Entrada fixa:** só as capturas, as imagens das 3 referências marcadas e o `direction.md`. Nunca a conversa, o plano, a copy em texto nem o HTML: o revisor julga o que o visitante vê.
 - **Faltou imagem de referência** (bloqueio na ETAPA 3): tire a linha dela do prompt e acrescente "Só N referências disponíveis".
 - **Sem subagente:** o autor usa os mesmos seis critérios e o mesmo formato, olhando só as capturas e as referências, e marca no topo "revisão pelo autor (sem subagente)".

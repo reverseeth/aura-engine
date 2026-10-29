@@ -1403,6 +1403,11 @@ def _convert_one_section(section, namespace, product_slug, output_path, asset_ty
     return builder, section_id
 
 
+def _structure(el):
+    """Assinatura da árvore de um elemento: (tag, classes) de cada descendente, na ordem."""
+    return tuple((d.name, tuple(sorted(d.get("class", []) or []))) for d in el.find_all(True))
+
+
 def detect_repeating_pattern(html_content):
     """Modo C: detecta o maior grupo de irmãos repetidos (cards/tiers/items) numa section, pra
     extrair como block. Sem isso, conteúdo repetível (benefit cards, pricing tiers, faq items,
@@ -1425,6 +1430,10 @@ def detect_repeating_pattern(html_content):
             key = (child.name, frozenset(child.get("class", []) or []))
             groups.setdefault(key, []).append(child)
         for (tag, classes), kids in groups.items():
+            # irmãos com estrutura interna diferente não são itens de um block: o item que não
+            # casa com o primeiro perderia a copy (ficaria com o default do item 1)
+            if len({_structure(k) for k in kids}) > 1:
+                continue
             if len(kids) >= 2 and len(kids) > best["count"] and any(k.get_text(strip=True) for k in kids):
                 best = {
                     "detected": True,

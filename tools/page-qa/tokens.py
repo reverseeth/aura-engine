@@ -72,19 +72,28 @@ def scale(vars_, prefix):
     return {k[len(prefix):]: v for k, v in vars_.items() if k.startswith(prefix)}
 
 
+def font_weights(fonts_block, name):
+    """Pesos de @font-face do bloco local ou do `family=Nome:wght@400;600` do link do Google Fonts."""
+    ws = {int(w) for w in re.findall(rf"{re.escape(name)}[^}}]*font-weight:\s*(\d+)", fonts_block)}
+    for spec in re.findall(rf"family={re.escape(name).replace(r'\ ', '[+ ]')}:[^&\s\"]*wght@([\d;.,]+)", fonts_block):
+        ws |= {int(float(w.split(",")[-1])) for w in spec.split(";") if w}
+    return sorted(ws) or [400]
+
+
 def from_page(html, source, preset_base, existing):
     v = root_vars(html)
     missing = [r for r in ROLES if f"color-{r.replace('_', '-')}" not in v]
     if missing:
         raise ValueError(f"papéis ausentes no :root: {', '.join(missing)}")
     fonts_block = " ".join(re.findall(r"<style[^>]*data-aura-fonts[^>]*>(.*?)</style>", html, flags=re.S | re.I))
+    # Google Fonts entra por <link> (reference/tipografia.md), não pelo bloco data-aura-fonts
+    fonts_block += " " + " ".join(re.findall(r"<link[^>]+href=\"([^\"]*fonts\.googleapis[^\"]*)\"", html, flags=re.I))
     heading, body = first_family(v.get("font-heading")), first_family(v.get("font-body"))
     fams = []
     for name in dict.fromkeys(f for f in (heading, body) if f):
         role = "both" if heading == body else ("heading" if name == heading else "body")
         fams.append({"name": name, "role": role, "provision": provision(fonts_block, name),
-                     "weights": sorted({int(w) for w in re.findall(
-                         rf"{re.escape(name)}[^}}]*font-weight:\s*(\d+)", fonts_block)}) or [400],
+                     "weights": font_weights(fonts_block, name),
                      "files_dir": "page/design/assets/fonts" if provision(fonts_block, name) == "local_files" else None})
     out = dict(existing)
     out.update({
@@ -114,15 +123,49 @@ def to_dtcg(colors, heading, body, source):
     }
 
 
+def dtcg_hex(value):
+    """`$value` de cor em DTCG: "#rrggbb" (spec antiga) ou {colorSpace, components, hex} (2025.10)."""
+    if isinstance(value, dict):
+        value = value.get("hex")
+    return value[:7].lower() if isinstance(value, str) and value.startswith("#") else None
+
+
+def _neutral(hx):
+    r, g, b = (int(hx[i:i + 2], 16) for i in (1, 3, 5))
+    return max(r, g, b) - min(r, g, b) < 40
+
+
+def fill_from_palette(colors, dtcg):
+    """Papéis que o DTCG não nomeia (surface, muted, border) saem da paleta extraída."""
+    found = flatten_colors(dtcg)
+    used = set(colors.values())
+    pal = [hx for k, hx in found.items() if k.startswith("palette") and hx not in used]
+    bg, fg = colors.get("background"), colors.get("foreground")
+    if "border" not in colors:
+        for node in (dtcg.get("border", {}).get("color") or {}).values():
+            if dtcg_hex(node.get("$value")) and "alpha" not in (node.get("$value") or {}):
+                colors["border"] = dtcg_hex(node["$value"])
+                break
+    if bg and fg:
+        light = [hx for hx in pal if _neutral(hx) and pe.contrast_ratio(hx, fg) >= 4.5]
+        if "surface" not in colors and light:
+            colors["surface"] = min(light, key=lambda hx: pe.contrast_ratio(hx, bg))
+        text = [hx for hx in pal if _neutral(hx) and pe.contrast_ratio(hx, bg) >= 4.5 and hx != fg]
+        if "muted" not in colors and text:
+            colors["muted"] = min(text, key=lambda hx: pe.contrast_ratio(hx, bg))
+    return colors
+
+
 def flatten_colors(dtcg):
     """{nome normalizado: hex} de qualquer árvore DTCG (color.*.$value)."""
     out = {}
 
     def walk(node, path):
         if isinstance(node, dict):
-            if "$value" in node and isinstance(node["$value"], str) and node["$value"].startswith("#"):
+            hx = dtcg_hex(node.get("$value"))
+            if hx:
                 key = path[-1].lower() if path else ""
-                out[DTCG_ALIASES.get(key, key)] = node["$value"][:7].lower()
+                out.setdefault(DTCG_ALIASES.get(key, key), hx)
             for k, child in node.items():
                 if not k.startswith("$"):
                     walk(child, path + [k])
@@ -137,6 +180,7 @@ def from_dtcg(dtcg):
         raise ValueError("o DTCG não tem cor primary")
     bg = colors.setdefault("background", "#ffffff")
     colors.setdefault("foreground", "#111111" if pe.relative_luminance(bg) > 0.4 else "#f5f5f5")
+    fill_from_palette(colors, dtcg)
     if "on_primary" not in colors:
         colors["on_primary"] = max(("#ffffff", "#111111"),
                                    key=lambda c: pe.contrast_ratio(c, colors["primary"]))
@@ -145,15 +189,23 @@ def from_dtcg(dtcg):
     colors.setdefault("accent", colors["primary"])
     colors.setdefault("muted", colors["foreground"])
     typo = dtcg.get("typography", {})
+    families = {k: v.get("$value") for k, v in (typo.get("font-family") or {}).items() if isinstance(v, dict)}
+    styles = typo.get("style") or {}
 
     def fam(*keys):
+        # dembrandt 2025.10: typography.style.text-<papel>.$value.fontFamily = "{typography.font-family.x}"
+        for k in keys:
+            ref = ((styles.get(f"text-{k}") or {}).get("$value") or {}).get("fontFamily", "")
+            m = re.fullmatch(r"\{typography\.font-family\.([^}]+)\}", ref)
+            if m and families.get(m.group(1)):
+                return families[m.group(1)]
         for k in keys:
             v = typo.get(k, {})
             v = v.get("fontFamily", v) if isinstance(v, dict) else {}
             if isinstance(v, dict) and v.get("$value"):
                 val = v["$value"]
                 return ", ".join(val) if isinstance(val, list) else val
-        return "system-ui, sans-serif"
+        return next(iter(families.values()), None) or "system-ui, sans-serif"
     return to_dtcg(colors, fam("heading", "display", "h1"), fam("body", "text", "base"), "dembrandt")
 
 

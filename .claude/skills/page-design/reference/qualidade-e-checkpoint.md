@@ -15,7 +15,7 @@ python3 .claude/lib/theme-verify/verify_page.py "file://$PWD/workspace/[produto]
   [--geodiff workspace/[produto]/page/reference-capture/geodiff.json]
 ```
 
-`--legal` e `--geodiff` só no modo referência. O script mede em 390, 768 e 1440, regrava o `qa-metrics.json` do zero e sai com 1 quando há item bloqueante em `fail`. Os itens, os limites e o que cada um mede estão em `.claude/lib/theme-verify/README.md` e em `reference/regua-de-design.md` (cada item da régua diz se é medido, com o id, ou julgado).
+`--legal` e `--geodiff` só no modo referência. O script mede em 390, 768 e 1440 com movimento reduzido (a entrada no scroll deixaria fora da tela tudo invisível na captura), grava a captura inteira e as fatias `desktop-NN.png` e `mobile-NN.png` que o revisor lê, regrava o `qa-metrics.json` do zero e sai com 1 quando há item bloqueante em `fail`. Os itens, os limites e o que cada um mede estão em `.claude/lib/theme-verify/README.md` e em `reference/regua-de-design.md` (cada item da régua diz se é medido, com o id, ou julgado).
 
 - **Bloqueantes:** `script_tags`, `section_markers`, `section_ids_match_plan`, `horizontal_overflow`, `section_height_zero`, `broken_images`, `html_css_kb` e, no modo referência, `legal_check`.
 - **Avisos:** o resto (contraste, tamanhos de fonte, gradientes, largura de linha, headline em 390, margens, faixas vazias, peso total, erros de console, geodiff). Aviso não trava, mas entra na rodada seguinte quando o revisor também aponta.
@@ -28,7 +28,7 @@ Sem o Playwright no venv (exit 3), avise em uma linha, siga com o revisor sobre 
 
 Um subagente que vê só a página renderizada, as referências e a direção. É ele que pega o que o autor não vê.
 
-- Chame pela tool `Agent` com `subagent_type: "general-purpose"`, o conteúdo de `reference/revisor.md` como prompt, com os caminhos preenchidos: `page/qa-shots/desktop-full.png`, `page/qa-shots/mobile-full.png`, as `page/references/<n>/desktop-full.png` das 3 marcadas e o `page/direction.md`. Não passe a conversa, o plano nem o HTML como texto.
+- Chame pela tool `Agent` com `subagent_type: "general-purpose"`, o conteúdo de `reference/revisor.md` como prompt, com os caminhos preenchidos: as fatias `page/qa-shots/desktop-NN.png` e `page/qa-shots/mobile-NN.png`, as `page/references/<n>/desktop-full.png` das 3 marcadas e o `page/direction.md`. Não passe a conversa, o plano nem o HTML como texto.
 - Ele grava `page/review.md`: nota de 1 a 5 em tipografia, espaço, cor, hierarquia, aderência à direção e sinais de "feito por IA", e as 5 correções de maior impacto.
 - **Não há subagente** quando a tool `Agent` não está na sessão. Aí você mesmo pontua com a rubrica de `reference/revisor.md`, olhando só as capturas, e marca no topo do `review.md`: "revisão pelo autor (sem subagente)".
 

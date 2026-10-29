@@ -187,7 +187,11 @@ MEASURE_JS = r"""(attr) => {
   const lines = [...document.querySelectorAll('p')].filter(vis).map(p => {
     const s = getComputedStyle(p), lh = parseFloat(s.lineHeight) || parseFloat(s.fontSize) * 1.2;
     const r = p.getBoundingClientRect();
-    return {lines: Math.round(r.height / lh), chars: r.width / (0.5 * parseFloat(s.fontSize))}; });
+    const sec = p.closest('[data-aura-section]');
+    const n = Math.max(1, Math.round(r.height / lh));
+    // caracteres reais por linha (texto ÷ linhas): a estimativa por largura errava com a fonte
+    return {lines: n, chars: p.textContent.replace(/\s+/g, ' ').trim().length / n,
+            where: sec ? sec.getAttribute('data-aura-section') : p.className || 'p'}; });
   const h1 = document.querySelector('h1');
   let h1Lines = 0;
   if (h1) { const s = getComputedStyle(h1);
@@ -214,7 +218,9 @@ MEASURE_JS = r"""(attr) => {
     contrast, sizes: [...new Set(texts.map(e => getComputedStyle(e).fontSize))],
     gradients: [...document.body.querySelectorAll('*')].filter(e => getComputedStyle(e).backgroundImage.includes('gradient')).length,
     lines, h1Lines, margins, emptyGap: gap, vh: innerHeight,
-    resources: performance.getEntriesByType('resource').map(r => r.name),
+    // file:// não entra no Resource Timing do Chromium: soma as imagens do DOM também
+    resources: [...new Set([...performance.getEntriesByType('resource').map(r => r.name),
+                            ...[...document.images].map(i => i.currentSrc || i.src)])],
   };
 }"""
 
@@ -271,7 +277,9 @@ def _total_kb(url, resources):
 def measure_design(browser, url, attr, shots_dir):
     raw = {}
     for w, label in DESIGN_WIDTHS.items():
-        ctx = browser.new_context(**VIEWPORTS[label])
+        # movimento reduzido: entrada no scroll (animation-timeline: view()) deixaria fora da tela
+        # tudo em opacity 0 na captura de página inteira, e o revisor veria faixas em branco
+        ctx = browser.new_context(**VIEWPORTS[label], reduced_motion="reduce")
         page = ctx.new_page()
         errors = []
         page.on("console", lambda m: errors.append(m.text)
@@ -281,8 +289,23 @@ def measure_design(browser, url, attr, shots_dir):
         raw[w] = page.evaluate(MEASURE_JS, attr)
         raw[w]["console"] = errors
         page.screenshot(path=str(shots_dir / f"{label}-full.png"), full_page=True)
+        if label != "tablet":
+            save_tiles(page, shots_dir, label)
         ctx.close()
     return raw
+
+
+TILE_HEIGHT = {"desktop": 1800, "mobile": 1600}
+
+
+def save_tiles(page, shots_dir, label):
+    """Fatias de cima para baixo (`<label>-NN.png`): a captura inteira de uma página longa
+    passa de 10 mil px e, lida por visão, fica pequena demais para o revisor julgar."""
+    width, height = page.evaluate("[innerWidth, document.documentElement.scrollHeight]")
+    step = TILE_HEIGHT[label]
+    for n, top in enumerate(range(0, height, step), 1):
+        page.screenshot(path=str(shots_dir / f"{label}-{n:02d}.png"), full_page=True,
+                        clip={"x": 0, "y": top, "width": width, "height": min(step, height - top)})
 
 
 def design_items(raw, url, plan_ids, legal, geodiff, build_mode):
@@ -326,10 +349,11 @@ def design_items(raw, url, plan_ids, legal, geodiff, build_mode):
         items.append(_item("contrast", len(low), 0, not low, False, w, ", ".join(low[:5])))
     items.append(_item("font_sizes_distinct", len(d["sizes"]), 7, len(d["sizes"]) <= 7, False, 1440))
     items.append(_item("gradients", d["gradients"], 3, d["gradients"] <= 3, False, 1440))
-    bad = [round(l["chars"]) for l in d["lines"] if l["lines"] > 1 and not 45 <= l["chars"] <= 75]
-    items.append(_item("line_length", len(bad), "45-75", not bad, False, 1440))
+    bad = [l for l in d["lines"] if l["lines"] > 1 and not 45 <= l["chars"] <= 75]
+    items.append(_item("line_length", len(bad), "45-75", not bad, False, 1440,
+                       ", ".join(f"{l.get('where')} {round(l['chars'])}" for l in bad[:5])))
     m = raw[390]["h1Lines"]
-    items.append(_item("headline_lines", m, 2, m <= 2, False, 390))
+    items.append(_item("headline_lines", m, 2, m <= 2, False, 390, "h1 com %d linhas em 390" % m if m > 2 else ""))
     off = [x["id"] for x in d["margins"] if x["diff"] > 8]
     items.append(_item("equal_side_margins", len(off), 8, not off, False, 1440, ", ".join(off)))
     gap = round(d["emptyGap"])

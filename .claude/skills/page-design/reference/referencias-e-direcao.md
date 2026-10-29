@@ -13,7 +13,7 @@ Página desenhada sem referência sai na média do que o modelo já viu, e a mé
 
 ## 2. Board (8 a 12 referências)
 
-1. **Awwwards** (`mcp__awwwards__`): `search_sites` com `award: "ecommerce"`, `query` com o nicho e `tags` do produto (2 a 3 buscas, `responseMode: "compact"`), mais `search_elements` para a seção que o board ainda não cobre (hero, oferta, prova, rodapé). Com a skill `awwwards-inspiration` instalada, siga o roteiro dela para as buscas.
+1. **Awwwards** (`mcp__awwwards__`): `search_sites` com `responseMode: "compact"` e `sortBy: "score"`, em 2 a 4 buscas: `award: "ecommerce"` sozinho (a coleção é pequena, cerca de 30 sites, e com `query` junto costuma voltar vazia), depois `query` com o nicho sem `award` e `tags` da categoria. Quando a busca devolve "Loose matches", abra esses slugs com `get_site_details`. Some `search_elements` para a seção que o board ainda não cobre (hero, oferta, prova, rodapé). Com a skill `awwwards-inspiration` instalada, siga o roteiro dela para as buscas.
 2. **Reserva, só sem o Awwwards na sessão:** WebSearch das landings dos concorrentes de `competitor-analysis/dados.json` (`landing_formats[]`) e da categoria (`source: "websearch"`). O Refero não entra nesta busca. Sem nenhum dos dois, avise e siga com o que o membro trouxer.
 3. Uma linha por referência na tabela do `design-system.md` (seção "Board de referências"): link, fonte e o que se tira dela em pelo menos um eixo concreto (tipografia, grid, paleta, tratamento de foto, componentes). Referência sem eixo concreto sai do board.
 
@@ -27,7 +27,7 @@ Mostre o board e peça as 3 que ele mais quer seguir. Para cada marcada, tire a 
 python3 .claude/lib/theme-verify/verify_page.py "<url>" --desktop-only --shots-dir workspace/<slug>/page/references/<n>/
 ```
 
-O perfil loja checa marcadores da Aura e falha numa página de terceiro; ignore o exit code e confira só que `page/references/<n>/desktop-full.png` existe. Bloqueada (Cloudflare, 403): tente a próxima do board ou peça um print ao membro, salvo no mesmo caminho.
+O perfil loja checa marcadores da Aura e falha numa página de terceiro; ignore o exit code e **olhe a imagem**: site com loader em JavaScript sai como uma tela de "Loading...". Nesse caso, ou quando o site bloqueia (Cloudflare, 403), baixe o "Full-size screenshot" que o `get_site_details` do Awwwards devolve para o mesmo caminho; sem ele, tente a próxima do board ou peça um print ao membro.
 
 ## 4. Três direções e a escolha
 

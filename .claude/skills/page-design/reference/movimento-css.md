@@ -31,7 +31,7 @@ Com a skill `awwwards-motion-study` instalada, siga o roteiro dela para o invent
 }
 ```
 
-O estado padrão é visível: navegador sem `view()` (o Firefox hoje) mostra a página parada e inteira. Nunca esconda conteúdo fora do `@supports`. Anime só `opacity` e `transform`.
+O QA da ETAPA 5 fotografa com movimento reduzido, então a receita precisa ficar inteira dentro do `prefers-reduced-motion: no-preference`; fora dele, a captura sai com faixas em branco. O estado padrão é visível: navegador sem `view()` (o Firefox hoje) mostra a página parada e inteira. Nunca esconda conteúdo fora do `@supports`. Anime só `opacity` e `transform`.
 
 ### Elemento que aparece (`@starting-style`)
 

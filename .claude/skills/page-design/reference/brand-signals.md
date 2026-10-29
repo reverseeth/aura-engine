@@ -27,7 +27,7 @@ Arquivo de marca: `workspace/[produto]/brand/brand-tokens.json` (schema em `.cla
 Marca vazia e o membro tem loja ou site **dele** (`store_url` do manifest, ou um link que ele confirma ser da marca dele). URL de concorrente ou de referência **nunca** vira marca: para isso existe a ETAPA 3.
 
 1. `mcp__plugin_dembrandt_dembrandt__check_robots` na URL; proibido, pule para o caminho 3.
-2. `get_design_tokens` na URL e `export_dtcg`; salve o export em `workspace/[produto]/brand/dembrandt-dtcg.json`.
+2. `get_design_tokens` na URL **sem** `sync` (a resposta síncrona traz a extração inteira, 60 mil caracteres, e nenhum `job_id`): ele devolve um `job_id`; acompanhe com `get_job_status` (o resultado completo é grande, então só confirme que terminou) e chame `export_dtcg` com o mesmo `job_id`. Salve o export em `workspace/[produto]/brand/dembrandt-dtcg.json`. O `tokens.py` lê o formato DTCG 2025.10 que o dembrandt exporta (`color.semantic.*`, `$value` como objeto) e completa superfície, texto secundário e borda pela paleta extraída.
 3. Converta e valide:
    ```bash
    python3 tools/page-qa/tokens.py --from-dtcg workspace/[produto]/brand/dembrandt-dtcg.json --brand-out workspace/[produto]/brand/brand-tokens.json

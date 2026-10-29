@@ -55,6 +55,17 @@ class PapeisDeCor(unittest.TestCase):
         colors = self.convert("--design-tokens", str(self.tmp / "design-tokens.json"), "--theme-dir", str(theme))
         self.assertEqual(set(colors), {"color_1", "color_2", "color_3"})
 
+    def test_irmaos_com_estrutura_diferente_nao_perdem_copy(self):
+        (self.tmp / "s.html").write_text(
+            '<section class="r" data-aura-section="reasons">'
+            '<div class="read"><h2 class="t">First reason title</h2><p>First body text here.</p></div>'
+            '<div class="read"><p>Body before the title.</p><h2 class="t">Second reason title</h2><p>Second body.</p></div>'
+            '</section>')
+        self.convert()
+        out = (self.tmp / "theme-out" / "sections" / "page-p-hero.liquid").read_text()
+        self.assertIn("Second reason title", out)
+        self.assertIn("Body before the title.", out)
+
 
 if __name__ == "__main__":
     unittest.main()

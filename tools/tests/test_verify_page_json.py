@@ -41,6 +41,17 @@ class VerifyPageDesign(unittest.TestCase):
         self.assertEqual([i["id"] for i in m["items"] if i["status"] == "fail"], [])
         self.assertTrue(m["page_sha256"])
 
+    def test_grava_fatias_para_o_revisor(self):
+        _, _, tmp = self.clean
+        for label in ("desktop", "mobile"):
+            self.assertTrue((tmp / "shots" / f"{label}-01.png").exists(), label)
+
+    def test_aviso_diz_onde_falhou(self):
+        _, m, _ = self.dirty
+        head = by_id(m)["headline_lines"][0]
+        self.assertEqual(head["status"], "warn")
+        self.assertIn("linhas", head["detail"])
+
     def test_cada_defeito_aparece_com_id_e_blocking_certos(self):
         proc, m, _ = self.dirty
         self.assertEqual(proc.returncode, 1)
