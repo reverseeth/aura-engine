@@ -46,6 +46,10 @@ class VerifyPageDesign(unittest.TestCase):
         for label in ("desktop", "mobile"):
             self.assertTrue((tmp / "shots" / f"{label}-01.png").exists(), label)
 
+    def test_placeholder_de_copy_conta_e_cta_entre_colchetes_nao(self):
+        _, m, _ = self.dirty
+        self.assertEqual(by_id(m)["copy_placeholders"][0]["detail"], "[X]")
+
     def test_aviso_diz_onde_falhou(self):
         _, m, _ = self.dirty
         head = by_id(m)["headline_lines"][0]
@@ -56,7 +60,7 @@ class VerifyPageDesign(unittest.TestCase):
         proc, m, _ = self.dirty
         self.assertEqual(proc.returncode, 1)
         items = by_id(m)
-        for id_ in ("script_tags", "section_markers", "horizontal_overflow", "html_css_kb"):
+        for id_ in ("script_tags", "section_markers", "horizontal_overflow", "html_css_kb", "copy_placeholders"):
             self.assertTrue(any(i["status"] == "fail" and i["blocking"] for i in items[id_]), id_)
         for id_ in ("contrast", "font_sizes_distinct", "headline_lines"):
             self.assertTrue(any(i["status"] == "warn" and not i["blocking"] for i in items[id_]), id_)

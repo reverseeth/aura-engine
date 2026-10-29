@@ -74,6 +74,9 @@ CONSOLE_NOISE = ("facebook", "googletagmanager", "google-analytics", "doubleclic
                  "web-pixel", "favicon", "ERR_BLOCKED_BY_CLIENT")
 
 
+DISMISS_OVERLAYS_JS = (Path(__file__).with_name("dismiss_overlays.js")).read_text()
+
+
 def scroll_through(page):
     # rolagem progressiva: dispara lazy-load e animações de reveal antes de medir
     page.evaluate("""async () => {
@@ -110,6 +113,8 @@ def check_viewport(browser, label, url, attr, shots_dir):
     page.goto(url, wait_until="load", timeout=60000)
     page.evaluate("document.querySelector('newsletter-popup')?.remove()")
     scroll_through(page)
+    # depois da rolagem: popup de desconto e banner de cookies costumam abrir com atraso
+    page.evaluate(DISMISS_OVERLAYS_JS)
 
     overflow = page.evaluate(
         "() => { const d = document.documentElement;"
@@ -218,6 +223,8 @@ MEASURE_JS = r"""(attr) => {
     contrast, sizes: [...new Set(texts.map(e => getComputedStyle(e).fontSize))],
     gradients: [...document.body.querySelectorAll('*')].filter(e => getComputedStyle(e).backgroundImage.includes('gradient')).length,
     lines, h1Lines, margins, emptyGap: gap, vh: innerHeight,
+    // marcador de copy por preencher: [X], [X.X], [AUTHOR NAME]; "[ CHECK AVAILABILITY ]" é estilo, não conta
+    placeholders: [...new Set(document.body.innerText.match(/\[(?! )[A-Z0-9][A-Z0-9 ._\/%-]{0,38}\]/g) || [])],
     // file:// não entra no Resource Timing do Chromium: soma as imagens do DOM também
     resources: [...new Set([...performance.getEntriesByType('resource').map(r => r.name),
                             ...[...document.images].map(i => i.currentSrc || i.src)])],
@@ -328,6 +335,8 @@ def design_items(raw, url, plan_ids, legal, geodiff, build_mode):
                            ", ".join(raw[w]["zero"])))
     items.append(_item("broken_images", len(d["broken"]), 0, not d["broken"], True, 1440,
                        ", ".join(d["broken"][:5])))
+    ph = d.get("placeholders", [])
+    items.append(_item("copy_placeholders", len(ph), 0, not ph, True, 1440, ", ".join(ph[:8])))
     kb = _html_css_kb(url)
     items.append(_item("html_css_kb", kb, 150, kb is None or kb <= 150, True,
                        status="skip" if kb is None else None))

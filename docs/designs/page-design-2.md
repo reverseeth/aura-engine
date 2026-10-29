@@ -370,6 +370,8 @@ O `qa-metrics.json` tem um item por medida, cada um com `pass`, `warn` ou
 *   `broken_images`;
 *   `html_css_kb`: HTML+CSS sem o bloco `data-aura-fonts`, acima de 150 KB,
     que é o limite atual do page-design;
+*   `copy_placeholders`: marcador de copy por preencher (`[X]`,
+    `[AUTHOR NAME]`) no texto visível;
 *   `legal_check`, só no modo referência. O `legal_check.py` grava o
     resultado, e o `verify_page.py --legal` o transforma em item.
 
@@ -389,7 +391,8 @@ hoje.
 *   **Itens de contrato, nunca liberáveis:** `script_tags`, `section_markers`,
     `section_ids_match_plan` e `legal_check`. Sem eles o page-build não
     compila ou a página expõe material de terceiro. Também não se libera
-    `section_height_zero`, porque é uma seção que renderizou vazia.
+    `section_height_zero`, porque é uma seção que renderizou vazia, nem
+    `copy_placeholders`, porque a página iria ao ar com `[X]` no lugar de um dado.
 *   **Liberáveis:** `horizontal_overflow`, `broken_images` e `html_css_kb`. O
     membro registra `{item, motivo, data}` em `page-plan.json.qa_overrides`.
 
