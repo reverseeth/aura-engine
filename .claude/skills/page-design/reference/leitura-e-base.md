@@ -1,8 +1,14 @@
-# Page Design · Referência: Detecção e leitura (ETAPA 0)
+# Page Design · Referência: Leitura (ETAPA 0)
 
-> A pesquisa exploratória na base com os nove sistemas de fundação de página e a `best_query` de cada um (0.1), a detecção do produto no workspace (0.2) e a lista dos inputs obrigatórios a ler (0.3). Abra na ETAPA 0.
+> A regra de consulta à base pelo índice, a pesquisa exploratória com os nove sistemas de fundação de página e a `best_query` de cada um, mais as três buscas de design visual (0.1), a detecção do produto no workspace (0.2) e a lista dos inputs obrigatórios a ler (0.3). Abra na ETAPA 0.
 
-## ETAPA 0 — Detecção e leitura
+## ETAPA 0 — Leitura
+
+### Como esta skill consulta a base
+
+Sempre que esta skill mandar "consulte a base", isso significa: puxe os SISTEMAS NOMEADOS da base, rodando `search_knowledge` com a `best_query` de cada framework relevante PRA AQUELA ETAPA, com `deep=true`. Nunca use query genérica. O índice completo do domínio `page-landing-cro` está em `.claude/lib/kb-index/` (mapa skill→domínio no README).
+
+Rode `python3 .claude/lib/kb-index/kb_lookup.py --skill page-design --domain <domínio desta etapa>` e trabalhe com a lista impressa (omita o `--domain` quando a etapa cruza vários domínios). Puxe as entradas relevantes à etapa com a `best_query` exata e `deep=true`, no máximo 14 buscas adicionais por etapa. As queries já embutidas na etapa são piso obrigatório: rodam sempre e não contam no teto, que vale só para as buscas adicionais que a etapa pedir. Não repita busca de framework já puxado na sessão.
 
 ### 0.1 Pesquisa exploratória na base Aura
 
@@ -18,7 +24,13 @@ Puxe os SISTEMAS NOMEADOS da base (não query genérica) — rode `search_knowle
 - **Specificity → Landing Page Conversion** (rode `specificity landing page conversion Hopkins Caples PVA VAKOG mental movies`) — Hopkins/Caples proof stacking + mental movies.
 - **CTAs / Calls to Value** (rode `CTAs buttons friction anxiety calls to value lizard brain first person mirror headline`).
 
-Aprofunde até ter domínio de conversão + estrutura de página. Awareness e sophistication (os dois são Schwartz — Breakthrough Advertising) entram na 1.1; advertorial e checkout/AOV têm seus frameworks próprios nas ETAPAs onde são usados (1.1 / referência cruzada à `checkout-aov`). A lista completa do domínio sai do `kb_lookup.py` (instrução no topo desta skill).
+**Três buscas de design visual.** A lista acima só traz conversão. Some estas três, também com `search_knowledge(deep=true)`, pra que a direção da ETAPA 3 e a construção da ETAPA 4 partam de hierarquia, escala e narrativa, e não só de persuasão. Os termos vêm de três skills de conhecimento do dembrandt (`visual-emphasis-and-hierarchy`, `modular-scale-typography` e `layout-paradigms-and-consistency`); não são `best_query` do índice, então rodam como estão e contam como piso:
+
+- **Hierarquia visual** (rode `visual hierarchy emphasis size colour weight position primary action`) — o que a página manda ler primeiro em cada seção.
+- **Escala tipográfica** (rode `modular type scale ratio font sizes relate typography tokens`) — a escala de razão única que a régua mede.
+- **Narrativa de landing** (rode `landing page narrative layout paradigm sections consistency structure`) — a ordem das seções como história, que a 1.2 usa fora do advertorial e do listicle.
+
+Aprofunde até ter domínio de conversão + estrutura de página. Awareness e sophistication (os dois são Schwartz — Breakthrough Advertising) entram na 1.1; advertorial e checkout/AOV têm seus frameworks próprios nas ETAPAs onde são usados (1.1 / referência cruzada à `checkout-aov`). A lista completa do domínio sai do `kb_lookup.py` (regra no topo deste arquivo).
 
 ### 0.2 Detectar o produto
 

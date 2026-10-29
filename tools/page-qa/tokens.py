@@ -54,7 +54,7 @@ def first_family(value):
 
 def provision(fonts_block, family):
     if re.search(rf"@font-face[^}}]*{re.escape(family)}[^}}]*url\(", fonts_block, flags=re.I):
-        return "local"
+        return "local_files"
     if "fonts.googleapis" in fonts_block and family.replace(" ", "+") in fonts_block:
         return "google_fonts"
     return "system"
@@ -85,7 +85,7 @@ def from_page(html, source, preset_base, existing):
         fams.append({"name": name, "role": role, "provision": provision(fonts_block, name),
                      "weights": sorted({int(w) for w in re.findall(
                          rf"{re.escape(name)}[^}}]*font-weight:\s*(\d+)", fonts_block)}) or [400],
-                     "files_dir": "page/design/assets/fonts" if provision(fonts_block, name) == "local" else None})
+                     "files_dir": "page/design/assets/fonts" if provision(fonts_block, name) == "local_files" else None})
     out = dict(existing)
     out.update({
         "colors": {r: v[f"color-{r.replace('_', '-')}"].lower() for r in ROLES},

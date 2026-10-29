@@ -24,6 +24,12 @@ class Tokens(unittest.TestCase):
         self.assertEqual([f["name"] for f in out["type"]["families"]], ["Georgia", "Helvetica"])
         self.assertEqual((out["produto"], out["preset_base"]), ("x", "atelier"))
 
+    def test_provision_bate_com_o_que_a_page_build_le(self):
+        # deploy.md da page-build: `local_files`, `google_fonts` ou `system`
+        block = '@font-face{font-family:"Brand Serif";src:url(assets/fonts/a.woff2)}'
+        self.assertEqual(tokens.provision(block, "Brand Serif"), "local_files")
+        self.assertEqual(tokens.provision("", "Arial"), "system")
+
     def test_seis_cores_soltas_reprovam(self):
         html = CLEAN.replace("</style></head>", "a{color:#111}b{color:#222}i{color:#333}"
                              "u{color:#444}s{color:#555}em{color:rgb(1,2,3)}</style></head>", 1)

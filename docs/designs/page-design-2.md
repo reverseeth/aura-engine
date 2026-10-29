@@ -297,7 +297,7 @@ Em resumo:
 | Etapa | Dono | Reserva | O que sai |
 |---|---|---|---|
 | Marca | dembrandt `get_design_tokens` + `export_dtcg`, só em URL da marca do membro | `.claude/lib/design-presets/palette_engine.py` (3 paletas, contraste AA garantido) | `brand/brand-tokens.json` |
-| Referências | Awwwards `search_sites` (award `ecommerce`) + `search_elements` | Refero, depois WebSearch de concorrentes | `reference_board.references[]` com `source`; imagem das 3 marcadas tirada pelo `verify_page.py --shots-dir`; o membro marca as 3 que mais quer seguir |
+| Referências | Awwwards `search_sites` (award `ecommerce`) + `search_elements` | WebSearch de concorrentes e da categoria (o Refero não entra: decisão do dono, 2026-10-29) | `reference_board.references[]` com `source`; imagem das 3 marcadas tirada pelo `verify_page.py --shots-dir`; o membro marca as 3 que mais quer seguir |
 | Direção | taste-skill `scripts/draw.mjs`, que sorteia 3 de 20 direções a partir da biblioteca de 247 sites, nos setores `ecommerce`, `physical-product` e `fashion`, com `--keep palette,type` quando a marca já existe | O modelo escreve 3 direções a partir do board | `page/direction.md`: tipografia, paleta, hero, blueprint por seção e o que é proibido |
 | Construção, modo direção | Modelo no canvas `Artifact`, seguindo `direction.md` e as regras do taste-skill no perfil sem JS | O mesmo, sem o taste-skill | `page/design/page.html` |
 | Construção, modo referência | `tools/design-clone/downloader.py --mode bands` + `tools/page-qa/geodiff.py`, seção por seção | Nenhuma necessária: é código do repo | `page/design/page.html` + `page/reference-capture/` |
@@ -803,7 +803,7 @@ glossário.
 
 *   **Mudança:**
     *   Linhas novas na tabela de prefixos, cada uma com a cascata:
-        *   `mcp__awwwards__`: referências e movimento → Refero → WebSearch;
+        *   `mcp__awwwards__`: referências e movimento → WebSearch;
         *   `mcp__plugin_dembrandt_dembrandt__`: só extração de marca (setup
             e ETAPA 2) → `palette_engine.py` → manual.
     *   `source` novos: `awwwards`, `dembrandt`, `brand_tokens` e
@@ -1308,15 +1308,15 @@ e são validados pelo `manifest.py` (linhas 236 a 247). Estes dois não são
             produto;
         *   `search_elements` para seções específicas;
         *   o membro marca as 3 referências que mais quer seguir.
-    *   Reserva, em ordem: Refero (cada referência gravada com
-        `source: "refero"`) e WebSearch de concorrentes e da categoria. O
+    *   Reserva: WebSearch de concorrentes e da categoria. O Refero não
+        entra na busca de referências (decisão do dono, 2026-10-29). O
         21st.dev depende da Open Question.
     *   **Imagem das 3 marcadas**, em qualquer caminho:
         `verify_page.py <url> --desktop-only --shots-dir page/references/<n>/`
         (perfil loja). O `desktop-full.png` é a imagem que vai para o
         revisor.
     *   **Campos de `reference_board.references[]`:** `url`, `title`,
-        `source` (`awwwards | refero | websearch`), `marked` (booleano) e
+        `source` (`awwwards | websearch | member`), `marked` (booleano) e
         `image_path`. Ficam também os campos que a social-engine já lê.
     *   **Direções:** o `draw.mjs` do taste-skill
         (`skills/taste-skill/scripts/draw.mjs` no cache do plugin) roda com
@@ -1738,8 +1738,9 @@ reprova caminhos que deixaram de existir.
 
 *   **Mudança:** as seções que citam design-clone (linhas 9, 47, 54, 69, 83 e
     103), rota (7, 52, 91, 93, 95 e 103) e `design-signals` (7, 26, 52, 67 e
-    99) são reescritas. O Refero passa a ser a primeira reserva de
-    referência na ETAPA 3.
+    99) são reescritas. O README registra que a page-design não usa mais o
+    Refero (nem na marca nem nas referências, decisão do dono de
+    2026-10-29); o `source: "refero"` só vale em página antiga.
 *   **Por quê:** o README cita a rota 2 e o design-clone, que saem.
 
 #### 46. `.claude/OVERVIEW.md` (modificar) e `.claude/OVERVIEW.html`, `README.md`, `.claude/CLAUDE.md` (regerar)
@@ -1752,8 +1753,8 @@ reprova caminhos que deixaram de existir.
         quem os valida (item 9).
     *   Linha 390: o `design-signals.json` fica marcado como "só página
         antiga".
-    *   Linha 545: o Refero sai da "ETAPA 2 (Brand Signals)" e vai para a
-        ETAPA 3.
+    *   Linha 545: o Refero sai da "ETAPA 2 (Brand Signals)" e não entra
+        em outra etapa da page-design.
     *   O changelog ganha uma entrada.
     *   Os blocos `gen:` são regerados com `tools/gen_docs.py`.
 *   **Por quê:** o `OVERVIEW.md` descreve as rotas que saem, e a regra `gen`

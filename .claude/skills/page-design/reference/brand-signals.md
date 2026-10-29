@@ -1,125 +1,89 @@
-# Page Design · Referência: Brand signals, a cascade unificada até o design-signals.json (sub-etapas 2.2 e 2.3)
+# Page Design · Referência: Marca (ETAPA 2)
 
-> O shape do `design-signals.json`, a leitura do `brand.md` antes de qualquer pergunta, os quatro caminhos da cascade de cor (Refero MCP, screenshot lido por visão, design-clone pra hex exato, gerador de 3 paletas), a comparadora que prova paleta e tipografia na página real com tokens em trio R,G,B, a regra de dois temas e o resumo ao membro. Abra depois da 2.1.
+> A cascata da marca até os 8 papéis de cor e as famílias que a página usa: `brand-tokens.json` do setup, dembrandt numa URL da própria marca, o gerador de 3 paletas com a comparadora na página real, ou o membro informando. A política de escrita no arquivo de marca e o resumo ao membro. Abra depois do plano (ETAPA 1).
 
-## ETAPA 2 — BRAND SIGNALS (cascade unificada → `design-signals.json`)
+## O que sai daqui
 
-Isto NÃO é a fonte do layout. É só extração de signals (paleta, tipografia, vibe) que vão alimentar QUALQUER rota de design escolhida na ETAPA 3 (a rota 1 desenha com eles; a rota 2 os aplica sobre o esqueleto de layout da página de referência; a rota 3 os usa como o token único que unifica as seções de fontes diferentes). O layout em si vem da rota escolhida na ETAPA 3 — aqui só sai a direção de cor/tipografia/densidade.
+Só cor, tipografia, raio, sombra e densidade, nunca o layout (o layout vem da direção da ETAPA 3). O resultado são os 8 papéis de cor (background, surface, foreground, primary, on_primary, accent, muted, border) e as famílias heading e body, que a ETAPA 3 escreve no `## Paleta` e no `## Tipografia` do `direction.md` e a ETAPA 4 põe no `:root` da página.
 
-A etapa tem três sub-etapas, nesta ordem: **2.1 tipografia** (`reference/tipografia.md`, as duas famílias sugeridas), **2.2 cor** (a cascade de quatro caminhos abaixo) e **2.3 a comparadora**, onde o membro escolhe os dois vendo a página real.
+Em página nova (`schema_version: 2`) esta etapa **não grava o `design-signals.json`**. O registro da escolha vai para `page-plan.json` → `brand_discovery` (`source`, `preset_base` quando houver, os 8 papéis e as famílias), e o `design-tokens.json` sai por código na ETAPA 6 (`reference/design-tokens.md`).
 
-Os 4 caminhos convergem TODOS pro MESMO arquivo `workspace/[produto]/page/design-signals.json`:
+Antes de qualquer pergunta, leia `workspace/[produto]/brand.md`: posicionamento, tom e o que já estiver preenchido entram direto. Pergunte em UMA mensagem só o que faltar.
+
+## A cascata
+
+Arquivo de marca: `workspace/[produto]/brand/brand-tokens.json` (schema em `.claude/templates/schemas/brand.brand-tokens.schema.json`). Se ele não existir, crie na forma vazia antes de tudo:
 
 ```json
-{
-  "source": "refero | screenshot_vision | design_clone | manual",
-  "source_detail": "Linear (via Refero) | print da loja X | hex extraído de competitor.com | paleta gerada Verde de Farmácia · harmonia analogous · base apothecary-calm",
-  "heading_font": "'Geist', -apple-system, sans-serif",
-  "body_font": "'Geist', -apple-system, sans-serif",
-  "typography": {
-    "provision": "google_fonts | local_files | system | mixed",
-    "families": [
-      { "name": "Geist", "role": "both", "provision": "google_fonts", "weights": [400, 500, 600, 700] }
-    ]
-  },
-  "palette": {
-    "background": "#FDFAF4",
-    "surface": "#F5EDE0",
-    "foreground": "#231F20",
-    "primary": "#D85C4A",
-    "on_primary": "#FFF8F1",
-    "accent": "#9CAF88",
-    "muted": "#B0A99F",
-    "border": "#E3DAC9"
-  },
-  "radius": { "base_px": 12, "pill_px": 1000 },
-  "shadow": "subtle | medium | strong",
-  "density": "airy | medium | compact"
-}
+{"$extensions": {"aura": {"source": "none"}}}
 ```
 
-Antes de começar, **leia `workspace/[produto]/brand.md` PRIMEIRO** — as skills `setup` (ETAPA 5A) e 01 (etapa SALVAR) criam esse arquivo e prometem ao membro literalmente que "a `page-design` lê esse arquivo na brand discovery e só pergunta o que faltar". O que já estiver preenchido lá (posicionamento, arquétipo/tom, paleta com hex reais, tipografia, do/don'ts) entra DIRETO como brand discovery — não pergunte de novo o que o arquivo já responde (hex reais do brand.md alimentam a paleta dos signals sem cascade). Depois, pergunte em UMA mensagem SÓ o que estiver ausente ou marcado `[preencher]` (estilo visual desejado: minimalist editorial / bold modern / clinical premium / wellness organic / custom; cores da marca se houver, ou "escolhe pra mim"; tem site de referência cujo visual ele curte?). Se `brand.md` não existir, faça a brand discovery mínima completa nessa mesma mensagem única. Use as respostas pra dirigir a cascade.
+### 1. `brand-tokens.json` do setup (quando não está vazio)
 
-**A tipografia da 2.1 vence a tipografia de qualquer caminho abaixo.** Os quatro trazem família junto com a cor; quando a 2.1 já fechou uma, deles entram apenas `palette`, `radius`, `shadow` e `density`, e a família que vier junto é descartada. Se a 2.1 terminou sem família (o membro recusou as duas sugestões), a tipografia vem do caminho que rodar aqui.
+`$extensions.aura.source` diferente de `none`: os 8 papéis e as famílias vêm daqui, e nada de cor ou fonte é perguntado. A direção da ETAPA 3 roda com `--keep palette,type`. `brand_discovery.source: "brand_tokens"`.
 
-### Caminho 1 — Refero MCP (preferencial, catálogo curado)
+### 2. dembrandt numa URL da própria marca
 
-Detecta tools com prefixo `mcp__refero__` na sessão. Se disponíveis, vibe search no catálogo de ~200 design systems premium (Cursor, Linear, Vercel, Notion, Stripe, etc.).
+Marca vazia e o membro tem loja ou site **dele** (`store_url` do manifest, ou um link que ele confirma ser da marca dele). URL de concorrente ou de referência **nunca** vira marca: para isso existe a ETAPA 3.
 
-1. Construa a query a partir da brand discovery (ex: "editorial magazine ultralight italic premium" / "modern SaaS clean tech minimal"). Se o membro nomeou um site específico, pule direto pro `refero_get`.
-2. `mcp__refero__refero_search(query=<query>, limit=5)` — ou `mcp__refero__refero_get(hostname="<site>.com")` quando nomeou um site.
-3. Apresente 2-3 candidatos (nome + 1 frase do `northStar`). Membro escolhe (ou pede mais 3 com search refinada).
-4. `chosen = mcp__refero__refero_get(uuid=<id>)` → extrair `chosen.designSystem` (typography + colors role-tagged + spacing + radius). Mapeie pro shape de `design-signals.json`.
-
-Se Refero retorna zero resultados úteis OU o membro não gostou de nenhum, caia pro Caminho 2.
-
-### Caminho 2 — SCREENSHOT → VISÃO (fallback PRIMÁRIO)
-
-Substitui o scraping de computed-styles do design-clone como fallback principal. Imune a Cloudflare, JS pesado, markup bagunçado — exatamente o que faz o scraping travar.
-
-1. Peça ao membro um **print full-page** da loja de referência (qualquer concorrente, mesmo nichado fora do catálogo Refero). OU, se o membro deu uma URL e prefere automatizar, a Aura captura **1 screenshot** via `webapp-testing`/Playwright — SÓ o screenshot, sem extrair DOM:
+1. `mcp__plugin_dembrandt_dembrandt__check_robots` na URL; proibido, pule para o caminho 3.
+2. `get_design_tokens` na URL e `export_dtcg`; salve o export em `workspace/[produto]/brand/dembrandt-dtcg.json`.
+3. Converta e valide:
+   ```bash
+   python3 tools/page-qa/tokens.py --from-dtcg workspace/[produto]/brand/dembrandt-dtcg.json --brand-out workspace/[produto]/brand/brand-tokens.json
+   python3 tools/schema_validate.py .claude/templates/schemas/brand.brand-tokens.schema.json workspace/[produto]/brand/brand-tokens.json
    ```
-   # via skill webapp-testing — navegar à URL, full-page screenshot, salvar em /tmp/ref-[produto].png
-   ```
-2. **Leia a imagem com visão nativa** (Read tool no PNG, ou o screenshot capturado). Extraia da imagem:
-   - Paleta dominante (background, foreground, primary/accent, surfaces) — nomeie em hex aproximado
-   - Tipografia (serif vs sans no heading; peso; vibe — editorial / técnica / geométrica)
-   - Radius (cantos retos vs arredondados vs pill), profundidade de shadow, densidade (airy vs compact)
-3. Preencha `design-signals.json` com `source: "screenshot_vision"`.
+   É a mesma extração do setup, feita aqui porque o setup não rodou com loja. `brand_discovery.source: "dembrandt"`.
 
-> Hex extraído de imagem é aproximado — está OK. São signals de direção, não pixel-exato. A rota de design da ETAPA 3 ajusta pra garantir contraste WCAG e hierarquia.
+Sem o dembrandt na sessão, extração vazia ou robots barrando: caminho 3.
 
-### Caminho 3 (opcional) — design-clone para hex exato
+### 3. Gerador de 3 paletas (`palette_engine.py`) e a comparadora
 
-Só pra quem QUER hex exato de um concorrente nichado e tem o venv do design-clone instalado (skill `setup`). Não é o fallback primário (screenshot→visão é). Se o membro pedir, use o caminho canônico — o wrapper orquestra downloader → analyzer → pattern-extractor e a cascade de captura sozinho (não chame os scripts soltos):
+O único caminho que não precisa de URL. A Aura gera **3 paletas candidatas para ESTE produto**, com o motivo de cada uma, e o membro escolhe vendo a cor aplicada na página real.
 
-```bash
-python3 tools/design-clone/aura_clone.py "URL" --output=/tmp/ref-[produto] --skip-images
-```
-
-Leia o bloco `design_system` de `/tmp/ref-[produto]/patterns.json` e **cheque o campo `design_system_source`**: se `"extracted"`, mapeie pro shape do `design-signals.json` com `source: "design_clone"`; se `"defaults_fallback"` (o site não rendeu CSS computado real), **IGNORE o bloco e caia pro próximo caminho** — nada de paleta inventada. Se o modo signals abortar com "engine não extrai computed-styles" (a captura veio do single-file-cli, que não gera computed-styles), ou se Playwright não estiver instalado, pule graciosamente pro Caminho 2 (screenshot→visão) ou pro Caminho 4.
-
-### Caminho 4 — Gerador de 3 paletas (último recurso, e o único que não precisa de referência)
-
-Quando Refero não tem match E o membro não tem print nem URL. Não é mais um menu de 8 presets prontos: a Aura gera **3 paletas candidatas pra ESTE produto**, com o motivo de cada uma, e o membro escolhe vendo a cor aplicada na página real.
-
-1. Peça a descrição livre da vibe se ele quiser dar uma ("editorial sério, low-pressure"), e converta pra hex qualquer cor que ele tenha citado por extenso (tabela de nomes logo abaixo). Isso vira semente, nunca decisão.
+1. Peça a descrição livre da vibe se ele quiser dar uma ("editorial sério, low-pressure") e converta em hex qualquer cor citada por extenso (sage green `#9CAF88`, dusty rose `#D4A5A5`, off-white `#FDFAF4`, navy `#14213D`, terracotta `#C66B3D`, olive `#6B7040`; não reconhecível, peça o hex). Isso vira semente, nunca decisão.
 2. Rode o gerador:
    ```bash
    python3 .claude/lib/design-presets/palette_engine.py \
      --vertical <supplements|health|beauty|home|relationship|other> \
      --avatar "<core_avatar_line da market-research>" \
      --skepticism <baixo|médio|alto, o ceticismo da market-research> \
-     [--seed "#AABBCC,#112233"] [--lang en] [--theme dark]
+     [--seed "#AABBCC,#112233"] [--signals workspace/[produto]/brand/brand-tokens.json] [--lang en] [--theme dark]
    ```
-   Saem exatamente 3 candidatas: nome curto, o motivo em uma frase (o que aquela família de cor comunica naquela vertical, pra aquele avatar), a relação de matiz declarada (análoga, complementar dividida ou tríade) e a paleta role-tagged inteira, com os trios R,G,B já prontos.
-3. O script confere sozinho, antes de imprimir: saturação viva no `primary` e no `accent` (nunca cinza), harmonia que bate com a distância real de matiz, contraste WCAG AA no texto e no texto secundário contra o fundo e contra a superfície dos cartões, e no texto do botão contra o botão, 3:1 na cor de apoio sobre o fundo, e as 3 candidatas distintas entre si. **Paleta que não passa é corrigida ou o script sai com erro** — nenhuma sai com aviso. Se sair com erro, reporte a mensagem e siga pela descrição livre.
-4. **Prove as 3 na página real** (bloco abaixo). Nunca peça a escolha por amostra de cor solta.
-5. Com a escolha do membro, grave no `design-signals.json`: `source: "manual"`, `source_detail: "paleta gerada [Nome] · harmonia [harmony] · base [base_preset]"` (o preset base precisa aparecer: é por ele que a `page-build` acha os pesos de fonte em `presets.json`), a `palette` inteira da candidata e `radius`, `shadow` e `density` **LITERAIS** do bloco `non_color_tokens` dela. O `heading_font` e o `body_font` do `non_color_tokens` só entram quando a 2.1 terminou sem família; com família decidida, valem os campos da 2.1 e o bloco `typography` que ela gravou.
+   `--signals` com o `brand-tokens.json` usa como semente as cores que a marca já tem (DTCG `color.*.$value`). Saem exatamente 3 candidatas: nome, motivo em uma frase, harmonia declarada, a paleta com os 8 papéis e os trios R,G,B, e o preset base de cada uma.
+3. O script confere sozinho saturação viva no `primary` e no `accent`, harmonia, contraste WCAG AA (texto e texto secundário contra fundo e superfície, texto do botão contra o botão, 3:1 da cor de apoio) e as 3 distintas entre si. Paleta que não passa é corrigida ou o script sai com erro; com erro, reporte a mensagem e siga pelo caminho 4.
+4. **Prove as 3 na comparadora** (abaixo). Nunca peça a escolha por amostra de cor solta.
+5. Com a escolha: `brand_discovery.source: "palette_engine"`, `preset_base` com o preset base da candidata (vai para `design-tokens.json.preset_base`; é por ele que a `page-build` acha os pesos de fonte em `presets.json`), a paleta inteira e `radius`, `shadow` e `density` literais do `non_color_tokens` dela.
 
-**Os 8 presets continuam vivos como base do gerador, não como menu.** Cada candidata herda de um preset o perfil de claridade e saturação dos neutros, a forma (radius, sombra, densidade) e a tipografia de reserva, e troca só o matiz. Não ofereça a lista dos 8 ao membro, e não copie cor de `presets.json` à mão.
+Os 8 presets de `.claude/lib/design-presets/presets.json` são a base do gerador, não um menu: não ofereça a lista ao membro nem copie cor de lá à mão. Mesma entrada devolve sempre as mesmas 3 candidatas.
 
-Mesma entrada devolve sempre as mesmas 3 candidatas: re-rodar a skill no mesmo produto não troca a paleta debaixo do membro. Se ele pedir ajuste depois de escolher, aplique e registre como `"paleta gerada [Nome] (customizado)"`.
+### 4. Manual
 
-Se o membro passou nomes de cor por extenso (ex: "sage green"), valide via regex de hex `^#([0-9A-Fa-f]{3,8})$` ou converta por nome (sage green `#9CAF88`, dusty rose `#D4A5A5`, off-white `#FDFAF4`, navy `#14213D`, terracotta `#C66B3D`, olive `#6B7040`, etc). Se a cor não for reconhecível, peça o hex.
+O membro informa as cores (hex ou nomes convertidos como acima) ou manda um print **da própria marca**, lido por visão (Read no PNG): hex aproximado de fundo, texto, primary, accent e superfícies. Os papéis que faltarem saem do `palette_engine.py` com essas cores como `--seed`, e o contraste passa pelo mesmo script. `brand_discovery.source: "manual"`.
 
-### 2.3 — A comparadora: paleta e tipografia provadas na página real
+## Tipografia
 
-Nem cor nem fonte se escolhem por amostra solta. Sempre que sobrar mais de uma candidata em QUALQUER um dos dois eixos — e no Caminho 4 são sempre 3 paletas, e na 2.1 são até 2 famílias — gere uma página comparadora self-contained: a MESMA página (ou as 2-3 seções mais representativas: hero, oferta e uma seção escura) com **dois seletores independentes**, um de paleta e um de tipografia, pro membro ver qualquer combinação sem multiplicar páginas. Ao lado de cada opção, o nome e o motivo daquela candidata, pra escolha ser informada.
+Marca com família (caminho 1 ou 2): a família é dela. Sem família na marca, a tipografia vem da direção escolhida na ETAPA 3 ou do `non_color_tokens` da candidata, e entra na comparadora como segundo eixo quando houver mais de uma. Arquivo de fonte local e licença: `reference/tipografia.md`.
 
-A implementação usa o sistema de tokens por snippet: todo valor de cor entra como trio R,G,B (ex: `--tk-bg: 246,245,241` pra um fundo areia, `--tk-ink: 34,34,36` pra um grafite) e é consumido como `rgb(var(--tk-bg))` ou `rgba(var(--tk-bg), .5)`. Trocar a paleta inteira significa trocar 1 bloco de tokens, e o formato em trio dá transparência (alpha) sem duplicar a paleta. No Caminho 4 os blocos saem prontos do gerador (`--format css` devolve um `[data-palette="p1"]` por candidata, com todos os roles): copie os blocos, nunca converta hex a hex na mão.
+## A comparadora
 
-A tipografia usa o mesmo mecanismo, num atributo próprio: `[data-type="t1"]` define `--tk-heading` e `--tk-body`, e o seletor troca só esse atributo. As fontes de arquivo local entram pelo bloco `data-aura-fonts` da 2.1.3, no `<head>` da comparadora, com os arquivos na pasta que o bloco aponta — sem os dois a comparadora renderiza na fonte de fallback e a escolha vira chute.
+Sempre que sobrar mais de uma candidata em cor ou em tipografia, gere uma página comparadora self-contained: a MESMA página (ou as 2 a 3 seções mais representativas: hero, oferta e uma seção escura) com **dois seletores independentes**, um de paleta e um de tipografia. Ao lado de cada opção, o nome e o motivo da candidata.
 
-As escolhas vencedoras viram o `design-signals.json`/`design-tokens.json` normalmente.
+Todo valor de cor entra como trio R,G,B (`--tk-bg: 246,245,241`) consumido como `rgb(var(--tk-bg))` ou `rgba(var(--tk-bg), .5)`. Os blocos saem prontos do gerador (`--format css` devolve um `[data-palette="p1"]` por candidata): copie os blocos, nunca converta hex a hex na mão. A tipografia usa o mesmo mecanismo num atributo próprio (`[data-type="t1"]` define `--tk-heading` e `--tk-body`). Fontes de arquivo local entram pelo bloco `data-aura-fonts` no `<head>` da comparadora, com os arquivos na pasta que o bloco aponta; sem isso a comparadora renderiza no fallback e a escolha vira chute.
 
-**Dois temas, duas paletas:** quando o membro mantém 2 ou mais temas com paletas diferentes (teste A/B de identidade visual), o snippet de tokens é POR-TEMA — as sections são as mesmas, muda só o snippet de paleta de cada tema. A disciplina de push por-tema está na rule `shopify-theme-safety.md`: nunca pushar snippet de paleta em lote genérico (um push amplo leva a paleta de um tema pro outro sem ninguém perceber), conferir o tema alvo antes de cada push, e `--allow-live` exige atenção redobrada porque o tema publicado é a loja no ar.
+**Dois temas, duas paletas:** quando o membro mantém 2 ou mais temas com paletas diferentes, o snippet de paleta é por tema, com a disciplina de push da rule `.claude/rules/shopify-theme-safety.md`.
 
-### Output da ETAPA 2
+## Política do arquivo de marca
 
-Salve `design-signals.json` e mostre ao membro um resumo curto:
-> "Peguei a vibe [da Linear via Refero / do print da loja X via visão / da paleta [Nome] que você escolheu]:
-> - Fontes: **[heading_font]** (títulos) + **[body_font]** (corpo) [· carregada dos arquivos que você baixou, quando for o caso]
-> - Paleta: fundo **[background]** · texto **[foreground]** · accent **[primary]**
-> - Radius **[radius]px** · shadow **[shadow]** · density **[density]**
-> Vou usar isso como direção visual. O layout e a estrutura vêm da sua copy — só a paleta/tipografia é inspirada."
+- A page-design só escreve no `brand-tokens.json` quando ele está vazio (`source: "none"`): no caminho 2 aqui, e nos caminhos 3 e 4 na ETAPA 6, com `tokens.py --brand-out` a partir da página aprovada. A escolha do membro na comparadora conta como confirmação.
+- Fora disso, nunca. O drift da página contra a marca (`tokens.py --diff`) aparece na mensagem final.
+- Para mudar a marca, o membro refaz a extração do setup ou edita o arquivo.
+- Página antiga (sem `schema_version`): o `design-signals.json` que já existe continua valendo para a `page-build`; o enum antigo de `source` (`refero | screenshot_vision | design_clone | manual`) só vale nela.
+
+## Resumo ao membro
+
+> "Marca: [do arquivo da sua marca / extraída da sua loja / paleta [Nome] que você escolheu / cores que você passou]
+> - Fontes: **[heading]** (títulos) + **[body]** (corpo)
+> - Paleta: fundo **[background]** · texto **[foreground]** · ação **[primary]**
+> - Raio **[radius]px** · sombra **[shadow]** · densidade **[density]**
+> O layout vem da direção que a gente escolhe agora, a partir de referências premiadas."
