@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Onboarding do membro na primeira vez que ele abre o Aura Engine, ou quando digita "setup", "onboarding" ou "configurar". Verifica o ambiente técnico (Node.js 20 ou mais é obrigatório; FFmpeg, Whisper, Groq, Python, single-file-cli, Playwright e o venv do design-clone são opcionais), testa o MCP da Aura com uma query real, confirma o atalho aura, pergunta o idioma dos relatórios antes de qualquer outra coisa, explica como a Aura funciona em 30 segundos, coleta 4 respostas (situação A a D, budget diário, ferramentas e ESP, links da loja e do produto), extrai dados da página do produto (preço, hero, garantia, mecanismo, cores e fontes), grava profile.md, brand.md e manifest.json (fonte única de verdade, validada pelo manifest.py), entrega o checklist de blindagem da conta Meta e roteia o membro pra fase certa pela situação dele. Use quando o membro disser "setup", "onboarding", "configurar", ou no primeiro uso do sistema.
+description: Onboarding do membro na primeira vez que ele abre o Aura Engine, ou quando digita "setup", "onboarding" ou "configurar". Verifica o ambiente técnico (Node.js 20 ou mais é obrigatório; FFmpeg, Whisper, Groq, Python, Playwright e as ferramentas de design são opcionais), testa o MCP da Aura com uma query real, confirma o atalho aura, pergunta o idioma dos relatórios antes de qualquer outra coisa, explica como a Aura funciona em 30 segundos, coleta 4 respostas (situação A a D, budget diário, ferramentas e ESP, links da loja e do produto), extrai dados da página do produto (preço, hero, garantia, mecanismo; cores e fontes pelo dembrandt em brand-tokens.json), grava profile.md, brand.md, brand/brand-tokens.json e manifest.json (fonte única de verdade, validada pelo manifest.py), entrega o checklist de blindagem da conta Meta e roteia o membro pra fase certa pela situação dele. Use quando o membro disser "setup", "onboarding", "configurar", ou no primeiro uso do sistema.
 ---
 
 # Setup · Passo 1 · apelido antigo: 00 <!-- gen:title -->
@@ -33,7 +33,7 @@ Sem `workspace/profile.md`: saudação de uma linha, bilíngue, só pra dar cont
 
 ### ETAPA 1 · Verificação de dependências
 
-Leia `reference/dependencias.md`. Node.js v20 ou mais é obrigatório: detecte por caminho direto, nvm e brew, e valide o número da major (v20.11.0 vira 20); ausente ou abaixo de 20 é falha, com a instrução exata de upgrade (nvm, brew ou winget). Depois liste as opcionais como "disponível", sem bloquear: FFmpeg (recomendado: o Limpador de Metadados precisa dele pra limpar vídeo), Whisper.cpp, Groq API key (transcrição rápida na `competitor-analysis`), Python 3, single-file-cli via npx, Playwright com Chromium no venv do fetcher (recomendado: sem ele Reddit, Trustpilot, Amazon e Cloudflare bloqueiam a pesquisa) e o venv de `tools/design-clone/`. Não prossiga enquanto o Node não estiver OK.
+Leia `reference/dependencias.md`. Node.js v20 ou mais é obrigatório: detecte por caminho direto, nvm e brew, e valide o número da major (v20.11.0 vira 20); ausente ou abaixo de 20 é falha, com a instrução exata de upgrade (nvm, brew ou winget). Depois liste as opcionais como "disponível", sem bloquear: FFmpeg (recomendado: o Limpador de Metadados precisa dele pra limpar vídeo), Whisper.cpp, Groq API key (transcrição rápida na `competitor-analysis`), Python 3, Playwright com Chromium no venv do fetcher (recomendado: sem ele Reddit, Trustpilot, Amazon e Cloudflare bloqueiam a pesquisa), o venv da captura de referência e as ferramentas de design da `page-design` (Awwwards com Node 22.13+, Vercel, dembrandt; sem uma delas, avise qual reserva entra). Não prossiga enquanto o Node não estiver OK.
 
 ### ETAPA 2 · Verificação do MCP Aura
 
@@ -57,7 +57,7 @@ Leia `reference/onboarding-e-extracao.md`. Uma mensagem só com as 4 perguntas: 
 
 ### ETAPA 4 · Auto-extração de dados da loja
 
-Mesmo arquivo. Com link do produto, faça o fetch da página antes de salvar o profile: nome, preço e bundles, descrição, features, hero headline e sub-headline, garantia, tipo de hero, mecanismo único, link de checkout, 3 a 5 hex dominantes e as font-families. Cascade da rule `resilient-fetch`: `WebFetch` primeiro; barrado ou precisando do CSS cru, `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode html`; só depois documente "não acessível". O que não sair vira `[preencher]`. Tudo vai pro profile, e nenhuma skill seguinte pergunta isso de novo.
+Mesmo arquivo. Com link do produto, faça o fetch da página antes de salvar o profile: nome, preço e bundles, descrição, features, hero headline e sub-headline, garantia, tipo de hero, mecanismo único, link de checkout. Cores e fontes vão para `workspace/[produto]/brand/brand-tokens.json` pelo dembrandt (`get_design_tokens`, `export_dtcg` e `tools/page-qa/tokens.py --from-dtcg`), com o CSS cru de reserva e a forma vazia sem loja; valide no schema (comandos no arquivo). Cascade da rule `resilient-fetch`: `WebFetch` primeiro; barrado ou precisando do CSS cru, `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode html`; só depois documente "não acessível". O que não sair vira `[preencher]`. Tudo vai pro profile, e nenhuma skill seguinte pergunta isso de novo.
 
 ### ETAPA 5 · Salvar profile
 
@@ -81,7 +81,7 @@ Leia `reference/roteamento.md`. Abra com `✓ Setup completo!` e a mensagem da s
 
 ## SALVAR
 
-Leia `reference/salvar-e-mensagem-final.md`. Quatro arquivos: `workspace/profile.md`; `workspace/profile.html` por `python3 tools/render_report.py workspace/profile.md` (se o script falhar, avise em 1 linha, siga só com o `.md` e peça um `git pull` no fim; nunca escreva o HTML à mão nem aborte o setup); `workspace/[produto]/manifest.json`; e `workspace/[produto]/brand.md` (só situação diferente de A). Profile ou manifest anterior: backup em `workspace/.profile-backup-[YYYYMMDD-HHMMSS].md` e `workspace/[produto]/.manifest-backup-[YYYYMMDD-HHMMSS].json` antes de sobrescrever. Por fim `python3 .claude/lib/workspace-index/build_index.py [product_slug]` gera o painel `ABRIR-AQUI.html`, que toda skill seguinte regenera.
+Leia `reference/salvar-e-mensagem-final.md`. Cinco arquivos: `workspace/profile.md`; `workspace/profile.html` por `python3 tools/render_report.py workspace/profile.md` (se o script falhar, avise em 1 linha, siga só com o `.md` e peça um `git pull` no fim; nunca escreva o HTML à mão nem aborte o setup); `workspace/[produto]/manifest.json`; `workspace/[produto]/brand.md` e `workspace/[produto]/brand/brand-tokens.json` (os dois só na situação diferente de A). Profile ou manifest anterior: backup em `workspace/.profile-backup-[YYYYMMDD-HHMMSS].md` e `workspace/[produto]/.manifest-backup-[YYYYMMDD-HHMMSS].json` antes de sobrescrever. Por fim `python3 .claude/lib/workspace-index/build_index.py [product_slug]` gera o painel `ABRIR-AQUI.html`, que toda skill seguinte regenera.
 
 ## Mensagem final
 

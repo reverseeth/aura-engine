@@ -25,35 +25,25 @@ Localização: `/workspace/[produto]/brand.md`
 
 ## 3. Paleta de cores
 
-Preencher com valores reais (hex) — NÃO placeholders:
+Fonte de verdade: `brand/brand-tokens.json` (DTCG). Os hex vivem lá; aqui fica só a leitura de cada papel, copiada do arquivo. Para mudar uma cor, mude o arquivo.
 
-```
-primary: #______
-primary_dark: #______
-accent: #______
-bg_light: #______
-bg_dark: #______
-text_primary: #______
-text_secondary: #______
-border_subtle: #______
-success: #______
-warning: #______
-danger: #______
-```
-
-**Regras de aplicação**:
-- CTA primário sempre `primary` (nunca accent)
-- Bg de seção alterna `bg_light` / `bg_dark`
-- Texto body sempre `text_primary` sobre `bg_light`
+| Papel | Valor (do `brand-tokens.json`) | Uso |
+|---|---|---|
+| background | [preencher] | fundo da página |
+| surface | [preencher] | cards e faixas alternadas |
+| foreground | [preencher] | texto principal |
+| primary | [preencher] | CTA primário (nunca o accent) |
+| on_primary | [preencher] | texto sobre o primary |
+| accent | [preencher] | destaque pontual |
+| muted | [preencher] | texto secundário |
+| border | [preencher] | divisórias |
 
 ## 4. Tipografia
 
-```
-heading_font: "[Font Name]", sans-serif
-heading_weight: 700
-body_font: "[Font Name]", sans-serif
-body_weight: 400
-```
+Fonte de verdade: `typography.heading` e `typography.body` do `brand/brand-tokens.json`.
+
+- Heading: [preencher]
+- Body: [preencher]
 
 Fontes usadas na página devem ser Google Fonts OU self-hosted com `<link rel="preload">` pra não flashar no load.
 
