@@ -54,5 +54,24 @@
         ]
       }
     ]
+  },
+  "extraKnownMarketplaces": {
+    "taste-skill": {
+      "source": {
+        "source": "github",
+        "repo": "Leonxlnx/taste-skill",
+        "ref": "v2.1.5"
+      }
+    },
+    "dembrandt": {
+      "source": {
+        "source": "github",
+        "repo": "dembrandt/dembrandt-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "taste-skill@taste-skill": true,
+    "dembrandt@dembrandt": true
   }
 }

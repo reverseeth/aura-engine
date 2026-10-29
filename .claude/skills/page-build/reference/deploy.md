@@ -59,7 +59,7 @@ O atributo é inerte, identifica o build, e **fica no arquivo** (não há re-pus
 
 O CSS das sections declara `font-family` — mas declarar não carrega a fonte. Se as famílias de `design-tokens.json` são web fonts e o tema não as serve, a tipografia aprovada no `design/page.html` **cai silenciosamente pro fallback do sistema** (Georgia onde devia ser Geist) e ninguém percebe até a página estar no ar. Protocolo:
 
-1. Leia `type.families[]` de `design-tokens.json` (espelho do bloco `typography` do `design-signals.json`, gravado na sub-etapa 2.1 da `page-design`). Cada entrada traz `name`, `provision`, `weights` e, quando `provision` é `local_files`, o `files_dir`. Família com `provision: "system"` (`-apple-system`, Georgia, Arial, `system-ui`) → nada a fazer, pule. `design-tokens.json` legado, sem `families[]`: leia `heading_font`/`body_font` e trate como Google Fonts.
+1. Leia `type.families[]` de `design-tokens.json` (gravado pelo `tools/page-qa/tokens.py` na ETAPA 6 da `page-design`; em página antiga, espelho do bloco `typography` do `design-signals.json`). Cada entrada traz `name`, `provision`, `weights` e, quando `provision` é `local_files`, o `files_dir`. Família com `provision: "system"` (`-apple-system`, Georgia, Arial, `system-ui`) → nada a fazer, pule. `design-tokens.json` legado, sem `families[]`: leia `heading_font`/`body_font` e trate como Google Fonts.
 2. Pra cada família, confira se o tema clonado JÁ a carrega — `grep -ri 'fonts.googleapis\|@font-face' "$THEME_DIR"/layout/theme.liquid "$THEME_DIR"/assets/*.css | grep -i "<família>"`. Já carrega → pule.
 3. **Não carrega → provisione pelo caminho que o `provision` daquela família manda.**
 
@@ -69,7 +69,7 @@ O CSS das sections declara `font-family` — mas declarar não carrega a fonte. 
    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap">
    ```
-   Só as famílias e SÓ OS PESOS de `weights` (cada peso extra é KB no LCP). `display=swap` obrigatório. Fonte que veio de preset: os pesos estão no `google_fonts` do preset base, nomeado no `source_detail` do `design-signals.json`, dentro de `.claude/lib/design-presets/presets.json`.
+   Só as famílias e SÓ OS PESOS de `weights` (cada peso extra é KB no LCP). `display=swap` obrigatório. Fonte que veio de preset: os pesos estão no `google_fonts` do preset base (página v2: `design-tokens.json.preset_base`; página antiga: nomeado no `source_detail` do `design-signals.json`), dentro de `.claude/lib/design-presets/presets.json`.
 
    **Caminho B — `local_files`** (arquivos que o membro baixou e a `page-design` copiou pra `files_dir`): suba os arquivos como asset do tema e declare o `@font-face` apontando pra eles.
    ```bash
@@ -165,9 +165,15 @@ Se o membro NÃO quiser publicar ainda (loja em construção), tudo bem — mas 
 
 "Compilou e passou nos gates" não é "ficou igual ao que o membro aprovou". O último check é olhar a página REAL com os próprios olhos, contra a fonte única de verdade:
 
-1. **Screenshot full-page da página no ar** via Playwright (skill `webapp-testing`), em desktop (1440px) e mobile (390px). Publicou → use a URL pública (`manifest.storefront.page_url`); não publicou → rode sobre a preview URL (6.9) mesmo assim — o check não é opcional.
-2. **Screenshot do `design/page.html` aprovado** (file://) nas MESMAS larguras (reuse os screenshots do self-review da `page-design` se ainda refletirem a versão aprovada).
+1. **Screenshot full-page da página no ar** com `python3 .claude/lib/theme-verify/verify_page.py <url> --shots-dir workspace/[produto]/page/live-shots/` (perfil loja: desktop 1440px e mobile 390px). Publicou → use a URL pública (`manifest.storefront.page_url`); não publicou → rode sobre a preview URL (6.9) mesmo assim — o check não é opcional.
+2. **Screenshot do `design/page.html` aprovado** (file://) nas MESMAS larguras (reuse `page/qa-shots/` da `page-design` se o `qa-metrics.json` corresponde à versão aprovada).
 3. **Compare os pares POR VISÃO**, ponto a ponto (com `page_type: quiz`, o par é por TELA, percorrendo o funil pelo endereço nos dois lados, e a altura entre as telas de pergunta entra na comparação: variou no ar e não variava no design = o `min-height` se perdeu na compilação): ordem e presença das sections; tipografia (heading caiu pra serif/sans genérica? → o 6.4b falhou, volte lá); cores/tokens (CTA na cor errada = setting não populada); imagens (slot vazio, placeholder vazado, imagem esticada/cortada); spacing/hierarquia (section colada, padding sumido); FAQ/accordion funcionando (`<details>` renderizado).
 4. **Divergência real → corrigir ANTES de encerrar a skill** (via iteration loop: ajuste no HTML aprovado + re-COMPILE da section, ou fix pontual no `.liquid`/template JSON + re-push + re-screenshot). Diferença trivial de rendering (anti-aliasing, scrollbar, fonte com hinting levemente diferente) não conta. **Nunca declare "no ar" com a página divergente do design que o membro aprovou.**
 5. Se a página usa fonte custom, rode `python3 .claude/lib/theme-verify/font_census.py` — censo da fonte COMPUTADA elemento a elemento (declarar a família não é carregar); se tem seção animada (marquee/carrossel), rode `motion_check.py` com `--throttle` — bug de animação em mobile real só aparece com rede lenta + cache frio.
-6. Registre no `deploy-report.json`: `"fidelity_check": {"passed": true, "compared_at": "<ISO>", "divergences_fixed": ["..."]}`.
+6. **Drift de tokens da página no ar** (página v2; informativo, não bloqueia o deploy):
+   ```bash
+   python3 .claude/lib/theme-verify/verify_page.py <url> --dump-computed workspace/[produto]/page/live-computed.json
+   python3 tools/page-qa/tokens.py --diff-live workspace/[produto]/page/live-computed.json workspace/[produto]/page/design-tokens.json
+   ```
+   Cor ou fonte computada fora da paleta aprovada aparece na lista; diga ao membro em uma linha o que mudou (quase sempre um setting de cor editado no theme editor).
+7. Registre no `deploy-report.json`: `"fidelity_check": {"passed": true, "compared_at": "<ISO>", "divergences_fixed": ["..."], "token_drift": <saída do --diff-live, ou null em página antiga>}`.

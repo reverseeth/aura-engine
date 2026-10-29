@@ -1,8 +1,8 @@
-# Page Design · Referência: Segunda opinião no Codex (sub-etapa 3.8, opcional)
+# Page Design · Referência: Segunda opinião no Codex (ETAPA 5, opcional)
 
-> O briefing autossuficiente que o membro cola no Codex pra gerar uma versão concorrente da mesma página, o que ele carrega dentro (plano de seções, copy literal, paleta com os valores, tipografia, imagens, a régua inteira e o contrato do arquivo), o esqueleto pronto pra preencher, o que o membro anexa e o que a Aura faz quando o HTML volta: normalizar, limpar, pontuar as duas no mesmo placar e recomendar uma, com o motivo. Abra na sub-etapa 3.8, depois do self-review da 3.7 e antes de fechar o checkpoint.
+> O briefing autossuficiente que o membro cola no Codex pra gerar uma versão concorrente da mesma página, o que ele carrega dentro (plano de seções, copy literal, paleta com os valores, tipografia, imagens, a régua inteira e o contrato do arquivo), o esqueleto pronto pra preencher, o que o membro anexa e o que a Aura faz quando o HTML volta: normalizar, limpar, pontuar as duas no mesmo placar e recomendar uma, com o motivo. Abra na ETAPA 5, depois das rodadas de QA e antes do preview e da aprovação da ETAPA 6.
 
-### 3.8 Segunda opinião no Codex (opcional)
+### Segunda opinião no Codex (opcional)
 
 Uma segunda versão da mesma página, desenhada por outro modelo a partir do mesmo material, e as duas comparadas contra a mesma régua. Serve pra duas coisas: achar o que a primeira versão não tentou, e transformar "gostei mais dessa" numa decisão com evidência.
 
@@ -10,13 +10,13 @@ Uma segunda versão da mesma página, desenhada por outro modelo a partir do mes
 
 #### Quando roda, e quando não roda
 
-- **Depois** do self-review da 3.7, com a página da Aura já dentro da régua. Comparar uma versão auditada com um rascunho não compara nada.
-- **Antes** de fechar o checkpoint de aprovação: é ali que o membro escolhe entre as duas.
-- **Não é rota.** Não entra no menu da 3.2, não tem pré-requisito próprio, não muda `design_route` e não substitui nenhuma etapa anterior. A rota já rodou; isto é uma segunda leitura do mesmo plano.
+- **Depois** das rodadas de QA da ETAPA 5, com a página da Aura já dentro da régua. Comparar uma versão auditada com um rascunho não compara nada.
+- **Antes** da aprovação da ETAPA 6: é ali que o membro escolhe entre as duas.
+- **Não é modo de construção.** Não entra na escolha da ETAPA 4, não tem pré-requisito próprio, não muda `build_mode` nem `design_route` e não substitui nenhuma etapa anterior. O modo já rodou; isto é uma segunda leitura do mesmo plano.
 - Oferecida **uma vez**. Membro diz não, nada é salvo e o assunto não volta nesta sessão.
 - O custo é o tempo dele: sair daqui, rodar o Codex, voltar com um arquivo. Diga isso na oferta, pra ele decidir sabendo.
 
-A oferta, no `report_language`, dentro da mensagem do checkpoint:
+A oferta, no `report_language`, na mensagem que fecha o QA:
 
 > "Quer uma segunda versão dessa página pra comparar? Eu monto um briefing pronto, você cola no Codex (o agente de programação da OpenAI), ele desenha outra versão da mesma página com a sua copy e as suas imagens, e eu comparo as duas contra a mesma régua, item por item, e te digo qual eu escolheria e por quê. A escolha é sua. Leva alguns minutos do seu lado e é opcional: se não quiser, seguimos com esta."
 
@@ -143,7 +143,7 @@ correção, então desenhe já dentro dos números.
 
 ## 8. O que NÃO fazer
 
-[a lista fechada da sub-etapa 3.8, colada literalmente]
+[a lista fechada da segunda opinião, colada literalmente]
 ````
 
 #### O que o membro faz (diga exatamente, na hora de entregar o briefing)
@@ -158,20 +158,20 @@ Dois caminhos. Ofereça o primeiro; o segundo é pra quem usa o Codex no browser
 #### Quando o HTML volta
 
 1. **Confirme o lugar:** `design/page-codex.html`, ao lado de `assets/`. Se ele colou o HTML no chat, você salva.
-2. **Normalização (3.6), obrigatória.** HTML de fora é HTML de fora: `reference/normalizacao-html-externo.md` inteiro — utilities viram CSS plano por estilos computados, `<script>` sai, assets locais, e os markers `data-aura-section` injetados com os ids do `sections_plan` quando faltarem.
+2. **Normalização, obrigatória.** HTML de fora é HTML de fora: `reference/normalizacao-html-externo.md` inteiro — utilities viram CSS plano por estilos computados, `<script>` sai, assets locais, e os markers `data-aura-section` injetados com os ids do `sections_plan` quando faltarem.
 3. **Limpeza de aviso, silenciosa.** Outro modelo acrescenta ressalva por conta própria mesmo com a instrução explícita. Apague o que tiver entrado (aviso, disclaimer, asterisco, nota de rodapé que enfraquece o claim de cima, rótulo de origem de imagem) e devolva ao original todo claim que voltou suavizado. Isso é correção, não vira item do placar nem assunto com o membro (rule 8b). A garantia, o frete, a devolução e os links de política da loja ficam.
 4. **Copy conferida contra a `copy-engine`.** Frase reescrita, cortada ou inventada volta ao original antes de qualquer comparação: duas versões com copy diferente não comparam design, comparam texto.
-5. **Self-review visual completo na versão do Codex também** (3.7): screenshots de 1440 e 390 no Playwright, lidos por visão.
+5. **O mesmo QA da ETAPA 5 na versão do Codex também:** `verify_page.py` com `--json-out` num arquivo próprio (`page/qa-metrics-codex.json`, pra não sobrescrever o da página da Aura) e as capturas de 1440 e 390 lidas na mesma rubrica.
 
 #### O placar comparado e a recomendação
 
 - **O mesmo placar da régua, os mesmos ids** (T1 a T6, E1 a E5, C1 a C5, M1 a M7, S1 a S8), com **uma coluna por versão**: a desta skill e a do Codex. Cada célula tem veredicto e evidência (o valor lido no CSS, ou o que apareceu no print e em qual seção). Célula sem evidência conta como reprovada.
 - **A recomendação sai em até três linhas:** quantos itens cada versão reprovou, onde as duas diferem de verdade (hierarquia do hero, ritmo entre seções, tratamento de prova, densidade) e o que a escolhida faz melhor pro `page_type` e pra consciência desta página. "As duas estão boas" não é recomendação.
 - **Desempate, nesta ordem:** (1) menos itens reprovados; (2) o hero que passa no Grunt Test no print de 390 — em cinco segundos dá pra dizer o que é o produto, o que ele faz por quem lê e como comprar; (3) fidelidade ao plano: nenhuma seção do `section_order` faltando e nenhuma inventada.
-- **A escolha final é do membro**, e a recomendação é apresentada como recomendação. Se ele quiser partes das duas, isso é a unificação da rota 3 (`reference/rota-section-puzzle.md`): monte a página única e ela volta a passar pela régua inteira, não só nos itens da parte trocada.
+- **A escolha final é do membro**, e a recomendação é apresentada como recomendação. Se ele quiser partes das duas, isso é a unificação de tokens e o teste de vizinhança do modo referência (`reference/modo-referencia.md`): monte a página única e ela volta a passar pelo QA inteiro, não só nos itens da parte trocada.
 
 #### Depois da escolha
 
 - A versão escolhida vira `design/page.html`, a fonte única que a `page-build` compila. Quando é a do Codex, ela só é promovida depois de passar a régua inteira sem reprova, com os markers de todas as seções, o bloco `data-aura-fonts` quando a família é de arquivo local e as imagens do mapa de mídia nos slots — o mesmo portão de qualquer outra versão.
 - A versão que não venceu fica no disco como está, sem virar assunto.
-- **`design_route` não muda.** A segunda opinião não é rota; o valor continua sendo o da rota que a skill rodou, e `variant_chosen` no `design-tokens.json` registra a variação promovida. A rodada entra no `iterations-log.json` como qualquer iteração, dizendo que houve segunda opinião e qual versão venceu.
+- **`build_mode` e `design_route` não mudam.** A segunda opinião não é modo de construção; o valor continua sendo o do modo que a skill rodou, e `variant_chosen` no `design-tokens.json` registra a variação promovida. A rodada entra no `iterations-log.json` como qualquer iteração, dizendo que houve segunda opinião e qual versão venceu.

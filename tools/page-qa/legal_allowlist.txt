@@ -1,0 +1,12 @@
+# Frases genéricas de DTC que podem coincidir com a referência sem ser cópia.
+# Uma por linha; o legal_check.py normaliza caixa e pontuação.
+30 day money back guarantee
+60 day money back guarantee
+free shipping on all orders
+free shipping on orders over
+add to cart
+buy now and save
+subscribe and save
+frequently asked questions
+what our customers are saying
+join thousands of happy customers

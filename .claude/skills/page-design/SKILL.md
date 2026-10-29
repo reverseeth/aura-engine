@@ -1,79 +1,76 @@
 ---
 name: page-design
-description: Primeira skill da fase STOREFRONT. Planeja a página (page_type por três sinais, menu de sections, hero_type, bloco strategy no page-plan.json, eyebrows criativos), mapeia os assets de imagem por section (inventário do membro, geração AI só pra lifestyle, placeholder explícito com plano registrado), monta o board de referências no Pinterest com a direção visual aprovada pelo membro, extrai os brand signals (brand.md primeiro; tipografia abrindo com ABC Oracle e Geist; cascade de cor Refero → screenshot lido por visão → design-clone opcional → gerador de 3 paletas; comparadora com um seletor por eixo) e apresenta ao membro o menu de três rotas de design (do zero com o Claude Design, clone de uma página inteira com o SingleFile, quebra-cabeça de seções), todas convergindo pra design/page.html, com a copy real da copy-engine e as imagens nos slots, aprovada pelo membro antes de qualquer Liquid existir. Gera design-signals.json e design-tokens.json. Use quando o membro disser "page", "página", "design da página", logo depois da copy pronta. Depois rode page-build pra compilar e deployar.
+description: Primeira skill da fase STOREFRONT. Planeja a página (page_type por três sinais, sections_plan com o mapa de mídia, hero_type, bloco strategy e commerce no page-plan.json), fecha a marca pelo brand-tokens.json (dembrandt numa URL da própria marca, gerador de 3 paletas com comparadora, ou manual), monta o board de referências premiadas no Awwwards com as 3 que o membro marca, sorteia 3 direções de arte pelo taste-skill e grava a escolhida em direction.md, e constrói a página num de dois modos que o membro escolhe (direção, no canvas do Claude Design; ou referência, seguindo a geometria de uma página que ele admira, seção por seção, com geodiff e checagem legal). QA medido pelo verify_page.py (qa-metrics.json), revisor sem contexto (review.md), preview de layout na Vercel, aprovação do membro e tokens por script (design-tokens.json, drift contra a marca). Grava design/page.html com a copy real da copy-engine, a fonte única que a page-build compila. Use quando o membro disser "page", "página", "design da página", logo depois da copy pronta. Depois rode page-build pra compilar e deployar.
 ---
 
 # Page Design · Passo 7 · apelido antigo: 07a <!-- gen:title -->
 
 ## Quando usar
 
-Primeira das duas skills da fase STOREFRONT (`page-design` → `page-build`). Ela decide a estratégia da página, define os signals visuais e gera o design como HTML que o membro aprova; o Liquid só nasce na `page-build`, por código, a partir desse HTML. Princípio: HTML primeiro, fonte única de verdade visual, aprovação humana antes de qualquer código.
+Primeira das duas skills da fase STOREFRONT (`page-design` → `page-build`), logo depois da copy pronta. Ela decide a estratégia da página, fecha a marca, escolhe referências e direção com o membro e gera o design como HTML aprovado por ele; o Liquid só nasce na `page-build`, por código, a partir desse HTML. Princípio: HTML primeiro, fonte única de verdade visual, aprovação humana antes de qualquer código.
 
-Material de apoio em `reference/`; abra só o arquivo da etapa atual. Abertura completa em `reference/contexto.md`.
+Material de apoio em `reference/`; abra só o arquivo da etapa atual.
 
 ## Pré-flight (obrigatório)
 
-Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode `python3 tools/migrate.py --product [slug]` e leia da nova (só leia da numerada se a migração não puder rodar; escreva sempre na pasta sem número).
+Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode `python3 tools/migrate.py --product [slug]` e leia da nova (escreva sempre na pasta sem número).
 
 1. Idioma (regra 0): `report_language` de `workspace/profile.md` (default `pt-BR`) em todo output interno; a copy inserida no `design/page.html` fica sempre em inglês US.
-2. Inputs sob `workspace/[produto]/`: `manifest.json` com `copy-engine` em `skills_completed`; `copy-engine/dados.json` e `copy-engine/copy-engine.md`; `offer-builder/dados.json` e `offer-builder/offer-builder.md`; `market-research/dados.json` e o `.md`; `competitor-analysis/competitor-analysis.md` (opcional); dir `page/` (`mkdir -p`). Relatório `.md` novo ausente: use o legado `relatorio.md`.
-3. Rota 2 do menu de design (clone com o SingleFile) exige a loja Shopify conectada (`shopify theme list` responde); sem isso o membro loga a CLI, como na `page-build`, ou escolhe outra rota.
-4. Input obrigatório faltando (ES1): oferecer (A) rodar a skill faltante agora ou (B) seguir com default genérico marcando `manifest.skipped_preflight` e `risk_acknowledged`. Manifest ou profile totalmente ausentes: oferecer o `setup` inline.
-5. Com tools `mcp__higgsfield__` na sessão, a 1.6 ganha a geração de imagem in-session (`reference/imagens-higgsfield.md`), confirmada com o membro antes de gastar crédito; sem elas, a 1.6 roda como está.
+2. Inputs sob `workspace/[produto]/`: `manifest.json` com `copy-engine` em `skills_completed`; `copy-engine/dados.json` e `copy-engine.md`; `offer-builder/dados.json` e `.md`; `market-research/dados.json` e `.md`; `competitor-analysis/` (opcional); dir `page/` (`mkdir -p`). Relatório `.md` novo ausente: use o legado `relatorio.md`.
+3. Input obrigatório faltando (ES1): oferecer (A) rodar a skill faltante agora ou (B) seguir com default genérico marcando `manifest.skipped_preflight` e `risk_acknowledged`. Manifest ou profile ausentes: oferecer o `setup` inline.
+4. Ferramentas de terceiros: confira na sessão o MCP `mcp__awwwards__`, o MCP do dembrandt (`mcp__plugin_dembrandt_dembrandt__`), o plugin taste-skill e as skills `awwwards-inspiration`, `awwwards-motion-study` e `deploy-to-vercel`. Para cada ausente, diga em uma linha qual etapa roda na reserva (a reserva de cada uma está no arquivo da etapa). Nada disso bloqueia.
+5. Com tools `mcp__higgsfield__` na sessão, a 1.6 gera imagem in-session (`reference/imagens-higgsfield.md`), confirmada com o membro antes de gastar crédito.
 
 ## Contexto a carregar
 
-Em todo `dados.json` de fase anterior, leia primeiro o objeto `resumo` e abra o arquivo inteiro só na etapa que precisar; sem `resumo`, leia inteiro.
+Em todo `dados.json` de fase anterior, leia primeiro o objeto `resumo` e abra o arquivo inteiro só na etapa que precisar.
 
-1. `copy-engine/copy-engine.md` e `dados.json` (obrigatório: seções canônicas, `lead_type`, `specs[]`), `offer-builder` (preço, stack, garantia, mecanismo nomeado LITERAL), `market-research` (awareness, sophistication, ceticismo, VOC), `competitor-analysis` (gaps, claims saturados, `dominant_landing_format`), `workspace/profile.md` (estilo de marca, stage) e `workspace/[produto]/brand.md` (paleta, tipografia e tom já respondidos).
-2. Base pelo índice (domínio `page-landing-cro`): `python3 .claude/lib/kb-index/kb_lookup.py --skill page-design --domain <domínio desta etapa>`; `best_query` exata com `deep=true`, no máximo 14 buscas adicionais por etapa; as queries embutidas em `reference/` são piso obrigatório, rodam sempre e não contam no teto; nunca query genérica nem busca repetida na sessão.
+1. `copy-engine` (seções canônicas, `lead_type`, `specs[]`), `offer-builder` (preço, stack, garantia, mecanismo nomeado LITERAL), `market-research` (awareness, sophistication, ceticismo, VOC), `competitor-analysis` (gaps, claims saturados, `dominant_landing_format`), `workspace/profile.md`, `workspace/[produto]/brand.md` e `workspace/[produto]/brand/brand-tokens.json`.
+2. Base pelo índice (domínio `page-landing-cro`), com a regra de busca em `reference/leitura-e-base.md`.
 
 ## Fluxo da skill
 
-### ETAPA 0 · Detecção e leitura
+### ETAPA 0 · Leitura
 
-Leia `reference/leitura-e-base.md`. 0.1: puxe os nove sistemas de fundação de página pela `best_query` de cada um até dominar conversão e estrutura. 0.2: detecte o produto (slug explícito; senão liste `workspace/`: um produto confirma, vários escolhem, nenhum manda rodar `setup` ou `product research`) e grave o slug em `PRODUTO`. 0.3: leia os inputs obrigatórios listados acima.
+`reference/leitura-e-base.md`: os sistemas de fundação de página e de design visual pela `best_query` de cada um; detecte o produto (slug explícito; senão liste `workspace/`: um confirma, vários escolhem, nenhum manda rodar `setup`) e leia os inputs.
 
-### ETAPA 1 · PLAN (estratégia e plano de sections)
+### ETAPA 1 · Plano
 
-A página não tem estrutura fixa; a `copy-engine` já tomou as decisões e esta etapa as respeita.
+A `copy-engine` já tomou as decisões de conteúdo e esta etapa as respeita.
 
-- **1.1 `page_type`** (`reference/page-type.md`): decida pelos três sinais, na ordem de peso do arquivo (`dominant_awareness` da `market-research`, `lead_type` top-level da `copy-engine`, `dominant_landing_format` da `competitor-analysis`), agrupados pelas famílias de formato; divergência de família nunca se resolve sozinha, sempre passa pelo membro. Advertorial, listicle e quiz têm passos obrigatórios próprios ali (destino do soft CTA, mapa canônico das seções da copy, mapa de telas). Puxe os frameworks da decisão listados no arquivo, confirme o `page_type` com o membro em uma frase e grave `strategy.page_type_signals`.
-- **1.2 a 1.5** (`reference/sections-e-hero.md`): escolha as sections pelo menu, o `hero_type` entre os 5 canônicos e os block types por section, e mostre o plano ao membro (o que entra, o que fica de fora e por quê); só siga com a confirmação.
-- **Eyebrows** (`reference/eyebrows.md`): tag criativa e específica do produto, em inglês, nunca rótulo de framework; gravada em `sections_plan[].eyebrow`.
-- **1.6 Assets de imagem** (`reference/assets-de-imagem.md`): inventário do que o membro tem, mapa de mídia por section no campo `media`, geração AI só pra lifestyle e sempre ancorada na foto real do produto. Gate: o HTML só é aprovado com imagem real no slot ou placeholder EXPLÍCITO com `acquisition_plan` registrado.
-- **1.7 Funil de quiz** (`reference/quiz-funnel.md`): só com `page_type: quiz`, e substitui a 1.2. Mapa de telas, uma pergunta que roteia pelos sub-avatares e as demais pelas objeções ranqueadas, um perfil de resultado por sub-avatar com pacote real da `offer-builder`, e o funil andando sem JavaScript e sem app (o caminho é o estado). Grava o bloco `quiz` no plano.
-- **1.8 Board de referências** (`reference/board-de-referencias.md`): antes de qualquer cor, fonte ou HTML. Pinterest pela `WebSearch` mais as páginas escaladas dos concorrentes e o Refero, partindo do board de Instagram da `social-engine` quando existir; 8 a 15 referências com o que se tira de cada uma; a direção de três linhas aprovada pelo membro destrava a ETAPA 2. Grava `reference_board` no plano.
+- **1.1 `page_type`** (`reference/page-type.md`): pelos três sinais, na ordem de peso do arquivo; divergência de família sempre passa pelo membro. Advertorial e listicle têm o mapa fixo das seções da copy e o botão único `#offer`.
+- **1.2 a 1.5** (`reference/sections-e-hero.md`): seções a partir da narrativa do produto, `hero_type` e blocks; eyebrow opcional (`reference/eyebrows.md`). Mostre o plano e só siga com a confirmação.
+- **1.6 Assets de imagem** (`reference/assets-de-imagem.md`): mapa de mídia por seção no campo `media`; imagem real no slot ou placeholder EXPLÍCITO com `acquisition_plan`.
+- **1.7 Quiz** (`reference/quiz-funnel.md`): só com `page_type: quiz`, no lugar da 1.2.
 
-### ETAPA 2 · Brand signals (cascade unificada → `design-signals.json`)
+### ETAPA 2 · Marca
 
-Aqui sai só direção de cor, tipografia e densidade, nunca o layout. Parte da direção aprovada no board da 1.8. Leia `brand.md` primeiro e pergunte em uma mensagem só o que faltar. Três sub-etapas:
+`reference/brand-signals.md`: `brand-tokens.json` do setup quando não está vazio; senão dembrandt numa URL da própria marca, o gerador de 3 paletas com a comparadora na página real, ou o membro informa. Sai a paleta de 8 papéis e as famílias; tipografia e fonte local em `reference/tipografia.md`. A página só escreve na marca quando ela está vazia.
 
-- **2.1 Tipografia** (`reference/tipografia.md`): abre com duas famílias nomeadas e só duas, lidas do `suggested_typefaces` de `.claude/lib/design-presets/presets.json` — ABC Oracle, que o membro baixa na fundição e guarda em `workspace/fontes/`, e Geist, que carrega por link. Arquivo local passa SEMPRE pelo `.claude/lib/design-presets/local_fonts.py` (`scan` pra detectar, `copy` pra levar os pesos usados pra `design/assets/fonts/`, `css --mode relative` pro bloco `data-aura-fonts`, que é o que a `page-build` troca pelo asset do tema). Tipografia do `brand.md` vence tudo; recusou as duas, a família vem da 2.2. Grave o bloco `typography`.
-- **2.2 Cor** (`reference/brand-signals.md`): Caminho 1, Refero MCP (`mcp__refero__`, 2 a 3 candidatos, o membro escolhe); Caminho 2, screenshot full-page lido por visão (fallback primário); Caminho 3, `tools/design-clone/aura_clone.py` só pra hex exato (ignore `defaults_fallback`); Caminho 4, o gerador `.claude/lib/design-presets/palette_engine.py` (3 candidatas com motivo, harmonia declarada e AA garantido; os 8 presets são a base dele, nunca um menu). A família decidida na 2.1 vence a que qualquer caminho trouxer.
-- **2.3 Comparadora** (`reference/brand-signals.md`): obrigatória sempre que sobrar mais de uma candidata em cor ou em tipografia, com um seletor por eixo, nos trios R,G,B do `--format css`; dois temas pedem um snippet de paleta por tema, com a disciplina de push da rule `shopify-theme-safety.md`. Salve `design-signals.json` e mostre o resumo ao membro.
+### ETAPA 3 · Referências e direção
 
-### ETAPA 3 · Escolha da fonte de design (o membro escolhe a rota)
+`reference/referencias-e-direcao.md`: board no Awwwards (WebSearch de reserva), o membro marca as 3 que mais quer seguir e cada uma ganha imagem para o revisor; o taste-skill sorteia 3 direções, o membro escolhe 1, e ela vira `page/direction.md` no formato fixo. Sem a aprovação da direção, a ETAPA 4 não começa.
 
-Três rotas, e a skill nunca escolhe por ele; todas convergem pro mesmo `design/page.html` e a régua da 3.7 é bloqueante nas três. Roteiro:
+### ETAPA 4 · Construção (o membro escolhe o modo)
 
-- **3.1 e 3.2, detectar e apresentar o menu** (`reference/menu-de-rotas.md`): só as rotas viáveis nesta sessão, tabela no `report_language`, rota 1 como default sugerido. `mkdir -p workspace/[produto]/page/design`.
-- **3.3, rota 1, do zero com o Claude Design** (`reference/rota-claude-design.md`): a padrão, e o canvas abre pela tool `Artifact`.
-- **3.4, rota 2, clone com o SingleFile** (`reference/rota-singlefile-clone.md`): a única com pré-requisito de loja conectada.
-- **3.5, rota 3, quebra-cabeça de seções** (`reference/rota-section-puzzle.md`). Regra legal inegociável nas rotas 2 e 3: das referências sai só estrutura e layout, nunca copy, imagem, logo, marca ou claim.
-- **3.6, normalização** (`reference/normalizacao-html-externo.md`): obrigatória em todo HTML que a skill ingere em vez de escrever.
-- **3.7, régua de design, self-review e checkpoint** (`reference/qualidade-e-checkpoint.md`): pontue item a item a régua de `reference/regua-de-design.md` (tipografia, espaço, cor, movimento e os sinais de "feito por IA") e a barra de designer sênior contra o board da 1.8, corrija inline em até 3 rodadas junto com o self-review visual (screenshots de 1440 e 390 lidos por visão) e feche no checkpoint de draft navegável; a aprovação consolida `design/page.html`.
-- **3.8, segunda opinião no Codex** (`reference/brief-codex.md`): opcional, oferecida uma vez no checkpoint; o HTML que voltar passa pela 3.6 e pela mesma régua, em placar de duas colunas, e o membro escolhe.
-- **Tokens** (`reference/design-tokens.md`): consolide `design-tokens.json` por código, a partir do HTML aprovado.
+Pergunte em uma linha; a skill nunca escolhe por ele. `mkdir -p workspace/[produto]/page/design`.
 
-### ETAPA 4 · Persistir `page-plan.json`, relatórios e manifest
+- **Modo direção** (`reference/modo-direcao.md`): a página desenhada a partir do `direction.md` e da marca, no canvas do Claude Design pela tool `Artifact`, com os tokens no `:root`.
+- **Modo referência** (`reference/modo-referencia.md`): o membro passa 1 URL (página inteira) ou uma por seção; captura em faixas, construção seção por seção travada pelo `geodiff.py`, unificação e `legal_check.py`. Da referência sai só geometria. Robots ou bloqueio impedindo a captura: ofereça o modo direção.
+- Nos dois: movimento só em CSS (`reference/movimento-css.md`); HTML que a skill ingere em vez de escrever passa pela normalização (`reference/normalizacao-html-externo.md`); régua de design em `reference/regua-de-design.md`.
 
-Leia `reference/page-plan-e-salvar.md`. `page-plan.json` com o bloco `strategy` completo (`mechanism_name` LITERAL da `offer-builder`, `hero_type`, `page_type` igual no topo e dentro de `strategy`, `hybrid`), `sections_plan[]` com `eyebrow`, `blocks` e o campo `media` obrigatório, `section_order`, `reference_board`, `brand_discovery`, `design_route`, `design_route_ref`, `destination_ref` e as refs dos arquivos de design.
+### ETAPA 5 · QA
+
+`reference/qualidade-e-checkpoint.md`: `verify_page.py` grava `page/qa-metrics.json` e as capturas; o revisor sem contexto (`reference/revisor.md`) grava `page/review.md`; rodadas de correção até o teto da régua. Bloqueante que sobrou vai ao membro, que só pode liberar `horizontal_overflow`, `broken_images` e `html_css_kb` (`qa_overrides`). Segunda opinião no Codex opcional (`reference/brief-codex.md`).
+
+### ETAPA 6 · Preview, aprovação, tokens e salvar
+
+Mesmo arquivo: preview de layout na Vercel sem conta (link público, só com o sim do membro), aprovação pelas capturas com as fontes reais e pelo link no celular, `tokens.py` para o `design-tokens.json` e o drift contra a marca. Depois `reference/page-plan-e-salvar.md`: `page-plan.json` com `schema_version: 2`, `strategy` completo (`mechanism_name` LITERAL, `page_type` igual no topo e em `strategy`), `sections_plan[]` com `media`, `section_order`, `commerce`, `reference_board`, `build_mode` e as refs (`direction_ref`, `reference_capture_ref`, `qa_metrics_ref`, `review_ref`, `preview_url`).
 
 ## SALVAR
 
-Em `workspace/[produto]/page/`: `page-plan.json`, `design-signals.json`, `design-tokens.json`, `design/page.html` (página do consumidor: SVG, sem emoji, sem logo Aura), `design/assets/` e `design-system.md`, cujo `.html` sai de `python3 tools/render_report.py workspace/[produto]/page/design-system.md` (convenções em `.claude/templates/aura-html-components.md`). Depois `python3 tools/manifest.py <slug> complete page-design` (`page_type` e `signals_source` ficam só no `page-plan.json`) e `python3 .claude/lib/workspace-index/build_index.py <slug>`.
+Em `workspace/[produto]/page/`: `page-plan.json`, `direction.md`, `design-tokens.json`, `qa-metrics.json`, `review.md`, `design/page.html` (SVG, sem emoji, sem logo Aura), `design/assets/`, `design-system.md` e o `.html` por `python3 tools/render_report.py workspace/[produto]/page/design-system.md`; no modo referência, `reference-capture/`. `brand/brand-tokens.json` só quando estava vazio. Valide o plano com `python3 tools/schema_validate.py .claude/templates/schemas/page-design.page-plan.schema.json workspace/[produto]/page/page-plan.json`. Depois `python3 tools/manifest.py <slug> complete page-design` (não marque se o `tokens.py` falhou) e `python3 .claude/lib/workspace-index/build_index.py <slug>`.
 
 ## Mensagem final
 
-Texto integral, self-audit silencioso e referências cruzadas em `reference/mensagem-final-e-self-audit.md`. Framing de draft: design aprovado (rota escolhida, `design/page.html` como fonte única), plano e tokens salvos; próximo passo é a `page-build` ('build page' ou 'deploy'), que compila esse HTML exato em Liquid. Antes de declarar concluído, rode os 5 gates do self-audit com a checklist do arquivo (mecanismo literal, `page_type` coerente, `media` completo, self-review rodado, markers em toda section, zero copy ou imagem da referência nas rotas 2 e 3).
+`reference/mensagem-final-e-self-audit.md`: framing de draft aprovado (modo, `design/page.html` como fonte única, link de preview), o drift da página contra a marca, avisos do QA e do revisor, e o próximo passo: `page-build` ('build page' ou 'deploy'), que compila esse HTML exato em Liquid e faz a aprovação final de tipografia no tema. Antes de declarar concluído, rode a checklist do self-audit do arquivo.

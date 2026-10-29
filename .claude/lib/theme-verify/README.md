@@ -30,6 +30,23 @@ Pra cada viewport (desktop 1440x1000 e mobile 390x844, ou só um com `--desktop-
 
 Antes de medir, o script remove o popup de newsletter (`newsletter-popup`) pra ele não cobrir os screenshots, e faz rolagem progressiva até o fim da página pra disparar lazy-load e animações de reveal — sem isso, seção com reveal ainda invisível mediria altura errada.
 
+### Perfil design (`--json-out`) — o QA medido da `page-design`
+
+Sem `--json-out`, o script é o de sempre (perfil loja, acima). Com a flag, ele mede o `page.html` da `page-design` em 390, 768 e 1440 e grava o `page/qa-metrics.json` que o `tools/page-qa/qa_gate.py` lê no pré-flight da `page-build`:
+
+```bash
+.claude/lib/web-fetch/.venv/bin/python3 .claude/lib/theme-verify/verify_page.py \
+  "file://$PWD/workspace/<slug>/page/design/page.html" \
+  --json-out workspace/<slug>/page/qa-metrics.json --plan workspace/<slug>/page/page-plan.json \
+  --shots-dir workspace/<slug>/page/qa-shots [--legal legal.json] [--geodiff geodiff.json]
+```
+
+- **Bloqueantes** (`fail`, exit 1): `script_tags`, `section_markers`, `section_ids_match_plan` (precisa de `--plan`), `horizontal_overflow`, `section_height_zero`, `broken_images`, `html_css_kb` (HTML + CSS local sem o bloco `data-aura-fonts`, acima de 150 KB) e `legal_check` (modo referência; vem do `--legal`).
+- **Avisos** (`warn`): `page_total_kb`, `contrast` (AA, com o fundo efetivo), `font_sizes_distinct` (T1, até 7), `gradients`, `line_length` (45 a 75), `headline_lines` (até 2 em 390), `equal_side_margins`, `empty_bands`, `geodiff` (do `--geodiff`) e `console_errors`.
+- Cada item traz `id`, `status`, `blocking`, `value`, `limit`, `width` e `detail`; o JSON leva o `page_sha256` do HTML medido. O script só mede: as liberações do membro (`page-plan.json.qa_overrides`) quem aplica é o `qa_gate.py`.
+
+`--dump-computed <json>` funciona nos dois perfis: grava, por seção, a cor de texto, o fundo efetivo, a cor do botão e a fonte de `h1`/`h2`/`p`. É a entrada do `tools/page-qa/tokens.py --diff-live`, o drift da página no ar.
+
 ## font_census.py — censo de fonte
 
 ```bash

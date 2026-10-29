@@ -335,7 +335,8 @@ def rule_paths(files, reg, index):
     fails = []
     pat = re.compile(r"`((?:\.claude|tools|docs)/[^`\s]*)`")
     for f in files:
-        if not f.endswith(TEXT_EXT):
+        # design docs citam arquivos a criar e a apagar: o plano não acompanha o estado do repo
+        if not f.endswith(TEXT_EXT) or f.startswith("docs/designs/"):
             continue
         for i, l in enumerate(lines_of(f), 1):
             for m in pat.finditer(l):

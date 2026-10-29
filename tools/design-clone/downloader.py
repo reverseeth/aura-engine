@@ -5,12 +5,12 @@ downloader.py — Aura Engine design-clone pipeline (passo 1)
 Renderiza uma página de concorrente usando Playwright (Chromium headless com o
 mesmo stealth do fetch.py da lib web-fetch), faz scroll automático pra trigger
 lazy loading, aguarda network idle, e captura HTML final + CSS computado +
-imagens + fontes. Salva tudo numa pasta que o analyzer.py (passo 2) consome —
-e, a partir dele, o pattern-extractor.py (modo signals) ou o skeleton-builder
-do aura_clone.py (modo clone-and-adapt).
+imagens + fontes (modo full). O modo bands divide a página em faixas e grava a
+geometria, os estilos, os textos e os assets de cada uma, sem baixar nada: é o
+capturador do modo referência da page-design (geodiff.py e legal_check.py).
 
 Uso:
-    python3 downloader.py <URL> <output_dir>
+    python3 downloader.py <URL> <output_dir> [--mode full|bands] [--widths 1440,390]
 
 Exemplo:
     python3 downloader.py https://competitor.com/products/X /tmp/clone-mybrand-1
@@ -18,11 +18,11 @@ Exemplo:
 Exit codes:
     0  DOM completo capturado (page.html + computed-styles + assets)
     1  erro fatal (deps ausentes, URL/path inválido)
+    2  o robots.txt da URL proíbe a captura
     3  fallback: só o screenshot full-page foi salvo (anti-bot/timeout)
     4  fallback impossível (nem screenshot saiu)
     5  fallback capturou uma PÁGINA DE CHALLENGE (Cloudflare/Turnstile) — o
-       screenshot NÃO serve pra rota screenshot→visão; use a rota manual
-       (extensão SingleFile) via aura_clone.py --from-file
+       screenshot NÃO serve como referência
 
 Env:
     AURA_SKIP_IMAGES=1  pula o download de imagens (mais rápido, só signals)
@@ -35,6 +35,7 @@ Dependências:
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import datetime as _dt
 import hashlib
@@ -49,7 +50,8 @@ import tempfile
 import time
 from pathlib import Path
 from typing import Optional
-from urllib.parse import urljoin, urlparse
+import urllib.robotparser
+from urllib.parse import unquote, urljoin, urlparse
 
 # Bootstrap re-exec (mesmo padrão do fetch.py da lib web-fetch): se o python
 # atual não tem Playwright e um venv do framework existe, re-executa nele —
@@ -63,8 +65,7 @@ except ImportError:
 _venv_bootstrap("playwright")
 
 # Imports pesados são LAZY: validate_url/validate_output_path precisam ser
-# importáveis por snapshot.py/aura_clone.py mesmo sem Playwright instalado
-# (ex: ingestão --from-file, que não usa browser).
+# importáveis mesmo sem Playwright instalado.
 try:
     from playwright.async_api import async_playwright
     from playwright.async_api import TimeoutError as PlaywrightTimeoutError
@@ -286,11 +287,11 @@ def validate_output_path(path_str: str) -> Path:
 # ------------------------------- Scraping ----------------------------------- #
 
 
-async def _launch_stealth(p):
+async def _launch_stealth(p, width: int = VIEWPORT["width"]):
     """Chromium headless com stealth (mesmo init-script do fetch.py da web-fetch)."""
     browser = await p.chromium.launch(headless=True)
     context = await browser.new_context(
-        viewport=VIEWPORT,
+        viewport={"width": width, "height": VIEWPORT["height"]},
         user_agent=USER_AGENT,
         java_script_enabled=True,
         locale="en-US",
@@ -400,7 +401,7 @@ async def collect_fonts(page):
 # Expande shadow roots como <template shadowrootmode> (widgets de review DTC —
 # Judge.me/Loox/Okendo — vivem em web components que page.content() não
 # serializa) e marca iframes com comentário <!-- aura-iframe: URL --> pra o
-# analyzer saber que existe um bloco ali.
+# leitor do page.html saber que existe um bloco ali.
 SERIALIZE_PREP_JS = """
 () => {
   const expand = (root) => {
@@ -676,9 +677,8 @@ async def _capture_screenshot_fallback(url: str, output_dir: Path) -> int:
     if challenge:
         note = (
             "DOM scraping falhou E o screenshot capturou a PÁGINA DE CHALLENGE "
-            "anti-bot (não a página real). NÃO use este screenshot na rota "
-            "screenshot→visão. Rota manual: membro salva a página com a extensão "
-            "SingleFile no Chrome dele e ingere via aura_clone.py --from-file."
+            "anti-bot (não a página real). NÃO use este screenshot como "
+            "referência: escolha outra URL ou siga pelo modo direção."
         )
     (output_dir / "fallback.json").write_text(
         json.dumps(
@@ -790,7 +790,7 @@ async def run(url: str, output_dir: Path) -> int:
         html = await page.content()
         (output_dir / "page.html").write_text(html, encoding="utf-8")
 
-        # meta.json: o analyzer precisa da URL de origem pra normalizar srcs
+        # meta.json: quem lê a captura precisa da URL de origem pra normalizar srcs
         # relativos ao casar com images.json (que guarda URLs absolutas).
         (output_dir / "meta.json").write_text(
             json.dumps(
@@ -875,20 +875,138 @@ async def run(url: str, output_dir: Path) -> int:
     return 0
 
 
+# ------------------------------- Modo bands --------------------------------- #
+
+
+def robots_allows(url: str) -> bool:
+    """robots.txt da origem permite a captura? 404 = permitido; erro de rede = permitido com aviso."""
+    parts = urlparse(url)
+    robots_url = f"{parts.scheme}://{parts.netloc}/robots.txt"
+    rp = urllib.robotparser.RobotFileParser()
+    try:
+        resp = requests.get(robots_url, timeout=10, headers={"User-Agent": USER_AGENT})
+    except Exception as exc:  # noqa: BLE001 — rede instável não pode travar a captura
+        logger.warning("robots.txt inacessível (%s) — seguindo", exc)
+        return True
+    if resp.status_code >= 400:
+        return True
+    rp.parse(resp.text.splitlines())
+    return rp.can_fetch(USER_AGENT, url) and rp.can_fetch("*", url)
+
+
+def validate_local_file(url: str) -> Path:
+    """file:// só dentro da allowlist do output (workspace/, tmp, cwd no repo)."""
+    path = validate_output_path(unquote(urlparse(url).path))
+    if not path.is_file():
+        raise ValueError(f"arquivo não existe: {path}")
+    return path
+
+
+BANDS_JS = r"""() => {
+  const vis = el => { const r = el.getBoundingClientRect(), s = getComputedStyle(el);
+    return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; };
+  const selOf = el => { const parts = [];
+    for (let e = el; e && e !== document.body; e = e.parentElement) {
+      parts.unshift(`${e.tagName.toLowerCase()}:nth-child(${[...e.parentElement.children].indexOf(e) + 1})`); }
+    return 'body > ' + parts.join(' > '); };
+  let root = document.querySelector('main') || document.body;
+  const rootH = root.getBoundingClientRect().height;
+  for (;;) { const kids = [...root.children].filter(vis);
+    if (kids.length === 1 && kids[0].getBoundingClientRect().height > 0.9 * rootH) root = kids[0]; else break; }
+  const vw = document.documentElement.clientWidth;
+  const ownText = el => [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
+  return [...root.children].filter(e => vis(e) && e.getBoundingClientRect().height > 120).map((el, index) => {
+    const r = el.getBoundingClientRect(), top = r.top + scrollY;
+    let columns = 1;
+    for (const e of [el, ...el.querySelectorAll('*')]) {
+      const kids = [...e.children].filter(vis); if (kids.length < 2) continue;
+      const t0 = kids[0].getBoundingClientRect().top;
+      const row = kids.filter(k => Math.abs(k.getBoundingClientRect().top - t0) < 4).length;
+      if (row > columns && row === kids.length) columns = row; }
+    const boxes = [...el.querySelectorAll('*')].filter(vis).map(e => {
+      const kind = /^(IMG|VIDEO|PICTURE|SVG)$/.test(e.tagName) ? 'media'
+        : (e.tagName === 'BUTTON' || (e.tagName === 'A' && /btn|button|cta/i.test(e.className))) ? 'cta'
+        : (/^H[1-6]$/.test(e.tagName) || (e.tagName === 'P' && ownText(e))) ? 'text' : null;
+      if (!kind) return null; const b = e.getBoundingClientRect();
+      return {kind, cx: (b.left + b.width / 2) / vw, cy: (b.top + scrollY - top + b.height / 2) / vw,
+              w: b.width / vw, h: b.height / vw}; }).filter(Boolean);
+    const texts = [...el.querySelectorAll('*')].filter(e => vis(e) && ownText(e))
+      .map(e => ({tag: e.tagName.toLowerCase(), text: [...e.childNodes].filter(n => n.nodeType === 3)
+        .map(n => n.textContent.trim()).join(' ')}));
+    return {index, tag: el.tagName.toLowerCase(), selector: selOf(el), top, height: r.height,
+            background: getComputedStyle(el).backgroundColor,
+            aura_section: el.getAttribute('data-aura-section'), columns, boxes,
+            texts, html: el.outerHTML};
+  });
+}"""
+
+
+async def run_bands(url: str, output_dir: Path, widths: list[int]) -> int:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    async with async_playwright() as p:
+        for width in widths:
+            browser, context, page = await _launch_stealth(p, width)
+            response = await _goto_with_fallback(page, url)
+            if await _looks_like_challenge(page):
+                await browser.close()
+                print("[downloader] a página é um desafio anti-bot (Cloudflare)", file=sys.stderr)
+                return 5
+            if response is not None and response.status >= 400:
+                await browser.close()
+                print(f"[downloader] HTTP {response.status} em {url}", file=sys.stderr)
+                return 3
+            await auto_scroll(page)
+            bands = await page.evaluate(BANDS_JS)
+            styles = await collect_computed_styles(page)
+            await browser.close()
+
+            out = output_dir / str(width)
+            out.mkdir(parents=True, exist_ok=True)
+            texts, assets = [], []
+            for b in bands:
+                lo, hi = b["top"], b["top"] + b["height"]
+                own = [s for s in styles if lo <= s["rect"]["top"] < hi]
+                (out / f"section-{b['index']:02d}.json").write_text(
+                    json.dumps(own, ensure_ascii=False), encoding="utf-8")
+                texts += [{"band": b["index"], **x} for x in b.pop("texts")]
+                assets += [{"band": b["index"], "url": u}
+                           for u in sorted(extract_image_urls(b.pop("html"), url))]
+            (out / "bands.json").write_text(json.dumps(
+                {"url": url, "width": width, "bands": bands}, indent=2, ensure_ascii=False), encoding="utf-8")
+            (out / "texts.json").write_text(json.dumps(texts, indent=2, ensure_ascii=False), encoding="utf-8")
+            (out / "assets.json").write_text(json.dumps(assets, indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"[downloader] {width}px: {len(bands)} faixas em {out}")
+    return 0
+
+
 async def main() -> int:
-    if len(sys.argv) < 3:
-        print("Uso: python3 downloader.py <URL> <output_dir>", file=sys.stderr)
-        return 1
+    ap = argparse.ArgumentParser(description="captura de página (design-clone)")
+    ap.add_argument("url")
+    ap.add_argument("output_dir")
+    ap.add_argument("--mode", choices=("full", "bands"), default="full")
+    ap.add_argument("--widths", default="1440,390", help="só no modo bands")
+    args = ap.parse_args()
+    is_file = args.url.startswith("file://")
     try:
-        url = validate_url(sys.argv[1])
+        if is_file:
+            if args.mode != "bands":
+                raise ValueError("file:// só é aceito no modo bands")
+            validate_local_file(args.url)
+            url = args.url
+        else:
+            url = validate_url(args.url)
+        output_dir = validate_output_path(args.output_dir)
     except ValueError as exc:
         print(f"ERRO: {exc}", file=sys.stderr)
         return 1
-    try:
-        output_dir = validate_output_path(sys.argv[2])
-    except ValueError as exc:
-        print(f"ERRO: {exc}", file=sys.stderr)
-        return 1
+    if not is_file and not robots_allows(url):
+        print(f"ERRO: o robots.txt de {urlparse(url).netloc} proíbe a captura de {url}", file=sys.stderr)
+        return 2
+    if args.mode == "bands":
+        if async_playwright is None:
+            print("ERRO: Playwright não instalado.", file=sys.stderr)
+            return 1
+        return await run_bands(url, output_dir, [int(w) for w in args.widths.split(",")])
     if async_playwright is None:
         print(
             "ERRO: Playwright não instalado. Rode: pip install playwright && playwright install chromium",

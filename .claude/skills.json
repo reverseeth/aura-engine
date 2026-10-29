@@ -54,7 +54,8 @@
         "../profile.md",
         "../profile.html",
         "brand.md",
-        "ABRIR-AQUI.html"
+        "ABRIR-AQUI.html",
+        "brand/brand-tokens.json"
       ],
       "consumers": [
         "ops-engine",
@@ -542,7 +543,8 @@
         "copy-engine/dados.json",
         "offer-builder/dados.json",
         "market-research/dados.json",
-        "competitor-analysis/dados.json"
+        "competitor-analysis/dados.json",
+        "brand/brand-tokens.json"
       ],
       "writes": [
         "page/page-plan.json",
@@ -553,8 +555,13 @@
         "page/design/brief-codex.md",
         "page/design/page-codex.html",
         "page/design-tokens.json",
-        "page/design-signals.json",
-        "page/iterations-log.json"
+        "page/iterations-log.json",
+        "page/direction.md",
+        "page/qa-metrics.json",
+        "page/review.md",
+        "page/references/",
+        "page/reference-capture/",
+        "brand/brand-tokens.json"
       ],
       "consumers": [
         "page-build",
@@ -698,7 +705,8 @@
         "manifest.json",
         "offer-builder/dados.json",
         "page/page-plan.json",
-        "page/design-tokens.json"
+        "page/design-tokens.json",
+        "brand/brand-tokens.json"
       ],
       "writes": [
         "checkout-aov/checkout-aov.md",
@@ -850,7 +858,8 @@
         "market-research/dados.json",
         "copy-engine/dados.json",
         "finance-engine/dados.json",
-        "page/deploy-report.json"
+        "page/deploy-report.json",
+        "brand/brand-tokens.json"
       ],
       "writes": [
         "retention-engine/retention-engine.md",
@@ -899,7 +908,8 @@
         "copy-engine/dados.json",
         "ad-strategy/dados.json",
         "ad-analysis/NEXT_BATCH_IDEAS.md",
-        "creative-dna/"
+        "creative-dna/",
+        "brand/brand-tokens.json"
       ],
       "writes": [
         "creative-engine/creative-engine.md",
@@ -1008,10 +1018,11 @@
         "manifest.json",
         "brand.md",
         "page/page-plan.json",
-        "page/design/design-tokens.json",
+        "brand/brand-tokens.json",
         "offer-builder/dados.json",
         "market-research/dados.json",
-        "competitor-analysis/dados.json"
+        "competitor-analysis/dados.json",
+        "page/design-tokens.json"
       ],
       "writes": [
         "social-engine/social-engine.md",
@@ -1108,7 +1119,8 @@
         "agentic-readiness/dados.json",
         "bonus-delivery/dados.json",
         "retention-engine/dados.json",
-        "creative-engine/dados.json"
+        "creative-engine/dados.json",
+        "brand/brand-tokens.json"
       ],
       "writes": [
         "consistency-audit/consistency-audit.md",
@@ -1314,7 +1326,8 @@
         "ad-strategy/dados.json",
         "sourcing/dados.json",
         "ops-engine/dados.json",
-        "ad-log.md"
+        "ad-log.md",
+        "brand/brand-tokens.json"
       ],
       "writes": [
         "promo-engine/promo-engine.md",

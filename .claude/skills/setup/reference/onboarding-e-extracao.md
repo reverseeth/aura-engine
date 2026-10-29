@@ -62,9 +62,13 @@ SE o membro forneceu link do produto, faça **web fetch da página** automaticam
 - Tipo de hero section (vídeo, imagem, gif)
 - Presença de mecanismo único (sim/não + nome se tiver)
 - Link de checkout
-- **Cores dominantes** — extraia os hex principais (background, texto, accent/CTA) do CSS ou do computed style da página (`:root` custom properties, classes de botão/header). Capture 3-5 hex.
-- **Font-families** — extraia as `font-family` declaradas (heading e body) do CSS/`@font-face` ou computed style.
+- **Cores e fontes da marca** — vão para `workspace/[produto]/brand/brand-tokens.json` (DTCG, 8 papéis de cor e as famílias heading e body), não para hex soltos no profile. Ordem:
+  1. **dembrandt** (MCP `mcp__plugin_dembrandt_dembrandt__*`): `check_robots` na URL da loja (é a marca do próprio membro, mas o robots vale igual), `get_design_tokens` na URL da loja ou do site, sem `sync` (devolve um `job_id`; acompanhe com `get_job_status`) e `export_dtcg` com esse `job_id`. Salve o export em `workspace/[produto]/brand/dembrandt-dtcg.json` e converta: `python3 tools/page-qa/tokens.py --from-dtcg workspace/[produto]/brand/dembrandt-dtcg.json --brand-out workspace/[produto]/brand/brand-tokens.json`. O script deriva os papéis que faltarem e recusa (exit 4) sobrescrever uma marca que já existe.
+  2. **Reserva** (dembrandt ausente, robots barrando ou extração vazia): os 3 a 5 hex dominantes e as `font-family` heading e body pelo CSS cru, na cascade abaixo; a page-design monta o arquivo com eles depois.
+  3. **Sem loja nem site:** grave a forma vazia, `{"$extensions": {"aura": {"source": "none"}}}`.
 
-**Cascade de coleta (rule `.claude/rules/resilient-fetch.md`):** tente `WebFetch` primeiro. Se barrar (Cloudflare, 403, login wall) OU se precisar do CSS cru (o WebFetch devolve markdown, sem `<style>`/classes — inviável pra extrair cores/fontes), use o fetcher Playwright instalado na ETAPA 1: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode html` (devolve o HTML renderizado com CSS). Só depois desses dois degraus documente "não acessível" sem falhar. O importante é capturar o que consegue. Cores/fontes que não der pra extrair ficam como `[preencher]` na ETAPA 5A.
+  Depois de gravar, valide: `python3 tools/schema_validate.py .claude/templates/schemas/brand.brand-tokens.schema.json workspace/[produto]/brand/brand-tokens.json`. Situação A não tem slug ainda: o arquivo não nasce aqui, e a page-design cria a forma vazia quando chegar a vez dela.
+
+**Cascade de coleta (rule `.claude/rules/resilient-fetch.md`):** tente `WebFetch` primeiro. Se barrar (Cloudflare, 403, login wall) OU se precisar do CSS cru na reserva de cores e fontes (o WebFetch devolve markdown, sem `<style>`/classes), use o fetcher Playwright instalado na ETAPA 1: `python3 .claude/lib/web-fetch/fetch.py "<url>" --mode html` (devolve o HTML renderizado com CSS). Só depois desses dois degraus documente "não acessível" sem falhar. O importante é capturar o que consegue. Cores/fontes que não der pra extrair ficam como `[preencher]` na ETAPA 5A.
 
 Salve tudo no profile pra servir de referência em TODAS as skills seguintes — nunca mais perguntamos essas informações ao membro.

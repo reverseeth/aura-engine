@@ -7,7 +7,7 @@
 Os nomes das tools abaixo são os de hoje. Se mudarem, procure pela intenção.
 
 1. **Saldo primeiro** (hoje `balance`, e `show_plans_and_credits` pro custo por modelo). Diga ao membro em uma linha quanto tem e quanto custa um lote de 9.
-2. **Marca e produto no Ads Studio** (hoje `ads_studio_list_brands` e `ads_studio_list_products`). Se a marca não existe, cadastre (hoje `ads_studio_create_brand`) com o nome, a paleta e o tom do `brand.md`. Se o produto não existe, cadastre (hoje `ads_studio_add_product`) com as fotos reais do produto: render do produto inventado pela IA quebra a confiança na primeira compra. Sem foto real, peça ao membro antes de seguir.
+2. **Marca e produto no Ads Studio** (hoje `ads_studio_list_brands` e `ads_studio_list_products`). Se a marca não existe, cadastre (hoje `ads_studio_create_brand`) com o nome e o tom do `brand.md` e a paleta em hex do `brand/brand-tokens.json` (`color.<papel>.$value`; sem ele, `page/design-tokens.json`). Se o produto não existe, cadastre (hoje `ads_studio_add_product`) com as fotos reais do produto: render do produto inventado pela IA quebra a confiança na primeira compra. Sem foto real, peça ao membro antes de seguir.
 3. **Catálogo de templates de imagem** (hoje `get_presets` com `source: "marketing_studio"`, e `category: "product-shot"` pros de foto de produto; o painel geral abre por `show_marketing_studio_v2`). Pagine até ler o catálogo inteiro. Abrir o catálogo nunca autoriza rodar um template: execução só depois do sim de custo da ETAPA 3.
 4. **O que já foi gerado** (hoje `show_marketing_studio_generations`): se o membro já usou o Marketing Studio, os resultados que ele guardou dizem o gosto dele.
 
@@ -31,14 +31,18 @@ O lote diário são 9 posts que, juntos, formam um bloco 3x3 coerente no perfil.
 | 6 | Lifestyle | O produto na rotina do avatar |
 | 7 | Educação | Um fato curto que o avatar não sabia |
 | 8 | Oferta | Bundle, bônus ou garantia, com o CTA |
-| 9 | Marca | Cor sólida da paleta com uma frase da marca |
+| 9 | Marca | Cor sólida da paleta (o `primary` ou o `background` do `brand-tokens.json`) com uma frase da marca |
 
 Ajuste a fórmula à direção aprovada (ex.: marca de beleza troca "Mecanismo" por "Como usar"), mas mantenha o equilíbrio: no máximo três posições com texto pesado, pelo menos duas sem texto nenhum, e a oferta aparece uma vez por lote.
 
 ## 4. Sem Higgsfield
 
-A fórmula e a direção valem igual. Pra cada posição, escreva um prompt autocontido (cada geração começa do zero, sem citar "a imagem anterior"): assunto, composição, luz, fundo, paleta em código hex, proporção 4:5 e o texto exato, se houver. O membro roda em qualquer IA de imagem (GPT Image, Midjourney, Nano Banana, Flux) e devolve os arquivos em `social-engine/<data>/`. A rotina da ETAPA 5, nesse caso, entrega os 9 prompts e as legendas por dia, em vez das imagens.
+A fórmula e a direção valem igual. Pra cada posição, escreva um prompt autocontido (cada geração começa do zero, sem citar "a imagem anterior"): assunto, composição, luz, fundo, paleta em código hex (os papéis do `brand/brand-tokens.json`, os mesmos da página), proporção 4:5 e o texto exato, se houver. O membro roda em qualquer IA de imagem (GPT Image, Midjourney, Nano Banana, Flux) e devolve os arquivos em `social-engine/<data>/`. A rotina da ETAPA 5, nesse caso, entrega os 9 prompts e as legendas por dia, em vez das imagens.
 
-## 5. Onde fica salvo
+## 5. Reel de lançamento (opcional, só com o brag)
+
+Para quem instalou o plugin brag e já tem a página no ar (`manifest.storefront.page_url`): um reel único de lançamento pela skill `brag:brag-slim`, em formato vertical e tom polido, a partir da URL da página. É um post só, fora da rotina agendada, e o vídeo passa pelo Limpador de Metadados (`bash tools/strip-metadata.sh <arquivo>`) antes de publicar. Sem o brag, não ofereça.
+
+## 6. Onde fica salvo
 
 `social-engine/dados.json` → `higgsfield`: `{ "brand_id": "...", "product_ids": ["..."], "credits_per_batch": 0 }`, `templates_bank[]`: `{ "id": "...", "name": "...", "role": "produto herói | dor | ...", "fit": 5 }` e `grid_formula[]` com os 9 papéis. No `social-engine.md`, a seção "Banco de templates e fórmula do grid".

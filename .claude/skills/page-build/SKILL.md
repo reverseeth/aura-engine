@@ -18,7 +18,8 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 1. `report_language` de `workspace/profile.md` (default `pt-BR`): `page-report.md` e conversa nesse idioma, com a linguagem simples da regra 0; copy pública sempre em inglês US
 2. `consistency-audit/dados.json`, se existir: `BLOCK` não trava o deploy (a página existir não gasta dinheiro), mas avise os itens críticos; `CAUTION` pede confirmação; `GO` ou ausente segue
 3. Sob `workspace/[produto]/page/`: `design/page.html` (sem ele, PARE e mande pra `page-design`; não existe "gera Liquid direto"), `design-tokens.json` parseável, `page-plan.json` com `strategy`, `sections_plan` (com `media`, o mapa de mídia) e `section_order`, manifest com `page-design` em `skills_completed`, plugin `shopify-plugin:shopify-liquid` disponível
-4. Dirs de staging `page/staging/{html,sections,templates,geo}/` e as variáveis de path de `reference/contexto.md` (`PRODUTO`, `PAGE_DIR`, `DESIGN_HTML`, `STAGING_DIR`, `THEME_DIR`, `TOOLS_DIR`, `STORE`)
+4. Portão de QA: `python3 tools/page-qa/qa_gate.py workspace/[produto]/page/page-plan.json workspace/[produto]/page/qa-metrics.json --page workspace/[produto]/page/design/page.html`. Exit 0 segue; exit 1 PARE e mostre a saída ao membro (cada item reprovado e como liberar os liberáveis na `page-design`); exit 2 é página antiga: avise que ela não tem QA medido e siga. A regra de liberação é do script
+5. Dirs de staging `page/staging/{html,sections,templates,geo}/` e as variáveis de path de `reference/contexto.md` (`PRODUTO`, `PAGE_DIR`, `DESIGN_HTML`, `STAGING_DIR`, `THEME_DIR`, `TOOLS_DIR`, `STORE`)
 
 Íntegra do pré-flight, dos outputs e dos paths em `reference/contexto.md`.
 

@@ -54,8 +54,7 @@ Link do produto principal: [url ou "N/A"]
 Se SITUACAO ≠ A (membro já tem produto), copie `.claude/templates/brand.md.template` pra `workspace/[produto]/brand.md` e preencha os fields que conseguiu extrair automaticamente na ETAPA 4 (dados da página):
 
 - `{{ PRODUCT_SLUG }}` → slug do produto
-- Paleta de cores: preencha com os hex dominantes (background, texto, accent/CTA) extraídos na ETAPA 4
-- Fontes: preencha com as font-families (heading e body) extraídas na ETAPA 4
+- Paleta de cores e tipografia (seções 3 e 4): copie os papéis e as famílias do `workspace/[produto]/brand/brand-tokens.json` gravado na ETAPA 4. Sem o arquivo completo (reserva ou forma vazia), use os hex e as fontes da reserva da ETAPA 4 ou deixe `[preencher]`; o `brand-tokens.json` continua sendo a fonte de verdade
 - Logo path: `workspace/[produto]/brand/logo.svg` (criar diretório; membro upa depois)
 
 **Voz da marca (sistema a puxar — rode a `best_query` exata):** ao preencher os campos de tom/editorial do `brand.md`, puxe **Brand Voice Measurement — Vocabulary / Tone / Cadence** (rode `brand voice measurement vocabulary tone cadence nine voice types grade level`) e capture a voz atual da marca nos três medidores do sistema (vocabulário, tom, cadência) a partir da copy extraída da página na ETAPA 4. É o registro que a skill `market-research` refina depois e a `copy-engine` usa pra escrever no tom da marca.

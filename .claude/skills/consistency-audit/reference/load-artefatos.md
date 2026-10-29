@@ -16,7 +16,8 @@ Ler todos os artefatos disponíveis (só os que existem):
 - `copy-engine/copy-engine.md` + `copy-engine/dados.json` → extract headlines, hero, mechanism mentions, claims, promises + os campos top-level `lead_type` (enum: `story|big_idea|problem_agitation|mechanism|secret|proclamation|offer|direct` — alimenta o H2) e o flag de pré-flight `voc_forced_continue` (contexto pro H1: se `true`, a copy nasceu com VOC insuficiente — coverage baixo no H1 ganha essa causa provável no finding, com fix "re-rodar skill `market-research` e re-gerar a copy")
 - `page/page-plan.json` → extract `strategy.mechanism_name`, `page_type`, `sections_plan[]`, `section_order`, `brand_discovery` (alimenta C1c e M5)
 - `page/design-system.md` → extract paleta, tipografia (alimenta M6 — comparação com os tokens)
-- `page/design-tokens.json` (gerado por `page-design`, qualquer rota) → tokens extraídos da variação aprovada (alimenta M6)
+- `page/design-tokens.json` (gerado por `page-design`) → tokens da página aprovada (alimenta M6)
+- `brand/brand-tokens.json` (gerado por `setup` ou pela `page-design` quando estava vazio) → a marca, contra a qual o M6 mede o drift
 - `checkout-aov/dados.json` **(if exists)** → extract bump/upsell/free-shipping threshold aplicados (contexto pro C3 e pro H5: a garantia e o bônus que o checkout mostra são os mesmos da oferta e da página)
 - `creative-engine/dados.json` → extract hooks, primary_texts, headlines per concept + `hooks_bank[]` top-level
 - `retention-engine/[fluxo]/email-N.html` + `flow-metadata.json` **(if exists — a Fase A da `retention-engine` roda pré-launch na ordem canônica: abandoned cart + post-purchase)** → alimenta o M7 (placeholders tipo `{{BONUS_LINK}}` ainda não preenchidos) e dá contexto ao gate (flows de recuperação prontos antes do go-live)

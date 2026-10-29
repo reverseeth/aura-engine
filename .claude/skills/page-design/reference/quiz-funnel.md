@@ -4,9 +4,9 @@
 
 ## Quando esta sub-etapa roda
 
-Só com `page_type: "quiz"`, que nunca sai sozinho da consciência dominante nem do lead da copy: ele chega pelo formato do concorrente ou por pedido direto do membro, e nos dois casos quem decide é ele (`page_type_signals.resolved_by: "member"`, regra da 1.1). Fechado o `quiz`, esta sub-etapa substitui a 1.2 (menu de sections): o que se planeja não é uma página com seções empilhadas, é um funil de telas.
+Só com `page_type: "quiz"`, que nunca sai sozinho da consciência dominante nem do lead da copy: ele chega pelo formato do concorrente ou por pedido direto do membro, e nos dois casos quem decide é ele (`page_type_signals.resolved_by: "member"`, regra da 1.1). Fechado o `quiz`, esta sub-etapa substitui a 1.2 (sections pela narrativa): o que se planeja não é uma página com seções empilhadas, é um funil de telas.
 
-O resto da skill continua igual. A ETAPA 2 (tipografia, cor, comparadora) roda como sempre, a rota de design da ETAPA 3 é escolhida pelo membro do mesmo menu, a régua de `reference/regua-de-design.md` é a mesma e continua bloqueante, e o entregável continua sendo um `design/page.html` aprovado por ele.
+O resto da skill continua igual. A ETAPA 2 (marca, tipografia, comparadora) roda como sempre, a direção da ETAPA 3 e o modo de construção da ETAPA 4 são escolhidos pelo membro como em qualquer página, a régua de `reference/regua-de-design.md` e o QA da ETAPA 5 são os mesmos, e o entregável continua sendo um `design/page.html` aprovado por ele.
 
 **Puxe estes sistemas antes de escrever a primeira pergunta** (piso obrigatório desta sub-etapa, `deep=true`, não contam no teto da etapa):
 
@@ -137,7 +137,7 @@ Além do bloco `strategy` de sempre, o plano ganha o bloco `quiz`. O `sections_p
 
 - `routes: true` em **exatamente uma** tela de pergunta, e as alternativas dela apontam para telas de resultado. Toda outra alternativa aponta para uma tela de pergunta.
 - Todo `to` existe como `id` de tela, e toda tela é alcançável a partir da abertura. Tela órfã é tela que ninguém vê.
-- `media` por tela tem o mesmo shape do `sections_plan[].media` (schema na 4.1) e obedece ao mesmo gate: imagem real no slot ou placeholder explícito com `acquisition_plan`. A `page-build` bloqueia o deploy com placeholder vivo aqui também.
+- `media` por tela tem o mesmo shape do `sections_plan[].media` (shape em `reference/page-plan-e-salvar.md`) e obedece ao mesmo gate: imagem real no slot ou placeholder explícito com `acquisition_plan`. A `page-build` bloqueia o deploy com placeholder vivo aqui também.
 - O bloco `commerce` ganha uma superfície de compra por tela de resultado, com a tela nomeada: `{"section": "quiz", "screen": "result-a", "kind": "single_cta", "tiers_qty": [3]}`. É isso que faz o check bloqueante de IDs da 6.1b cobrir o funil inteiro, sem régua nova.
 - `sections_plan` tem a entry `quiz` (a section do funil) e, opcionalmente, sections depois dela. **Só entra abaixo do funil o que vale para todo perfil** (garantia, FAQ, rodapé de marca). Tudo que muda por perfil mora dentro da tela de resultado, senão o funil entrega a oferta antes da pessoa responder.
 

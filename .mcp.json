@@ -3,6 +3,13 @@
     "aura": {
       "type": "http",
       "url": "https://aura-mcp-production.up.railway.app/mcp"
+    },
+    "awwwards": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "awwwards-mcp@1.14.0"
+      ]
     }
   }
 }

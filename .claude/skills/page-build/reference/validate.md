@@ -22,7 +22,7 @@ O POPULATE já aconteceu na ETAPA 2 (o `--emit-template-json`/batch monta o `tem
 
 Notas pra ajustes manuais no JSON:
 - **Inserção em ordem reversa** (rule `reverse-order-insertion`): quando o Claude insere múltiplas sections no `order[]`/`sections{}` à mão, insere da maior posição pra menor pra não deslocar índices. No modo batch/merge o conversor já cuida disso.
-- As cores das section settings vêm de `design-tokens.json` (role-tagged: background/surface/foreground/primary/accent/border).
+- **Cores por papel:** com `design_tokens` no manifest do batch (página v2), cada hex do CSS que bate com um papel de `design-tokens.json.colors` vira o setting `color_<papel>` (`color_primary`, `color_on_primary`...), com rótulo em português no editor ("Cor primária", "Cor do texto sobre a primária"); os outros hex continuam `color_N` ("Color N"). Seção que já existe no tema com settings `color_N` mantém os ids antigos (`theme_dir` no manifest), para o membro não perder o que editou. No template JSON, confira que os ids batem com os do schema da section.
 
 ### Validação do template JSON (OBRIGATÓRIA antes do deploy)
 

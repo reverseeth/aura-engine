@@ -40,7 +40,16 @@ Princípio: **conversão determinística mata as traduções lossy e o drift.** 
    - [ ] `page-plan.json` existe com bloco `strategy` + `sections_plan` + `section_order` (plans novos trazem `sections_plan[].media` — o mapa de mídia que o check bloqueante da ETAPA 4 usa; plan legado sem `media` é tolerado, o check degrada pro mínimo); com `page_type: quiz`, ele traz também o bloco `quiz` (telas, perfis e ramificações), e o funil compila numa section só por `reference/quiz-sections.md`
    - [ ] `manifest.json` tem `page-design` em `skills_completed`
    - [ ] Plugin `shopify-plugin:shopify-liquid` disponível (se falhar, instrua `/plugin install shopify-plugin@shopify-plugin`)
-4. Dirs de staging: `workspace/[produto]/page/staging/{html,sections,templates,geo}/` (criar com `mkdir -p`).
+4. **Portão de QA (página v2):** rode
+   ```bash
+   python3 tools/page-qa/qa_gate.py workspace/[produto]/page/page-plan.json workspace/[produto]/page/qa-metrics.json --page workspace/[produto]/page/design/page.html
+   ```
+   - **Exit 0:** segue.
+   - **Exit 1:** PARE e mostre a saída ao membro: cada item bloqueante reprovado, e quais podem ser liberados (`horizontal_overflow`, `broken_images`, `html_css_kb`) registrando a liberação no `page-plan.json.qa_overrides` pela `page-design`. Página que mudou depois do QA (hash diferente) volta para a ETAPA 5 da `page-design`.
+   - **Exit 2:** página antiga, sem `schema_version`. Avise em uma linha que ela não tem QA medido e siga como sempre.
+
+   A regra de liberação mora no script; a skill só o chama e repassa a saída.
+5. Dirs de staging: `workspace/[produto]/page/staging/{html,sections,templates,geo}/` (criar com `mkdir -p`).
 
 Se `design/page.html` faltar → "Não achei o design aprovado. Rode `page-design` primeiro — preciso do `design/page.html` que você aprova antes de gerar Liquid."
 

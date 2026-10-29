@@ -17,7 +17,7 @@ Detecção por prefixo de tool na sessão, como manda o canon `.claude/lib/mcp-d
 |---|---|
 | `lifestyle` | Sim. É o caso principal: a cena de contexto ou de resultado, com ou sem pessoa em quadro. |
 | `review_faces` | Sim, pelas regras de pessoa da lib (abaixo), com a distribuição de idade e gênero saindo dos avatares da `market-research`. |
-| `packshot` | Não. Rótulo, embalagem, frasco e qualquer texto de embalagem vêm de foto real, do fornecedor ou do membro. Sem nenhuma foto real do produto, isso é bloqueio de inventário: peça a foto, é pré-requisito de qualquer rota. |
+| `packshot` | Não. Rótulo, embalagem, frasco e qualquer texto de embalagem vêm de foto real, do fornecedor ou do membro. Sem nenhuma foto real do produto, isso é bloqueio de inventário: peça a foto, é pré-requisito dos dois modos de construção. |
 | `before_after_pair` | Não. O par antes e depois é prova, e prova gerada é prova inventada. Par real, ou a seção sai do plano. |
 | `diagram` | Não por geração de imagem. Diagrama de mecanismo é SVG desenhado na página, que fica nítido em qualquer tela e o membro consegue corrigir depois. |
 
@@ -87,7 +87,7 @@ Nunca coloque na página a menos ruim das três. Imagem com defeito custa mais c
    sips -g pixelWidth -g pixelHeight "$IMG"     # confira ANTES
    sips -Z 1600 "$IMG"                          # só quando o maior lado passa de 1600
    ```
-   O `-Z` também AMPLIA: rodar sobre imagem menor que o alvo degrada a imagem. Por isso o `-g` vem antes. Sem `sips` na máquina, siga com o arquivo como veio e registre o peso no gate de performance da 3.7.
+   O `-Z` também AMPLIA: rodar sobre imagem menor que o alvo degrada a imagem. Por isso o `-g` vem antes. Sem `sips` na máquina, siga com o arquivo como veio e registre o peso no peso medido pelo QA da ETAPA 5 (`page_total_kb`).
    **Não converta para WebP aqui.** O `sips` do macOS não escreve WebP e o ffmpeg padrão do Homebrew vem sem o encoder, então a conversão viraria uma dependência a instalar por nada: quem serve WebP e AVIF na loja é o CDN da Shopify, pelo `image_url` com `width:` que a `page-build` já usa.
 3. **Limpe os metadados, por último** (regra 12). O gerador grava a própria assinatura no arquivo, e qualquer redimensionamento ou conversão volta a gravar tag de encoder — por isso o limpador é o último passo, nunca o primeiro:
    ```bash

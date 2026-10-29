@@ -31,10 +31,9 @@ Uso (Modo C — HTML fresh aprovado na `page-design`, padrão da skill page-buil
         --namespace page-<produto>-<tipo> \\
         --product-slug <produto>
 
-Uso (Modo B legacy — clone direto do HTML do concorrente via sections.json):
-    REQUER --allow-competitor-markup. Este modo injeta copy/markup do
-    concorrente no tema — viola o princípio "zero código do concorrente no
-    output final". Use apenas pra clonar página SUA de outra loja sua.
+Papéis de cor (página v2): `--design-tokens <page>/design-tokens.json` faz cada hex
+que bate com um papel virar o setting `color_<papel>` ("Cor primária" no editor);
+`--theme-dir <tema>` mantém os `color_N` de uma seção que já está no tema.
 
 Dependências:
     pip install beautifulsoup4
@@ -64,7 +63,7 @@ except ImportError:
     print("ERRO: BeautifulSoup4 não instalado. Rode: pip install beautifulsoup4", file=sys.stderr)
     sys.exit(1)
 
-# Import consolidado do módulo compartilhado (evita duplicação com preview.py)
+# Import do módulo compartilhado com o downloader.py
 try:
     from _css_utils import rewrite_css_for_namespace
 except ImportError:
@@ -268,16 +267,69 @@ def semantic_label_from_classes(el, tag_name, namespace=None):
     return TAG_LABEL_FALLBACK.get(tag_name, "Text")
 
 
-def extract_colors_from_css(css):
-    """Acha todos os hex únicos no CSS. Retorna dict {hex_normalized: setting_id}."""
+# Papéis de cor do design-tokens.json (página v2) → rótulo no editor da Shopify.
+COLOR_ROLE_LABELS = {
+    "background": "Cor de fundo",
+    "surface": "Cor de superfície",
+    "foreground": "Cor do texto",
+    "primary": "Cor primária",
+    "on_primary": "Cor do texto sobre a primária",
+    "accent": "Cor de destaque",
+    "muted": "Cor do texto secundário",
+    "border": "Cor das bordas",
+}
+LEGACY_COLOR_SETTING_RE = re.compile(r'"id"\s*:\s*"color_\d+"')
+
+
+def load_role_map(design_tokens_path):
+    """design-tokens.json → {hex: papel}. Sem arquivo ou sem `colors`, devolve {}."""
+    if not design_tokens_path:
+        return {}
+    data = json.loads(Path(design_tokens_path).expanduser().read_text(encoding="utf-8"))
+    out = {}
+    for role, hx in (data.get("colors") or {}).items():
+        if role in COLOR_ROLE_LABELS and isinstance(hx, str):
+            out.setdefault(_normalize_hex(hx), role)  # dois papéis com o mesmo hex: vale o primeiro
+    return out
+
+
+def keeps_legacy_colors(theme_dir, output_path):
+    """Seção já no tema com settings `color_N`: mantém os ids, senão o membro perde as edições."""
+    if not theme_dir:
+        return False
+    existing = Path(theme_dir).expanduser() / "sections" / Path(output_path).name
+    return existing.is_file() and bool(LEGACY_COLOR_SETTING_RE.search(existing.read_text(encoding="utf-8")))
+
+
+def _normalize_hex(c):
+    c = c.lower()
+    return "#" + "".join(ch * 2 for ch in c[1:]) if len(c) == 4 else c
+
+
+def extract_colors_from_css(css, role_map=None):
+    """Acha todos os hex únicos no CSS. Retorna dict {hex_normalized: setting_id}.
+
+    Com `role_map` ({hex: papel}), o hex que bate com um papel vira `color_<papel>`;
+    os outros continuam `color_N`, numerados só entre eles."""
     seen = []
     for m in CSS_COLOR_RE.finditer(css):
-        c = m.group(0).lower()
-        if len(c) == 4:
-            c = "#" + "".join(ch * 2 for ch in c[1:])
+        c = _normalize_hex(m.group(0))
         if c not in seen:
             seen.append(c)
-    return {hx: f"color_{i + 1}" for i, hx in enumerate(seen)}
+    role_map = role_map or {}
+    out, n = {}, 0
+    for hx in seen:
+        if hx in role_map:
+            out[hx] = f"color_{role_map[hx]}"
+        else:
+            n += 1
+            out[hx] = f"color_{n}"
+    return out
+
+
+def color_setting_label(setting_id):
+    suffix = setting_id.split("_", 1)[1]
+    return f"Color {suffix}" if suffix.isdigit() else COLOR_ROLE_LABELS[suffix]
 
 
 def replace_colors_with_vars(css, color_map):
@@ -666,9 +718,10 @@ def derive_setting_id(el, counter):
 
 
 class LiquidBuilder:
-    def __init__(self, namespace, product_slug):
+    def __init__(self, namespace, product_slug, role_map=None):
         self.namespace = namespace
         self.product_slug = product_slug
+        self.role_map = role_map or {}  # {hex: papel}; vazio = color_N (página antiga ou seção já no tema)
         self.settings = []
         self.settings_by_default = {}  # (s_type, default) -> setting_id (dedup)
         self.blocks_schemas = {}
@@ -1110,7 +1163,7 @@ class LiquidBuilder:
         tokens = extract_tokens_from_css(base_stylesheet)
         if tokens:
             base_stylesheet = replace_tokens_with_vars(base_stylesheet, tokens)
-        color_map = extract_colors_from_css(base_stylesheet)
+        color_map = extract_colors_from_css(base_stylesheet, self.role_map)
         if color_map:
             base_stylesheet = replace_colors_with_vars(base_stylesheet, color_map)
 
@@ -1123,7 +1176,7 @@ class LiquidBuilder:
                 prepend_settings.append({
                     "type": "color",
                     "id": s_id,
-                    "label": f"Color {s_id.split('_')[1]}",
+                    "label": color_setting_label(s_id),
                     "default": hex_color,
                 })
                 inline_pairs.append(s_id)
@@ -1319,11 +1372,14 @@ def emit_template_json(path: Path, section_nodes: list[tuple[str, dict]]):
     return template
 
 
-def _convert_one_section(section, namespace, product_slug, output_path, asset_type, semantic_type):
+def _convert_one_section(section, namespace, product_slug, output_path, asset_type, semantic_type,
+                         role_map=None, theme_dir=None):
     """Converte uma única section (dict) → escreve o .liquid, retorna (builder, section_id).
 
     Blocks são inline no schema da section — nenhum arquivo blocks/*.liquid é gerado."""
-    builder = LiquidBuilder(namespace, product_slug)
+    if keeps_legacy_colors(theme_dir, output_path):
+        role_map = None
+    builder = LiquidBuilder(namespace, product_slug, role_map)
     converted_markup = builder.process(section, asset_type=asset_type)
 
     section_name = schema_display_name(semantic_type)
@@ -1345,6 +1401,11 @@ def _convert_one_section(section, namespace, product_slug, output_path, asset_ty
     # section_id = nome do arquivo .liquid sem extensão (= o que vai em sections{}/order[])
     section_id = output_path.stem
     return builder, section_id
+
+
+def _structure(el):
+    """Assinatura da árvore de um elemento: (tag, classes) de cada descendente, na ordem."""
+    return tuple((d.name, tuple(sorted(d.get("class", []) or []))) for d in el.find_all(True))
 
 
 def detect_repeating_pattern(html_content):
@@ -1369,6 +1430,10 @@ def detect_repeating_pattern(html_content):
             key = (child.name, frozenset(child.get("class", []) or []))
             groups.setdefault(key, []).append(child)
         for (tag, classes), kids in groups.items():
+            # irmãos com estrutura interna diferente não são itens de um block: o item que não
+            # casa com o primeiro perderia a copy (ficaria com o default do item 1)
+            if len({_structure(k) for k in kids}) > 1:
+                continue
             if len(kids) >= 2 and len(kids) > best["count"] and any(k.get_text(strip=True) for k in kids):
                 best = {
                     "detected": True,
@@ -1387,6 +1452,8 @@ def run_batch(args):
       "product_slug": "produto",
       "page_handle": "produto",
       "asset_type": "section",
+      "design_tokens": "<page>/design-tokens.json",   (opcional: papéis de cor)
+      "theme_dir": "<tema baixado>",                  (opcional: preserva color_N de seção já no tema)
       "sections": [
         {"html": "...|path", "css": "...|path", "type": "hero", "namespace": "page-produto-hero",
          "output": "<staging>/sections/page-produto-hero.liquid"}
@@ -1431,6 +1498,8 @@ def run_batch(args):
                 sys.exit(1)
         return val
 
+    role_map = load_role_map(manifest.get("design_tokens") or args.design_tokens)
+    theme_dir = manifest.get("theme_dir") or args.theme_dir
     section_nodes = []
     for spec in section_specs:
         namespace = spec["namespace"]
@@ -1449,6 +1518,7 @@ def run_batch(args):
         try:
             builder, section_id = _convert_one_section(
                 section, namespace, product_slug, output_path, asset_type, semantic_type,
+                role_map=role_map, theme_dir=theme_dir,
             )
         except ValueError as exc:
             print(f"ERRO ao converter section '{semantic_type}': {exc}", file=sys.stderr)
@@ -1469,12 +1539,6 @@ def run_batch(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    # Dois modos de input: sections.json (legacy, do analyzer) ou HTML/CSS fresh (Modo C)
-    parser.add_argument("--sections-json", help="(Modo B legacy) Path to sections.json from analyzer — REQUER --allow-competitor-markup")
-    parser.add_argument("--section-index", type=int, help="(Modo B legacy) 1-based index of section to convert")
-    parser.add_argument("--allow-competitor-markup", action="store_true",
-                        help="(Modo B) Confirma que você ENTENDE que copy/markup do HTML de origem "
-                             "(concorrente) entrará no tema como defaults — só use com página própria")
     parser.add_argument("--html", help="(Modo C) Path to fresh HTML file from page-design")
     parser.add_argument("--css", help="(Modo C) Path to fresh CSS file (injected into the stylesheet block)")
     parser.add_argument("--type", help="(Modo C) Semantic type of the section (hero/features/faq/etc)")
@@ -1486,6 +1550,8 @@ def main():
     parser.add_argument("--asset-type", choices=["section", "block"], default="section",
                         help="Output as Shopify section (default) or theme block (for Horizon-style composability)")
     # GAP-B / GAP-E
+    parser.add_argument("--design-tokens", help="design-tokens.json da página v2: hex dos papéis viram color_<papel>")
+    parser.add_argument("--theme-dir", help="tema baixado: seção que já existe em sections/ mantém os ids color_N")
     parser.add_argument("--batch", help="(Modo E batch) Path to batch manifest JSON: converte a página inteira + POPULATE numa invocação")
     parser.add_argument("--emit-template-json", help="(GAP-B POPULATE) Path do templates/page.[handle].json a emitir")
     parser.add_argument("--page-handle", help="(GAP-B POPULATE) Handle da página Shopify (default: product-slug)")
@@ -1530,46 +1596,12 @@ def main():
             "images": [],
         }
         print(f"[liquid-converter v3] Modo C — convertendo HTML fresh ({args.type or 'section'})")
-    elif args.sections_json and args.section_index:
-        # Modo B legacy — sections.json do analyzer (HTML bruto da página de origem)
-        if not args.allow_competitor_markup:
-            print(
-                "ERRO: o Modo B converte HTML BRUTO da página de origem — copy e markup "
-                "do concorrente virariam defaults do SEU tema.\n"
-                "Isso viola o princípio 'zero código do concorrente no output final'.\n"
-                "Use o Modo C (--html/--css com o design próprio aprovado na `page-design`).\n"
-                "Se a página de origem é SUA (ex: migração entre lojas próprias), re-rode "
-                "com --allow-competitor-markup.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        sections_json = Path(args.sections_json).expanduser().resolve()
-        if not sections_json.exists():
-            print(f"ERRO: {sections_json} não encontrado", file=sys.stderr)
-            sys.exit(1)
-        try:
-            data = json.loads(sections_json.read_text(encoding="utf-8"))
-        except json.JSONDecodeError as exc:
-            print(
-                f"ERRO: JSON inválido em {sections_json} (linha {exc.lineno} col {exc.colno}): {exc.msg}",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        except OSError as exc:
-            print(f"ERRO: falha ao ler {sections_json}: {exc}", file=sys.stderr)
-            sys.exit(1)
-        sections = data.get("sections", [])
-        if args.section_index < 1 or args.section_index > len(sections):
-            print(f"ERRO: section-index {args.section_index} inválido (tem {len(sections)} seções)", file=sys.stderr)
-            sys.exit(1)
-        section = sections[args.section_index - 1]
-        base_css = ""
-        print(f"[liquid-converter v3] Modo B — convertendo seção {args.section_index}: {section.get('semantic_type')}")
     else:
-        print("ERRO: forneça --html (Modo C) ou --sections-json + --section-index (Modo B legacy)", file=sys.stderr)
+        print("ERRO: forneça --html (Modo C)", file=sys.stderr)
         sys.exit(1)
 
-    builder = LiquidBuilder(args.namespace, args.product_slug)
+    role_map = None if keeps_legacy_colors(args.theme_dir, output_path) else load_role_map(args.design_tokens)
+    builder = LiquidBuilder(args.namespace, args.product_slug, role_map)
     converted_markup = builder.process(section, asset_type=args.asset_type)
 
     semantic_type = section.get("semantic_type", "section")

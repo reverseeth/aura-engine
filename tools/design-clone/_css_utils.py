@@ -2,8 +2,8 @@
 """
 _css_utils.py — Shared CSS rewrite utilities for design-clone pipeline.
 
-Consolida o `rewrite_css_for_namespace` que antes estava duplicado em
-`liquid-converter.py` e `preview.py`. Inclui proteção contra recursão infinita
+O `rewrite_css_for_namespace` do `liquid-converter.py` e o regex de cores literais
+(`CSS_COLOR_LITERAL_RE`) que o `tokens.py` usa. Inclui proteção contra recursão infinita
 e tratamento correto de at-rules (@media, @supports, @keyframes).
 """
 
@@ -108,3 +108,10 @@ def rewrite_css_for_namespace(css: str, namespace: str, max_depth: int = 5) -> s
 
 
 __all__ = ["rewrite_css_for_namespace"]
+
+
+# Cor literal em CSS (hex de 3, 6 ou 8 dígitos, rgb()/rgba()). Usada pelo
+# tools/page-qa/tokens.py pra contar cor solta fora das variáveis.
+CSS_COLOR_LITERAL_RE = re.compile(
+    r"#[0-9a-fA-F]{8}\b|#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b|rgba?\([^)]*\)"
+)

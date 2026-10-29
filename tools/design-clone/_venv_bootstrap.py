@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 _venv_bootstrap.py — re-exec no python do venv do framework quando as deps de
-terceiros (playwright/bs4/chardet) faltam no interpretador atual.
+terceiros (playwright/bs4) faltam no interpretador atual.
 
 Mesmo padrão do `.claude/lib/web-fetch/fetch.py` (bootstrap re-exec): o membro
 pode invocar qualquer entry-point do design-clone com o `python3` do sistema
@@ -13,9 +13,8 @@ loop e ainda tenta o próximo venv se o primeiro estiver quebrado).
 
 Diferença pro fetch.py: aqui o bootstrap NÃO aborta quando nenhum venv serve —
 apenas retorna, e o guard de import de cada script decide (mensagem de setup,
-ou degradação graciosa: downloader/aura_clone precisam continuar importáveis
-sem Playwright pra ingestão --from-file, e o pattern-extractor funciona sem
-chardet com fallback latin-1).
+ou degradação graciosa: o liquid-converter só precisa do bs4, e o downloader
+avisa e sai quando falta o Playwright).
 """
 import importlib.util
 import os
