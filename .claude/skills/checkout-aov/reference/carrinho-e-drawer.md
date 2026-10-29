@@ -51,7 +51,7 @@ Toda edição segue a rule `.claude/rules/shopify-theme-safety.md` por inteiro, 
 
 Num carrinho de verdade, no celular e no computador, com o tema em preview:
 
-1. A gaveta abre na paleta e na tipografia da página, sem nenhum texto na fonte padrão do tema.
+1. A gaveta abre na paleta e na tipografia da página, sem nenhum texto na fonte padrão do tema. Com número: `python3 .claude/lib/theme-verify/verify_page.py "<url da loja>/cart?preview_theme_id=<id>" --dump-computed workspace/[produto]/checkout-aov/cart-computed.json` e `python3 tools/page-qa/tokens.py --diff-live workspace/[produto]/checkout-aov/cart-computed.json workspace/[produto]/page/design-tokens.json`; cor ou família fora da página aparece na lista (quase sempre a fonte de fallback do tema).
 2. A barra de frete grátis mostra o valor que falta, anda ao mudar a quantidade e confirma quando o valor é cruzado.
 3. O item sugerido adiciona sem sair do carrinho, e o total muda.
 4. Aumentar, diminuir e remover atualizam o total sem recarregar a página.

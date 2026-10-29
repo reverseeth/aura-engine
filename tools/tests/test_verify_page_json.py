@@ -76,6 +76,17 @@ class VerifyPageDesign(unittest.TestCase):
         self.assertEqual(items["section_ids_match_plan"][0]["status"], "pass")
         self.assertEqual(proc.returncode, 1)
 
+    def test_dump_computed_sem_marcador_mede_o_main(self):
+        tmp = Path(tempfile.mkdtemp())
+        (tmp / "cart.html").write_text('<main style="color:#222222"><h1>Cart</h1><p>x</p></main>')
+        proc = subprocess.run([sys.executable, str(SCRIPT), f"file://{tmp / 'cart.html'}",
+                               "--dump-computed", str(tmp / "c.json"), "--shots-dir", str(tmp)],
+                              capture_output=True, text=True, timeout=300)
+        if proc.returncode == 3:
+            self.skipTest("Playwright ausente")
+        secs = json.loads((tmp / "c.json").read_text())["sections"]
+        self.assertEqual([x["section"] for x in secs], ["main"])
+
     def test_sem_json_out_e_o_perfil_loja_de_sempre(self):
         tmp = Path(tempfile.mkdtemp())
         proc = subprocess.run([sys.executable, str(SCRIPT), f"file://{FIXTURES / 'dirty.html'}",

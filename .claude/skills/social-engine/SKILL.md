@@ -24,7 +24,7 @@ Pastas do produto sem número; se faltar a pasta nova de uma fase anterior, rode
 ## Contexto a carregar
 
 1. `profile.md`, `manifest.json` e `brand.md` (paleta, tipografia, tom de voz e imagery guidelines já respondidos valem acima de tudo).
-2. `page/page-plan.json` → bloco `reference_board` e `page/design/design-tokens.json`, se existirem: a direção visual da loja é o ponto de partida do feed. Loja e Instagram precisam parecer a mesma marca.
+2. `brand/brand-tokens.json` (paleta e fontes da marca; sem ele, `page/design-tokens.json`) e `page/page-plan.json` → bloco `reference_board`, se existirem: a direção visual da loja é o ponto de partida do feed. Loja e Instagram precisam parecer a mesma marca.
 3. `offer-builder/dados.json` (`resumo`: mecanismo, oferta, garantia, bônus), `market-research/dados.json` (VOC top 20, sub-avatares, dores e desejos) e `creative-engine/` (ângulos e hooks aprovados), lendo primeiro o `resumo` de cada `dados.json`.
 4. Rodadas anteriores em `social-engine/` (`dados.json` → `templates_used[]` e `posts_log[]`), pra não repetir template nem legenda.
 5. Integrações pelo prefixo de tool (`.claude/lib/mcp-detect/README.md`): Higgsfield (`mcp__higgsfield__`), Shopify (hospedagem do arquivo limpo) e, como alternativa à API oficial do Instagram, Blotato ou Metricool conectados.

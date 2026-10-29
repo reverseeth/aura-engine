@@ -53,7 +53,7 @@ Para CADA conceito aprovado, gere o briefing completo aplicando os frameworks. *
 **Awareness Level:** [Unaware / Problem Aware / Solution Aware / Product Aware / Most Aware]
 **Posição no Funil:** [TOF / MOF / BOF]
 **Formato Principal:** [UGC vídeo / demo vídeo / static / carrossel / motion graphics]
-**Senso Estético:** [referência de design/edição: caseiro vs polido, fontes, ritmo de cortes (a cada quantos segundos algo muda), paleta]
+**Senso Estético:** [referência de design/edição: caseiro vs polido, ritmo de cortes (a cada quantos segundos algo muda); paleta e fontes da marca lidas de `workspace/[produto]/brand/brand-tokens.json` (hex de `color.<papel>.$value`, famílias de `typography.heading|body`), que valem também nos prompts de static e de overlay — o anúncio usa a mesma identidade da página. Sem o arquivo, ou na forma vazia, use a paleta do `brand.md`]
 **Molde** (só quando o conceito usa molde de `competitor-analysis/ad-molds.json`): [`mold_id` + concorrente + o sinal de escala do `evidence` + a frase do encaixe entre a função do molde e o ângulo deste conceito — `reference/molde-e-injecao.md`]
 **Estrutura Invisível:** [1 linha por dimensão — psicológica (sequência de objeções que derruba), emocional (o arco de valência: em que zona abre, o que segura na bridge, em que zona fecha), visual (onde estão os pattern interrupts), comunicativa (o que é falado vs overlay)]
 

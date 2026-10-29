@@ -224,16 +224,18 @@ MEASURE_JS = r"""(attr) => {
   };
 }"""
 
-COMPUTED_JS = r"""(attr) => [...document.querySelectorAll(`[${attr}]`)].map(sec => {
+# página sem marcador da Aura (o /cart do tema): mede o <main>, ou o body, como uma seção só
+COMPUTED_JS = r"""(attr) => { const marked = [...document.querySelectorAll(`[${attr}]`)];
+  return (marked.length ? marked : [document.querySelector("main") || document.body]).map(sec => {
   const cs = e => e ? getComputedStyle(e) : null;
   const pick = sel => cs(sec.querySelector(sel));
   const btn = pick('a[class*=btn],a[class*=cta],button,[class*=button]');
   let bg = null; for (let e = sec; e; e = e.parentElement) { const c = getComputedStyle(e).backgroundColor;
     if (!/rgba\(.*,\s*0\)$/.test(c) && c !== 'transparent') { bg = c; break; } }
-  return {section: sec.getAttribute(attr), text: cs(sec).color, background: bg,
+  return {section: sec.getAttribute(attr) || sec.tagName.toLowerCase(), text: cs(sec).color, background: bg,
           button: btn ? btn.backgroundColor : null,
           fonts: Object.fromEntries(['h1', 'h2', 'p'].map(t => [t, pick(t)?.fontFamily || null]))};
-})"""
+}); }"""
 
 
 def _rgb_hex(c):
