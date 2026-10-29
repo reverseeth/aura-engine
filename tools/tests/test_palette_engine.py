@@ -240,5 +240,27 @@ class Matematica(unittest.TestCase):
             self.assertTrue(pe.hue_family(hue, "en")["label"])
 
 
+class SignalsEmDTCG(unittest.TestCase):
+    """O --signals aceita o brand-tokens.json (DTCG) e dá o mesmo resultado do design-signals.json."""
+
+    def _run(self, payload):
+        import json, tempfile, io, contextlib
+        with tempfile.TemporaryDirectory() as d:
+            src = Path(d) / "in.json"
+            out = Path(d) / "out.json"
+            src.write_text(json.dumps(payload))
+            with contextlib.redirect_stdout(io.StringIO()):
+                code = pe.main(["--vertical", "supplements", "--signals", str(src), "--format", "json", "--out", str(out)])
+            self.assertEqual(code, 0)
+            return json.loads(out.read_text())
+
+    def test_dtcg_e_design_signals_equivalentes(self):
+        cores = {"primary": "#1F4D3A", "accent": "#C8553D"}
+        antigo = self._run({"palette": cores})
+        dtcg = self._run({"$extensions": {"aura": {"source": "dembrandt"}},
+                          "color": {k: {"$value": v, "$type": "color"} for k, v in cores.items()}})
+        self.assertEqual(antigo, dtcg)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

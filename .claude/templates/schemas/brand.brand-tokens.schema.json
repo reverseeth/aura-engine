@@ -1,0 +1,273 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aura Engine: brand/brand-tokens.json",
+  "description": "Identidade visual da marca em DTCG, fonte de verdade para page-design, social-engine, creative-engine, retention-engine e promo-engine. Criado pelo setup (dembrandt → `tools/page-qa/tokens.py --from-dtcg`) ou pela ETAPA 2 da page-design na forma vazia; preenchido pela page-design só quando vazio. Validado depois de gravar, pelo setup e pela ETAPA 6 da page-design.",
+  "oneOf": [
+    {
+      "title": "vazia",
+      "type": "object",
+      "required": [
+        "$extensions"
+      ],
+      "properties": {
+        "$extensions": {
+          "type": "object",
+          "required": [
+            "aura"
+          ],
+          "properties": {
+            "aura": {
+              "type": "object",
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "none"
+                }
+              }
+            }
+          }
+        },
+        "color": {
+          "not": {}
+        }
+      }
+    },
+    {
+      "title": "completa",
+      "type": "object",
+      "required": [
+        "$extensions",
+        "color",
+        "typography"
+      ],
+      "properties": {
+        "$extensions": {
+          "type": "object",
+          "required": [
+            "aura"
+          ],
+          "properties": {
+            "aura": {
+              "type": "object",
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "enum": [
+                    "dembrandt",
+                    "brand_tokens",
+                    "palette_engine",
+                    "refero",
+                    "manual"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "color": {
+          "type": "object",
+          "required": [
+            "background",
+            "surface",
+            "foreground",
+            "primary",
+            "on_primary",
+            "accent",
+            "muted",
+            "border"
+          ],
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "$value"
+            ],
+            "properties": {
+              "$value": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "$type": {
+                "const": "color"
+              }
+            }
+          },
+          "properties": {
+            "background": {
+              "type": "object",
+              "required": [
+                "$value"
+              ],
+              "properties": {
+                "$value": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "$type": {
+                  "const": "color"
+                }
+              }
+            },
+            "surface": {
+              "type": "object",
+              "required": [
+                "$value"
+              ],
+              "properties": {
+                "$value": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "$type": {
+                  "const": "color"
+                }
+              }
+            },
+            "foreground": {
+              "type": "object",
+              "required": [
+                "$value"
+              ],
+              "properties": {
+                "$value": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "$type": {
+                  "const": "color"
+                }
+              }
+            },
+            "primary": {
+              "type": "object",
+              "required": [
+                "$value"
+              ],
+              "properties": {
+                "$value": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "$type": {
+                  "const": "color"
+                }
+              }
+            },
+            "on_primary": {
+              "type": "object",
+              "required": [
+                "$value"
+              ],
+              "properties": {
+                "$value": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "$type": {
+                  "const": "color"
+                }
+              }
+            },
+            "accent": {
+              "type": "object",
+              "required": [
+                "$value"
+              ],
+              "properties": {
+                "$value": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "$type": {
+                  "const": "color"
+                }
+              }
+            },
+            "muted": {
+              "type": "object",
+              "required": [
+                "$value"
+              ],
+              "properties": {
+                "$value": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "$type": {
+                  "const": "color"
+                }
+              }
+            },
+            "border": {
+              "type": "object",
+              "required": [
+                "$value"
+              ],
+              "properties": {
+                "$value": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "$type": {
+                  "const": "color"
+                }
+              }
+            }
+          }
+        },
+        "typography": {
+          "type": "object",
+          "required": [
+            "heading",
+            "body"
+          ],
+          "properties": {
+            "heading": {
+              "type": "object",
+              "required": [
+                "fontFamily"
+              ],
+              "properties": {
+                "fontFamily": {
+                  "type": "object",
+                  "required": [
+                    "$value"
+                  ],
+                  "properties": {
+                    "$value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            },
+            "body": {
+              "type": "object",
+              "required": [
+                "fontFamily"
+              ],
+              "properties": {
+                "fontFamily": {
+                  "type": "object",
+                  "required": [
+                    "$value"
+                  ],
+                  "properties": {
+                    "$value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

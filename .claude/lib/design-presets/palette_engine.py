@@ -41,7 +41,8 @@ Uso:
   --avatar      linha do avatar central da `market-research` (entra no motivo de cada paleta)
   --skepticism  baixo | médio | alto (default médio); alto pede tom mais sóbrio
   --seed        hex da marca ou da referência do membro, separados por vírgula
-  --signals     `design-signals.json` já gravado; as cores dele entram como semente
+  --signals     `design-signals.json` (página antiga) ou `brand/brand-tokens.json` (DTCG,
+                `color.<papel>.$value`); as cores dele entram como semente
   --lang        pt-BR (default) ou en; muda nome, motivo e rótulos
   --theme       auto (default), light ou dark
   --format      md (default), json ou css (blocos de token em trio R,G,B pra comparadora)
@@ -678,11 +679,15 @@ def main(argv=None):
             print(f"erro: arquivo de signals não encontrado: {path}", file=sys.stderr)
             return 1
         try:
-            palette = json.loads(path.read_text(encoding="utf-8")).get("palette") or {}
+            data = json.loads(path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
             print(f"erro: signals inválido ({exc})", file=sys.stderr)
             return 1
-        seeds.extend(str(v) for v in palette.values())
+        if isinstance(data.get("color"), dict):  # brand-tokens.json (DTCG)
+            seeds.extend(str(v["$value"]) for v in data["color"].values()
+                         if isinstance(v, dict) and "$value" in v)
+        else:
+            seeds.extend(str(v) for v in (data.get("palette") or {}).values())
 
     try:
         result = generate(args.vertical, args.avatar, args.skepticism, seeds, args.lang, args.theme)

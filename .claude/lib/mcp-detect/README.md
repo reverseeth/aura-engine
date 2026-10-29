@@ -18,6 +18,8 @@ A detecção é sempre por **prefixo de tool disponível na sessão**. Se não h
 | **Refero** | `mcp__refero__` | Design system curado (~200 sites premium) pra brand signals da `page-design` | Refero → screenshot→visão → design-clone → manual |
 | **Higgsfield** | `mcp__higgsfield__` | Render in-session: imagem e vídeo dos criativos na `creative-engine` (Marketing Studio, UGC, avatar fixo, virality predictor), as imagens que faltam nos slots da página na `page-design` (1.6.3) e as 9 imagens diárias do Instagram na `social-engine` (templates do Marketing Studio de imagem). 30+ modelos; OAuth via browser, créditos do plano do membro (`balance` e confirmação antes de gastar). Skills oficiais de apoio: `npx skills add higgsfield-ai/skills` | Higgsfield MCP → qualquer outra IA de imagem ou vídeo com os prompts autocontidos salvos → (na `page-design`) placeholder explícito com `acquisition_plan` |
 | **Publicação no Instagram** | sem prefixo no padrão: API oficial do Instagram por `curl` com o token do System User (segredo de rede `graph.facebook.com` na rotina, `META_ACCESS_TOKEN` na máquina). Alternativa: Blotato (`mcp__blotato__` ou `mcp__claude_ai_Blotato__`) ou Metricool (prefixo com `metricool`) | Postagem automática diária da `social-engine`. O Higgsfield MCP não publica no Instagram (só no TikTok) | API oficial do Instagram → Blotato ou Metricool → pacote do dia pronto pra postar em `social-engine/<data>/` |
+| **Awwwards** | `mcp__awwwards__` | Referências premiadas (`search_sites`, `search_elements`) e estudo de movimento (`get_motion_dna`, `analyze_scroll_map`) na `page-design` | Awwwards → Refero → WebSearch |
+| **dembrandt** | `mcp__plugin_dembrandt_dembrandt__` (vem do plugin `dembrandt@dembrandt`) | Só extração de marca: `get_design_tokens` + `export_dtcg` numa URL da própria marca do membro (setup e ETAPA 2 da `page-design`) | dembrandt → `palette_engine.py` → manual |
 | **Foreplay** | `mcp__foreplay__` | Ad spy (200M+ ads; criativos escalados dos concorrentes) nas skills `competitor-analysis`/`creative-engine`/`ad-analysis` | Foreplay → TrendTrack (se houver) → Meta Ad Library público / uploads do membro |
 | **Shopify AI Toolkit** | `mcp__shopify__` | Operações de produto/tema (usado por `deploy-shopify-product.md` e `full-deploy.md`) | Shopify MCP → Playwright → manual |
 | **Klaviyo oficial** | `mcp__klaviyo__` | Criação de flows de retenção (welcome/abandoned-cart/post-purchase) | Klaviyo MCP → HTML+setup-guide |
@@ -61,6 +63,10 @@ Toda skill/receita que produz output a partir de MCP grava qual caminho foi usad
 | `foreplay` | Dado veio do Foreplay MCP (ad spy) |
 | `shopify_mcp` | Shopify AI Toolkit MCP (operações de produto/tema) |
 | `admin_api_client_credentials` | Admin GraphQL direto via token de app do Dev Dashboard (grant `client_credentials`) — caminho SEM MCP, usado quando o Shopify MCP está ausente (ex: `create-fixed-bundles.md` Caminho 2) |
+| `awwwards` | Awwwards MCP (referências e movimento) |
+| `dembrandt` | dembrandt MCP (extração de marca) |
+| `brand_tokens` | Lido de `brand/brand-tokens.json` |
+| `palette_engine` | `.claude/lib/design-presets/palette_engine.py` (página comparadora) |
 | `refero` | Refero MCP |
 | `screenshot_vision` | Print lido por visão nativa (fallback de signals da `page-design`) |
 | `design_clone` | `tools/design-clone/` Playwright (caminho de extração de hex exato) |
@@ -81,6 +87,8 @@ Onde gravar:
 |---|---|
 | TrendTrack | `.claude/lib/trendtrack-integration/README.md` |
 | Refero | `.claude/lib/refero-integration/README.md` |
+| Awwwards | skill `page-design` (`reference/board-de-referencias.md`) + `docs/designs/page-design-2.md` |
+| dembrandt | skill `setup` (`reference/onboarding-e-extracao.md`) e `page-design` (`reference/brand-signals.md`) |
 | Higgsfield | skills `creative-engine` (imagem e vídeo dos criativos), `page-design` (imagem da página, `reference/imagens-higgsfield.md`) e `social-engine` (Instagram diário) — as três confirmam antes de gastar crédito + setup em `.claude/automations/setup-mcps.md` (3.7) |
 | Publicação no Instagram | skill `social-engine` + setup em `.claude/automations/setup-mcps.md` (3.10) |
 | Foreplay | skills `competitor-analysis` / `creative-engine` / `ad-analysis` + setup em `.claude/automations/setup-mcps.md` (3.8) |
