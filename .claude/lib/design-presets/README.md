@@ -1,6 +1,6 @@
 # Design Presets (paleta e tipografia da página)
 
-A lib dos tokens de design da skill **page-design** (ETAPA 2): a cor que sai do Caminho 4 dos brand signals (o que roda quando não há Refero, nem print, nem URL de referência) e a tipografia que abre a etapa. Três arquivos:
+A lib dos tokens de design da skill **page-design** (ETAPA 2): a cor que sai do caminho 3 da marca (o gerador de paletas, quando o `brand-tokens.json` está vazio e não há URL da própria marca para o dembrandt), o contraste que todo o resto da Aura usa (`contrast_ratio`) e o inventário de fontes locais. Três arquivos:
 
 | Arquivo | O que é |
 |---|---|
@@ -26,7 +26,7 @@ python3 .claude/lib/design-presets/palette_engine.py --vertical other --format c
 | `--avatar` | A linha do avatar central da `market-research`. Entra no motivo de cada paleta e no hash que define a rodada. |
 | `--skepticism` | `baixo`, `médio` (default) ou `alto`, o ceticismo da `market-research`. Ceticismo alto puxa a saturação pra baixo e o tom pra sóbrio. |
 | `--seed` | Hex da marca ou da referência do membro. O mais saturado vira o matiz da primeira candidata (um neutro quase sem cor é ignorado); as outras duas se afastam dele. |
-| `--signals` | Um `design-signals.json` já gravado: as cores dele entram como semente. |
+| `--signals` | Um `brand/brand-tokens.json` (DTCG, `color.*.$value`) ou um `design-signals.json` antigo: as cores dele entram como semente. |
 | `--lang` | `pt-BR` (default) ou `en`. Muda nome, motivo e rótulos, seguindo o `report_language` do membro. |
 | `--theme` | `auto` (default, o tema do preset base), `light` ou `dark`. |
 | `--format` | `md` (default, pro membro), `json` (pra gravar) ou `css` (os blocos de token em trio R,G,B da página comparadora). |
@@ -58,7 +58,7 @@ Testes automatizados em `tools/tests/test_palette_engine.py` (`python3 -m unitte
 | `apothecary-calm` | Apothecary Calm | Botânico-clínico: verde de farmácia antiga + dourado de herbário |
 | `luxe-magazine` | Luxe Magazine | Editorial de moda/luxo: preto, branco, dourado, serif de alta-costura |
 
-Shape de cada entrada (superset do `design-signals.json` que a `page-design` grava):
+Shape de cada entrada (os mesmos papéis do `design-tokens.json` e do `brand-tokens.json`):
 
 ```json
 {
@@ -75,13 +75,13 @@ Shape de cada entrada (superset do `design-signals.json` que a `page-design` gra
 }
 ```
 
-- **`palette` é role-tagged** — mesmas roles do `design-signals.json`/`design-tokens.json` (a `page-build` mapeia direto pra CSS vars + settings). `on_primary` é a cor do texto sobre o `primary` (botões).
+- **`palette` é role-tagged** — mesmas roles do `design-tokens.json`/`brand-tokens.json` (a `page-build` mapeia direto pra CSS vars + settings). `on_primary` é a cor do texto sobre o `primary` (botões).
 - **`google_fonts`** lista família + pesos usados — é o que a **`page-build` (passo de web fonts)** usa pra montar o `<link>` do Google Fonts (só os pesos listados; cada peso extra é KB no LCP).
-- Todas as fontes **dos presets** são Google Fonts de propósito: o provisionamento na `page-build` é padronizado e sem arquivo nenhum pra gerenciar. Família de arquivo local existe só quando o membro escolhe uma na sub-etapa 2.1, e aí quem cuida dela é o `local_fonts.py`.
+- Todas as fontes **dos presets** são Google Fonts de propósito: o provisionamento na `page-build` é padronizado e sem arquivo nenhum pra gerenciar. Família de arquivo local existe só quando a marca ou a direção pede uma, e aí quem cuida dela é o `local_fonts.py`.
 
 ## As duas famílias sugeridas (`suggested_typefaces`)
 
-A `page-design` abre a ETAPA 2 mostrando duas famílias e só duas, lidas deste bloco. O membro pode recusar as duas; aí a tipografia vem da cascade de cor, como antes.
+Duas famílias de reserva, para quando nem a marca (`brand-tokens.json`) nem a direção da ETAPA 3 trazem tipografia. A `page-design` não abre mais com elas: a tipografia vem primeiro da marca e depois da direção (`.claude/skills/page-design/reference/tipografia.md`).
 
 | Key | Família | Como carrega | O que o membro faz |
 |---|---|---|---|
@@ -121,10 +121,11 @@ Quando o mesmo peso existe em mais de um formato, a ordem de preferência é `.w
 
 ## Como a `page-design` consome
 
-1. Sub-etapa 2.1: a skill lê `suggested_typefaces` e mostra as duas famílias; se o membro escolhe a de arquivo local, roda o `local_fonts.py scan` e depois o `css --mode inline`.
-2. Caminho 4 da 2.2: a skill roda o gerador de paletas com a vertical, o avatar e o ceticismo lidos das fases anteriores.
-3. Sub-etapa 2.3: monta a comparadora com as candidatas aplicadas às seções reais do produto (os blocos de cor saem do `--format css`, um seletor por eixo) e mostra nome e motivo ao lado de cada opção.
-4. Com a escolha do membro, grava no `design-signals.json`: `source: "manual"`, `source_detail: "paleta gerada [Nome] · harmonia [harmony] · base [base_preset]"`, a `palette` inteira e os campos de `non_color_tokens` **literais**. O preset base fica no `source_detail` porque é por ele que a `page-build` encontra os pesos de fonte em `presets.json`.
+1. ETAPA 2, caminho 3 (`brand-tokens.json` vazio, sem URL da própria marca): a skill roda o gerador de paletas com a vertical, o avatar e o ceticismo lidos das fases anteriores.
+2. A comparadora mostra as candidatas aplicadas às seções reais do produto (os blocos de cor saem do `--format css`, um seletor por eixo), com nome e motivo ao lado de cada opção.
+3. Com a escolha do membro, a skill registra em `page-plan.json.brand_discovery` o `source: "palette_engine"`, o `preset_base` e os campos de `non_color_tokens` **literais**. Na ETAPA 6, o `tools/page-qa/tokens.py --preset-base <id>` grava o preset em `design-tokens.json.preset_base`, que é por onde a `page-build` encontra os pesos de fonte em `presets.json`.
+4. Família de arquivo local, em qualquer caminho: `local_fonts.py scan`, `copy` e `css --mode relative` (`.claude/skills/page-design/reference/tipografia.md`).
+5. Página antiga (sem `schema_version`): o preset continua no `source_detail` do `design-signals.json`, e a `page-build` lê de lá.
 
 ## Regras
 

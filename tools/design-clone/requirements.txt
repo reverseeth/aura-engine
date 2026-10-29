@@ -6,4 +6,3 @@ beautifulsoup4>=4.12.0
 # fetcher degradaria silenciosamente.
 lxml>=5.0.0
 requests>=2.32.0
-chardet>=5.2.0

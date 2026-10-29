@@ -32,6 +32,7 @@ Arquivos de **infra/fundação** ficam na raiz do produto (não são fase): `man
 ```
 manifest.json                          ← infra (inalterado)
 brand.md  ·  brand/logo.svg            ← infra (inalterado)
+brand/brand-tokens.json                ← a marca em DTCG (setup pelo dembrandt, ou page-design quando vazia); lida por page-design, social, creative, retention, promo, consistency e checkout
 creative-dna/                          ← infra compartilhada (`creative-engine` escreve features-*, 11 escreve perf-*/dna-profile)
 ABRIR-AQUI.html                        ← painel, gerado por build_index.py
 
@@ -60,9 +61,14 @@ page/                                ← storefront (`page-design` design + `pag
   design/page.html                      (a página aprovada, a fonte única de verdade visual)
   design/assets/                        (as imagens reais da página, com nome por uso e metadados limpos)
   design/assets/fonts/                  (cópia dos arquivos da fonte local usados na página, quando há)
-  design/brief-codex.md                 (segunda opinião, sub-etapa 3.8: o briefing que o membro cola no Codex)
+  design/brief-codex.md                 (segunda opinião, ETAPA 5: o briefing que o membro cola no Codex)
   design/page-codex.html                (segunda opinião: a versão que voltou de lá, quando o membro roda)
-  design-tokens.json   design-signals.json   (na raiz do page/, NÃO em design/)
+  direction.md   direction-sheet.md   (a direção de arte escolhida na ETAPA 3; a folha do taste-skill quando houve)
+  references/<n>/desktop-full.png      (imagem das 3 referências marcadas, para o revisor)
+  reference-capture/                    (só no modo referência: captura em faixas, geodiff.json, legal.json)
+  qa-metrics.json   qa-shots/   review.md   (QA medido, capturas e fatias, revisão sem contexto)
+  design-tokens.json                    (na raiz do page/, NÃO em design/; gerado pelo tools/page-qa/tokens.py)
+  design-signals.json                   (só página antiga, sem schema_version)
   iterations-log.json
   page-report.md   page-report.html     (relatório humano da página — escrito pela `page-build` PÓS-deploy)
   deploy-report.json

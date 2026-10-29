@@ -2,8 +2,8 @@
 """
 _css_utils.py — Shared CSS rewrite utilities for design-clone pipeline.
 
-Consolida o `rewrite_css_for_namespace` que antes estava duplicado em
-`liquid-converter.py` e `preview.py`. Inclui proteção contra recursão infinita
+O `rewrite_css_for_namespace` do `liquid-converter.py` e o regex de cores literais
+(`CSS_COLOR_LITERAL_RE`) que o `tokens.py` usa. Inclui proteção contra recursão infinita
 e tratamento correto de at-rules (@media, @supports, @keyframes).
 """
 
