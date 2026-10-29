@@ -12,8 +12,11 @@ da própria página). Para cada par do mapa, por largura (1440 e 390):
 O deslocamento é a distância média entre os centros das caixas do mesmo tipo (texto,
 mídia, CTA), em fração da largura da viewport. A nota da seção é a menor das larguras.
 
+Com --copy-fit (saída do copy_fit.py), a seção cuja copy não cabe na faixa tem a altura
+livre: o termo de altura sai da nota, e colunas e posição dos blocos continuam valendo.
+
 USO:
-    geodiff.py --ref DIR [--ref DIR ...] --page DIR --map REF:BANDA:SECAO,... --out geodiff.json
+    geodiff.py --ref DIR [--ref DIR ...] --page DIR --map REF:BANDA:SECAO,... [--copy-fit copy-fit.json] --out geodiff.json
 
 Exit: 0 todas as seções com nota ≥ 70 · 1 alguma abaixo de 70 · 2 entrada inválida.
 """
@@ -44,8 +47,9 @@ def displacement(ref_boxes, page_boxes):
     return sum(dists) / len(dists) if dists else 0.0
 
 
-def score(ref, page):
-    dh = min(1.0, abs(page["height"] - ref["height"]) / ref["height"]) if ref["height"] else 1.0
+def score(ref, page, free_height=False):
+    dh = 0.0 if free_height else (
+        min(1.0, abs(page["height"] - ref["height"]) / ref["height"]) if ref["height"] else 1.0)
     cols = 1 if page["columns"] != ref["columns"] else 0
     disp = min(1.0, displacement(ref["boxes"], page["boxes"]) / 0.25)
     diffs = sorted([("altura", 40 * dh), ("colunas", 30 * cols), ("posição dos blocos", 30 * disp)],
@@ -61,17 +65,19 @@ def parse_map(text):
     return out
 
 
-def run(refs, page_dir, mapping):
+def run(refs, page_dir, mapping, copy_fit=None):
+    long_copy = {s["aura_section"]: s["ratio"] for s in (copy_fit or {}).get("sections", []) if not s["fits"]}
     sections = []
     for ref_idx, band_idx, section in mapping:
-        by_width, diffs = {}, []
+        by_width = {}
+        diffs = [f"altura livre (copy {long_copy[section]}×)"] if section in long_copy else []
         for w in WIDTHS:
             ref = next(b for b in load_bands(refs[ref_idx], w) if b["index"] == band_idx)
             page = next((b for b in load_bands(page_dir, w) if b.get("aura_section") == section), None)
             if page is None:
                 by_width[w], d = 0, ["seção ausente na página"]
             else:
-                by_width[w], d = score(ref, page)
+                by_width[w], d = score(ref, page, section in long_copy)
             diffs += [x for x in d if x not in diffs]
         sections.append({"aura_section": section, "ref": ref_idx, "band": band_idx,
                          "score": min(by_width.values()), "by_width": by_width, "top_diffs": diffs[:5]})
@@ -84,10 +90,12 @@ def main(argv=None):
     ap.add_argument("--ref", action="append", required=True)
     ap.add_argument("--page", required=True)
     ap.add_argument("--map", required=True)
+    ap.add_argument("--copy-fit")
     ap.add_argument("--out", required=True)
     args = ap.parse_args(argv)
     try:
-        result = run(args.ref, args.page, parse_map(args.map))
+        fit = json.loads(Path(args.copy_fit).read_text()) if args.copy_fit else None
+        result = run(args.ref, args.page, parse_map(args.map), fit)
     except (OSError, ValueError, KeyError, IndexError, StopIteration) as exc:
         print(f"ERRO: entrada inválida — {exc!r}", file=sys.stderr)
         return 2

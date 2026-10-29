@@ -27,7 +27,7 @@ Mostre o board e peça as 3 que ele mais quer seguir. Para cada marcada, tire a 
 python3 .claude/lib/theme-verify/verify_page.py "<url>" --desktop-only --shots-dir workspace/<slug>/page/references/<n>/
 ```
 
-O perfil loja checa marcadores da Aura e falha numa página de terceiro; ignore o exit code e **olhe a imagem**: site com loader em JavaScript sai como uma tela de "Loading...". Nesse caso, ou quando o site bloqueia (Cloudflare, 403), baixe o "Full-size screenshot" que o `get_site_details` do Awwwards devolve para o mesmo caminho; sem ele, tente a próxima do board ou peça um print ao membro.
+O script remove popup, modal e banner de cookies antes de fotografar. O perfil loja checa marcadores da Aura e falha numa página de terceiro; ignore o exit code e **olhe a imagem**: site com loader em JavaScript sai como uma tela de "Loading...". Nesse caso, ou quando o site bloqueia (Cloudflare, 403), baixe o "Full-size screenshot" que o `get_site_details` do Awwwards devolve para o mesmo caminho; sem ele, tente a próxima do board ou peça um print ao membro.
 
 ## 4. Três direções e a escolha
 

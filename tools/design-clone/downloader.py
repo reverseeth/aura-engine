@@ -945,6 +945,9 @@ BANDS_JS = r"""() => {
 }"""
 
 
+DISMISS_OVERLAYS_JS = (_repo_root() / ".claude" / "lib" / "theme-verify" / "dismiss_overlays.js").read_text()
+
+
 async def run_bands(url: str, output_dir: Path, widths: list[int]) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     async with async_playwright() as p:
@@ -960,6 +963,10 @@ async def run_bands(url: str, output_dir: Path, widths: list[int]) -> int:
                 print(f"[downloader] HTTP {response.status} em {url}", file=sys.stderr)
                 return 3
             await auto_scroll(page)
+            if not url.startswith("file://"):
+                removed = await page.evaluate(DISMISS_OVERLAYS_JS)
+                if removed:
+                    print(f"[downloader] {width}px: {removed} popup(s)/banner(s) removidos antes de medir")
             bands = await page.evaluate(BANDS_JS)
             styles = await collect_computed_styles(page)
             await browser.close()

@@ -44,3 +44,5 @@ Aprofunde até ter domínio de conversão + estrutura de página. Awareness e so
 ### 0.3 Ler inputs obrigatórios
 
 Leia, sob `workspace/[produto]/`: `copy-engine/copy-engine.md` + `copy-engine/dados.json` (OBRIGATÓRIO), `offer-builder/offer-builder.md`/`dados.json` (preço, stack, garantia, **mecanismo nomeado LITERAL**), `market-research/market-research.md`/`dados.json` (awareness, sophistication, ceticismo, VOC), `competitor-analysis/competitor-analysis.md` (gaps, claims saturados a evitar). Leia `workspace/profile.md` (estilo de marca, stage).
+
+**Marcadores de copy por preencher.** Procure na copy os marcadores em maiúsculas entre colchetes (`[X]`, `[X.X]`, `[AUTHOR NAME]`, `[END DATE]`; "[ CHECK AVAILABILITY ]", com espaço, é estilo de botão e não conta). Achou: liste ao membro, em uma linha cada, e peça os valores. Sem eles a página segue com o marcador no lugar, mas o QA (`copy_placeholders`, bloqueante e nunca liberável) segura a aprovação e a `page-build` até cada um virar um dado real. Nunca invente o número, o nome ou a data.

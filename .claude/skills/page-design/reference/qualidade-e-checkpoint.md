@@ -17,7 +17,7 @@ python3 .claude/lib/theme-verify/verify_page.py "file://$PWD/workspace/[produto]
 
 `--legal` e `--geodiff` só no modo referência. O script mede em 390, 768 e 1440 com movimento reduzido (a entrada no scroll deixaria fora da tela tudo invisível na captura), grava a captura inteira e as fatias `desktop-NN.png` e `mobile-NN.png` que o revisor lê, regrava o `qa-metrics.json` do zero e sai com 1 quando há item bloqueante em `fail`. Os itens, os limites e o que cada um mede estão em `.claude/lib/theme-verify/README.md` e em `reference/regua-de-design.md` (cada item da régua diz se é medido, com o id, ou julgado).
 
-- **Bloqueantes:** `script_tags`, `section_markers`, `section_ids_match_plan`, `horizontal_overflow`, `section_height_zero`, `broken_images`, `html_css_kb` e, no modo referência, `legal_check`.
+- **Bloqueantes:** `script_tags`, `section_markers`, `section_ids_match_plan`, `horizontal_overflow`, `section_height_zero`, `broken_images`, `html_css_kb`, `copy_placeholders` (marcador de copy por preencher, como `[X]`) e, no modo referência, `legal_check`.
 - **Avisos:** o resto (contraste, tamanhos de fonte, gradientes, largura de linha, headline em 390, margens, faixas vazias, peso total, erros de console, geodiff). Aviso não trava, mas entra na rodada seguinte quando o revisor também aponta.
 
 Sem o Playwright no venv (exit 3), avise em uma linha, siga com o revisor sobre capturas que você tirar como der, e registre no `page-plan.json` que a página não tem QA medido: a `page-build` vai bloquear até o membro rodar o setup do Playwright.
@@ -45,7 +45,7 @@ Página parecendo parede de texto (mobile principalmente): não corte copy por c
 Depois do teto, item bloqueante em `fail` vai para o membro, em uma linha por item: o que está errado, o que foi tentado, o que depende dele.
 
 - **Liberáveis:** `horizontal_overflow`, `broken_images` e `html_css_kb`. O membro decide; se liberar, registre em `page-plan.json.qa_overrides` um `{ "item": "<id>", "motivo": "<palavras do membro>", "data": "<YYYY-MM-DD>" }`. É o pré-flight da `page-build` (`tools/page-qa/qa_gate.py`) que combina a medição com a liberação.
-- **Nunca liberáveis:** `script_tags`, `section_markers`, `section_ids_match_plan`, `section_height_zero` e `legal_check`. Sem eles a `page-build` não compila, a seção renderiza vazia ou a página expõe material de terceiro. Corrija ou volte à ETAPA 4.
+- **Nunca liberáveis:** `script_tags`, `section_markers`, `section_ids_match_plan`, `section_height_zero`, `copy_placeholders` e `legal_check`. Sem eles a `page-build` não compila, a seção renderiza vazia, a página vai ao ar com `[X]` no lugar de um dado ou expõe material de terceiro. Corrija ou volte à ETAPA 4.
 
 ### 5.5 O que o revisor não vê (conversão)
 

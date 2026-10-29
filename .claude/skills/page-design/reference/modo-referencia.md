@@ -16,10 +16,18 @@ Uma captura por URL, numerada a partir de 0 na ordem em que o membro passou:
 python3 tools/design-clone/downloader.py "<url>" workspace/[produto]/page/reference-capture/<n>/ --mode bands
 ```
 
-O downloader checa o `robots.txt` antes e grava, por largura (1440 e 390), `bands.json`, `section-NN.json`, `texts.json` e `assets.json`.
+O downloader checa o `robots.txt` antes, tira de cena popup, modal e banner de cookies (remove do DOM, nunca clica em aceitar) e grava, por largura (1440 e 390), `bands.json`, `section-NN.json`, `texts.json` e `assets.json`.
 
 - **Exit 2** (robots proíbe), **3** (HTTP de erro) ou **5** (Cloudflare ou desafio): a captura não roda. Diga o motivo em uma linha e ofereça o modo direção, ou outra URL.
 - Leia o `bands.json` de 1440 e a imagem da referência marcada, se houver, e ligue cada seção do `sections_plan` a uma faixa: `<n da captura>:<index da faixa>:<id da seção>`. Faixas que o plano não pede são descartadas; a ordem e os ids são sempre os do plano. Mostre o mapa ao membro em uma tabela curta antes de construir.
+
+**A copy cabe na faixa?** Antes de mostrar o mapa, grave em `page/reference-capture/copy.json` a copy que cada seção vai levar (`{"<id>": ["texto", ...]}`, literal da `copy-engine`) e meça:
+
+```bash
+python3 tools/page-qa/copy_fit.py --ref workspace/[produto]/page/reference-capture/0 [--ref .../1 ...] --map "<mapa>" --copy workspace/[produto]/page/reference-capture/copy.json --out workspace/[produto]/page/reference-capture/copy-fit.json
+```
+
+Seção com copy mais de 1,5× maior que a faixa (exit 1) vai sair mais alta que a referência. Ponha a razão na tabela do mapa e dê ao membro, por seção, as três saídas: outra faixa mais longa (desta ou de outra URL), a dieta de copy da `copy-engine` (sweep 4.5, com aprovação dele) ou aceitar a seção mais alta. Copy nunca se corta por conta própria. Aceita, a seção segue as colunas e a posição dos blocos da faixa com a altura livre.
 
 Grave o mapa em `page-plan.json` → `reference_capture_ref: "reference-capture/"` e o texto do `--map` em `design_route_ref`.
 
@@ -31,9 +39,9 @@ Para cada seção, na ordem do `section_order`:
 2. **Medir**:
    ```bash
    python3 tools/design-clone/downloader.py "file://$PWD/workspace/[produto]/page/design/page.html" workspace/[produto]/page/reference-capture/page/ --mode bands
-   python3 tools/page-qa/geodiff.py --ref workspace/[produto]/page/reference-capture/0 [--ref .../1 ...] --page workspace/[produto]/page/reference-capture/page --map "<mapa só com as seções já construídas>" --out workspace/[produto]/page/reference-capture/geodiff.json
+   python3 tools/page-qa/geodiff.py --ref workspace/[produto]/page/reference-capture/0 [--ref .../1 ...] --page workspace/[produto]/page/reference-capture/page --map "<mapa só com as seções já construídas>" --copy-fit workspace/[produto]/page/reference-capture/copy-fit.json --out workspace/[produto]/page/reference-capture/geodiff.json
    ```
-   O `top_diffs` de cada seção diz o que corrigir (altura, colunas, deslocamento dos blocos).
+   O `top_diffs` de cada seção diz o que corrigir (altura, colunas, deslocamento dos blocos). Com o `--copy-fit`, a seção cuja copy não cabe não perde nota por altura e traz "altura livre (copy N×)".
 3. **Até 2 rodadas** por seção. Nota abaixo de 70 depois da segunda: a seção segue, e a nota entra como `warn` no QA (`verify_page.py --geodiff`), para o revisor julgar.
 4. **Travar** a seção: as próximas rodadas não mexem nela, a não ser pela unificação do passo 3.
 
@@ -59,4 +67,4 @@ Exit 1: cada achado traz a regra (texto, asset, fonte, marca), o trecho e onde e
 
 ## Onde fica
 
-`page/reference-capture/` (capturas, `geodiff.json`, `legal.json`), local como todo o `workspace/` e nunca commitado. `page-plan.json`: `build_mode: "reference"`, `design_route: "reference"`, `design_route_ref` com o mapa, `reference_capture_ref`.
+`page/reference-capture/` (capturas, `copy.json`, `copy-fit.json`, `geodiff.json`, `legal.json`), local como todo o `workspace/` e nunca commitado. `page-plan.json`: `build_mode: "reference"`, `design_route: "reference"`, `design_route_ref` com o mapa, `reference_capture_ref`.
