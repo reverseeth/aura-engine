@@ -28,13 +28,15 @@ Monte `${STAGING_DIR}/batch-manifest.json`:
 {
   "product_slug": "[slug]",
   "page_handle": "[slug]",
+  "design_tokens": "workspace/[slug]/page/design-tokens.json",
+  "theme_dir": "workspace/[slug]/page/theme-clone",
   "sections": [
     { "type": "hero", "html": "workspace/[slug]/page/staging/html/hero.html", "css": "workspace/[slug]/page/staging/html/page.css", "namespace": "page-[slug]-hero", "output": "workspace/[slug]/page/staging/sections/page-[slug]-hero.liquid" }
   ]
 }
 ```
 
-(1 entry por section do `section_order`; `html`/`css` aceitam path ou conteúdo inline.) Rode:
+(1 entry por section do `section_order`; `html`/`css` aceitam path ou conteúdo inline. `design_tokens` liga os papéis de cor e só vai em página v2; `theme_dir` aponta o tema já baixado numa build anterior (o `THEME_DIR`) e só vai se ele existir, para seção que já está no tema manter os `color_N`. Os dois são opcionais.) Rode:
 
 ```bash
 python3 ${TOOLS_DIR}/liquid-converter.py \
@@ -61,7 +63,7 @@ python3 ${TOOLS_DIR}/liquid-converter.py \
 - `<id>` = o id da section (`hero`, `benefits`, `mechanism`, `offer`...) de `sections_plan`.
 - O merge single-section do `--emit-template-json` PRESERVA a posição da section no `order[]` (re-compilar o hero não o manda pro fim).
 - **NÃO use `--blocks-dir`** (deprecado e ignorado — blocks são inline no schema; nenhum `blocks/*.liquid` é gerado).
-- O Modo B legacy (`--sections-json`, markup de página de concorrente) é **BLOQUEADO por default** — exige `--allow-competitor-markup` e só se usa em página PRÓPRIA. O fluxo desta skill é sempre Modo C/batch sobre o HTML aprovado da `page-design`.
+- O conversor só aceita o HTML aprovado da `page-design` (Modo C ou batch); não existe modo que converta markup de outra página.
 
 ### Depois do compile — rename semântico (Claude, editando .liquid + template JSON JUNTOS)
 
