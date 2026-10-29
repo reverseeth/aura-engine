@@ -364,7 +364,8 @@ def design_items(raw, url, plan_ids, legal, geodiff, build_mode):
         items.append(_item("geodiff", None, 70, True, False, detail="sem --geodiff", status="skip"))
     else:
         s = geodiff.get("min_score", 0)
-        items.append(_item("geodiff", s, 70, s >= 70, False))
+        low = [f"{x['aura_section']} {x['score']}" for x in geodiff.get("sections", []) if x["score"] < 70]
+        items.append(_item("geodiff", s, 70, s >= 70, False, detail=", ".join(low)))
     items.append(_item("console_errors", len(d["console"]), 0, not d["console"], False, 1440))
     return items
 

@@ -919,15 +919,19 @@ BANDS_JS = r"""() => {
     const r = el.getBoundingClientRect(), top = r.top + scrollY;
     let columns = 1;
     for (const e of [el, ...el.querySelectorAll('*')]) {
-      const kids = [...e.children].filter(vis); if (kids.length < 2) continue;
+      // coluna é bloco de layout: ícone, estrela e selo (menos de 12% da tela) não contam
+      const kids = [...e.children].filter(k => vis(k) && k.getBoundingClientRect().width >= 0.12 * vw);
+      if (kids.length < 2) continue;
       const t0 = kids[0].getBoundingClientRect().top;
       const row = kids.filter(k => Math.abs(k.getBoundingClientRect().top - t0) < 4).length;
-      if (row > columns && row === kids.length) columns = row; }
+      const inView = kids.filter(k => k.getBoundingClientRect().left < vw).length;
+      if (row > columns && row === kids.length) columns = Math.min(row, inView); }
     const boxes = [...el.querySelectorAll('*')].filter(vis).map(e => {
       const kind = /^(IMG|VIDEO|PICTURE|SVG)$/.test(e.tagName) ? 'media'
         : (e.tagName === 'BUTTON' || (e.tagName === 'A' && /btn|button|cta/i.test(e.className))) ? 'cta'
         : (/^H[1-6]$/.test(e.tagName) || (e.tagName === 'P' && ownText(e))) ? 'text' : null;
       if (!kind) return null; const b = e.getBoundingClientRect();
+      if (b.left >= vw || b.right <= 0) return null;  // item de carrossel fora da tela
       return {kind, cx: (b.left + b.width / 2) / vw, cy: (b.top + scrollY - top + b.height / 2) / vw,
               w: b.width / vw, h: b.height / vw}; }).filter(Boolean);
     const texts = [...el.querySelectorAll('*')].filter(e => vis(e) && ownText(e))
